@@ -38,8 +38,10 @@ import { toCourseCardModel } from '@/models/courseCatalog';
 import type { CourseCardActions } from '@/types/enhanced-course-card';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { AssignmentCreateDialog } from '@/components/assignments/AssignmentCreateDialog';
+import { BulkAssignmentDialog } from '@/components/assignments/BulkAssignmentDialog';
 import { convertEnhancedCourseToCard } from '@/utils/courseConversion';
 import { cn } from '@/lib/utils';
+import type { CourseCard } from '@/types/course-card';
 
 type ViewType = 'grid' | 'list' | 'compact';
 
@@ -48,6 +50,9 @@ export default function OrgCoursesCatalog() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showCreateWizard, setShowCreateWizard] = useState(false);
   const [showImportDialog, setShowImportDialog] = useState(false);
+  const [bulkMode, setBulkMode] = useState(false);
+  const [selectedCourseIds, setSelectedCourseIds] = useState<string[]>([]);
+  const [showBulkAssignDialog, setShowBulkAssignDialog] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isMobile = useIsMobile();
   const [viewType, setViewType] = useState<ViewType>(() => {
@@ -278,6 +283,62 @@ export default function OrgCoursesCatalog() {
     localStorage.setItem('courses-view-type', type);
   };
 
+  const toggleCourseSelection = (courseId: string) => {
+    setSelectedCourseIds(prev =>
+      prev.includes(courseId)
+        ? prev.filter(id => id !== courseId)
+        : [...prev, courseId]
+    );
+  };
+
+  const handleBulkAssign = () => {
+    if (selectedCourseIds.length === 0) return;
+    setShowBulkAssignDialog(true);
+  };
+
+  const exitBulkMode = () => {
+    setBulkMode(false);
+    setSelectedCourseIds([]);
+  };
+
+  const selectedCourses: CourseCard[] = selectedCourseIds
+    .map(id => {
+      const platformCourse = platformCourses.find(c => c.id === id);
+      if (platformCourse) return convertEnhancedCourseToCard({
+        id: platformCourse.id,
+        title: platformCourse.title,
+        orgId: orgId,
+        thumbnailUrl: null,
+        durationMinutes: null,
+        difficulty: 'intermediate',
+        origin: 'platform',
+        sourceType: 'manual',
+        framework: 'framework1',
+        status: 'published',
+        route: platformCourse.route || '',
+        tags: []
+      });
+      
+      const orgCourse = orgCourses.find(c => c.id === id);
+      if (orgCourse) return convertEnhancedCourseToCard({
+        id: orgCourse.id,
+        title: orgCourse.title,
+        orgId: orgId,
+        thumbnailUrl: null,
+        durationMinutes: null,
+        difficulty: 'intermediate',
+        origin: 'organization',
+        sourceType: 'manual',
+        framework: 'framework1',
+        status: 'published',
+        route: orgCourse.route || '',
+        tags: []
+      });
+      
+      return null;
+    })
+    .filter((c): c is CourseCard => c !== null);
+
   // Filter courses based on search
   const filteredPlatformCourses = platformCourses.filter(course =>
     course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -413,25 +474,55 @@ export default function OrgCoursesCatalog() {
                 {/* Action buttons for instructors/owners */}
                 {!isOrgStudent() && (
                   <div className="flex flex-col gap-2 md:flex-row md:gap-2">
-                    <CollectionsDropdown orgId={orgId} />
+                    {!bulkMode && <CollectionsDropdown orgId={orgId} />}
                     <div className="flex gap-2">
-                      <Button 
-                        onClick={handleCreateCourse}
-                        className="bg-white/20 text-white border-white/30 hover:bg-white/30 flex-1 md:flex-none"
-                        size={isMobile ? "default" : "default"}
-                      >
-                        <Plus className="w-4 h-4 mr-2" />
-                        {isMobile ? 'New' : 'New Course'}
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        onClick={handleUploadScorm}
-                        className="bg-white/10 text-white border-white/30 hover:bg-white/20 flex-1 md:flex-none"
-                        size={isMobile ? "default" : "default"}
-                      >
-                        <Upload className="w-4 h-4 mr-2" />
-                        Import
-                      </Button>
+                      {bulkMode ? (
+                        <>
+                          <Button 
+                            onClick={handleBulkAssign}
+                            disabled={selectedCourseIds.length === 0}
+                            className="bg-white text-orange-600 hover:bg-white/90 flex-1 md:flex-none"
+                          >
+                            <UserPlus className="w-4 h-4 mr-2" />
+                            Assign {selectedCourseIds.length > 0 && `(${selectedCourseIds.length})`}
+                          </Button>
+                          <Button 
+                            variant="outline"
+                            onClick={exitBulkMode}
+                            className="bg-white/10 text-white border-white/30 hover:bg-white/20"
+                          >
+                            Cancel
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <Button 
+                            onClick={() => setBulkMode(true)}
+                            variant="outline"
+                            className="bg-white/10 text-white border-white/30 hover:bg-white/20 flex-1 md:flex-none"
+                          >
+                            <UserPlus className="w-4 h-4 mr-2" />
+                            Bulk Assign
+                          </Button>
+                          <Button 
+                            onClick={handleCreateCourse}
+                            className="bg-white/20 text-white border-white/30 hover:bg-white/30 flex-1 md:flex-none"
+                            size={isMobile ? "default" : "default"}
+                          >
+                            <Plus className="w-4 h-4 mr-2" />
+                            {isMobile ? 'New' : 'New Course'}
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            onClick={handleUploadScorm}
+                            className="bg-white/10 text-white border-white/30 hover:bg-white/20 flex-1 md:flex-none"
+                            size={isMobile ? "default" : "default"}
+                          >
+                            <Upload className="w-4 h-4 mr-2" />
+                            Import
+                          </Button>
+                        </>
+                      )}
                     </div>
                   </div>
                 )}
@@ -605,6 +696,11 @@ export default function OrgCoursesCatalog() {
                   <Star className="h-5 w-5 text-primary" />
                   <h2 className="text-xl font-semibold">Platform Courses</h2>
                   <Badge variant="secondary">{filteredPlatformCourses.length}</Badge>
+                  {bulkMode && selectedCourseIds.length > 0 && (
+                    <Badge variant="default" className="ml-auto">
+                      {selectedCourseIds.length} selected
+                    </Badge>
+                  )}
                 </div>
                 
                 {filteredPlatformCourses.length === 0 && platformCourses.length > 0 ? (
@@ -624,6 +720,9 @@ export default function OrgCoursesCatalog() {
                         course={toCourseCardModel(course)}
                         actions={createCourseActions(false)}
                         viewType={viewType}
+                        selectionMode={bulkMode}
+                        isSelected={selectedCourseIds.includes(course.id)}
+                        onToggleSelection={() => toggleCourseSelection(course.id)}
                       />
                     ))}
                   </div>
@@ -662,6 +761,9 @@ export default function OrgCoursesCatalog() {
                         course={toCourseCardModel(course)}
                         actions={createCourseActions(true)}
                         viewType={viewType}
+                        selectionMode={bulkMode}
+                        isSelected={selectedCourseIds.includes(course.id)}
+                        onToggleSelection={() => toggleCourseSelection(course.id)}
                       />
                     ))}
                   </div>
@@ -709,6 +811,14 @@ export default function OrgCoursesCatalog() {
             onOpenChange={courseActions.setShowAssignmentModal}
           />
         )}
+
+        {/* Bulk Assignment Dialog */}
+        <BulkAssignmentDialog
+          courses={selectedCourses}
+          open={showBulkAssignDialog}
+          onOpenChange={setShowBulkAssignDialog}
+          onSuccess={exitBulkMode}
+        />
 
         {/* Import Dialog */}
         {showImportDialog && !isOrgStudent() && (

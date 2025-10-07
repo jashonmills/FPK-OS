@@ -40,9 +40,19 @@ interface EnhancedCourseCardProps {
   course: CourseCardModel;
   actions: CourseCardActions;
   viewType?: 'grid' | 'list' | 'compact';
+  selectionMode?: boolean;
+  isSelected?: boolean;
+  onToggleSelection?: () => void;
 }
 
-export function EnhancedCourseCard({ course, actions, viewType = 'grid' }: EnhancedCourseCardProps) {
+export function EnhancedCourseCard({ 
+  course, 
+  actions, 
+  viewType = 'grid',
+  selectionMode = false,
+  isSelected = false,
+  onToggleSelection 
+}: EnhancedCourseCardProps) {
   const { canManageOrg } = useOrgPermissions();
   const [confirm, setConfirm] = useState<ConfirmModalData>({ kind: null, busy: false });
   const isMobile = useIsMobile();
@@ -307,10 +317,11 @@ export function EnhancedCourseCard({ course, actions, viewType = 'grid' }: Enhan
                           </DropdownMenuItem>
                         </>
                       )}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          )}
+        </div>
             </>
           ) : (
             // Desktop: Original horizontal layout
@@ -493,11 +504,12 @@ export function EnhancedCourseCard({ course, actions, viewType = 'grid' }: Enhan
                         </DropdownMenuItem>
                       </>
                     )}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </>
-          )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+            )}
+          </div>
+        </CardContent>
         </div>
 
         <ConfirmModal
@@ -634,9 +646,9 @@ export function EnhancedCourseCard({ course, actions, viewType = 'grid' }: Enhan
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm">
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
                   {canManageOrg() && actions.onAssignToStudents && (
                     <>
@@ -757,9 +769,10 @@ export function EnhancedCourseCard({ course, actions, viewType = 'grid' }: Enhan
                       </DropdownMenuItem>
                     </>
                   )}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          )}
           </div>
         </Card>
 

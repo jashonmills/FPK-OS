@@ -23,6 +23,7 @@ export interface StudentAssignment {
     due_at?: string;
   };
   course?: CourseCard;
+  groupName?: string; // Name of the group if assigned via group
 }
 
 export function useStudentAssignments(orgId?: string) {
@@ -33,7 +34,8 @@ export function useStudentAssignments(orgId?: string) {
     queryFn: async () => {
       if (!user?.id) return [];
 
-      let query = supabase
+      // Get direct assignments and group assignments
+      const directAssignmentsQuery = supabase
         .from('org_assignment_targets')
         .select(`
           assignment_id,
@@ -56,19 +58,66 @@ export function useStudentAssignments(orgId?: string) {
         .eq('target_id', user.id)
         .eq('target_type', 'user');
 
+      const groupAssignmentsQuery = supabase
+        .from('org_assignment_targets')
+        .select(`
+          assignment_id,
+          target_id,
+          target_type,
+          status,
+          assigned_at,
+          started_at,
+          completed_at,
+          due_at,
+          org_assignments!inner (
+            id,
+            title,
+            type,
+            resource_id,
+            org_id,
+            created_at
+          ),
+          org_groups!inner (
+            id,
+            name
+          )
+        `)
+        .eq('target_type', 'group')
+        .in('target_id', 
+          supabase
+            .from('org_group_members')
+            .select('group_id')
+            .eq('user_id', user.id)
+        );
+
+      let query = directAssignmentsQuery;
+
       if (orgId) {
-        query = query.eq('org_assignments.org_id', orgId);
+        directAssignmentsQuery.eq('org_assignments.org_id', orgId);
+        groupAssignmentsQuery.eq('org_assignments.org_id', orgId);
       }
 
-      const { data, error } = await query.order('assigned_at', { ascending: false });
+      const [directResult, groupResult] = await Promise.all([
+        directAssignmentsQuery.order('assigned_at', { ascending: false }),
+        groupAssignmentsQuery.order('assigned_at', { ascending: false })
+      ]);
 
-      if (error) {
-        console.error('Error fetching student assignments:', error);
-        throw error;
+      if (directResult.error) {
+        console.error('Error fetching direct assignments:', directResult.error);
+        throw directResult.error;
       }
 
-      // Transform the data to match our interface - using explicit typing for new columns
-      return (data as any[]).map((item: any) => ({
+      if (groupResult.error) {
+        console.error('Error fetching group assignments:', groupResult.error);
+        throw groupResult.error;
+      }
+
+      const directData = directResult.data || [];
+      const groupData = groupResult.data || [];
+
+      // Transform and combine both direct and group assignments
+      const allAssignments = [
+        ...(directData as any[]).map((item: any) => ({
         id: item.org_assignments.id,
         assignment_id: item.assignment_id,
         title: item.org_assignments.title,
@@ -85,8 +134,37 @@ export function useStudentAssignments(orgId?: string) {
           started_at: item.started_at,
           completed_at: item.completed_at,
           due_at: item.due_at,
-        }
-      })) as StudentAssignment[];
+        },
+        groupName: undefined
+      })),
+        ...(groupData as any[]).map((item: any) => ({
+        id: item.org_assignments.id,
+        assignment_id: item.assignment_id,
+        title: item.org_assignments.title,
+        type: item.org_assignments.type,
+        resource_id: item.org_assignments.resource_id,
+        created_at: item.org_assignments.created_at,
+        org_id: item.org_assignments.org_id,
+        target: {
+          assignment_id: item.assignment_id,
+          target_id: item.target_id,
+          target_type: item.target_type,
+          status: item.status || 'pending',
+          assigned_at: item.assigned_at,
+          started_at: item.started_at,
+          completed_at: item.completed_at,
+          due_at: item.due_at,
+        },
+        groupName: item.org_groups?.name
+      }))
+      ] as StudentAssignment[];
+
+      // Remove duplicates (if user is assigned both directly and via group)
+      const uniqueAssignments = allAssignments.filter((assignment, index, self) =>
+        index === self.findIndex((a) => a.id === assignment.id)
+      );
+
+      return uniqueAssignments;
     },
     enabled: !!user?.id,
     staleTime: 1000 * 60 * 5, // 5 minutes

@@ -1,46 +1,40 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
 import { useOrgMembers } from '@/hooks/useOrgMembers';
 import { useOrgGroups } from '@/hooks/useOrgGroups';
 import { useOrgAssignments } from '@/hooks/useOrgAssignments';
-import { Calendar, Loader2, User, Users, UserPlus } from 'lucide-react';
+import { BookOpen, Users, UserPlus, Loader2, Calendar } from 'lucide-react';
 import { getCourseImage } from '@/utils/courseImages';
 import type { CourseCard } from '@/types/course-card';
+import { Progress } from '@/components/ui/progress';
 
-interface AssignmentCreateDialogProps {
-  course: CourseCard;
-  trigger?: React.ReactNode;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
+interface BulkAssignmentDialogProps {
+  courses: CourseCard[];
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSuccess?: () => void;
 }
 
-export function AssignmentCreateDialog({ course, trigger, open: controlledOpen, onOpenChange }: AssignmentCreateDialogProps) {
-  const [internalOpen, setInternalOpen] = useState(false);
-  const isControlled = controlledOpen !== undefined;
-  const open = isControlled ? controlledOpen : internalOpen;
-
-  const handleOpenChange = (newOpen: boolean) => {
-    if (isControlled) {
-      onOpenChange?.(newOpen);
-    } else {
-      setInternalOpen(newOpen);
-    }
-  };
-
+export function BulkAssignmentDialog({ 
+  courses, 
+  open, 
+  onOpenChange,
+  onSuccess 
+}: BulkAssignmentDialogProps) {
   const [assignmentTitle, setAssignmentTitle] = useState('');
   const [instructions, setInstructions] = useState('');
   const [dueDate, setDueDate] = useState('');
@@ -48,41 +42,14 @@ export function AssignmentCreateDialog({ course, trigger, open: controlledOpen, 
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
   const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<'students' | 'groups' | 'both'>('students');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [progress, setProgress] = useState({ current: 0, total: 0 });
 
   const { members, isLoading: membersLoading } = useOrgMembers();
   const { groups, isLoading: groupsLoading } = useOrgGroups();
-  const { createAssignment, isCreating } = useOrgAssignments();
+  const { createAssignment } = useOrgAssignments();
 
   const students = members.filter(m => m.role === 'student');
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    const targetMembers = activeTab === 'groups' ? [] : selectedMembers;
-    const targetGroups = activeTab === 'students' ? [] : selectedGroups;
-    
-    if (targetMembers.length === 0 && targetGroups.length === 0) return;
-
-    await createAssignment({
-      title: assignmentTitle,
-      instructions,
-      type: 'course',
-      resource_id: course.id,
-      due_at: dueDate ? new Date(dueDate).toISOString() : undefined,
-      required: isRequired,
-      target_members: targetMembers,
-      target_groups: targetGroups,
-    });
-
-    // Reset form
-    setAssignmentTitle('');
-    setInstructions('');
-    setDueDate('');
-    setIsRequired(false);
-    setSelectedMembers([]);
-    setSelectedGroups([]);
-    handleOpenChange(false);
-  };
 
   const toggleMember = (memberId: string) => {
     setSelectedMembers(prev =>
@@ -111,41 +78,108 @@ export function AssignmentCreateDialog({ course, trigger, open: controlledOpen, 
   const clearStudents = () => setSelectedMembers([]);
   const clearGroups = () => setSelectedGroups([]);
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const targetMembers = activeTab === 'groups' ? [] : selectedMembers;
+    const targetGroups = activeTab === 'students' ? [] : selectedGroups;
+
+    if (targetMembers.length === 0 && targetGroups.length === 0) return;
+
+    setIsSubmitting(true);
+    setProgress({ current: 0, total: courses.length });
+
+    try {
+      let successCount = 0;
+
+      for (let i = 0; i < courses.length; i++) {
+        const course = courses[i];
+        try {
+          await createAssignment({
+            title: assignmentTitle || `${course.title} - Assignment`,
+            instructions: instructions || `Complete the course: ${course.title}`,
+            type: 'course',
+            resource_id: course.id,
+            due_at: dueDate ? new Date(dueDate).toISOString() : undefined,
+            required: isRequired,
+            target_members: targetMembers,
+            target_groups: targetGroups,
+          });
+          successCount++;
+        } catch (error) {
+          console.error(`Failed to assign ${course.title}:`, error);
+        }
+        setProgress({ current: i + 1, total: courses.length });
+      }
+
+      // Reset form
+      setAssignmentTitle('');
+      setInstructions('');
+      setDueDate('');
+      setIsRequired(false);
+      setSelectedMembers([]);
+      setSelectedGroups([]);
+      
+      onSuccess?.();
+      onOpenChange(false);
+    } finally {
+      setIsSubmitting(false);
+      setProgress({ current: 0, total: 0 });
+    }
+  };
+
+  const getTotalTargets = () => {
+    if (activeTab === 'students') return selectedMembers.length;
+    if (activeTab === 'groups') return selectedGroups.length;
+    return selectedMembers.length + selectedGroups.length;
+  };
+
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
-      <DialogContent className="max-w-2xl max-h-[90vh]">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-3xl max-h-[90vh]">
         <DialogHeader>
-          <DialogTitle>Create Assignment</DialogTitle>
+          <DialogTitle>Bulk Assign Courses</DialogTitle>
           <DialogDescription>
-            Assign {course.title} to students or groups
+            Assign {courses.length} course{courses.length !== 1 ? 's' : ''} to students or groups
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Course Info */}
-          <div className="flex items-center gap-3 p-4 rounded-lg bg-muted/50">
-            <img
-              src={getCourseImage(course.id)}
-              alt={course.title}
-              className="w-16 h-16 object-cover rounded"
-            />
-            <div>
-              <p className="font-medium">{course.title}</p>
-              <p className="text-sm text-muted-foreground">{course.description}</p>
-            </div>
+          {/* Selected Courses */}
+          <div>
+            <Label className="mb-2 block">Selected Courses ({courses.length})</Label>
+            <ScrollArea className="h-32 border rounded-lg p-3">
+              <div className="space-y-2">
+                {courses.map((course) => (
+                  <div key={course.id} className="flex items-center gap-3 p-2 rounded bg-muted/50">
+                    <img
+                      src={getCourseImage(course.id)}
+                      alt={course.title}
+                      className="w-12 h-12 object-cover rounded"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm truncate">{course.title}</p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {course.description}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
           </div>
+
+          <Separator />
 
           {/* Assignment Details */}
           <div className="space-y-4">
             <div>
-              <Label htmlFor="title">Assignment Title</Label>
+              <Label htmlFor="title">Assignment Title (Optional)</Label>
               <Input
                 id="title"
                 value={assignmentTitle}
                 onChange={(e) => setAssignmentTitle(e.target.value)}
-                placeholder="Enter assignment title"
-                required
+                placeholder="Leave empty to use course titles"
               />
             </div>
 
@@ -155,7 +189,7 @@ export function AssignmentCreateDialog({ course, trigger, open: controlledOpen, 
                 id="instructions"
                 value={instructions}
                 onChange={(e) => setInstructions(e.target.value)}
-                placeholder="Add any specific instructions..."
+                placeholder="Leave empty for default instructions"
               />
             </div>
 
@@ -184,7 +218,9 @@ export function AssignmentCreateDialog({ course, trigger, open: controlledOpen, 
             </div>
           </div>
 
-          {/* Assign to Students or Groups */}
+          <Separator />
+
+          {/* Target Selection */}
           <div>
             <Label className="mb-3 block">Assign to</Label>
             <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
@@ -358,33 +394,43 @@ export function AssignmentCreateDialog({ course, trigger, open: controlledOpen, 
             </Tabs>
           </div>
 
+          {/* Progress Bar */}
+          {isSubmitting && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span>Creating assignments...</span>
+                <span className="text-muted-foreground">
+                  {progress.current} of {progress.total}
+                </span>
+              </div>
+              <Progress value={(progress.current / progress.total) * 100} />
+            </div>
+          )}
+
           {/* Actions */}
           <div className="flex justify-end gap-2">
             <Button
               type="button"
               variant="outline"
-              onClick={() => handleOpenChange(false)}
+              onClick={() => onOpenChange(false)}
+              disabled={isSubmitting}
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              disabled={(selectedMembers.length === 0 && selectedGroups.length === 0) || isCreating}
+              disabled={getTotalTargets() === 0 || isSubmitting}
             >
-              {isCreating ? (
+              {isSubmitting ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Creating...
+                  Assigning...
                 </>
               ) : (
                 <>
-                  Create for{' '}
-                  {activeTab === 'groups' 
-                    ? `${selectedGroups.length} group${selectedGroups.length !== 1 ? 's' : ''}`
-                    : activeTab === 'both'
-                    ? `${selectedMembers.length + selectedGroups.length} target${selectedMembers.length + selectedGroups.length !== 1 ? 's' : ''}`
-                    : `${selectedMembers.length} student${selectedMembers.length !== 1 ? 's' : ''}`
-                  }
+                  Assign to {getTotalTargets()}{' '}
+                  {activeTab === 'groups' ? 'group' : activeTab === 'both' ? 'target' : 'student'}
+                  {getTotalTargets() !== 1 ? 's' : ''}
                 </>
               )}
             </Button>
