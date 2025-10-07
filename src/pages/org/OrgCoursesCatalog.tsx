@@ -118,15 +118,17 @@ export default function OrgCoursesCatalog() {
     if (isOrgStudent()) {
       // Student actions - limited to preview and start/continue
       return {
-        onPreview: (courseId: string) => {
-          const course = [...platformCourses, ...orgCourses].find(c => c.id === courseId);
-          courseActions.preview(courseId, course?.route);
-        },
-        onStart: (courseId: string) => {
-          // For students, "Start Course" navigates to course
-          const course = [...platformCourses, ...orgCourses].find(c => c.id === courseId);
-          courseActions.preview(courseId, course?.route);
-        }
+      onPreview: (courseId: string) => {
+        const course = [...platformCourses, ...orgCourses].find(c => c.id === courseId);
+        const route = course?.source === 'platform' && course.route ? `${course.route}?org=${orgId}` : course?.route;
+        courseActions.preview(courseId, route);
+      },
+      onStart: (courseId: string) => {
+        // For students, "Start Course" navigates to course
+        const course = [...platformCourses, ...orgCourses].find(c => c.id === courseId);
+        const route = course?.source === 'platform' && course.route ? `${course.route}?org=${orgId}` : course?.route;
+        courseActions.preview(courseId, route);
+      }
       };
     }
     
@@ -134,7 +136,8 @@ export default function OrgCoursesCatalog() {
     return {
       onPreview: (courseId: string) => {
         const course = [...platformCourses, ...orgCourses].find(c => c.id === courseId);
-        courseActions.preview(courseId, course?.route);
+        const route = course?.source === 'platform' && course.route ? `${course.route}?org=${orgId}` : course?.route;
+        courseActions.preview(courseId, route);
       },
       
       onStart: courseActions.assign,

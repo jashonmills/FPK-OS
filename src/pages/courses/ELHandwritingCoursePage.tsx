@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useContextAwareNavigation } from '@/hooks/useContextAwareNavigation';
 import { InteractiveCourseWrapper } from '@/components/course/InteractiveCourseWrapper';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -41,6 +42,7 @@ const lessons: CourseLesson[] = [
 
 const ELHandwritingCoursePage: React.FC = () => {
   const navigate = useNavigate();
+  const { goToCourses, goToDashboard } = useContextAwareNavigation();
   const { lessonId } = useParams();
   const [currentLesson, setCurrentLesson] = useState<number | null>(null);
   const [completedLessons, setCompletedLessons] = useState<number[]>([]);
@@ -117,17 +119,17 @@ const ELHandwritingCoursePage: React.FC = () => {
   }, [navigate]);
 
   const handleBackToCourses = useCallback(() => {
-    navigate('/dashboard/learner/courses');
-  }, [navigate]);
+    goToCourses();
+  }, [goToCourses]);
 
   const handleBackToCourseOverview = useCallback(() => {
     setCurrentLesson(null);
     navigate('/courses/el-handwriting');
   }, [navigate]);
 
-  const handleDashboard = () => {
-    navigate('/dashboard/learner');
-  };
+  const handleDashboard = useCallback(() => {
+    goToDashboard();
+  }, [goToDashboard]);
 
   const isLessonAccessible = useCallback((lessonId: number) => {
     return lessonId === 1 || completedLessons.includes(lessonId - 1);

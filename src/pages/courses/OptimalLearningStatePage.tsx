@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useContextAwareNavigation } from '@/hooks/useContextAwareNavigation';
 import { InteractiveCourseWrapper } from '@/components/course/InteractiveCourseWrapper';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -45,6 +46,7 @@ const lessons: CourseLesson[] = [
 
 export const OptimalLearningStatePage: React.FC = () => {
   const navigate = useNavigate();
+  const { goToCourses, goToDashboard } = useContextAwareNavigation();
   const { lessonId } = useParams();
   const [currentLesson, setCurrentLesson] = useState<number | null>(null);
   const [completedLessons, setCompletedLessons] = useState<number[]>([]);
@@ -186,8 +188,12 @@ export const OptimalLearningStatePage: React.FC = () => {
   }, [currentLesson, navigate]);
 
   const handleBackToCourses = useCallback(() => {
-    navigate('/dashboard/learner/courses');
-  }, [navigate]);
+    goToCourses();
+  }, [goToCourses]);
+  
+  const handleDashboard = useCallback(() => {
+    goToDashboard();
+  }, [goToDashboard]);
 
   const progress = useMemo(() => (completedLessons.length / lessons.length) * 100, [completedLessons.length]);
 
@@ -210,7 +216,7 @@ export const OptimalLearningStatePage: React.FC = () => {
                  backgroundAttachment: 'fixed'
                }}>
             <CourseHeader 
-              onDashboard={() => navigate('/dashboard/learner')} 
+              onDashboard={handleDashboard} 
               onBackToCourses={handleBackToCourses}
               courseTitle="Optimal Learning State Course"
             />

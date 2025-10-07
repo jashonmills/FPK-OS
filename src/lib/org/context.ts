@@ -38,3 +38,11 @@ export function buildOrgRoute(path: string): string {
 export function isInOrgMode(): boolean {
   return getActiveOrgId() !== null;
 }
+
+export function buildContextAwareRoute(personalRoute: string, orgRoute: string): string {
+  const orgId = getActiveOrgId();
+  if (orgId) {
+    return `/org/${orgId}${orgRoute}`;
+  }
+  return personalRoute;
+}

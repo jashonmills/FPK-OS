@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useContextAwareNavigation } from '@/hooks/useContextAwareNavigation';
 import { InteractiveCourseWrapper } from '@/components/course/InteractiveCourseWrapper';
 import { InteractiveLessonWrapper } from '@/components/course/InteractiveLessonWrapper';
 import { Button } from '@/components/ui/button';
@@ -46,6 +47,7 @@ const lessons: CourseLesson[] = [
 
 export const EmpoweringLearningReadingCoursePage: React.FC = () => {
   const navigate = useNavigate();
+  const { goToCourses, goToDashboard } = useContextAwareNavigation();
   const { lessonId } = useParams();
   const [currentLesson, setCurrentLesson] = useState<number | null>(null);
   const [completedLessons, setCompletedLessons] = useState<number[]>([]);
@@ -117,17 +119,17 @@ export const EmpoweringLearningReadingCoursePage: React.FC = () => {
 
   const handleBackToCourses = useCallback(() => {
     console.log('📍 Navigating back to courses');
-    navigate('/dashboard/learner/courses');
-  }, [navigate]);
+    goToCourses();
+  }, [goToCourses]);
 
   const handleBackToCourseOverview = useCallback(() => {
     console.log('📍 Navigating back to course overview');
     navigate('/courses/empowering-learning-reading');
   }, [navigate]);
 
-  const handleDashboard = () => {
-    navigate('/dashboard/learner');
-  };
+  const handleDashboard = useCallback(() => {
+    goToDashboard();
+  }, [goToDashboard]);
 
   // Memoize expensive calculations - Allow access to all lessons or sequential progression
   const isLessonAccessible = useCallback((lessonId: number) => {
