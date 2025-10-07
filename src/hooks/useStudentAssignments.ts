@@ -56,7 +56,7 @@ export function useStudentAssignments(orgId?: string) {
           )
         `)
         .eq('target_id', user.id)
-        .eq('target_type', 'user');
+        .eq('target_type', 'member');
 
       // First fetch the group IDs the user is a member of
       const { data: groupMemberships, error: groupMembershipsError } = await supabase
