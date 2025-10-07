@@ -161,11 +161,22 @@ export default function GoalsPage() {
     }
     
     try {
+      // CRITICAL FIX: Always use student.id (org_students.id) not linked_user_id
+      const selectedStudent = students.find(s => s.id === data.student_id);
+      if (!selectedStudent) {
+        toast({
+          title: "Error",
+          description: "Selected student not found.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       await createGoal({
         title: data.title || '',
         description: data.description || '',
         category: data.category || '',
-        student_id: data.student_id || '',
+        student_id: selectedStudent.id, // Use org_students.id
         priority: data.priority || 'medium',
       });
       

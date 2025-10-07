@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
 import { OrgCard, OrgCardContent, OrgCardDescription, OrgCardHeader, OrgCardTitle } from '@/components/organizations/OrgCard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Target, FileText, Plus, Search, Loader2 } from 'lucide-react';
+import { Target, FileText, Plus, Search, Loader2, MessageCircle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
 import { useOrgContext } from '@/components/organizations/OrgContext';
-import { useOrgNotes } from '@/hooks/useOrgNotes';
+import { useOrgNotes, OrgNote } from '@/hooks/useOrgNotes';
 import { useOrgStudents } from '@/hooks/useOrgStudents';
+import { useOrgNoteReplies } from '@/hooks/useOrgNoteReplies';
 import GoalsPage from './goals';
 import OrgNoteCreationDialog from '@/components/organizations/OrgNoteCreationDialog';
+import OrgNoteDetailModal from '@/components/organizations/OrgNoteDetailModal';
+import OrgNoteEditDialog from '@/components/organizations/OrgNoteEditDialog';
 
 export default function GoalsAndNotes() {
   const { currentOrg } = useOrgContext();
@@ -17,9 +21,11 @@ export default function GoalsAndNotes() {
   const [filterStudent, setFilterStudent] = useState('all');
   const [filterCourse, setFilterCourse] = useState('all');
   const [filterPrivacy, setFilterPrivacy] = useState('all');
+  const [selectedNote, setSelectedNote] = useState<OrgNote | null>(null);
+  const [editingNote, setEditingNote] = useState<OrgNote | null>(null);
 
   // Fetch real notes and students
-  const { notes, isLoading: notesLoading, createNote, isCreating } = useOrgNotes(currentOrg?.organization_id);
+  const { notes, isLoading: notesLoading, updateNote, isUpdating } = useOrgNotes(currentOrg?.organization_id);
   const { students } = useOrgStudents(currentOrg?.organization_id || '');
 
   // Filter notes based on search and filters
@@ -149,42 +155,103 @@ export default function GoalsAndNotes() {
                 // Match student by ID or linked_user_id
                 const student = students.find(s => s.id === note.student_id || s.linked_user_id === note.student_id);
                 return (
-                  <OrgCard key={note.id} className="bg-orange-500/65 border-orange-400/50">
-                    <OrgCardHeader>
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <OrgCardTitle className="text-white">{note.title}</OrgCardTitle>
-                          <OrgCardDescription className="text-white/80">
-                            {note.content || 'No content'}
-                          </OrgCardDescription>
-                        </div>
-                        <Button variant="outline" size="sm" className="border-white/20 text-white hover:bg-white/10">
-                          Edit
-                        </Button>
-                      </div>
-                    </OrgCardHeader>
-                    <OrgCardContent>
-                      <div className="flex items-center gap-4 text-sm text-white/70">
-                        <span>{new Date(note.created_at).toLocaleDateString()}</span>
-                        {student && (
-                          <>
-                            <span>•</span>
-                            <span>Student: {student.full_name}</span>
-                          </>
-                        )}
-                        <span>•</span>
-                        <span>{note.category}</span>
-                        <span>•</span>
-                        <span>{note.is_private ? 'Private' : 'Shared'}</span>
-                      </div>
-                    </OrgCardContent>
-                  </OrgCard>
+                  <NoteCard
+                    key={note.id}
+                    note={note}
+                    student={student}
+                    onView={() => setSelectedNote(note)}
+                    onEdit={() => setEditingNote(note)}
+                  />
                 );
               })}
             </div>
           )}
         </TabsContent>
       </Tabs>
+
+      {/* Note Detail Modal */}
+      <OrgNoteDetailModal
+        note={selectedNote}
+        isOpen={!!selectedNote}
+        onClose={() => setSelectedNote(null)}
+        studentName={selectedNote ? students.find(s => s.id === selectedNote.student_id || s.linked_user_id === selectedNote.student_id)?.full_name : undefined}
+      />
+
+      {/* Note Edit Modal */}
+      <OrgNoteEditDialog
+        note={editingNote}
+        isOpen={!!editingNote}
+        onClose={() => setEditingNote(null)}
+        onSave={(data) => {
+          updateNote(data);
+          setEditingNote(null);
+        }}
+        isUpdating={isUpdating}
+      />
     </div>
+  );
+}
+
+// Note Card Component with Reply Badge
+function NoteCard({ note, student, onView, onEdit }: { 
+  note: OrgNote; 
+  student?: any; 
+  onView: () => void; 
+  onEdit: () => void;
+}) {
+  const { replies } = useOrgNoteReplies(note.id);
+  const unreadReplies = replies.filter(r => !r.read_at).length;
+
+  return (
+    <OrgCard 
+      className="bg-orange-500/65 border-orange-400/50 cursor-pointer hover:bg-orange-500/75 transition-colors"
+      onClick={onView}
+    >
+      <OrgCardHeader>
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            <div className="flex items-center gap-2">
+              <OrgCardTitle className="text-white">{note.title}</OrgCardTitle>
+              {replies.length > 0 && (
+                <Badge variant="secondary" className="flex items-center gap-1">
+                  <MessageCircle className="h-3 w-3" />
+                  {replies.length}
+                  {unreadReplies > 0 && ` (${unreadReplies} new)`}
+                </Badge>
+              )}
+            </div>
+            <OrgCardDescription className="text-white/80 line-clamp-2">
+              {note.content || 'No content'}
+            </OrgCardDescription>
+          </div>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="border-white/20 text-white hover:bg-white/10"
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit();
+            }}
+          >
+            Edit
+          </Button>
+        </div>
+      </OrgCardHeader>
+      <OrgCardContent>
+        <div className="flex items-center gap-4 text-sm text-white/70">
+          <span>{new Date(note.created_at).toLocaleDateString()}</span>
+          {student && (
+            <>
+              <span>•</span>
+              <span>Student: {student.full_name}</span>
+            </>
+          )}
+          <span>•</span>
+          <span>{note.category}</span>
+          <span>•</span>
+          <span>{note.is_private ? 'Private' : 'Shared'}</span>
+        </div>
+      </OrgCardContent>
+    </OrgCard>
   );
 }

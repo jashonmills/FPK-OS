@@ -245,6 +245,7 @@ export function StudentCommunicationTab({ student, orgId }: StudentCommunication
           </div>
         </CardContent>
       </Card>
+
     </div>
   );
 }

@@ -5179,6 +5179,44 @@ export type Database = {
           },
         ]
       }
+      org_note_replies: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          note_id: string
+          read_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          note_id: string
+          read_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          note_id?: string
+          read_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_note_replies_note_id_fkey"
+            columns: ["note_id"]
+            isOneToOne: false
+            referencedRelation: "org_notes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       org_note_targets: {
         Row: {
           created_at: string | null
