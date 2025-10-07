@@ -101,7 +101,7 @@ serve(async (req) => {
 
     const orgSlug = orgData?.slug || org_id;
     const origin = req.headers.get('origin') || 'https://fpkuniversity.com';
-    const finalDestination = `${origin}/${orgSlug}`;
+    const finalDestination = `${origin}/org/${org_id}`;
     
     // Determine redirect URL based on environment
     // Use auth bridge only on Lovable preview, direct redirect on production

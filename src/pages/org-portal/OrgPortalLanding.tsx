@@ -20,17 +20,11 @@ export default function OrgPortalLanding() {
 
   // Redirect authenticated student portal users to their dashboard
   useEffect(() => {
-    if (!loading && user && isStudentPortalUser) {
-      // If student belongs to this org, redirect to student portal
-      if (studentOrgSlug === orgSlug) {
-        navigate(`/${orgSlug}/student-portal`, { replace: true });
-      } 
-      // If student belongs to different org, redirect to their org
-      else if (studentOrgSlug) {
-        navigate(`/${studentOrgSlug}/student-portal`, { replace: true });
-      }
+    if (!loading && user && isStudentPortalUser && orgId) {
+      // Redirect to full organization dashboard
+      navigate(`/org/${orgId}`, { replace: true });
     }
-  }, [user, isStudentPortalUser, studentOrgSlug, orgSlug, loading, navigate]);
+  }, [user, isStudentPortalUser, orgId, loading, navigate]);
 
   useEffect(() => {
     const loadOrganization = async () => {
