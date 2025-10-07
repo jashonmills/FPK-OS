@@ -45,18 +45,6 @@ const CourseHeader: React.FC<CourseHeaderProps> = ({
         </div>
         <div className="flex items-center gap-1 sm:gap-2">
           {!isMobile && <LanguageSwitcher />}
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={() => {
-              console.log('🔘 CourseHeader: Back to courses button clicked');
-              goToCourses();
-            }}
-            className="text-white hover:bg-white/20 text-xs sm:text-sm px-2 sm:px-4"
-          >
-            <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-            {isMobile ? t('common.back') : t('courses.backToCourses')}
-          </Button>
           {!isMobile && (
             <Button 
               variant="ghost" 
