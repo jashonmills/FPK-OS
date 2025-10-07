@@ -7,8 +7,14 @@ const corsHeaders = {
 };
 
 Deno.serve(async (req) => {
+  console.log('[auth-redirect] ====== REQUEST RECEIVED ======');
+  console.log('[auth-redirect] Method:', req.method);
+  console.log('[auth-redirect] URL:', req.url);
+  console.log('[auth-redirect] Headers:', Object.fromEntries(req.headers.entries()));
+
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
+    console.log('[auth-redirect] Handling CORS preflight');
     return new Response(null, { headers: corsHeaders });
   }
 

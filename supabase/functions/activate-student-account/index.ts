@@ -96,16 +96,26 @@ serve(async (req) => {
       .single();
 
     const orgSlug = orgData?.slug || org_id;
-    const origin = req.headers.get('origin') || Deno.env.get('SUPABASE_URL') || 'https://fpkuniversity.com';
+    const origin = req.headers.get('origin') || 'https://fpkuniversity.com';
     const redirectUrl = `/org/${orgSlug}/student-portal`;
 
+    // Build callback URL using Supabase project URL
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') || 'https://zgcegkmqfgznbpdplscz.supabase.co';
+    const callbackUrl = `${supabaseUrl}/functions/v1/auth-redirect?redirect_uri=${encodeURIComponent(`${origin}${redirectUrl}`)}`;
+    
+    console.log('[activate-student-account] Redirect configuration:', {
+      origin,
+      redirectUrl,
+      supabaseUrl,
+      callbackUrl
+    });
     // If student has a linked user, generate session
     if (linked_user_id) {
       const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.admin.generateLink({
         type: 'magiclink',
         email: `student-${student_id}@portal.fpkuniversity.com`,
         options: {
-          redirectTo: `${origin}${redirectUrl}`
+          redirectTo: callbackUrl
         }
       });
 
@@ -131,6 +141,7 @@ serve(async (req) => {
         JSON.stringify({
           success: true,
           session: sessionData,
+          auth_link: sessionData.properties.action_link,
           student_id,
           org_id,
           redirect_url: redirectUrl
@@ -165,10 +176,7 @@ serve(async (req) => {
       .update({ linked_user_id: newUser.user.id })
       .eq('id', student_id);
 
-    // Build callback URL using Supabase project URL (where edge functions are hosted)
-    const supabaseUrl = Deno.env.get('SUPABASE_URL') || 'https://zgcegkmqfgznbpdplscz.supabase.co';
-    const callbackUrl = `${supabaseUrl}/functions/v1/auth-redirect?redirect_uri=${encodeURIComponent(`${origin}${redirectUrl}`)}`;
-    
+    // Use the already-declared callbackUrl from above
     const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.admin.generateLink({
       type: 'magiclink',
       email: tempEmail,
