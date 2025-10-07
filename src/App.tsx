@@ -37,6 +37,9 @@ const StudentActivation = lazy(() => import("./pages/org-portal/StudentActivatio
 const StudentPortalDashboard = lazy(() => import("./pages/students/StudentPortalDashboard"));
 const AuthCallback = lazy(() => import("./pages/AuthCallback"));
 
+// Student Portal Guard
+import { StudentPortalGuard } from './components/organizations/StudentPortalGuard';
+
 // Organization authenticated pages
 const OrgHub = lazy(() => import("./pages/organizations/OrgHub"));
 const OrgCreatePage = lazy(() => import("./pages/organizations/OrgCreatePage"));
@@ -256,11 +259,11 @@ const App: React.FC = () => {
           <Route path="/:orgSlug/activate" element={<LazyRoute><StudentActivation /></LazyRoute>} />
           <Route path="/:orgSlug" element={<LazyRoute><OrgPortalLanding /></LazyRoute>} />
 
-          {/* Student Portal Dashboard - Protected Route */}
-          <Route path="/students/dashboard" element={
-            <RouteProtector>
+          {/* Student Portal Dashboard - Protected by StudentPortalGuard */}
+          <Route path="/:orgSlug/student-portal" element={
+            <StudentPortalGuard>
               <LazyRoute><StudentPortalDashboard /></LazyRoute>
-            </RouteProtector>
+            </StudentPortalGuard>
           } />
 
           {/* Standalone AI Study Coach Chat Route - Public Access */}
