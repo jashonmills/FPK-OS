@@ -14,11 +14,26 @@ export const LEGACY_COURSE_SLUGS = [
 export type LegacyCourseSlug = typeof LEGACY_COURSE_SLUGS[number];
 
 /**
+ * UUID to slug mapping for legacy courses where slug is not in courses table
+ */
+export const UUID_TO_SLUG_MAP: Record<string, LegacyCourseSlug> = {
+  '06efda03-9f0b-4c00-a064-eb65ada9fbae': 'empowering-learning-spelling',
+  // Add other UUIDs as needed
+};
+
+/**
  * Check if a course slug is a legacy course
  */
 export function isLegacyCourse(slug: string | null | undefined): slug is LegacyCourseSlug {
   if (!slug) return false;
   return LEGACY_COURSE_SLUGS.includes(slug as LegacyCourseSlug);
+}
+
+/**
+ * Get slug for a course by UUID (if it's a legacy course)
+ */
+export function getSlugByUUID(uuid: string): LegacyCourseSlug | null {
+  return UUID_TO_SLUG_MAP[uuid] || null;
 }
 
 /**
