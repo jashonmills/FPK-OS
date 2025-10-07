@@ -5379,6 +5379,8 @@ export type Database = {
       }
       org_students: {
         Row: {
+          activation_status: string | null
+          activation_token: string | null
           created_at: string
           created_by: string
           date_of_birth: string | null
@@ -5390,11 +5392,15 @@ export type Database = {
           notes: string | null
           org_id: string
           parent_email: string | null
+          pin_hash: string | null
           status: string
           student_id: string | null
+          token_expires_at: string | null
           updated_at: string
         }
         Insert: {
+          activation_status?: string | null
+          activation_token?: string | null
           created_at?: string
           created_by: string
           date_of_birth?: string | null
@@ -5406,11 +5412,15 @@ export type Database = {
           notes?: string | null
           org_id: string
           parent_email?: string | null
+          pin_hash?: string | null
           status?: string
           student_id?: string | null
+          token_expires_at?: string | null
           updated_at?: string
         }
         Update: {
+          activation_status?: string | null
+          activation_token?: string | null
           created_at?: string
           created_by?: string
           date_of_birth?: string | null
@@ -5422,8 +5432,10 @@ export type Database = {
           notes?: string | null
           org_id?: string
           parent_email?: string | null
+          pin_hash?: string | null
           status?: string
           student_id?: string | null
+          token_expires_at?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -9247,6 +9259,16 @@ export type Database = {
         Args: { p_code: string }
         Returns: Json
       }
+      activate_student_account: {
+        Args: { p_full_name: string; p_pin_hash: string; p_token: string }
+        Returns: {
+          linked_user_id: string
+          message: string
+          org_id: string
+          student_id: string
+          success: boolean
+        }[]
+      }
       auth_is_admin: {
         Args: Record<PropertyKey, never>
         Returns: boolean
@@ -9350,6 +9372,10 @@ export type Database = {
       extract_chat_topics: {
         Args: { session_id: string }
         Returns: Json
+      }
+      generate_activation_token: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
       generate_iep_invite_code: {
         Args: Record<PropertyKey, never>
@@ -9627,6 +9653,14 @@ export type Database = {
           p_user_id: string
         }
         Returns: Json
+      }
+      validate_student_pin: {
+        Args: { p_full_name: string; p_org_id: string; p_pin_hash: string }
+        Returns: {
+          is_valid: boolean
+          linked_user_id: string
+          student_id: string
+        }[]
       }
       withdraw_user_consent: {
         Args: { p_consent_type: string; p_reason?: string; p_user_id: string }
