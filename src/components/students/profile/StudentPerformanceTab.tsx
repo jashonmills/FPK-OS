@@ -1,7 +1,8 @@
 import React from 'react';
 import { OrgStudent } from '@/hooks/useOrgStudents';
+import { useStudentStatistics } from '@/hooks/useStudentStatistics';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChart3, TrendingUp, Clock, Target } from 'lucide-react';
+import { BarChart3, TrendingUp, Clock, Target, Loader2 } from 'lucide-react';
 
 interface StudentPerformanceTabProps {
   student: OrgStudent;
@@ -9,54 +10,74 @@ interface StudentPerformanceTabProps {
 }
 
 export function StudentPerformanceTab({ student, orgId }: StudentPerformanceTabProps) {
+  const { data: stats, isLoading } = useStudentStatistics(
+    student.id,
+    student.linked_user_id,
+    orgId
+  );
+
+  const completionRate = stats && stats.coursesAssigned > 0
+    ? Math.round((stats.coursesCompleted / stats.coursesAssigned) * 100)
+    : 0;
+
   return (
     <div className="space-y-6">
       {/* Performance Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Overall Grade</CardTitle>
-            <Target className="h-4 w-4 ml-auto" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">A-</div>
-            <p className="text-xs text-muted-foreground">+5% from last month</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Completion Rate</CardTitle>
-            <BarChart3 className="h-4 w-4 ml-auto" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">85%</div>
-            <p className="text-xs text-muted-foreground">8 of 10 assignments</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Study Time</CardTitle>
-            <Clock className="h-4 w-4 ml-auto" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">24h</div>
-            <p className="text-xs text-muted-foreground">This month</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Improvement</CardTitle>
-            <TrendingUp className="h-4 w-4 ml-auto" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">+12%</div>
-            <p className="text-xs text-muted-foreground">Since enrollment</p>
-          </CardContent>
-        </Card>
-      </div>
+      {isLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Card>
+              <CardHeader className="flex flex-row items-center space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Average Progress</CardTitle>
+                <Target className="h-4 w-4 ml-auto" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats?.averageGrade || 0}%</div>
+                <p className="text-xs text-muted-foreground">Across all courses</p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="flex flex-row items-center space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Completion Rate</CardTitle>
+                <BarChart3 className="h-4 w-4 ml-auto" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{completionRate}%</div>
+                <p className="text-xs text-muted-foreground">
+                  {stats?.coursesCompleted || 0} of {stats?.coursesAssigned || 0} courses
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="flex flex-row items-center space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Goals Progress</CardTitle>
+                <Target className="h-4 w-4 ml-auto" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats?.goalsCompleted || 0}/{stats?.goalsAssigned || 0}</div>
+                <p className="text-xs text-muted-foreground">Goals completed</p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="flex flex-row items-center space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Study Hours</CardTitle>
+                <Clock className="h-4 w-4 ml-auto" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats?.studyHours || 0}h</div>
+                <p className="text-xs text-muted-foreground">Total recorded</p>
+              </CardContent>
+            </Card>
+          </div>
+        </>
+      )}
 
       {/* Course Performance */}
       <Card>

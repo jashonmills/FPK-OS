@@ -1,9 +1,10 @@
 import React from 'react';
 import { OrgStudent } from '@/hooks/useOrgStudents';
+import { useStudentStatistics } from '@/hooks/useStudentStatistics';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TransparentTile } from '@/components/ui/transparent-tile';
-import { User, Mail, Phone, Calendar, GraduationCap, CheckCircle } from 'lucide-react';
+import { User, Mail, Phone, Calendar, GraduationCap, CheckCircle, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface StudentOverviewTabProps {
@@ -12,6 +13,12 @@ interface StudentOverviewTabProps {
 }
 
 export function StudentOverviewTab({ student, orgId }: StudentOverviewTabProps) {
+  const { data: stats, isLoading } = useStudentStatistics(
+    student.id,
+    student.linked_user_id,
+    orgId
+  );
+
   const getStatusBadgeVariant = (status: string) => {
     switch (status) {
       case 'active':
@@ -113,24 +120,30 @@ export function StudentOverviewTab({ student, orgId }: StudentOverviewTabProps) 
           <CardTitle className="text-sm font-medium">Quick Statistics</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="text-center p-4 rounded-lg bg-muted/50">
-              <div className="text-2xl font-bold text-primary">0</div>
-              <div className="text-sm text-muted-foreground">Courses Assigned</div>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin text-primary" />
             </div>
-            <div className="text-center p-4 rounded-lg bg-muted/50">
-              <div className="text-2xl font-bold text-primary">0</div>
-              <div className="text-sm text-muted-foreground">Completed Courses</div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="text-center p-4 rounded-lg bg-muted/50">
+                <div className="text-2xl font-bold text-primary">{stats?.coursesAssigned || 0}</div>
+                <div className="text-sm text-muted-foreground">Courses Assigned</div>
+              </div>
+              <div className="text-center p-4 rounded-lg bg-muted/50">
+                <div className="text-2xl font-bold text-primary">{stats?.coursesCompleted || 0}</div>
+                <div className="text-sm text-muted-foreground">Completed Courses</div>
+              </div>
+              <div className="text-center p-4 rounded-lg bg-muted/50">
+                <div className="text-2xl font-bold text-primary">{stats?.goalsAssigned || 0}</div>
+                <div className="text-sm text-muted-foreground">Goals Assigned</div>
+              </div>
+              <div className="text-center p-4 rounded-lg bg-muted/50">
+                <div className="text-2xl font-bold text-primary">{stats?.notesCount || 0}</div>
+                <div className="text-sm text-muted-foreground">Notes</div>
+              </div>
             </div>
-            <div className="text-center p-4 rounded-lg bg-muted/50">
-              <div className="text-2xl font-bold text-primary">0</div>
-              <div className="text-sm text-muted-foreground">Average Grade</div>
-            </div>
-            <div className="text-center p-4 rounded-lg bg-muted/50">
-              <div className="text-2xl font-bold text-primary">0</div>
-              <div className="text-sm text-muted-foreground">Study Hours</div>
-            </div>
-          </div>
+          )}
         </CardContent>
       </Card>
 

@@ -546,7 +546,7 @@ export default function GoalsPage() {
                           students.map((student) => (
                             <SelectItem 
                               key={student.id} 
-                              value={student.linked_user_id || student.id}
+                              value={student.id}
                             >
                               {student.full_name}
                             </SelectItem>
