@@ -73,11 +73,24 @@ export default function OrgNoteCreationDialog({
     try {
       console.log('📝 Submitting note with data:', data);
       
+      // Find the selected student to get the correct ID
+      const selectedStudent = students.find(s => s.id === data.student_id);
+      
+      // For member-students (id starts with "member-"), use linked_user_id
+      // For profile-only students, use the org_students id
+      const actualStudentId = selectedStudent?.linked_user_id || data.student_id;
+      
+      console.log('📝 Resolved student ID:', {
+        originalId: data.student_id,
+        linkedUserId: selectedStudent?.linked_user_id,
+        actualId: actualStudentId
+      });
+      
       await createNote({
         title: data.title,
         content: data.content,
         category: data.category,
-        student_id: data.student_id,
+        student_id: actualStudentId,
         visibility_scope: data.visibility_scope,
       });
 

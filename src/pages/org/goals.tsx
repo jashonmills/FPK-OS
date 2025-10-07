@@ -378,7 +378,8 @@ export default function GoalsPage() {
         ) : (
           <div className="grid md:grid-cols-2 gap-6">
             {filteredGoals.map((goal) => {
-              const student = students.find(s => s.id === goal.student_id);
+              // Match student by ID or linked_user_id
+              const student = students.find(s => s.id === goal.student_id || s.linked_user_id === goal.student_id);
               return (
               <OrgCard key={goal.id} className="bg-orange-500/65 border-orange-400/50 hover:shadow-md transition-shadow">
                 <OrgCardHeader>
@@ -639,7 +640,7 @@ export default function GoalsPage() {
       {selectedGoal && (
         <OrgGoalDetailsModal
           goal={selectedGoal}
-          studentName={students.find(s => s.id === selectedGoal.student_id)?.full_name || 'Unknown Student'}
+          studentName={students.find(s => s.id === selectedGoal.student_id || s.linked_user_id === selectedGoal.student_id)?.full_name || 'Unknown Student'}
           isOpen={!!selectedGoal}
           onClose={() => setSelectedGoal(null)}
         />

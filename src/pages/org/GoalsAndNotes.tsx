@@ -28,7 +28,11 @@ export default function GoalsAndNotes() {
       note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       note.content?.toLowerCase().includes(searchQuery.toLowerCase());
     
-    const matchesStudent = filterStudent === 'all' || note.student_id === filterStudent;
+    // Match against both the temporary ID and linked_user_id
+    const matchesStudent = filterStudent === 'all' || 
+      note.student_id === filterStudent ||
+      students.find(s => s.id === filterStudent && s.linked_user_id === note.student_id);
+    
     const matchesPrivacy = filterPrivacy === 'all' || 
       (filterPrivacy === 'private' && note.is_private) ||
       (filterPrivacy === 'shared' && !note.is_private);
@@ -142,7 +146,8 @@ export default function GoalsAndNotes() {
           ) : (
             <div className="space-y-4">
               {filteredNotes.map((note) => {
-                const student = students.find(s => s.id === note.student_id);
+                // Match student by ID or linked_user_id
+                const student = students.find(s => s.id === note.student_id || s.linked_user_id === note.student_id);
                 return (
                   <OrgCard key={note.id} className="bg-orange-500/65 border-orange-400/50">
                     <OrgCardHeader>

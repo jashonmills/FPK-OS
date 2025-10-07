@@ -30,8 +30,11 @@ export function StudentCommunicationTab({ student, orgId }: StudentCommunication
   const handleCreateNote = () => {
     if (!noteContent.trim()) return;
 
+    // For member-students, use linked_user_id; for profile-only students, use the org_students id
+    const actualStudentId = student.linked_user_id || student.id;
+
     createNote({
-      student_id: student.id,
+      student_id: actualStudentId,
       org_id: orgId,
       title: noteTitle.trim() || undefined,
       content: noteContent.trim(),
