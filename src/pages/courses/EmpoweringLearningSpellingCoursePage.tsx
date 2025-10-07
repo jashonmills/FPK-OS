@@ -177,7 +177,11 @@ export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
     }
     
     setCurrentLesson(lessonId);
-    navigate(`/courses/empowering-learning-spelling/${lessonId}`);
+    const orgParam = new URLSearchParams(window.location.search).get('org');
+    const url = orgParam 
+      ? `/courses/empowering-learning-spelling/${lessonId}?org=${orgParam}`
+      : `/courses/empowering-learning-spelling/${lessonId}`;
+    navigate(url);
   }, [getLessonState, inProgressLessons, navigate]);
 
   const handleLessonComplete = useCallback(async (lessonId: number) => {
@@ -242,8 +246,11 @@ export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
     if (currentLesson !== null && currentLesson < lessons.length) {
       const nextLesson = currentLesson + 1;
       setCurrentLesson(nextLesson);
-      navigate(`/courses/empowering-learning-spelling/${nextLesson}`);
-      // Scroll to top of the page
+      const orgParam = new URLSearchParams(window.location.search).get('org');
+      const url = orgParam 
+        ? `/courses/empowering-learning-spelling/${nextLesson}?org=${orgParam}`
+        : `/courses/empowering-learning-spelling/${nextLesson}`;
+      navigate(url);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [currentLesson, navigate]);

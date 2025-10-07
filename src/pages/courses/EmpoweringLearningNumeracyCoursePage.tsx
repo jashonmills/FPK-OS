@@ -117,7 +117,11 @@ export const EmpoweringLearningNumeracyCoursePage: React.FC = () => {
 
   const handleLessonSelect = useCallback((lessonId: number) => {
     setCurrentLesson(lessonId);
-    navigate(`/courses/empowering-learning-numeracy/${lessonId}`);
+    const orgParam = new URLSearchParams(window.location.search).get('org');
+    const url = orgParam 
+      ? `/courses/empowering-learning-numeracy/${lessonId}?org=${orgParam}`
+      : `/courses/empowering-learning-numeracy/${lessonId}`;
+    navigate(url);
   }, [navigate]);
 
   const handleBackToCourses = useCallback(() => {
@@ -126,8 +130,12 @@ export const EmpoweringLearningNumeracyCoursePage: React.FC = () => {
   }, [goToCourses]);
 
   const handleBackToCourseOverview = useCallback(() => {
-    console.log('📍 Navigating back to course overview');  
-    navigate('/courses/empowering-learning-numeracy');
+    console.log('📍 Navigating back to course overview');
+    const orgParam = new URLSearchParams(window.location.search).get('org');
+    const url = orgParam 
+      ? `/courses/empowering-learning-numeracy?org=${orgParam}`
+      : '/courses/empowering-learning-numeracy';
+    navigate(url);
   }, [navigate]);
 
   const handleDashboard = useCallback(() => {

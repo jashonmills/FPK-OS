@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useContextAwareNavigation } from '@/hooks/useContextAwareNavigation';
 import { InteractiveCourseWrapper } from '@/components/course/InteractiveCourseWrapper';
 import { InteractiveLessonWrapper } from '@/components/course/InteractiveLessonWrapper';
 import { Button } from '@/components/ui/button';
@@ -46,6 +47,7 @@ const lessons: Lesson[] = [
 
 const InteractiveLinearEquationsCoursePage: React.FC = () => {
   const navigate = useNavigate();
+  const { goToCourses, goToDashboard } = useContextAwareNavigation();
   const { lessonId } = useParams();
   const [currentLesson, setCurrentLesson] = useState<number | null>(null);
   const [completedLessons, setCompletedLessons] = useState<number[]>([]);
@@ -92,22 +94,29 @@ const InteractiveLinearEquationsCoursePage: React.FC = () => {
 
   const handleLessonSelect = useCallback((lessonId: number) => {
     setCurrentLesson(lessonId);
-    navigate(`/courses/interactive-linear-equations/${lessonId}`);
-    // Scroll to top of the page
+    const orgParam = new URLSearchParams(window.location.search).get('org');
+    const url = orgParam 
+      ? `/courses/interactive-linear-equations/${lessonId}?org=${orgParam}`
+      : `/courses/interactive-linear-equations/${lessonId}`;
+    navigate(url);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [navigate]);
 
   const handleBackToCourses = useCallback(() => {
     console.log('📍 Navigating back to courses');
-    navigate('/dashboard/learner/courses');
-  }, [navigate]);
+    goToCourses();
+  }, [goToCourses]);
 
   const handleDashboard = useCallback(() => {
-    navigate('/dashboard/learner');
-  }, [navigate]);
+    goToDashboard();
+  }, [goToDashboard]);
 
   const handleBackToCourseOverview = useCallback(() => {
-    navigate('/courses/interactive-linear-equations');
+    const orgParam = new URLSearchParams(window.location.search).get('org');
+    const url = orgParam 
+      ? `/courses/interactive-linear-equations?org=${orgParam}`
+      : '/courses/interactive-linear-equations';
+    navigate(url);
   }, [navigate]);
 
   // Memoize expensive calculations

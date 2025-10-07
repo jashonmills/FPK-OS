@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useContextAwareNavigation } from '@/hooks/useContextAwareNavigation';
 import { InteractiveCourseWrapper } from '@/components/course/InteractiveCourseWrapper';
 import { InteractiveLessonWrapper } from '@/components/course/InteractiveLessonWrapper';
 import { useInteractiveCourseProgress } from '@/hooks/useInteractiveCourseProgress';
@@ -64,6 +65,7 @@ const lessons: Lesson[] = [
 
 export const InteractiveScienceCoursePage: React.FC = () => {
   const navigate = useNavigate();
+  const { goToCourses, goToDashboard } = useContextAwareNavigation();
   const { lessonId } = useParams();
   const [currentLesson, setCurrentLesson] = useState<number | null>(null);
 
@@ -124,17 +126,21 @@ export const InteractiveScienceCoursePage: React.FC = () => {
 
   const handleLessonSelect = useCallback((lessonId: number) => {
     setCurrentLesson(lessonId);
-    navigate(`/courses/interactive-science/${lessonId}`);
+    const orgParam = new URLSearchParams(window.location.search).get('org');
+    const url = orgParam 
+      ? `/courses/interactive-science/${lessonId}?org=${orgParam}`
+      : `/courses/interactive-science/${lessonId}`;
+    navigate(url);
   }, [navigate]);
 
   const handleBackToCourses = useCallback(() => {
     console.log('📍 Navigating back to courses');
-    navigate('/dashboard/learner/courses');
-  }, [navigate]);
+    goToCourses();
+  }, [goToCourses]);
 
   const handleDashboard = useCallback(() => {
-    navigate('/dashboard/learner');
-  }, [navigate]);
+    goToDashboard();
+  }, [goToDashboard]);
 
   // Memoize expensive calculations
   const isLessonAccessible = useCallback((lessonId: number) => {

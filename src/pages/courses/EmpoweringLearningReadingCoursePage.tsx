@@ -114,7 +114,11 @@ export const EmpoweringLearningReadingCoursePage: React.FC = () => {
 
   const handleLessonSelect = useCallback((lessonId: number) => {
     setCurrentLesson(lessonId);
-    navigate(`/courses/empowering-learning-reading/${lessonId}`);
+    const orgParam = new URLSearchParams(window.location.search).get('org');
+    const url = orgParam 
+      ? `/courses/empowering-learning-reading/${lessonId}?org=${orgParam}`
+      : `/courses/empowering-learning-reading/${lessonId}`;
+    navigate(url);
   }, [navigate]);
 
   const handleBackToCourses = useCallback(() => {
@@ -124,7 +128,11 @@ export const EmpoweringLearningReadingCoursePage: React.FC = () => {
 
   const handleBackToCourseOverview = useCallback(() => {
     console.log('📍 Navigating back to course overview');
-    navigate('/courses/empowering-learning-reading');
+    const orgParam = new URLSearchParams(window.location.search).get('org');
+    const url = orgParam 
+      ? `/courses/empowering-learning-reading?org=${orgParam}`
+      : '/courses/empowering-learning-reading';
+    navigate(url);
   }, [navigate]);
 
   const handleDashboard = useCallback(() => {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useContextAwareNavigation } from '@/hooks/useContextAwareNavigation';
 import { InteractiveCourseWrapper } from '@/components/course/InteractiveCourseWrapper';
 import { InteractiveLessonWrapper } from '@/components/course/InteractiveLessonWrapper';
 import { useInteractiveCourseProgress } from '@/hooks/useInteractiveCourseProgress';
@@ -51,6 +52,7 @@ const lessons: Lesson[] = [
 
 const InteractiveAlgebraCoursePage: React.FC = () => {
   const navigate = useNavigate();
+  const { goToCourses, goToDashboard } = useContextAwareNavigation();
   const { lessonId } = useParams();
   const [currentLesson, setCurrentLesson] = useState<number | null>(null);
   const [accordionOpen, setAccordionOpen] = useState<string | undefined>(undefined);
@@ -100,18 +102,22 @@ const InteractiveAlgebraCoursePage: React.FC = () => {
 
   const handleLessonSelect = useCallback((lessonId: number) => {
     setCurrentLesson(lessonId);
-    navigate(`/courses/interactive-algebra/${lessonId}`);
+    const orgParam = new URLSearchParams(window.location.search).get('org');
+    const url = orgParam 
+      ? `/courses/interactive-algebra/${lessonId}?org=${orgParam}`
+      : `/courses/interactive-algebra/${lessonId}`;
+    navigate(url);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [navigate]);
 
   const handleBackToCourses = useCallback(() => {
     console.log('📍 Navigating back to courses');
-    navigate('/dashboard/learner/courses');
-  }, [navigate]);
+    goToCourses();
+  }, [goToCourses]);
 
   const handleDashboard = useCallback(() => {
-    navigate('/dashboard/learner');
-  }, [navigate]);
+    goToDashboard();
+  }, [goToDashboard]);
 
   const isLessonAccessible = useCallback((lessonId: number) => {
     return lessonId === 1 || isLessonCompleted(lessonId - 1);
