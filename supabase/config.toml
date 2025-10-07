@@ -110,3 +110,12 @@ verify_jwt = false
 
 [functions.accept-org-invite]
 verify_jwt = true
+
+[functions.student-pin-login]
+verify_jwt = false
+
+[functions.generate-student-activation]
+verify_jwt = true
+
+[functions.activate-student-account]
+verify_jwt = false

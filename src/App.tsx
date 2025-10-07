@@ -30,6 +30,11 @@ const OrganizationSignup = lazy(() => import("./pages/OrganizationSignup"));
 const JoinRedirect = lazy(() => import("./pages/JoinRedirect"));
 const OrgLanding = lazy(() => import("./pages/OrgLanding"));
 
+// Branded Student Portal pages
+const OrgPortalLanding = lazy(() => import("./pages/org-portal/OrgPortalLanding"));
+const StudentPinLogin = lazy(() => import("./pages/org-portal/StudentPinLogin"));
+const StudentActivation = lazy(() => import("./pages/org-portal/StudentActivation"));
+
 // Organization authenticated pages
 const OrgHub = lazy(() => import("./pages/organizations/OrgHub"));
 const OrgCreatePage = lazy(() => import("./pages/organizations/OrgCreatePage"));
@@ -240,6 +245,11 @@ const App: React.FC = () => {
           <Route path="/reset-password" element={<LazyRoute><ResetPassword /></LazyRoute>} />
           <Route path="/join" element={<LazyRoute><JoinRedirect /></LazyRoute>} />
           <Route path="/join/:code" element={<LazyRoute><JoinRedirect /></LazyRoute>} />
+
+          {/* Branded Student Portal Routes - Must come before org routes */}
+          <Route path="/:orgSlug/login" element={<LazyRoute><StudentPinLogin /></LazyRoute>} />
+          <Route path="/:orgSlug/activate" element={<LazyRoute><StudentActivation /></LazyRoute>} />
+          <Route path="/:orgSlug" element={<LazyRoute><OrgPortalLanding /></LazyRoute>} />
 
           {/* Standalone AI Study Coach Chat Route - Public Access */}
           <Route path="/ai-study-coach/chat-only" element={
