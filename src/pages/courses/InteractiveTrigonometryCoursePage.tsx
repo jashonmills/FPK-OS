@@ -122,8 +122,6 @@ const InteractiveTrigonometryCoursePage: React.FC = () => {
             backgroundAttachment: 'fixed'
           }}>
             <CourseHeader 
-              onDashboard={handleDashboard} 
-              onBackToCourses={handleBackToCourses}
               courseTitle="Interactive Trigonometry"
             />
           
@@ -305,8 +303,6 @@ const InteractiveTrigonometryCoursePage: React.FC = () => {
           backgroundAttachment: 'fixed'
         }}>
           <CourseHeader 
-            onDashboard={handleDashboard} 
-            onBackToCourses={handleBackToCourses}
             title={`Lesson ${currentLessonData.id}: ${currentLessonData.title}`}
           />
 

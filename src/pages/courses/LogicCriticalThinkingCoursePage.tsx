@@ -126,8 +126,6 @@ const LogicCriticalThinkingCoursePage: React.FC = () => {
             backgroundAttachment: 'fixed'
           }}>
             <CourseHeader 
-              onDashboard={handleDashboard} 
-              onBackToCourses={handleBackToCourses}
               courseTitle="Logic and Critical Thinking"
             />
           
@@ -330,8 +328,6 @@ const LogicCriticalThinkingCoursePage: React.FC = () => {
           backgroundAttachment: 'fixed'
         }}>
           <CourseHeader 
-            onDashboard={handleDashboard} 
-            onBackToCourses={handleBackToCourses}
             title={`Lesson ${currentLessonData.id}: ${currentLessonData.title}`}
           />
 

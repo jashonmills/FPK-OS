@@ -142,8 +142,6 @@ const InteractiveAlgebraCoursePage: React.FC = () => {
             backgroundAttachment: 'fixed'
           }}>
             <CourseHeader 
-              onDashboard={handleDashboard} 
-              onBackToCourses={handleBackToCourses}
               courseTitle="Interactive Algebra"
             />
           
@@ -345,8 +343,6 @@ const InteractiveAlgebraCoursePage: React.FC = () => {
           backgroundAttachment: 'fixed'
         }}>
           <CourseHeader 
-            onDashboard={handleDashboard} 
-            onBackToCourses={handleBackToCourses}
             title={`Lesson ${currentLessonData.id}: ${currentLessonData.title}`}
           />
 

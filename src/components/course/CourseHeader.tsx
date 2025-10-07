@@ -7,22 +7,20 @@ import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
 import { useIsMobile } from '@/hooks/use-mobile';
 import DualLanguageText from '@/components/DualLanguageText';
+import { useContextAwareNavigation } from '@/hooks/useContextAwareNavigation';
 
 interface CourseHeaderProps {
-  onBackToCourses: () => void;
-  onDashboard: () => void;
   title?: string;
   courseTitle?: string;
 }
 
 const CourseHeader: React.FC<CourseHeaderProps> = ({ 
-  onBackToCourses, 
-  onDashboard, 
   title, 
   courseTitle 
 }) => {
   const { t } = useTranslation();
   const isMobile = useIsMobile();
+  const { goToCourses, goToDashboard } = useContextAwareNavigation();
 
   // Use provided title, courseTitle, or fall back to default
   const displayTitle = title || courseTitle || t('courses.learningState.title');
@@ -52,7 +50,7 @@ const CourseHeader: React.FC<CourseHeaderProps> = ({
             size="sm" 
             onClick={() => {
               console.log('🔘 CourseHeader: Back to courses button clicked');
-              onBackToCourses();
+              goToCourses();
             }}
             className="text-white hover:bg-white/20 text-xs sm:text-sm px-2 sm:px-4"
           >
@@ -63,7 +61,7 @@ const CourseHeader: React.FC<CourseHeaderProps> = ({
             <Button 
               variant="ghost" 
               size="sm" 
-              onClick={onDashboard}
+              onClick={goToDashboard}
               className="text-white hover:bg-white/20"
             >
               <Menu className="h-4 w-4 mr-1" />

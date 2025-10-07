@@ -139,8 +139,6 @@ export const InteractiveEconomicsCoursePage: React.FC = () => {
             backgroundAttachment: 'fixed'
           }}>
             <CourseHeader 
-              onDashboard={handleDashboard} 
-              onBackToCourses={handleBackToCourses}
               courseTitle="Introduction to Modern Economics"
             />
           

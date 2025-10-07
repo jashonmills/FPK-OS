@@ -255,8 +255,6 @@ const InteractiveELTCoursePage: React.FC = () => {
             }}
           >
             <CourseHeader 
-              onDashboard={handleDashboard} 
-              onBackToCourses={handleBackToCourses}
               courseTitle="ELT: Empowering Learning Techniques"
             />
            

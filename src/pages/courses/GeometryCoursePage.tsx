@@ -165,8 +165,6 @@ export const GeometryCoursePage: React.FC = () => {
             backgroundAttachment: 'fixed'
           }}>
             <CourseHeader 
-              onDashboard={handleDashboard} 
-              onBackToCourses={handleBackToCourses}
               courseTitle="Interactive Geometry Fundamentals"
             />
           
@@ -362,8 +360,6 @@ export const GeometryCoursePage: React.FC = () => {
           backgroundAttachment: 'fixed'
         }}>
           <CourseHeader 
-            onBackToCourses={() => navigate('/dashboard/learner/courses')}
-            onDashboard={handleDashboard}
             courseTitle="Interactive Geometry Fundamentals"
           />
           

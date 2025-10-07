@@ -143,8 +143,6 @@ const InteractiveLinearEquationsCoursePage: React.FC = () => {
             backgroundAttachment: 'fixed'
           }}>
             <CourseHeader 
-              onDashboard={handleDashboard} 
-              onBackToCourses={handleBackToCourses}
               courseTitle="Interactive Linear Equations"
             />
           
@@ -348,8 +346,6 @@ const InteractiveLinearEquationsCoursePage: React.FC = () => {
           backgroundAttachment: 'fixed'
         }}>
           <CourseHeader 
-            onDashboard={handleDashboard}
-            onBackToCourses={handleBackToCourses}
             courseTitle="Interactive Linear Equations"
           />
 

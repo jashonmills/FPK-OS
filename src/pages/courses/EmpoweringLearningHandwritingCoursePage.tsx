@@ -169,8 +169,6 @@ export const EmpoweringLearningHandwritingCoursePage: React.FC = () => {
             <div className="absolute inset-0 bg-black/30 backdrop-blur-[1px]" />
             
             <CourseHeader 
-              onDashboard={handleDashboard} 
-              onBackToCourses={handleBackToCourses}
               courseTitle="Empowering Learning: Handwriting"
             />
           
@@ -370,8 +368,6 @@ export const EmpoweringLearningHandwritingCoursePage: React.FC = () => {
           <div className="absolute inset-0 bg-black/30 backdrop-blur-[1px]" />
           
           <CourseHeader 
-            onBackToCourses={handleBackToCourses}
-            onDashboard={handleDashboard}
             courseTitle="Empowering Learning: Handwriting"
           />
           

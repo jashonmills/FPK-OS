@@ -180,8 +180,6 @@ export default function NativeCoursePlayer() {
       <div className="flex-1 flex flex-col">
         {/* Header */}
         <CourseHeader 
-          onBackToCourses={handleExit}
-          onDashboard={handleExit}
           title={course.title}
         />
         

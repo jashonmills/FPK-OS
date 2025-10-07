@@ -135,8 +135,6 @@ const MoneyManagementCoursePage: React.FC = () => {
             backgroundAttachment: 'fixed'
           }}>
             <CourseHeader 
-              onDashboard={handleDashboard} 
-              onBackToCourses={handleBackToCourses}
               courseTitle="Money Management for Teens"
             />
           
@@ -340,8 +338,6 @@ const MoneyManagementCoursePage: React.FC = () => {
           backgroundAttachment: 'fixed'
         }}>
           <CourseHeader 
-            onBackToCourses={() => navigate('/dashboard/learner/courses')}
-            onDashboard={handleDashboard}
             courseTitle="Money Management for Teens"
           />
           

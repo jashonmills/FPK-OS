@@ -220,8 +220,6 @@ const InteractiveNeurodiversityCoursePage: React.FC = () => {
             }}
           >
             <CourseHeader 
-              onDashboard={handleDashboard} 
-              onBackToCourses={handleBackToCourses}
               courseTitle="Neurodiversity: A Strengths-Based Approach"
             />
            

@@ -170,8 +170,6 @@ export const EmpoweringLearningReadingCoursePage: React.FC = () => {
             <div className="absolute inset-0 bg-black/30 backdrop-blur-[1px]" />
             
             <CourseHeader 
-              onDashboard={handleDashboard} 
-              onBackToCourses={handleBackToCourses}
               courseTitle="Empowering Learning for Reading"
             />
           
@@ -383,8 +381,6 @@ export const EmpoweringLearningReadingCoursePage: React.FC = () => {
         >
           <div className="min-h-screen">
             <CourseHeader 
-              onBackToCourses={handleBackToCourses}
-              onDashboard={handleDashboard}
               courseTitle="Empowering Learning for Reading"
             />
             

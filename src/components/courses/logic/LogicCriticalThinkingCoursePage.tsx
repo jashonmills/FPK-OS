@@ -146,8 +146,6 @@ const LogicCriticalThinkingCoursePage = () => {
         >
           <div className="min-h-screen bg-background">
         <CourseHeader 
-          onBackToCourses={handleBackToCourses}
-          onDashboard={handleDashboard}
           courseTitle="Logic and Critical Thinking"
         />
           
@@ -307,8 +305,6 @@ const LogicCriticalThinkingCoursePage = () => {
       >
         <div className="min-h-screen bg-background">
         <CourseHeader 
-          onBackToCourses={handleBackToCourses}
-          onDashboard={handleDashboard}
           title={`Lesson ${currentLessonData.id}: ${currentLessonData.title}`}
         />
         

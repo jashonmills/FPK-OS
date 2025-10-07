@@ -160,8 +160,6 @@ const LearningStateCourse = () => {
       stickyToolbar={
         <div className="flex flex-col">
           <CourseHeader 
-            onBackToCourses={handleBackToCourses}
-            onDashboard={handleDashboard}
             courseTitle="Learning State Course"
           />
           <StickyMediaToolbar

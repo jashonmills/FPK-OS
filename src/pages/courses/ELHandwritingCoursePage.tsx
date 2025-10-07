@@ -167,8 +167,6 @@ const ELHandwritingCoursePage: React.FC = () => {
             <div className="absolute inset-0 bg-black/30 backdrop-blur-[1px]" />
             
             <CourseHeader 
-              onDashboard={handleDashboard} 
-              onBackToCourses={handleBackToCourses}
               courseTitle="EL Handwriting"
             />
           
@@ -361,8 +359,6 @@ const ELHandwritingCoursePage: React.FC = () => {
           <div className="absolute inset-0 bg-black/30 backdrop-blur-[1px]" />
           
           <CourseHeader 
-            onBackToCourses={handleBackToCourses}
-            onDashboard={handleDashboard}
             courseTitle="EL Handwriting"
           />
           

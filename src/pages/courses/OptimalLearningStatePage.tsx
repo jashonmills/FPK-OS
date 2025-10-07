@@ -216,8 +216,6 @@ export const OptimalLearningStatePage: React.FC = () => {
                  backgroundAttachment: 'fixed'
                }}>
             <CourseHeader 
-              onDashboard={handleDashboard} 
-              onBackToCourses={handleBackToCourses}
               courseTitle="Optimal Learning State Course"
             />
           
@@ -355,8 +353,6 @@ export const OptimalLearningStatePage: React.FC = () => {
                backgroundAttachment: 'fixed'
              }}>
           <CourseHeader 
-            onBackToCourses={handleBackToCourses}
-            onDashboard={() => navigate('/dashboard/learner')}
             courseTitle="Optimal Learning State Course"
           />
           

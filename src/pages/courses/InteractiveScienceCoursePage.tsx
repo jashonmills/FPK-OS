@@ -165,8 +165,6 @@ export const InteractiveScienceCoursePage: React.FC = () => {
           >
             <div className="min-h-screen bg-gradient-to-br from-black/60 to-black/40">
             <CourseHeader 
-              onDashboard={handleDashboard} 
-              onBackToCourses={handleBackToCourses}
               courseTitle="Introduction to Science"
             />
           
@@ -354,8 +352,6 @@ export const InteractiveScienceCoursePage: React.FC = () => {
         >
           <div className="min-h-screen bg-gradient-to-br from-black/60 to-black/40">
             <CourseHeader 
-              onBackToCourses={handleBackToCourses}
-              onDashboard={handleDashboard}
               courseTitle="Introduction to Science"
             />
           
