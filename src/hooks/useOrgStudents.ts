@@ -177,9 +177,18 @@ export function useOrgStudents(orgId: string, searchQuery?: string) {
     },
     onError: (error: any) => {
       console.error('Error creating student:', error);
+      
+      let errorMessage = "Failed to add student";
+      
+      if (error.code === '23505' && error.message?.includes('unique_student_id_per_org')) {
+        errorMessage = "A student with this Student ID already exists in your organization. Please use a different Student ID or leave it blank.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: "Error",
-        description: error.message || "Failed to add student",
+        description: errorMessage,
         variant: "destructive",
       });
     },
