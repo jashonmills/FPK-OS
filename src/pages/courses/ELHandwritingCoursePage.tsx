@@ -126,12 +126,8 @@ const ELHandwritingCoursePage: React.FC = () => {
 
   const handleBackToCourseOverview = useCallback(() => {
     setCurrentLesson(null);
-    const orgParam = new URLSearchParams(window.location.search).get('org');
-    const url = orgParam 
-      ? `/courses/el-handwriting?org=${orgParam}`
-      : '/courses/el-handwriting';
-    navigate(url);
-  }, [navigate]);
+    navigateToOverview();
+  }, [navigateToOverview]);
 
   const handleDashboard = useCallback(() => {
     goToDashboard();
@@ -254,7 +250,7 @@ const ELHandwritingCoursePage: React.FC = () => {
                       }`}
                       onClick={() => {
                         if (isAccessible) {
-                          setCurrentLesson(lesson.id);
+                          handleLessonSelect(lesson.id);
                         } else {
                           console.log('✍️ Lesson not accessible yet - complete previous lesson first');
                         }
@@ -292,7 +288,7 @@ const ELHandwritingCoursePage: React.FC = () => {
                           onClick={(e) => {
                             e.stopPropagation();
                             if (isAccessible) {
-                              setCurrentLesson(lesson.id);
+                              handleLessonSelect(lesson.id);
                             }
                           }}
                           disabled={!isAccessible}
