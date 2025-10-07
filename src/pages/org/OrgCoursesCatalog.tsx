@@ -421,115 +421,120 @@ export default function OrgCoursesCatalog() {
       <PageShell>
         <div className="p-4 md:p-6 bg-orange-500/65 border border-orange-400/50 rounded-lg">
           {/* Header */}
-          <header className="mb-6">
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <div>
-                <h1 className="text-2xl font-bold text-white mb-2">
-                  {isOrgStudent() ? 'My Courses' : 'Course Catalog'}
-                </h1>
-                <p className="text-white/80 text-sm md:text-base">
-                  {isOrgStudent() 
-                    ? 'View your assigned courses and explore available content'
-                    : 'Discover and assign courses from our platform and your organization'
-                  }
-                </p>
-              </div>
-              
-              {/* Mobile-optimized controls */}
-              <div className="flex flex-col gap-3 md:flex-row md:gap-2">
-                {/* View type controls */}
-                <div className="flex items-center gap-1 border border-white/20 rounded-lg p-1 self-start">
-                  <Button
-                    size="sm"
-                    variant={viewType === 'grid' ? 'secondary' : 'ghost'}
-                    onClick={() => handleViewTypeChange('grid')}
-                    className={viewType === 'grid' 
-                      ? "h-8 w-8 p-0 bg-white text-orange-600 hover:bg-white/90" 
-                      : "h-8 w-8 p-0 bg-transparent text-white hover:bg-white/20"
-                    }
-                  >
-                    <Grid3X3 className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant={viewType === 'list' ? 'secondary' : 'ghost'}
-                    onClick={() => handleViewTypeChange('list')}
-                    className={viewType === 'list' 
-                      ? "h-8 w-8 p-0 bg-white text-orange-600 hover:bg-white/90" 
-                      : "h-8 w-8 p-0 bg-transparent text-white hover:bg-white/20"
-                    }
-                  >
-                    <List className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant={viewType === 'compact' ? 'secondary' : 'ghost'}
-                    onClick={() => handleViewTypeChange('compact')}
-                    className={viewType === 'compact' 
-                      ? "h-8 w-8 p-0 bg-white text-orange-600 hover:bg-white/90" 
-                      : "h-8 w-8 p-0 bg-transparent text-white hover:bg-white/20"
-                    }
-                  >
-                    <AlignJustify className="w-4 h-4" />
-                  </Button>
-                </div>
+          <header className="mb-6 space-y-4">
+            {/* Title and Description - Full Width */}
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
+                {isOrgStudent() ? 'My Courses' : 'Course Catalog'}
+              </h1>
+              <p className="text-white/80 text-sm md:text-base">
+                {isOrgStudent() 
+                  ? 'View your assigned courses and explore available content'
+                  : 'Discover and assign courses from our platform in your organization'
+                }
+              </p>
+            </div>
 
-                {/* Action buttons for instructors/owners */}
-                {!isOrgStudent() && (
-                  <div className="flex flex-col gap-2 md:flex-row md:gap-2">
-                    {!bulkMode && <CollectionsDropdown orgId={orgId} />}
-                    <div className="flex gap-2">
-                      {bulkMode ? (
-                        <>
-                          <Button 
-                            onClick={handleBulkAssign}
-                            disabled={selectedCourseIds.length === 0}
-                            className="bg-white text-orange-600 hover:bg-white/90 flex-1 md:flex-none"
-                          >
-                            <UserPlus className="w-4 h-4 mr-2" />
-                            Assign {selectedCourseIds.length > 0 && `(${selectedCourseIds.length})`}
-                          </Button>
-                          <Button 
-                            variant="outline"
-                            onClick={exitBulkMode}
-                            className="bg-white/10 text-white border-white/30 hover:bg-white/20"
-                          >
-                            Cancel
-                          </Button>
-                        </>
-                      ) : (
-                        <>
-                          <Button 
-                            onClick={() => setBulkMode(true)}
-                            variant="outline"
-                            className="bg-white/10 text-white border-white/30 hover:bg-white/20 flex-1 md:flex-none"
-                          >
-                            <UserPlus className="w-4 h-4 mr-2" />
-                            Bulk Assign
-                          </Button>
-                          <Button 
-                            onClick={handleCreateCourse}
-                            className="bg-white/20 text-white border-white/30 hover:bg-white/30 flex-1 md:flex-none"
-                            size={isMobile ? "default" : "default"}
-                          >
-                            <Plus className="w-4 h-4 mr-2" />
-                            {isMobile ? 'New' : 'New Course'}
-                          </Button>
-                          <Button 
-                            variant="outline" 
-                            onClick={handleUploadScorm}
-                            className="bg-white/10 text-white border-white/30 hover:bg-white/20 flex-1 md:flex-none"
-                            size={isMobile ? "default" : "default"}
-                          >
-                            <Upload className="w-4 h-4 mr-2" />
-                            Import
-                          </Button>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                )}
+            {/* Controls Row - View Type and Actions */}
+            <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+              {/* View type controls */}
+              <div className="flex items-center gap-1 border border-white/20 rounded-lg p-1 w-fit">
+                <Button
+                  size="sm"
+                  variant={viewType === 'grid' ? 'secondary' : 'ghost'}
+                  onClick={() => handleViewTypeChange('grid')}
+                  className={viewType === 'grid' 
+                    ? "h-8 w-8 p-0 bg-white text-orange-600 hover:bg-white/90" 
+                    : "h-8 w-8 p-0 bg-transparent text-white hover:bg-white/20"
+                  }
+                  title="Grid View"
+                >
+                  <Grid3X3 className="w-4 h-4" />
+                </Button>
+                <Button
+                  size="sm"
+                  variant={viewType === 'list' ? 'secondary' : 'ghost'}
+                  onClick={() => handleViewTypeChange('list')}
+                  className={viewType === 'list' 
+                    ? "h-8 w-8 p-0 bg-white text-orange-600 hover:bg-white/90" 
+                    : "h-8 w-8 p-0 bg-transparent text-white hover:bg-white/20"
+                  }
+                  title="List View"
+                >
+                  <List className="w-4 h-4" />
+                </Button>
+                <Button
+                  size="sm"
+                  variant={viewType === 'compact' ? 'secondary' : 'ghost'}
+                  onClick={() => handleViewTypeChange('compact')}
+                  className={viewType === 'compact' 
+                    ? "h-8 w-8 p-0 bg-white text-orange-600 hover:bg-white/90" 
+                    : "h-8 w-8 p-0 bg-transparent text-white hover:bg-white/20"
+                  }
+                  title="Compact View"
+                >
+                  <AlignJustify className="w-4 h-4" />
+                </Button>
               </div>
+
+              {/* Action buttons for instructors/owners */}
+              {!isOrgStudent() && (
+                <div className="flex flex-wrap gap-2">
+                  {!bulkMode && (
+                    <div className="w-full sm:w-auto">
+                      <CollectionsDropdown orgId={orgId} />
+                    </div>
+                  )}
+                  
+                  {bulkMode ? (
+                    <>
+                      <Button 
+                        onClick={handleBulkAssign}
+                        disabled={selectedCourseIds.length === 0}
+                        className="bg-white text-orange-600 hover:bg-white/90 flex-1 sm:flex-none"
+                      >
+                        <UserPlus className="w-4 h-4 mr-2" />
+                        Assign {selectedCourseIds.length > 0 && `(${selectedCourseIds.length})`}
+                      </Button>
+                      <Button 
+                        variant="outline"
+                        onClick={exitBulkMode}
+                        className="bg-white/10 text-white border-white/30 hover:bg-white/20"
+                      >
+                        Cancel
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button 
+                        onClick={() => setBulkMode(true)}
+                        variant="outline"
+                        className="bg-white/10 text-white border-white/30 hover:bg-white/20 flex-1 sm:flex-none"
+                      >
+                        <UserPlus className="w-4 h-4 mr-2" />
+                        <span className="hidden sm:inline">Bulk Assign</span>
+                        <span className="sm:hidden">Bulk</span>
+                      </Button>
+                      <Button 
+                        onClick={handleCreateCourse}
+                        className="bg-white/20 text-white border-white/30 hover:bg-white/30 flex-1 sm:flex-none"
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        <span className="hidden sm:inline">New Course</span>
+                        <span className="sm:hidden">New</span>
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        onClick={handleUploadScorm}
+                        className="bg-white/10 text-white border-white/30 hover:bg-white/20 flex-1 sm:flex-none"
+                      >
+                        <Upload className="w-4 h-4 mr-2" />
+                        Import
+                      </Button>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
           </header>
 
