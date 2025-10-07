@@ -1,12 +1,20 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { compare } from "https://deno.land/x/bcrypt@v0.2.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
+
+// Helper function to hash PIN using Deno's built-in crypto
+async function hashPin(pin: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(pin);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
 
 interface LoginRequest {
   org_id: string;
@@ -71,8 +79,9 @@ serve(async (req) => {
       );
     }
 
-    // Verify PIN using bcrypt compare
-    const isValidPin = await compare(pin, students.pin_hash);
+    // Verify PIN using crypto hash comparison
+    const pinHash = await hashPin(pin);
+    const isValidPin = pinHash === students.pin_hash;
 
     if (!isValidPin) {
       console.log('[student-pin-login] Invalid PIN');
