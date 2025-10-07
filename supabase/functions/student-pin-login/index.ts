@@ -106,17 +106,24 @@ serve(async (req) => {
 
     console.log('[student-pin-login] Valid credentials, student_id:', student_id);
 
-    // If student has a linked user account, sign them in
+    // Get organization slug for redirect
+    const { data: orgData } = await supabaseAdmin
+      .from('organizations')
+      .select('slug')
+      .eq('id', org_id)
+      .single();
+
+    const orgSlug = orgData?.slug || org_id;
+
+    // If student has a linked user account, create a session
     if (linked_user_id) {
+      // Generate a session token for the user
       const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.admin.generateLink({
         type: 'magiclink',
-        email: `student-${student_id}@portal.fpkuniversity.com`, // Temporary email format
-        options: {
-          redirectTo: `${req.headers.get('origin')}/students/dashboard?org=${org_id}`
-        }
+        email: `student-${student_id}@portal.fpkuniversity.com`
       });
 
-      if (sessionError) {
+      if (sessionError || !sessionData?.properties?.hashed_token) {
         console.error('[student-pin-login] Session creation error:', sessionError);
         return new Response(
           JSON.stringify({ error: 'Failed to create session' }),
@@ -134,13 +141,14 @@ serve(async (req) => {
           metadata: { student_id, method: 'pin' }
         });
 
+      // Return the magic link properties so client can verify the hash
       return new Response(
         JSON.stringify({
           success: true,
-          session: sessionData,
+          auth_link: sessionData.properties.action_link,
           student_id,
           org_id,
-          redirect_url: `/students/dashboard?org=${org_id}`
+          redirect_url: `/org/${orgSlug}/student-portal`
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -172,16 +180,13 @@ serve(async (req) => {
       .update({ linked_user_id: newUser.user.id })
       .eq('id', student_id);
 
-    // Generate session for new user
+    // Generate session link for new user
     const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.admin.generateLink({
       type: 'magiclink',
-      email: tempEmail,
-      options: {
-        redirectTo: `${req.headers.get('origin')}/students/dashboard?org=${org_id}`
-      }
+      email: tempEmail
     });
 
-    if (sessionError) {
+    if (sessionError || !sessionData?.properties?.hashed_token) {
       console.error('[student-pin-login] Session generation error:', sessionError);
       return new Response(
         JSON.stringify({ error: 'Failed to generate session' }),
@@ -204,10 +209,10 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: true,
-        session: sessionData,
+        auth_link: sessionData.properties.action_link,
         student_id,
         org_id,
-        redirect_url: `/students/dashboard?org=${org_id}`
+        redirect_url: `/org/${orgSlug}/student-portal`
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

@@ -116,14 +116,24 @@ export default function StudentPinLogin() {
         return;
       }
 
-      // Login successful
-      toast({
-        title: 'Login Successful',
-        description: 'Redirecting to your dashboard...'
-      });
+      // Login successful - use the auth link to authenticate
+      if (data.auth_link) {
+        toast({
+          title: 'Login Successful',
+          description: 'Redirecting to your dashboard...'
+        });
 
-      // Redirect to student dashboard
-      navigate(data.redirect_url || `/students/dashboard?org=${orgId}`);
+        // Navigate to the auth link which will authenticate the user and redirect
+        window.location.href = data.auth_link;
+      } else {
+        // Fallback redirect
+        toast({
+          title: 'Login Successful',
+          description: 'Redirecting to your dashboard...'
+        });
+        
+        navigate(data.redirect_url || `/${orgSlug}/student-portal`);
+      }
     } catch (error) {
       console.error('Login error:', error);
       setError('An unexpected error occurred. Please try again.');
