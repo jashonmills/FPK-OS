@@ -11,7 +11,8 @@ import {
   DropdownMenuSeparator, 
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
-import { 
+import { Checkbox } from '@/components/ui/checkbox';
+import {
   BookOpen, 
   Clock, 
   Users, 
@@ -320,10 +321,57 @@ export function EnhancedCourseCard({
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-          )}
         </div>
-            </>
-          ) : (
+      </CardContent>
+    </Card>
+
+    <ConfirmModal
+      isOpen={confirm.kind !== null}
+      confirm={confirm}
+      onConfirm={handleConfirmAction}
+      onCancel={() => setConfirm({ kind: null, busy: false })}
+    />
+    </>
+  );
+  }
+
+  // List view
+  if (viewType === 'list') {
+        <Card className={cn(
+          "overflow-hidden hover:shadow-md transition-all duration-200",
+          "bg-card border-border",
+          selectionMode && "cursor-pointer",
+          isSelected && "ring-2 ring-primary"
+        )}
+        onClick={selectionMode ? onToggleSelection : undefined}
+        >
+          <CardContent className="p-4">
+            <div className="flex gap-4">
+              <div className="relative flex-shrink-0">
+                <StatusRibbon />
+                {selectionMode && (
+                  <div className="absolute top-2 left-2 z-20">
+                    <Checkbox checked={isSelected} className="bg-background border-2" />
+                  </div>
+                )}
+                <img
+                  src={getCourseImage(course.id)}
+                  alt={course.title}
+                  className="w-32 h-24 object-cover rounded"
+                />
+              </div>
+
+            <div className="flex-1 min-w-0">
+              {/* Status indicator for mobile */}
+              {isMobile ? (
+                <div className="mb-2">
+                  <Badge className={cn("text-xs", getStatusColor(course.status))}>
+                    {course.status === 'processing' && course.processingStage
+                      ? `Processing • ${course.processingStage}`
+                      : course.status.replace('_', ' ')}
+                  </Badge>
+                </div>
+              ) : (
             // Desktop: Original horizontal layout
             <>
               {/* Status indicator dot */}
@@ -510,19 +558,20 @@ export function EnhancedCourseCard({
             )}
           </div>
         </CardContent>
-        </div>
+      </Card>
 
-        <ConfirmModal
-          isOpen={confirm.kind !== null}
-          confirm={confirm}
-          onConfirm={handleConfirmAction}
-          onCancel={() => setConfirm({ kind: null, busy: false })}
-        />
+      <ConfirmModal
+        isOpen={confirm.kind !== null}
+        confirm={confirm}
+        onConfirm={handleConfirmAction}
+        onCancel={() => setConfirm({ kind: null, busy: false })}
+      />
       </>
     );
   }
-  // Render list view
-  if (viewType === 'list') {
+
+  // Compact view
+  return (
     return (
       <>
         <Card className="relative flex items-center hover:shadow-lg transition-shadow overflow-hidden">
@@ -773,11 +822,12 @@ export function EnhancedCourseCard({
             </DropdownMenu>
           </div>
           )}
-          </div>
-        </Card>
+        </div>
+      </CardContent>
+    </Card>
 
-        <ConfirmModal
-          isOpen={confirm.kind !== null}
+    <ConfirmModal
+      isOpen={confirm.kind !== null}
           confirm={confirm}
           onConfirm={handleConfirmAction}
           onCancel={() => setConfirm({ kind: null, busy: false })}
