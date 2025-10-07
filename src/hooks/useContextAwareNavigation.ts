@@ -9,60 +9,76 @@ export function useContextAwareNavigation() {
   const inOrgMode = isInOrgMode();
 
   const goToCourses = useCallback(() => {
-    if (inOrgMode && orgId) {
-      console.log('📍 [Org Context] Navigating to org courses:', `/org/${orgId}/courses`);
-      navigate(`/org/${orgId}/courses`);
+    // Read org context fresh each time to handle dynamic URL changes
+    const currentOrgId = getActiveOrgId();
+    const currentInOrgMode = isInOrgMode();
+    
+    if (currentInOrgMode && currentOrgId) {
+      console.log('📍 [Org Context] Navigating to org courses:', `/org/${currentOrgId}/courses`);
+      navigate(`/org/${currentOrgId}/courses`);
     } else {
       console.log('📍 [Personal Context] Navigating to personal courses');
       navigate('/dashboard/learner/courses');
     }
-  }, [navigate, orgId, inOrgMode]);
+  }, [navigate]);
 
   const goToDashboard = useCallback(() => {
-    if (inOrgMode && orgId) {
-      console.log('📍 [Org Context] Navigating to org dashboard:', `/org/${orgId}`);
-      navigate(`/org/${orgId}`);
+    // Read org context fresh each time to handle dynamic URL changes
+    const currentOrgId = getActiveOrgId();
+    const currentInOrgMode = isInOrgMode();
+    
+    if (currentInOrgMode && currentOrgId) {
+      console.log('📍 [Org Context] Navigating to org dashboard:', `/org/${currentOrgId}`);
+      navigate(`/org/${currentOrgId}`);
     } else {
       console.log('📍 [Personal Context] Navigating to personal dashboard');
       navigate('/dashboard/learner');
     }
-  }, [navigate, orgId, inOrgMode]);
+  }, [navigate]);
 
   const goToCourse = useCallback((courseId: string, slug?: string | null) => {
+    // Read org context fresh each time to handle dynamic URL changes
+    const currentOrgId = getActiveOrgId();
+    const currentInOrgMode = isInOrgMode();
+    
     // Try to get slug from UUID mapping if not provided
     const effectiveSlug = slug || getSlugByUUID(courseId);
     
     // Check if this is a legacy course that has its own dedicated route
     if (effectiveSlug && isLegacyCourse(effectiveSlug)) {
       const legacyRoute = getLegacyCourseRoute(effectiveSlug);
-      if (inOrgMode && orgId) {
-        console.log('📍 [Org Context] Navigating to legacy course:', `${legacyRoute}?org=${orgId}`);
-        navigate(`${legacyRoute}?org=${orgId}`);
+      if (currentInOrgMode && currentOrgId) {
+        console.log('📍 [Org Context] Navigating to legacy course:', `${legacyRoute}?org=${currentOrgId}`);
+        navigate(`${legacyRoute}?org=${currentOrgId}`);
       } else {
         console.log('📍 [Personal Context] Navigating to legacy course:', legacyRoute);
         navigate(legacyRoute);
       }
     } else {
       // Use UUID-based routing for native courses
-      if (inOrgMode && orgId) {
-        console.log('📍 [Org Context] Navigating to course with org context:', `/courses/${courseId}?org=${orgId}`);
-        navigate(`/courses/${courseId}?org=${orgId}`);
+      if (currentInOrgMode && currentOrgId) {
+        console.log('📍 [Org Context] Navigating to course with org context:', `/courses/${courseId}?org=${currentOrgId}`);
+        navigate(`/courses/${courseId}?org=${currentOrgId}`);
       } else {
         console.log('📍 [Personal Context] Navigating to course');
         navigate(`/courses/${courseId}`);
       }
     }
-  }, [navigate, orgId, inOrgMode]);
+  }, [navigate]);
 
   const goToCoursePreview = useCallback((courseId: string) => {
-    if (inOrgMode && orgId) {
-      console.log('📍 [Org Context] Navigating to course preview with org context:', `/preview/${courseId}?org=${orgId}`);
-      navigate(`/preview/${courseId}?org=${orgId}`);
+    // Read org context fresh each time to handle dynamic URL changes
+    const currentOrgId = getActiveOrgId();
+    const currentInOrgMode = isInOrgMode();
+    
+    if (currentInOrgMode && currentOrgId) {
+      console.log('📍 [Org Context] Navigating to course preview with org context:', `/preview/${courseId}?org=${currentOrgId}`);
+      navigate(`/preview/${courseId}?org=${currentOrgId}`);
     } else {
       console.log('📍 [Personal Context] Navigating to course preview');
       navigate(`/preview/${courseId}`);
     }
-  }, [navigate, orgId, inOrgMode]);
+  }, [navigate]);
 
   return { goToCourses, goToDashboard, goToCourse, goToCoursePreview, inOrgMode, orgId };
 }
