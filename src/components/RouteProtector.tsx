@@ -103,7 +103,16 @@ export const RouteProtector: React.FC<RouteProtectorProps> = ({ children }) => {
     // PRIORITY 6: REMOVED AGGRESSIVE AUTO-REDIRECT
     // Only redirect if user explicitly lands on org route without org or dashboard route without org access
     if (user && !subscriptionLoading && hasAccess) {
-      const activeOrgId = safeLocalStorage.getItem<string>('fpk.activeOrgId', {
+      // Check URL params FIRST (matches getActiveOrgId() logic)
+      const urlParams = new URLSearchParams(window.location.search);
+      const orgFromUrl = urlParams.get('org');
+      
+      // Then check path pattern /org/{orgId}/...
+      const pathMatch = currentPath.match(/\/org\/([^\/]+)/);
+      const orgFromPath = pathMatch ? pathMatch[1] : null;
+      
+      // Finally check localStorage
+      const activeOrgId = orgFromUrl || orgFromPath || safeLocalStorage.getItem<string>('fpk.activeOrgId', {
         fallbackValue: null,
         logErrors: false
       });
