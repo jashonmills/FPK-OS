@@ -32,7 +32,13 @@ export function useOrgMembers(searchQuery?: string, roleFilter?: string) {
           user_id,
           role,
           status,
-          joined_at
+          joined_at,
+          profiles:user_id (
+            display_name,
+            full_name,
+            email,
+            avatar_url
+          )
         `)
         .eq('org_id', orgId)
         .eq('status', 'active');
@@ -48,23 +54,29 @@ export function useOrgMembers(searchQuery?: string, roleFilter?: string) {
         throw error;
       }
 
-      return data.map(member => ({
-        user_id: member.user_id,
-        role: member.role,
-        status: member.status,
-        joined_at: member.joined_at,
-        id: member.user_id, // For compatibility
-        display_name: `User ${member.user_id.slice(0, 8)}`, // Fallback display name
-        full_name: `User ${member.user_id.slice(0, 8)}`, // Fallback full name
-        last_activity: member.joined_at, // Default to joined_at
-        progress: Math.floor(Math.random() * 100), // Mock progress for now
-        courses_completed: Math.floor(Math.random() * 5), // Mock completed courses
-        profiles: {
-          display_name: `User ${member.user_id.slice(0, 8)}`,
-          email: undefined,
-          avatar_url: undefined,
-        }
-      })) as OrgMember[];
+      return data.map(member => {
+        const profile = Array.isArray(member.profiles) ? member.profiles[0] : member.profiles;
+        const displayName = profile?.display_name || profile?.full_name || `User ${member.user_id.slice(0, 8)}`;
+        const fullName = profile?.full_name || profile?.display_name || `User ${member.user_id.slice(0, 8)}`;
+        
+        return {
+          user_id: member.user_id,
+          role: member.role,
+          status: member.status,
+          joined_at: member.joined_at,
+          id: member.user_id, // For compatibility
+          display_name: displayName,
+          full_name: fullName,
+          last_activity: member.joined_at, // Default to joined_at
+          progress: Math.floor(Math.random() * 100), // Mock progress for now
+          courses_completed: Math.floor(Math.random() * 5), // Mock completed courses
+          profiles: {
+            display_name: displayName,
+            email: profile?.email,
+            avatar_url: profile?.avatar_url,
+          }
+        };
+      }) as OrgMember[];
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
   });

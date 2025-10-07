@@ -17,6 +17,7 @@ import { useCourseEnrollment } from '@/hooks/useCourseEnrollment';
 import { useNativeCourses, useNativeEnrollments, useNativeEnrollmentMutations } from '@/hooks/useNativeCourses';
 import { useOrganizationCourses } from '@/hooks/useOrganizationCourses';
 import { useUserPrimaryOrganization } from '@/hooks/useUserOrganization';
+import { useStudentAssignments } from '@/hooks/useStudentAssignments';
 import { NativeCourseCard } from '@/components/native-courses/NativeCourseCard';
 import { StyledCourseCard } from '@/components/common/StyledCourseCard';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -343,6 +344,9 @@ const MyCourses = () => {
 
   // Organization-specific courses if user is in an organization
   const { data: orgCourses } = useOrganizationCourses(userOrganization?.organization_id || '');
+  
+  // Fetch student assignments if in an organization
+  const { assignments: studentAssignments = [] } = useStudentAssignments(userOrganization?.organization_id);
   
   const [searchTerm, setSearchTerm] = useState('');
   const [difficultyFilter, setDifficultyFilter] = useState('all');
@@ -742,8 +746,54 @@ const OPTIMAL_LEARNING_STATE_COURSE = {
         </TabsList>
 
         <TabsContent value="enrolled" className="space-y-6">
+          {/* Assigned Courses Section */}
+          {studentAssignments.length > 0 && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <h3 className="text-lg font-semibold text-white">Assigned by Organization</h3>
+                <Badge variant="secondary">{studentAssignments.filter(a => a.type === 'course').length}</Badge>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
+                {studentAssignments
+                  .filter(assignment => assignment.type === 'course')
+                  .map((assignment) => {
+                    // Find the course in available courses (both regular and native)
+                    const course = allAvailableCourses.find(c => c.id === assignment.resource_id) ||
+                                   allAvailableNativeCourses.find(c => c.id === assignment.resource_id);
+                    
+                    if (!course) return null;
+                    
+                    // Check if it's a native course
+                    const isNativeCourse = allAvailableNativeCourses.some(c => c.id === assignment.resource_id);
+                    const enrollment = isNativeCourse 
+                      ? nativeEnrollments.find(e => e.course_id === course.id)
+                      : null;
+                    
+                    return isNativeCourse ? (
+                      <NativeCourseCard 
+                        key={assignment.id} 
+                        course={course as any} 
+                        enrollment={enrollment}
+                      />
+                    ) : (
+                      <CourseCard 
+                        key={assignment.id} 
+                        course={course} 
+                        isEnrolled={enrolledCourseIds.includes(course.id)} 
+                      />
+                    );
+                  })
+                }
+              </div>
+            </div>
+          )}
+          
+          {/* Enrolled Courses Section */}
           {(filteredCourses(enrolledCourses).length > 0 || filteredNativeCourses(enrolledNativeCourses).length > 0) ? (
-            <div className="space-y-8">
+            <div className="space-y-4">
+              {studentAssignments.length > 0 && (
+                <h3 className="text-lg font-semibold text-white">My Other Courses</h3>
+              )}
               {/* All Courses */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
                 {/* Native Courses */}
@@ -764,7 +814,7 @@ const OPTIMAL_LEARNING_STATE_COURSE = {
                 ))}
               </div>
             </div>
-          ) : (
+          ) : studentAssignments.length === 0 ? (
             <div className="text-center py-12">
               <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">
@@ -782,7 +832,7 @@ const OPTIMAL_LEARNING_STATE_COURSE = {
                 </Button>
               )}
             </div>
-          )}
+          ) : null}
         </TabsContent>
 
         <TabsContent value="available" className="space-y-6">
