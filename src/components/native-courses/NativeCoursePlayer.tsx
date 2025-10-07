@@ -30,6 +30,7 @@ export default function NativeCoursePlayer() {
   const [currentLessonId, setCurrentLessonId] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   
+  // slug parameter can be either a slug or UUID
   const { data: course } = useNativeCourse(slug!);
   const { data: modules } = useCourseModules(course?.id || '');
   const { data: lesson } = useCourseLesson(currentLessonId || '');

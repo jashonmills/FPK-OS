@@ -99,17 +99,27 @@ export function useNativeCourses(options?: { organizationId?: string }) {
   });
 }
 
-// Hook to fetch a single native course
-export function useNativeCourse(slug: string) {
+// Hook to fetch a single native course (handles both slug and UUID)
+export function useNativeCourse(identifier: string) {
   return useQuery({
-    queryKey: ['native-course', slug],
+    queryKey: ['native-course', identifier],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // Check if identifier is a UUID (format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(identifier);
+      
+      let query = supabase
         .from('native_courses')
         .select('*')
-        .eq('slug', slug)
-        .eq('visibility', 'published')
-        .single();
+        .eq('visibility', 'published');
+      
+      // Query by ID if UUID, otherwise by slug
+      if (isUuid) {
+        query = query.eq('id', identifier);
+      } else {
+        query = query.eq('slug', identifier);
+      }
+      
+      const { data, error } = await query.single();
 
       if (error) {
         console.error('Error fetching native course:', error);
@@ -118,7 +128,7 @@ export function useNativeCourse(slug: string) {
 
       return data as NativeCourse;
     },
-    enabled: !!slug,
+    enabled: !!identifier,
     staleTime: 1000 * 60 * 5,
   });
 }
