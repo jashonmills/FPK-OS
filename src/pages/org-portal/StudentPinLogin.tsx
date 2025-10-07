@@ -8,6 +8,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ArrowLeft, LogIn, Loader2, AlertCircle } from 'lucide-react';
 import { useOrgBranding } from '@/hooks/useOrgBranding';
 import { useToast } from '@/hooks/use-toast';
+import { OrgBanner } from '@/components/branding/OrgBanner';
 
 export default function StudentPinLogin() {
   const { orgSlug } = useParams<{ orgSlug: string }>();
@@ -133,15 +134,28 @@ export default function StudentPinLogin() {
 
   if (pageLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-white to-orange-50">
-        <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
+      <div className="min-h-screen flex items-center justify-center">
+        <OrgBanner className="fixed inset-0 bg-cover" overlay={true} overlayOpacity={0.3} />
+        <div className="relative z-10">
+          <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-orange-50 via-white to-orange-50 p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen relative">
+      {/* Full-screen background banner */}
+      <OrgBanner className="fixed inset-0 bg-cover" overlay={true} overlayOpacity={0.3} />
+      
+      {/* Content */}
+      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-4">
+        {/* Banner at top */}
+        <div className="w-full mb-4">
+          <OrgBanner className="h-24 sm:h-32 rounded-lg overflow-hidden shadow-lg" overlay={false} />
+        </div>
+        
+        <div className="w-full max-w-md">
         {/* Back Button */}
         <Button
           variant="ghost"
@@ -246,9 +260,10 @@ export default function StudentPinLogin() {
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="text-center mt-6 text-sm text-gray-500">
-          <p>Powered by FPK University</p>
+          {/* Footer */}
+          <div className="text-center mt-6 text-sm text-gray-500">
+            <p>Powered by FPK University</p>
+          </div>
         </div>
       </div>
     </div>
