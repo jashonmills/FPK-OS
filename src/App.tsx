@@ -35,6 +35,7 @@ const OrgPortalLanding = lazy(() => import("./pages/org-portal/OrgPortalLanding"
 const StudentPinLogin = lazy(() => import("./pages/org-portal/StudentPinLogin"));
 const StudentActivation = lazy(() => import("./pages/org-portal/StudentActivation"));
 const StudentPortalDashboard = lazy(() => import("./pages/students/StudentPortalDashboard"));
+const AuthCallback = lazy(() => import("./pages/AuthCallback"));
 
 // Organization authenticated pages
 const OrgHub = lazy(() => import("./pages/organizations/OrgHub"));
@@ -246,6 +247,9 @@ const App: React.FC = () => {
           <Route path="/reset-password" element={<LazyRoute><ResetPassword /></LazyRoute>} />
           <Route path="/join" element={<LazyRoute><JoinRedirect /></LazyRoute>} />
           <Route path="/join/:code" element={<LazyRoute><JoinRedirect /></LazyRoute>} />
+
+          {/* Auth Bridge Page - Must come before other routes */}
+          <Route path="/auth/callback" element={<LazyRoute><AuthCallback /></LazyRoute>} />
 
           {/* Branded Student Portal Routes - Must come before org routes */}
           <Route path="/:orgSlug/login" element={<LazyRoute><StudentPinLogin /></LazyRoute>} />

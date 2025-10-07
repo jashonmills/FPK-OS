@@ -177,26 +177,9 @@ export default function StudentActivation() {
         description: 'Redirecting to your dashboard...'
       });
 
-      // Activation successful - try the auth link first
-      if (data.auth_link) {
-        console.log('[StudentActivation] Using auth_link:', data.auth_link);
-        
-        // Try navigating via auth link
-        window.location.href = data.auth_link;
-        
-        // Wait 3 seconds for redirect to happen
-        await new Promise(resolve => setTimeout(resolve, 3000));
-        
-        // If we're still here after 3 seconds, the auth-redirect didn't work
-        // Fall back to manual navigation
-        console.log('[StudentActivation] Auth link redirect timed out, using fallback...');
-      }
-      
-      // Fallback: Navigate directly to student portal
-      console.log('[StudentActivation] Using direct navigation fallback');
-      const redirectPath = `/org/${orgSlug}/student-portal`;
-      console.log('[StudentActivation] Redirecting to:', redirectPath);
-      navigate(redirectPath);
+      // Simply redirect to the magic link - the Auth Bridge page will handle the rest
+      console.log('✅ Activation successful, redirecting to auth link:', data.auth_link);
+      window.location.href = data.auth_link;
       
     } catch (error) {
       console.error('[StudentActivation] Unexpected error:', error);

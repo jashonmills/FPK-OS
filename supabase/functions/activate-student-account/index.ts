@@ -101,17 +101,15 @@ serve(async (req) => {
 
     const orgSlug = orgData?.slug || org_id;
     const origin = req.headers.get('origin') || 'https://fpkuniversity.com';
-    const redirectUrl = `/org/${orgSlug}/student-portal`;
-
-    // Build callback URL using Supabase project URL
-    const supabaseUrl = Deno.env.get('SUPABASE_URL') || 'https://zgcegkmqfgznbpdplscz.supabase.co';
-    const callbackUrl = `${supabaseUrl}/functions/v1/auth-redirect?redirect_uri=${encodeURIComponent(`${origin}${redirectUrl}`)}`;
+    const finalDestination = `${origin}/org/${orgSlug}/student-portal`;
+    
+    // Use the Auth Bridge page on fpkuniversity.com as the callback
+    const bridgeUrl = `https://fpkuniversity.com/auth/callback?redirect_uri=${encodeURIComponent(finalDestination)}`;
     
     console.log('[activate-student-account] Redirect configuration:', {
       origin,
-      redirectUrl,
-      supabaseUrl,
-      callbackUrl
+      finalDestination,
+      bridgeUrl
     });
     // If student has a linked user, generate session
     if (linked_user_id) {
@@ -119,7 +117,7 @@ serve(async (req) => {
         type: 'magiclink',
         email: `student-${student_id}@portal.fpkuniversity.com`,
         options: {
-          redirectTo: callbackUrl
+          redirectTo: bridgeUrl
         }
       });
 
@@ -148,7 +146,7 @@ serve(async (req) => {
           auth_link: sessionData.properties.action_link,
           student_id,
           org_id,
-          redirect_url: redirectUrl
+          redirect_url: finalDestination
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -180,12 +178,12 @@ serve(async (req) => {
       .update({ linked_user_id: newUser.user.id })
       .eq('id', student_id);
 
-    // Use the already-declared callbackUrl from above
+    // Use the already-declared bridgeUrl from above
     const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.admin.generateLink({
       type: 'magiclink',
       email: tempEmail,
       options: {
-        redirectTo: callbackUrl
+        redirectTo: bridgeUrl
       }
     });
 
@@ -217,7 +215,7 @@ serve(async (req) => {
         auth_link: sessionData.properties.action_link,
         student_id,
         org_id,
-        redirect_url: redirectUrl
+        redirect_url: finalDestination
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
