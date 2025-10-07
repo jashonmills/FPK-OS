@@ -144,8 +144,10 @@ export default function StudentPinLogin() {
 
   if (pageLoading) {
     return (
-      <div className="min-h-screen relative flex items-center justify-center">
-        <OrgBanner className="fixed inset-0 bg-cover" overlay={false} />
+      <div className="min-h-screen relative overflow-hidden flex items-center justify-center">
+        <div className="fixed inset-0 z-0">
+          <OrgBanner className="w-full h-full" overlay={false} />
+        </div>
         <div className="relative z-10">
           <Loader2 className="w-8 h-8 animate-spin text-white drop-shadow-lg" />
         </div>
@@ -154,9 +156,11 @@ export default function StudentPinLogin() {
   }
 
   return (
-    <div className="min-h-screen relative">
-      {/* Full-screen background */}
-      <OrgBanner className="fixed inset-0 bg-cover" overlay={false} />
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Full-screen background - no overlay */}
+      <div className="fixed inset-0 z-0">
+        <OrgBanner className="w-full h-full" overlay={false} />
+      </div>
       
       {/* Content */}
       <div className="relative z-10 min-h-screen flex flex-col p-4 pt-8">

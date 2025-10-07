@@ -61,12 +61,13 @@ export function OrgBanner({
         className
       )}
       style={{ 
-        backgroundImage: `url(${branding.banner_url})`,
+        backgroundImage: branding?.banner_url ? `url(${branding.banner_url})` : 'none',
         backgroundPosition: 'center',
-        backgroundSize: 'cover'
+        backgroundSize: 'cover',
+        backgroundColor: 'transparent'
       }}
     >
-      {overlay && (
+      {overlay && branding?.banner_url && (
         <div 
           className="absolute inset-0"
           style={{ 
