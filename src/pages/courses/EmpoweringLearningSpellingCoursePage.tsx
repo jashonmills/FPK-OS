@@ -55,7 +55,7 @@ const lessons: CourseLesson[] = [
 export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
   const navigate = useNavigate();
   const { goToCourses, goToDashboard } = useContextAwareNavigation();
-  const { navigateToLesson } = useCourseNavigation('empowering-learning-spelling');
+  const { navigateToLesson, navigateToOverview } = useCourseNavigation('empowering-learning-spelling');
   const { lessonId } = useParams();
   const [currentLesson, setCurrentLesson] = useState<number | null>(null);
   const [completedLessons, setCompletedLessons] = useState<number[]>([]);
@@ -179,12 +179,8 @@ export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
     }
     
     setCurrentLesson(lessonId);
-    const orgParam = new URLSearchParams(window.location.search).get('org');
-    const url = orgParam 
-      ? `/courses/empowering-learning-spelling/${lessonId}?org=${orgParam}`
-      : `/courses/empowering-learning-spelling/${lessonId}`;
-    navigate(url);
-  }, [getLessonState, inProgressLessons, navigate]);
+    navigateToLesson(lessonId);
+  }, [getLessonState, inProgressLessons, navigateToLesson]);
 
   const handleLessonComplete = useCallback(async (lessonId: number) => {
     // Move from in-progress to completed
@@ -229,13 +225,13 @@ export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
 
         // Navigate back to course overview after a short delay
         setTimeout(() => {
-          navigate('/courses/empowering-learning-spelling');
+          navigateToOverview();
         }, 2000);
       } catch (error) {
         console.error('Failed to complete course:', error);
         // Still navigate back even if tracking failed
         setTimeout(() => {
-          navigate('/courses/empowering-learning-spelling');
+          navigateToOverview();
         }, 2000);
       }
     }
@@ -248,24 +244,20 @@ export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
     if (currentLesson !== null && currentLesson < lessons.length) {
       const nextLesson = currentLesson + 1;
       setCurrentLesson(nextLesson);
-      const orgParam = new URLSearchParams(window.location.search).get('org');
-      const url = orgParam 
-        ? `/courses/empowering-learning-spelling/${nextLesson}?org=${orgParam}`
-        : `/courses/empowering-learning-spelling/${nextLesson}`;
-      navigate(url);
+      navigateToLesson(nextLesson);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }, [currentLesson, navigate]);
+  }, [currentLesson, navigateToLesson]);
 
   const handlePrevLesson = useCallback(() => {
     if (currentLesson !== null && currentLesson > 1) {
       const prevLesson = currentLesson - 1;
       setCurrentLesson(prevLesson);
-      navigate(`/courses/empowering-learning-spelling/${prevLesson}`);
+      navigateToLesson(prevLesson);
       // Scroll to top of the page
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }, [currentLesson, navigate]);
+  }, [currentLesson, navigateToLesson]);
 
   const handleLessonSelect = useCallback((lessonId: number) => {
     const state = getLessonState(lessonId);
@@ -280,7 +272,8 @@ export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
   const handleBackToCourseOverview = useCallback(() => {
     console.log('📍 Navigating back to course overview');
     setCurrentLesson(null);
-  }, []);
+    navigateToOverview();
+  }, [navigateToOverview]);
 
   // Sequential progression logic - lesson is accessible if it's completed, in-progress, active, or unlocked
   const isLessonAccessible = useCallback((lessonId: number) => {
@@ -484,7 +477,7 @@ export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
             <p className="text-muted-foreground mb-4">
               The requested lesson could not be found.
             </p>
-            <Button onClick={() => setCurrentLesson(null)}>
+            <Button onClick={handleBackToCourseOverview}>
               Back to Course Overview
             </Button>
           </CardContent>

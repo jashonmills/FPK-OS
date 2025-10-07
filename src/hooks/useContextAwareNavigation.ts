@@ -13,6 +13,14 @@ export function useContextAwareNavigation() {
     const currentOrgId = getActiveOrgId();
     const currentInOrgMode = isInOrgMode();
     
+    console.log('🔍 useContextAwareNavigation.goToCourses DEBUG:', {
+      currentURL: window.location.href,
+      searchParams: window.location.search,
+      currentOrgId,
+      currentInOrgMode,
+      willNavigateTo: currentInOrgMode && currentOrgId ? `/org/${currentOrgId}/courses` : '/dashboard/learner/courses'
+    });
+    
     if (currentInOrgMode && currentOrgId) {
       console.log('📍 [Org Context] Navigating to org courses:', `/org/${currentOrgId}/courses`);
       navigate(`/org/${currentOrgId}/courses`);
