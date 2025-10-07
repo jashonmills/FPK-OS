@@ -27,5 +27,25 @@ export function useContextAwareNavigation() {
     }
   }, [navigate, orgId, inOrgMode]);
 
-  return { goToCourses, goToDashboard, inOrgMode, orgId };
+  const goToCourse = useCallback((courseId: string) => {
+    if (inOrgMode && orgId) {
+      console.log('📍 [Org Context] Navigating to course with org context:', `/courses/${courseId}?org=${orgId}`);
+      navigate(`/courses/${courseId}?org=${orgId}`);
+    } else {
+      console.log('📍 [Personal Context] Navigating to course');
+      navigate(`/courses/${courseId}`);
+    }
+  }, [navigate, orgId, inOrgMode]);
+
+  const goToCoursePreview = useCallback((courseId: string) => {
+    if (inOrgMode && orgId) {
+      console.log('📍 [Org Context] Navigating to course preview with org context:', `/preview/${courseId}?org=${orgId}`);
+      navigate(`/preview/${courseId}?org=${orgId}`);
+    } else {
+      console.log('📍 [Personal Context] Navigating to course preview');
+      navigate(`/preview/${courseId}`);
+    }
+  }, [navigate, orgId, inOrgMode]);
+
+  return { goToCourses, goToDashboard, goToCourse, goToCoursePreview, inOrgMode, orgId };
 }

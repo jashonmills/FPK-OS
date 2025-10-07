@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, BookOpen, Clock, User, Star, Play } from 'lucide-react';
 import { getCourseImage } from '@/utils/courseImages';
 import { useAuth } from '@/hooks/useAuth';
+import { useContextAwareNavigation } from '@/hooks/useContextAwareNavigation';
 
 interface Course {
   id: string;
@@ -41,6 +42,7 @@ export default function CoursePreview() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
+  const { goToCourses, goToCourse } = useContextAwareNavigation();
   const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -158,28 +160,6 @@ export default function CoursePreview() {
 
   const courseImage = getCourseImage(course.id, course.title);
 
-  const handleBackNavigation = () => {
-    // Check if user came from an organization context
-    const referrer = document.referrer;
-    const orgMatch = referrer.match(/\/org\/([^\/]+)/);
-    
-    if (orgMatch) {
-      // User came from an organization, go back to org courses
-      const orgId = orgMatch[1];
-      navigate(`/org/${orgId}/courses`);
-    } else if (course?.organization_id || course?.org_id) {
-      // Course belongs to an organization, go to that org's catalog
-      const orgId = course.organization_id || course.org_id;
-      navigate(`/org/${orgId}/courses`);
-    } else if (referrer.includes('/dashboard')) {
-      // User came from personal dashboard
-      navigate('/dashboard/learner/courses');
-    } else {
-      // Fallback to home
-      navigate('/');
-    }
-  };
-
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -189,7 +169,7 @@ export default function CoursePreview() {
             <Button 
               variant="ghost" 
               size="sm" 
-              onClick={handleBackNavigation}
+              onClick={goToCourses}
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Courses
@@ -274,7 +254,7 @@ export default function CoursePreview() {
                         You're ready to start this course! Click below to begin your learning journey.
                       </p>
                       <div className="flex justify-center">
-                        <Button onClick={() => navigate(`/courses/${courseId}`)}>
+                        <Button onClick={() => goToCourse(courseId!)}>
                           <Play className="w-4 h-4 mr-2" />
                           Start Course
                         </Button>
