@@ -83,6 +83,7 @@ export function EditStudentDialog({
 
     const updateData = {
       id: student.id,
+      linked_user_id: student.linked_user_id, // Include this so update logic knows it's an account student
       full_name: data.full_name,
       grade_level: data.grade_level || undefined,
       student_id: data.student_id || undefined,
