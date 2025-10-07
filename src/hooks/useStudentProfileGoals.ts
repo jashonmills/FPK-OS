@@ -41,14 +41,21 @@ export function useStudentProfileGoals(studentProfileId?: string, studentLinkedU
   const { data: goals = [], isLoading, error, refetch } = useQuery({
     queryKey: ['student-profile-goals', studentProfileId, studentLinkedUserId],
     queryFn: async () => {
-      if (!studentProfileId) return [];
+      if (!studentProfileId) {
+        console.log('🎯 No studentProfileId provided');
+        return [];
+      }
 
+      console.log('🎯 Fetching goals for student profile:', studentProfileId);
+      
       // Query goals by the student's profile ID
       const { data: goalsData, error: goalsError } = await supabase
         .from('org_goals')
         .select('*')
         .eq('student_id', studentProfileId)
         .order('created_at', { ascending: false });
+
+      console.log('🎯 Goals query result:', { goalsData, goalsError });
 
       if (goalsError) throw goalsError;
 

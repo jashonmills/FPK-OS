@@ -4975,6 +4975,13 @@ export type Database = {
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "org_goals_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "org_students"
+            referencedColumns: ["id"]
+          },
         ]
       }
       org_group_members: {
@@ -5012,18 +5019,21 @@ export type Database = {
       org_groups: {
         Row: {
           created_at: string | null
+          created_by: string | null
           id: string
           name: string
           org_id: string
         }
         Insert: {
           created_at?: string | null
+          created_by?: string | null
           id?: string
           name: string
           org_id: string
         }
         Update: {
           created_at?: string | null
+          created_by?: string | null
           id?: string
           name?: string
           org_id?: string
