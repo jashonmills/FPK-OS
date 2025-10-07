@@ -127,7 +127,7 @@ export function StudentsTable({
                 {getStatusBadge(student.status, !!student.linked_user_id, student.activation_status)}
               </TableCell>
               <TableCell className="text-sm text-muted-foreground">
-                {format(parseISO(student.created_at), 'MMM d, yyyy')}
+                {student.created_at ? format(parseISO(student.created_at), 'MMM d, yyyy') : '-'}
               </TableCell>
               <TableCell>
                 <DropdownMenu>
