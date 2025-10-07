@@ -33,7 +33,8 @@ Deno.serve(async (req) => {
       'fpkuniversity.com',
       'localhost',
       '127.0.0.1',
-      'lovableproject.com'
+      'lovableproject.com',
+      'lovable.app'
     ];
 
     try {
