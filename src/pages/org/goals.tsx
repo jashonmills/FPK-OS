@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useOrgContext } from '@/components/organizations/OrgContext';
 import { useOrgGoals, type OrgGoal } from '@/hooks/useOrgGoals';
+import { useOrgStudents } from '@/hooks/useOrgStudents';
 // Card imports removed - using OrgCard components
 import { OrgCard, OrgCardContent, OrgCardDescription, OrgCardHeader, OrgCardTitle } from '@/components/organizations/OrgCard';
 import { Button } from '@/components/ui/button';
@@ -89,6 +90,9 @@ export default function GoalsPage() {
     isCreating, 
     isUpdating 
   } = useOrgGoals(currentOrg?.organization_id);
+
+  // Fetch actual students
+  const { students } = useOrgStudents(currentOrg?.organization_id || '');
 
   // Authentication check first
   if (authLoading) {
@@ -242,6 +246,10 @@ export default function GoalsPage() {
     ? goals.reduce((sum, goal) => sum + (goal.progress_percentage || 0), 0) / goals.length 
     : 0;
 
+  // Get unique students from goals
+  const uniqueStudentIds = new Set(goals.map(g => g.student_id));
+  const studentsWithGoals = uniqueStudentIds.size;
+
   if (isLoading) {
     return (
       <div className="w-full max-w-6xl mx-auto px-6 py-6">
@@ -295,41 +303,41 @@ export default function GoalsPage() {
       <div className="grid md:grid-cols-4 gap-4">
         <OrgCard>
           <OrgCardHeader className="pb-2">
-            <OrgCardTitle className="text-sm font-medium text-purple-100">Active Goals</OrgCardTitle>
+            <OrgCardTitle className="text-sm font-medium">Active Goals</OrgCardTitle>
           </OrgCardHeader>
           <OrgCardContent>
-            <div className="text-2xl font-bold text-white">{activeGoals.length}</div>
-            <p className="text-xs text-purple-200">In progress</p>
+            <div className="text-2xl font-bold">{activeGoals.length}</div>
+            <p className="text-xs text-muted-foreground">In progress</p>
           </OrgCardContent>
         </OrgCard>
         
         <OrgCard>
           <OrgCardHeader className="pb-2">
-            <OrgCardTitle className="text-sm font-medium text-purple-100">Completed</OrgCardTitle>
+            <OrgCardTitle className="text-sm font-medium">Completed</OrgCardTitle>
           </OrgCardHeader>
           <OrgCardContent>
-            <div className="text-2xl font-bold text-green-400">{completedGoals.length}</div>
-            <p className="text-xs text-purple-200">Successfully achieved</p>
+            <div className="text-2xl font-bold">{completedGoals.length}</div>
+            <p className="text-xs text-muted-foreground">Successfully achieved</p>
           </OrgCardContent>
         </OrgCard>
         
         <OrgCard>
           <OrgCardHeader className="pb-2">
-            <OrgCardTitle className="text-sm font-medium text-purple-100">Average Progress</OrgCardTitle>
+            <OrgCardTitle className="text-sm font-medium">Average Progress</OrgCardTitle>
           </OrgCardHeader>
           <OrgCardContent>
-            <div className="text-2xl font-bold text-white">{Math.round(totalProgress)}%</div>
-            <p className="text-xs text-purple-200">Across all goals</p>
+            <div className="text-2xl font-bold">{Math.round(totalProgress)}%</div>
+            <p className="text-xs text-muted-foreground">Across all goals</p>
           </OrgCardContent>
         </OrgCard>
         
         <OrgCard>
           <OrgCardHeader className="pb-2">
-            <OrgCardTitle className="text-sm font-medium text-purple-100">Total Students</OrgCardTitle>
+            <OrgCardTitle className="text-sm font-medium">Total Students</OrgCardTitle>
           </OrgCardHeader>
           <OrgCardContent>
-            <div className="text-2xl font-bold text-white">18</div>
-            <p className="text-xs text-purple-200">With assigned goals</p>
+            <div className="text-2xl font-bold">{studentsWithGoals}</div>
+            <p className="text-xs text-muted-foreground">With assigned goals</p>
           </OrgCardContent>
         </OrgCard>
       </div>
@@ -376,13 +384,15 @@ export default function GoalsPage() {
           </div>
         ) : (
           <div className="grid md:grid-cols-2 gap-6">
-            {filteredGoals.map((goal) => (
+            {filteredGoals.map((goal) => {
+              const student = students.find(s => s.id === goal.student_id);
+              return (
               <OrgCard key={goal.id} className="hover:shadow-md transition-shadow">
                 <OrgCardHeader>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
-                        <OrgCardTitle className="text-lg line-clamp-1 text-white">{goal.title}</OrgCardTitle>
+                        <OrgCardTitle className="text-lg line-clamp-1">{goal.title}</OrgCardTitle>
                         <Badge 
                           variant="outline" 
                           className={`text-xs ${getPriorityColor(goal.priority)}`}
@@ -401,14 +411,14 @@ export default function GoalsPage() {
                           {goal.status}
                         </Badge>
                       </div>
-                      <OrgCardDescription className="line-clamp-2 text-purple-200">
+                      <OrgCardDescription className="line-clamp-2">
                         {goal.description || 'No description provided'}
                       </OrgCardDescription>
                     </div>
                     {canManageGoals && (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="text-purple-100 hover:bg-purple-800/50">
+                          <Button variant="ghost" size="sm">
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
@@ -434,20 +444,20 @@ export default function GoalsPage() {
                   <div className="space-y-4">
                     <div>
                       <div className="flex items-center justify-between text-sm mb-2">
-                        <span className="text-purple-100">Progress</span>
-                        <span className="text-white">{goal.progress_percentage || 0}%</span>
+                        <span className="text-muted-foreground">Progress</span>
+                        <span>{goal.progress_percentage || 0}%</span>
                       </div>
                       <Progress value={goal.progress_percentage || 0} className="h-2" />
                     </div>
                     
-                    <div className="flex items-center justify-between text-sm text-purple-200">
+                    <div className="flex items-center justify-between text-sm text-muted-foreground">
                       <div className="flex items-center gap-4">
                         <div className="flex items-center gap-1">
                           <Users className="h-3 w-3" />
-                          <span>Student: {goal.student_id}</span>
+                          <span>{student?.full_name || 'Unknown Student'}</span>
                         </div>
                         <div className="flex items-center gap-1">
-                          <CheckCircle2 className="h-3 w-3 text-green-400" />
+                          <CheckCircle2 className="h-3 w-3" />
                           <span>{goal.status}</span>
                         </div>
                       </div>
@@ -459,7 +469,8 @@ export default function GoalsPage() {
                   </div>
                 </OrgCardContent>
               </OrgCard>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
@@ -535,9 +546,15 @@ export default function GoalsPage() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="student1">Student 1</SelectItem>
-                        <SelectItem value="student2">Student 2</SelectItem>
-                        <SelectItem value="student3">Student 3</SelectItem>
+                        {students.length === 0 ? (
+                          <SelectItem value="" disabled>No students available</SelectItem>
+                        ) : (
+                          students.map((student) => (
+                            <SelectItem key={student.id} value={student.id}>
+                              {student.full_name}
+                            </SelectItem>
+                          ))
+                        )}
                       </SelectContent>
                     </Select>
                     <FormMessage />
