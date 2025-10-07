@@ -183,6 +183,21 @@ serve(async (req) => {
       .update({ linked_user_id: newUser.user.id })
       .eq('id', student_id);
 
+    // Create org membership for the student
+    const { error: membershipError } = await supabaseAdmin
+      .from('org_members')
+      .insert({
+        org_id: org_id,
+        user_id: newUser.user.id,
+        role: 'student',
+        status: 'active'
+      });
+
+    if (membershipError) {
+      console.error('[activate-student-account] Membership creation error:', membershipError);
+      // Don't fail the whole flow, but log the error
+    }
+
     // Use the redirectTo URL configured above
     const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.admin.generateLink({
       type: 'magiclink',
