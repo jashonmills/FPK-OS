@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useContextAwareNavigation } from '@/hooks/useContextAwareNavigation';
+import { useCourseNavigation } from '@/hooks/useCourseNavigation';
 import { InteractiveCourseWrapper } from '@/components/course/InteractiveCourseWrapper';
 import { InteractiveLessonWrapper } from '@/components/course/InteractiveLessonWrapper';
 import { useInteractiveCourseProgress } from '@/hooks/useInteractiveCourseProgress';
@@ -62,6 +63,7 @@ const lessons: Lesson[] = [
 export const GeometryCoursePage: React.FC = () => {
   const navigate = useNavigate();
   const { goToCourses, goToDashboard } = useContextAwareNavigation();
+  const { navigateToLesson, navigateToOverview } = useCourseNavigation('geometry');
   const { lessonId } = useParams();
   const [currentLesson, setCurrentLesson] = useState<number | null>(null);
   const [accordionOpen, setAccordionOpen] = useState<string | undefined>(undefined);
@@ -106,31 +108,27 @@ export const GeometryCoursePage: React.FC = () => {
     if (currentLesson !== null && currentLesson < lessons.length) {
       const nextLesson = currentLesson + 1;
       setCurrentLesson(nextLesson);
-      navigate(`/courses/geometry/${nextLesson}`);
+      navigateToLesson(nextLesson);
       // Scroll to top of the page
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }, [currentLesson, navigate]);
+  }, [currentLesson, navigateToLesson]);
 
   const handlePrevLesson = useCallback(() => {
     if (currentLesson !== null && currentLesson > 1) {
       const prevLesson = currentLesson - 1;
       setCurrentLesson(prevLesson);
-      navigate(`/courses/geometry/${prevLesson}`);
+      navigateToLesson(prevLesson);
       // Scroll to top of the page
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }, [currentLesson, navigate]);
+  }, [currentLesson, navigateToLesson]);
 
   const handleLessonSelect = useCallback((lessonId: number) => {
     setCurrentLesson(lessonId);
-    const orgParam = new URLSearchParams(window.location.search).get('org');
-    const url = orgParam 
-      ? `/courses/geometry/${lessonId}?org=${orgParam}`
-      : `/courses/geometry/${lessonId}`;
-    navigate(url);
+    navigateToLesson(lessonId);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [navigate]);
+  }, [navigateToLesson]);
 
   const handleBackToCourses = useCallback(() => {
     console.log('📍 Navigating back to courses');

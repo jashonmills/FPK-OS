@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useContextAwareNavigation } from '@/hooks/useContextAwareNavigation';
+import { useCourseNavigation } from '@/hooks/useCourseNavigation';
 import { InteractiveCourseWrapper } from '@/components/course/InteractiveCourseWrapper';
 import { InteractiveLessonWrapper } from '@/components/course/InteractiveLessonWrapper';
 import { Button } from '@/components/ui/button';
@@ -52,6 +53,7 @@ const lessons: Lesson[] = [
 export const InteractiveEconomicsCoursePage: React.FC = () => {
   const navigate = useNavigate();
   const { goToCourses, goToDashboard } = useContextAwareNavigation();
+  const { navigateToLesson } = useCourseNavigation('introduction-modern-economics');
   const { lessonId } = useParams();
   const [currentLesson, setCurrentLesson] = useState<number | null>(null);
   const [completedLessons, setCompletedLessons] = useState<number[]>([]);
@@ -80,21 +82,19 @@ export const InteractiveEconomicsCoursePage: React.FC = () => {
     if (currentLesson !== null && currentLesson < lessons.length) {
       const nextLesson = currentLesson + 1;
       setCurrentLesson(nextLesson);
-      navigate(`/courses/introduction-modern-economics/${nextLesson}`);
-      // Scroll to top of the page
+      navigateToLesson(nextLesson);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }, [currentLesson, navigate]);
+  }, [currentLesson, navigateToLesson]);
 
   const handlePrevLesson = useCallback(() => {
     if (currentLesson !== null && currentLesson > 1) {
       const prevLesson = currentLesson - 1;
       setCurrentLesson(prevLesson);
-      navigate(`/courses/introduction-modern-economics/${prevLesson}`);
-      // Scroll to top of the page
+      navigateToLesson(prevLesson);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }, [currentLesson, navigate]);
+  }, [currentLesson, navigateToLesson]);
 
   const handleLessonSelect = useCallback((lessonId: number) => {
     setCurrentLesson(lessonId);

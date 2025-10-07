@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useContextAwareNavigation } from '@/hooks/useContextAwareNavigation';
+import { useCourseNavigation } from '@/hooks/useCourseNavigation';
 import { InteractiveCourseWrapper } from '@/components/course/InteractiveCourseWrapper';
 import { InteractiveLessonWrapper } from '@/components/course/InteractiveLessonWrapper';
 import { Button } from '@/components/ui/button';
@@ -54,6 +55,7 @@ const lessons: CourseLesson[] = [
 export const EmpoweringLearningSpellingCoursePage: React.FC = () => {
   const navigate = useNavigate();
   const { goToCourses, goToDashboard } = useContextAwareNavigation();
+  const { navigateToLesson } = useCourseNavigation('empowering-learning-spelling');
   const { lessonId } = useParams();
   const [currentLesson, setCurrentLesson] = useState<number | null>(null);
   const [completedLessons, setCompletedLessons] = useState<number[]>([]);

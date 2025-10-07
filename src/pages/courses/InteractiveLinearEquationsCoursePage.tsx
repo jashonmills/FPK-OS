@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useContextAwareNavigation } from '@/hooks/useContextAwareNavigation';
+import { useCourseNavigation } from '@/hooks/useCourseNavigation';
 import { InteractiveCourseWrapper } from '@/components/course/InteractiveCourseWrapper';
 import { InteractiveLessonWrapper } from '@/components/course/InteractiveLessonWrapper';
 import { Button } from '@/components/ui/button';
@@ -48,6 +49,7 @@ const lessons: Lesson[] = [
 const InteractiveLinearEquationsCoursePage: React.FC = () => {
   const navigate = useNavigate();
   const { goToCourses, goToDashboard } = useContextAwareNavigation();
+  const { navigateToLesson, navigateToOverview } = useCourseNavigation('interactive-linear-equations');
   const { lessonId } = useParams();
   const [currentLesson, setCurrentLesson] = useState<number | null>(null);
   const [completedLessons, setCompletedLessons] = useState<number[]>([]);
@@ -76,31 +78,27 @@ const InteractiveLinearEquationsCoursePage: React.FC = () => {
     if (currentLesson !== null && currentLesson < lessons.length) {
       const nextLesson = currentLesson + 1;
       setCurrentLesson(nextLesson);
-      navigate(`/courses/interactive-linear-equations/${nextLesson}`);
+      navigateToLesson(nextLesson);
       // Scroll to top of the page
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }, [currentLesson, navigate]);
+  }, [currentLesson, navigateToLesson]);
 
   const handlePrevLesson = useCallback(() => {
     if (currentLesson !== null && currentLesson > 1) {
       const prevLesson = currentLesson - 1;
       setCurrentLesson(prevLesson);
-      navigate(`/courses/interactive-linear-equations/${prevLesson}`);
+      navigateToLesson(prevLesson);
       // Scroll to top of the page
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }, [currentLesson, navigate]);
+  }, [currentLesson, navigateToLesson]);
 
   const handleLessonSelect = useCallback((lessonId: number) => {
     setCurrentLesson(lessonId);
-    const orgParam = new URLSearchParams(window.location.search).get('org');
-    const url = orgParam 
-      ? `/courses/interactive-linear-equations/${lessonId}?org=${orgParam}`
-      : `/courses/interactive-linear-equations/${lessonId}`;
-    navigate(url);
+    navigateToLesson(lessonId);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [navigate]);
+  }, [navigateToLesson]);
 
   const handleBackToCourses = useCallback(() => {
     console.log('📍 Navigating back to courses');

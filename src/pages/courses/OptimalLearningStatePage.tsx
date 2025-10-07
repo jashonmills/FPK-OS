@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useContextAwareNavigation } from '@/hooks/useContextAwareNavigation';
+import { useCourseNavigation } from '@/hooks/useCourseNavigation';
 import { InteractiveCourseWrapper } from '@/components/course/InteractiveCourseWrapper';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -47,6 +48,7 @@ const lessons: CourseLesson[] = [
 export const OptimalLearningStatePage: React.FC = () => {
   const navigate = useNavigate();
   const { goToCourses, goToDashboard } = useContextAwareNavigation();
+  const { navigateToLesson, navigateToOverview } = useCourseNavigation('optimal-learning-state');
   const { lessonId } = useParams();
   const [currentLesson, setCurrentLesson] = useState<number | null>(null);
   const [completedLessons, setCompletedLessons] = useState<number[]>([]);
@@ -173,19 +175,19 @@ export const OptimalLearningStatePage: React.FC = () => {
     if (currentLesson !== null && currentLesson < lessons.length) {
       const nextLesson = currentLesson + 1;
       setCurrentLesson(nextLesson);
-      navigate(`/courses/optimal-learning-state/${nextLesson}`);
+      navigateToLesson(nextLesson);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }, [currentLesson, navigate]);
+  }, [currentLesson, navigateToLesson]);
 
   const handlePrevLesson = useCallback(() => {
     if (currentLesson !== null && currentLesson > 1) {
       const prevLesson = currentLesson - 1;
       setCurrentLesson(prevLesson);
-      navigate(`/courses/optimal-learning-state/${prevLesson}`);
+      navigateToLesson(prevLesson);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }, [currentLesson, navigate]);
+  }, [currentLesson, navigateToLesson]);
 
   const handleBackToCourses = useCallback(() => {
     goToCourses();
