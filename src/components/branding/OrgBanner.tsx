@@ -26,7 +26,7 @@ export function OrgBanner({
       <div className={cn('relative bg-gradient-to-r from-primary/10 to-accent/10', className)}>
         {overlay && (
           <div 
-            className="absolute inset-0 bg-background/60"
+            className="absolute inset-0"
             style={{ backgroundColor: `hsl(var(--background) / ${overlayOpacity})` }}
           />
         )}
@@ -37,13 +37,13 @@ export function OrgBanner({
     );
   }
 
-  // If no banner URL, show gradient fallback
+  // If no banner URL, show transparent background
   if (!branding?.banner_url) {
     return (
-      <div className={cn('relative bg-gradient-to-r from-primary/10 to-accent/10', className)}>
+      <div className={cn('relative', className)}>
         {overlay && (
           <div 
-            className="absolute inset-0 bg-background/60"
+            className="absolute inset-0"
             style={{ backgroundColor: `hsl(var(--background) / ${overlayOpacity})` }}
           />
         )}
@@ -62,12 +62,13 @@ export function OrgBanner({
       )}
       style={{ 
         backgroundImage: `url(${branding.banner_url})`,
-        backgroundPosition: 'center'
+        backgroundPosition: 'center',
+        backgroundSize: 'cover'
       }}
     >
       {overlay && (
         <div 
-          className="absolute inset-0 bg-background"
+          className="absolute inset-0"
           style={{ 
             backgroundColor: `hsl(var(--background) / ${overlayOpacity})`
           }}
