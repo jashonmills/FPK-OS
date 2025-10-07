@@ -9277,6 +9277,7 @@ export type Database = {
       activate_student_account: {
         Args: { p_full_name: string; p_pin_hash: string; p_token: string }
         Returns: {
+          already_activated: boolean
           linked_user_id: string
           message: string
           org_id: string

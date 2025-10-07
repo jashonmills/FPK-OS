@@ -84,9 +84,13 @@ serve(async (req) => {
       );
     }
 
-    const { student_id, linked_user_id, org_id } = activationData[0];
+    const { student_id, linked_user_id, org_id, already_activated } = activationData[0];
 
-    console.log('[activate-student-account] Activation successful, student_id:', student_id);
+    console.log('[activate-student-account] Activation result:', { 
+      student_id, 
+      already_activated,
+      linked_user_id 
+    });
 
     // Get organization slug for proper redirect
     const { data: orgData } = await supabaseAdmin

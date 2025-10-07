@@ -147,6 +147,8 @@ export default function StudentActivation() {
     setLoading(true);
 
     try {
+      console.log('[StudentActivation] Starting activation...');
+      
       const { data, error: activationError } = await supabase.functions.invoke('activate-student-account', {
         body: {
           token,
@@ -156,40 +158,48 @@ export default function StudentActivation() {
       });
 
       if (activationError) {
-        console.error('Activation error:', activationError);
+        console.error('[StudentActivation] Activation error:', activationError);
         setError('Activation failed. Please try again.');
         return;
       }
 
       if (!data?.success) {
+        console.error('[StudentActivation] Activation unsuccessful:', data?.error);
         setError(data?.error || 'Activation failed');
         return;
       }
 
-      // Activation successful - use the auth link to authenticate
+      console.log('[StudentActivation] Activation successful:', data);
+
+      // Show success message
+      toast({
+        title: data.already_activated ? 'Already Activated!' : 'Account Activated!',
+        description: 'Redirecting to your dashboard...'
+      });
+
+      // Activation successful - try the auth link first
       if (data.auth_link) {
-        toast({
-          title: 'Account Activated!',
-          description: 'Redirecting to your dashboard...'
-        });
-
-        // Navigate to the auth link which will authenticate and redirect via edge function
-        setTimeout(() => {
-          window.location.href = data.auth_link;
-        }, 500);
-      } else {
-        // Fallback to login page if no auth link
-        toast({
-          title: 'Account Activated!',
-          description: 'Redirecting to login...'
-        });
-
-        setTimeout(() => {
-          navigate(`/${orgSlug}/login`);
-        }, 1500);
+        console.log('[StudentActivation] Using auth_link:', data.auth_link);
+        
+        // Try navigating via auth link
+        window.location.href = data.auth_link;
+        
+        // Wait 3 seconds for redirect to happen
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        
+        // If we're still here after 3 seconds, the auth-redirect didn't work
+        // Fall back to manual navigation
+        console.log('[StudentActivation] Auth link redirect timed out, using fallback...');
       }
+      
+      // Fallback: Navigate directly to student portal
+      console.log('[StudentActivation] Using direct navigation fallback');
+      const redirectPath = `/org/${orgSlug}/student-portal`;
+      console.log('[StudentActivation] Redirecting to:', redirectPath);
+      navigate(redirectPath);
+      
     } catch (error) {
-      console.error('Activation error:', error);
+      console.error('[StudentActivation] Unexpected error:', error);
       setError('An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
