@@ -97,13 +97,15 @@ export function BulkAssignmentDialog({
         try {
           await createAssignment({
             title: assignmentTitle || `${course.title} - Assignment`,
-            instructions: instructions || `Complete the course: ${course.title}`,
             type: 'course',
             resource_id: course.id,
-            due_at: dueDate ? new Date(dueDate).toISOString() : undefined,
-            required: isRequired,
-            target_members: targetMembers,
-            target_groups: targetGroups,
+            metadata: { 
+              instructions: instructions || `Complete the course: ${course.title}`,
+              due_at: dueDate ? new Date(dueDate).toISOString() : undefined,
+              required: isRequired
+            },
+            target_members: targetMembers.length > 0 ? targetMembers : undefined,
+            target_groups: targetGroups.length > 0 ? targetGroups : undefined,
           });
           successCount++;
         } catch (error) {
@@ -153,7 +155,7 @@ export function BulkAssignmentDialog({
                 {courses.map((course) => (
                   <div key={course.id} className="flex items-center gap-3 p-2 rounded bg-muted/50">
                     <img
-                      src={getCourseImage(course.id)}
+                      src={getCourseImage(course.id, course.title)}
                       alt={course.title}
                       className="w-12 h-12 object-cover rounded"
                     />

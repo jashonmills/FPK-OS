@@ -27,7 +27,8 @@ import {
   GraduationCap,
   Target,
   Clock,
-  CheckCircle
+  CheckCircle,
+  UserPlus
 } from 'lucide-react';
 import PageShell from '@/components/dashboard/PageShell';
 import { CourseCreationWizard } from '@/components/course-builder/CourseCreationWizard';

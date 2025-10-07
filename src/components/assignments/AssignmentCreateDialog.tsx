@@ -65,13 +65,15 @@ export function AssignmentCreateDialog({ course, trigger, open: controlledOpen, 
 
     await createAssignment({
       title: assignmentTitle,
-      instructions,
       type: 'course',
       resource_id: course.id,
-      due_at: dueDate ? new Date(dueDate).toISOString() : undefined,
-      required: isRequired,
-      target_members: targetMembers,
-      target_groups: targetGroups,
+      metadata: { 
+        instructions,
+        due_at: dueDate ? new Date(dueDate).toISOString() : undefined,
+        required: isRequired
+      },
+      target_members: targetMembers.length > 0 ? targetMembers : undefined,
+      target_groups: targetGroups.length > 0 ? targetGroups : undefined,
     });
 
     // Reset form
@@ -126,7 +128,7 @@ export function AssignmentCreateDialog({ course, trigger, open: controlledOpen, 
           {/* Course Info */}
           <div className="flex items-center gap-3 p-4 rounded-lg bg-muted/50">
             <img
-              src={getCourseImage(course.id)}
+              src={getCourseImage(course.id, course.title)}
               alt={course.title}
               className="w-16 h-16 object-cover rounded"
             />

@@ -58,7 +58,21 @@ export function useStudentAssignments(orgId?: string) {
         .eq('target_id', user.id)
         .eq('target_type', 'user');
 
-      const groupAssignmentsQuery = supabase
+      // First fetch the group IDs the user is a member of
+      const { data: groupMemberships, error: groupMembershipsError } = await supabase
+        .from('org_group_members')
+        .select('group_id')
+        .eq('user_id', user.id);
+
+      if (groupMembershipsError) {
+        console.error('Error fetching group memberships:', groupMembershipsError);
+        throw groupMembershipsError;
+      }
+
+      const groupIds: string[] = groupMemberships?.map(m => m.group_id) || [];
+
+      // Build group assignments query
+      let groupAssignmentsQuery = supabase
         .from('org_assignment_targets')
         .select(`
           assignment_id,
@@ -82,13 +96,12 @@ export function useStudentAssignments(orgId?: string) {
             name
           )
         `)
-        .eq('target_type', 'group')
-        .in('target_id', 
-          supabase
-            .from('org_group_members')
-            .select('group_id')
-            .eq('user_id', user.id)
-        );
+        .eq('target_type', 'group');
+
+      // Only add .in() filter if there are group IDs
+      if (groupIds.length > 0) {
+        groupAssignmentsQuery = groupAssignmentsQuery.in('target_id', groupIds);
+      }
 
       let query = directAssignmentsQuery;
 
