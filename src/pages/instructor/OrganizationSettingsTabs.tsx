@@ -26,6 +26,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { ManualStaffAddDialog } from '@/components/org/ManualStaffAddDialog';
 
 const ACCENT_PRESETS = [
   { name: 'FPK Purple', value: '280 100% 70%', hex: '#a855f7' },
@@ -65,6 +66,7 @@ export default function OrganizationSettingsTabs() {
   const [inviteMessage, setInviteMessage] = useState('');
   const [expiresIn, setExpiresIn] = useState('7');
   const [joinCodeCopied, setJoinCodeCopied] = useState(false);
+  const [manualAddDialogOpen, setManualAddDialogOpen] = useState(false);
   const { invites, createInvite, deleteInvite, generateInviteUrl, isCreating, isDeleting } = useOrgInvites();
 
   if (!currentOrg) {
@@ -743,6 +745,31 @@ export default function OrganizationSettingsTabs() {
                   )}
                 </OrgCardContent>
               </OrgCard>
+
+              {/* Manual Add Staff */}
+              <OrgCard className="bg-orange-500/65 border-orange-400/50">
+                <OrgCardHeader>
+                  <OrgCardTitle className="flex items-center gap-2 text-white">
+                    <UserPlus className="h-5 w-5" />
+                    Add Staff Manually
+                  </OrgCardTitle>
+                  <OrgCardDescription className="text-white/80">
+                    Directly add instructors, aides, or viewers to your organization without sending an invite
+                  </OrgCardDescription>
+                </OrgCardHeader>
+                <OrgCardContent>
+                  <Button
+                    onClick={() => setManualAddDialogOpen(true)}
+                    className="w-full bg-white/20 hover:bg-white/30 text-white border-white/30"
+                  >
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    Add Staff Member
+                  </Button>
+                  <p className="text-xs text-white/70 mt-3">
+                    Staff members will receive a welcome email with instructions to set up their account.
+                  </p>
+                </OrgCardContent>
+              </OrgCard>
             </div>
 
             {/* Pending Invitations */}
@@ -804,6 +831,19 @@ export default function OrganizationSettingsTabs() {
               </OrgCard>
             </div>
           </div>
+
+          {/* Manual Staff Add Dialog */}
+          <ManualStaffAddDialog
+            open={manualAddDialogOpen}
+            onOpenChange={setManualAddDialogOpen}
+            organizationId={currentOrg.organization_id}
+            onSuccess={() => {
+              // Optionally refresh invites or show success
+              toast({
+                title: 'Staff member added successfully',
+              });
+            }}
+          />
         </TabsContent>
       </Tabs>
     </div>
