@@ -130,7 +130,7 @@ export function useOrgCatalog() {
             )
           `)
           .eq('target_id', user.id)
-          .eq('target_type', 'user');
+          .eq('target_type', 'member');
 
         if (assignmentError) {
           console.error('Error fetching student assignments:', assignmentError);
