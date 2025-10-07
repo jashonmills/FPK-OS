@@ -9,6 +9,7 @@ import { useOrgContext } from '@/components/organizations/OrgContext';
 import { useOrgNotes } from '@/hooks/useOrgNotes';
 import { useOrgStudents } from '@/hooks/useOrgStudents';
 import GoalsPage from './goals';
+import OrgNoteCreationDialog from '@/components/organizations/OrgNoteCreationDialog';
 
 export default function GoalsAndNotes() {
   const { currentOrg } = useOrgContext();
@@ -69,10 +70,12 @@ export default function GoalsAndNotes() {
               <h2 className="text-2xl font-bold">Student Notes</h2>
               <p className="text-muted-foreground mt-1">View and manage notes for all students</p>
             </div>
-            <Button disabled={isCreating}>
-              {isCreating ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Plus className="h-4 w-4 mr-2" />}
-              Add Note
-            </Button>
+            <OrgNoteCreationDialog organizationId={currentOrg?.organization_id || ''}>
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Note
+              </Button>
+            </OrgNoteCreationDialog>
           </div>
 
           {/* Filters */}
@@ -128,10 +131,12 @@ export default function GoalsAndNotes() {
                 <p className="text-white/80 mb-4">
                   Start documenting student progress and important observations
                 </p>
-                <Button disabled={isCreating}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create First Note
-                </Button>
+                <OrgNoteCreationDialog organizationId={currentOrg?.organization_id || ''}>
+                  <Button>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create First Note
+                  </Button>
+                </OrgNoteCreationDialog>
               </OrgCardContent>
             </OrgCard>
           ) : (

@@ -151,7 +151,7 @@ export function useOrgNotes(organizationId?: string, folderId?: string) {
   });
 
   const createNoteMutation = useMutation({
-    mutationFn: async (noteData: { title: string; content: string; category: string; student_id?: string; folder_path?: string }) => {
+    mutationFn: async (noteData: { title: string; content: string; category: string; student_id?: string; folder_path?: string; is_private?: boolean }) => {
       if (!orgId) {
         throw new Error('Organization ID is required to create notes');
       }
@@ -173,7 +173,7 @@ export function useOrgNotes(organizationId?: string, folderId?: string) {
           student_id: noteData.student_id || null,
           folder_path: noteData.folder_path || '/',
           visibility_scope: 'instructor-visible' as const,
-          is_private: false,
+          is_private: noteData.is_private ?? false,
           tags: [],
           metadata: {},
         })

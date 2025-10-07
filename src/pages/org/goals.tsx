@@ -550,7 +550,10 @@ export default function GoalsPage() {
                           <SelectItem value="" disabled>No students available</SelectItem>
                         ) : (
                           students.map((student) => (
-                            <SelectItem key={student.id} value={student.id}>
+                            <SelectItem 
+                              key={student.id} 
+                              value={student.linked_user_id || student.id}
+                            >
                               {student.full_name}
                             </SelectItem>
                           ))
