@@ -32,7 +32,7 @@ interface StudentGoalWithProgress extends OrgGoal {
   target_status: string;
 }
 
-export function useStudentGoals() {
+export function useStudentGoals(organizationId?: string) {
   const { user } = useAuth();
   const [goals, setGoals] = useState<StudentGoalWithProgress[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -45,7 +45,7 @@ export function useStudentGoals() {
     }
 
     fetchStudentGoals();
-  }, [user?.id]);
+  }, [user?.id, organizationId]);
 
   const fetchStudentGoals = async () => {
     if (!user?.id) return;
@@ -54,14 +54,48 @@ export function useStudentGoals() {
       setIsLoading(true);
       setError(null);
 
+      // First, get the current user's org_students record to find their student_id
+      const { data: studentRecords, error: studentError } = await supabase
+        .from('org_students')
+        .select('id, org_id')
+        .eq('linked_user_id', user.id);
+
+      if (studentError) throw studentError;
+
+      if (!studentRecords || studentRecords.length === 0) {
+        console.log('No student records found for user');
+        setGoals([]);
+        setIsLoading(false);
+        return;
+      }
+
+      // Get all student IDs and filter by org if specified
+      let studentIds = studentRecords.map(s => s.id);
+      if (organizationId) {
+        studentIds = studentRecords
+          .filter(s => s.org_id === organizationId)
+          .map(s => s.id);
+      }
+
+      if (studentIds.length === 0) {
+        setGoals([]);
+        setIsLoading(false);
+        return;
+      }
+
       // Fetch goals assigned to this student
-      const { data: goalsData, error: goalsError } = await supabase
+      let query = supabase
         .from('org_goals')
         .select('*')
-        .eq('student_id', user.id)
+        .in('student_id', studentIds)
         .order('created_at', { ascending: false });
 
-      if (goalsError) throw goalsError;
+      // Filter by organization if specified
+      if (organizationId) {
+        query = query.eq('organization_id', organizationId);
+      }
+
+      const { data: goalsData, error: goalsError } = await query;
 
       // Fetch progress for these goals
       const goalIds = (goalsData || []).map(g => g.id);

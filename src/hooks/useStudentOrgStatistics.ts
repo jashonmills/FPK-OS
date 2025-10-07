@@ -57,10 +57,30 @@ export function useStudentOrgStatistics(organizationId?: string) {
           : 0;
         const completedCourses = enrollments?.filter(e => (e.completion_percentage || 0) >= 100).length || 0;
 
+        // Get student's org_students record to find their student_id
+        const { data: studentRecord } = await supabase
+          .from('org_students')
+          .select('id')
+          .eq('linked_user_id', user.id)
+          .eq('org_id', organizationId)
+          .maybeSingle();
+
+        // Get goals assigned to this student
+        let myGoals = 0;
+        if (studentRecord) {
+          const { count } = await supabase
+            .from('org_goals')
+            .select('*', { count: 'exact', head: true })
+            .eq('student_id', studentRecord.id)
+            .eq('status', 'active');
+          
+          myGoals = count || 0;
+        }
+
         return {
           myEnrollments,
           myProgress,
-          myGoals: 0, // TODO: Add goals support when goals table is available
+          myGoals,
           studyTime: 0, // TODO: Add study time tracking
           completedCourses,
           recentActivity: activity || []

@@ -87,6 +87,9 @@ export default function GoalsPage() {
   // Fetch actual students
   const { students } = useOrgStudents(currentOrg?.organization_id || '');
 
+  // Find current user's student record (for filtering student view)
+  const currentUserStudentRecord = students.find(s => s.linked_user_id === user?.id);
+
   // Authentication check first
   if (authLoading) {
     return (
@@ -139,15 +142,20 @@ export default function GoalsPage() {
   }
 
   const canManageGoals = userRole === 'owner' || userRole === 'instructor';
+  const isStudent = userRole === 'student';
   
   const filteredGoals = goals.filter(goal => {
+    // Filter by student if user is a student
+    const matchesStudent = !isStudent || 
+                          (currentUserStudentRecord && goal.student_id === currentUserStudentRecord.id);
+    
     const matchesSearch = goal.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          goal.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          goal.category.toLowerCase().includes(searchQuery.toLowerCase());
     
     const matchesStatus = filterStatus === 'all' || goal.status === filterStatus;
     
-    return matchesSearch && matchesStatus;
+    return matchesStudent && matchesSearch && matchesStatus;
   });
 
   const handleCreateGoal = async (data: GoalFormData) => {
