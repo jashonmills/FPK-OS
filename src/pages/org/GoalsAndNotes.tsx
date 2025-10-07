@@ -10,6 +10,7 @@ import { useOrgContext } from '@/components/organizations/OrgContext';
 import { useOrgNotes, OrgNote } from '@/hooks/useOrgNotes';
 import { useOrgStudents } from '@/hooks/useOrgStudents';
 import { useOrgNoteReplies } from '@/hooks/useOrgNoteReplies';
+import { useAuth } from '@/hooks/useAuth';
 import GoalsPage from './goals';
 import OrgNoteCreationDialog from '@/components/organizations/OrgNoteCreationDialog';
 import OrgNoteDetailModal from '@/components/organizations/OrgNoteDetailModal';
@@ -17,6 +18,7 @@ import OrgNoteEditDialog from '@/components/organizations/OrgNoteEditDialog';
 
 export default function GoalsAndNotes() {
   const { currentOrg } = useOrgContext();
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStudent, setFilterStudent] = useState('all');
   const [filterCourse, setFilterCourse] = useState('all');
@@ -27,6 +29,10 @@ export default function GoalsAndNotes() {
   // Fetch real notes and students
   const { notes, isLoading: notesLoading, updateNote, isUpdating } = useOrgNotes(currentOrg?.organization_id);
   const { students } = useOrgStudents(currentOrg?.organization_id || '');
+  
+  // Determine user role
+  const userRole = currentOrg?.role || 'student';
+  const isStudent = userRole === 'student';
 
   // Filter notes based on search and filters
   const filteredNotes = notes.filter(note => {
@@ -159,6 +165,7 @@ export default function GoalsAndNotes() {
                     key={note.id}
                     note={note}
                     student={student}
+                    isStudent={isStudent}
                     onView={() => setSelectedNote(note)}
                     onEdit={() => setEditingNote(note)}
                   />
@@ -193,9 +200,10 @@ export default function GoalsAndNotes() {
 }
 
 // Note Card Component with Reply Badge
-function NoteCard({ note, student, onView, onEdit }: { 
+function NoteCard({ note, student, isStudent, onView, onEdit }: { 
   note: OrgNote; 
-  student?: any; 
+  student?: any;
+  isStudent: boolean;
   onView: () => void; 
   onEdit: () => void;
 }) {
@@ -224,17 +232,32 @@ function NoteCard({ note, student, onView, onEdit }: {
               {note.content || 'No content'}
             </OrgCardDescription>
           </div>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="border-white/20 text-white hover:bg-white/10"
-            onClick={(e) => {
-              e.stopPropagation();
-              onEdit();
-            }}
-          >
-            Edit
-          </Button>
+          {isStudent ? (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="border-white/20 text-white hover:bg-white/10"
+              onClick={(e) => {
+                e.stopPropagation();
+                onView();
+              }}
+            >
+              <MessageCircle className="h-4 w-4 mr-2" />
+              Respond
+            </Button>
+          ) : (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="border-white/20 text-white hover:bg-white/10"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit();
+              }}
+            >
+              Edit
+            </Button>
+          )}
         </div>
       </OrgCardHeader>
       <OrgCardContent>

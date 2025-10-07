@@ -43,6 +43,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import OrgGoalDetailsModal from '@/components/organizations/OrgGoalDetailsModal';
+import StudentGoalDetailsModal from '@/components/goals/StudentGoalDetailsModal';
 
 const goalSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -70,6 +71,7 @@ export default function GoalsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState<OrgGoal | null>(null);
+  const [selectedStudentGoal, setSelectedStudentGoal] = useState<any | null>(null);
   const [editingGoal, setEditingGoal] = useState<OrgGoal | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>('all');
 
@@ -422,7 +424,28 @@ export default function GoalsPage() {
               // Match student by ID or linked_user_id
               const student = students.find(s => s.id === goal.student_id || s.linked_user_id === goal.student_id);
               return (
-              <OrgCard key={goal.id} className="bg-orange-500/65 border-orange-400/50 hover:shadow-md transition-shadow">
+              <OrgCard 
+                key={goal.id} 
+                className="bg-orange-500/65 border-orange-400/50 hover:shadow-md transition-shadow cursor-pointer"
+                onClick={() => {
+                  if (isStudent) {
+                    // Transform goal data to match StudentGoalDetailsModal format
+                    const studentGoal = {
+                      id: goal.id,
+                      title: goal.title,
+                      description: goal.description || '',
+                      category: goal.category,
+                      priority: goal.priority,
+                      status: goal.status,
+                      target_date: goal.target_date,
+                      progress: goal.progress_percentage || 0,
+                      target_status: goal.status,
+                      created_at: goal.created_at
+                    };
+                    setSelectedStudentGoal(studentGoal);
+                  }
+                }}
+              >
                 <OrgCardHeader>
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
@@ -677,13 +700,26 @@ export default function GoalsPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Goal Details Modal */}
+      {/* Goal Details Modal - Instructor/Owner View */}
       {selectedGoal && (
         <OrgGoalDetailsModal
           goal={selectedGoal}
           studentName={students.find(s => s.id === selectedGoal.student_id || s.linked_user_id === selectedGoal.student_id)?.full_name || 'Unknown Student'}
           isOpen={!!selectedGoal}
           onClose={() => setSelectedGoal(null)}
+        />
+      )}
+
+      {/* Goal Details Modal - Student View */}
+      {selectedStudentGoal && (
+        <StudentGoalDetailsModal
+          goal={selectedStudentGoal}
+          isOpen={!!selectedStudentGoal}
+          onClose={() => setSelectedStudentGoal(null)}
+          onUpdate={() => {
+            setSelectedStudentGoal(null);
+            window.location.reload();
+          }}
         />
       )}
     </div>
