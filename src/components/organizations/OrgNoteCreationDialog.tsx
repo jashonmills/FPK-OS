@@ -27,7 +27,7 @@ const noteSchema = z.object({
   content: z.string().min(1, 'Content is required'),
   category: z.string().min(1, 'Category is required'),
   student_id: z.string().min(1, 'Student is required'),
-  is_private: z.boolean().default(false),
+  visibility_scope: z.enum(['student-only', 'instructor-visible', 'org-public']).default('instructor-visible'),
 });
 
 type NoteFormData = z.infer<typeof noteSchema>;
@@ -65,18 +65,20 @@ export default function OrgNoteCreationDialog({
       content: '',
       category: '',
       student_id: '',
-      is_private: false,
+      visibility_scope: 'instructor-visible',
     },
   });
 
   const onSubmit = async (data: NoteFormData) => {
     try {
+      console.log('📝 Submitting note with data:', data);
+      
       await createNote({
         title: data.title,
         content: data.content,
         category: data.category,
         student_id: data.student_id,
-        is_private: data.is_private,
+        visibility_scope: data.visibility_scope,
       });
 
       toast({
@@ -91,10 +93,10 @@ export default function OrgNoteCreationDialog({
         onNoteCreated();
       }
     } catch (error) {
-      console.error('Error creating note:', error);
+      console.error('📝 Error creating note:', error);
       toast({
         title: "Error",
-        description: "Failed to create note. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to create note. Please try again.",
         variant: "destructive",
       });
     }
@@ -207,21 +209,26 @@ export default function OrgNoteCreationDialog({
 
             <FormField
               control={form.control}
-              name="is_private"
+              name="visibility_scope"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <div className="space-y-0.5">
-                    <FormLabel className="text-base">Private Note</FormLabel>
-                    <FormDescription>
-                      Only visible to instructors and admins
-                    </FormDescription>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
+                <FormItem>
+                  <FormLabel>Visibility</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select visibility" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="student-only">Student Only</SelectItem>
+                      <SelectItem value="instructor-visible">Instructor Visible (Default)</SelectItem>
+                      <SelectItem value="org-public">Organization Public</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>
+                    Choose who can see this note
+                  </FormDescription>
+                  <FormMessage />
                 </FormItem>
               )}
             />

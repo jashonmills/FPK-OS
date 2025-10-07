@@ -151,7 +151,14 @@ export function useOrgNotes(organizationId?: string, folderId?: string) {
   });
 
   const createNoteMutation = useMutation({
-    mutationFn: async (noteData: { title: string; content: string; category: string; student_id?: string; folder_path?: string; is_private?: boolean }) => {
+    mutationFn: async (noteData: { 
+      title: string; 
+      content: string; 
+      category: string; 
+      student_id?: string; 
+      folder_path?: string; 
+      visibility_scope?: 'student-only' | 'instructor-visible' | 'org-public';
+    }) => {
       if (!orgId) {
         throw new Error('Organization ID is required to create notes');
       }
@@ -161,26 +168,34 @@ export function useOrgNotes(organizationId?: string, folderId?: string) {
         throw new Error('User must be authenticated');
       }
 
+      const insertData = {
+        title: noteData.title,
+        content: noteData.content,
+        category: noteData.category,
+        organization_id: orgId,
+        created_by: user.id,
+        student_id: noteData.student_id || null,
+        folder_path: noteData.folder_path || '/',
+        visibility_scope: noteData.visibility_scope || 'instructor-visible',
+        tags: [],
+        metadata: {},
+      };
+
+      console.log('📝 Creating note with data:', insertData);
+
       // Create note using existing table structure
       const { data: noteResult, error: noteError } = await supabase
         .from('org_notes')
-        .insert({
-          title: noteData.title,
-          content: noteData.content,
-          category: noteData.category,
-          organization_id: orgId,
-          created_by: user.id,
-          student_id: noteData.student_id || null,
-          folder_path: noteData.folder_path || '/',
-          visibility_scope: 'instructor-visible' as const,
-          is_private: noteData.is_private ?? false,
-          tags: [],
-          metadata: {},
-        })
+        .insert(insertData)
         .select()
         .single();
 
-      if (noteError) throw noteError;
+      if (noteError) {
+        console.error('📝 Note creation error:', noteError);
+        throw noteError;
+      }
+      
+      console.log('📝 Note created successfully:', noteResult);
       return noteResult;
     },
     onSuccess: () => {

@@ -3,7 +3,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { useOrgContext } from '@/components/organizations/OrgContext';
 import { useOrgGoals, type OrgGoal } from '@/hooks/useOrgGoals';
 import { useOrgStudents } from '@/hooks/useOrgStudents';
-// Card imports removed - using OrgCard components
 import { OrgCard, OrgCardContent, OrgCardDescription, OrgCardHeader, OrgCardTitle } from '@/components/organizations/OrgCard';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -18,13 +17,6 @@ import {
   DialogHeader, 
   DialogTitle,
 } from '@/components/ui/dialog';
-import { 
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet';
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -50,6 +42,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import OrgGoalDetailsModal from '@/components/organizations/OrgGoalDetailsModal';
 
 const goalSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -642,89 +635,15 @@ export default function GoalsPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Goal Detail Sheet */}
-      <Sheet open={!!selectedGoal} onOpenChange={() => setSelectedGoal(null)}>
-        <SheetContent className="w-[400px] sm:w-[540px]">
-          <SheetHeader>
-            <SheetTitle>{selectedGoal?.title}</SheetTitle>
-            <SheetDescription>Goal details and student progress</SheetDescription>
-          </SheetHeader>
-          
-          {selectedGoal && (
-            <div className="mt-6 space-y-6">
-              <div>
-                <h3 className="font-semibold mb-2">Description</h3>
-                <p className="text-sm text-muted-foreground">
-                  {selectedGoal.description || 'No description provided'}
-                </p>
-              </div>
-              
-              <div>
-                <h3 className="font-semibold mb-2">Details</h3>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span>Category:</span>
-                    <Badge variant="secondary">{selectedGoal.category}</Badge>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Priority:</span>
-                    <Badge 
-                      variant="outline" 
-                      className={getPriorityColor(selectedGoal.priority)}
-                    >
-                      {selectedGoal.priority}
-                    </Badge>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Status:</span>
-                    <Badge 
-                      variant="outline"
-                      className={getStatusColor(selectedGoal.status)}
-                    >
-                      {selectedGoal.status}
-                    </Badge>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Created:</span>
-                    <span>{new Date(selectedGoal.created_at).toLocaleDateString()}</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div>
-                <h3 className="font-semibold mb-3">Progress Overview</h3>
-                <div className="space-y-3">
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span>Overall Progress</span>
-                      <span>{selectedGoal.progress_percentage || 0}%</span>
-                    </div>
-                    <Progress value={selectedGoal.progress_percentage || 0} className="h-2" />
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div className="text-center p-3 bg-muted rounded-lg">
-                      <div className="text-2xl font-bold">1</div>
-                      <div className="text-muted-foreground">Assigned</div>
-                    </div>
-                    <div className="text-center p-3 bg-muted rounded-lg">
-                      <div className="text-2xl font-bold text-green-500">0</div>
-                      <div className="text-muted-foreground">Completed</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div>
-                <h3 className="font-semibold mb-3">Student Progress</h3>
-                <p className="text-sm text-muted-foreground">
-                  Individual student progress will be displayed here once implemented.
-                </p>
-              </div>
-            </div>
-          )}
-        </SheetContent>
-      </Sheet>
+      {/* Goal Details Modal */}
+      {selectedGoal && (
+        <OrgGoalDetailsModal
+          goal={selectedGoal}
+          studentName={students.find(s => s.id === selectedGoal.student_id)?.full_name || 'Unknown Student'}
+          isOpen={!!selectedGoal}
+          onClose={() => setSelectedGoal(null)}
+        />
+      )}
     </div>
   );
 }

@@ -4,20 +4,24 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Target, Trophy, Calendar, Filter, AlertCircle, LogIn } from 'lucide-react';
+import { Plus, Target, Trophy, Calendar, Filter, AlertCircle, LogIn, BookOpen } from 'lucide-react';
 import { useGoals } from '@/hooks/useGoals';
+import { useStudentGoals } from '@/hooks/useStudentGoals';
 import { useDualLanguage } from '@/hooks/useDualLanguage';
 import DualLanguageText from '@/components/DualLanguageText';
 import GoalCreationDialog from './GoalCreationDialog';
 import GoalCard from './GoalCard';
+import StudentGoalCard from './StudentGoalCard';
 import ReadingProgressWidget from './ReadingProgressWidget';
 import ReadingProgressWidgetErrorBoundary from './ReadingProgressWidgetErrorBoundary';
 
 export const GoalsDashboard = () => {
   const { goals = [], loading, error, refetch } = useGoals();
+  const { goals: orgGoals, isLoading: orgLoading, refetch: refetchOrgGoals } = useStudentGoals();
   const { t } = useDualLanguage();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('all');
+  const [viewMode, setViewMode] = useState<'personal' | 'assigned'>('personal');
 
   // Add loading state handling
   if (loading) {
@@ -170,25 +174,79 @@ export const GoalsDashboard = () => {
       {/* Goals Management */}
       <Card className="fpk-card border-0 shadow-lg">
         <CardHeader className="p-3 sm:p-4 md:p-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <CardTitle className="flex items-center gap-2 text-base sm:text-lg md:text-xl">
-              <Target className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600 flex-shrink-0" />
-              <span className="truncate">
-                <DualLanguageText translationKey="goals.myGoals" fallback="My Goals" />
-              </span>
-            </CardTitle>
-            <GoalCreationDialog onGoalCreated={refetch}>
-              <Button className="fpk-gradient text-white text-sm sm:text-base px-3 sm:px-4 py-2 w-full sm:w-auto">
-                <Plus className="h-4 w-4 mr-2 flex-shrink-0" />
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg md:text-xl">
+                <Target className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600 flex-shrink-0" />
                 <span className="truncate">
-                  <DualLanguageText translationKey="goals.createNew" fallback="Create Goal" />
+                  <DualLanguageText translationKey="goals.myGoals" fallback="My Goals" />
                 </span>
+              </CardTitle>
+              <GoalCreationDialog onGoalCreated={refetch}>
+                <Button className="fpk-gradient text-white text-sm sm:text-base px-3 sm:px-4 py-2 w-full sm:w-auto">
+                  <Plus className="h-4 w-4 mr-2 flex-shrink-0" />
+                  <span className="truncate">
+                    <DualLanguageText translationKey="goals.createNew" fallback="Create Goal" />
+                  </span>
+                </Button>
+              </GoalCreationDialog>
+            </div>
+            
+            {/* View Mode Toggle */}
+            <div className="flex gap-2">
+              <Button
+                variant={viewMode === 'personal' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('personal')}
+                className="flex-1"
+              >
+                <Target className="h-4 w-4 mr-2" />
+                My Goals
               </Button>
-            </GoalCreationDialog>
+              <Button
+                variant={viewMode === 'assigned' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('assigned')}
+                className="flex-1"
+              >
+                <BookOpen className="h-4 w-4 mr-2" />
+                Assigned Goals {orgGoals.length > 0 && `(${orgGoals.length})`}
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="p-3 sm:p-4 md:p-6 pt-0">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          {viewMode === 'assigned' ? (
+            // Show assigned org goals
+            <div className="space-y-4">
+              {orgLoading ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
+                  <p className="text-sm text-gray-500 mt-2">Loading assigned goals...</p>
+                </div>
+              ) : orgGoals.length === 0 ? (
+                <div className="text-center py-8">
+                  <BookOpen className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                  <h3 className="font-semibold text-gray-900 mb-2">No Assigned Goals</h3>
+                  <p className="text-sm text-gray-500">
+                    Your instructor hasn't assigned any goals to you yet.
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+                  {orgGoals.map((goal) => (
+                    <StudentGoalCard
+                      key={goal.id}
+                      goal={goal}
+                      onUpdate={refetchOrgGoals}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : (
+            // Show personal goals
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 mb-4 sm:mb-6 h-auto gap-1">
               <TabsTrigger value="all" className="flex flex-col items-center gap-1 p-2 text-xs sm:text-sm">
                 <div className="flex items-center gap-1">
@@ -281,6 +339,7 @@ export const GoalsDashboard = () => {
               )}
             </TabsContent>
           </Tabs>
+          )}
         </CardContent>
       </Card>
 

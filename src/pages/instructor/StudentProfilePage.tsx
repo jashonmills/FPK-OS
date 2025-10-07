@@ -4,7 +4,7 @@ import { useOrgStudents } from '@/hooks/useOrgStudents';
 import { useOrgContext } from '@/components/organizations/OrgContext';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, User, BookOpen, BarChart3, MessageSquare, FileText, ClipboardList } from 'lucide-react';
+import { ArrowLeft, User, BookOpen, BarChart3, MessageSquare, FileText, ClipboardList, Target } from 'lucide-react';
 import { TransparentTile } from '@/components/ui/transparent-tile';
 import { MobilePageLayout, MobileSectionHeader } from '@/components/layout/MobilePageLayout';
 import { MobileOptimizedTabs } from '@/components/layout/MobileOptimizedTabs';
@@ -14,6 +14,7 @@ import { StudentPerformanceTab } from '@/components/students/profile/StudentPerf
 import { StudentCommunicationTab } from '@/components/students/profile/StudentCommunicationTab';
 import { StudentDocumentsTab } from '@/components/students/profile/StudentDocumentsTab';
 import { StudentIEPTab } from '@/components/students/profile/StudentIEPTab';
+import { StudentGoalsTab } from '@/components/students/profile/StudentGoalsTab';
 
 export default function StudentProfilePage() {
   const { orgId, studentId } = useParams<{ orgId: string; studentId: string }>();
@@ -57,6 +58,12 @@ export default function StudentProfilePage() {
       label: 'Overview',
       icon: <User className="h-4 w-4" />,
       content: <StudentOverviewTab student={student} orgId={orgId!} />
+    },
+    {
+      value: 'goals',
+      label: 'Goals',
+      icon: <Target className="h-4 w-4" />,
+      content: <StudentGoalsTab student={student} orgId={orgId!} />
     },
     {
       value: 'courses',
