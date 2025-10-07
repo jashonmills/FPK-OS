@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { useOrganizationCourseAssignments } from '@/hooks/useOrganizationCourseAssignments';
 import { useCourseDuplication } from '@/hooks/useCourseDuplication';
+import { useContextAwareNavigation } from '@/hooks/useContextAwareNavigation';
 import type { AssignmentSummary } from '@/types/enhanced-course-card';
 
 export interface CourseActionsConfig {
@@ -17,14 +18,15 @@ export function useCourseActions(config: CourseActionsConfig = {}) {
   const { toast } = useToast();
   const { assignCourse } = useOrganizationCourseAssignments(orgId);
   const { duplicateCourse } = useCourseDuplication(orgId);
+  const { goToCoursePreview, goToCourse } = useContextAwareNavigation();
   const [showCollectionModal, setShowCollectionModal] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<{ id: string; title: string } | null>(null);
 
   const preview = useCallback((courseId: string, route?: string) => {
     console.log('Preview course:', courseId);
-    // Navigate to preview page within same tab to avoid popup blocking
-    navigate(`/preview/${courseId}`);
-  }, [navigate]);
+    // Navigate to preview page with org context preserved
+    goToCoursePreview(courseId);
+  }, [goToCoursePreview]);
 
   const assign = useCallback(async (courseId: string, options?: { groups?: string[]; students?: string[] }) => {
     try {

@@ -4,6 +4,7 @@ import { OrgRequireRole } from '@/components/organizations/OrgRequireRole';
 import { useOrgCatalog } from '@/hooks/useOrgCatalog';
 import { useOrgPermissions } from '@/hooks/useOrgPermissions';
 import { useStudentAssignments } from '@/hooks/useStudentAssignments';
+import { useContextAwareNavigation } from '@/hooks/useContextAwareNavigation';
 import { EnhancedCourseCard } from '@/components/courses/enhanced/EnhancedCourseCard';
 import { EmptyState } from '@/components/courses/enhanced/EmptyState';
 import { Badge } from '@/components/ui/badge';
@@ -48,6 +49,7 @@ type ViewType = 'grid' | 'list' | 'compact';
 
 export default function OrgCoursesCatalog() {
   const { orgId } = useParams<{ orgId: string }>();
+  const { goToCourse } = useContextAwareNavigation();
   const [searchQuery, setSearchQuery] = useState('');
   const [showCreateWizard, setShowCreateWizard] = useState(false);
   const [showImportDialog, setShowImportDialog] = useState(false);
@@ -119,15 +121,12 @@ export default function OrgCoursesCatalog() {
       // Student actions - limited to preview and start/continue
       return {
       onPreview: (courseId: string) => {
-        const course = [...platformCourses, ...orgCourses].find(c => c.id === courseId);
-        const route = course?.source === 'platform' && course.route ? `${course.route}?org=${orgId}` : course?.route;
-        courseActions.preview(courseId, route);
+        // Context-aware preview navigation
+        courseActions.preview(courseId);
       },
       onStart: (courseId: string) => {
-        // For students, "Start Course" navigates to course
-        const course = [...platformCourses, ...orgCourses].find(c => c.id === courseId);
-        const route = course?.source === 'platform' && course.route ? `${course.route}?org=${orgId}` : course?.route;
-        courseActions.preview(courseId, route);
+        // For students, "Start Course" navigates directly to the course
+        goToCourse(courseId);
       }
       };
     }
@@ -135,9 +134,8 @@ export default function OrgCoursesCatalog() {
     // Instructor/Owner actions - full functionality
     return {
       onPreview: (courseId: string) => {
-        const course = [...platformCourses, ...orgCourses].find(c => c.id === courseId);
-        const route = course?.source === 'platform' && course.route ? `${course.route}?org=${orgId}` : course?.route;
-        courseActions.preview(courseId, route);
+        // Context-aware preview navigation
+        courseActions.preview(courseId);
       },
       
       onStart: courseActions.assign,
