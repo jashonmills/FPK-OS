@@ -116,8 +116,18 @@ serve(async (req) => {
       finalDestination,
       redirectTo
     });
-    // If student has a linked user, generate session
+    // If student has a linked user, update their metadata and generate session
     if (linked_user_id) {
+      // Update user metadata to include org slug
+      await supabaseAdmin.auth.admin.updateUserById(linked_user_id, {
+        user_metadata: {
+          student_id,
+          org_id,
+          student_org_slug: orgSlug,
+          is_student_portal: true
+        }
+      });
+
       const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.admin.generateLink({
         type: 'magiclink',
         email: `student-${student_id}@portal.fpkuniversity.com`,
@@ -165,6 +175,7 @@ serve(async (req) => {
       user_metadata: {
         student_id,
         org_id,
+        student_org_slug: orgSlug,
         is_student_portal: true
       }
     });

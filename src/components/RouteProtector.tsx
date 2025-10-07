@@ -15,6 +15,15 @@ export const RouteProtector: React.FC<RouteProtectorProps> = ({ children }) => {
   const navigate = useNavigate();
   const [hasNavigated, setHasNavigated] = useState(false);
 
+  // Check if user is a student portal user - if so, bypass all FPK platform logic
+  const isStudentPortalUser = user?.user_metadata?.is_student_portal === true;
+  
+  // Student portal users should never be processed by RouteProtector
+  // They are protected by StudentPortalGuard instead
+  if (isStudentPortalUser) {
+    return <>{children}</>;
+  }
+
   const currentPath = location.pathname;
   const isDashboardRoute = currentPath.startsWith('/dashboard');
   const isOrgRoute = currentPath.startsWith('/org/');

@@ -5,14 +5,32 @@ import { Button } from '@/components/ui/button';
 import { LogIn, Loader2 } from 'lucide-react';
 import { useOrgBranding } from '@/hooks/useOrgBranding';
 import { OrgBanner } from '@/components/branding/OrgBanner';
+import { useAuth } from '@/hooks/useAuth';
+import { useStudentPortalContext } from '@/hooks/useStudentPortalContext';
 
 export default function OrgPortalLanding() {
   const { orgSlug } = useParams<{ orgSlug: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { isStudentPortalUser, studentOrgSlug } = useStudentPortalContext();
   const [orgId, setOrgId] = useState<string | null>(null);
   const [orgName, setOrgName] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const { data: branding } = useOrgBranding(orgId);
+
+  // Redirect authenticated student portal users to their dashboard
+  useEffect(() => {
+    if (!loading && user && isStudentPortalUser) {
+      // If student belongs to this org, redirect to student portal
+      if (studentOrgSlug === orgSlug) {
+        navigate(`/${orgSlug}/student-portal`, { replace: true });
+      } 
+      // If student belongs to different org, redirect to their org
+      else if (studentOrgSlug) {
+        navigate(`/${studentOrgSlug}/student-portal`, { replace: true });
+      }
+    }
+  }, [user, isStudentPortalUser, studentOrgSlug, orgSlug, loading, navigate]);
 
   useEffect(() => {
     const loadOrganization = async () => {
