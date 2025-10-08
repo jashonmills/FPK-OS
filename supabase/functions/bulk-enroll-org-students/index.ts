@@ -55,20 +55,39 @@ serve(async (req) => {
       throw new Error('Insufficient permissions');
     }
 
-    // Get all active students in this organization
-    const { data: students, error: studentsError } = await supabaseClient
+    // Get platform students from org_members
+    const { data: platformStudents, error: platformError } = await supabaseClient
+      .from('org_members')
+      .select('user_id')
+      .eq('org_id', orgId)
+      .eq('role', 'student')
+      .eq('status', 'active');
+
+    if (platformError) {
+      console.error('Error fetching platform students:', platformError);
+      throw new Error('Failed to fetch platform students');
+    }
+
+    // Get manually created students from org_students
+    const { data: manualStudents, error: manualError } = await supabaseClient
       .from('org_students')
       .select('id, linked_user_id, full_name')
       .eq('org_id', orgId)
       .eq('status', 'active')
       .not('linked_user_id', 'is', null);
 
-    if (studentsError) {
-      console.error('Error fetching students:', studentsError);
-      throw new Error('Failed to fetch students');
+    if (manualError) {
+      console.error('Error fetching manual students:', manualError);
+      throw new Error('Failed to fetch manual students');
     }
 
-    console.log(`Found ${students.length} active students with linked accounts`);
+    // Combine both sources into unified roster
+    const platformUserIds = platformStudents?.map(s => s.user_id) || [];
+    const manualUserIds = manualStudents?.map(s => s.linked_user_id).filter(Boolean) || [];
+    const allStudentUserIds = [...new Set([...platformUserIds, ...manualUserIds])];
+
+    console.log(`Found ${platformUserIds.length} platform students, ${manualUserIds.length} manual students`);
+    console.log(`Total unique students to enroll: ${allStudentUserIds.length}`);
 
     // Required courses for St. Joseph's
     const requiredCourses = [
@@ -83,14 +102,12 @@ serve(async (req) => {
     let alreadyEnrolled = 0;
     const enrollmentResults = [];
 
-    for (const student of students) {
-      if (!student.linked_user_id) continue;
-
+    for (const userId of allStudentUserIds) {
       // Check existing enrollments for this student
       const { data: existingEnrollments } = await supabaseClient
         .from('enrollments')
         .select('course_id')
-        .eq('user_id', student.linked_user_id);
+        .eq('user_id', userId);
 
       const enrolledCourseIds = existingEnrollments?.map(e => e.course_id) || [];
 
@@ -103,7 +120,7 @@ serve(async (req) => {
           .from('enrollments')
           .insert(
             missingCourses.map(course => ({
-              user_id: student.linked_user_id,
+              user_id: userId,
               course_id: course.course_id,
               course_type: course.course_type,
               org_id: orgId,
@@ -112,17 +129,17 @@ serve(async (req) => {
           );
 
         if (enrollError) {
-          console.error(`Error enrolling student ${student.full_name}:`, enrollError);
+          console.error(`Error enrolling student ${userId}:`, enrollError);
           enrollmentResults.push({
-            studentName: student.full_name,
+            userId: userId,
             success: false,
             error: enrollError.message
           });
         } else {
-          console.log(`Enrolled ${student.full_name} in ${missingCourses.length} courses`);
+          console.log(`Enrolled student ${userId} in ${missingCourses.length} courses`);
           totalEnrolled += missingCourses.length;
           enrollmentResults.push({
-            studentName: student.full_name,
+            userId: userId,
             success: true,
             coursesEnrolled: missingCourses.length
           });
@@ -130,7 +147,7 @@ serve(async (req) => {
       } else {
         alreadyEnrolled++;
         enrollmentResults.push({
-          studentName: student.full_name,
+          userId: userId,
           success: true,
           coursesEnrolled: 0,
           alreadyComplete: true
@@ -141,7 +158,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: true,
-        totalStudentsProcessed: students.length,
+        totalStudentsProcessed: allStudentUserIds.length,
         newEnrollments: totalEnrolled,
         alreadyEnrolled: alreadyEnrolled,
         results: enrollmentResults
