@@ -30,6 +30,7 @@ import { ManualStaffAddDialog } from '@/components/org/ManualStaffAddDialog';
 import { useOrgMembers, OrgMember } from '@/hooks/useOrgMembers';
 import { MemberProfileDialog } from '@/components/org/MemberProfileDialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { InstructorProfileSection } from '@/components/instructor/InstructorProfileSection';
 
 const ACCENT_PRESETS = [
   { name: 'FPK Purple', value: '280 100% 70%', hex: '#a855f7' },
@@ -210,6 +211,10 @@ export default function OrganizationSettingsTabs() {
           <TabsTrigger value="members" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
             Members
+          </TabsTrigger>
+          <TabsTrigger value="profile" className="flex items-center gap-2">
+            <UserCircle className="h-4 w-4" />
+            My Profile
           </TabsTrigger>
         </TabsList>
 
@@ -806,6 +811,11 @@ export default function OrganizationSettingsTabs() {
               )}
             </OrgCardContent>
           </OrgCard>
+        </TabsContent>
+
+        {/* Instructor Profile Tab */}
+        <TabsContent value="profile" className="space-y-6">
+          <InstructorProfileSection />
         </TabsContent>
 
         {/* Member Profile Dialog */}
