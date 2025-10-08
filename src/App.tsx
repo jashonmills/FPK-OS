@@ -50,7 +50,6 @@ import { EducatorPortalGuard } from './components/guards/EducatorPortalGuard';
 const OrgHub = lazy(() => import("./pages/organizations/OrgHub"));
 const OrgCreatePage = lazy(() => import("./pages/organizations/OrgCreatePage"));
 const OrgJoinPage = lazy(() => import("./pages/organizations/OrgJoinPage"));
-const OrgInviteDebug = lazy(() => import("./pages/organizations/OrgInviteDebug"));
 const ReceivedInvitationsPage = lazy(() => import("./pages/organizations/ReceivedInvitationsPage"));
 const InviteMembersPage = lazy(() => import("./pages/org/InviteMembersPage"));
 const InviteManagement = lazy(() => import("./pages/organizations/InviteManagement"));
@@ -682,15 +681,6 @@ const App: React.FC = () => {
               <LazyRoute>
                 <OrgPageLayout>
                   <ReceivedInvitationsPage />
-                </OrgPageLayout>
-              </LazyRoute>
-            </RouteProtector>
-          } />
-          <Route path="/org/:orgId/invite-debug" element={
-            <RouteProtector>
-              <LazyRoute>
-                <OrgPageLayout>
-                  <OrgInviteDebug />
                 </OrgPageLayout>
               </LazyRoute>
             </RouteProtector>

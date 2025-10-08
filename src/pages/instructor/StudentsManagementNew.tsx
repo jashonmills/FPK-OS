@@ -16,7 +16,7 @@ import { StudentsTable } from "@/components/students/StudentsTable";
 import { GenerateActivationLinkDialog } from "@/components/students/GenerateActivationLinkDialog";
 import { StudentActivityHeatmap } from "@/components/students/StudentActivityHeatmap";
 import { ImportStudentsCSV } from "@/components/students/ImportStudentsCSV";
-import InviteStudentDialog from "@/components/instructor/InviteStudentDialog";
+import { useEmailInvitation } from "@/hooks/useInvitationSystem";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
@@ -32,8 +32,7 @@ export default function StudentsManagementNew() {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<OrgStudent | null>(null);
-  const [showImportCSV, setShowImportCSV] = useState(false);
-  const [showInviteDialog, setShowInviteDialog] = useState(false);
+const [showImportCSV, setShowImportCSV] = useState(false);
   const [showActivationDialog, setShowActivationDialog] = useState(false);
   const isMobile = useIsMobile();
   const {
@@ -92,9 +91,7 @@ export default function StudentsManagementNew() {
   const handleBulkImport = () => {
     setShowImportCSV(true);
   };
-  const handleInviteStudents = () => {
-    setShowInviteDialog(true);
-  };
+  // Invite dialog removed - use email invitations instead
 
   // Check orgId after all hooks have been called
   if (!orgId) {
@@ -212,8 +209,6 @@ export default function StudentsManagementNew() {
         <EditStudentDialog open={showEditDialog} onOpenChange={setShowEditDialog} onSubmit={handleUpdateStudent} student={selectedStudent} isLoading={isUpdating} />
 
         <ImportStudentsCSV open={showImportCSV} onOpenChange={setShowImportCSV} orgId={orgId!} />
-
-        <InviteStudentDialog open={showInviteDialog} onOpenChange={setShowInviteDialog} organizationId={orgId!} />
 
         <GenerateActivationLinkDialog open={showActivationDialog} onOpenChange={setShowActivationDialog} student={selectedStudent} orgSlug={currentOrg?.organizations?.slug || orgId!} />
       </div>

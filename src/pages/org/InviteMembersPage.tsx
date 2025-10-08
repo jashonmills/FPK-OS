@@ -55,7 +55,6 @@ import {
 } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useOrgContext } from '@/components/organizations/OrgContext';
-import { useOrgInvites } from '@/hooks/useOrgInvites';
 import { useEmailInvitation } from '@/hooks/useInvitationSystem';
 import { useOrgMembers } from '@/hooks/useOrganization';
 import { useOrgPermissions } from '@/hooks/useOrgPermissions';
@@ -78,14 +77,10 @@ const InviteMembersPage = () => {
   const [inviteMessage, setInviteMessage] = useState('');
   const [expiresIn, setExpiresIn] = useState('7');
   
-  // Join code state
-  const [joinCodeCopied, setJoinCodeCopied] = useState(false);
-  
   // Manual add staff state
   const [manualAddDialogOpen, setManualAddDialogOpen] = useState(false);
   
   // Hooks
-  const { invites, createInvite, deleteInvite, generateInviteUrl, isCreating, isDeleting } = useOrgInvites();
   const emailInviteMutation = useEmailInvitation();
   const { data: members, isLoading: membersLoading } = useOrgMembers(orgId!);
 
@@ -139,19 +134,12 @@ const InviteMembersPage = () => {
     }
 
     try {
-      // Use edge function instead of database function
       for (const email of validEmails) {
-        const { data, error } = await supabase.functions.invoke('send-invitation-email', {
-          body: {
-            orgId: orgId!,
-            email: email.trim(),
-            role: selectedRole,
-            organizationName: currentOrg?.organizations?.name,
-          }
+        await emailInviteMutation.mutateAsync({
+          orgId: orgId!,
+          email: email.trim(),
+          role: selectedRole as 'student' | 'instructor'
         });
-
-        if (error) throw error;
-        if (!data?.success) throw new Error(data?.error || 'Failed to send invitation');
       }
       
       toast({
@@ -171,71 +159,7 @@ const InviteMembersPage = () => {
     }
   };
 
-  const handleGenerateJoinCode = async () => {
-    try {
-      const code = await createInvite({
-        role: selectedRole as any, // Type assertion for role compatibility
-        max_uses: 100,
-        expires_days: parseInt(expiresIn)
-      });
-      
-      toast({
-        title: 'New join code generated. The previous code is now invalid.',
-      });
-    } catch (error) {
-      // Error handled by mutation
-    }
-  };
-
-  const handleCopyJoinCode = async (code: string) => {
-    const joinUrl = generateInviteUrl(code);
-    try {
-      await navigator.clipboard.writeText(joinUrl);
-      setJoinCodeCopied(true);
-      toast({
-        title: 'Join code copied.',
-      });
-      setTimeout(() => setJoinCodeCopied(false), 2000);
-    } catch (error) {
-      toast({
-        title: 'Copy failed',
-        description: 'Failed to copy join code to clipboard',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const handleCancelInvite = async (inviteId: string) => {
-    try {
-      await deleteInvite(inviteId);
-      toast({
-        title: 'Invite canceled.',
-      });
-    } catch (error) {
-      // Error handled by mutation
-    }
-  };
-
-  const handleResendInvite = async (email: string) => {
-    try {
-      await emailInviteMutation.mutateAsync({
-        orgId: orgId!,
-        email,
-        role: 'student'
-      });
-      
-      toast({
-        title: 'Invitation resent.',
-      });
-    } catch (error) {
-      // Error handled by mutation
-    }
-  };
-
-  const activeJoinCode = invites?.find(invite => 
-    invite.uses_count < invite.max_uses && 
-    new Date(invite.expires_at) > new Date()
-  );
+  // Removed join code and invite management - use email invitations only
 
   return (
     <div className="mobile-page-container mobile-section-spacing">
@@ -368,60 +292,6 @@ const InviteMembersPage = () => {
              </CardContent>
            </TransparentTile>
 
-          {/* Share Join Code */}
-          <TransparentTile>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Link2 className="h-5 w-5" />
-                Share Join Code
-              </CardTitle>
-              <CardDescription>
-                Generate a shareable link that multiple people can use.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {activeJoinCode ? (
-                <div className="space-y-3">
-                  <div className="p-3 bg-muted rounded-lg">
-                    <p className="text-sm font-mono break-all">
-                      {generateInviteUrl(activeJoinCode.code)}
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      onClick={() => handleCopyJoinCode(activeJoinCode.code)}
-                      variant="outline"
-                      className="flex-1"
-                    >
-                      {joinCodeCopied ? (
-                        <>
-                          <Check className="h-4 w-4 mr-2" />
-                          Copied
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="h-4 w-4 mr-2" />
-                          Copy Join Code
-                        </>
-                      )}
-                    </Button>
-                    <Button onClick={handleGenerateJoinCode} variant="outline">
-                      <RefreshCw className="h-4 w-4 mr-2" />
-                      Regenerate Code
-                    </Button>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Used {activeJoinCode.uses_count} of {activeJoinCode.max_uses} times • 
-                    Expires {format(new Date(activeJoinCode.expires_at), 'MMM d, yyyy')}
-                  </p>
-                </div>
-              ) : (
-                <Button onClick={handleGenerateJoinCode} className="w-full">
-                  Generate New Join Code
-                </Button>
-              )}
-            </CardContent>
-          </TransparentTile>
 
           {/* Manual Add Staff - Only for org owners/instructors */}
           {canManageOrg() && (
@@ -454,58 +324,21 @@ const InviteMembersPage = () => {
 
         {/* Right Column - Current State */}
         <div className="mobile-section-spacing">
-          {/* Pending Invitations */}
+          {/* Pending Invitations - now handled via user_invites table */}
           <TransparentTile>
             <CardHeader>
               <CardTitle>Pending Invitations</CardTitle>
               <CardDescription>
-                Invitations waiting for response
+                Email invitations are tracked in the database
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {invites && invites.length > 0 ? (
-                <div className="space-y-3">
-                  {invites.map((invite) => (
-                    <div key={invite.id} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline">{invite.role}</Badge>
-                          <span className="text-sm">
-                            {invite.uses_count}/{invite.max_uses} uses
-                          </span>
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Expires {format(new Date(invite.expires_at), 'MMM d, yyyy')}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleCopyJoinCode(invite.code)}
-                        >
-                          <Copy className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleCancelInvite(invite.id)}
-                          disabled={isDeleting}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <UserPlus className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">
-                    No invites yet. Send your first invite to start building your team.
-                  </p>
-                </div>
-              )}
+              <div className="text-center py-8">
+                <Mail className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">
+                  Email invitations are sent directly to recipients. They'll receive a link to join your organization.
+                </p>
+              </div>
             </CardContent>
           </TransparentTile>
 

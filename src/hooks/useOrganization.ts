@@ -92,36 +92,8 @@ export function useOrgMembers(orgId: string) {
   });
 }
 
-export function useOrgInvitations(orgId: string) {
-  return useQuery({
-    queryKey: ['org-invitations', orgId],
-    queryFn: async () => {
-        const { data, error } = await supabase
-          .from('org_invites')
-          .select('*')
-          .eq('org_id', orgId)
-          .order('created_at', { ascending: false });
-
-        if (error) throw error;
-        return data?.map((inv: any) => ({
-          id: inv.id,
-          org_id: inv.org_id,
-          created_by: inv.created_by,
-          email: inv.email,
-          code: inv.code,
-          token: inv.token,
-          status: inv.status,
-          expires_at: inv.expires_at,
-          max_uses: inv.max_uses || 1,
-          uses_count: inv.uses_count || 0,
-          role: inv.role,
-          metadata: inv.metadata || {},
-          created_at: inv.created_at,
-        })) || [];
-    },
-    enabled: !!orgId,
-  });
-}
+// Removed useOrgInvitations - org_invites table no longer exists
+// Use user_invites table via useInvitationSystem hook instead
 
 export function useCreateOrganization() {
   const queryClient = useQueryClient();
@@ -219,94 +191,7 @@ export function useCreateOrganization() {
   });
 }
 
-export function useInviteToOrganization() {
-  const queryClient = useQueryClient();
-  const { toast } = useToast();
-
-  return useMutation({
-    mutationFn: async (invitation: {
-      organization_id: string;
-      email?: string;
-      generate_code?: boolean;
-    }) => {
-      const inviteData: any = {
-        org_id: invitation.organization_id,
-        created_by: (await supabase.auth.getUser()).data.user?.id,
-        role: 'student', // Default role for invitations
-        max_uses: 1,
-        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days
-      };
-
-      if (invitation.email) {
-        inviteData.email = invitation.email;
-      }
-
-      // Always generate a code for invitations (needed for email links and manual codes)
-      const { data: codeData } = await supabase.rpc('generate_invitation_code');
-      inviteData.code = codeData;
-
-      const { data, error } = await supabase
-        .from('org_invites')
-        .insert(inviteData)
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      // Send email if email was provided
-      if (invitation.email && data.code) {
-        try {
-          // Get organization details
-          const { data: orgData } = await supabase
-            .from('organizations')
-            .select('name')
-            .eq('id', invitation.organization_id)
-            .single();
-
-          // Get current user for inviter name
-          const { data: { user } } = await supabase.auth.getUser();
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('display_name, full_name')
-            .eq('id', user?.id)
-            .single();
-
-          const inviterName = profile?.display_name || profile?.full_name || 'Someone';
-
-          await supabase.functions.invoke('send-invitation-email', {
-            body: {
-              email: invitation.email,
-              organizationName: orgData?.name || 'FPK University',
-              invitationCode: data.code,
-              inviterName
-            }
-          });
-        } catch (emailError) {
-          console.error('Failed to send invitation email:', emailError);
-          // Don't throw error - invitation was created successfully
-        }
-      }
-
-      return data;
-    },
-    onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['org-invitations', variables.organization_id] });
-      toast({
-        title: 'Invitation created',
-        description: variables.email 
-          ? `Invitation sent to ${variables.email}` 
-          : `Invitation code generated: ${data.code}`,
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: 'Error creating invitation',
-        description: error.message,
-        variant: 'destructive',
-      });
-    },
-  });
-}
+// Removed useInviteToOrganization - use useEmailInvitation from useInvitationSystem instead
 
 export function useRemoveMember() {
   const queryClient = useQueryClient();

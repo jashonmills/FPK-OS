@@ -55,46 +55,13 @@ export default function EnhancedAuth() {
   }, [user, navigate]);
 
   const validateInviteCode = async (code: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('org_invites')
-        .select(`
-          org_id,
-          code,
-          created_by,
-          organizations (name)
-        `)
-        .eq('code', code)
-        .eq('status', 'pending')
-        .gt('expires_at', new Date().toISOString())
-        .single();
-
-      if (error || !data) {
-        toast({
-          title: "Invalid Invite",
-          description: "This invitation link is invalid or has expired.",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      setInviteData({
-        organization_id: data.org_id,
-        organization_name: data.organizations?.name || 'Unknown Organization',
-        invited_by: data.created_by,
-        invitation_code: code
-      });
-      
-      // Auto-set role to student for invited users
-      setSelectedRole('learner');
-      
-      toast({
-        title: "Invitation Found!",
-        description: `You've been invited to join ${data.organizations?.name}`,
-      });
-    } catch (error) {
-      console.error('Error validating invite code:', error);
-    }
+    // Invite codes via URL are no longer supported
+    // Users should use email invitation links instead
+    toast({
+      title: "Invalid Invitation",
+      description: "Please use the invitation link sent to your email.",
+      variant: "destructive"
+    });
   };
 
   const handleSignIn = async (e: React.FormEvent) => {

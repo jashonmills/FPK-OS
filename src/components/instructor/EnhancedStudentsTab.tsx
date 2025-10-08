@@ -47,7 +47,7 @@ import { useOrgMemberManagement } from '@/hooks/useOrgMemberManagement';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
-import InviteLinkManager from './InviteLinkManager';
+// InviteLinkManager removed - use email invitations instead
 import type { OrgMember } from '@/types/organization';
 
 interface EnhancedStudentsTabProps {
@@ -116,12 +116,6 @@ export default function EnhancedStudentsTab({ organizationId, organizationName }
 
   return (
     <div className="space-y-6">
-      {/* Invite Link Management */}
-      <InviteLinkManager 
-        organizationId={organizationId}
-        organizationName={organizationName}
-      />
-
       {/* Students Management */}
       <Card>
         <CardHeader>

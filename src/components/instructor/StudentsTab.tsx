@@ -32,10 +32,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { useOrgMembers, useOrgInvitations } from '@/hooks/useOrganization';
-import { useOrgInvitations as useInviteActions } from '@/hooks/useOrgInvitations';
+import { useOrgMembers } from '@/hooks/useOrganization';
 import { useOrgMemberManagement } from '@/hooks/useOrgMemberManagement';
-import InviteStudentDialog from './InviteStudentDialog';
+import { useEmailInvitation } from '@/hooks/useInvitationSystem';
 import type { MemberStatus } from '@/types/organization';
 
 interface StudentsTabProps {
@@ -44,20 +43,11 @@ interface StudentsTabProps {
 
 export default function StudentsTab({ organizationId }: StudentsTabProps) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [showInviteDialog, setShowInviteDialog] = useState(false);
   const { toast } = useToast();
+  const emailInviteMutation = useEmailInvitation();
   
   const { data: members, isLoading, refetch } = useOrgMembers(organizationId);
-  const { data: invitations } = useOrgInvitations(organizationId);
-  const { deactivateInvitation, isDeactivating } = useInviteActions(organizationId);
-  const { 
-    removeMember, 
-    pauseMember, 
-    restoreMember, 
-    isRemoving, 
-    isPausing, 
-    isRestoring 
-  } = useOrgMemberManagement(organizationId);
+  const { removeMember } = useOrgMemberManagement();
 
   const students = members?.filter(m => m.role === 'student') || [];
   const activeStudents = students.filter(s => s.status === 'active');
@@ -135,11 +125,6 @@ export default function StudentsTab({ organizationId }: StudentsTabProps) {
         <div className="flex items-center gap-4">
           <div className="text-sm text-muted-foreground">
             <span className="font-medium text-foreground">{activeStudents.length}</span> active students
-            {pendingInvitations.length > 0 && (
-              <span className="ml-2">
-                • <span className="font-medium text-foreground">{pendingInvitations.length}</span> pending invitations
-              </span>
-            )}
           </div>
         </div>
         
@@ -147,10 +132,6 @@ export default function StudentsTab({ organizationId }: StudentsTabProps) {
           <Button variant="outline" size="sm" onClick={() => refetch()}>
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
-          </Button>
-          <Button onClick={() => setShowInviteDialog(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Invite Students
           </Button>
         </div>
       </div>
@@ -308,12 +289,6 @@ export default function StudentsTab({ organizationId }: StudentsTabProps) {
           </CardContent>
         </Card>
       )}
-
-      <InviteStudentDialog
-        open={showInviteDialog}
-        onOpenChange={setShowInviteDialog}
-        organizationId={organizationId}
-      />
     </div>
   );
 }

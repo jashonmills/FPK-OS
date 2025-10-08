@@ -8,29 +8,33 @@ import { Users, UserPlus, Search, Filter, MoreHorizontal } from 'lucide-react';
 import { useOrgContext } from '@/components/organizations/OrgContext';
 import { useOrgMembers } from '@/hooks/useOrgMembers';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import InviteStudentDialog from '@/components/instructor/InviteStudentDialog';
+import { useEmailInvitation } from '@/hooks/useInvitationSystem';
 
 export default function StudentsManagement() {
   const {
     currentOrg
   } = useOrgContext();
   const [searchQuery, setSearchQuery] = useState('');
-  const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
+  const emailInviteMutation = useEmailInvitation();
   const {
     members,
     isLoading
   } = useOrgMembers(searchQuery, 'student');
   const students = members.filter(m => m.role === 'student');
   if (!currentOrg) {
-    return <div className="container max-w-6xl mx-auto py-8">
+    return (
+      <div className="container max-w-6xl mx-auto py-8">
         <OrgCard>
           <OrgCardContent className="p-8 text-center">
             <p className="text-purple-200">No organization selected</p>
           </OrgCardContent>
         </OrgCard>
-      </div>;
+      </div>
+    );
   }
-  return <div className="container max-w-6xl mx-auto py-8 space-y-6">
+  
+  return (
+    <div className="container max-w-6xl mx-auto py-8 space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-bold tracking-tight text-white drop-shadow-lg text-5xl">Students</h1>
@@ -38,10 +42,6 @@ export default function StudentsManagement() {
             Manage and monitor your organization's students
           </p>
         </div>
-        <Button onClick={() => setInviteDialogOpen(true)}>
-          <UserPlus className="w-4 h-4 mr-2" />
-          Invite Students
-        </Button>
       </div>
 
       {/* Stats Cards */}
@@ -117,7 +117,8 @@ export default function StudentsManagement() {
         </OrgCardHeader>
         <OrgCardContent>
           <div className="space-y-4">
-            {students.map(student => <div key={student.id} className="flex items-center justify-between p-4 border rounded-lg border-white/20 bg-white/10">
+            {students.map(student => (
+              <div key={student.id} className="flex items-center justify-between p-4 border rounded-lg border-white/20 bg-white/10">
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
                     <span className="text-sm font-semibold text-white">
@@ -162,27 +163,21 @@ export default function StudentsManagement() {
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
-              </div>)}
+              </div>
+            ))}
             
-            {students.length === 0 && !isLoading && <div className="text-center py-8">
+            {students.length === 0 && !isLoading && (
+              <div className="text-center py-8">
                 <Users className="h-12 w-12 mx-auto text-white/70 mb-4" />
                 <h3 className="text-lg font-semibold mb-2 text-white">No Students Found</h3>
                 <p className="text-white/80 mb-4">
-                  Invite students to join your organization.
+                  Use the invite features to add students to your organization.
                 </p>
-                <Button onClick={() => setInviteDialogOpen(true)}>
-                  <UserPlus className="w-4 h-4 mr-2" />
-                  Invite Students
-                </Button>
-              </div>}
+              </div>
+            )}
           </div>
         </OrgCardContent>
       </OrgCard>
-
-      <InviteStudentDialog 
-        open={inviteDialogOpen}
-        onOpenChange={setInviteDialogOpen}
-        organizationId={currentOrg?.organization_id || ''}
-      />
-    </div>;
+    </div>
+  );
 }

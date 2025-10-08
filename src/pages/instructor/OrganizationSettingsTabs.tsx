@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Settings, Palette, UserPlus, Upload, X, Eye, Mail, Link2, Copy, RefreshCw, Plus, Check, Info, Users, Calendar, UserCircle } from 'lucide-react';
 import { useOrgContext } from '@/components/organizations/OrgContext';
 import { useOrgBranding, useUpdateOrgBranding, useUploadBrandingFile } from '@/hooks/useOrgBranding';
-import { useOrgInvites } from '@/hooks/useOrgInvites';
+import { useEmailInvitation } from '@/hooks/useInvitationSystem';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
@@ -30,7 +30,6 @@ import { ManualStaffAddDialog } from '@/components/org/ManualStaffAddDialog';
 import { useOrgMembers, OrgMember } from '@/hooks/useOrgMembers';
 import { MemberProfileDialog } from '@/components/org/MemberProfileDialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { InvitationManagementCard } from '@/components/org/InvitationManagementCard';
 
 const ACCENT_PRESETS = [
   { name: 'FPK Purple', value: '280 100% 70%', hex: '#a855f7' },
@@ -69,9 +68,8 @@ export default function OrganizationSettingsTabs() {
   const [selectedRole, setSelectedRole] = useState('student');
   const [inviteMessage, setInviteMessage] = useState('');
   const [expiresIn, setExpiresIn] = useState('7');
-  const [joinCodeCopied, setJoinCodeCopied] = useState(false);
   const [manualAddDialogOpen, setManualAddDialogOpen] = useState(false);
-  const { invites, createInvite, deleteInvite, generateInviteUrl, isCreating, isDeleting } = useOrgInvites();
+  const emailInviteMutation = useEmailInvitation();
   
   // Members state
   const { members, isLoading: membersLoading, refetch: refetchMembers } = useOrgMembers();
@@ -169,17 +167,11 @@ export default function OrganizationSettingsTabs() {
 
     try {
       for (const email of validEmails) {
-        const { data, error } = await supabase.functions.invoke('send-invitation-email', {
-          body: {
-            orgId: currentOrg.organization_id,
-            email: email.trim(),
-            role: selectedRole,
-            organizationName: currentOrg.organizations.name,
-          }
+        await emailInviteMutation.mutateAsync({
+          orgId: currentOrg.organization_id,
+          email: email.trim(),
+          role: selectedRole as 'student' | 'instructor'
         });
-
-        if (error) throw error;
-        if (!data?.success) throw new Error(data?.error || 'Failed to send invitation');
       }
       
       toast({ title: `Invite sent to ${validEmails.length} recipient${validEmails.length > 1 ? 's' : ''}.` });
@@ -187,75 +179,10 @@ export default function OrganizationSettingsTabs() {
       setInviteMessage('');
     } catch (error: any) {
       console.error('Error sending invites:', error);
-      toast({
-        title: 'Failed to send invitation',
-        description: error.message || 'There was an error sending the invitation email.',
-        variant: 'destructive',
-      });
     }
   };
 
-  const handleGenerateJoinCode = async () => {
-    try {
-      await createInvite({
-        role: selectedRole as any,
-        max_uses: 100,
-        expires_days: parseInt(expiresIn)
-      });
-      
-      toast({ title: 'New join code generated. The previous code is now invalid.' });
-    } catch (error) {
-      // Error handled by mutation
-    }
-  };
-
-  const handleCopyJoinCode = async (code: string) => {
-    const joinUrl = generateInviteUrl(code);
-    try {
-      await navigator.clipboard.writeText(joinUrl);
-      setJoinCodeCopied(true);
-      toast({ title: 'Join code copied.' });
-      setTimeout(() => setJoinCodeCopied(false), 2000);
-    } catch (error) {
-      toast({
-        title: 'Copy failed',
-        description: 'Failed to copy join code to clipboard',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const handleCancelInvite = async (inviteId: string) => {
-    try {
-      await deleteInvite(inviteId);
-      toast({ title: 'Invite canceled.' });
-    } catch (error) {
-      // Error handled by mutation
-    }
-  };
-
-  const handleRegenerateInvite = async (oldInvite: any) => {
-    try {
-      // First delete the old invite
-      await deleteInvite(oldInvite.id);
-      
-      // Create a new invite with same parameters
-      await createInvite({
-        role: oldInvite.role as any,
-        max_uses: oldInvite.max_uses,
-        expires_days: Math.ceil((new Date(oldInvite.expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) || 30
-      });
-      
-      toast({ title: 'Invitation regenerated successfully.' });
-    } catch (error) {
-      // Error handled by mutations
-    }
-  };
-
-  const activeJoinCode = invites?.find(invite => 
-    invite.uses_count < invite.max_uses && 
-    new Date(invite.expires_at) > new Date()
-  );
+  // Removed join code functionality - use email invitations only
 
   return (
     <div className="container max-w-6xl mx-auto py-8 space-y-6">
@@ -717,83 +644,11 @@ export default function OrganizationSettingsTabs() {
 
                 <Button
                   onClick={handleSendInvites}
-                  disabled={isCreating}
+                  disabled={emailInviteMutation.isPending}
                   className="w-full bg-white/20 hover:bg-white/30 text-white border-white/30"
                 >
-                  {isCreating ? 'Sending...' : 'Send Invitations'}
+                  {emailInviteMutation.isPending ? 'Sending...' : 'Send Invitations'}
                 </Button>
-              </OrgCardContent>
-            </OrgCard>
-
-            {/* Join Code */}
-            <OrgCard className="bg-orange-500/65 border-orange-400/50">
-              <OrgCardHeader>
-                <OrgCardTitle className="flex items-center gap-2 text-white">
-                  <Link2 className="h-5 w-5" />
-                  Share Join Code
-                </OrgCardTitle>
-                <OrgCardDescription className="text-white/80">
-                  Generate a shareable link that multiple people can use to join
-                </OrgCardDescription>
-              </OrgCardHeader>
-              <OrgCardContent className="space-y-4">
-                {activeJoinCode ? (
-                  <div className="space-y-3">
-                    <div className="p-3 bg-white/20 rounded-lg border border-white/30">
-                      <p className="text-sm font-mono break-all text-white">
-                        {generateInviteUrl(activeJoinCode.code)}
-                      </p>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        onClick={() => handleCopyJoinCode(activeJoinCode.code)}
-                        variant="outline"
-                        className="flex-1 bg-white/10 border-white/30 text-white hover:bg-white/20"
-                      >
-                        {joinCodeCopied ? (
-                          <>
-                            <Check className="h-4 w-4 mr-2" />
-                            Copied!
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="h-4 w-4 mr-2" />
-                            Copy Link
-                          </>
-                        )}
-                      </Button>
-                      <Button 
-                        onClick={handleGenerateJoinCode} 
-                        variant="outline"
-                        className="bg-white/10 border-white/30 text-white hover:bg-white/20"
-                      >
-                        <RefreshCw className="h-4 w-4 mr-2" />
-                        New Code
-                      </Button>
-                    </div>
-                    <div className="flex items-center justify-between text-xs text-white/70 pt-2 border-t border-white/20">
-                      <span className="flex items-center gap-1">
-                        <Users className="h-3 w-3" />
-                        {activeJoinCode.uses_count} of {activeJoinCode.max_uses} uses
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Calendar className="h-3 w-3" />
-                        Expires {format(new Date(activeJoinCode.expires_at), 'MMM d, yyyy')}
-                      </span>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-center py-4">
-                    <p className="text-white/70 text-sm mb-4">No active join code. Generate one to share with multiple people.</p>
-                    <Button 
-                      onClick={handleGenerateJoinCode} 
-                      className="w-full bg-white/20 hover:bg-white/30 text-white border-white/30"
-                      disabled={isCreating}
-                    >
-                      Generate Join Code
-                    </Button>
-                  </div>
-                )}
               </OrgCardContent>
             </OrgCard>
 
@@ -822,14 +677,6 @@ export default function OrganizationSettingsTabs() {
               </OrgCardContent>
             </OrgCard>
 
-            {/* Active Invitations */}
-            <InvitationManagementCard
-              invites={invites || []}
-              onCopyInvite={handleCopyJoinCode}
-              onRevokeInvite={handleCancelInvite}
-              onRegenerateInvite={handleRegenerateInvite}
-              isDeleting={isDeleting}
-            />
           </div>
 
           {/* Manual Staff Add Dialog */}
