@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { TransparentTile } from '@/components/ui/transparent-tile';
 import { useOrgContext } from '@/components/organizations/OrgContext';
 import { useOrgNotes, OrgNote } from '@/hooks/useOrgNotes';
 import { useOrgStudents } from '@/hooks/useOrgStudents';
@@ -55,25 +56,29 @@ export default function GoalsAndNotes() {
   return (
     <div className="w-full max-w-6xl mx-auto px-6 py-6 space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Goals & Notes</h1>
-        <p className="text-muted-foreground mt-2">
-          Track learning objectives and manage student notes in one place
-        </p>
-      </div>
+      <TransparentTile className="bg-orange-500/10 border-orange-400/30">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Goals & Notes</h1>
+          <p className="text-muted-foreground mt-2">
+            Track learning objectives and manage student notes in one place
+          </p>
+        </div>
+      </TransparentTile>
 
       {/* Tabbed Interface */}
       <Tabs defaultValue="goals" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="goals" className="flex items-center gap-2">
-            <Target className="h-4 w-4" />
-            Goals
-          </TabsTrigger>
-          <TabsTrigger value="notes" className="flex items-center gap-2">
-            <FileText className="h-4 w-4" />
-            Notes
-          </TabsTrigger>
-        </TabsList>
+        <TransparentTile className="bg-orange-500/10 border-orange-400/30">
+          <TabsList>
+            <TabsTrigger value="goals" className="flex items-center gap-2">
+              <Target className="h-4 w-4" />
+              Goals
+            </TabsTrigger>
+            <TabsTrigger value="notes" className="flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              Notes
+            </TabsTrigger>
+          </TabsList>
+        </TransparentTile>
 
         <TabsContent value="goals" className="space-y-6">
           <GoalsPage />
@@ -81,18 +86,20 @@ export default function GoalsAndNotes() {
 
         <TabsContent value="notes" className="space-y-6">
           {/* Notes Section */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold">Student Notes</h2>
-              <p className="text-muted-foreground mt-1">View and manage notes for all students</p>
+          <TransparentTile className="bg-orange-500/10 border-orange-400/30">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold">Student Notes</h2>
+                <p className="text-muted-foreground mt-1">View and manage notes for all students</p>
+              </div>
+              <OrgNoteCreationDialog organizationId={currentOrg?.organization_id || ''}>
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Note
+                </Button>
+              </OrgNoteCreationDialog>
             </div>
-            <OrgNoteCreationDialog organizationId={currentOrg?.organization_id || ''}>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Note
-              </Button>
-            </OrgNoteCreationDialog>
-          </div>
+          </TransparentTile>
 
           {/* Filters */}
           <OrgCard className="bg-orange-500/65 border-orange-400/50">

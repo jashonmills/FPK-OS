@@ -21,6 +21,9 @@ import { useComprehensiveOrgAnalytics } from '@/hooks/useComprehensiveOrgAnalyti
 import { OrgLogo } from '@/components/branding/OrgLogo';
 import { useOrgBranding } from '@/hooks/useOrgBranding';
 import { useEnhancedOrgBranding } from '@/hooks/useEnhancedOrgBranding';
+import { useGamificationContext } from '@/contexts/GamificationContext';
+import XPProgressBar from '@/components/gamification/XPProgressBar';
+import { Trophy, Star, Flame } from 'lucide-react';
 
 export default function OrgPortalHome() {
   const navigate = useNavigate();
@@ -88,10 +91,24 @@ export default function OrgPortalHome() {
     );
   }
 
-  // Student landing page - show portal access card instead of auto-redirecting
+  // Get gamification data for students
+  const { userStats, isLoading: gamificationLoading } = useGamificationContext();
+  
+  // Student landing page - show comprehensive analytics
   if (isStudent) {
+    const combinedLoading = studentStatsLoading || gamificationLoading;
+    
+    if (combinedLoading) {
+      return (
+        <div className="flex items-center justify-center min-h-[400px]">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+      );
+    }
+
     return (
-      <div className="container mx-auto px-6 py-8">
+      <div className="container mx-auto px-6 py-8 space-y-6">
+        {/* Welcome Card */}
         <Card className="bg-orange-500/65 border-orange-400/50">
           <CardHeader>
             <div className="flex items-center gap-4">
@@ -100,14 +117,144 @@ export default function OrgPortalHome() {
               )}
               <div>
                 <CardTitle className="text-white text-2xl">Welcome to {currentOrg.organizations?.name}</CardTitle>
-                <CardDescription className="text-white/80">Student Portal Access</CardDescription>
+                <CardDescription className="text-white/80">Student Dashboard</CardDescription>
               </div>
             </div>
           </CardHeader>
+        </Card>
+
+        {/* XP & Level Card */}
+        <Card className="bg-orange-500/65 border-orange-400/50">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center gap-2">
+              <Star className="h-5 w-5" />
+              Your Learning Progress
+            </CardTitle>
+          </CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-white">
-              You're viewing your personalized learning dashboard. Track your progress and continue your courses below.
-            </p>
+            <XPProgressBar
+              totalXP={userStats?.total_xp || 0}
+              level={userStats?.level || 1}
+              xpToNext={userStats?.next_level_xp || 100}
+              showDetails={true}
+            />
+            
+            <div className="grid grid-cols-3 gap-4 mt-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-white">{userStats?.level || 1}</div>
+                <div className="text-xs text-white/80">Level</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-white">{userStats?.total_xp || 0}</div>
+                <div className="text-xs text-white/80">Total XP</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-white">{userStats?.current_streak || 0}</div>
+                <div className="text-xs text-white/80 flex items-center justify-center gap-1">
+                  <Flame className="h-3 w-3" />
+                  Day Streak
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Achievements & Badges */}
+        {userStats?.recent_badges && userStats.recent_badges.length > 0 && (
+          <Card className="bg-orange-500/65 border-orange-400/50">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center gap-2">
+                <Trophy className="h-5 w-5" />
+                Recent Achievements
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {userStats.recent_badges.slice(0, 3).map((badge, index) => (
+                  <div key={index} className="flex items-center gap-3 p-3 bg-white/10 rounded-lg">
+                    <Trophy className="h-8 w-8 text-yellow-400" />
+                    <div>
+                      <div className="text-white font-semibold">{badge.name}</div>
+                      <div className="text-xs text-white/80">{badge.xp_reward} XP</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 text-center">
+                <Badge className="bg-white/20 text-white border-white/30">
+                  {userStats.badges_count || 0} Total Badges
+                </Badge>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Course Progress Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card className="bg-orange-500/65 border-orange-400/50">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-white/80">My Courses</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">{studentStats?.myEnrollments || 0}</div>
+              <p className="text-xs text-white/80">Enrolled</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-orange-500/65 border-orange-400/50">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-white/80">Completed</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">{studentStats?.completedCourses || 0}</div>
+              <p className="text-xs text-white/80">Courses finished</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-orange-500/65 border-orange-400/50">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-white/80">My Goals</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">{studentStats?.myGoals || 0}</div>
+              <p className="text-xs text-white/80">Active goals</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-orange-500/65 border-orange-400/50">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-white/80">Progress</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">{studentStats?.myProgress || 0}%</div>
+              <p className="text-xs text-white/80">Overall completion</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Quick Actions */}
+        <Card className="bg-orange-500/65 border-orange-400/50">
+          <CardHeader>
+            <CardTitle className="text-white">Quick Actions</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-4">
+              <Button 
+                className="flex items-center space-x-2 bg-white/20 hover:bg-white/30 text-white border-white/30"
+                onClick={() => navigate(`/org/${currentOrg?.organization_id}/courses`)}
+              >
+                <BookOpen className="h-4 w-4" />
+                <span>View My Courses</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                className="flex items-center space-x-2 border-border text-foreground hover:bg-accent"
+                onClick={() => navigate(`/org/${currentOrg?.organization_id}/goals-notes`)}
+              >
+                <Target className="h-4 w-4" />
+                <span>My Goals</span>
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
