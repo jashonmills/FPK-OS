@@ -356,22 +356,43 @@ export type Database = {
         Row: {
           action: string
           id: string
+          ip_address: unknown | null
+          legal_basis: string | null
+          new_values: Json | null
+          old_values: Json | null
+          purpose: string | null
+          record_id: string | null
           table_name: string | null
           timestamp: string | null
+          user_agent: string | null
           user_id: string | null
         }
         Insert: {
           action: string
           id?: string
+          ip_address?: unknown | null
+          legal_basis?: string | null
+          new_values?: Json | null
+          old_values?: Json | null
+          purpose?: string | null
+          record_id?: string | null
           table_name?: string | null
           timestamp?: string | null
+          user_agent?: string | null
           user_id?: string | null
         }
         Update: {
           action?: string
           id?: string
+          ip_address?: unknown | null
+          legal_basis?: string | null
+          new_values?: Json | null
+          old_values?: Json | null
+          purpose?: string | null
+          record_id?: string | null
           table_name?: string | null
           timestamp?: string | null
+          user_agent?: string | null
           user_id?: string | null
         }
         Relationships: []
