@@ -1,6 +1,7 @@
 import React from 'react';
 import { useLocation, Navigate } from 'react-router-dom';
 import { useUserIdentity } from '@/hooks/useUserIdentity';
+import { useStudentPortalContext } from '@/hooks/useStudentPortalContext';
 import { Loader2 } from 'lucide-react';
 
 interface RouteProtectorProps {
@@ -14,6 +15,7 @@ const isProtectedRoute = (pathname: string) => {
 
 export const RouteProtector: React.FC<RouteProtectorProps> = ({ children }) => {
   const { identity, isLoading } = useUserIdentity();
+  const { studentOrgSlug } = useStudentPortalContext();
   const location = useLocation();
 
   // Show loading spinner while identity is being determined
@@ -32,11 +34,10 @@ export const RouteProtector: React.FC<RouteProtectorProps> = ({ children }) => {
 
   // Rule #1: If the user is a "Student-Only" user, they MUST be in their org section
   // If they are anywhere else, force them back to their student dashboard
-  if (identity?.isStudentPortalUser) {
-    const studentOrgId = identity.memberships[0]?.orgId;
-    if (studentOrgId && !location.pathname.startsWith(`/${studentOrgId}`)) {
-      console.warn('[RouteProtector] Student-Only user outside their designated org. Redirecting.');
-      return <Navigate to={`/${studentOrgId}/student-portal`} replace />;
+  if (identity?.isStudentPortalUser && studentOrgSlug) {
+    if (!location.pathname.startsWith(`/${studentOrgSlug}`)) {
+      console.warn('[RouteProtector] Student-Only user outside their designated org. Redirecting to:', `/${studentOrgSlug}/student-portal`);
+      return <Navigate to={`/${studentOrgSlug}/student-portal`} replace />;
     }
   }
 
