@@ -467,17 +467,19 @@ export default function OrgCoursesCatalog() {
   // Calculate statistics based on user role
   const getStatistics = () => {
     if (isOrgStudent()) {
-      const assignedCourses = assignments.length;
+      // For students, count all available courses (assignments + enrollments)
+      const totalCourses = platformCourses.length + orgCourses.length;
+      const assignedFromTargets = assignments.length;
       const completedAssignments = assignments.filter(a => a.target.status === 'completed').length;
       const pendingAssignments = assignments.filter(a => a.target.status === 'pending').length;
       const inProgressAssignments = assignments.filter(a => a.target.status === 'started').length;
       
       return {
-        assignedCourses,
+        assignedCourses: totalCourses, // Total courses available to student
         completedAssignments,
         pendingAssignments,
         inProgressAssignments,
-        progressPercentage: assignedCourses > 0 ? Math.round((completedAssignments / assignedCourses) * 100) : 0
+        progressPercentage: totalCourses > 0 ? Math.round((completedAssignments / totalCourses) * 100) : 0
       };
     } else {
       const totalCourses = platformCourses.length + orgCourses.length;

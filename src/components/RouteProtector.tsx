@@ -36,9 +36,19 @@ export const RouteProtector: React.FC<RouteProtectorProps> = ({ children }) => {
   // If they are anywhere else, force them back to their organization dashboard
   if (identity?.isStudentPortalUser) {
     const orgId = identity.memberships[0]?.orgId;
-    if (orgId && !location.pathname.startsWith(`/org/${orgId}`) && !location.pathname.startsWith(`/${studentOrgSlug}`)) {
-      console.warn('[RouteProtector] Student-Only user outside their designated org. Redirecting to:', `/org/${orgId}`);
-      return <Navigate to={`/org/${orgId}`} replace />;
+    if (orgId) {
+      const isInOrgRoute = location.pathname.startsWith(`/org/${orgId}`) || location.pathname.startsWith(`/${studentOrgSlug}`);
+      const hasOrgParam = location.search.includes(`org=${orgId}`);
+      const isCourseRoute = location.pathname.startsWith('/courses/');
+      const isPreviewRoute = location.pathname.startsWith('/preview/');
+      
+      // Allow: org routes, course routes with org param, preview routes with org param
+      const isAllowed = isInOrgRoute || (isCourseRoute && hasOrgParam) || (isPreviewRoute && hasOrgParam);
+      
+      if (!isAllowed) {
+        console.warn('[RouteProtector] Student-Only user outside their designated org. Redirecting to:', `/org/${orgId}`);
+        return <Navigate to={`/org/${orgId}`} replace />;
+      }
     }
   }
 
