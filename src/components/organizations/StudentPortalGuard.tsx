@@ -15,8 +15,20 @@ export function StudentPortalGuard({ children }: StudentPortalGuardProps) {
   const orgContext = useOptionalOrgContext();
   const { orgSlug } = useParams<{ orgSlug: string }>();
 
-  // Show loading state while checking auth and org data
-  if (loading || orgContext?.isLoading) {
+  console.log('🔍 [StudentPortalGuard] State check:', {
+    loading,
+    hasUser: !!user,
+    userEmail: user?.email,
+    isStudentPortalUser,
+    studentOrgSlug,
+    userMetadata: user?.user_metadata,
+    orgContextLoading: orgContext?.isLoading
+  });
+
+  // CRITICAL: Wait for both auth AND metadata to load
+  // User metadata might take an extra moment to propagate after magic link auth
+  if (loading || !user || (user.email?.includes('@portal.fpkuniversity.com') && isStudentPortalUser === undefined)) {
+    console.log('⏳ [StudentPortalGuard] Waiting for auth/metadata to load');
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -24,27 +36,38 @@ export function StudentPortalGuard({ children }: StudentPortalGuardProps) {
     );
   }
 
+  // Additional safety check: If this looks like a student portal user but metadata isn't set
+  // (e.g., immediately after magic link authentication), give it a moment to propagate
+  if (user.email?.endsWith('@portal.fpkuniversity.com') && !isStudentPortalUser) {
+    console.warn('⚠️ [StudentPortalGuard] Student portal email detected but metadata not loaded, retrying...');
+    // Force a small delay to allow metadata to propagate
+    setTimeout(() => window.location.reload(), 500);
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-2" />
+          <p className="text-sm text-muted-foreground">Setting up your account...</p>
+        </div>
+      </div>
+    );
+  }
+
   // Not authenticated - redirect to org login
   if (!user) {
+    console.log('🚫 [StudentPortalGuard] No user - redirecting to login');
     return <Navigate to={`/${orgSlug}/login`} replace />;
   }
 
-  // Check if user is a regular org student (role='student' in org_members)
+  // Check if user is a regular org student (for logging purposes)
   const userOrgMembership = orgContext?.organizations?.find(org => org.organizations.slug === orgSlug);
   const isRegularOrgStudent = userOrgMembership?.role === 'student';
 
-  // Allow access if user is either:
-  // 1. A student portal user (special accounts with is_student_portal metadata)
-  // 2. OR a regular student in this organization (role='student' in org_members)
-  const hasStudentAccess = isStudentPortalUser || isRegularOrgStudent;
-
-  // Not a student - redirect to context PIN login
-  if (!hasStudentAccess) {
-    console.log('🚫 [StudentPortalGuard] Access denied - redirecting to PIN step-up', {
+  // Primary access check: Is this a student portal user?
+  if (!isStudentPortalUser && !isRegularOrgStudent) {
+    console.log('🚫 [StudentPortalGuard] Access denied - neither student portal user nor org student', {
       isStudentPortalUser,
       isRegularOrgStudent,
-      orgSlug,
-      redirectTo: `/${orgSlug}/context-login`
+      orgSlug
     });
     return <Navigate to={`/${orgSlug}/context-login`} replace />;
   }
