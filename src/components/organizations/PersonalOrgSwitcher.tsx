@@ -36,11 +36,14 @@ export function PersonalOrgSwitcher() {
   }
 
   const switchToPersonal = () => {
-    navigate('/dashboard/learner');
+    console.log('🔄 [PersonalOrgSwitcher] Switching to personal mode');
+    localStorage.removeItem('fpk.activeOrgId');
+    navigate('/dashboard/learner', { replace: true });
   };
 
   const switchToOrganization = (orgId: string) => {
-    navigate(`/org/${orgId}`);
+    console.log('🔄 [PersonalOrgSwitcher] Switching to org:', orgId);
+    navigate(`/org/${orgId}`, { replace: true });
   };
 
   const currentContext = isPersonalMode ? 'Personal' : 'Organization';

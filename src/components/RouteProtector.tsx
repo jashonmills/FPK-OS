@@ -109,7 +109,20 @@ export const RouteProtector: React.FC<RouteProtectorProps> = ({ children }) => {
       return;
     }
 
-    // PRIORITY 6: REMOVED AGGRESSIVE AUTO-REDIRECT
+    // PRIORITY 6: Redirect dashboard routes with ?org= param to proper org routes
+    if (isDashboardRoute && !subscriptionLoading && user) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const orgFromUrl = urlParams.get('org');
+      
+      if (orgFromUrl) {
+        console.log('🔄 [RouteProtector] Detected org param on dashboard route - redirecting to org context');
+        setHasNavigated(true);
+        navigate(`/org/${orgFromUrl}`, { replace: true });
+        return;
+      }
+    }
+
+    // PRIORITY 7: REMOVED AGGRESSIVE AUTO-REDIRECT
     // Only redirect if user explicitly lands on org route without org or dashboard route without org access
     if (user && !subscriptionLoading && hasAccess) {
       // Check URL params FIRST (matches getActiveOrgId() logic)
