@@ -103,18 +103,11 @@ serve(async (req) => {
     const origin = req.headers.get('origin') || 'https://fpkuniversity.com';
     const finalDestination = `${origin}/${orgSlug}/student-portal`;
     
-    // Determine redirect URL based on environment
-    // Use auth bridge only on Lovable preview, direct redirect on production
-    const isLovablePreview = origin.includes('lovableproject.com');
-    const redirectTo = isLovablePreview 
-      ? `${origin}/auth/callback?redirect_uri=${encodeURIComponent(finalDestination)}`
-      : finalDestination;
-    
-    console.log('[activate-student-account] Redirect configuration:', {
+    console.log('[activate-student-account] Environment check:', {
       origin,
-      isLovablePreview,
+      orgSlug,
       finalDestination,
-      redirectTo
+      userAgent: req.headers.get('user-agent')
     });
     // If student has a linked user, update their metadata and generate session
     if (linked_user_id) {
@@ -132,7 +125,7 @@ serve(async (req) => {
         type: 'magiclink',
         email: `student-${student_id}@portal.fpkuniversity.com`,
         options: {
-          redirectTo: redirectTo
+          redirectTo: finalDestination
         }
       });
 
@@ -209,12 +202,11 @@ serve(async (req) => {
       // Don't fail the whole flow, but log the error
     }
 
-    // Use the redirectTo URL configured above
     const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.admin.generateLink({
       type: 'magiclink',
       email: tempEmail,
       options: {
-        redirectTo: redirectTo
+        redirectTo: finalDestination
       }
     });
 
