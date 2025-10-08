@@ -31,6 +31,7 @@ import { useOrgMembers, OrgMember } from '@/hooks/useOrgMembers';
 import { MemberProfileDialog } from '@/components/org/MemberProfileDialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { InstructorProfileSection } from '@/components/instructor/InstructorProfileSection';
+import { MemberCard } from '@/components/org/MemberCard';
 
 const ACCENT_PRESETS = [
   { name: 'FPK Purple', value: '280 100% 70%', hex: '#a855f7' },
@@ -715,91 +716,17 @@ export default function OrganizationSettingsTabs() {
                   <p className="text-white/80">Loading members...</p>
                 </div>
               ) : members && members.length > 0 ? (
-                <div className="space-y-3">
-                  {members.map((member) => {
-                    const getInitials = (name: string) => {
-                      return name
-                        .split(' ')
-                        .map(n => n[0])
-                        .join('')
-                        .toUpperCase()
-                        .slice(0, 2);
-                    };
-
-                    const getRoleBadgeColor = (role: string) => {
-                      switch (role) {
-                        case 'owner':
-                          return 'bg-purple-500/20 text-purple-300 border-purple-400/30';
-                        case 'instructor':
-                          return 'bg-blue-500/20 text-blue-300 border-blue-400/30';
-                        case 'instructor-aide':
-                          return 'bg-cyan-500/20 text-cyan-300 border-cyan-400/30';
-                        case 'student':
-                          return 'bg-green-500/20 text-green-300 border-green-400/30';
-                        default:
-                          return 'bg-gray-500/20 text-gray-300 border-gray-400/30';
-                      }
-                    };
-
-                    const getStatusBadgeColor = (status: string) => {
-                      switch (status) {
-                        case 'active':
-                          return 'bg-green-500/20 text-green-300 border-green-400/30';
-                        case 'pending':
-                          return 'bg-yellow-500/20 text-yellow-300 border-yellow-400/30';
-                        case 'inactive':
-                          return 'bg-gray-500/20 text-gray-300 border-gray-400/30';
-                        default:
-                          return 'bg-gray-500/20 text-gray-300 border-gray-400/30';
-                      }
-                    };
-
-                    return (
-                      <div 
-                        key={member.user_id} 
-                        className="flex items-center justify-between p-4 border border-white/30 rounded-lg bg-white/10 hover:bg-white/15 transition-colors"
-                      >
-                        <div className="flex items-center gap-4 flex-1">
-                          <Avatar className="h-12 w-12 border-2 border-white/20">
-                            <AvatarImage src={member.profiles?.avatar_url} />
-                            <AvatarFallback className="bg-orange-500 text-white">
-                              {getInitials(member.display_name || member.full_name || 'User')}
-                            </AvatarFallback>
-                          </Avatar>
-                          
-                          <div className="flex-1 min-w-0">
-                            <h4 className="text-white font-semibold truncate">
-                              {member.full_name || member.display_name || 'Unnamed User'}
-                            </h4>
-                            <p className="text-sm text-white/70 truncate">
-                              {member.profiles?.email || 'No email'}
-                            </p>
-                            <div className="flex items-center gap-2 mt-1 flex-wrap">
-                              <Badge className={getRoleBadgeColor(member.role)}>
-                                {member.role.charAt(0).toUpperCase() + member.role.slice(1).replace('-', ' ')}
-                              </Badge>
-                              <Badge className={getStatusBadgeColor(member.status)}>
-                                {member.status}
-                              </Badge>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setSelectedMember(member);
-                            setMemberProfileOpen(true);
-                          }}
-                          className="shrink-0"
-                        >
-                          <UserCircle className="h-4 w-4 mr-2" />
-                          View Profile
-                        </Button>
-                      </div>
-                    );
-                  })}
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {members.map((member) => (
+                    <MemberCard 
+                      key={member.user_id}
+                      member={member}
+                      onViewProfile={(member) => {
+                        setSelectedMember(member);
+                        setMemberProfileOpen(true);
+                      }}
+                    />
+                  ))}
                 </div>
               ) : (
                 <div className="text-center py-8">
