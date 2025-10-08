@@ -109,7 +109,7 @@ serve(async (req) => {
       finalDestination,
       userAgent: req.headers.get('user-agent')
     });
-    // If student has a linked user, update their metadata and generate session
+    // If student has a linked user, update their metadata
     if (linked_user_id) {
       // Update user metadata to include org slug
       await supabaseAdmin.auth.admin.updateUserById(linked_user_id, {
@@ -121,22 +121,6 @@ serve(async (req) => {
         }
       });
 
-      const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.admin.generateLink({
-        type: 'magiclink',
-        email: `student-${student_id}@portal.fpkuniversity.com`,
-        options: {
-          redirectTo: finalDestination
-        }
-      });
-
-      if (sessionError) {
-        console.error('[activate-student-account] Session error:', sessionError);
-        return new Response(
-          JSON.stringify({ error: 'Failed to create session' }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-
       // Log activation
       await supabaseAdmin
         .from('activity_log')
@@ -147,14 +131,15 @@ serve(async (req) => {
           metadata: { student_id, method: 'link' }
         });
 
+      console.log('[activate-student-account] Already activated user updated successfully');
+
       return new Response(
         JSON.stringify({
           success: true,
-          session: sessionData,
-          auth_link: sessionData.properties.action_link,
+          already_activated: true,
           student_id,
           org_id,
-          redirect_url: finalDestination
+          org_slug: orgSlug
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -202,22 +187,6 @@ serve(async (req) => {
       // Don't fail the whole flow, but log the error
     }
 
-    const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.admin.generateLink({
-      type: 'magiclink',
-      email: tempEmail,
-      options: {
-        redirectTo: finalDestination
-      }
-    });
-
-    if (sessionError) {
-      console.error('[activate-student-account] Session generation error:', sessionError);
-      return new Response(
-        JSON.stringify({ error: 'Failed to generate session' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
     // Log activation
     await supabaseAdmin
       .from('activity_log')
@@ -230,15 +199,13 @@ serve(async (req) => {
 
     console.log('[activate-student-account] Activation and user creation successful');
 
-    // Return the auth link (already includes our callback redirect)
+    // Return simple success response - frontend will redirect to PIN login
     return new Response(
       JSON.stringify({
         success: true,
-        session: sessionData,
-        auth_link: sessionData.properties.action_link,
         student_id,
         org_id,
-        redirect_url: finalDestination
+        org_slug: orgSlug
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

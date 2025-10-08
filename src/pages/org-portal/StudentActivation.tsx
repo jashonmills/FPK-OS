@@ -188,12 +188,15 @@ export default function StudentActivation() {
       // Show success message
       toast({
         title: data.already_activated ? 'Already Activated!' : 'Account Activated!',
-        description: 'Redirecting to your dashboard...'
+        description: 'Now log in with your new PIN...',
+        duration: 2000
       });
 
-      // Simply redirect to the magic link - the Auth Bridge page will handle the rest
-      console.log('✅ Activation successful, redirecting to auth link:', data.auth_link);
-      window.location.href = data.auth_link;
+      // Redirect to PIN login page for first login
+      console.log('✅ Activation successful, redirecting to PIN login page');
+      setTimeout(() => {
+        navigate(`/${orgSlug}/login`, { replace: true });
+      }, 2000);
       
     } catch (error) {
       console.error('[StudentActivation] Unexpected error:', error);
