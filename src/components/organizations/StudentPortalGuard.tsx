@@ -2,6 +2,7 @@ import React from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useStudentPortalContext } from '@/hooks/useStudentPortalContext';
+import { useOrgContext } from '@/components/organizations/OrgContext';
 import { Loader2 } from 'lucide-react';
 
 interface StudentPortalGuardProps {
@@ -11,10 +12,11 @@ interface StudentPortalGuardProps {
 export function StudentPortalGuard({ children }: StudentPortalGuardProps) {
   const { user, loading } = useAuth();
   const { isStudentPortalUser, studentOrgSlug } = useStudentPortalContext();
+  const { organizations, isLoading: orgLoading } = useOrgContext();
   const { orgSlug } = useParams<{ orgSlug: string }>();
 
-  // Show loading state while checking auth
-  if (loading) {
+  // Show loading state while checking auth and org data
+  if (loading || orgLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -27,15 +29,39 @@ export function StudentPortalGuard({ children }: StudentPortalGuardProps) {
     return <Navigate to={`/${orgSlug}/login`} replace />;
   }
 
-  // Not a student portal user - redirect to FPK platform
-  if (!isStudentPortalUser) {
+  // Check if user is a regular org student (role='student' in org_members)
+  const userOrgMembership = organizations?.find(org => org.organizations.slug === orgSlug);
+  const isRegularOrgStudent = userOrgMembership?.role === 'student';
+
+  // Allow access if user is either:
+  // 1. A student portal user (special accounts with is_student_portal metadata)
+  // 2. OR a regular student in this organization (role='student' in org_members)
+  const hasStudentAccess = isStudentPortalUser || isRegularOrgStudent;
+
+  // Not a student - redirect to FPK platform
+  if (!hasStudentAccess) {
+    console.log('🚫 [StudentPortalGuard] Access denied - not a student', {
+      isStudentPortalUser,
+      isRegularOrgStudent,
+      orgSlug
+    });
     return <Navigate to="/dashboard" replace />;
   }
 
-  // Student belongs to different org - redirect to their org
-  if (studentOrgSlug && studentOrgSlug !== orgSlug) {
+  // For student portal users, check they're accessing the correct org
+  if (isStudentPortalUser && studentOrgSlug && studentOrgSlug !== orgSlug) {
+    console.log('🔀 [StudentPortalGuard] Redirecting to correct org', {
+      requestedOrg: orgSlug,
+      userOrg: studentOrgSlug
+    });
     return <Navigate to={`/${studentOrgSlug}/student-portal`} replace />;
   }
+
+  console.log('✅ [StudentPortalGuard] Access granted', {
+    isStudentPortalUser,
+    isRegularOrgStudent,
+    orgSlug
+  });
 
   // All checks passed - render the protected content
   return <>{children}</>;
