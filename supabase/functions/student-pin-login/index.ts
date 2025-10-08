@@ -118,8 +118,12 @@ serve(async (req) => {
     console.log('[student-pin-login] Valid credentials for org:', orgSlug);
     // If student has a linked user account, update metadata and create a session
     if (linked_user_id) {
-      // Update user metadata to include org slug
+      // Generate a temporary password for session creation
+      const tempPassword = crypto.randomUUID();
+      
+      // Update user with temp password and metadata
       await supabaseAdmin.auth.admin.updateUserById(linked_user_id, {
+        password: tempPassword,
         user_metadata: {
           student_id,
           org_id,
@@ -128,12 +132,13 @@ serve(async (req) => {
         }
       });
 
-      // Create a session token using Supabase admin
-      const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.admin.createSession({
-        user_id: linked_user_id
+      // Sign in to get a valid session
+      const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.signInWithPassword({
+        email: `student-${student_id}@portal.fpkuniversity.com`,
+        password: tempPassword
       });
 
-      if (sessionError || !sessionData) {
+      if (sessionError || !sessionData.session) {
         console.error('[student-pin-login] Session creation error:', sessionError);
         return new Response(
           JSON.stringify({ error: 'Failed to create session' }),
@@ -191,12 +196,21 @@ serve(async (req) => {
       .update({ linked_user_id: newUser.user.id })
       .eq('id', student_id);
 
-    // Create a session token for the new user
-    const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.admin.createSession({
-      user_id: newUser.user.id
+    // Generate a temporary password for session creation
+    const tempPassword = crypto.randomUUID();
+    
+    // Update the new user with a temp password
+    await supabaseAdmin.auth.admin.updateUserById(newUser.user.id, {
+      password: tempPassword
     });
 
-    if (sessionError || !sessionData) {
+    // Sign in to get a valid session
+    const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.signInWithPassword({
+      email: tempEmail,
+      password: tempPassword
+    });
+
+    if (sessionError || !sessionData.session) {
       console.error('[student-pin-login] Session generation error:', sessionError);
       return new Response(
         JSON.stringify({ error: 'Failed to generate session' }),
