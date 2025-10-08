@@ -38,14 +38,15 @@ export function StudentPortalGuard({ children }: StudentPortalGuardProps) {
   // 2. OR a regular student in this organization (role='student' in org_members)
   const hasStudentAccess = isStudentPortalUser || isRegularOrgStudent;
 
-  // Not a student - redirect to FPK platform
+  // Not a student - redirect to context PIN login
   if (!hasStudentAccess) {
-    console.log('🚫 [StudentPortalGuard] Access denied - not a student', {
+    console.log('🚫 [StudentPortalGuard] Access denied - redirecting to PIN step-up', {
       isStudentPortalUser,
       isRegularOrgStudent,
-      orgSlug
+      orgSlug,
+      redirectTo: `/${orgSlug}/context-login`
     });
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to={`/${orgSlug}/context-login`} replace />;
   }
 
   // For student portal users, check they're accessing the correct org
