@@ -43,6 +43,15 @@ export default function OrgPortalHome() {
   const statsLoading = isStudent ? studentStatsLoading : analyticsLoading;
   const statsError = isStudent ? studentStatsError : analyticsError;
 
+  // Redirect students to their proper portal
+  React.useEffect(() => {
+    if (currentOrg && isStudent && currentOrg.organizations.slug) {
+      console.log('🔀 Student detected on admin dashboard, redirecting to student portal');
+      navigate(`/${currentOrg.organizations.slug}/student-portal`, { replace: true });
+    }
+  }, [currentOrg, isStudent, navigate]);
+
+  // Handle no org state AFTER all hooks
   if (!currentOrg) {
     return (
       <div className="w-full max-w-6xl mx-auto px-6 py-8">
