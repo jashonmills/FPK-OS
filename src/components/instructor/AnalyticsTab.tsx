@@ -39,10 +39,9 @@ interface TopPerformer {
 }
 
 export default function AnalyticsTab({ organizationId }: AnalyticsTabProps) {
-  const { data: statistics, isLoading: statsLoading } = useOrgStatistics(organizationId);
   const { analytics, isLoading: analyticsLoading } = useOrgAnalytics(organizationId);
 
-  if (statsLoading || analyticsLoading) {
+  if (analyticsLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -50,17 +49,8 @@ export default function AnalyticsTab({ organizationId }: AnalyticsTabProps) {
     );
   }
 
-  const stats = {
-    totalStudents: statistics?.studentCount || 0,
-    activeStudents: statistics?.activeMembers || 0,
-    coursesCompleted: 0,
-    averageProgress: 0,
-    totalLearningHours: 0,
-    goalsCompleted: statistics?.completedGoals || 0
-  };
-
-  const recentActivity: ActivityItem[] = [];
-  const topPerformers: TopPerformer[] = [];
+  const recentActivity = analytics?.recentActivity || [];
+  const topPerformers = analytics?.topPerformers || [];
 
   return (
     <div className="space-y-6">
@@ -78,22 +68,9 @@ export default function AnalyticsTab({ organizationId }: AnalyticsTabProps) {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalStudents}</div>
+            <div className="text-2xl font-bold">{analytics?.totalStudents || 0}</div>
             <p className="text-xs text-muted-foreground">
-              <span className="text-green-600">+2</span> from last month
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Students</CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.activeStudents}</div>
-            <p className="text-xs text-muted-foreground">
-              {stats.totalStudents > 0 ? Math.round((stats.activeStudents / stats.totalStudents) * 100) : 0}% of total students
+              {analytics?.activeStudents || 0} active in last 7 days
             </p>
           </CardContent>
         </Card>
@@ -104,22 +81,9 @@ export default function AnalyticsTab({ organizationId }: AnalyticsTabProps) {
             <BookOpen className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.coursesCompleted}</div>
+            <div className="text-2xl font-bold">{analytics?.coursesCompleted || 0}</div>
             <p className="text-xs text-muted-foreground">
-              <span className="text-green-600">+4</span> this week
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Average Progress</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.averageProgress}%</div>
-            <p className="text-xs text-muted-foreground">
-              <span className="text-green-600">+5%</span> from last week
+              Avg progress: {Math.round(analytics?.averageProgress || 0)}%
             </p>
           </CardContent>
         </Card>
@@ -130,10 +94,10 @@ export default function AnalyticsTab({ organizationId }: AnalyticsTabProps) {
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalLearningHours}</div>
-            <p className="text-xs text-muted-foreground">
-              Total hours this month
-            </p>
+            <div className="text-2xl font-bold">
+              {Math.round(analytics?.totalLearningHours || 0)}
+            </div>
+            <p className="text-xs text-muted-foreground">Total time spent</p>
           </CardContent>
         </Card>
 
@@ -143,9 +107,9 @@ export default function AnalyticsTab({ organizationId }: AnalyticsTabProps) {
             <Target className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.goalsCompleted}</div>
+            <div className="text-2xl font-bold">{analytics?.goalsCompleted || 0}</div>
             <p className="text-xs text-muted-foreground">
-              <span className="text-green-600">+3</span> this week
+              Groups: {analytics?.groupCount || 0} • Notes: {analytics?.notesCount || 0}
             </p>
           </CardContent>
         </Card>
@@ -161,23 +125,22 @@ export default function AnalyticsTab({ organizationId }: AnalyticsTabProps) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="space-y-4 max-h-[400px] overflow-y-auto">
               {recentActivity.length > 0 ? (
-                recentActivity.map((activity, index) => (
-                  <div key={index} className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />
+                recentActivity.map((activity: any) => (
+                  <div key={activity.id} className="flex items-start gap-3 p-2 rounded-lg hover:bg-accent/50 transition-colors">
+                    <Activity className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium">{activity.student_name}</p>
-                      <p className="text-sm text-muted-foreground">{activity.activity}</p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {new Date(activity.timestamp).toLocaleString()}
+                      <p className="text-sm font-medium truncate">{activity.event}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(activity.created_at).toLocaleString()}
                       </p>
                     </div>
                   </div>
                 ))
               ) : (
                 <div className="text-center py-8">
-                  <Activity className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                  <Activity className="h-12 w-12 text-muted-foreground/50 mx-auto mb-2" />
                   <p className="text-sm text-muted-foreground">No recent activity</p>
                 </div>
               )}
@@ -196,29 +159,28 @@ export default function AnalyticsTab({ organizationId }: AnalyticsTabProps) {
           <CardContent>
             <div className="space-y-4">
               {topPerformers.length > 0 ? (
-                topPerformers.map((performer, index) => (
-                  <div key={index} className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center text-sm font-medium">
-                        {index + 1}
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium">{performer.student_name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {performer.completed_goals} goals completed
-                        </p>
-                      </div>
+                topPerformers.map((student: any, index: number) => (
+                  <div key={student.user_id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent/50 transition-colors">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-sm font-medium flex-shrink-0">
+                      {index + 1}
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm font-bold">{performer.progress_score}%</p>
-                      <p className="text-xs text-muted-foreground">Average</p>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{student.full_name || 'Anonymous'}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {student.courses_completed} courses • {Math.round(student.avg_progress)}% avg
+                      </p>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <p className="text-sm font-medium">{Math.round(student.total_time_hours)}h</p>
+                      <p className="text-xs text-muted-foreground">time</p>
                     </div>
                   </div>
                 ))
               ) : (
                 <div className="text-center py-8">
-                  <Award className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-                  <p className="text-sm text-muted-foreground">No performance data available</p>
+                  <Award className="h-12 w-12 text-muted-foreground/50 mx-auto mb-2" />
+                  <p className="text-sm text-muted-foreground">No student data available</p>
+                  <p className="text-xs text-muted-foreground mt-1">Students will appear here once they start courses</p>
                 </div>
               )}
             </div>

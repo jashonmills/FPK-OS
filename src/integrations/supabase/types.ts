@@ -2371,6 +2371,44 @@ export type Database = {
         }
         Relationships: []
       }
+      goal_progress_history: {
+        Row: {
+          created_at: string | null
+          goal_id: string
+          id: string
+          new_progress: number
+          old_progress: number
+          trigger_id: string | null
+          trigger_type: string
+        }
+        Insert: {
+          created_at?: string | null
+          goal_id: string
+          id?: string
+          new_progress: number
+          old_progress: number
+          trigger_id?: string | null
+          trigger_type: string
+        }
+        Update: {
+          created_at?: string | null
+          goal_id?: string
+          id?: string
+          new_progress?: number
+          old_progress?: number
+          trigger_id?: string | null
+          trigger_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goal_progress_history_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "org_goals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       goal_reminders: {
         Row: {
           created_at: string
@@ -6089,6 +6127,51 @@ export type Database = {
           storage_url?: string | null
           subjects?: string[] | null
           title?: string
+        }
+        Relationships: []
+      }
+      question_responses: {
+        Row: {
+          answer_given: string
+          correct_answer: string | null
+          course_id: string
+          created_at: string | null
+          id: string
+          is_correct: boolean
+          lesson_id: number
+          metadata: Json | null
+          question_id: string
+          question_text: string
+          time_spent_seconds: number | null
+          user_id: string
+        }
+        Insert: {
+          answer_given: string
+          correct_answer?: string | null
+          course_id: string
+          created_at?: string | null
+          id?: string
+          is_correct?: boolean
+          lesson_id: number
+          metadata?: Json | null
+          question_id: string
+          question_text: string
+          time_spent_seconds?: number | null
+          user_id: string
+        }
+        Update: {
+          answer_given?: string
+          correct_answer?: string | null
+          course_id?: string
+          created_at?: string | null
+          id?: string
+          is_correct?: boolean
+          lesson_id?: number
+          metadata?: Json | null
+          question_id?: string
+          question_text?: string
+          time_spent_seconds?: number | null
+          user_id?: string
         }
         Relationships: []
       }

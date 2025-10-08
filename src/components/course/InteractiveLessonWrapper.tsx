@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useInteractiveCourseAnalytics } from '@/hooks/useInteractiveCourseAnalytics';
+import { useLessonEngagement } from '@/hooks/useLessonEngagement';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle, Clock, TrendingUp } from 'lucide-react';
@@ -37,6 +38,12 @@ export const InteractiveLessonWrapper: React.FC<InteractiveLessonWrapperProps> =
     currentLessonAnalytics
   } = useInteractiveCourseAnalytics(courseId, lessonTitle);
 
+  const {
+    metrics,
+    trackInteraction: trackEngagement,
+    saveAnalytics
+  } = useLessonEngagement(courseId, lessonId, lessonTitle);
+
   const [isCompleted, setIsCompleted] = useState(false);
   const [timeSpent, setTimeSpent] = useState(0);
   const startTimeRef = useRef<Date | null>(null);
@@ -64,13 +71,15 @@ export const InteractiveLessonWrapper: React.FC<InteractiveLessonWrapperProps> =
     
     // Track completion
     await completeLessonAnalytics('manual');
+    await saveAnalytics('completed');
     
     // Track interaction
     trackInteraction('lesson_complete', {
       lesson_id: lessonId,
       lesson_title: lessonTitle,
       time_spent_seconds: timeSpent,
-      completion_method: 'manual'
+      completion_method: 'manual',
+      engagement_score: metrics.engagementScore
     });
 
     // Call parent completion handler
@@ -92,7 +101,10 @@ export const InteractiveLessonWrapper: React.FC<InteractiveLessonWrapperProps> =
         onNext,
         hasNext,
         isCompleted,
-        trackInteraction,
+        trackInteraction: (type: string, details?: any) => {
+          trackInteraction(type, details);
+          trackEngagement(type, details);
+        },
         lessonId,
         lessonTitle
       });
@@ -125,12 +137,11 @@ export const InteractiveLessonWrapper: React.FC<InteractiveLessonWrapperProps> =
                     <Clock className="h-4 w-4 mr-1" />
                     {formatTime(timeSpent)}
                   </span>
-                  {currentLessonAnalytics && (
-                    <span className="flex items-center">
-                      <TrendingUp className="h-4 w-4 mr-1" />
-                      Engagement: {Math.round(currentLessonAnalytics.engagementScore)}%
-                    </span>
-                  )}
+                  <span className="flex items-center">
+                    <TrendingUp className="h-4 w-4 mr-1" />
+                    Engagement: {metrics.engagementScore}%
+                    {metrics.interactionCount > 0 && ` • ${metrics.interactionCount} interactions`}
+                  </span>
                 </div>
               </div>
             </div>
