@@ -2,7 +2,7 @@ import React from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useStudentPortalContext } from '@/hooks/useStudentPortalContext';
-import { useOrgContext } from '@/components/organizations/OrgContext';
+import { useOptionalOrgContext } from '@/components/organizations/OrgContext';
 import { Loader2 } from 'lucide-react';
 
 interface StudentPortalGuardProps {
@@ -12,11 +12,11 @@ interface StudentPortalGuardProps {
 export function StudentPortalGuard({ children }: StudentPortalGuardProps) {
   const { user, loading } = useAuth();
   const { isStudentPortalUser, studentOrgSlug } = useStudentPortalContext();
-  const { organizations, isLoading: orgLoading } = useOrgContext();
+  const orgContext = useOptionalOrgContext();
   const { orgSlug } = useParams<{ orgSlug: string }>();
 
   // Show loading state while checking auth and org data
-  if (loading || orgLoading) {
+  if (loading || orgContext?.isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -30,7 +30,7 @@ export function StudentPortalGuard({ children }: StudentPortalGuardProps) {
   }
 
   // Check if user is a regular org student (role='student' in org_members)
-  const userOrgMembership = organizations?.find(org => org.organizations.slug === orgSlug);
+  const userOrgMembership = orgContext?.organizations?.find(org => org.organizations.slug === orgSlug);
   const isRegularOrgStudent = userOrgMembership?.role === 'student';
 
   // Allow access if user is either:
