@@ -34,7 +34,6 @@ import {
   Edit
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { SimpleInviteDialog } from '@/components/org/SimpleInviteDialog';
 import { ImportStudentsCSV } from '@/components/students/ImportStudentsCSV';
 import { EditStudentDialog } from '@/components/students/EditStudentDialog';
 import { useOrgStudents, type OrgStudent } from '@/hooks/useOrgStudents';
@@ -51,7 +50,6 @@ export default function StudentsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStudent, setSelectedStudent] = useState<OrgStudent | null>(null);
   const [editingStudent, setEditingStudent] = useState<OrgStudent | null>(null);
-  const [showInviteDialog, setShowInviteDialog] = useState(false);
   const [showImportCSV, setShowImportCSV] = useState(false);
 
   // Use the proper hook for students
@@ -117,32 +115,18 @@ export default function StudentsPage() {
         </div>
         
         {canManageMembers && (
-          <div className="flex gap-2">
-            <Button 
-              variant="outline"
-              className="flex items-center gap-2 border-white/20 text-white hover:bg-white/10 bg-transparent z-50 relative pointer-events-auto"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setShowImportCSV(true);
-              }}
-            >
-              <Upload className="h-4 w-4" />
-              Import CSV
-            </Button>
-            <Button 
-              className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground z-50 relative pointer-events-auto"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('Invite button clicked, setting showInviteDialog to true');
-                setShowInviteDialog(true);
-              }}
-            >
-              <UserPlus className="h-4 w-4" />
-              Invite Students
-            </Button>
-          </div>
+          <Button 
+            variant="outline"
+            className="flex items-center gap-2 border-white/20 text-white hover:bg-white/10 bg-transparent z-50 relative pointer-events-auto"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setShowImportCSV(true);
+            }}
+          >
+            <Upload className="h-4 w-4" />
+            Import CSV
+          </Button>
         )}
       </div>
 
@@ -219,21 +203,8 @@ export default function StudentsPage() {
               <Users className="h-12 w-12 text-white/60 mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2 text-white">No Students Found</h3>
               <p className="text-white/80 mb-4">
-                {searchQuery ? 'No students match your search.' : 'Start by inviting students to your organization.'}
+                {searchQuery ? 'No students match your search.' : 'Start by adding students to your organization.'}
               </p>
-              {canManageMembers && !searchQuery && (
-                <Button 
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground z-50 relative pointer-events-auto"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setShowInviteDialog(true);
-                  }}
-                >
-                  <UserPlus className="h-4 w-4 mr-2" />
-                  Invite Students
-                </Button>
-              )}
             </div>
           ) : (
             <div className="space-y-4">
@@ -375,13 +346,6 @@ export default function StudentsPage() {
           )}
         </SheetContent>
       </Sheet>
-
-      {/* Invite Modal */}
-      <SimpleInviteDialog 
-        open={showInviteDialog}
-        onOpenChange={setShowInviteDialog}
-        organizationId={orgId}
-      />
 
       {/* Import CSV Modal */}
       <ImportStudentsCSV
