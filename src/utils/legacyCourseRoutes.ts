@@ -8,7 +8,18 @@ export const LEGACY_COURSE_SLUGS = [
   'empowering-learning-numeracy', 
   'empowering-learning-reading',
   'optimal-learning-state',
-  'el-handwriting'
+  'el-handwriting',
+  'el-spelling-reading',
+  'elt-empowering-learning-techniques',
+  'interactive-algebra',
+  'interactive-trigonometry',
+  'interactive-linear-equations',
+  'logic-critical-thinking',
+  'introduction-modern-economics',
+  'neurodiversity-strengths-based-approach',
+  'interactive-science',
+  'geometry',
+  'money-management-teens'
 ] as const;
 
 export type LegacyCourseSlug = typeof LEGACY_COURSE_SLUGS[number];
