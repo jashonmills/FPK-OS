@@ -96,22 +96,18 @@ export default function OrgLayout() {
   const { user, loading } = useAuth();
   const { orgId } = useParams();
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
-
-  if (!user) {
-    return <Navigate to="/auth" replace />;
-  }
-
   return (
     <OrgProvider orgId={orgId}>
       <EnhancedOrgThemeProvider>
-        <OrgLayoutContent />
+        {loading ? (
+          <div className="min-h-screen flex items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin" />
+          </div>
+        ) : !user ? (
+          <Navigate to="/auth" replace />
+        ) : (
+          <OrgLayoutContent />
+        )}
       </EnhancedOrgThemeProvider>
     </OrgProvider>
   );
