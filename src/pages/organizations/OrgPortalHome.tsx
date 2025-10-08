@@ -43,15 +43,6 @@ export default function OrgPortalHome() {
   const statsLoading = isStudent ? studentStatsLoading : analyticsLoading;
   const statsError = isStudent ? studentStatsError : analyticsError;
 
-  // Redirect students to their proper portal
-  React.useEffect(() => {
-    if (currentOrg && isStudent && currentOrg.organizations?.slug) {
-      const slug = currentOrg.organizations.slug;
-      console.log('🔀 Student detected, redirecting to:', `/${slug}/student-portal`);
-      navigate(`/${slug}/student-portal`, { replace: true });
-    }
-  }, [currentOrg, isStudent, navigate]);
-
   // Handle no org state AFTER all hooks
   if (!currentOrg) {
     return (
@@ -92,6 +83,40 @@ export default function OrgPortalHome() {
               Unable to load organization statistics. Please try again later.
             </CardDescription>
           </CardHeader>
+        </Card>
+      </div>
+    );
+  }
+
+  // Student landing page - show portal access card instead of auto-redirecting
+  if (isStudent) {
+    return (
+      <div className="container mx-auto px-6 py-8">
+        <Card className="bg-orange-500/65 border-orange-400/50">
+          <CardHeader>
+            <div className="flex items-center gap-4">
+              {branding?.logo_url && (
+                <img src={branding.logo_url} alt="Organization logo" className="h-16 w-16 object-contain" />
+              )}
+              <div>
+                <CardTitle className="text-white text-2xl">Welcome to {currentOrg.organizations?.name}</CardTitle>
+                <CardDescription className="text-white/80">Student Portal Access</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-white">
+              Access your personalized learning dashboard, track your progress, and continue your courses.
+            </p>
+            <Button
+              size="lg"
+              onClick={() => navigate(`/${currentOrg.organizations?.slug}/student-portal`)}
+              className="w-full bg-white/20 hover:bg-white/30 text-white border-white/30"
+            >
+              <BookOpen className="mr-2 h-5 w-5" />
+              Enter Student Portal
+            </Button>
+          </CardContent>
         </Card>
       </div>
     );

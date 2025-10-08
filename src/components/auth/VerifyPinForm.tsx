@@ -105,19 +105,10 @@ export function VerifyPinForm({ orgId }: VerifyPinFormProps) {
 
       // Redirect based on role
       setTimeout(() => {
-        switch (data.role) {
-          case 'student':
-            navigate(`/${orgSlug}/student-portal`, { replace: true });
-            break;
-          case 'instructor':
-          case 'educator':
-            navigate(`/${orgSlug}/educator-dashboard`, { replace: true });
-            break;
-          case 'owner':
-            navigate(`/${orgSlug}`, { replace: true });
-            break;
-          default:
-            navigate(`/${orgSlug}`, { replace: true });
+        if (data.role === 'student') {
+          navigate(`/${orgSlug}/student-portal`, { replace: true });
+        } else {
+          navigate(`/${orgSlug}/admin-portal`, { replace: true });
         }
       }, 1000);
 
