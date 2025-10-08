@@ -24,6 +24,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const DashboardLayout = lazy(() => import("./components/DashboardLayout"));
 const PersonalDashboardLayout = lazy(() => import("./components/PersonalDashboardLayout").then(module => ({ default: module.PersonalDashboardLayout })));
 const BetaAccessGate = lazy(() => import('@/components/beta/BetaAccessGate'));
+const UserHub = lazy(() => import("./pages/UserHub"));
 
 // Organization public pages
 const OrganizationSignup = lazy(() => import("./pages/OrganizationSignup"));
@@ -282,6 +283,13 @@ const App: React.FC = () => {
 
           {/* Parent IEP Access Route - Separate from org structure */}
           <Route path="/iep/parent/:code" element={<LazyRoute><ParentIEPAccess /></LazyRoute>} />
+
+          {/* User Hub - Central dashboard for all users */}
+          <Route path="/hub" element={
+            <RouteProtector>
+              <LazyRoute><UserHub /></LazyRoute>
+            </RouteProtector>
+          } />
 
           {/* Dashboard Routes */}
           <Route path="/dashboard/*" element={

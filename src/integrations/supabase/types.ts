@@ -9670,6 +9670,10 @@ export type Database = {
           | { p_user_id?: string }
         Returns: Json
       }
+      get_user_entitlements: {
+        Args: { p_user_id: string }
+        Returns: Json
+      }
       get_user_subscription_status: {
         Args: { check_user_id?: string }
         Returns: string
