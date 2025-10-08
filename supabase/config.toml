@@ -123,3 +123,12 @@ verify_jwt = false
 
 [functions.auth-redirect]
 verify_jwt = false
+
+[functions.create-educator-invite]
+verify_jwt = true
+
+[functions.activate-educator-account]
+verify_jwt = false
+
+[functions.educator-pin-login]
+verify_jwt = false
