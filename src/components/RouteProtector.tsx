@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, Navigate } from 'react-router-dom';
 import { useUserIdentity } from '@/hooks/useUserIdentity';
 import { useStudentPortalContext } from '@/hooks/useStudentPortalContext';
 import { Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { shouldEnforceSubscription } from '@/lib/featureFlags';
 
 interface RouteProtectorProps {
   children: React.ReactNode;
@@ -17,9 +19,49 @@ export const RouteProtector: React.FC<RouteProtectorProps> = ({ children }) => {
   const { identity, isLoading } = useUserIdentity();
   const { studentOrgSlug } = useStudentPortalContext();
   const location = useLocation();
+  const [hasSubscription, setHasSubscription] = useState<boolean | null>(null);
+  const [checkingSubscription, setCheckingSubscription] = useState(false);
+
+  // Check subscription status for platform users accessing premium features
+  useEffect(() => {
+    const checkSubscription = async () => {
+      if (!identity?.isPlatformUser || !shouldEnforceSubscription() || !identity.userId) {
+        setHasSubscription(true); // Not checking, so allow access
+        return;
+      }
+
+      // Only check subscription for premium routes
+      const isPremiumRoute = location.pathname.startsWith('/dashboard/learner');
+      if (!isPremiumRoute) {
+        setHasSubscription(true);
+        return;
+      }
+
+      setCheckingSubscription(true);
+      try {
+        const { data } = await supabase
+          .from('subscribers')
+          .select('subscription_status')
+          .eq('user_id', identity.userId)
+          .eq('subscription_status', 'active')
+          .maybeSingle();
+
+        setHasSubscription(!!data);
+      } catch (error) {
+        console.error('[RouteProtector] Error checking subscription:', error);
+        setHasSubscription(false);
+      } finally {
+        setCheckingSubscription(false);
+      }
+    };
+
+    if (!isLoading) {
+      checkSubscription();
+    }
+  }, [identity, isLoading, location.pathname]);
 
   // Show loading spinner while identity is being determined
-  if (isLoading) {
+  if (isLoading || checkingSubscription) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary via-primary-variant to-accent flex items-center justify-center">
         <div className="text-center text-white">
@@ -58,7 +100,18 @@ export const RouteProtector: React.FC<RouteProtectorProps> = ({ children }) => {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Rule #3: If authenticated platform user on login page, redirect to dashboard
+  // Rule #3: Subscription enforcement for premium features (if flag enabled)
+  if (
+    shouldEnforceSubscription() &&
+    identity?.isPlatformUser &&
+    location.pathname.startsWith('/dashboard/learner') &&
+    hasSubscription === false
+  ) {
+    console.warn('[RouteProtector] User without subscription attempting to access premium dashboard. Redirecting to hub.');
+    return <Navigate to="/hub" replace />;
+  }
+
+  // Rule #4: If authenticated platform user on login page, redirect to dashboard
   if (identity?.isPlatformUser && location.pathname === '/login') {
     console.log('[RouteProtector] Authenticated platform user on login page. Redirecting to dashboard.');
     return <Navigate to="/dashboard/learner" replace />;

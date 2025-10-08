@@ -5202,65 +5202,6 @@ export type Database = {
           },
         ]
       }
-      org_invites: {
-        Row: {
-          code: string | null
-          created_at: string
-          created_by: string
-          deprecated: boolean | null
-          email: string | null
-          expires_at: string
-          id: string
-          max_uses: number
-          metadata: Json | null
-          org_id: string
-          role: string
-          status: Database["public"]["Enums"]["invitation_status"]
-          token: string | null
-          uses_count: number
-        }
-        Insert: {
-          code?: string | null
-          created_at?: string
-          created_by: string
-          deprecated?: boolean | null
-          email?: string | null
-          expires_at?: string
-          id?: string
-          max_uses?: number
-          metadata?: Json | null
-          org_id: string
-          role?: string
-          status?: Database["public"]["Enums"]["invitation_status"]
-          token?: string | null
-          uses_count?: number
-        }
-        Update: {
-          code?: string | null
-          created_at?: string
-          created_by?: string
-          deprecated?: boolean | null
-          email?: string | null
-          expires_at?: string
-          id?: string
-          max_uses?: number
-          metadata?: Json | null
-          org_id?: string
-          role?: string
-          status?: Database["public"]["Enums"]["invitation_status"]
-          token?: string | null
-          uses_count?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "org_invitations_organization_id_fkey"
-            columns: ["org_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       org_members: {
         Row: {
           access_revoked_at: string | null

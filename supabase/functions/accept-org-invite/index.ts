@@ -63,11 +63,8 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log(`[accept-org-invite] Processing token: ${token.substring(0, 8)}...`);
 
-    // Try to find invite in user_invites first (email invitations)
-    let invite: any = null;
-    let isCodeInvite = false;
-
-    const { data: emailInvite, error: emailError } = await supabase
+    // Find invite in user_invites table (email-based invitations only)
+    const { data: invite, error: inviteError } = await supabase
       .from('user_invites')
       .select(`
         id,
@@ -91,65 +88,31 @@ const handler = async (req: Request): Promise<Response> => {
       .eq('invite_token', token)
       .maybeSingle();
 
-    if (emailInvite) {
-      invite = emailInvite;
-      console.log("Found email invitation in user_invites");
-    } else {
-      // Try org_invites table (code invitations)
-      const { data: codeInvite, error: codeError } = await supabase
-        .from('org_invites')
-        .select(`
-          id,
-          code,
-          org_id,
-          created_by,
-          expires_at,
-          uses_count,
-          max_uses,
-          role,
-          organizations (
-            id,
-            name,
-            slug,
-            seat_cap,
-            seats_used,
-            instructor_limit,
-            instructors_used
-          )
-        `)
-        .eq('code', token)
-        .maybeSingle();
-
-      if (codeInvite) {
-        invite = {
-          id: codeInvite.id,
-          invite_token: codeInvite.code,
-          invited_email: null, // Code invites don't have specific email
-          org_id: codeInvite.org_id,
-          created_by: codeInvite.created_by,
-          expires_at: codeInvite.expires_at,
-          is_used: codeInvite.uses_count >= codeInvite.max_uses,
-          uses_count: codeInvite.uses_count,
-          max_uses: codeInvite.max_uses,
-          role: codeInvite.role,
-          organizations: codeInvite.organizations
-        };
-        isCodeInvite = true;
-        console.log("Found code invitation in org_invites");
-      }
+    if (inviteError) {
+      console.error("[accept-org-invite] Error fetching invite:", inviteError);
+      return new Response(
+        JSON.stringify({ 
+          success: false,
+          code: 'INVITE_ERROR',
+          error: "Error fetching invitation" 
+        }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     if (!invite) {
-      console.error("[accept-org-invite] Invite not found in either table");
+      console.error("[accept-org-invite] Invite not found");
       return new Response(
         JSON.stringify({ 
           success: false,
           code: 'INVITE_NOT_FOUND',
-          error: "Invalid invitation link or code" 
+          error: "Invalid invitation link" 
         }),
         { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    console.log("Found email invitation in user_invites");
 
     // Check if already used
     if (invite.is_used) {
@@ -180,25 +143,22 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // CRITICAL: Verify email matches invitation (only for email invites)
-    if (!isCodeInvite && invite.invited_email) {
-      const userEmail = user.email?.toLowerCase();
-      const invitedEmail = invite.invited_email.toLowerCase();
-      
-      if (userEmail !== invitedEmail) {
-        console.error(`Email mismatch: user=${userEmail}, invited=${invitedEmail}`);
-        return new Response(
-          JSON.stringify({ 
-            success: false, 
-            error: `This invitation was sent to ${invitedEmail}. Please sign in with that email address.` 
-          }),
-          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-      console.log("Email verified successfully");
-    } else {
-      console.log("Code invitation - no email verification required");
+    // CRITICAL: Verify email matches invitation
+    const userEmail = user.email?.toLowerCase();
+    const invitedEmail = invite.invited_email?.toLowerCase();
+    
+    if (!invitedEmail || userEmail !== invitedEmail) {
+      console.error(`Email mismatch: user=${userEmail}, invited=${invitedEmail}`);
+      return new Response(
+        JSON.stringify({ 
+          success: false,
+          code: 'EMAIL_MISMATCH',
+          error: `This invitation was sent to ${invitedEmail}. Please sign in with that email address.` 
+        }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
+    console.log("Email verified successfully");
 
     // Check if organization exists
     if (!invite.organizations) {
@@ -341,12 +301,12 @@ const handler = async (req: Request): Promise<Response> => {
       user_id: user.id,
       organization_id: invite.org_id,
       action_type: 'invite_accepted',
-      resource_type: isCodeInvite ? 'org_invite' : 'user_invite',
+      resource_type: 'user_invite',
       resource_id: invite.id,
       details: {
         role: invite.role,
         invited_by: invite.created_by,
-        invite_type: isCodeInvite ? 'code' : 'email'
+        invite_type: 'email'
       }
     });
 
