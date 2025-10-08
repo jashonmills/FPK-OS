@@ -41,117 +41,142 @@ export function useOrgStudents(orgId: string, searchQuery?: string) {
   const { data: students = [], isLoading, error, refetch } = useQuery({
     queryKey: ['org-students', orgId, searchQuery],
     queryFn: async () => {
-      // Fetch profile-only students from org_students table
-      let orgStudentsQuery = supabase
-        .from('org_students')
-        .select('*')
-        .eq('org_id', orgId)
-        .order('created_at', { ascending: false });
-
-      if (searchQuery) {
-        orgStudentsQuery = orgStudentsQuery.or(
-          `full_name.ilike.%${searchQuery}%,student_id.ilike.%${searchQuery}%,parent_email.ilike.%${searchQuery}%`
-        );
-      }
-
-      const { data: orgStudentsData, error: orgStudentsError } = await orgStudentsQuery;
-
-      if (orgStudentsError) {
-        console.error('Error fetching org students:', orgStudentsError);
-        throw orgStudentsError;
-      }
-
-      // Fetch students with active accounts from org_members
-      const { data: orgMembersData, error: orgMembersError } = await supabase
-        .from('org_members')
-        .select('id, user_id, org_id, role, status, joined_at')
-        .eq('org_id', orgId)
-        .eq('role', 'student')
-        .order('joined_at', { ascending: false});
-
-      if (orgMembersError) {
-        console.error('Error fetching org members:', orgMembersError);
-        throw orgMembersError;
-      }
-
-      // Get student data with email fallback
-      const { data: studentActivityData, error: activityError } = await supabase
-        .rpc('get_org_student_activity_heatmap', { p_org_id: orgId });
-
-      if (activityError) {
-        console.error('Error fetching student activity data:', activityError);
-      }
-
-      // Create a map of user_id to student info from activity data
-      const activityMap = new Map(
-        (studentActivityData || []).map((s: any) => [s.student_id, {
-          name: s.student_name || 'Unknown Student',
-          email: s.student_email
-        }])
-      );
-
-      // For each org_member, check if they have a profile in org_students
-      const memberStudents: OrgStudent[] = [];
-      
-      for (const member of (orgMembersData || [])) {
-        // Check if this user has a profile in org_students
-        const existingProfile = (orgStudentsData || []).find(
-          (s: any) => s.linked_user_id === member.user_id
-        );
+      try {
+        console.log('🔄 [useOrgStudents] Fetching students for org:', orgId);
         
-        if (existingProfile) {
-          // Use the org_students profile data
-          memberStudents.push({
-            ...existingProfile,
-            status: existingProfile.status as 'active' | 'inactive' | 'graduated',
-            activation_status: existingProfile.activation_status as 'pending' | 'activated' | 'expired' | undefined,
-            emergency_contact: existingProfile.emergency_contact as Record<string, any> | undefined,
-          });
-        } else {
-          // Student has account but no profile yet - show basic info
-          const activityInfo = activityMap.get(member.user_id);
-          memberStudents.push({
-            id: `member-${member.id}`, // Temporary ID marker
-            org_id: member.org_id,
-            full_name: activityInfo?.name || activityInfo?.email || 'Unknown Student',
-            grade_level: undefined,
-            student_id: undefined,
-            date_of_birth: undefined,
-            parent_email: activityInfo?.email,
-            emergency_contact: undefined,
-            notes: undefined,
-            status: member.status === 'active' ? 'active' : 'inactive',
-            linked_user_id: member.user_id,
-            created_by: member.user_id,
-            created_at: member.joined_at,
-            updated_at: member.joined_at,
-          });
+        // Fetch profile-only students from org_students table
+        let orgStudentsQuery = supabase
+          .from('org_students')
+          .select('*')
+          .eq('org_id', orgId)
+          .order('created_at', { ascending: false });
+
+        if (searchQuery) {
+          orgStudentsQuery = orgStudentsQuery.or(
+            `full_name.ilike.%${searchQuery}%,student_id.ilike.%${searchQuery}%,parent_email.ilike.%${searchQuery}%`
+          );
         }
+
+        const { data: orgStudentsData, error: orgStudentsError } = await orgStudentsQuery;
+
+        if (orgStudentsError) {
+          console.error('❌ [useOrgStudents] Error fetching org students:', orgStudentsError);
+          throw orgStudentsError;
+        }
+
+        console.log('✅ [useOrgStudents] Fetched org_students:', orgStudentsData?.length || 0);
+
+        // Fetch students with active accounts from org_members
+        const { data: orgMembersData, error: orgMembersError } = await supabase
+          .from('org_members')
+          .select('id, user_id, org_id, role, status, joined_at')
+          .eq('org_id', orgId)
+          .eq('role', 'student')
+          .order('joined_at', { ascending: false});
+
+        if (orgMembersError) {
+          console.error('❌ [useOrgStudents] Error fetching org members:', orgMembersError);
+          throw orgMembersError;
+        }
+
+        console.log('✅ [useOrgStudents] Fetched org_members:', orgMembersData?.length || 0);
+
+        // Get student data with email fallback
+        const { data: studentActivityData, error: activityError } = await supabase
+          .rpc('get_org_student_activity_heatmap', { p_org_id: orgId });
+
+        if (activityError) {
+          console.warn('⚠️ [useOrgStudents] Error fetching student activity data:', activityError);
+        }
+
+        console.log('✅ [useOrgStudents] Fetched activity data for', studentActivityData?.length || 0, 'students');
+
+        // Create a map of user_id to student info from activity data
+        const activityMap = new Map(
+          (studentActivityData || []).map((s: any) => [s.student_id, {
+            name: s.student_name || 'Unknown Student',
+            email: s.student_email
+          }])
+        );
+
+        // For each org_member, check if they have a profile in org_students
+        const memberStudents: OrgStudent[] = [];
+        
+        console.log('🔄 [useOrgStudents] Processing', orgMembersData?.length || 0, 'org_members...');
+        
+        for (const member of (orgMembersData || [])) {
+          if (!member || !member.user_id) {
+            console.warn('⚠️ [useOrgStudents] Skipping invalid member:', member);
+            continue;
+          }
+          // Check if this user has a profile in org_students
+          const existingProfile = (orgStudentsData || []).find(
+            (s: any) => s.linked_user_id === member.user_id
+          );
+          
+          if (existingProfile) {
+            // Use the org_students profile data
+            memberStudents.push({
+              ...existingProfile,
+              status: existingProfile.status as 'active' | 'inactive' | 'graduated',
+              activation_status: existingProfile.activation_status as 'pending' | 'activated' | 'expired' | undefined,
+              emergency_contact: existingProfile.emergency_contact as Record<string, any> | undefined,
+            });
+          } else {
+            // Student has account but no profile yet - show basic info
+            const activityInfo = activityMap.get(member.user_id);
+            memberStudents.push({
+              id: `member-${member.id}`, // Temporary ID marker
+              org_id: member.org_id || orgId,
+              full_name: activityInfo?.name || activityInfo?.email || 'Unknown Student',
+              grade_level: undefined,
+              student_id: undefined,
+              date_of_birth: undefined,
+              parent_email: activityInfo?.email,
+              emergency_contact: undefined,
+              notes: undefined,
+              status: member.status === 'active' ? 'active' : 'inactive',
+              linked_user_id: member.user_id,
+              created_by: member.user_id,
+              created_at: member.joined_at || new Date().toISOString(),
+              updated_at: member.joined_at || new Date().toISOString(),
+            });
+          }
+        }
+
+        console.log('✅ [useOrgStudents] Processed', memberStudents.length, 'member students');
+
+        // Filter member students by search query if provided
+        const filteredMemberStudents = searchQuery
+          ? memberStudents.filter((student) =>
+              student.full_name?.toLowerCase().includes(searchQuery.toLowerCase())
+            )
+          : memberStudents;
+
+        // Get students from org_students that aren't already in memberStudents
+        const memberUserIds = new Set(memberStudents.map(s => s.linked_user_id).filter(Boolean));
+        const remainingOrgStudents = (orgStudentsData || [])
+          .filter((s: any) => !s.linked_user_id || !memberUserIds.has(s.linked_user_id))
+          .map((student: any) => ({
+            ...student,
+            status: student.status as 'active' | 'inactive' | 'graduated',
+            activation_status: student.activation_status as 'pending' | 'activated' | 'expired' | undefined,
+            emergency_contact: student.emergency_contact as Record<string, any> | undefined,
+          }));
+
+        console.log('✅ [useOrgStudents] Returning', remainingOrgStudents.length + filteredMemberStudents.length, 'total students');
+
+        // Combine: remaining org_students first, then member students
+        return [...remainingOrgStudents, ...filteredMemberStudents];
+      } catch (error) {
+        console.error('🔴 [useOrgStudents] Fatal error in queryFn:', error);
+        throw error;
       }
-
-      // Filter member students by search query if provided
-      const filteredMemberStudents = searchQuery
-        ? memberStudents.filter((student) =>
-            student.full_name.toLowerCase().includes(searchQuery.toLowerCase())
-          )
-        : memberStudents;
-
-      // Get students from org_students that aren't already in memberStudents
-      const memberUserIds = new Set(memberStudents.map(s => s.linked_user_id).filter(Boolean));
-      const remainingOrgStudents = (orgStudentsData || [])
-        .filter((s: any) => !s.linked_user_id || !memberUserIds.has(s.linked_user_id))
-        .map((student: any) => ({
-          ...student,
-          status: student.status as 'active' | 'inactive' | 'graduated',
-          activation_status: student.activation_status as 'pending' | 'activated' | 'expired' | undefined,
-          emergency_contact: student.emergency_contact as Record<string, any> | undefined,
-        }));
-
-      // Combine: remaining org_students first, then member students
-      return [...remainingOrgStudents, ...filteredMemberStudents];
     },
     enabled: !!orgId,
     staleTime: 1000 * 60 * 5, // 5 minutes
+    retry: 2,
+    retryDelay: 1000,
   });
 
   const createStudentMutation = useMutation({
