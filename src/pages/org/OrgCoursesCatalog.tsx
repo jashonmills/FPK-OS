@@ -139,8 +139,6 @@ export default function OrgCoursesCatalog() {
               missingCourses.map(course => ({
                 user_id: user.id,
                 course_id: course.course_id,
-                course_type: course.course_type,
-                org_id: ST_JOSEPH_ORG_ID,
                 enrolled_at: new Date().toISOString()
               }))
             );
