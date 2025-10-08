@@ -128,17 +128,29 @@ serve(async (req) => {
         }
       });
 
-      // Generate magic link WITHOUT redirectTo - we'll use RouteProtector for final redirect
+      // Create a proper session for the user
       const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.admin.generateLink({
         type: 'magiclink',
         email: `student-${student_id}@portal.fpkuniversity.com`
-        // NO redirectTo - after auth, RouteProtector will redirect to /org/{orgId}
       });
 
-      if (sessionError || !sessionData?.properties?.hashed_token) {
+      if (sessionError || !sessionData) {
         console.error('[student-pin-login] Session creation error:', sessionError);
         return new Response(
           JSON.stringify({ error: 'Failed to create session' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Extract the token from the action link to create a proper session
+      const actionLinkUrl = new URL(sessionData.properties.action_link);
+      const token = actionLinkUrl.searchParams.get('token');
+      const tokenHash = actionLinkUrl.searchParams.get('token_hash');
+
+      if (!token || !tokenHash) {
+        console.error('[student-pin-login] Missing token in action link');
+        return new Response(
+          JSON.stringify({ error: 'Failed to generate auth token' }),
           { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
@@ -153,11 +165,13 @@ serve(async (req) => {
           metadata: { student_id, method: 'pin' }
         });
 
-      // Return simple success response
+      // Return session tokens for frontend to use
       return new Response(
         JSON.stringify({
           success: true,
-          auth_link: sessionData.properties.action_link,
+          token,
+          token_hash: tokenHash,
+          type: 'magiclink',
           student_id,
           org_id,
           org_slug: orgSlug
@@ -193,17 +207,29 @@ serve(async (req) => {
       .update({ linked_user_id: newUser.user.id })
       .eq('id', student_id);
 
-    // Generate magic link WITHOUT redirectTo - we'll use RouteProtector for final redirect
+    // Create a proper session for the new user
     const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.admin.generateLink({
       type: 'magiclink',
       email: tempEmail
-      // NO redirectTo - after auth, RouteProtector will redirect to /org/{orgId}
     });
 
-    if (sessionError || !sessionData?.properties?.hashed_token) {
+    if (sessionError || !sessionData) {
       console.error('[student-pin-login] Session generation error:', sessionError);
       return new Response(
         JSON.stringify({ error: 'Failed to generate session' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Extract the token from the action link
+    const actionLinkUrl = new URL(sessionData.properties.action_link);
+    const token = actionLinkUrl.searchParams.get('token');
+    const tokenHash = actionLinkUrl.searchParams.get('token_hash');
+
+    if (!token || !tokenHash) {
+      console.error('[student-pin-login] Missing token in action link');
+      return new Response(
+        JSON.stringify({ error: 'Failed to generate auth token' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -220,11 +246,13 @@ serve(async (req) => {
 
     console.log('[student-pin-login] Login successful');
 
-    // Return simple success response
+    // Return session tokens for frontend to use
     return new Response(
       JSON.stringify({
         success: true,
-        auth_link: sessionData.properties.action_link,
+        token,
+        token_hash: tokenHash,
+        type: 'magiclink',
         student_id,
         org_id,
         org_slug: orgSlug

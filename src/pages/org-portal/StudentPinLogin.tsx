@@ -116,20 +116,26 @@ export default function StudentPinLogin() {
         return;
       }
 
-      // Login successful - navigate to the auth link
+      // Verify the OTP token to establish the session
+      const { error: verifyError } = await supabase.auth.verifyOtp({
+        token_hash: data.token_hash,
+        type: 'magiclink'
+      });
+
+      if (verifyError) {
+        console.error('Session verification error:', verifyError);
+        setError('Failed to establish session. Please try again.');
+        return;
+      }
+
+      // Login successful
       toast({
         title: 'Login Successful',
         description: 'Redirecting to your dashboard...'
       });
       
-      // Navigate to the magic link to authenticate
-      // After auth, RouteProtector will redirect to /org/{orgId}
-      if (data.auth_link) {
-        window.location.href = data.auth_link;
-      } else {
-        // Fallback: redirect directly to org dashboard
-        navigate(`/org/${orgId}`, { replace: true });
-      }
+      // Redirect to org dashboard
+      navigate(`/org/${orgId}`, { replace: true });
     } catch (error) {
       console.error('Login error:', error);
       setError('An unexpected error occurred. Please try again.');
