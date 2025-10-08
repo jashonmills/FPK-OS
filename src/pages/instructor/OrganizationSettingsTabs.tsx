@@ -621,56 +621,58 @@ export default function OrganizationSettingsTabs() {
 
         {/* Invite Members Tab */}
         <TabsContent value="invites" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Invite Actions */}
-            <div className="space-y-6">
-              {/* Email Invites */}
-              <OrgCard className="bg-orange-500/65 border-orange-400/50">
-                <OrgCardHeader>
-                  <OrgCardTitle className="flex items-center gap-2 text-white">
-                    <Mail className="h-5 w-5" />
-                    Invite by Email
-                  </OrgCardTitle>
-                  <OrgCardDescription className="text-white/80">
-                    Send personalized invitations directly to email addresses
-                  </OrgCardDescription>
-                </OrgCardHeader>
-                <OrgCardContent className="space-y-4">
-                  <div>
-                    <Label className="text-white">Email addresses</Label>
-                    {emails.map((email, index) => (
-                      <div key={index} className="flex gap-2 mt-2">
-                        <Input
-                          type="email"
-                          placeholder="colleague@example.com"
-                          value={email}
-                          onChange={(e) => handleEmailChange(index, e.target.value)}
-                          className="flex-1 bg-white/20 border-white/30 text-white placeholder:text-white/50"
-                        />
-                        {emails.length > 1 && (
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => handleRemoveEmail(index)}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        )}
-                      </div>
-                    ))}
-                    <Button
-                      variant="outline"
-                      onClick={handleAddEmail}
-                      className="w-full mt-2"
-                      size="sm"
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Another Email
-                    </Button>
-                  </div>
+          {/* Single Column Layout */}
+          <div className="max-w-3xl mx-auto space-y-6">
+            
+            {/* Email Invites */}
+            <OrgCard className="bg-orange-500/65 border-orange-400/50">
+              <OrgCardHeader>
+                <OrgCardTitle className="flex items-center gap-2 text-white">
+                  <Mail className="h-5 w-5" />
+                  Invite by Email
+                </OrgCardTitle>
+                <OrgCardDescription className="text-white/80">
+                  Send personalized invitations directly to email addresses
+                </OrgCardDescription>
+              </OrgCardHeader>
+              <OrgCardContent className="space-y-4">
+                <div>
+                  <Label className="text-white">Email addresses</Label>
+                  {emails.map((email, index) => (
+                    <div key={index} className="flex gap-2 mt-2">
+                      <Input
+                        type="email"
+                        placeholder="colleague@example.com"
+                        value={email}
+                        onChange={(e) => handleEmailChange(index, e.target.value)}
+                        className="flex-1 bg-white/20 border-white/30 text-white placeholder:text-white/50"
+                      />
+                      {emails.length > 1 && (
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => handleRemoveEmail(index)}
+                          className="bg-white/10 border-white/30 text-white hover:bg-white/20"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                  <Button
+                    variant="outline"
+                    onClick={handleAddEmail}
+                    className="w-full mt-2 bg-white/10 border-white/30 text-white hover:bg-white/20"
+                    size="sm"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Another Email
+                  </Button>
+                </div>
 
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="role" className="text-white">Select role</Label>
+                    <Label htmlFor="role" className="text-white">Role</Label>
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -690,14 +692,14 @@ export default function OrganizationSettingsTabs() {
                           </div>
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p>{roleDescriptions[selectedRole as keyof typeof roleDescriptions]}</p>
+                          <p className="text-sm max-w-xs">{roleDescriptions[selectedRole as keyof typeof roleDescriptions]}</p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
                   </div>
 
                   <div>
-                    <Label htmlFor="expires" className="text-white">Invite expires in</Label>
+                    <Label htmlFor="expires" className="text-white">Expires in</Label>
                     <Select value={expiresIn} onValueChange={setExpiresIn}>
                       <SelectTrigger className="mt-1 bg-white/20 border-white/30 text-white">
                         <SelectValue />
@@ -711,108 +713,123 @@ export default function OrganizationSettingsTabs() {
                       </SelectContent>
                     </Select>
                   </div>
+                </div>
 
-                  <Button
-                    onClick={handleSendInvites}
-                    disabled={isCreating}
-                    className="w-full bg-white/20 hover:bg-white/30 text-white border-white/30"
-                  >
-                    {isCreating ? 'Sending...' : 'Send Invite'}
-                  </Button>
-                </OrgCardContent>
-              </OrgCard>
+                <Button
+                  onClick={handleSendInvites}
+                  disabled={isCreating}
+                  className="w-full bg-white/20 hover:bg-white/30 text-white border-white/30"
+                >
+                  {isCreating ? 'Sending...' : 'Send Invitations'}
+                </Button>
+              </OrgCardContent>
+            </OrgCard>
 
-              {/* Join Code */}
-              <OrgCard className="bg-orange-500/65 border-orange-400/50">
-                <OrgCardHeader>
-                  <OrgCardTitle className="flex items-center gap-2 text-white">
-                    <Link2 className="h-5 w-5" />
-                    Share Join Code
-                  </OrgCardTitle>
-                  <OrgCardDescription className="text-white/80">
-                    Generate a shareable link that multiple people can use
-                  </OrgCardDescription>
-                </OrgCardHeader>
-                <OrgCardContent className="space-y-4">
-                  {activeJoinCode ? (
-                    <div className="space-y-3">
-                      <div className="p-3 bg-white/20 rounded-lg border border-white/30">
-                        <p className="text-sm font-mono break-all text-white">
-                          {generateInviteUrl(activeJoinCode.code)}
-                        </p>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          onClick={() => handleCopyJoinCode(activeJoinCode.code)}
-                          variant="outline"
-                          className="flex-1"
-                        >
-                          {joinCodeCopied ? (
-                            <>
-                              <Check className="h-4 w-4 mr-2" />
-                              Copied
-                            </>
-                          ) : (
-                            <>
-                              <Copy className="h-4 w-4 mr-2" />
-                              Copy Join Code
-                            </>
-                          )}
-                        </Button>
-                        <Button onClick={handleGenerateJoinCode} variant="outline">
-                          <RefreshCw className="h-4 w-4 mr-2" />
-                          Regenerate
-                        </Button>
-                      </div>
-                      <p className="text-xs text-white/70">
-                        Used {activeJoinCode.uses_count} of {activeJoinCode.max_uses} times • 
-                        Expires {format(new Date(activeJoinCode.expires_at), 'MMM d, yyyy')}
+            {/* Join Code */}
+            <OrgCard className="bg-orange-500/65 border-orange-400/50">
+              <OrgCardHeader>
+                <OrgCardTitle className="flex items-center gap-2 text-white">
+                  <Link2 className="h-5 w-5" />
+                  Share Join Code
+                </OrgCardTitle>
+                <OrgCardDescription className="text-white/80">
+                  Generate a shareable link that multiple people can use to join
+                </OrgCardDescription>
+              </OrgCardHeader>
+              <OrgCardContent className="space-y-4">
+                {activeJoinCode ? (
+                  <div className="space-y-3">
+                    <div className="p-3 bg-white/20 rounded-lg border border-white/30">
+                      <p className="text-sm font-mono break-all text-white">
+                        {generateInviteUrl(activeJoinCode.code)}
                       </p>
                     </div>
-                  ) : (
-                    <Button onClick={handleGenerateJoinCode} className="w-full">
-                      Generate New Join Code
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={() => handleCopyJoinCode(activeJoinCode.code)}
+                        variant="outline"
+                        className="flex-1 bg-white/10 border-white/30 text-white hover:bg-white/20"
+                      >
+                        {joinCodeCopied ? (
+                          <>
+                            <Check className="h-4 w-4 mr-2" />
+                            Copied!
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="h-4 w-4 mr-2" />
+                            Copy Link
+                          </>
+                        )}
+                      </Button>
+                      <Button 
+                        onClick={handleGenerateJoinCode} 
+                        variant="outline"
+                        className="bg-white/10 border-white/30 text-white hover:bg-white/20"
+                      >
+                        <RefreshCw className="h-4 w-4 mr-2" />
+                        New Code
+                      </Button>
+                    </div>
+                    <div className="flex items-center justify-between text-xs text-white/70 pt-2 border-t border-white/20">
+                      <span className="flex items-center gap-1">
+                        <Users className="h-3 w-3" />
+                        {activeJoinCode.uses_count} of {activeJoinCode.max_uses} uses
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Calendar className="h-3 w-3" />
+                        Expires {format(new Date(activeJoinCode.expires_at), 'MMM d, yyyy')}
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-4">
+                    <p className="text-white/70 text-sm mb-4">No active join code. Generate one to share with multiple people.</p>
+                    <Button 
+                      onClick={handleGenerateJoinCode} 
+                      className="w-full bg-white/20 hover:bg-white/30 text-white border-white/30"
+                      disabled={isCreating}
+                    >
+                      Generate Join Code
                     </Button>
-                  )}
-                </OrgCardContent>
-              </OrgCard>
+                  </div>
+                )}
+              </OrgCardContent>
+            </OrgCard>
 
-              {/* Manual Add Staff */}
-              <OrgCard className="bg-orange-500/65 border-orange-400/50">
-                <OrgCardHeader>
-                  <OrgCardTitle className="flex items-center gap-2 text-white">
-                    <UserPlus className="h-5 w-5" />
-                    Add Staff Manually
-                  </OrgCardTitle>
-                  <OrgCardDescription className="text-white/80">
-                    Directly add instructors, aides, or viewers to your organization without sending an invite
-                  </OrgCardDescription>
-                </OrgCardHeader>
-                <OrgCardContent>
-                  <Button
-                    onClick={() => setManualAddDialogOpen(true)}
-                    className="w-full bg-white/20 hover:bg-white/30 text-white border-white/30"
-                  >
-                    <UserPlus className="h-4 w-4 mr-2" />
-                    Add Staff Member
-                  </Button>
-                  <p className="text-xs text-white/70 mt-3">
-                    Staff members will receive a welcome email with instructions to set up their account.
-                  </p>
-                </OrgCardContent>
-              </OrgCard>
-            </div>
+            {/* Manual Add Staff */}
+            <OrgCard className="bg-orange-500/65 border-orange-400/50">
+              <OrgCardHeader>
+                <OrgCardTitle className="flex items-center gap-2 text-white">
+                  <UserPlus className="h-5 w-5" />
+                  Add Staff Manually
+                </OrgCardTitle>
+                <OrgCardDescription className="text-white/80">
+                  Directly add instructors, aides, or viewers without sending an invite
+                </OrgCardDescription>
+              </OrgCardHeader>
+              <OrgCardContent>
+                <Button
+                  onClick={() => setManualAddDialogOpen(true)}
+                  className="w-full bg-white/20 hover:bg-white/30 text-white border-white/30"
+                >
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Add Staff Member
+                </Button>
+                <p className="text-xs text-white/70 mt-3">
+                  Staff members will receive a welcome email with account setup instructions.
+                </p>
+              </OrgCardContent>
+            </OrgCard>
 
-            {/* Invitation Management */}
-            <div>
-              <InvitationManagementCard
-                invites={invites || []}
-                onCopyInvite={handleCopyJoinCode}
-                onRevokeInvite={handleCancelInvite}
-                onRegenerateInvite={handleRegenerateInvite}
-                isDeleting={isDeleting}
-              />
-            </div>
+            {/* Active Invitations */}
+            <InvitationManagementCard
+              invites={invites || []}
+              onCopyInvite={handleCopyJoinCode}
+              onRevokeInvite={handleCancelInvite}
+              onRegenerateInvite={handleRegenerateInvite}
+              isDeleting={isDeleting}
+            />
           </div>
 
           {/* Manual Staff Add Dialog */}
@@ -821,11 +838,8 @@ export default function OrganizationSettingsTabs() {
             onOpenChange={setManualAddDialogOpen}
             organizationId={currentOrg.organization_id}
             onSuccess={() => {
-              // Optionally refresh invites or show success
-              toast({
-                title: 'Staff member added successfully',
-              });
-              refetchMembers(); // Refresh members list
+              toast({ title: 'Staff member added successfully' });
+              refetchMembers();
             }}
           />
         </TabsContent>
