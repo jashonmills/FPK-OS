@@ -224,13 +224,16 @@ const handler = async (req: Request): Promise<Response> => {
     if (existingMember) {
       if (existingMember.status === 'active') {
         console.log("[accept-org-invite] User already an active member");
+        // Return 200 (not an error) but with success: false and helpful message
         return new Response(
           JSON.stringify({ 
             success: false,
             code: 'ALREADY_MEMBER',
-            error: "You are already a member of this organization" 
+            error: "You are already a member of this organization",
+            org_id: invite.org_id,
+            organization_name: org.name
           }),
-          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       } else {
         // Reactivate member

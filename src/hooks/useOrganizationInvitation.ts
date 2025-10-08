@@ -74,11 +74,15 @@ export function useOrganizationInvitation() {
       });
 
       if (error) {
+        console.error('Edge function error:', error);
         throw new Error(error.message || 'Failed to join organization');
       }
 
       if (!data?.success) {
-        throw new Error(data?.error || 'Failed to join organization');
+        // Include the error code for better handling
+        const errorWithCode = new Error(data?.error || 'Failed to join organization');
+        (errorWithCode as any).code = data?.code;
+        throw errorWithCode;
       }
 
       // Invalidate queries to refresh data
@@ -105,19 +109,24 @@ export function useOrganizationInvitation() {
       console.error('Error joining organization:', error);
       
       let errorMessage = "Please check your invitation and try again.";
+      let toastVariant: "destructive" | "default" = "destructive";
       
-      if (error.message?.includes('Invalid or expired')) {
-        errorMessage = "This invitation is invalid or has expired.";
-      } else if (error.message?.includes('already a member')) {
+      // Check error code first for precise matching
+      if (error.code === 'ALREADY_MEMBER' || error.message?.includes('already a member')) {
         errorMessage = "You are already a member of this organization.";
-      } else if (error.message?.includes('no seats available')) {
+        toastVariant = "default"; // Not really an error
+      } else if (error.code === 'INVITE_EXPIRED' || error.message?.includes('Invalid or expired')) {
+        errorMessage = "This invitation is invalid or has expired.";
+      } else if (error.message?.includes('no seats available') || error.message?.includes('maximum capacity')) {
         errorMessage = "This organization has reached its member limit.";
+      } else if (error.message?.includes('email address')) {
+        errorMessage = error.message; // Use the specific email mismatch message
       }
       
       toast({
-        title: "Failed to Join",
+        title: error.code === 'ALREADY_MEMBER' ? "Already a Member" : "Failed to Join",
         description: errorMessage,
-        variant: "destructive",
+        variant: toastVariant,
       });
       
       return { success: false, error: errorMessage };
