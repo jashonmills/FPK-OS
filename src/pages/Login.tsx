@@ -552,7 +552,7 @@ const Login = () => {
         />
 
         <div className="mt-8 flex flex-col items-center space-y-4 text-center">
-          <div className="flex space-x-6">
+          <div className="flex flex-wrap justify-center gap-x-6 gap-y-2">
             <Button 
               variant="link" 
               className="text-white/80 hover:text-white text-sm"
@@ -566,6 +566,13 @@ const Login = () => {
               onClick={() => navigate('/org/join')}
             >
               Have an Invite Code?
+            </Button>
+            <Button 
+              variant="link" 
+              className="text-white/80 hover:text-white text-sm font-medium"
+              onClick={() => navigate('/organizations')}
+            >
+              Organization Login
             </Button>
           </div>
           
