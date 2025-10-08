@@ -48,17 +48,26 @@ export function useStudentOrgStatistics(organizationId?: string) {
           .eq('user_id', user.id)
           .eq('org_id', organizationId);
 
-        // Combine enrollments from both tables
-        const allEnrollments = [
-          ...(regularEnrollments || []).map(e => ({
+        // Deduplicate enrollments by course_id, preferring interactive_course_enrollments data
+        const enrollmentMap = new Map();
+        
+        // Add regular enrollments first
+        (regularEnrollments || []).forEach(e => {
+          enrollmentMap.set(e.course_id, {
             course_id: e.course_id,
-            completion_percentage: 0 // Regular enrollments don't have completion tracking yet
-          })),
-          ...(interactiveEnrollments || []).map(e => ({
+            completion_percentage: 0
+          });
+        });
+        
+        // Override with interactive enrollments data (more complete)
+        (interactiveEnrollments || []).forEach(e => {
+          enrollmentMap.set(e.course_id, {
             course_id: e.course_id,
             completion_percentage: e.completion_percentage || 0
-          }))
-        ];
+          });
+        });
+        
+        const allEnrollments = Array.from(enrollmentMap.values());
 
         // Get student's recent activity
         const { data: activity } = await supabase
