@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { createClient } from '@supabase/supabase-js';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,6 +10,18 @@ import { Check, Loader2, AlertCircle, UserCheck } from 'lucide-react';
 import { useOrgBranding } from '@/hooks/useOrgBranding';
 import { useToast } from '@/hooks/use-toast';
 import { OrgBanner } from '@/components/branding/OrgBanner';
+
+// Create an anonymous client for token validation (bypasses authenticated RLS policies)
+const anonSupabase = createClient(
+  "https://zgcegkmqfgznbpdplscz.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpnY2Vna21xZmd6bmJwZHBsc2N6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MDcxNTgsImV4cCI6MjA2NDk4MzE1OH0.RCtAqfgz7aqjG-QWiOqFBCG5xg2Rok9T4tbyGQMnCm8",
+  {
+    auth: {
+      persistSession: false, // Don't persist any session
+      autoRefreshToken: false,
+    }
+  }
+);
 
 export default function StudentActivation() {
   const { orgSlug } = useParams<{ orgSlug: string }>();
@@ -57,8 +70,8 @@ export default function StudentActivation() {
         setOrgId(org.id);
         setOrgName(org.name);
 
-        // Validate token
-        const { data: student, error: tokenError } = await supabase
+        // Validate token using anonymous client (uses "Anonymous users can view students with tokens" RLS policy)
+        const { data: student, error: tokenError } = await anonSupabase
           .from('org_students')
           .select('id, full_name, activation_token, token_expires_at, activation_status')
           .eq('org_id', org.id)
