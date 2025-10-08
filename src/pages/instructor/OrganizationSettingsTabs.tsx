@@ -30,6 +30,7 @@ import { ManualStaffAddDialog } from '@/components/org/ManualStaffAddDialog';
 import { useOrgMembers, OrgMember } from '@/hooks/useOrgMembers';
 import { MemberProfileDialog } from '@/components/org/MemberProfileDialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { InvitationManagementCard } from '@/components/org/InvitationManagementCard';
 
 const ACCENT_PRESETS = [
   { name: 'FPK Purple', value: '280 100% 70%', hex: '#a855f7' },
@@ -230,6 +231,24 @@ export default function OrganizationSettingsTabs() {
       toast({ title: 'Invite canceled.' });
     } catch (error) {
       // Error handled by mutation
+    }
+  };
+
+  const handleRegenerateInvite = async (oldInvite: any) => {
+    try {
+      // First delete the old invite
+      await deleteInvite(oldInvite.id);
+      
+      // Create a new invite with same parameters
+      await createInvite({
+        role: oldInvite.role as any,
+        max_uses: oldInvite.max_uses,
+        expires_days: Math.ceil((new Date(oldInvite.expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) || 30
+      });
+      
+      toast({ title: 'Invitation regenerated successfully.' });
+    } catch (error) {
+      // Error handled by mutations
     }
   };
 
@@ -784,63 +803,15 @@ export default function OrganizationSettingsTabs() {
               </OrgCard>
             </div>
 
-            {/* Pending Invitations */}
+            {/* Invitation Management */}
             <div>
-              <OrgCard className="bg-orange-500/65 border-orange-400/50">
-                <OrgCardHeader>
-                  <OrgCardTitle className="text-white">Pending Invitations</OrgCardTitle>
-                  <OrgCardDescription className="text-white/80">
-                    Invitations waiting for response
-                  </OrgCardDescription>
-                </OrgCardHeader>
-                <OrgCardContent>
-                  {invites && invites.length > 0 ? (
-                    <div className="space-y-3">
-                      {invites.map((invite) => (
-                        <div key={invite.id} className="flex items-center justify-between p-3 border border-white/30 rounded-lg bg-white/10">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2">
-                              <Badge variant="outline" className="bg-white/20 text-white border-white/30">
-                                {invite.role}
-                              </Badge>
-                              <span className="text-sm text-white">
-                                {invite.uses_count}/{invite.max_uses} uses
-                              </span>
-                            </div>
-                            <p className="text-xs text-white/70 mt-1">
-                              Expires {format(new Date(invite.expires_at), 'MMM d, yyyy')}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleCopyJoinCode(invite.code)}
-                            >
-                              <Copy className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleCancelInvite(invite.id)}
-                              disabled={isDeleting}
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8">
-                      <UserPlus className="h-12 w-12 text-white/70 mx-auto mb-4" />
-                      <p className="text-white/80">
-                        No invites yet. Send your first invite to start building your team.
-                      </p>
-                    </div>
-                  )}
-                </OrgCardContent>
-              </OrgCard>
+              <InvitationManagementCard
+                invites={invites || []}
+                onCopyInvite={handleCopyJoinCode}
+                onRevokeInvite={handleCancelInvite}
+                onRegenerateInvite={handleRegenerateInvite}
+                isDeleting={isDeleting}
+              />
             </div>
           </div>
 

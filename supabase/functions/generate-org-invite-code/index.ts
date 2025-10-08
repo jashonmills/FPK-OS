@@ -13,6 +13,33 @@ interface GenerateCodeRequest {
   expiresDays?: number;
 }
 
+// Rate limiting: Track invite creation per user
+const inviteCreationMap = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT_WINDOW = 60 * 60 * 1000; // 1 hour
+const MAX_INVITES_PER_HOUR = 50;
+
+function checkRateLimit(userId: string): { allowed: boolean; retryAfter?: number } {
+  const now = Date.now();
+  const userRecord = inviteCreationMap.get(userId);
+
+  // Reset if window expired
+  if (!userRecord || userRecord.resetTime < now) {
+    inviteCreationMap.set(userId, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
+    return { allowed: true };
+  }
+
+  // Check if over limit
+  if (userRecord.count >= MAX_INVITES_PER_HOUR) {
+    const retryAfter = Math.ceil((userRecord.resetTime - now) / 1000);
+    return { allowed: false, retryAfter };
+  }
+
+  // Increment count
+  userRecord.count++;
+  inviteCreationMap.set(userId, userRecord);
+  return { allowed: true };
+}
+
 const handler = async (req: Request): Promise<Response> => {
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
@@ -50,6 +77,25 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     console.log(`Generate invite code request from user: ${user.id}`);
+
+    // Check rate limit
+    const rateLimitCheck = checkRateLimit(user.id);
+    if (!rateLimitCheck.allowed) {
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: `Rate limit exceeded. You can create ${MAX_INVITES_PER_HOUR} invitations per hour. Try again in ${rateLimitCheck.retryAfter} seconds.` 
+        }),
+        { 
+          status: 429, 
+          headers: { 
+            ...corsHeaders, 
+            "Content-Type": "application/json",
+            "Retry-After": rateLimitCheck.retryAfter?.toString() || "3600"
+          } 
+        }
+      );
+    }
 
     // Use service role client for admin operations (bypasses RLS)
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
