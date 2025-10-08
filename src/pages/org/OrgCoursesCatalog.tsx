@@ -42,6 +42,7 @@ import type { CourseCardActions } from '@/types/enhanced-course-card';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { AssignmentCreateDialog } from '@/components/assignments/AssignmentCreateDialog';
 import { BulkAssignmentDialog } from '@/components/assignments/BulkAssignmentDialog';
+import { BulkEnrollButton } from '@/components/org/BulkEnrollButton';
 import { convertEnhancedCourseToCard } from '@/utils/courseConversion';
 import { cn } from '@/lib/utils';
 import type { CourseCard } from '@/types/course-card';
@@ -546,6 +547,11 @@ export default function OrgCoursesCatalog() {
               {/* Action buttons for instructors/owners */}
               {!isOrgStudent() && (
                 <div className="flex flex-wrap gap-2">
+                  {/* Bulk Enroll Button for St. Joseph's */}
+                  {orgId === '446d78ee-420e-4e9a-8d9d-00f06e897e7f' && !bulkMode && (
+                    <BulkEnrollButton orgId={orgId} />
+                  )}
+                  
                   {!bulkMode && (
                     <div className="w-full sm:w-auto">
                       <CollectionsDropdown orgId={orgId} />
