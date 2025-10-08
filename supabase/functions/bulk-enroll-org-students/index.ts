@@ -122,7 +122,6 @@ serve(async (req) => {
             missingCourses.map(course => ({
               user_id: userId,
               course_id: course.course_id,
-              org_id: orgId,
               enrolled_at: new Date().toISOString()
             }))
           );
