@@ -31,6 +31,17 @@ export const RouteProtector: React.FC<RouteProtectorProps> = ({ children }) => {
                        currentPath.startsWith('/subscription');
 
   useEffect(() => {
+    console.log('🔍 [RouteProtector] Effect triggered:', { 
+      currentPath, 
+      authLoading, 
+      subscriptionLoading,
+      user: !!user,
+      hasAccess,
+      hasNavigated,
+      isDashboardRoute,
+      isOrgRoute
+    });
+
     // Wait for auth to complete before making any navigation decisions
     if (authLoading) return;
 
@@ -139,24 +150,26 @@ export const RouteProtector: React.FC<RouteProtectorProps> = ({ children }) => {
         logErrors: false
       });
       
-      // Debug logging in development
-      if (process.env.NODE_ENV === 'development') {
-        console.log('RouteProtector context check:', {
-          currentPath,
-          activeOrgId,
-          isDashboardRoute,
-          isOrgRoute,
-          message: 'Allowing user to stay on intended route'
-        });
-      }
+      // Always log context check
+      console.log('🔍 [RouteProtector] Context check:', {
+        currentPath,
+        orgFromUrl,
+        orgFromPath,
+        activeOrgId,
+        isDashboardRoute,
+        isOrgRoute,
+        pathMatchResult: pathMatch
+      });
       
       // Only redirect if user is on org route but has no active org
       if (!activeOrgId && isOrgRoute) {
-        console.log('Redirecting to personal dashboard - no active org');
+        console.log('❌ [RouteProtector] Redirecting to personal dashboard - no active org found');
         setHasNavigated(true);
         navigate('/dashboard/learner', { replace: true });
         return;
       }
+      
+      console.log('✅ [RouteProtector] Allowing navigation - org context is valid');
       
       // Only redirect if user is on a generic org route but doesn't have access to that specific org
       // We'll let individual org pages handle their own access control
