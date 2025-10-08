@@ -97,6 +97,7 @@ export function VerifyPinForm({ orgId }: VerifyPinFormProps) {
       };
       
       sessionStorage.setItem('activeOrgContext', JSON.stringify(sessionContext));
+      sessionStorage.setItem(`org_pin_verified_${orgId}`, 'true');
 
       toast({
         title: "Access Granted",
