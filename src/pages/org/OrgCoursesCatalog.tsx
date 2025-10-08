@@ -762,47 +762,87 @@ export default function OrgCoursesCatalog() {
         <div className="mt-6 space-y-8">
           {isOrgStudent() ? (
             <>
-              {/* My Assigned Courses */}
-              {assignments.length > 0 && (
-                <div>
-                  <div className="flex items-center gap-2 mb-4">
-                    <GraduationCap className="h-5 w-5 text-primary" />
-                    <h2 className="text-xl font-semibold">My Assigned Courses</h2>
-                    <Badge variant="secondary">{assignments.length}</Badge>
-                  </div>
-                  
-                  <div className={cn(
-                    getResponsiveGridClasses(viewType),
-                    "bg-orange-400/20 backdrop-blur-sm border border-orange-300/30 rounded-lg p-4"
-                  )}>
-                    {assignments.map((assignment) => {
-                      // Find the course data from our catalog
-                      const course = [...platformCourses, ...orgCourses].find(c => c.id === assignment.resource_id);
-                      if (!course) return null;
-                      
-                      return (
-                        <EnhancedCourseCard
-                          key={assignment.id}
-                          course={toCourseCardModel(course)}
-                          actions={createCourseActions(false)}
-                          viewType={viewType}
-                        />
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-              
-              {/* Empty state when no courses assigned */}
-              {assignments.length === 0 && (
-                <div className="text-center py-12 bg-orange-400/20 backdrop-blur-sm border border-orange-300/30 rounded-lg">
-                  <GraduationCap className="h-16 w-16 text-muted-foreground mx-auto mb-4 opacity-50" />
-                  <h3 className="text-lg font-semibold mb-2">No Courses Assigned Yet</h3>
-                  <p className="text-muted-foreground">
-                    Your instructor will assign courses for you to access here.
-                  </p>
-                </div>
-              )}
+              {(() => {
+                // Combine all available courses
+                const assignedCourseIds = new Set(assignments.map(a => a.resource_id));
+                const allCatalogCourses = [...platformCourses, ...orgCourses];
+                
+                // Separate into assigned and enrolled-only courses
+                const assignedCourses = assignments
+                  .map(assignment => allCatalogCourses.find(c => c.id === assignment.resource_id))
+                  .filter(Boolean);
+                
+                const enrolledOnlyCourses = allCatalogCourses.filter(
+                  course => !assignedCourseIds.has(course.id)
+                );
+                
+                const totalCourses = assignedCourses.length + enrolledOnlyCourses.length;
+                
+                return (
+                  <>
+                    {/* My Assigned Courses */}
+                    {assignedCourses.length > 0 && (
+                      <div>
+                        <div className="flex items-center gap-2 mb-4">
+                          <GraduationCap className="h-5 w-5 text-primary" />
+                          <h2 className="text-xl font-semibold">My Assigned Courses</h2>
+                          <Badge variant="secondary">{assignedCourses.length}</Badge>
+                        </div>
+                        
+                        <div className={cn(
+                          getResponsiveGridClasses(viewType),
+                          "bg-orange-400/20 backdrop-blur-sm border border-orange-300/30 rounded-lg p-4"
+                        )}>
+                          {assignedCourses.map((course) => (
+                            <EnhancedCourseCard
+                              key={course.id}
+                              course={toCourseCardModel(course)}
+                              actions={createCourseActions(false)}
+                              viewType={viewType}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* My Enrolled Courses (not in assignments) */}
+                    {enrolledOnlyCourses.length > 0 && (
+                      <div>
+                        <div className="flex items-center gap-2 mb-4">
+                          <BookOpen className="h-5 w-5 text-primary" />
+                          <h2 className="text-xl font-semibold">My Courses</h2>
+                          <Badge variant="secondary">{enrolledOnlyCourses.length}</Badge>
+                        </div>
+                        
+                        <div className={cn(
+                          getResponsiveGridClasses(viewType),
+                          "bg-orange-400/20 backdrop-blur-sm border border-orange-300/30 rounded-lg p-4"
+                        )}>
+                          {enrolledOnlyCourses.map((course) => (
+                            <EnhancedCourseCard
+                              key={course.id}
+                              course={toCourseCardModel(course)}
+                              actions={createCourseActions(false)}
+                              viewType={viewType}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Empty state only when truly no courses */}
+                    {totalCourses === 0 && (
+                      <div className="text-center py-12 bg-orange-400/20 backdrop-blur-sm border border-orange-300/30 rounded-lg">
+                        <GraduationCap className="h-16 w-16 text-muted-foreground mx-auto mb-4 opacity-50" />
+                        <h3 className="text-lg font-semibold mb-2">No Courses Available Yet</h3>
+                        <p className="text-muted-foreground">
+                          Your instructor will assign courses for you to access here.
+                        </p>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </>
           ) : (
             <>
