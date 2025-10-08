@@ -45,9 +45,10 @@ export default function OrgPortalHome() {
 
   // Redirect students to their proper portal
   React.useEffect(() => {
-    if (currentOrg && isStudent && currentOrg.organizations.slug) {
-      console.log('🔀 Student detected on admin dashboard, redirecting to student portal');
-      navigate(`/${currentOrg.organizations.slug}/student-portal`, { replace: true });
+    if (currentOrg && isStudent && currentOrg.organizations?.slug) {
+      const slug = currentOrg.organizations.slug;
+      console.log('🔀 Student detected, redirecting to:', `/${slug}/student-portal`);
+      navigate(`/${slug}/student-portal`, { replace: true });
     }
   }, [currentOrg, isStudent, navigate]);
 
