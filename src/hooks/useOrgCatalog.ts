@@ -121,7 +121,10 @@ export function useOrgCatalog() {
       console.log('useOrgCatalog - User role:', memberData?.role, 'isStudent:', isStudent);
 
       if (isStudent) {
-        // For students, only fetch assigned courses
+        // For students, fetch courses from BOTH assignments and enrollments
+        const courseIds = new Set<string>();
+
+        // 1. Fetch assigned courses from org_assignment_targets
         const { data: assignedTargets, error: assignmentError } = await supabase
           .from('org_assignment_targets')
           .select(`
@@ -136,20 +139,30 @@ export function useOrgCatalog() {
 
         if (assignmentError) {
           console.error('Error fetching student assignments:', assignmentError);
-          throw assignmentError;
+        } else {
+          assignedTargets?.forEach(target => {
+            const assignment = target.org_assignments;
+            if (assignment.type === 'course') {
+              courseIds.add(assignment.resource_id);
+            }
+          });
         }
 
-        // Extract unique course IDs from assignments
-        const courseIds = new Set<string>();
+        // 2. Fetch enrolled courses from enrollments table
+        const { data: enrollments, error: enrollmentError } = await supabase
+          .from('enrollments')
+          .select('course_id')
+          .eq('user_id', user.id);
 
-        assignedTargets?.forEach(target => {
-          const assignment = target.org_assignments;
-          if (assignment.type === 'course') {
-            courseIds.add(assignment.resource_id);
-          }
-        });
+        if (enrollmentError) {
+          console.error('Error fetching student enrollments:', enrollmentError);
+        } else {
+          enrollments?.forEach(enrollment => {
+            courseIds.add(enrollment.course_id);
+          });
+        }
 
-        console.log('useOrgCatalog - Assigned course IDs:', courseIds.size);
+        console.log('useOrgCatalog - Total course IDs (assignments + enrollments):', courseIds.size);
 
         // Fetch assigned courses from both tables
         let platformCourses: PlatformCourse[] = [];

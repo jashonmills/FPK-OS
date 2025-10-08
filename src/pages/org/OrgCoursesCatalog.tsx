@@ -133,6 +133,7 @@ export default function OrgCoursesCatalog() {
         if (missingCourses.length > 0) {
           console.log(`Auto-enrolling student in ${missingCourses.length} missing courses`);
           
+          // Step 1: Create enrollments
           const { error: enrollError } = await supabase
             .from('enrollments')
             .insert(
@@ -145,11 +146,48 @@ export default function OrgCoursesCatalog() {
 
           if (enrollError) {
             console.error('Auto-enrollment error:', enrollError);
-          } else {
-            console.log('Successfully auto-enrolled student');
-            // Refresh the catalog to show new courses
-            window.location.reload();
+            return;
           }
+
+          // Step 2: Create org_assignments for each course
+          const assignmentPromises = missingCourses.map(async (course) => {
+            // Create assignment
+            const { data: assignment, error: assignError } = await supabase
+              .from('org_assignments')
+              .insert({
+                org_id: ST_JOSEPH_ORG_ID,
+                resource_id: course.course_id,
+                type: 'course',
+                title: `Required Course: ${course.course_id}`,
+                created_by: user.id
+              })
+              .select()
+              .single();
+
+            if (assignError) {
+              console.error('Error creating assignment:', assignError);
+              return;
+            }
+
+            // Create assignment target
+            const { error: targetError } = await supabase
+              .from('org_assignment_targets')
+              .insert({
+                assignment_id: assignment.id,
+                target_id: user.id,
+                target_type: 'member'
+              });
+
+            if (targetError) {
+              console.error('Error creating assignment target:', targetError);
+            }
+          });
+
+          await Promise.all(assignmentPromises);
+          
+          console.log('Successfully auto-enrolled student with assignments');
+          // Refresh the catalog to show new courses
+          window.location.reload();
         }
       } catch (error) {
         console.error('Error in auto-enrollment:', error);
