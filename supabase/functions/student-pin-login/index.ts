@@ -48,10 +48,16 @@ serve(async (req) => {
       );
     }
 
-    // Create Supabase admin client
+    // Create Supabase admin client (for admin operations)
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
+    // Create regular Supabase client (for user operations)
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
     );
 
     // Fetch student record to get stored PIN hash
@@ -145,8 +151,8 @@ serve(async (req) => {
         );
       }
 
-      // Sign in with the temporary password to get a real session
-      const { data: sessionData, error: signInError } = await supabaseAdmin.auth.signInWithPassword({
+      // Sign in with the temporary password using the regular client to get a real session
+      const { data: sessionData, error: signInError } = await supabaseClient.auth.signInWithPassword({
         email: studentEmail,
         password: tempPassword
       });
@@ -227,8 +233,8 @@ serve(async (req) => {
       );
     }
 
-    // Sign in with the temporary password to get a real session
-    const { data: sessionData, error: signInError } = await supabaseAdmin.auth.signInWithPassword({
+    // Sign in with the temporary password using the regular client to get a real session
+    const { data: sessionData, error: signInError } = await supabaseClient.auth.signInWithPassword({
       email: tempEmail,
       password: tempPassword
     });
