@@ -76,10 +76,16 @@ export function ManualStaffAddDialog({
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Function invocation error:', error);
+        throw error;
+      }
 
       if (!data?.success) {
-        throw new Error(data?.error || 'Failed to add staff member');
+        const errorMessage = data?.code === 'ALREADY_MEMBER' 
+          ? 'This user is already a member of the organization'
+          : data?.error || 'Failed to add staff member';
+        throw new Error(errorMessage);
       }
 
       toast({

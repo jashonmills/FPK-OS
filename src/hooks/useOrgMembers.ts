@@ -40,7 +40,7 @@ export function useOrgMembers(searchQuery?: string, roleFilter?: string) {
           role,
           status,
           joined_at,
-          profiles!org_members_user_id_fkey (
+          profiles!inner (
             display_name,
             full_name,
             email,
