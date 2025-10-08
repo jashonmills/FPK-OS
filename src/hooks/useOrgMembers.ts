@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { assertOrg } from '@/lib/org/context';
+import { getActiveOrgId } from '@/lib/org/context';
 
 export interface OrgMember {
   user_id: string;
@@ -26,11 +26,13 @@ export interface OrgMember {
 }
 
 export function useOrgMembers(searchQuery?: string, roleFilter?: string) {
-  const orgId = assertOrg();
+  const orgId = getActiveOrgId();
 
   const { data: members = [], isLoading, error, refetch } = useQuery({
     queryKey: ['org-members', orgId, searchQuery, roleFilter],
+    enabled: !!orgId,
     queryFn: async () => {
+      if (!orgId) return [];
       let query = supabase
         .from('org_members')
         .select(`
