@@ -128,29 +128,15 @@ serve(async (req) => {
         }
       });
 
-      // Create a proper session for the user
-      const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.admin.generateLink({
-        type: 'magiclink',
-        email: `student-${student_id}@portal.fpkuniversity.com`
+      // Create a session token using Supabase admin
+      const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.admin.createSession({
+        user_id: linked_user_id
       });
 
       if (sessionError || !sessionData) {
         console.error('[student-pin-login] Session creation error:', sessionError);
         return new Response(
           JSON.stringify({ error: 'Failed to create session' }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-
-      // Extract the token from the action link to create a proper session
-      const actionLinkUrl = new URL(sessionData.properties.action_link);
-      const token = actionLinkUrl.searchParams.get('token');
-      const tokenHash = actionLinkUrl.searchParams.get('token_hash');
-
-      if (!token || !tokenHash) {
-        console.error('[student-pin-login] Missing token in action link');
-        return new Response(
-          JSON.stringify({ error: 'Failed to generate auth token' }),
           { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
@@ -165,13 +151,11 @@ serve(async (req) => {
           metadata: { student_id, method: 'pin' }
         });
 
-      // Return session tokens for frontend to use
+      // Return session data for frontend to use
       return new Response(
         JSON.stringify({
           success: true,
-          token,
-          token_hash: tokenHash,
-          type: 'magiclink',
+          session: sessionData.session,
           student_id,
           org_id,
           org_slug: orgSlug
@@ -207,29 +191,15 @@ serve(async (req) => {
       .update({ linked_user_id: newUser.user.id })
       .eq('id', student_id);
 
-    // Create a proper session for the new user
-    const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.admin.generateLink({
-      type: 'magiclink',
-      email: tempEmail
+    // Create a session token for the new user
+    const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.admin.createSession({
+      user_id: newUser.user.id
     });
 
     if (sessionError || !sessionData) {
       console.error('[student-pin-login] Session generation error:', sessionError);
       return new Response(
         JSON.stringify({ error: 'Failed to generate session' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Extract the token from the action link
-    const actionLinkUrl = new URL(sessionData.properties.action_link);
-    const token = actionLinkUrl.searchParams.get('token');
-    const tokenHash = actionLinkUrl.searchParams.get('token_hash');
-
-    if (!token || !tokenHash) {
-      console.error('[student-pin-login] Missing token in action link');
-      return new Response(
-        JSON.stringify({ error: 'Failed to generate auth token' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -246,13 +216,11 @@ serve(async (req) => {
 
     console.log('[student-pin-login] Login successful');
 
-    // Return session tokens for frontend to use
+    // Return session data for frontend to use
     return new Response(
       JSON.stringify({
         success: true,
-        token,
-        token_hash: tokenHash,
-        type: 'magiclink',
+        session: sessionData.session,
         student_id,
         org_id,
         org_slug: orgSlug

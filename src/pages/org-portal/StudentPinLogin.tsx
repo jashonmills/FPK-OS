@@ -116,14 +116,14 @@ export default function StudentPinLogin() {
         return;
       }
 
-      // Verify the OTP token to establish the session
-      const { error: verifyError } = await supabase.auth.verifyOtp({
-        token_hash: data.token_hash,
-        type: 'magiclink'
+      // Set the session using the returned session data
+      const { error: sessionError } = await supabase.auth.setSession({
+        access_token: data.session.access_token,
+        refresh_token: data.session.refresh_token
       });
 
-      if (verifyError) {
-        console.error('Session verification error:', verifyError);
+      if (sessionError) {
+        console.error('Session error:', sessionError);
         setError('Failed to establish session. Please try again.');
         return;
       }
@@ -134,8 +134,10 @@ export default function StudentPinLogin() {
         description: 'Redirecting to your dashboard...'
       });
       
-      // Redirect to org dashboard
-      navigate(`/org/${orgId}`, { replace: true });
+      // Small delay to allow session to be established
+      setTimeout(() => {
+        navigate(`/org/${orgId}`, { replace: true });
+      }, 100);
     } catch (error) {
       console.error('Login error:', error);
       setError('An unexpected error occurred. Please try again.');
