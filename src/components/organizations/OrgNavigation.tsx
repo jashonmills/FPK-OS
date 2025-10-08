@@ -97,10 +97,12 @@ export function OrgNavigation() {
       roles: ['owner', 'instructor'],
     },
     {
-      href: `/org/${currentOrg.organization_id}/settings`,
+      href: currentOrg.role === 'student' 
+        ? `/org/${currentOrg.organization_id}/student-settings`
+        : `/org/${currentOrg.organization_id}/settings`,
       label: 'Settings',
       icon: Settings,
-      roles: ['owner'],
+      // Allow all roles to access settings (students get their own settings page)
     },
   ];
 

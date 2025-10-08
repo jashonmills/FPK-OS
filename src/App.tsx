@@ -50,6 +50,7 @@ const ReceivedInvitationsPage = lazy(() => import("./pages/organizations/Receive
 const InviteMembersPage = lazy(() => import("./pages/org/InviteMembersPage"));
 const InviteManagement = lazy(() => import("./pages/organizations/InviteManagement"));
 const OrgPageLayout = lazy(() => import("./components/organizations/OrgPageLayout").then(module => ({ default: module.OrgPageLayout })));
+const StudentSettings = lazy(() => import("./pages/organizations/StudentSettings"));
 
 // Dashboard pages - lazy loaded for optimal performance
 const LearnerHome = lazy(() => {
@@ -699,6 +700,7 @@ const App: React.FC = () => {
             <Route path=":orgId/ai-coach" element={<LazyRoute><OrgAIStudyCoach /></LazyRoute>} />
             <Route path=":orgId/analytics/courses/:courseId" element={<LazyRoute><CourseAnalytics /></LazyRoute>} />
             <Route path=":orgId/website" element={<LazyRoute><OrgWebsitePage /></LazyRoute>} />
+            <Route path=":orgId/student-settings" element={<LazyRoute><StudentSettings /></LazyRoute>} />
             <Route path=":orgId/settings" element={<LazyRoute><OrgSettingsTabs /></LazyRoute>} />
             <Route path=":orgId/settings/invites" element={<LazyRoute><InviteManagement /></LazyRoute>} />
           </Route>

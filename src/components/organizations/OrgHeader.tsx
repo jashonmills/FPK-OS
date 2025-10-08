@@ -17,13 +17,39 @@ import { useNavigate } from 'react-router-dom';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import NotificationDropdown from '@/components/notifications/NotificationDropdown';
 import { OrgSwitcher } from './OrgSwitcher';
+import { useStudentPortalContext } from '@/hooks/useStudentPortalContext';
+import { useOrgContext } from './OrgContext';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 const OrgHeader = () => {
   const { user, signOut } = useAuth();
   const { profile } = useUserProfile();
   const navigate = useNavigate();
+  const { isStudentPortalUser, studentId } = useStudentPortalContext();
+  const { currentOrg } = useOrgContext();
+
+  // Fetch student name from org_students table for student-only users
+  const { data: studentRecord } = useQuery({
+    queryKey: ['org-student-name', studentId],
+    queryFn: async () => {
+      if (!studentId) return null;
+      const { data } = await supabase
+        .from('org_students')
+        .select('full_name')
+        .eq('id', studentId)
+        .single();
+      return data;
+    },
+    enabled: isStudentPortalUser && !!studentId
+  });
 
   const getDisplayName = () => {
+    // For student-only users, use org_students.full_name
+    if (isStudentPortalUser && studentRecord?.full_name) {
+      return studentRecord.full_name;
+    }
+    // For regular users, use profile data
     if (profile?.display_name) return profile.display_name;
     if (profile?.full_name) return profile.full_name;
     if (user?.email) return user.email.split('@')[0];
@@ -106,11 +132,23 @@ const OrgHeader = () => {
                 My Account
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => navigate('/dashboard/learner/settings')}>
+              <DropdownMenuItem onClick={() => {
+                if (isStudentPortalUser && currentOrg?.organization_id) {
+                  navigate(`/org/${currentOrg.organization_id}/student-settings`);
+                } else {
+                  navigate('/dashboard/learner/settings');
+                }
+              }}>
                 <User className="mr-2 h-4 w-4" />
                 Profile Settings
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate('/dashboard/learner/settings')}>
+              <DropdownMenuItem onClick={() => {
+                if (isStudentPortalUser && currentOrg?.organization_id) {
+                  navigate(`/org/${currentOrg.organization_id}/student-settings?tab=preferences`);
+                } else {
+                  navigate('/dashboard/learner/settings');
+                }
+              }}>
                 <Settings className="mr-2 h-4 w-4" />
                 Preferences
               </DropdownMenuItem>
