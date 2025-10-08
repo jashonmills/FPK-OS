@@ -118,12 +118,8 @@ serve(async (req) => {
     console.log('[student-pin-login] Valid credentials for org:', orgSlug);
     // If student has a linked user account, update metadata and create a session
     if (linked_user_id) {
-      // Generate a temporary password for session creation
-      const tempPassword = crypto.randomUUID();
-      
-      // Update user with temp password and metadata
+      // Update user metadata
       await supabaseAdmin.auth.admin.updateUserById(linked_user_id, {
-        password: tempPassword,
         user_metadata: {
           student_id,
           org_id,
@@ -132,16 +128,28 @@ serve(async (req) => {
         }
       });
 
-      // Sign in to get a valid session
-      const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.signInWithPassword({
-        email: `student-${student_id}@portal.fpkuniversity.com`,
-        password: tempPassword
+      // Generate a magic link to get tokens
+      const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+        type: 'magiclink',
+        email: `student-${student_id}@portal.fpkuniversity.com`
       });
 
-      if (sessionError || !sessionData.session) {
-        console.error('[student-pin-login] Session creation error:', sessionError);
+      if (linkError || !linkData) {
+        console.error('[student-pin-login] Link generation error:', linkError);
         return new Response(
-          JSON.stringify({ error: 'Failed to create session' }),
+          JSON.stringify({ error: 'Failed to generate authentication link' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Extract tokens from the properties
+      const accessToken = linkData.properties.access_token;
+      const refreshToken = linkData.properties.refresh_token;
+
+      if (!accessToken || !refreshToken) {
+        console.error('[student-pin-login] Missing tokens in link data');
+        return new Response(
+          JSON.stringify({ error: 'Failed to generate session tokens' }),
           { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
@@ -156,11 +164,16 @@ serve(async (req) => {
           metadata: { student_id, method: 'pin' }
         });
 
-      // Return session data for frontend to use
+      console.log('[student-pin-login] Session tokens generated successfully for existing user');
+      
+      // Return session tokens for frontend to use
       return new Response(
         JSON.stringify({
           success: true,
-          session: sessionData.session,
+          session: {
+            access_token: accessToken,
+            refresh_token: refreshToken
+          },
           student_id,
           org_id,
           org_slug: orgSlug
@@ -196,24 +209,28 @@ serve(async (req) => {
       .update({ linked_user_id: newUser.user.id })
       .eq('id', student_id);
 
-    // Generate a temporary password for session creation
-    const tempPassword = crypto.randomUUID();
-    
-    // Update the new user with a temp password
-    await supabaseAdmin.auth.admin.updateUserById(newUser.user.id, {
-      password: tempPassword
+    // Generate a magic link to get tokens for the new user
+    const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+      type: 'magiclink',
+      email: tempEmail
     });
 
-    // Sign in to get a valid session
-    const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.signInWithPassword({
-      email: tempEmail,
-      password: tempPassword
-    });
-
-    if (sessionError || !sessionData.session) {
-      console.error('[student-pin-login] Session generation error:', sessionError);
+    if (linkError || !linkData) {
+      console.error('[student-pin-login] Link generation error for new user:', linkError);
       return new Response(
-        JSON.stringify({ error: 'Failed to generate session' }),
+        JSON.stringify({ error: 'Failed to generate authentication link' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Extract tokens from the properties
+    const accessToken = linkData.properties.access_token;
+    const refreshToken = linkData.properties.refresh_token;
+
+    if (!accessToken || !refreshToken) {
+      console.error('[student-pin-login] Missing tokens in link data for new user');
+      return new Response(
+        JSON.stringify({ error: 'Failed to generate session tokens' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -228,13 +245,16 @@ serve(async (req) => {
         metadata: { student_id, method: 'pin', first_login: true }
       });
 
-    console.log('[student-pin-login] Login successful');
+    console.log('[student-pin-login] New user created and session tokens generated');
 
-    // Return session data for frontend to use
+    // Return session tokens for frontend to use
     return new Response(
       JSON.stringify({
         success: true,
-        session: sessionData.session,
+        session: {
+          access_token: accessToken,
+          refresh_token: refreshToken
+        },
         student_id,
         org_id,
         org_slug: orgSlug
