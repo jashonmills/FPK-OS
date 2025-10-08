@@ -294,12 +294,27 @@ export function useOrgStudents(orgId: string, searchQuery?: string) {
 
   const deleteStudentMutation = useMutation({
     mutationFn: async (studentId: string) => {
-      const { error } = await supabase
-        .from('org_students')
-        .delete()
-        .eq('id', studentId);
+      // Check if this is a member-only student (no org_students profile)
+      if (studentId.startsWith('member-')) {
+        // Extract the real org_members.id
+        const memberId = studentId.replace('member-', '');
+        
+        // Delete from org_members table
+        const { error } = await supabase
+          .from('org_members')
+          .delete()
+          .eq('id', memberId);
 
-      if (error) throw error;
+        if (error) throw error;
+      } else {
+        // Regular student with org_students profile
+        const { error } = await supabase
+          .from('org_students')
+          .delete()
+          .eq('id', studentId);
+
+        if (error) throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['org-students', orgId] });
