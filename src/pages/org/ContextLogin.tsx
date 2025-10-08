@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Lock, ShieldCheck } from 'lucide-react';
+import { Loader2, ShieldCheck, KeyRound } from 'lucide-react';
+import { CreatePinForm } from '@/components/auth/CreatePinForm';
+import { VerifyPinForm } from '@/components/auth/VerifyPinForm';
 interface OrgInfo {
   id: string;
   name: string;
@@ -31,8 +31,8 @@ export default function ContextLogin() {
   const navigate = useNavigate();
   const { toast } = useToast();
   
-  const [pin, setPin] = useState(['', '', '', '', '', '']);
-  const [isVerifying, setIsVerifying] = useState(false);
+  const [mode, setMode] = useState<'loading' | 'create' | 'verify' | 'error'>('loading');
+  const [errorMessage, setErrorMessage] = useState('');
   const [user, setUser] = useState<any>(null);
   const [orgInfo, setOrgInfo] = useState<OrgInfo | null>(null);
   const [isLoadingOrg, setIsLoadingOrg] = useState(true);
@@ -47,6 +47,12 @@ export default function ContextLogin() {
       fetchOrgInfo();
     }
   }, [orgSlug, user]);
+
+  useEffect(() => {
+    if (!isCheckingAuth && !isLoadingOrg && orgInfo && user) {
+      checkPinStatus();
+    }
+  }, [isCheckingAuth, isLoadingOrg, orgInfo, user]);
 
   const checkAuthState = async () => {
     try {
@@ -110,130 +116,53 @@ export default function ContextLogin() {
     setIsLoadingOrg(false);
   };
 
-  const handlePinChange = (index: number, value: string) => {
-    // Only allow digits
-    if (value && !/^\d$/.test(value)) return;
-
-    const newPin = [...pin];
-    newPin[index] = value;
-    setPin(newPin);
-
-    // Auto-focus next input
-    if (value && index < 5) {
-      const nextInput = document.getElementById(`pin-${index + 1}`);
-      nextInput?.focus();
-    }
-  };
-
-  const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
-    if (e.key === 'Backspace' && !pin[index] && index > 0) {
-      // Focus previous input on backspace if current is empty
-      const prevInput = document.getElementById(`pin-${index - 1}`);
-      prevInput?.focus();
-    } else if (e.key === 'Enter' && pin.every(digit => digit !== '')) {
-      handleSubmit(e as any);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!user || !orgInfo) {
-      toast({
-        title: "Error",
-        description: "Missing required information",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    const pinString = pin.join('');
-    if (pinString.length !== 6) {
-      toast({
-        title: "Invalid PIN",
-        description: "Please enter all 6 digits",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setIsVerifying(true);
+  const checkPinStatus = async () => {
+    if (!orgInfo) return;
 
     try {
-      const { data, error } = await supabase.functions.invoke('verify-context-pin', {
-        body: {
-          userId: user.id,
-          orgId: orgInfo.id,
-          pin: pinString
-        }
+      console.log('[ContextLogin] Checking PIN status for org:', orgInfo.id);
+      
+      const { data, error } = await supabase.functions.invoke('check-pin-status', {
+        body: { orgId: orgInfo.id }
       });
 
-      if (error) throw error;
-
-      if (!data.success) {
-        toast({
-          title: "Invalid PIN",
-          description: data.error || "The PIN you entered is incorrect",
-          variant: "destructive"
-        });
-        // Clear PIN for retry
-        setPin(['', '', '', '', '', '']);
-        document.getElementById('pin-0')?.focus();
-        return;
+      if (error) {
+        throw new Error(error.message);
       }
 
-      // Success! Set session context and redirect
-      const sessionContext = {
-        orgId: orgInfo.id,
-        role: data.role,
-        userId: user.id,
-        timestamp: Date.now()
-      };
-      
-      sessionStorage.setItem('activeOrgContext', JSON.stringify(sessionContext));
+      console.log('[ContextLogin] PIN status:', data);
+      setMode(data.hasPin ? 'verify' : 'create');
 
-      toast({
-        title: "Access Granted",
-        description: `Welcome! Redirecting to your ${data.role} portal...`
-      });
-
-      // Redirect based on role
-      setTimeout(() => {
-        switch (data.role) {
-          case 'student':
-            navigate(`/${orgSlug}/student-portal`, { replace: true });
-            break;
-          case 'instructor':
-          case 'educator':
-            navigate(`/${orgSlug}/educator-dashboard`, { replace: true });
-            break;
-          case 'owner':
-            // Owners bypass PIN, but if they somehow ended up here, send them home
-            navigate(`/${orgSlug}`, { replace: true });
-            break;
-          default:
-            navigate(`/${orgSlug}`, { replace: true });
-        }
-      }, 1000);
-
-    } catch (error: any) {
-      console.error('PIN verification error:', error);
-      toast({
-        title: "Verification Failed",
-        description: error.message || "Failed to verify PIN. Please try again.",
-        variant: "destructive"
-      });
-      setPin(['', '', '', '', '', '']);
-      document.getElementById('pin-0')?.focus();
-    } finally {
-      setIsVerifying(false);
+    } catch (err: any) {
+      console.error('[ContextLogin] Error checking PIN status:', err);
+      setErrorMessage(err.message || 'Failed to check PIN status.');
+      setMode('error');
     }
   };
 
-  if (isCheckingAuth || isLoadingOrg) {
+  const handlePinCreated = () => {
+    console.log('[ContextLogin] PIN created successfully, switching to verify mode');
+    setMode('verify');
+  };
+
+
+  if (isCheckingAuth || isLoadingOrg || mode === 'loading') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-secondary/5">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (mode === 'error') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-secondary/5 p-4">
+        <Card className="w-full max-w-md border-2 shadow-xl">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl text-destructive">Error</CardTitle>
+            <CardDescription>{errorMessage}</CardDescription>
+          </CardHeader>
+        </Card>
       </div>
     );
   }
@@ -253,66 +182,36 @@ export default function ContextLogin() {
           )}
           <div className="flex justify-center">
             <div className="rounded-full bg-primary/10 p-3">
-              <ShieldCheck className="w-8 h-8 text-primary" />
+              {mode === 'create' ? (
+                <KeyRound className="w-8 h-8 text-primary" />
+              ) : (
+                <ShieldCheck className="w-8 h-8 text-primary" />
+              )}
             </div>
           </div>
           <CardTitle className="text-2xl">
-            Enter Your PIN
+            {mode === 'create' ? 'Create Your PIN' : 'Enter Your PIN'}
           </CardTitle>
           <CardDescription className="text-base">
             {orgInfo?.name ? (
-              <>Enter your 6-digit PIN for <span className="font-semibold text-foreground">{orgInfo.name}</span></>
+              <>
+                {mode === 'create' 
+                  ? `Create a 6-digit PIN for ${orgInfo.name}`
+                  : `Enter your 6-digit PIN for ${orgInfo.name}`
+                }
+              </>
             ) : (
-              'Enter your 6-digit organizational PIN'
+              mode === 'create' ? 'Create your 6-digit organizational PIN' : 'Enter your 6-digit organizational PIN'
             )}
           </CardDescription>
         </CardHeader>
 
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* PIN Input */}
-            <div className="flex justify-center gap-2">
-              {pin.map((digit, index) => (
-                <Input
-                  key={index}
-                  id={`pin-${index}`}
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={1}
-                  value={digit}
-                  onChange={(e) => handlePinChange(index, e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(index, e)}
-                  className="w-12 h-14 text-center text-2xl font-bold"
-                  disabled={isVerifying}
-                  autoFocus={index === 0}
-                />
-              ))}
-            </div>
-
-            {/* Submit Button */}
-            <Button 
-              type="submit" 
-              className="w-full h-12 text-base font-semibold"
-              disabled={isVerifying || pin.some(d => d === '')}
-            >
-              {isVerifying ? (
-                <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Verifying...
-                </>
-              ) : (
-                <>
-                  <Lock className="mr-2 h-5 w-5" />
-                  Verify PIN
-                </>
-              )}
-            </Button>
-
-            {/* Security Note */}
-            <p className="text-xs text-muted-foreground text-center">
-              🔒 Your PIN is securely encrypted and never stored in plain text
-            </p>
-          </form>
+          {mode === 'create' ? (
+            <CreatePinForm orgId={orgInfo.id} onPinCreated={handlePinCreated} />
+          ) : (
+            <VerifyPinForm orgId={orgInfo.id} />
+          )}
         </CardContent>
       </Card>
     </div>
