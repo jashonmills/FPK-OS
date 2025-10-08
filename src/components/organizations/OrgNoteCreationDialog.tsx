@@ -21,8 +21,10 @@ import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { useOrgNotes } from '@/hooks/useOrgNotes';
 import { useOrgStudents } from '@/hooks/useOrgStudents';
+import { useOrgMembers } from '@/hooks/useOrgMembers';
 
-const noteSchema = z.object({
+// Conditional schema based on user role
+const instructorNoteSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   content: z.string().min(1, 'Content is required'),
   category: z.string().min(1, 'Category is required'),
@@ -30,15 +32,27 @@ const noteSchema = z.object({
   visibility_scope: z.enum(['student-only', 'instructor-visible', 'org-public']).default('instructor-visible'),
 });
 
-type NoteFormData = z.infer<typeof noteSchema>;
+const studentNoteSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  content: z.string().min(1, 'Content is required'),
+  category: z.string().min(1, 'Category is required'),
+  recipient_type: z.enum(['self', 'specific_instructor', 'all_instructors']),
+  recipient_id: z.string().optional(),
+  visibility_scope: z.enum(['student-only', 'instructor-visible', 'org-public']).default('instructor-visible'),
+});
+
+type InstructorNoteFormData = z.infer<typeof instructorNoteSchema>;
+type StudentNoteFormData = z.infer<typeof studentNoteSchema>;
 
 interface OrgNoteCreationDialogProps {
   children?: React.ReactNode;
   organizationId: string;
+  userRole?: string;
+  currentUserId?: string;
   onNoteCreated?: () => void;
 }
 
-const categories = [
+const instructorCategories = [
   'Academic Progress',
   'Behavioral Observation',
   'Parent Communication',
@@ -48,19 +62,48 @@ const categories = [
   'Health & Wellness',
 ];
 
+const studentCategories = [
+  'Personal Reflection',
+  'Question for Educator',
+  'Progress Update',
+  'Request for Help',
+  'General Message',
+  'Course Feedback',
+];
+
 export default function OrgNoteCreationDialog({ 
   children, 
   organizationId,
+  userRole = 'instructor',
+  currentUserId,
   onNoteCreated 
 }: OrgNoteCreationDialogProps) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const { createNote, isCreating } = useOrgNotes(organizationId);
   const { students } = useOrgStudents(organizationId);
+  const { members: orgMembers } = useOrgMembers();
+  
+  const isStudent = userRole === 'student';
+  
+  // Filter for instructors and owners only
+  const instructors = orgMembers.filter(m => 
+    m.role === 'instructor' || m.role === 'owner'
+  );
 
-  const form = useForm<NoteFormData>({
-    resolver: zodResolver(noteSchema),
-    defaultValues: {
+  // Use conditional schema based on role
+  const schema = isStudent ? studentNoteSchema : instructorNoteSchema;
+  
+  const form = useForm<InstructorNoteFormData | StudentNoteFormData>({
+    resolver: zodResolver(schema),
+    defaultValues: isStudent ? {
+      title: '',
+      content: '',
+      category: '',
+      recipient_type: 'self',
+      recipient_id: '',
+      visibility_scope: 'student-only',
+    } : {
       title: '',
       content: '',
       category: '',
@@ -68,22 +111,46 @@ export default function OrgNoteCreationDialog({
       visibility_scope: 'instructor-visible',
     },
   });
+  
+  // Watch recipient_type for conditional rendering
+  const recipientType = form.watch('recipient_type' as any);
 
-  const onSubmit = async (data: NoteFormData) => {
+  const onSubmit = async (data: InstructorNoteFormData | StudentNoteFormData) => {
     try {
       console.log('📝 Submitting note with data:', data);
       
-      // Find the selected student to get the correct ID
-      const selectedStudent = students.find(s => s.id === data.student_id);
+      let actualStudentId: string;
+      let visibilityScope: 'student-only' | 'instructor-visible' | 'org-public';
+      let metadata: Record<string, any> = {};
+
+      if (isStudent) {
+        // Student creating a note
+        const studentData = data as StudentNoteFormData;
+        actualStudentId = currentUserId!; // Student's own ID
+        
+        // Set visibility based on recipient type
+        if (studentData.recipient_type === 'self') {
+          visibilityScope = 'student-only';
+        } else if (studentData.recipient_type === 'specific_instructor') {
+          visibilityScope = 'instructor-visible';
+          if (studentData.recipient_id) {
+            metadata.recipient_id = studentData.recipient_id;
+          }
+        } else {
+          visibilityScope = 'org-public';
+        }
+      } else {
+        // Instructor creating a note
+        const instructorData = data as InstructorNoteFormData;
+        const selectedStudent = students.find(s => s.id === instructorData.student_id);
+        actualStudentId = selectedStudent?.linked_user_id || instructorData.student_id;
+        visibilityScope = instructorData.visibility_scope;
+      }
       
-      // For member-students (id starts with "member-"), use linked_user_id
-      // For profile-only students, use the org_students id
-      const actualStudentId = selectedStudent?.linked_user_id || data.student_id;
-      
-      console.log('📝 Resolved student ID:', {
-        originalId: data.student_id,
-        linkedUserId: selectedStudent?.linked_user_id,
-        actualId: actualStudentId
+      console.log('📝 Resolved note data:', {
+        studentId: actualStudentId,
+        visibilityScope,
+        metadata
       });
       
       await createNote({
@@ -91,7 +158,8 @@ export default function OrgNoteCreationDialog({
         content: data.content,
         category: data.category,
         student_id: actualStudentId,
-        visibility_scope: data.visibility_scope,
+        visibility_scope: visibilityScope,
+        ...(Object.keys(metadata).length > 0 && { metadata }),
       });
 
       toast({
@@ -127,41 +195,105 @@ export default function OrgNoteCreationDialog({
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create Student Note</DialogTitle>
+          <DialogTitle>{isStudent ? 'Create Note' : 'Create Student Note'}</DialogTitle>
           <DialogDescription>
-            Document student progress, observations, or important information
+            {isStudent 
+              ? 'Write a personal note or message to educators' 
+              : 'Document student progress, observations, or important information'}
           </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="student_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Student</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a student" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {students.map((student) => (
-                        <SelectItem 
-                          key={student.id} 
-                          value={student.id}
-                        >
-                          {student.full_name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {/* Student Selection (Instructors only) */}
+            {!isStudent && (
+              <FormField
+                control={form.control}
+                name="student_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Student</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a student" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {students.map((student) => (
+                          <SelectItem 
+                            key={student.id} 
+                            value={student.id}
+                          >
+                            {student.full_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
+            {/* Note Type Selection (Students only) */}
+            {isStudent && (
+              <>
+                <FormField
+                  control={form.control}
+                  name="recipient_type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Note Type</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select note type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="self">Note for Myself</SelectItem>
+                          <SelectItem value="specific_instructor">Note to Instructor</SelectItem>
+                          <SelectItem value="all_instructors">Note to All Educators</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Instructor Selection (when specific_instructor is selected) */}
+                {recipientType === 'specific_instructor' && (
+                  <FormField
+                    control={form.control}
+                    name="recipient_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Select Instructor</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select an instructor" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {instructors.map((instructor) => (
+                              <SelectItem 
+                                key={instructor.user_id} 
+                                value={instructor.user_id}
+                              >
+                                {instructor.full_name} ({instructor.role})
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+              </>
+            )}
 
             <FormField
               control={form.control}
@@ -190,7 +322,7 @@ export default function OrgNoteCreationDialog({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {categories.map((category) => (
+                      {(isStudent ? studentCategories : instructorCategories).map((category) => (
                         <SelectItem key={category} value={category}>
                           {category}
                         </SelectItem>
@@ -220,31 +352,34 @@ export default function OrgNoteCreationDialog({
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="visibility_scope"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Visibility</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select visibility" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="student-only">Student Only</SelectItem>
-                      <SelectItem value="instructor-visible">Instructor Visible (Default)</SelectItem>
-                      <SelectItem value="org-public">Organization Public</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormDescription>
-                    Choose who can see this note
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {/* Hide visibility selector for students - it's auto-set based on recipient_type */}
+            {!isStudent && (
+              <FormField
+                control={form.control}
+                name="visibility_scope"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Visibility</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select visibility" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="student-only">Student Only</SelectItem>
+                        <SelectItem value="instructor-visible">Instructor Visible (Default)</SelectItem>
+                        <SelectItem value="org-public">Organization Public</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>
+                      Choose who can see this note
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
 
             <div className="flex gap-2 justify-end pt-4">
               <Button 

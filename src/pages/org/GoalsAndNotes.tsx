@@ -92,7 +92,11 @@ export default function GoalsAndNotes() {
                 <h2 className="text-2xl font-bold">Student Notes</h2>
                 <p className="text-muted-foreground mt-1">View and manage notes for all students</p>
               </div>
-              <OrgNoteCreationDialog organizationId={currentOrg?.organization_id || ''}>
+              <OrgNoteCreationDialog 
+                organizationId={currentOrg?.organization_id || ''}
+                userRole={userRole}
+                currentUserId={user?.id}
+              >
                 <Button>
                   <Plus className="h-4 w-4 mr-2" />
                   Add Note
@@ -154,7 +158,11 @@ export default function GoalsAndNotes() {
                 <p className="text-white/80 mb-4">
                   Start documenting student progress and important observations
                 </p>
-                <OrgNoteCreationDialog organizationId={currentOrg?.organization_id || ''}>
+                <OrgNoteCreationDialog 
+                  organizationId={currentOrg?.organization_id || ''}
+                  userRole={userRole}
+                  currentUserId={user?.id}
+                >
                   <Button>
                     <Plus className="h-4 w-4 mr-2" />
                     Create First Note
