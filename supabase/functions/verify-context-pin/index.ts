@@ -80,7 +80,7 @@ serve(async (req: Request) => {
       );
     }
 
-    console.log(`[verify-context-pin] Verifying PIN for user ${userId} in org ${orgId}`);
+    console.log(`[verify-context-pin] Verifying PIN for user ${userId} in org ${orgId} using PBKDF2`);
 
     // Fetch the user's membership record with pin_hash
     const { data: membership, error: membershipError } = await supabase
