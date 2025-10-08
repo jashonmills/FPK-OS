@@ -17,6 +17,7 @@ const OrgJoinPage = () => {
   const [searchParams] = useSearchParams();
   const [inviteValue, setInviteValue] = useState('');
   const [isFromEmail, setIsFromEmail] = useState(false);
+  const [hasAttemptedAutoJoin, setHasAttemptedAutoJoin] = useState(false);
   const { joinOrganization, isJoining } = useOrganizationInvitation();
 
   // Handle authentication and invitation detection
@@ -71,18 +72,29 @@ const OrgJoinPage = () => {
     }
   }, [searchParams, navigate, user, loading]);
 
+  // Auto-join when authenticated with invite code/token
+  useEffect(() => {
+    if (user && !loading && inviteValue && !isJoining && !hasAttemptedAutoJoin) {
+      console.log('[OrgJoinPage] Auto-joining with invite:', inviteValue.substring(0, 8) + '...');
+      setHasAttemptedAutoJoin(true);
+      joinOrganization(inviteValue.trim());
+    }
+  }, [user, loading, inviteValue, isJoining, hasAttemptedAutoJoin, joinOrganization]);
+
   const handleJoinOrganization = async (e: React.FormEvent) => {
     e.preventDefault();
     await joinOrganization(inviteValue.trim());
   };
 
-  // Show loading while checking authentication
-  if (loading) {
+  // Show loading while checking authentication or auto-joining
+  if (loading || (user && inviteValue && !hasAttemptedAutoJoin)) {
     return (
       <div className="max-w-md mx-auto space-y-6 flex items-center justify-center min-h-[50vh]">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">Checking authentication...</p>
+          <p className="text-muted-foreground">
+            {loading ? 'Checking authentication...' : 'Joining organization...'}
+          </p>
         </div>
       </div>
     );

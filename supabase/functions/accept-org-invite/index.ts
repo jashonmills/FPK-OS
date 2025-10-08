@@ -30,17 +30,18 @@ const handler = async (req: Request): Promise<Response> => {
     // Verify user is authenticated
     const { data: { user }, error: userError } = await supabaseAuth.auth.getUser(jwt);
     if (userError || !user) {
-      console.error("Authentication error:", userError);
+      console.error("Authentication error:", userError?.message || 'No user found');
       return new Response(
         JSON.stringify({ 
-          success: false, 
+          success: false,
+          code: 'AUTH_REQUIRED',
           error: "You must be signed in to accept an invitation" 
         }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    console.log(`Accept invite request from user: ${user.id} (${user.email})`);
+    console.log(`[accept-org-invite] Request from user: ${user.id} (${user.email})`);
 
     // Use service role client for admin operations (bypasses RLS)
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
@@ -49,16 +50,18 @@ const handler = async (req: Request): Promise<Response> => {
     const { token }: AcceptInviteRequest = await req.json();
 
     if (!token) {
+      console.error("[accept-org-invite] Missing token in request");
       return new Response(
         JSON.stringify({ 
-          success: false, 
+          success: false,
+          code: 'MISSING_TOKEN',
           error: "Missing invitation token" 
         }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    console.log(`Processing invite token: ${token.substring(0, 8)}...`);
+    console.log(`[accept-org-invite] Processing token: ${token.substring(0, 8)}...`);
 
     // Try to find invite in user_invites first (email invitations)
     let invite: any = null;
@@ -137,10 +140,11 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     if (!invite) {
-      console.error("Invite not found in either table");
+      console.error("[accept-org-invite] Invite not found in either table");
       return new Response(
         JSON.stringify({ 
-          success: false, 
+          success: false,
+          code: 'INVITE_NOT_FOUND',
           error: "Invalid invitation link or code" 
         }),
         { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -149,10 +153,11 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Check if already used
     if (invite.is_used) {
-      console.log("Invite already used");
+      console.log("[accept-org-invite] Invite already used");
       return new Response(
         JSON.stringify({ 
-          success: false, 
+          success: false,
+          code: 'INVITE_USED',
           error: "This invitation has already been accepted" 
         }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -164,10 +169,11 @@ const handler = async (req: Request): Promise<Response> => {
     const expiresAt = new Date(invite.expires_at);
     
     if (now > expiresAt) {
-      console.log("Invite expired");
+      console.log("[accept-org-invite] Invite expired");
       return new Response(
         JSON.stringify({ 
-          success: false, 
+          success: false,
+          code: 'INVITE_EXPIRED',
           error: "This invitation has expired" 
         }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -217,9 +223,11 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (existingMember) {
       if (existingMember.status === 'active') {
+        console.log("[accept-org-invite] User already an active member");
         return new Response(
           JSON.stringify({ 
-            success: false, 
+            success: false,
+            code: 'ALREADY_MEMBER',
             error: "You are already a member of this organization" 
           }),
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
