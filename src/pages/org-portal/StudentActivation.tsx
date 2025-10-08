@@ -19,6 +19,7 @@ const anonSupabase = createClient(
     auth: {
       persistSession: false, // Don't persist any session
       autoRefreshToken: false,
+      storageKey: 'sb-anon-activation', // Unique storage key to prevent multiple instance warning
     }
   }
 );
