@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { assertOrg } from '@/lib/org/context';
+import { getPrimaryDomain } from '@/utils/siteUrl';
 
 export interface OrgInvite {
   id: string;
@@ -104,7 +105,7 @@ export function useOrgInvites() {
   });
 
   const generateInviteUrl = (code: string) => {
-    return `${window.location.origin}/join?code=${code}`;
+    return `${getPrimaryDomain()}/org/join?code=${code}`;
   };
 
   return {

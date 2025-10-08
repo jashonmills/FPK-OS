@@ -66,25 +66,39 @@ const handler = async (req: Request): Promise<Response> => {
       orgName = org?.name || 'the organization';
     }
 
-    // Create an invitation code in the database (pass user ID for permission check)
-    const { data: inviteData, error: inviteError } = await supabase.rpc('org_create_invite', {
-      p_org_id: orgId,
-      p_role: role,
-      p_max_uses: 1, // Single use for email invitations
-      p_expires_interval: '7 days',
-      p_created_by: user.id // Pass the authenticated user's ID
+    // Create an invitation code using the edge function
+    const generateCodeUrl = `${supabaseUrl}/functions/v1/generate-org-invite-code`;
+    const generateResponse = await fetch(generateCodeUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': authHeader,
+        'Content-Type': 'application/json',
+        'apikey': supabaseAnonKey,
+      },
+      body: JSON.stringify({
+        orgId: orgId,
+        role: role,
+        maxUses: 1, // Single use for email invitations
+        expiresDays: 7
+      })
     });
 
-    if (inviteError) {
-      console.error('Error creating invite code:', inviteError);
-      throw new Error('Failed to create invitation code');
+    if (!generateResponse.ok) {
+      const errorData = await generateResponse.json();
+      console.error('Error creating invite code:', errorData);
+      throw new Error(errorData.error || 'Failed to create invitation code');
     }
 
-    const inviteCode = inviteData as string;
+    const generateData = await generateResponse.json();
+    if (!generateData.success || !generateData.inviteToken) {
+      throw new Error('Failed to generate invite token');
+    }
+
+    const inviteCode = generateData.inviteToken;
     
     // Generate invitation link with the code - use the production URL
     const baseUrl = 'https://fpkuniversity.com';
-    const inviteUrl = `${baseUrl}/join?code=${inviteCode}`;
+    const inviteUrl = `${baseUrl}/org/join?code=${inviteCode}`;
 
     const emailResponse = await resend.emails.send({
       from: "FPK University <noreply@fpkuniversity.com>",

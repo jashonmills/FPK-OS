@@ -79,7 +79,17 @@ serve(async (req) => {
         .single();
 
       if (existingMember) {
-        throw new Error('This user is already a member of the organization');
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            error: 'This user is already a member of the organization',
+            code: 'ALREADY_MEMBER'
+          }),
+          {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 400,
+          }
+        );
       }
     } else {
       // Create a new user account
