@@ -34,7 +34,6 @@ const OrgLanding = lazy(() => import("./pages/OrgLanding"));
 const OrgPortalLanding = lazy(() => import("./pages/org-portal/OrgPortalLanding"));
 const StudentPinLogin = lazy(() => import("./pages/org-portal/StudentPinLogin"));
 const StudentActivation = lazy(() => import("./pages/org-portal/StudentActivation"));
-const StudentPortalDashboard = lazy(() => import("./pages/students/StudentPortalDashboard"));
 const ContextLogin = lazy(() => import("./pages/org/ContextLogin"));
 const AdminPortalBridge = lazy(() => import("./pages/org-portal/AdminPortalBridge"));
 const AuthCallback = lazy(() => import("./pages/AuthCallback"));
@@ -262,13 +261,6 @@ const App: React.FC = () => {
           <Route path="/:orgSlug/context-login" element={<LazyRoute><ContextLogin /></LazyRoute>} />
           <Route path="/:orgSlug/admin-portal" element={<LazyRoute><AdminPortalBridge /></LazyRoute>} />
           <Route path="/:orgSlug" element={<LazyRoute><OrgPortalLanding /></LazyRoute>} />
-
-          {/* Student Portal Dashboard - Protected by StudentPortalGuard */}
-          <Route path="/:orgSlug/student-portal" element={
-            <StudentPortalGuard>
-              <LazyRoute><StudentPortalDashboard /></LazyRoute>
-            </StudentPortalGuard>
-          } />
 
           {/* Standalone AI Study Coach Chat Route - Public Access */}
           <Route path="/ai-study-coach/chat-only" element={

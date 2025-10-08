@@ -106,7 +106,7 @@ serve(async (req) => {
 
     console.log('[student-pin-login] Valid credentials, student_id:', student_id);
 
-    // Get organization slug for redirect
+    // Get organization slug for user metadata
     const { data: orgData } = await supabaseAdmin
       .from('organizations')
       .select('slug')
@@ -114,19 +114,8 @@ serve(async (req) => {
       .single();
 
     const orgSlug = orgData?.slug || org_id;
-    const redirectUrl = `/org/${orgSlug}/student-portal`;
-    const origin = req.headers.get('origin') || 'https://fpkuniversity.com';
     
-    // Build callback URL using Supabase project URL (where edge functions are hosted)
-    const supabaseUrl = Deno.env.get('SUPABASE_URL') || 'https://zgcegkmqfgznbpdplscz.supabase.co';
-    const callbackUrl = `${supabaseUrl}/functions/v1/auth-redirect?redirect_uri=${encodeURIComponent(`${origin}${redirectUrl}`)}`;
-    
-    console.log('[student-pin-login] Redirect configuration:', {
-      origin,
-      redirectUrl,
-      supabaseUrl,
-      callbackUrl
-    });
+    console.log('[student-pin-login] Valid credentials for org:', orgSlug);
     // If student has a linked user account, update metadata and create a session
     if (linked_user_id) {
       // Update user metadata to include org slug
@@ -139,12 +128,11 @@ serve(async (req) => {
         }
       });
 
+      // Generate magic link WITHOUT redirectTo - we'll use RouteProtector for final redirect
       const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.admin.generateLink({
         type: 'magiclink',
-        email: `student-${student_id}@portal.fpkuniversity.com`,
-        options: {
-          redirectTo: callbackUrl
-        }
+        email: `student-${student_id}@portal.fpkuniversity.com`
+        // NO redirectTo - after auth, RouteProtector will redirect to /org/{orgId}
       });
 
       if (sessionError || !sessionData?.properties?.hashed_token) {
@@ -165,15 +153,14 @@ serve(async (req) => {
           metadata: { student_id, method: 'pin' }
         });
 
-      // Return the magic link properties so client can verify the hash
-      // Return the auth link (already includes our callback redirect)
+      // Return simple success response
       return new Response(
         JSON.stringify({
           success: true,
           auth_link: sessionData.properties.action_link,
           student_id,
           org_id,
-          redirect_url: redirectUrl
+          org_slug: orgSlug
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -206,13 +193,11 @@ serve(async (req) => {
       .update({ linked_user_id: newUser.user.id })
       .eq('id', student_id);
 
-    // Use the already-declared callbackUrl from above
+    // Generate magic link WITHOUT redirectTo - we'll use RouteProtector for final redirect
     const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.admin.generateLink({
       type: 'magiclink',
-      email: tempEmail,
-      options: {
-        redirectTo: callbackUrl
-      }
+      email: tempEmail
+      // NO redirectTo - after auth, RouteProtector will redirect to /org/{orgId}
     });
 
     if (sessionError || !sessionData?.properties?.hashed_token) {
@@ -235,14 +220,14 @@ serve(async (req) => {
 
     console.log('[student-pin-login] Login successful');
 
-    // Return the auth link (already includes our callback redirect)
+    // Return simple success response
     return new Response(
       JSON.stringify({
         success: true,
         auth_link: sessionData.properties.action_link,
         student_id,
         org_id,
-        redirect_url: redirectUrl
+        org_slug: orgSlug
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

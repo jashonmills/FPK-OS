@@ -116,24 +116,19 @@ export default function StudentPinLogin() {
         return;
       }
 
-      // Login successful - use the auth link to authenticate
+      // Login successful - navigate to the auth link
+      toast({
+        title: 'Login Successful',
+        description: 'Redirecting to your dashboard...'
+      });
+      
+      // Navigate to the magic link to authenticate
+      // After auth, RouteProtector will redirect to /org/{orgId}
       if (data.auth_link) {
-        toast({
-          title: 'Login Successful',
-          description: 'Redirecting to your dashboard...'
-        });
-        
-        // Navigate to the auth link which will authenticate and redirect via edge function
         window.location.href = data.auth_link;
       } else {
-        // Fallback redirect
-        toast({
-          title: 'Login Successful',
-          description: 'Redirecting...'
-        });
-        
-        const redirectUrl = data.redirect_url || `/org/${orgSlug}/student-portal`;
-        navigate(redirectUrl);
+        // Fallback: redirect directly to org dashboard
+        navigate(`/org/${orgId}`, { replace: true });
       }
     } catch (error) {
       console.error('Login error:', error);

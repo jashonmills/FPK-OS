@@ -107,7 +107,7 @@ export function VerifyPinForm({ orgId }: VerifyPinFormProps) {
       // Redirect based on role
       setTimeout(() => {
         if (data.role === 'student') {
-          navigate(`/${orgSlug}/student-portal`, { replace: true });
+          navigate(`/org/${orgId}`, { replace: true });
         } else {
           navigate(`/${orgSlug}/admin-portal`, { replace: true });
         }

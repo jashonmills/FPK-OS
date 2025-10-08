@@ -33,11 +33,12 @@ export const RouteProtector: React.FC<RouteProtectorProps> = ({ children }) => {
   // --- FIREWALL LOGIC ---
 
   // Rule #1: If the user is a "Student-Only" user, they MUST be in their org section
-  // If they are anywhere else, force them back to their student dashboard
-  if (identity?.isStudentPortalUser && studentOrgSlug) {
-    if (!location.pathname.startsWith(`/${studentOrgSlug}`)) {
-      console.warn('[RouteProtector] Student-Only user outside their designated org. Redirecting to:', `/${studentOrgSlug}/student-portal`);
-      return <Navigate to={`/${studentOrgSlug}/student-portal`} replace />;
+  // If they are anywhere else, force them back to their organization dashboard
+  if (identity?.isStudentPortalUser) {
+    const orgId = identity.memberships[0]?.orgId;
+    if (orgId && !location.pathname.startsWith(`/org/${orgId}`) && !location.pathname.startsWith(`/${studentOrgSlug}`)) {
+      console.warn('[RouteProtector] Student-Only user outside their designated org. Redirecting to:', `/org/${orgId}`);
+      return <Navigate to={`/org/${orgId}`} replace />;
     }
   }
 

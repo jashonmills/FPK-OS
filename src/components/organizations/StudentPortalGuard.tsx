@@ -65,16 +65,8 @@ export function StudentPortalGuard({ children }: StudentPortalGuardProps) {
       console.warn('🚫 [StudentPortalGuard] Student-only user accessing wrong org. Redirecting to their org.');
       
       // Find the correct org slug for redirect
-      supabase
-        .from('organizations')
-        .select('slug')
-        .eq('id', studentOrgId)
-        .maybeSingle()
-        .then(({ data: correctOrg }) => {
-          if (correctOrg?.slug) {
-            window.location.href = `/${correctOrg.slug}/student-portal`;
-          }
-        });
+      // Redirect to their correct organization dashboard
+      window.location.href = `/org/${studentOrgId}`;
       
       return (
         <div className="min-h-screen flex items-center justify-center">

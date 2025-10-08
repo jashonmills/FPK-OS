@@ -106,16 +106,8 @@ export default function OrgPortalHome() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-white">
-              Access your personalized learning dashboard, track your progress, and continue your courses.
+              You're viewing your personalized learning dashboard. Track your progress and continue your courses below.
             </p>
-            <Button
-              size="lg"
-              onClick={() => navigate(`/${currentOrg.organizations?.slug}/student-portal`)}
-              className="w-full bg-white/20 hover:bg-white/30 text-white border-white/30"
-            >
-              <BookOpen className="mr-2 h-5 w-5" />
-              Enter Student Portal
-            </Button>
           </CardContent>
         </Card>
       </div>
