@@ -55,18 +55,20 @@ serve(async (req) => {
       throw new Error('Insufficient permissions to add staff members');
     }
 
-    // Check if user with this email already exists
-    const { data: existingUsers } = await supabaseClient
-      .from('profiles')
-      .select('id, user_id')
-      .eq('email', email.toLowerCase())
-      .limit(1);
+    // Check if user with this email already exists in auth
+    const { data: { users: existingAuthUsers }, error: listError } = await supabaseClient.auth.admin.listUsers();
+    
+    if (listError) {
+      console.error('Error listing users:', listError);
+      throw new Error('Failed to check existing users');
+    }
 
+    const existingUser = existingAuthUsers?.find(u => u.email?.toLowerCase() === email.toLowerCase());
     let userId: string;
 
-    if (existingUsers && existingUsers.length > 0) {
+    if (existingUser) {
       // User exists, just add them to the org
-      userId = existingUsers[0].user_id;
+      userId = existingUser.id;
 
       // Check if already a member
       const { data: existingMember } = await supabaseClient
@@ -105,8 +107,6 @@ serve(async (req) => {
         .from('profiles')
         .upsert({
           id: userId,
-          user_id: userId,
-          email: email.toLowerCase(),
           full_name: `${firstName} ${lastName}`,
           display_name: `${firstName} ${lastName}`,
         });
