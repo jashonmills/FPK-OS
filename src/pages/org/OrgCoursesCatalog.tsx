@@ -1,10 +1,11 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import { OrgRequireRole } from '@/components/organizations/OrgRequireRole';
 import { useOrgCatalog } from '@/hooks/useOrgCatalog';
 import { useOrgPermissions } from '@/hooks/useOrgPermissions';
 import { useStudentAssignments } from '@/hooks/useStudentAssignments';
 import { useContextAwareNavigation } from '@/hooks/useContextAwareNavigation';
+import { useStudentPortalContext } from '@/hooks/useStudentPortalContext';
 import { EnhancedCourseCard } from '@/components/courses/enhanced/EnhancedCourseCard';
 import { EmptyState } from '@/components/courses/enhanced/EmptyState';
 import { Badge } from '@/components/ui/badge';
@@ -84,6 +85,7 @@ export default function OrgCoursesCatalog() {
   };
 
   const { isOrgStudent } = useOrgPermissions();
+  const { isStudentPortalUser, studentId, orgId: studentOrgId } = useStudentPortalContext();
   const { 
     catalog, 
     isLoading, 
@@ -93,6 +95,70 @@ export default function OrgCoursesCatalog() {
   } = useOrgCatalog();
   
   const { assignments, isLoading: assignmentsLoading } = useStudentAssignments(orgId);
+
+  // Auto-enroll St. Joseph students in required courses
+  useEffect(() => {
+    const ST_JOSEPH_ORG_ID = '446d78ee-420e-4e9a-8d9d-00f06e897e7f';
+    
+    const autoEnrollStudent = async () => {
+      if (!isStudentPortalUser || !studentOrgId || studentOrgId !== ST_JOSEPH_ORG_ID) {
+        return;
+      }
+
+      try {
+        // Get current user
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        // Check existing enrollments
+        const { data: existingEnrollments } = await supabase
+          .from('enrollments')
+          .select('course_id')
+          .eq('user_id', user.id);
+
+        const enrolledCourseIds = existingEnrollments?.map(e => e.course_id) || [];
+
+        const requiredCourses = [
+          { course_id: 'el-handwriting', course_type: 'platform' },
+          { course_id: 'empowering-learning-numeracy', course_type: 'platform' },
+          { course_id: 'empowering-learning-reading', course_type: 'platform' },
+          { course_id: 'empowering-learning-state', course_type: 'platform' },
+          { course_id: '06efda03-9f0b-4c00-a064-eb65ada9fbae', course_type: 'native' }
+        ];
+
+        // Enroll in missing courses
+        const missingCourses = requiredCourses.filter(c => !enrolledCourseIds.includes(c.course_id));
+        
+        if (missingCourses.length > 0) {
+          console.log(`Auto-enrolling student in ${missingCourses.length} missing courses`);
+          
+          const { error: enrollError } = await supabase
+            .from('enrollments')
+            .insert(
+              missingCourses.map(course => ({
+                user_id: user.id,
+                course_id: course.course_id,
+                course_type: course.course_type,
+                org_id: ST_JOSEPH_ORG_ID,
+                enrolled_at: new Date().toISOString()
+              }))
+            );
+
+          if (enrollError) {
+            console.error('Auto-enrollment error:', enrollError);
+          } else {
+            console.log('Successfully auto-enrolled student');
+            // Refresh the catalog to show new courses
+            window.location.reload();
+          }
+        }
+      } catch (error) {
+        console.error('Error in auto-enrollment:', error);
+      }
+    };
+
+    autoEnrollStudent();
+  }, [isStudentPortalUser, studentOrgId]);
 
   const courseActions = useCourseActions({
     onCourseCreated: (course) => {
