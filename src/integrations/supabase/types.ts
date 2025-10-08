@@ -4972,6 +4972,68 @@ export type Database = {
           },
         ]
       }
+      org_educators: {
+        Row: {
+          activation_expires_at: string | null
+          activation_status: string
+          activation_token: string | null
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          invited_at: string | null
+          invited_by: string | null
+          linked_user_id: string | null
+          org_id: string
+          pin_hash: string | null
+          role: Database["public"]["Enums"]["member_role"]
+          status: Database["public"]["Enums"]["member_status"]
+          updated_at: string
+        }
+        Insert: {
+          activation_expires_at?: string | null
+          activation_status?: string
+          activation_token?: string | null
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          invited_at?: string | null
+          invited_by?: string | null
+          linked_user_id?: string | null
+          org_id: string
+          pin_hash?: string | null
+          role?: Database["public"]["Enums"]["member_role"]
+          status?: Database["public"]["Enums"]["member_status"]
+          updated_at?: string
+        }
+        Update: {
+          activation_expires_at?: string | null
+          activation_status?: string
+          activation_token?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          invited_at?: string | null
+          invited_by?: string | null
+          linked_user_id?: string | null
+          org_id?: string
+          pin_hash?: string | null
+          role?: Database["public"]["Enums"]["member_role"]
+          status?: Database["public"]["Enums"]["member_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_educators_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       org_goal_targets: {
         Row: {
           created_at: string | null
