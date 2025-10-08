@@ -5170,6 +5170,7 @@ export type Database = {
           invitation_link: string | null
           joined_at: string | null
           org_id: string
+          pin_hash: string | null
           role: Database["public"]["Enums"]["member_role"]
           status: Database["public"]["Enums"]["member_status"]
           user_id: string
@@ -5182,6 +5183,7 @@ export type Database = {
           invitation_link?: string | null
           joined_at?: string | null
           org_id: string
+          pin_hash?: string | null
           role?: Database["public"]["Enums"]["member_role"]
           status?: Database["public"]["Enums"]["member_status"]
           user_id: string
@@ -5194,6 +5196,7 @@ export type Database = {
           invitation_link?: string | null
           joined_at?: string | null
           org_id?: string
+          pin_hash?: string | null
           role?: Database["public"]["Enums"]["member_role"]
           status?: Database["public"]["Enums"]["member_status"]
           user_id?: string
