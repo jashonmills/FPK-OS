@@ -47,11 +47,10 @@ export default function StudentsTab({ organizationId }: StudentsTabProps) {
   const emailInviteMutation = useEmailInvitation();
   
   const { data: members, isLoading, refetch } = useOrgMembers(organizationId);
-  const { removeMember } = useOrgMemberManagement();
+  const { removeMember, isRemoving } = useOrgMemberManagement();
 
   const students = members?.filter(m => m.role === 'student') || [];
   const activeStudents = students.filter(s => s.status === 'active');
-  const pendingInvitations = invitations?.filter(i => i.status === 'pending') || [];
 
   // Removed excessive debug logging for performance
 
@@ -76,18 +75,6 @@ export default function StudentsTab({ organizationId }: StudentsTabProps) {
     }
   };
 
-  const handlePauseStudent = async (memberId: string, studentName: string) => {
-    if (confirm(`Are you sure you want to pause access for ${studentName}?`)) {
-      pauseMember(memberId);
-    }
-  };
-
-  const handleRestoreStudent = async (memberId: string, studentName: string) => {
-    if (confirm(`Are you sure you want to restore access for ${studentName}?`)) {
-      restoreMember(memberId);
-    }
-  };
-
   const handleViewProgress = (studentName: string) => {
     // TODO: Navigate to student progress page
     toast({
@@ -102,12 +89,6 @@ export default function StudentsTab({ organizationId }: StudentsTabProps) {
       title: "Send Message",
       description: `Coming soon: Send message to ${studentName}`,
     });
-  };
-
-  const handleCancelInvitation = async (invitationId: string) => {
-    if (confirm('Are you sure you want to cancel this invitation?')) {
-      deactivateInvitation(invitationId);
-    }
   };
 
   if (isLoading) {
@@ -216,25 +197,6 @@ export default function StudentsTab({ organizationId }: StudentsTabProps) {
                             Send Message
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          {student.status === 'active' && (
-                            <DropdownMenuItem 
-                              onClick={() => handlePauseStudent(student.id, student.profiles?.display_name || student.profiles?.full_name || 'Unknown User')}
-                              disabled={isPausing}
-                            >
-                              <UserX className="h-4 w-4 mr-2" />
-                              {isPausing ? 'Pausing...' : 'Pause Access'}
-                            </DropdownMenuItem>
-                          )}
-                          {student.status === 'paused' && (
-                            <DropdownMenuItem 
-                              onClick={() => handleRestoreStudent(student.id, student.profiles?.display_name || student.profiles?.full_name || 'Unknown User')}
-                              disabled={isRestoring}
-                            >
-                              <UserCheck className="h-4 w-4 mr-2" />
-                              {isRestoring ? 'Restoring...' : 'Resume Access'}
-                            </DropdownMenuItem>
-                          )}
-                          <DropdownMenuSeparator />
                           <DropdownMenuItem 
                             className="text-destructive"
                             onClick={() => handleRemoveStudent(student.id, student.profiles?.display_name || student.profiles?.full_name || 'Unknown User')}
@@ -253,42 +215,6 @@ export default function StudentsTab({ organizationId }: StudentsTabProps) {
           </Table>
         </CardContent>
       </Card>
-
-      {/* Pending invitations */}
-      {pendingInvitations.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Pending Invitations</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {pendingInvitations.map((invitation) => (
-                <div key={invitation.id} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div>
-                    <div className="font-medium">
-                      {invitation.email || `Code: ${invitation.code}`}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      Expires {new Date(invitation.expires_at).toLocaleDateString()}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="secondary">Pending</Badge>
-                    <Button 
-                      variant="destructive" 
-                      size="sm"
-                      onClick={() => handleCancelInvitation(invitation.id)}
-                      disabled={isDeactivating}
-                    >
-                      {isDeactivating ? 'Deleting...' : 'Delete'}
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 }
