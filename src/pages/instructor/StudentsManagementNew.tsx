@@ -43,7 +43,7 @@ export default function StudentsManagementNew() {
     deleteStudent,
     isCreating,
     isUpdating,
-  } = useOrgStudents(orgId!, searchQuery);
+  } = useOrgStudents(orgId || '', searchQuery);
 
   const { members } = useOrgMembers();
 
@@ -97,6 +97,7 @@ export default function StudentsManagementNew() {
     setShowInviteDialog(true);
   };
 
+  // Check orgId after all hooks have been called
   if (!orgId) {
     return (
       <PageShell>
