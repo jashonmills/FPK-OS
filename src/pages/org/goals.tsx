@@ -50,7 +50,7 @@ const goalSchema = z.object({
   description: z.string().optional(),
   category: z.string().min(1, 'Category is required'),
   priority: z.enum(['low', 'medium', 'high']),
-  student_id: z.string().min(1, 'Student is required'),
+  student_id: z.string().optional(), // Optional for students creating their own goals
 });
 
 type GoalFormData = z.infer<typeof goalSchema>;
@@ -193,22 +193,29 @@ export default function GoalsPage() {
     }
     
     try {
-      // CRITICAL FIX: Always use student.id (org_students.id) not linked_user_id
-      const selectedStudent = students.find(s => s.id === data.student_id);
-      if (!selectedStudent) {
-        toast({
-          title: "Error",
-          description: "Selected student not found.",
-          variant: "destructive",
-        });
-        return;
+      // For students, use their own student_id. For instructors, use selected student
+      let targetStudentId = data.student_id;
+      
+      if (isStudent && currentUserStudentRecord) {
+        targetStudentId = currentUserStudentRecord.id;
+      } else {
+        const selectedStudent = students.find(s => s.id === data.student_id);
+        if (!selectedStudent) {
+          toast({
+            title: "Error",
+            description: "Selected student not found.",
+            variant: "destructive",
+          });
+          return;
+        }
+        targetStudentId = selectedStudent.id;
       }
 
       await createGoal({
         title: data.title || '',
         description: data.description || '',
         category: data.category || '',
-        student_id: selectedStudent.id, // Use org_students.id
+        student_id: targetStudentId,
         priority: data.priority || 'medium',
       });
       
@@ -323,14 +330,14 @@ export default function GoalsPage() {
           </div>
         </div>
         
-        {canManageGoals && (
+        {(canManageGoals || isStudent) && (
           <Button 
             onClick={() => setShowCreateDialog(true)} 
             className="flex items-center gap-2"
             disabled={isCreating}
           >
             {isCreating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-            Create Goal
+            {isStudent ? 'Create My Goal' : 'Create Goal'}
           </Button>
         )}
       </div>
@@ -547,10 +554,10 @@ export default function GoalsPage() {
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>
-              {editingGoal ? 'Edit Goal' : 'Create New Goal'}
+              {editingGoal ? 'Edit Goal' : isStudent ? 'Create My Learning Goal' : 'Create New Goal'}
             </DialogTitle>
             <DialogDescription>
-              {editingGoal ? 'Update goal information.' : 'Create a new learning goal for students.'}
+              {editingGoal ? 'Update goal information.' : isStudent ? 'Set a personal learning objective to track your progress.' : 'Create a new learning goal for students.'}
             </DialogDescription>
           </DialogHeader>
 
@@ -591,37 +598,39 @@ export default function GoalsPage() {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="student_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Assign to Student</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value} disabled={isCreating || isUpdating}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select student" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {students.length === 0 ? (
-                          <SelectItem value="" disabled>No students available</SelectItem>
-                        ) : (
-                          students.map((student) => (
-                            <SelectItem 
-                              key={student.id} 
-                              value={student.id}
-                            >
-                              {student.full_name}
-                            </SelectItem>
-                          ))
-                        )}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {!isStudent && (
+                <FormField
+                  control={form.control}
+                  name="student_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Assign to Student</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value} disabled={isCreating || isUpdating}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select student" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {students.length === 0 ? (
+                            <SelectItem value="" disabled>No students available</SelectItem>
+                          ) : (
+                            students.map((student) => (
+                              <SelectItem 
+                                key={student.id} 
+                                value={student.id}
+                              >
+                                {student.full_name}
+                              </SelectItem>
+                            ))
+                          )}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
 
               <FormField
                 control={form.control}

@@ -197,6 +197,36 @@ serve(async (req) => {
         metadata: { student_id, method: 'link', first_activation: true }
       });
 
+    // Auto-enroll St. Joseph students in required courses
+    const ST_JOSEPH_ORG_ID = '446d78ee-420e-4e9a-8d9d-00f06e897e7f';
+    if (org_id === ST_JOSEPH_ORG_ID) {
+      console.log('[activate-student-account] Auto-enrolling St. Joseph student in required courses');
+      
+      const requiredEnrollments = [
+        { course_id: 'el-handwriting', course_type: 'platform' },
+        { course_id: 'empowering-learning-numeracy', course_type: 'platform' },
+        { course_id: 'empowering-learning-reading', course_type: 'platform' },
+        { course_id: 'empowering-learning-state', course_type: 'platform' },
+        { course_id: '06efda03-9f0b-4c00-a064-eb65ada9fbae', course_type: 'native' }
+      ];
+
+      for (const enrollment of requiredEnrollments) {
+        await supabaseAdmin
+          .from('enrollments')
+          .insert({
+            user_id: newUser.user.id,
+            course_id: enrollment.course_id,
+            course_type: enrollment.course_type,
+            org_id: org_id,
+            enrolled_at: new Date().toISOString()
+          })
+          .select()
+          .single();
+      }
+      
+      console.log('[activate-student-account] Successfully enrolled student in 5 required courses');
+    }
+
     console.log('[activate-student-account] Activation and user creation successful');
 
     // Return simple success response - frontend will redirect to PIN login
