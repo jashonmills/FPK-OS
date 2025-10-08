@@ -111,9 +111,10 @@ serve(async (req) => {
       });
 
     const origin = req.headers.get('origin') || 'https://fpkuniversity.com';
+    // Generate activation URL - must use /activate route (not /active)
     const activationUrl = `${origin}/${org_slug}/activate?token=${token}`;
 
-    console.log('[generate-student-activation] Token generated successfully');
+    console.log('[generate-student-activation] Token generated successfully', { activationUrl });
 
     return new Response(
       JSON.stringify({
