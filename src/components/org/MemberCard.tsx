@@ -7,10 +7,11 @@ import { OrgMember } from '@/hooks/useOrgMembers';
 
 interface MemberCardProps {
   member: OrgMember;
+  viewMode?: 'list' | 'large-tiles' | 'small-tiles';
   onViewProfile?: (member: OrgMember) => void;
 }
 
-export function MemberCard({ member, onViewProfile }: MemberCardProps) {
+export function MemberCard({ member, viewMode = 'large-tiles', onViewProfile }: MemberCardProps) {
   const getInitials = (name: string) => {
     return name
       .split(' ')
@@ -50,6 +51,92 @@ export function MemberCard({ member, onViewProfile }: MemberCardProps) {
 
   const displayName = member.full_name || member.display_name || 'Unnamed User';
 
+  // List View - Compact horizontal layout
+  if (viewMode === 'list') {
+    return (
+      <div className="flex items-center justify-between p-3 border border-orange-400/50 rounded-lg bg-orange-500/80 backdrop-blur-sm hover:bg-orange-500/85 transition-colors">
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          <Avatar className="h-10 w-10 border-2 border-orange-300/30 shrink-0">
+            <AvatarImage src={member.profiles?.avatar_url} />
+            <AvatarFallback className="bg-orange-500 text-white text-sm">
+              {getInitials(displayName)}
+            </AvatarFallback>
+          </Avatar>
+          
+          <div className="flex-1 min-w-0">
+            <h4 className="font-semibold text-orange-200 truncate">
+              {displayName}
+            </h4>
+            <div className="flex items-center gap-2 flex-wrap">
+              <Badge className={getRoleBadgeColor(member.role) + ' text-xs'}>
+                {member.role.charAt(0).toUpperCase() + member.role.slice(1).replace('-', ' ')}
+              </Badge>
+              {member.profiles?.job_title && (
+                <span className="text-xs text-orange-100/80 truncate">{member.profiles.job_title}</span>
+              )}
+            </div>
+          </div>
+        </div>
+        
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onViewProfile?.(member)}
+          className="shrink-0 bg-white/10 border-white/30 text-white hover:bg-white/20"
+        >
+          <UserCircle className="h-4 w-4" />
+        </Button>
+      </div>
+    );
+  }
+
+  // Small Tiles View - Compact card
+  if (viewMode === 'small-tiles') {
+    return (
+      <Card className="bg-orange-500/80 backdrop-blur-sm border border-orange-400/50 hover:bg-orange-500/85 transition-colors">
+        <CardContent className="p-4 space-y-3">
+          <div className="flex flex-col items-center text-center">
+            <Avatar className="h-12 w-12 border-2 border-orange-300/30 mb-2">
+              <AvatarImage src={member.profiles?.avatar_url} />
+              <AvatarFallback className="bg-orange-500 text-white">
+                {getInitials(displayName)}
+              </AvatarFallback>
+            </Avatar>
+            
+            <h4 className="font-semibold text-orange-200 truncate w-full text-sm">
+              {displayName}
+            </h4>
+            
+            <Badge className={getRoleBadgeColor(member.role) + ' text-xs mt-1'}>
+              {member.role}
+            </Badge>
+          </div>
+          
+          {member.profiles?.email && (
+            <a 
+              href={`mailto:${member.profiles.email}`}
+              className="flex items-center justify-center gap-1 text-xs text-orange-200 hover:text-orange-100 transition-colors"
+            >
+              <Mail className="w-3 h-3 shrink-0" />
+              <span className="truncate">{member.profiles.email}</span>
+            </a>
+          )}
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onViewProfile?.(member)}
+            className="w-full bg-white/10 border-white/30 text-white hover:bg-white/20 text-xs"
+          >
+            <UserCircle className="h-3 w-3 mr-1" />
+            View
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Large Tiles View - Full detail card (default)
   return (
     <Card className="bg-orange-500/80 backdrop-blur-sm border border-orange-400/50 hover:bg-orange-500/85 transition-colors">
       <CardHeader className="pb-3">

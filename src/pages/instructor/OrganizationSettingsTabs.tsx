@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Settings, Palette, UserPlus, Upload, X, Eye, Mail, Link2, Copy, RefreshCw, Plus, Check, Info, Users, Calendar, UserCircle } from 'lucide-react';
+import { Settings, Palette, UserPlus, Upload, X, Eye, Mail, Link2, Copy, RefreshCw, Plus, Check, Info, Users, Calendar, UserCircle, LayoutGrid, LayoutList, Grid3x3 } from 'lucide-react';
 import { useOrgContext } from '@/components/organizations/OrgContext';
 import { useOrgBranding, useUpdateOrgBranding, useUploadBrandingFile } from '@/hooks/useOrgBranding';
 import { useEmailInvitation } from '@/hooks/useInvitationSystem';
@@ -77,6 +77,7 @@ export default function OrganizationSettingsTabs() {
   const { members, isLoading: membersLoading, refetch: refetchMembers } = useOrgMembers();
   const [selectedMember, setSelectedMember] = useState<OrgMember | null>(null);
   const [memberProfileOpen, setMemberProfileOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'list' | 'large-tiles' | 'small-tiles'>('large-tiles');
 
   if (!currentOrg) {
     return (
@@ -701,13 +702,68 @@ export default function OrganizationSettingsTabs() {
         <TabsContent value="members" className="space-y-6">
           <OrgCard className="bg-orange-500/65 border-orange-400/50">
             <OrgCardHeader>
-              <OrgCardTitle className="flex items-center gap-2 text-white">
-                <Users className="h-5 w-5" />
-                Organization Members
-              </OrgCardTitle>
-              <OrgCardDescription className="text-white/80">
-                View and manage all members in your organization
-              </OrgCardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <OrgCardTitle className="flex items-center gap-2 text-white">
+                    <Users className="h-5 w-5" />
+                    Organization Members
+                  </OrgCardTitle>
+                  <OrgCardDescription className="text-white/80">
+                    View and manage all members in your organization
+                  </OrgCardDescription>
+                </div>
+                
+                {/* View Mode Toggle */}
+                <div className="flex items-center gap-1 bg-white/10 rounded-lg p-1">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant={viewMode === 'list' ? 'secondary' : 'ghost'}
+                          size="sm"
+                          onClick={() => setViewMode('list')}
+                          className="h-8 w-8 p-0"
+                        >
+                          <LayoutList className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>List View</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant={viewMode === 'large-tiles' ? 'secondary' : 'ghost'}
+                          size="sm"
+                          onClick={() => setViewMode('large-tiles')}
+                          className="h-8 w-8 p-0"
+                        >
+                          <LayoutGrid className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Large Tiles</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant={viewMode === 'small-tiles' ? 'secondary' : 'ghost'}
+                          size="sm"
+                          onClick={() => setViewMode('small-tiles')}
+                          className="h-8 w-8 p-0"
+                        >
+                          <Grid3x3 className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Small Tiles</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              </div>
             </OrgCardHeader>
             <OrgCardContent>
               {membersLoading ? (
@@ -716,11 +772,18 @@ export default function OrganizationSettingsTabs() {
                   <p className="text-white/80">Loading members...</p>
                 </div>
               ) : members && members.length > 0 ? (
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <div className={
+                  viewMode === 'list' 
+                    ? 'space-y-2' 
+                    : viewMode === 'small-tiles'
+                    ? 'grid gap-3 md:grid-cols-2 lg:grid-cols-4'
+                    : 'grid gap-4 md:grid-cols-2 lg:grid-cols-3'
+                }>
                   {members.map((member) => (
                     <MemberCard 
                       key={member.user_id}
                       member={member}
+                      viewMode={viewMode}
                       onViewProfile={(member) => {
                         setSelectedMember(member);
                         setMemberProfileOpen(true);
