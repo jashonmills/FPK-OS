@@ -1,0 +1,29 @@
+/**
+ * Feature Flag System for FPK University
+ * 
+ * Simple feature flag system using environment variables.
+ * In production, this could be replaced with LaunchDarkly, Vercel flags, etc.
+ */
+
+export const FeatureFlags = {
+  USE_USER_HUB: import.meta.env.VITE_FEATURE_USE_USER_HUB === 'true',
+  ENFORCE_SUBSCRIPTION: import.meta.env.VITE_FEATURE_ENFORCE_SUBSCRIPTION === 'true',
+} as const;
+
+export function isFeatureEnabled(flag: keyof typeof FeatureFlags): boolean {
+  return FeatureFlags[flag] === true;
+}
+
+/**
+ * Check if User Hub should be used as the default post-login destination
+ */
+export function shouldUseUserHub(): boolean {
+  return isFeatureEnabled('USE_USER_HUB');
+}
+
+/**
+ * Check if subscription enforcement is active (blocks non-paying users from premium features)
+ */
+export function shouldEnforceSubscription(): boolean {
+  return isFeatureEnabled('ENFORCE_SUBSCRIPTION');
+}
