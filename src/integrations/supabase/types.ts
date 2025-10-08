@@ -5405,6 +5405,7 @@ export type Database = {
         Row: {
           activation_status: string | null
           activation_token: string | null
+          avatar_url: string | null
           created_at: string
           created_by: string
           date_of_birth: string | null
@@ -5425,6 +5426,7 @@ export type Database = {
         Insert: {
           activation_status?: string | null
           activation_token?: string | null
+          avatar_url?: string | null
           created_at?: string
           created_by: string
           date_of_birth?: string | null
@@ -5445,6 +5447,7 @@ export type Database = {
         Update: {
           activation_status?: string | null
           activation_token?: string | null
+          avatar_url?: string | null
           created_at?: string
           created_by?: string
           date_of_birth?: string | null

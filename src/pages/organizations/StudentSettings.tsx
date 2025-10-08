@@ -7,18 +7,28 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { User, Settings, Shield, Loader2 } from 'lucide-react';
 import { useStudentPortalContext } from '@/hooks/useStudentPortalContext';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import EnhancedAvatarUpload from '@/components/settings/EnhancedAvatarUpload';
 
 export default function StudentSettings() {
   const [searchParams] = useSearchParams();
   const defaultTab = searchParams.get('tab') || 'profile';
   const { studentId } = useStudentPortalContext();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+  
+  // PIN state
   const [newPin, setNewPin] = useState('');
   const [confirmPin, setConfirmPin] = useState('');
   const [isChangingPin, setIsChangingPin] = useState(false);
+  
+  // Profile state
+  const [fullName, setFullName] = useState('');
+  const [dateOfBirth, setDateOfBirth] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
 
   // Fetch student profile data
   const { data: studentRecord, isLoading } = useQuery({
@@ -27,7 +37,7 @@ export default function StudentSettings() {
       if (!studentId) return null;
       const { data, error } = await supabase
         .from('org_students')
-        .select('full_name, org_id, organizations(name)')
+        .select('full_name, org_id, avatar_url, date_of_birth, organizations(name)')
         .eq('id', studentId)
         .single();
       
@@ -36,12 +46,21 @@ export default function StudentSettings() {
     },
     enabled: !!studentId
   });
+  
+  // Initialize form with fetched data
+  useEffect(() => {
+    if (studentRecord) {
+      setFullName(studentRecord.full_name || '');
+      setDateOfBirth(studentRecord.date_of_birth || '');
+      setAvatarUrl(studentRecord.avatar_url || '');
+    }
+  }, [studentRecord]);
 
   const handlePinChange = async () => {
-    if (newPin.length !== 4) {
+    if (newPin.length !== 6) {
       toast({
         title: "Invalid PIN",
-        description: "PIN must be exactly 4 digits",
+        description: "PIN must be exactly 6 digits",
         variant: "destructive"
       });
       return;
@@ -83,6 +102,45 @@ export default function StudentSettings() {
       setIsChangingPin(false);
     }
   };
+  
+  const handleProfileUpdate = async () => {
+    if (!studentId) return;
+    
+    setIsSavingProfile(true);
+    try {
+      const { error } = await supabase
+        .from('org_students')
+        .update({
+          full_name: fullName,
+          date_of_birth: dateOfBirth || null,
+          avatar_url: avatarUrl || null,
+        })
+        .eq('id', studentId);
+        
+      if (error) throw error;
+      
+      // Invalidate query to refetch data
+      queryClient.invalidateQueries({ queryKey: ['org-student-profile', studentId] });
+      
+      toast({
+        title: "Profile Updated",
+        description: "Your profile has been successfully updated"
+      });
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update profile. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSavingProfile(false);
+    }
+  };
+  
+  const handleAvatarUpload = (url: string) => {
+    setAvatarUrl(url);
+  };
 
   if (isLoading) {
     return (
@@ -122,18 +180,36 @@ export default function StudentSettings() {
             </TabsList>
 
             <TabsContent value="profile" className="space-y-6">
-              <div className="space-y-4">
+              <div className="space-y-6">
+                {/* Avatar Upload */}
+                <div className="flex flex-col items-center space-y-4">
+                  <EnhancedAvatarUpload
+                    currentUrl={avatarUrl}
+                    onUpload={handleAvatarUpload}
+                    userName={fullName}
+                  />
+                </div>
+                
                 <div>
                   <Label htmlFor="full-name">Full Name</Label>
                   <Input
                     id="full-name"
-                    value={studentRecord?.full_name || ''}
-                    disabled
-                    className="mt-2 bg-muted"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="Enter your full name"
+                    className="mt-2"
                   />
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Contact your instructor to update your name
-                  </p>
+                </div>
+                
+                <div>
+                  <Label htmlFor="date-of-birth">Date of Birth</Label>
+                  <Input
+                    id="date-of-birth"
+                    type="date"
+                    value={dateOfBirth}
+                    onChange={(e) => setDateOfBirth(e.target.value)}
+                    className="mt-2"
+                  />
                 </div>
 
                 <div>
@@ -155,6 +231,21 @@ export default function StudentSettings() {
                     className="mt-2 bg-muted"
                   />
                 </div>
+                
+                <Button 
+                  onClick={handleProfileUpdate}
+                  disabled={isSavingProfile}
+                  className="w-full"
+                >
+                  {isSavingProfile ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Saving Changes...
+                    </>
+                  ) : (
+                    'Save Changes'
+                  )}
+                </Button>
               </div>
             </TabsContent>
 
@@ -175,15 +266,15 @@ export default function StudentSettings() {
                   <h3 className="font-medium mb-4">Change Your PIN</h3>
                   <div className="space-y-4">
                     <div>
-                      <Label htmlFor="new-pin">New PIN (4 digits)</Label>
+                      <Label htmlFor="new-pin">New PIN (6 digits)</Label>
                       <Input
                         id="new-pin"
                         type="password"
                         inputMode="numeric"
-                        maxLength={4}
+                        maxLength={6}
                         value={newPin}
                         onChange={(e) => setNewPin(e.target.value.replace(/\D/g, ''))}
-                        placeholder="Enter 4-digit PIN"
+                        placeholder="Enter 6-digit PIN"
                         className="mt-2"
                       />
                     </div>
@@ -194,10 +285,10 @@ export default function StudentSettings() {
                         id="confirm-pin"
                         type="password"
                         inputMode="numeric"
-                        maxLength={4}
+                        maxLength={6}
                         value={confirmPin}
                         onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, ''))}
-                        placeholder="Confirm 4-digit PIN"
+                        placeholder="Confirm 6-digit PIN"
                         className="mt-2"
                       />
                     </div>

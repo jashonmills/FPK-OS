@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
+import { TransparentTile } from '@/components/ui/transparent-tile';
 import { 
   Dialog, 
   DialogContent, 
@@ -319,28 +320,30 @@ export default function GoalsPage() {
     <div className="w-full max-w-6xl mx-auto px-6 py-6 space-y-6">
 
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Target className="h-8 w-8" />
-          <div>
-            <h1 className="text-3xl font-bold">Goals</h1>
-            <p className="text-muted-foreground">
-              Set and track student learning objectives
-            </p>
+      <TransparentTile className="bg-orange-500/10 border-orange-400/30">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Target className="h-8 w-8" />
+            <div>
+              <h1 className="text-3xl font-bold">Goals</h1>
+              <p className="text-muted-foreground">
+                Set and track student learning objectives
+              </p>
+            </div>
           </div>
+          
+          {(canManageGoals || isStudent) && (
+            <Button 
+              onClick={() => setShowCreateDialog(true)} 
+              className="flex items-center gap-2"
+              disabled={isCreating}
+            >
+              {isCreating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+              {isStudent ? 'Create My Goal' : 'Create Goal'}
+            </Button>
+          )}
         </div>
-        
-        {(canManageGoals || isStudent) && (
-          <Button 
-            onClick={() => setShowCreateDialog(true)} 
-            className="flex items-center gap-2"
-            disabled={isCreating}
-          >
-            {isCreating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-            {isStudent ? 'Create My Goal' : 'Create Goal'}
-          </Button>
-        )}
-      </div>
+      </TransparentTile>
 
       {/* Stats Cards */}
       <div className="grid md:grid-cols-4 gap-4">
@@ -386,45 +389,49 @@ export default function GoalsPage() {
       </div>
 
       {/* Search and Filters */}
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search goals..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
+      <TransparentTile className="bg-orange-500/10 border-orange-400/30">
+        <div className="flex items-center gap-4">
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search goals..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <Select value={filterStatus} onValueChange={setFilterStatus}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Goals</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="completed">Completed</SelectItem>
+              <SelectItem value="paused">Paused</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-        <Select value={filterStatus} onValueChange={setFilterStatus}>
-          <SelectTrigger className="w-40">
-            <SelectValue placeholder="Filter by status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Goals</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="completed">Completed</SelectItem>
-            <SelectItem value="paused">Paused</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      </TransparentTile>
 
       {/* Goals Grid */}
       <div className="space-y-4">
         {filteredGoals.length === 0 ? (
-          <div className="text-center py-8">
-            <Target className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No Goals Found</h3>
-            <p className="text-muted-foreground mb-4">
-              {searchQuery ? 'No goals match your search.' : 'Start by creating learning goals for your students.'}
-            </p>
-            {canManageGoals && !searchQuery && (
-              <Button onClick={() => setShowCreateDialog(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Create Goal
-              </Button>
-            )}
-          </div>
+          <TransparentTile className="bg-orange-500/10 border-orange-400/30">
+            <div className="text-center py-8">
+              <Target className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2">No Goals Found</h3>
+              <p className="text-muted-foreground mb-4">
+                {searchQuery ? 'No goals match your search.' : 'Start by creating learning goals for your students.'}
+              </p>
+              {canManageGoals && !searchQuery && (
+                <Button onClick={() => setShowCreateDialog(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Goal
+                </Button>
+              )}
+            </div>
+          </TransparentTile>
         ) : (
           <div className="grid md:grid-cols-2 gap-6">
             {filteredGoals.map((goal) => {
