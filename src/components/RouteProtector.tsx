@@ -1,206 +1,57 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
-import { useSubscriptionGate } from '@/hooks/useSubscriptionGate';
-import { safeLocalStorage } from '@/utils/safeStorage';
+import React from 'react';
+import { useLocation, Navigate } from 'react-router-dom';
+import { useUserIdentity } from '@/hooks/useUserIdentity';
+import { Loader2 } from 'lucide-react';
 
 interface RouteProtectorProps {
   children: React.ReactNode;
 }
 
+// Helper function to define which routes are protected
+const isProtectedRoute = (pathname: string) => {
+  return pathname.startsWith('/dashboard') || pathname.startsWith('/org');
+};
+
 export const RouteProtector: React.FC<RouteProtectorProps> = ({ children }) => {
-  const { user, loading: authLoading } = useAuth();
-  const { isLoading: subscriptionLoading, hasAccess } = useSubscriptionGate();
+  const { identity, isLoading } = useUserIdentity();
   const location = useLocation();
-  const navigate = useNavigate();
-  const [hasNavigated, setHasNavigated] = useState(false);
 
-  // Check if user is a student portal user - if so, bypass all FPK platform logic
-  const isStudentPortalUser = user?.user_metadata?.is_student_portal === true;
-  
-  // Student portal users should never be processed by RouteProtector
-  // They are protected by StudentPortalGuard instead
-  if (isStudentPortalUser) {
-    return <>{children}</>;
-  }
-
-  const currentPath = location.pathname;
-  const isDashboardRoute = currentPath.startsWith('/dashboard');
-  const isOrgRoute = currentPath.startsWith('/org/');
-  const isPublicRoute = ['/', '/login', '/choose-plan', '/privacy-policy', '/terms-of-service'].includes(currentPath) ||
-                       currentPath.startsWith('/subscription');
-
-  useEffect(() => {
-    console.log('🔍 [RouteProtector] Effect triggered:', { 
-      currentPath, 
-      authLoading, 
-      subscriptionLoading,
-      user: !!user,
-      hasAccess,
-      hasNavigated,
-      isDashboardRoute,
-      isOrgRoute
-    });
-
-    // Wait for auth to complete before making any navigation decisions
-    if (authLoading) return;
-
-    // Force redirect if stuck in loading state without auth
-    if (isDashboardRoute && !user && !authLoading) {
-      setHasNavigated(true);
-      navigate('/login', { replace: true });
-      return;
-    }
-
-    // Only perform navigation once per route change
-    if (hasNavigated) return;
-
-    // PRIORITY 1: Redirect authenticated users away from login page immediately
-    if (user && currentPath === '/login') {
-      setHasNavigated(true);
-      
-      // Check for navigation intent from URL params
-      const urlParams = new URLSearchParams(window.location.search);
-      const intentParam = urlParams.get('intent');
-      
-      // Check if user has an active organization
-      const activeOrgId = safeLocalStorage.getItem<string>('fpk.activeOrgId', {
-        fallbackValue: null,
-        logErrors: false
-      });
-      
-      // Respect user's intent or preference
-      if (intentParam === 'personal' || !activeOrgId) {
-        navigate('/dashboard/learner', { replace: true });
-      } else {
-        navigate(`/org/${activeOrgId}`, { replace: true });
-      }
-      return;
-    }
-
-    // PRIORITY 2: If not authenticated and trying to access dashboard, redirect to login
-    if (isDashboardRoute && !user) {
-      setHasNavigated(true);
-      navigate('/login', { replace: true });
-      return;
-    }
-
-    // PRIORITY 3: Allow dashboard access for authenticated users, handle subscription later
-    if (isDashboardRoute && user && subscriptionLoading) {
-      return; // Let them access dashboard, subscription gate will handle restrictions
-    }
-
-    // PRIORITY 4: Handle subscription requirements only after user is in dashboard
-    if (isDashboardRoute && user && !subscriptionLoading && !hasAccess) {
-      setHasNavigated(true);
-      navigate('/choose-plan', { replace: true });
-      return;
-    }
-
-    // PRIORITY 5: Redirect authenticated users with access away from plan page
-    if (user && !subscriptionLoading && hasAccess && currentPath === '/choose-plan') {
-      setHasNavigated(true);
-      
-      // Check for navigation intent from URL params
-      const urlParams = new URLSearchParams(window.location.search);
-      const intentParam = urlParams.get('intent');
-      
-      // Check if user has an active organization
-      const activeOrgId = safeLocalStorage.getItem<string>('fpk.activeOrgId', {
-        fallbackValue: null,
-        logErrors: false
-      });
-      
-      // Respect user's intent or preference
-      if (intentParam === 'personal' || !activeOrgId) {
-        navigate('/dashboard/learner', { replace: true });
-      } else {
-        navigate(`/org/${activeOrgId}`, { replace: true });
-      }
-      return;
-    }
-
-    // PRIORITY 6: Redirect dashboard routes with ?org= param to proper org routes
-    if (isDashboardRoute && !subscriptionLoading && user) {
-      const urlParams = new URLSearchParams(window.location.search);
-      const orgFromUrl = urlParams.get('org');
-      
-      if (orgFromUrl) {
-        console.log('🔄 [RouteProtector] Detected org param on dashboard route - redirecting to org context');
-        setHasNavigated(true);
-        navigate(`/org/${orgFromUrl}`, { replace: true });
-        return;
-      }
-    }
-
-    // PRIORITY 7: REMOVED AGGRESSIVE AUTO-REDIRECT
-    // Only redirect if user explicitly lands on org route without org or dashboard route without org access
-    if (user && !subscriptionLoading && hasAccess) {
-      // Check URL params FIRST (matches getActiveOrgId() logic)
-      const urlParams = new URLSearchParams(window.location.search);
-      const orgFromUrl = urlParams.get('org');
-      
-      // Then check path pattern /org/{orgId}/...
-      const pathMatch = currentPath.match(/\/org\/([^\/]+)/);
-      const orgFromPath = pathMatch ? pathMatch[1] : null;
-      
-      // Finally check localStorage
-      const activeOrgId = orgFromUrl || orgFromPath || safeLocalStorage.getItem<string>('fpk.activeOrgId', {
-        fallbackValue: null,
-        logErrors: false
-      });
-      
-      // Always log context check
-      console.log('🔍 [RouteProtector] Context check:', {
-        currentPath,
-        orgFromUrl,
-        orgFromPath,
-        activeOrgId,
-        isDashboardRoute,
-        isOrgRoute,
-        pathMatchResult: pathMatch
-      });
-      
-      // Only redirect if user is on org route but has no active org
-      if (!activeOrgId && isOrgRoute) {
-        console.log('❌ [RouteProtector] Redirecting to personal dashboard - no active org found');
-        setHasNavigated(true);
-        navigate('/dashboard/learner', { replace: true });
-        return;
-      }
-      
-      console.log('✅ [RouteProtector] Allowing navigation - org context is valid');
-      
-      // Only redirect if user is on a generic org route but doesn't have access to that specific org
-      // We'll let individual org pages handle their own access control
-    }
-
-  }, [authLoading, subscriptionLoading, user, hasAccess, currentPath, hasNavigated, navigate, isDashboardRoute, isOrgRoute]);
-
-  // Reset navigation flag when route changes
-  useEffect(() => {
-    setHasNavigated(false);
-  }, [currentPath]);
-
-  // Show loading while checking auth for dashboard routes
-  // Add timeout protection to prevent infinite loading
-  if (isDashboardRoute && (authLoading || (user && subscriptionLoading))) {
+  // Show loading spinner while identity is being determined
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary via-primary-variant to-accent flex items-center justify-center">
         <div className="text-center text-white">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+          <Loader2 className="w-12 h-12 animate-spin mx-auto mb-4" />
           <p className="text-lg">Loading your learning experience...</p>
-          {/* Add debug info in development */}
-          {process.env.NODE_ENV === 'development' && (
-            <p className="text-sm mt-2 opacity-75">
-              Auth: {authLoading ? 'loading' : user ? 'authenticated' : 'not authenticated'} | 
-              Subscription: {subscriptionLoading ? 'loading' : hasAccess ? 'active' : 'none'}
-            </p>
-          )}
         </div>
       </div>
     );
   }
 
+  // --- FIREWALL LOGIC ---
+
+  // Rule #1: If the user is a "Student-Only" user, they MUST be in their org section
+  // If they are anywhere else, force them back to their student dashboard
+  if (identity?.isStudentPortalUser) {
+    const studentOrgId = identity.memberships[0]?.orgId;
+    if (studentOrgId && !location.pathname.startsWith(`/${studentOrgId}`)) {
+      console.warn('[RouteProtector] Student-Only user outside their designated org. Redirecting.');
+      return <Navigate to={`/${studentOrgId}/student-portal`} replace />;
+    }
+  }
+
+  // Rule #2: If the user is NOT logged in, block access to protected routes
+  if (!identity?.isLoggedIn && isProtectedRoute(location.pathname)) {
+    console.warn('[RouteProtector] Unauthenticated user attempting to access protected route. Redirecting to login.');
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  // Rule #3: If authenticated platform user on login page, redirect to dashboard
+  if (identity?.isPlatformUser && location.pathname === '/login') {
+    console.log('[RouteProtector] Authenticated platform user on login page. Redirecting to dashboard.');
+    return <Navigate to="/dashboard/learner" replace />;
+  }
+
+  // If all checks pass, render the requested page
   return <>{children}</>;
 };

@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
-import { useStudentPortalContext } from '@/hooks/useStudentPortalContext';
-import { useOptionalOrgContext } from '@/components/organizations/OrgContext';
+import { useUserIdentity } from '@/hooks/useUserIdentity';
+import { useOrgSession } from '@/hooks/useOrgSession';
+import { supabase } from '@/integrations/supabase/client';
 import { Loader2 } from 'lucide-react';
 
 interface StudentPortalGuardProps {
@@ -10,25 +10,43 @@ interface StudentPortalGuardProps {
 }
 
 export function StudentPortalGuard({ children }: StudentPortalGuardProps) {
-  const { user, loading } = useAuth();
-  const { isStudentPortalUser, studentOrgSlug } = useStudentPortalContext();
-  const orgContext = useOptionalOrgContext();
   const { orgSlug } = useParams<{ orgSlug: string }>();
+  const { identity, isLoading } = useUserIdentity();
+  const { session, isValidSession } = useOrgSession();
+  const [orgId, setOrgId] = React.useState<string | null>(null);
+
+  // Fetch org ID from slug
+  useEffect(() => {
+    if (!orgSlug) return;
+    
+    const fetchOrgId = async () => {
+      const { data: org } = await supabase
+        .from('organizations')
+        .select('id')
+        .eq('slug', orgSlug)
+        .maybeSingle();
+      
+      if (org) {
+        setOrgId(org.id);
+      }
+    };
+    
+    fetchOrgId();
+  }, [orgSlug]);
 
   console.log('🔍 [StudentPortalGuard] State check:', {
-    loading,
-    hasUser: !!user,
-    userEmail: user?.email,
-    isStudentPortalUser,
-    studentOrgSlug,
-    userMetadata: user?.user_metadata,
-    orgContextLoading: orgContext?.isLoading
+    isLoading,
+    hasIdentity: !!identity,
+    isStudentPortalUser: identity?.isStudentPortalUser,
+    isPlatformUser: identity?.isPlatformUser,
+    orgSlug,
+    orgId,
+    hasSession: !!session,
+    isValidSession: isValidSession()
   });
 
-  // CRITICAL: Wait for both auth AND metadata to load
-  // User metadata might take an extra moment to propagate after magic link auth
-  if (loading || !user || (user.email?.includes('@portal.fpkuniversity.com') && isStudentPortalUser === undefined)) {
-    console.log('⏳ [StudentPortalGuard] Waiting for auth/metadata to load');
+  // Show loading while identity is being determined
+  if (isLoading || (!orgId && orgSlug)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -36,57 +54,53 @@ export function StudentPortalGuard({ children }: StudentPortalGuardProps) {
     );
   }
 
-  // Additional safety check: If this looks like a student portal user but metadata isn't set
-  // (e.g., immediately after magic link authentication), give it a moment to propagate
-  if (user.email?.endsWith('@portal.fpkuniversity.com') && !isStudentPortalUser) {
-    console.warn('⚠️ [StudentPortalGuard] Student portal email detected but metadata not loaded, retrying...');
-    // Force a small delay to allow metadata to propagate
-    setTimeout(() => window.location.reload(), 500);
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-2" />
-          <p className="text-sm text-muted-foreground">Setting up your account...</p>
+  // --- NEW, STRICT ACCESS LOGIC ---
+
+  // Case A: Is this a "Student-Only" user? If so, they always have access to their own portal.
+  if (identity?.isStudentPortalUser) {
+    const studentOrgId = identity.memberships[0]?.orgId;
+    
+    // Ensure they're accessing the correct org
+    if (studentOrgId && orgId && studentOrgId !== orgId) {
+      console.warn('🚫 [StudentPortalGuard] Student-only user accessing wrong org. Redirecting to their org.');
+      
+      // Find the correct org slug for redirect
+      supabase
+        .from('organizations')
+        .select('slug')
+        .eq('id', studentOrgId)
+        .maybeSingle()
+        .then(({ data: correctOrg }) => {
+          if (correctOrg?.slug) {
+            window.location.href = `/${correctOrg.slug}/student-portal`;
+          }
+        });
+      
+      return (
+        <div className="min-h-screen flex items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </div>
-      </div>
-    );
+      );
+    }
+    
+    console.log('✅ [StudentPortalGuard] Student-only user - access granted');
+    return <>{children}</>;
   }
 
-  // Not authenticated - redirect to org login
-  if (!user) {
-    console.log('🚫 [StudentPortalGuard] No user - redirecting to login');
-    return <Navigate to={`/${orgSlug}/login`} replace />;
+  // Case B: Is this a "Platform User"? They MUST have a valid, recent org session.
+  if (identity?.isPlatformUser) {
+    const hasValidSession = isValidSession() && 
+                          session?.role === 'student' && 
+                          session?.orgId === orgId;
+    
+    if (hasValidSession) {
+      console.log('✅ [StudentPortalGuard] Platform user with valid session - access granted');
+      return <>{children}</>;
+    }
   }
 
-  // Check if user is a regular org student (for logging purposes)
-  const userOrgMembership = orgContext?.organizations?.find(org => org.organizations.slug === orgSlug);
-  const isRegularOrgStudent = userOrgMembership?.role === 'student';
-
-  // Primary access check: Is this a student portal user?
-  if (!isStudentPortalUser && !isRegularOrgStudent) {
-    console.log('🚫 [StudentPortalGuard] Access denied - neither student portal user nor org student', {
-      isStudentPortalUser,
-      isRegularOrgStudent,
-      orgSlug
-    });
-    return <Navigate to={`/${orgSlug}/context-login`} replace />;
-  }
-
-  // For student portal users, check they're accessing the correct org
-  if (isStudentPortalUser && studentOrgSlug && studentOrgSlug !== orgSlug) {
-    console.log('🔀 [StudentPortalGuard] Redirecting to correct org', {
-      requestedOrg: orgSlug,
-      userOrg: studentOrgSlug
-    });
-    return <Navigate to={`/${studentOrgSlug}/student-portal`} replace />;
-  }
-
-  console.log('✅ [StudentPortalGuard] Access granted', {
-    isStudentPortalUser,
-    isRegularOrgStudent,
-    orgSlug
-  });
-
-  // All checks passed - render the protected content
-  return <>{children}</>;
+  // --- DENY BY DEFAULT ---
+  // If neither of the above conditions are met, deny access and force PIN entry
+  console.warn('🚫 [StudentPortalGuard] Access DENIED. No valid identity or session. Redirecting to PIN step-up.');
+  return <Navigate to={`/${orgSlug}/context-login`} replace />;
 }
