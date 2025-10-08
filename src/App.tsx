@@ -34,12 +34,16 @@ const OrgLanding = lazy(() => import("./pages/OrgLanding"));
 const OrgPortalLanding = lazy(() => import("./pages/org-portal/OrgPortalLanding"));
 const StudentPinLogin = lazy(() => import("./pages/org-portal/StudentPinLogin"));
 const StudentActivation = lazy(() => import("./pages/org-portal/StudentActivation"));
+const EducatorLogin = lazy(() => import("./pages/org-portal/EducatorLogin"));
+const EducatorActivation = lazy(() => import("./pages/org-portal/EducatorActivation"));
+const EducatorDashboard = lazy(() => import("./pages/org/EducatorDashboard"));
 const ContextLogin = lazy(() => import("./pages/org/ContextLogin"));
 const AdminPortalBridge = lazy(() => import("./pages/org-portal/AdminPortalBridge"));
 const AuthCallback = lazy(() => import("./pages/AuthCallback"));
 
 // Student Portal Guard
 import { StudentPortalGuard } from './components/organizations/StudentPortalGuard';
+import { EducatorPortalGuard } from './components/guards/EducatorPortalGuard';
 
 // Organization authenticated pages
 const OrgHub = lazy(() => import("./pages/organizations/OrgHub"));
@@ -259,6 +263,12 @@ const App: React.FC = () => {
           {/* Branded Student Portal Routes - Must come before org routes */}
           <Route path="/:orgSlug/login" element={<LazyRoute><StudentPinLogin /></LazyRoute>} />
           <Route path="/:orgSlug/activate" element={<LazyRoute><StudentActivation /></LazyRoute>} />
+          
+          {/* Branded Educator Portal Routes */}
+          <Route path="/:orgSlug/educator-login" element={<LazyRoute><EducatorLogin /></LazyRoute>} />
+          <Route path="/:orgSlug/activate-educator" element={<LazyRoute><EducatorActivation /></LazyRoute>} />
+          
+          {/* Other org routes */}
           <Route path="/:orgSlug/context-login" element={<LazyRoute><ContextLogin /></LazyRoute>} />
           <Route path="/:orgSlug/admin-portal" element={<LazyRoute><AdminPortalBridge /></LazyRoute>} />
           <Route path="/:orgSlug" element={<LazyRoute><OrgPortalLanding /></LazyRoute>} />
@@ -685,6 +695,13 @@ const App: React.FC = () => {
             </RouteProtector>
           }>
             <Route path=":orgId" element={<LazyRoute><OrgPortalHome /></LazyRoute>} />
+            <Route path=":orgId/educator-dashboard" element={
+              <LazyRoute>
+                <EducatorPortalGuard>
+                  <EducatorDashboard />
+                </EducatorPortalGuard>
+              </LazyRoute>
+            } />
             <Route path=":orgId/instructor" element={<LazyRoute><OrgInstructorDashboard /></LazyRoute>} />
             <Route path=":orgId/students" element={<LazyRoute><StudentsManagementNew /></LazyRoute>} />
             <Route path=":orgId/students/:studentId" element={<LazyRoute><StudentProfilePage /></LazyRoute>} />

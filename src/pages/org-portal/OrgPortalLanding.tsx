@@ -145,6 +145,15 @@ export default function OrgPortalLanding() {
               Student Login
             </Button>
 
+            <Button
+              onClick={() => navigate(`/${orgSlug}/educator-login`)}
+              className="w-full h-12 text-lg bg-blue-500 hover:bg-blue-600 text-white"
+              size="lg"
+            >
+              <LogIn className="w-5 h-5 mr-2" />
+              Educator & Staff Login
+            </Button>
+
             <div className="text-center text-sm text-gray-500">
               <p>Need help? Contact your organization administrator.</p>
             </div>
