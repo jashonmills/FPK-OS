@@ -36,6 +36,7 @@ const StudentPinLogin = lazy(() => import("./pages/org-portal/StudentPinLogin"))
 const StudentActivation = lazy(() => import("./pages/org-portal/StudentActivation"));
 const StudentPortalDashboard = lazy(() => import("./pages/students/StudentPortalDashboard"));
 const ContextLogin = lazy(() => import("./pages/org/ContextLogin"));
+const AdminPortalBridge = lazy(() => import("./pages/org-portal/AdminPortalBridge"));
 const AuthCallback = lazy(() => import("./pages/AuthCallback"));
 
 // Student Portal Guard
@@ -259,6 +260,7 @@ const App: React.FC = () => {
           <Route path="/:orgSlug/login" element={<LazyRoute><StudentPinLogin /></LazyRoute>} />
           <Route path="/:orgSlug/activate" element={<LazyRoute><StudentActivation /></LazyRoute>} />
           <Route path="/:orgSlug/context-login" element={<LazyRoute><ContextLogin /></LazyRoute>} />
+          <Route path="/:orgSlug/admin-portal" element={<LazyRoute><AdminPortalBridge /></LazyRoute>} />
           <Route path="/:orgSlug" element={<LazyRoute><OrgPortalLanding /></LazyRoute>} />
 
           {/* Student Portal Dashboard - Protected by StudentPortalGuard */}
