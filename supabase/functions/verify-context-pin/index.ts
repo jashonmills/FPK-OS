@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.0';
-import * as bcrypt from "https://deno.land/x/bcrypt@v0.4.1/mod.ts";
+import { verifyPin } from "../_shared/pin-hasher.ts";
 import { corsHeaders } from "../_shared/cors.ts";
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -129,8 +129,8 @@ serve(async (req: Request) => {
       );
     }
 
-    // Verify the PIN using bcrypt
-    const isValidPin = await bcrypt.compare(pin, membership.pin_hash);
+    // Verify the PIN using PBKDF2
+    const isValidPin = await verifyPin(pin, membership.pin_hash);
 
     if (!isValidPin) {
       console.warn(`[verify-context-pin] Invalid PIN attempt for user ${userId} in org ${orgId}`);
