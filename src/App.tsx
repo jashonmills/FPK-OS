@@ -20,6 +20,7 @@ import "./App.css";
 // Non-critical imports for better bundle splitting
 const Index = lazy(() => import("./pages/Index"));
 const Login = lazy(() => import("./pages/Login"));
+const OrganizationFinderPage = lazy(() => import("./pages/OrganizationFinderPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const DashboardLayout = lazy(() => import("./components/DashboardLayout"));
 const PersonalDashboardLayout = lazy(() => import("./components/PersonalDashboardLayout").then(module => ({ default: module.PersonalDashboardLayout })));
@@ -252,6 +253,7 @@ const App: React.FC = () => {
           <Route path="/" element={<LazyRoute><Index /></LazyRoute>} />
           <Route path="/courses" element={<LazyRoute><CoursesPage /></LazyRoute>} />
           <Route path="/login" element={<LazyRoute><Login /></LazyRoute>} />
+          <Route path="/organization-login" element={<LazyRoute><OrganizationFinderPage /></LazyRoute>} />
           <Route path="/auth/confirm" element={<LazyRoute><EmailConfirm /></LazyRoute>} />
           <Route path="/reset-password" element={<LazyRoute><ResetPassword /></LazyRoute>} />
           <Route path="/join" element={<LazyRoute><JoinRedirect /></LazyRoute>} />

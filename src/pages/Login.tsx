@@ -570,7 +570,7 @@ const Login = () => {
             <Button 
               variant="link" 
               className="text-white/80 hover:text-white text-sm font-medium"
-              onClick={() => navigate('/st-josephs-mell-ns-')}
+              onClick={() => navigate('/organization-login')}
             >
               Organization Login
             </Button>
