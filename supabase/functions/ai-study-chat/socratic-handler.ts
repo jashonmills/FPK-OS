@@ -8,19 +8,36 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 function cleanAIResponse(rawResponse: string): string {
   let cleaned = rawResponse.trim();
   
-  // Remove JSON wrapper if present
-  const jsonMatch = cleaned.match(/\{\s*"(?:thought|response|analysis|reasoning)"[\s\S]*\}/);
-  if (jsonMatch) {
-    try {
-      const parsed = JSON.parse(jsonMatch[0]);
-      // Extract only the response field if it exists
-      cleaned = parsed.response || parsed.text || parsed.content || cleaned;
-    } catch {
-      // If JSON parsing fails, continue with original
+  console.log('🧹 Cleaning AI response:', cleaned.substring(0, 200));
+  
+  // Try to parse as JSON first
+  try {
+    const parsed = JSON.parse(cleaned);
+    if (parsed.response) {
+      console.log('✅ Extracted response from JSON');
+      return parsed.response.trim();
     }
+    if (parsed.text) {
+      return parsed.text.trim();
+    }
+    if (parsed.content) {
+      return parsed.content.trim();
+    }
+  } catch {
+    // Not valid JSON, continue with regex approach
   }
   
-  // Remove common meta-phrases that indicate thinking out loud
+  // Fallback: Use regex to extract JSON with multiline support
+  const jsonMatch = cleaned.match(/\{[\s\S]*"response"\s*:\s*"([^"]+(?:\\.[^"]*)*)"[\s\S]*\}/);
+  if (jsonMatch && jsonMatch[1]) {
+    console.log('✅ Extracted response via regex');
+    return jsonMatch[1]
+      .replace(/\\n/g, ' ')
+      .replace(/\\"/g, '"')
+      .trim();
+  }
+  
+  // Remove meta-phrases if no JSON found
   const metaPhrases = [
     /^I'm thinking.*/im,
     /^I need to.*/im,
@@ -30,13 +47,16 @@ function cleanAIResponse(rawResponse: string): string {
     /^I will now.*/im,
     /^My reasoning is.*/im,
     /^The user is.*/im,
-    /^The student is.*/im
+    /^The student is.*/im,
+    /^\{.*"thought".*\}/s,
+    /^The user wants to learn about.*/im
   ];
   
   for (const pattern of metaPhrases) {
     cleaned = cleaned.replace(pattern, '').trim();
   }
   
+  console.log('⚠️ No JSON found, returning cleaned text');
   return cleaned;
 }
 
@@ -95,17 +115,45 @@ export async function handleSocraticSession(
     // Generate first message using the Socratic v3 prompt structure
     // The system prompt (SOCRATIC_STRUCTURED_PROMPT) already contains the IF/THEN logic
     const questionPrompt = request.promotedFromFreeChat
-      ? `The session is starting because it was promoted from a Free Chat. Topic: "${topic}". You MUST generate a complete "Overview and Orient" message with these two parts: (1) Acknowledge the session start and provide a 1-2 sentence, high-level overview of "${topic}". (2) Ask the user to choose a specific direction or sub-topic to explore first, providing 2-3 concrete examples. Follow the exact format specified in BLOCK 3 for promoted sessions.`
-      : `The session is a manual start. Topic: "${topic}". Learning Objective: "${objective}". Acknowledge both and begin with a broad opening question about "${topic}". Follow the instructions in BLOCK 3 for manual starts.`;
+      ? `The session is starting because it was promoted from a Free Chat. Topic: "${topic}".
+
+CRITICAL: Respond with ONLY plain text. Do NOT use JSON format. Do NOT include "thought" or "response" fields.
+
+You MUST generate a complete "Overview and Orient" message with these two parts:
+(1) Acknowledge the session start and provide a 1-2 sentence, high-level overview of "${topic}".
+(2) Ask the user to choose a specific direction or sub-topic to explore first, providing 2-3 concrete examples.
+
+Remember: Output ONLY the text the student should see. No JSON formatting.`
+      : `The session is a manual start. Topic: "${topic}". Learning Objective: "${objective}".
+
+CRITICAL: Respond with ONLY plain text. Do NOT use JSON format. Do NOT include "thought" or "response" fields.
+
+Acknowledge both the topic and objective, then begin with a broad opening question about "${topic}".
+
+Remember: Output ONLY the text the student should see. No JSON formatting.`;
 
     const question = cleanAIResponse(await geminiCall(questionPrompt));
+
+    // Emergency cleaning pass before saving
+    let finalQuestion = question;
+    try {
+      const parsed = JSON.parse(question);
+      if (parsed.response) finalQuestion = parsed.response;
+    } catch {
+      // Already clean, use as-is
+    }
 
     // Save question as turn
     await supabase.from('socratic_turns').insert({
       session_id: session.id,
       role: 'coach',
-      content: question
+      content: finalQuestion
     });
+
+    // Post-save verification
+    if (finalQuestion.includes('"thought"') || finalQuestion.includes('"response"')) {
+      console.error('❌ WARNING: JSON structure still present in saved content!');
+    }
 
     // Update session
     await supabase
@@ -200,7 +248,7 @@ Objective: ${session.objective}
 Score History: ${scoreHistory.join(', ')}
 Average Score: ${avgScore.toFixed(1)}
 
-Generate only the question, no explanations.`;
+CRITICAL: Respond with ONLY the plain text question. No JSON. No "thought" field. Just the question itself.`;
 
       nextQuestion = cleanAIResponse(await geminiCall(nextPrompt));
     } else if (nudgeCount >= 3) {
@@ -211,7 +259,9 @@ Topic: ${session.topic}
 Current Question: ${session.current_question}
 Misconception: ${evaluation.misconception}
 
-Format: "Hint: <brief hint>. Now: <simpler question>"`;
+Format: "Hint: <brief hint>. Now: <simpler question>"
+
+CRITICAL: Respond with ONLY plain text. No JSON formatting.`;
 
       nextQuestion = cleanAIResponse(await geminiCall(moveOnPrompt));
       nextState = 'NUDGE';
@@ -224,17 +274,31 @@ Original Question: ${session.current_question}
 Student's Difficulty: ${evaluation.misconception}
 Attempt: ${nudgeCount + 1}/3
 
-Generate only the simplified question with hint, no explanations.`;
+CRITICAL: Respond with ONLY plain text. No JSON. Just the simplified question with hint.`;
 
       nextQuestion = cleanAIResponse(await geminiCall(nudgePrompt));
+    }
+
+    // Emergency cleaning pass before saving
+    let finalNextQuestion = nextQuestion;
+    try {
+      const parsed = JSON.parse(nextQuestion);
+      if (parsed.response) finalNextQuestion = parsed.response;
+    } catch {
+      // Already clean, use as-is
     }
 
     // Save next question
     await supabase.from('socratic_turns').insert({
       session_id: sessionId,
       role: 'coach',
-      content: nextQuestion
+      content: finalNextQuestion
     });
+
+    // Post-save verification
+    if (finalNextQuestion.includes('"thought"') || finalNextQuestion.includes('"response"')) {
+      console.error('❌ WARNING: JSON structure still present in saved content!');
+    }
 
     // Update session
     await supabase
