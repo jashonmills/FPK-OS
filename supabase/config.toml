@@ -1,1 +1,7 @@
 project_id = "pnxwemmpxldriwaomiey"
+
+[functions.fetch-weather-data]
+verify_jwt = false
+
+[functions.generate-neurodiversity-background]
+verify_jwt = false

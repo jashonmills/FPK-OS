@@ -59,6 +59,11 @@ All colors MUST be HSL.
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
+    /* Glassmorphism effects */
+    --glass-background: 255 255 255 / 0.8;
+    --glass-border: 255 255 255 / 0.2;
+    --glass-shadow: 0 8px 32px 0 hsl(187 75% 45% / 0.1);
+
     /* Sidebar colors */
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 215 25% 15%;
@@ -109,6 +114,11 @@ All colors MUST be HSL.
     --shadow-medium: 0 4px 16px -4px hsl(0 0% 0% / 0.4);
     --shadow-strong: 0 8px 24px -8px hsl(0 0% 0% / 0.5);
 
+    /* Glassmorphism effects (dark) */
+    --glass-background: 215 28% 16% / 0.8;
+    --glass-border: 215 20% 40% / 0.2;
+    --glass-shadow: 0 8px 32px 0 hsl(0 0% 0% / 0.3);
+
     /* Sidebar colors (dark mode) */
     --sidebar-background: 215 28% 16%;
     --sidebar-foreground: 210 25% 95%;
@@ -128,5 +138,25 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .glass {
+    background: hsl(var(--glass-background));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid hsl(var(--glass-border));
+    box-shadow: var(--glass-shadow);
+  }
+
+  .glass-card {
+    @apply glass rounded-xl;
+  }
+
+  .glass-subtle {
+    background: hsl(var(--background) / 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
   }
 }

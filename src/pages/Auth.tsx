@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { Loader2, GraduationCap } from 'lucide-react';
+import { AppBackground } from '@/components/layout/AppBackground';
 
 const Auth = () => {
   const [email, setEmail] = useState('');
@@ -64,9 +65,10 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" 
-         style={{ background: 'var(--gradient-subtle)' }}>
-      <Card className="w-full max-w-md shadow-lg">
+    <>
+      <AppBackground />
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <Card className="glass-card w-full max-w-md shadow-lg">
         <CardHeader className="text-center space-y-2">
           <div className="flex justify-center mb-2">
             <div className="w-16 h-16 rounded-full flex items-center justify-center"
@@ -150,8 +152,9 @@ const Auth = () => {
             </TabsContent>
           </Tabs>
         </CardContent>
-      </Card>
-    </div>
+        </Card>
+      </div>
+    </>
   );
 };
 

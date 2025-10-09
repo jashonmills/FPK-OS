@@ -12,6 +12,7 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import { useEffect } from 'react';
+import { AppBackground } from '@/components/layout/AppBackground';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -54,24 +55,24 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen">
-      {/* Hero Section */}
-      <section
-        className="relative py-20 px-4 overflow-hidden"
-        style={{ background: 'var(--gradient-hero)' }}
-      >
-        <div className="max-w-6xl mx-auto text-center text-white">
-          <div className="flex justify-center mb-6">
-            <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-              <GraduationCap className="w-10 h-10" />
+    <>
+      <AppBackground />
+      <div className="min-h-screen">
+        {/* Hero Section */}
+        <section className="relative py-20 px-4 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-accent/10 to-secondary/20" />
+        <div className="max-w-6xl mx-auto text-center text-foreground relative z-10">
+            <div className="flex justify-center mb-6">
+              <div className="w-20 h-20 rounded-full glass flex items-center justify-center">
+                <GraduationCap className="w-10 h-10 text-primary" />
+              </div>
             </div>
-          </div>
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-            Track Special Education Progress
-            <br />
-            <span className="text-white/90">With Confidence</span>
-          </h1>
-          <p className="text-xl md:text-2xl mb-8 text-white/90 max-w-3xl mx-auto">
+            <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
+              Track Special Education Progress
+              <br />
+              <span className="text-muted-foreground">With Confidence</span>
+            </h1>
+            <p className="text-xl md:text-2xl mb-8 text-muted-foreground max-w-3xl mx-auto">
             Empower families, therapists, and educators to collaborate on student progress tracking
             for autism, ADHD, and other special needs.
           </p>
@@ -85,20 +86,20 @@ const Index = () => {
               Get Started Free
               <ArrowRight className="ml-2" />
             </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              onClick={() => navigate('/auth')}
-              className="text-lg px-8 bg-white/10 text-white border-white/30 hover:bg-white/20"
-            >
-              Sign In
-            </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => navigate('/auth')}
+                className="text-lg px-8 glass"
+              >
+                Sign In
+              </Button>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Features Grid */}
-      <section className="py-20 px-4 bg-background">
+        {/* Features Grid */}
+        <section className="py-20 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
@@ -111,7 +112,7 @@ const Index = () => {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.map((feature, index) => (
-              <Card key={index} className="border-2 hover:shadow-lg transition-shadow">
+              <Card key={index} className="glass-card border-2 hover:shadow-lg transition-shadow">
                 <CardHeader>
                   <div
                     className="w-12 h-12 rounded-lg flex items-center justify-center mb-4"
@@ -130,8 +131,8 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Benefits Section */}
-      <section className="py-20 px-4" style={{ background: 'var(--gradient-subtle)' }}>
+        {/* Benefits Section */}
+        <section className="py-20 px-4">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Why Families Trust Us</h2>
@@ -158,13 +159,14 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-8 px-4 bg-card border-t">
-        <div className="max-w-6xl mx-auto text-center text-muted-foreground">
-          <p>&copy; 2025 Progress Hub. Built for special education families.</p>
-        </div>
-      </footer>
-    </div>
+        {/* Footer */}
+        <footer className="py-8 px-4 glass-subtle border-t">
+          <div className="max-w-6xl mx-auto text-center text-muted-foreground">
+            <p>&copy; 2025 Progress Hub. Built for special education families.</p>
+          </div>
+        </footer>
+      </div>
+    </>
   );
 };
 

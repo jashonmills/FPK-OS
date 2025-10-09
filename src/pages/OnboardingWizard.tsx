@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
 import { ArrowRight, ArrowLeft, Users, UserPlus, Check } from 'lucide-react';
+import { AppBackground } from '@/components/layout/AppBackground';
 
 const DIAGNOSIS_OPTIONS = [
   'Autism Spectrum Disorder',
@@ -163,9 +164,10 @@ const OnboardingWizard = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4"
-         style={{ background: 'var(--gradient-subtle)' }}>
-      <Card className="w-full max-w-2xl shadow-lg">
+    <>
+      <AppBackground />
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <Card className="glass-card w-full max-w-2xl shadow-lg">
         <CardHeader>
           <div className="flex items-center justify-between mb-4">
             <CardTitle className="text-2xl">Welcome to Progress Hub</CardTitle>
@@ -336,8 +338,9 @@ const OnboardingWizard = () => {
             </div>
           )}
         </CardContent>
-      </Card>
-    </div>
+        </Card>
+      </div>
+    </>
   );
 };
 
