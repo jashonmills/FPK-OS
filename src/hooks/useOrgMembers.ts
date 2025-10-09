@@ -43,6 +43,7 @@ export function useOrgMembers(searchQuery?: string, roleFilter?: string) {
           profiles (
             display_name,
             full_name,
+            email,
             avatar_url,
             phone_number,
             phone_extension,
