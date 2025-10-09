@@ -4,8 +4,11 @@ import { IncidentForm } from '@/components/incident-log/IncidentForm';
 import { ParentLogForm } from '@/components/parent-log/ParentLogForm';
 import { SleepLogForm } from '@/components/sleep-log/SleepLogForm';
 import { IncidentTimeline } from '@/components/incident-log/IncidentTimeline';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileText, AlertCircle, Heart, Moon } from 'lucide-react';
+import { ParentLogTimeline } from '@/components/parent-log/ParentLogTimeline';
+import { EducatorLogTimeline } from '@/components/educator-log/EducatorLogTimeline';
+import { EducatorLogForm } from '@/components/educator-log/EducatorLogForm';
+import { ActivityStatsCards } from '@/components/activity-log/ActivityStatsCards';
+import { AlertCircle, Heart, Moon, GraduationCap, BarChart, Activity } from 'lucide-react';
 
 const ActivityLog = () => {
   const [refreshKey, setRefreshKey] = useState(0);
@@ -20,87 +23,93 @@ const ActivityLog = () => {
         <p className="text-muted-foreground">Track incidents, observations, and sleep patterns</p>
       </div>
 
-        <Tabs defaultValue="add-logs" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="add-logs">Add Logs</TabsTrigger>
-            <TabsTrigger value="timeline">Timeline</TabsTrigger>
-          </TabsList>
+      <ActivityStatsCards />
 
-          <TabsContent value="add-logs" className="space-y-6">
-            <div className="grid gap-6 md:grid-cols-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <AlertCircle className="h-5 w-5 text-destructive" />
-                    Incident Report
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <IncidentForm onSuccess={handleLogCreated} />
-                </CardContent>
-              </Card>
+      <Tabs defaultValue="new-incident" className="w-full">
+        <TabsList className="grid w-full grid-cols-6">
+          <TabsTrigger value="new-incident">
+            <AlertCircle className="h-4 w-4 mr-2" />
+            New Incident
+          </TabsTrigger>
+          <TabsTrigger value="parent-log">
+            <Heart className="h-4 w-4 mr-2" />
+            Parent Log
+          </TabsTrigger>
+          <TabsTrigger value="educator-log">
+            <GraduationCap className="h-4 w-4 mr-2" />
+            Educator Log
+          </TabsTrigger>
+          <TabsTrigger value="sleep-log">
+            <Moon className="h-4 w-4 mr-2" />
+            Sleep Log
+          </TabsTrigger>
+          <TabsTrigger value="analytics">
+            <BarChart className="h-4 w-4 mr-2" />
+            Analytics
+          </TabsTrigger>
+          <TabsTrigger value="recent-activity">
+            <Activity className="h-4 w-4 mr-2" />
+            Recent Activity
+          </TabsTrigger>
+        </TabsList>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Heart className="h-5 w-5 text-primary" />
-                    Parent Observation
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ParentLogForm onSuccess={handleLogCreated} />
-                </CardContent>
-              </Card>
+        <TabsContent value="new-incident" className="mt-6">
+          <IncidentForm onSuccess={handleLogCreated} />
+        </TabsContent>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Moon className="h-5 w-5 text-primary" />
-                    Sleep Record
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <SleepLogForm onSuccess={handleLogCreated} />
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
+        <TabsContent value="parent-log" className="mt-6">
+          <ParentLogForm onSuccess={handleLogCreated} />
+        </TabsContent>
 
-          <TabsContent value="timeline" className="space-y-6">
-            <Tabs defaultValue="incidents" className="w-full">
-              <TabsList>
-                <TabsTrigger value="incidents">
-                  <AlertCircle className="h-4 w-4 mr-2" />
-                  Incidents
-                </TabsTrigger>
-                <TabsTrigger value="parent">
-                  <Heart className="h-4 w-4 mr-2" />
-                  Parent Logs
-                </TabsTrigger>
-                <TabsTrigger value="sleep">
-                  <Moon className="h-4 w-4 mr-2" />
-                  Sleep Logs
-                </TabsTrigger>
-              </TabsList>
+        <TabsContent value="educator-log" className="mt-6">
+          <EducatorLogForm onSuccess={handleLogCreated} />
+        </TabsContent>
 
-              <TabsContent value="incidents" className="mt-6">
-                <IncidentTimeline refreshKey={refreshKey} />
-              </TabsContent>
+        <TabsContent value="sleep-log" className="mt-6">
+          <SleepLogForm onSuccess={handleLogCreated} />
+        </TabsContent>
 
-              <TabsContent value="parent" className="mt-6">
-                <div className="text-center py-12 text-muted-foreground">
-                  Parent log timeline coming soon
-                </div>
-              </TabsContent>
+        <TabsContent value="analytics" className="mt-6">
+          <div className="text-center py-12">
+            <BarChart className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <p className="text-muted-foreground">Analytics dashboard coming soon</p>
+            <p className="text-sm text-muted-foreground mt-2">
+              Track trends, patterns, and insights across all logs
+            </p>
+          </div>
+        </TabsContent>
 
-              <TabsContent value="sleep" className="mt-6">
-                <div className="text-center py-12 text-muted-foreground">
-                  Sleep log timeline coming soon
-                </div>
-              </TabsContent>
-            </Tabs>
-          </TabsContent>
-        </Tabs>
+        <TabsContent value="recent-activity" className="mt-6">
+          <Tabs defaultValue="incidents" className="w-full">
+            <TabsList>
+              <TabsTrigger value="incidents">
+                <AlertCircle className="h-4 w-4 mr-2" />
+                Incidents
+              </TabsTrigger>
+              <TabsTrigger value="parent-logs">
+                <Heart className="h-4 w-4 mr-2" />
+                Parent Logs
+              </TabsTrigger>
+              <TabsTrigger value="educator-logs">
+                <GraduationCap className="h-4 w-4 mr-2" />
+                Educator Logs
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="incidents" className="mt-6">
+              <IncidentTimeline refreshKey={refreshKey} />
+            </TabsContent>
+
+            <TabsContent value="parent-logs" className="mt-6">
+              <ParentLogTimeline refreshKey={refreshKey} />
+            </TabsContent>
+
+            <TabsContent value="educator-logs" className="mt-6">
+              <EducatorLogTimeline refreshKey={refreshKey} />
+            </TabsContent>
+          </Tabs>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
