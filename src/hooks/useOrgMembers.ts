@@ -51,8 +51,8 @@ export function useOrgMembers(searchQuery?: string, roleFilter?: string) {
             department
           )
         `)
-        .eq('org_id', orgId);
-        // Removed the .eq('status', 'active') filter to show all members including pending
+        .eq('org_id', orgId)
+        .neq('role', 'student'); // Exclude students from members view
 
       if (roleFilter) {
         query = query.eq('role', roleFilter as 'owner' | 'instructor' | 'student');
