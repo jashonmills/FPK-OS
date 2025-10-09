@@ -1,6 +1,45 @@
 // Socratic Session Handler for AI Study Chat
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
+/**
+ * Cleans AI responses to ensure no internal reasoning is exposed
+ * Strips JSON formatting, thought fields, and meta-commentary
+ */
+function cleanAIResponse(rawResponse: string): string {
+  let cleaned = rawResponse.trim();
+  
+  // Remove JSON wrapper if present
+  const jsonMatch = cleaned.match(/\{\s*"(?:thought|response|analysis|reasoning)"[\s\S]*\}/);
+  if (jsonMatch) {
+    try {
+      const parsed = JSON.parse(jsonMatch[0]);
+      // Extract only the response field if it exists
+      cleaned = parsed.response || parsed.text || parsed.content || cleaned;
+    } catch {
+      // If JSON parsing fails, continue with original
+    }
+  }
+  
+  // Remove common meta-phrases that indicate thinking out loud
+  const metaPhrases = [
+    /^I'm thinking.*/im,
+    /^I need to.*/im,
+    /^Perhaps I should.*/im,
+    /^Let me consider.*/im,
+    /^Based on (?:their|the student's) response.*/im,
+    /^I will now.*/im,
+    /^My reasoning is.*/im,
+    /^The user is.*/im,
+    /^The student is.*/im
+  ];
+  
+  for (const pattern of metaPhrases) {
+    cleaned = cleaned.replace(pattern, '').trim();
+  }
+  
+  return cleaned;
+}
+
 export interface SocraticRequest {
   sessionId?: string;
   userId: string;
@@ -59,7 +98,7 @@ export async function handleSocraticSession(
       ? `The session is starting because it was promoted from a Free Chat. Topic: "${topic}". You MUST generate a complete "Overview and Orient" message with these two parts: (1) Acknowledge the session start and provide a 1-2 sentence, high-level overview of "${topic}". (2) Ask the user to choose a specific direction or sub-topic to explore first, providing 2-3 concrete examples. Follow the exact format specified in BLOCK 3 for promoted sessions.`
       : `The session is a manual start. Topic: "${topic}". Learning Objective: "${objective}". Acknowledge both and begin with a broad opening question about "${topic}". Follow the instructions in BLOCK 3 for manual starts.`;
 
-    const question = await geminiCall(questionPrompt);
+    const question = cleanAIResponse(await geminiCall(questionPrompt));
 
     // Save question as turn
     await supabase.from('socratic_turns').insert({
@@ -115,7 +154,7 @@ Topic: ${session.topic}
 Objective: ${session.objective}
 Student Response: "${studentResponse}"
 
-Return ONLY a JSON object with this exact format:
+CRITICAL: Return ONLY valid JSON with this EXACT format. NO additional text, thoughts, or commentary:
 {"score": <0-3>, "misconception": "<brief explanation if score < 3, or empty string>"}`;
 
     const evalText = await geminiCall(evaluationPrompt);
@@ -163,7 +202,7 @@ Average Score: ${avgScore.toFixed(1)}
 
 Generate only the question, no explanations.`;
 
-      nextQuestion = await geminiCall(nextPrompt);
+      nextQuestion = cleanAIResponse(await geminiCall(nextPrompt));
     } else if (nudgeCount >= 3) {
       // Too many nudges, provide stronger hint and move on
       const moveOnPrompt = `The student is struggling after ${nudgeCount} attempts. Provide ONE clear hint (max 30 words) and then ask a slightly easier question about the same concept:
@@ -174,7 +213,7 @@ Misconception: ${evaluation.misconception}
 
 Format: "Hint: <brief hint>. Now: <simpler question>"`;
 
-      nextQuestion = await geminiCall(moveOnPrompt);
+      nextQuestion = cleanAIResponse(await geminiCall(moveOnPrompt));
       nextState = 'NUDGE';
     } else {
       // Provide nudge/hint
@@ -187,7 +226,7 @@ Attempt: ${nudgeCount + 1}/3
 
 Generate only the simplified question with hint, no explanations.`;
 
-      nextQuestion = await geminiCall(nudgePrompt);
+      nextQuestion = cleanAIResponse(await geminiCall(nudgePrompt));
     }
 
     // Save next question
