@@ -83,24 +83,42 @@ export const FamilyProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         `)
         .eq('user_id', userId);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching memberships:', error);
+        throw error;
+      }
+
+      console.log('Memberships data:', memberships);
 
       if (memberships && memberships.length > 0) {
+        // Extract families from memberships - handle both nested object and array formats
         const familyList = memberships
-          .map(m => m.families)
-          .filter((f): f is Family => f !== null);
+          .map(m => {
+            // Supabase returns nested relations as objects, not arrays
+            const family = m.families as any;
+            return family;
+          })
+          .filter((f): f is Family => f !== null && f !== undefined);
         
+        console.log('Extracted families:', familyList);
         setFamilies(familyList);
 
         // Auto-select family
         const storedFamilyId = localStorage.getItem('selected_family_id');
         const defaultFamily = familyList.find(f => f.id === storedFamilyId) || familyList[0];
         
+        console.log('Selected family:', defaultFamily);
+        
         if (defaultFamily) {
           setSelectedFamilyState(defaultFamily);
-          const membership = memberships.find(m => m.families?.id === defaultFamily.id);
+          const membership = memberships.find(m => {
+            const fam = m.families as any;
+            return fam?.id === defaultFamily.id;
+          });
           setFamilyMembership(membership || null);
         }
+      } else {
+        console.log('No memberships found for user');
       }
     } catch (error) {
       console.error('Error loading families:', error);
