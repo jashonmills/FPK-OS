@@ -666,6 +666,7 @@ export type Database = {
       }
       sleep_records: {
         Row: {
+          aqi_us: number | null
           bedtime: string
           created_at: string | null
           created_by: string
@@ -679,6 +680,8 @@ export type Database = {
           nap_time: string | null
           nighttime_awakenings: number | null
           notes: string | null
+          pm10: number | null
+          pm25: number | null
           pre_bed_activities: string[] | null
           sleep_date: string
           sleep_disturbances: string[] | null
@@ -688,8 +691,16 @@ export type Database = {
           total_sleep_hours: number | null
           updated_at: string | null
           wake_time: string
+          weather_condition: string | null
+          weather_fetched_at: string | null
+          weather_humidity: number | null
+          weather_pressure_mb: number | null
+          weather_temp_c: number | null
+          weather_temp_f: number | null
+          weather_wind_speed: number | null
         }
         Insert: {
+          aqi_us?: number | null
           bedtime: string
           created_at?: string | null
           created_by: string
@@ -703,6 +714,8 @@ export type Database = {
           nap_time?: string | null
           nighttime_awakenings?: number | null
           notes?: string | null
+          pm10?: number | null
+          pm25?: number | null
           pre_bed_activities?: string[] | null
           sleep_date: string
           sleep_disturbances?: string[] | null
@@ -712,8 +725,16 @@ export type Database = {
           total_sleep_hours?: number | null
           updated_at?: string | null
           wake_time: string
+          weather_condition?: string | null
+          weather_fetched_at?: string | null
+          weather_humidity?: number | null
+          weather_pressure_mb?: number | null
+          weather_temp_c?: number | null
+          weather_temp_f?: number | null
+          weather_wind_speed?: number | null
         }
         Update: {
+          aqi_us?: number | null
           bedtime?: string
           created_at?: string | null
           created_by?: string
@@ -727,6 +748,8 @@ export type Database = {
           nap_time?: string | null
           nighttime_awakenings?: number | null
           notes?: string | null
+          pm10?: number | null
+          pm25?: number | null
           pre_bed_activities?: string[] | null
           sleep_date?: string
           sleep_disturbances?: string[] | null
@@ -736,6 +759,13 @@ export type Database = {
           total_sleep_hours?: number | null
           updated_at?: string | null
           wake_time?: string
+          weather_condition?: string | null
+          weather_fetched_at?: string | null
+          weather_humidity?: number | null
+          weather_pressure_mb?: number | null
+          weather_temp_c?: number | null
+          weather_temp_f?: number | null
+          weather_wind_speed?: number | null
         }
         Relationships: [
           {

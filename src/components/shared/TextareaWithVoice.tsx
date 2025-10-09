@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, forwardRef } from 'react';
 import { Mic, MicOff } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -10,12 +10,12 @@ interface TextareaWithVoiceProps extends React.TextareaHTMLAttributes<HTMLTextAr
   onVoiceTranscript?: (transcript: string) => void;
 }
 
-export const TextareaWithVoice = ({
+export const TextareaWithVoice = forwardRef<HTMLTextAreaElement, TextareaWithVoiceProps>(({
   value,
   onChange,
   onVoiceTranscript,
   ...props
-}: TextareaWithVoiceProps) => {
+}, ref) => {
   const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
 
@@ -58,7 +58,7 @@ export const TextareaWithVoice = ({
 
   return (
     <div className="relative">
-      <Textarea value={value} onChange={onChange} {...props} className="pr-12" />
+      <Textarea ref={ref} value={value} onChange={onChange} {...props} className="pr-12" />
       <Button
         type="button"
         size="icon"
@@ -70,4 +70,6 @@ export const TextareaWithVoice = ({
       </Button>
     </div>
   );
-};
+});
+
+TextareaWithVoice.displayName = 'TextareaWithVoice';

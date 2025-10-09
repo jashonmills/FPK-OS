@@ -8,6 +8,7 @@ import { ParentLogTimeline } from '@/components/parent-log/ParentLogTimeline';
 import { EducatorLogTimeline } from '@/components/educator-log/EducatorLogTimeline';
 import { EducatorLogForm } from '@/components/educator-log/EducatorLogForm';
 import { ActivityStatsCards } from '@/components/activity-log/ActivityStatsCards';
+import { LiveWeatherDisplay } from '@/components/weather/LiveWeatherDisplay';
 import { AlertCircle, Heart, Moon, GraduationCap, BarChart, Activity } from 'lucide-react';
 
 const ActivityLog = () => {
@@ -22,6 +23,8 @@ const ActivityLog = () => {
       <div className="mb-4">
         <p className="text-muted-foreground">Track incidents, observations, and sleep patterns</p>
       </div>
+
+      <LiveWeatherDisplay />
 
       <ActivityStatsCards />
 

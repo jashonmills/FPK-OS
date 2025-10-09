@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { TextareaWithVoice } from '@/components/shared/TextareaWithVoice';
 import { useAuth } from '@/hooks/useAuth';
+import { fetchWeatherData } from '@/utils/weatherService';
 
 interface SleepLogFormProps {
   onSuccess?: () => void;
@@ -58,6 +59,8 @@ export const SleepLogForm = ({ onSuccess }: SleepLogFormProps) => {
 
     setIsSubmitting(true);
     try {
+      // Fetch weather data
+      const weatherData = await fetchWeatherData();
       const totalSleepHours = calculateSleepHours(data.bedtime, data.wake_time);
 
       const { error } = await supabase
@@ -70,6 +73,17 @@ export const SleepLogForm = ({ onSuccess }: SleepLogFormProps) => {
           total_sleep_hours: totalSleepHours,
           nighttime_awakenings: Number(data.nighttime_awakenings),
           nap_duration_minutes: data.nap_duration_minutes ? Number(data.nap_duration_minutes) : null,
+          // Weather & air quality data
+          weather_temp_f: weatherData.weather_temp_f,
+          weather_temp_c: weatherData.weather_temp_c ? parseFloat(weatherData.weather_temp_c) : null,
+          weather_humidity: weatherData.weather_humidity,
+          weather_pressure_mb: weatherData.weather_pressure_mb,
+          weather_wind_speed: weatherData.weather_wind_speed,
+          weather_condition: weatherData.weather_condition,
+          weather_fetched_at: weatherData.weather_fetched_at,
+          aqi_us: weatherData.aqi_us,
+          pm25: weatherData.pm25,
+          pm10: weatherData.pm10,
         });
 
       if (error) throw error;
