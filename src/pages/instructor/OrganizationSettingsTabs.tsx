@@ -32,6 +32,7 @@ import { MemberProfileDialog } from '@/components/org/MemberProfileDialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { InstructorProfileSection } from '@/components/instructor/InstructorProfileSection';
 import { MemberCard } from '@/components/org/MemberCard';
+import { PendingInvitationsList } from '@/components/org/PendingInvitationsList';
 
 const ACCENT_PRESETS = [
   { name: 'FPK Purple', value: '280 100% 70%', hex: '#a855f7' },
@@ -683,6 +684,9 @@ export default function OrganizationSettingsTabs() {
                 </p>
               </OrgCardContent>
             </OrgCard>
+
+            {/* Pending Invitations List */}
+            <PendingInvitationsList />
 
           </div>
 
