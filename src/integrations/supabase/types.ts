@@ -579,6 +579,50 @@ export type Database = {
           },
         ]
       }
+      invites: {
+        Row: {
+          created_at: string | null
+          expires_at: string | null
+          family_id: string
+          id: string
+          invitee_email: string
+          inviter_id: string
+          role: string
+          status: string
+          token: string
+        }
+        Insert: {
+          created_at?: string | null
+          expires_at?: string | null
+          family_id: string
+          id?: string
+          invitee_email: string
+          inviter_id: string
+          role: string
+          status?: string
+          token?: string
+        }
+        Update: {
+          created_at?: string | null
+          expires_at?: string | null
+          family_id?: string
+          id?: string
+          invitee_email?: string
+          inviter_id?: string
+          role?: string
+          status?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invites_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           created_at: string | null
@@ -1109,6 +1153,10 @@ export type Database = {
           total_sleep_hours: number
         }[]
       }
+      get_user_family_role: {
+        Args: { _family_id: string; _user_id: string }
+        Returns: string
+      }
       get_weekly_mood_counts: {
         Args: { p_family_id: string; p_student_id: string }
         Returns: {
@@ -1125,6 +1173,10 @@ export type Database = {
       is_family_owner: {
         Args: { _family_id: string; _user_id: string }
         Returns: boolean
+      }
+      mark_expired_invites: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
     }
     Enums: {
