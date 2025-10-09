@@ -17,16 +17,21 @@ Deno.serve(async (req) => {
     // Weather data
     const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,weather_code&temperature_unit=fahrenheit`;
     
-    // Air quality data
-    const airQualityUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${latitude}&longitude=${longitude}&current=us_aqi,pm10,pm2_5`;
+    // Extended air quality data (US AQI + European AQI + individual pollutants)
+    const airQualityUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${latitude}&longitude=${longitude}&current=us_aqi,european_aqi,pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,sulphur_dioxide,ozone`;
+    
+    // Pollen data
+    const pollenUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${latitude}&longitude=${longitude}&current=alder_pollen,birch_pollen,grass_pollen,mugwort_pollen,olive_pollen,ragweed_pollen`;
 
-    const [weatherRes, airRes] = await Promise.all([
+    const [weatherRes, airRes, pollenRes] = await Promise.all([
       fetch(weatherUrl),
-      fetch(airQualityUrl)
+      fetch(airQualityUrl),
+      fetch(pollenUrl)
     ]);
 
     const weatherData = await weatherRes.json();
     const airData = await airRes.json();
+    const pollenData = await pollenRes.json();
 
     // Weather code to condition mapping (simplified)
     const weatherCodeMap: { [key: number]: string } = {
@@ -59,6 +64,8 @@ Deno.serve(async (req) => {
     const weatherCode = weatherData.current?.weather_code || 0;
     const condition = weatherCodeMap[weatherCode] || 'Unknown';
 
+    const fetchedAt = new Date().toISOString();
+    
     return new Response(JSON.stringify({
       weather_condition: condition,
       weather_temp_f: weatherData.current?.temperature_2m,
@@ -66,10 +73,22 @@ Deno.serve(async (req) => {
       weather_humidity: weatherData.current?.relative_humidity_2m,
       weather_pressure_mb: weatherData.current?.surface_pressure,
       weather_wind_speed: weatherData.current?.wind_speed_10m,
-      weather_fetched_at: new Date().toISOString(),
+      weather_fetched_at: fetchedAt,
       aqi_us: airData.current?.us_aqi,
+      aqi_european: airData.current?.european_aqi,
       pm25: airData.current?.pm2_5,
       pm10: airData.current?.pm10,
+      o3: airData.current?.ozone,
+      no2: airData.current?.nitrogen_dioxide,
+      so2: airData.current?.sulphur_dioxide,
+      co: airData.current?.carbon_monoxide,
+      pollen_alder: pollenData.current?.alder_pollen,
+      pollen_birch: pollenData.current?.birch_pollen,
+      pollen_grass: pollenData.current?.grass_pollen,
+      pollen_mugwort: pollenData.current?.mugwort_pollen,
+      pollen_olive: pollenData.current?.olive_pollen,
+      pollen_ragweed: pollenData.current?.ragweed_pollen,
+      air_quality_fetched_at: fetchedAt,
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });

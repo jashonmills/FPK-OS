@@ -14,6 +14,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { fetchWeatherData } from '@/utils/weatherService';
 import { uploadLogImages } from '@/utils/imageUpload';
 import { useAuth } from '@/hooks/useAuth';
+import { MultiSelectButtons } from '@/components/shared/MultiSelectButtons';
+import { ArrayTextInput } from '@/components/shared/ArrayTextInput';
 
 interface IncidentFormProps {
   onSuccess?: () => void;
@@ -46,6 +48,9 @@ export const IncidentForm = ({ onSuccess }: IncidentFormProps) => {
       notification_method: '',
       follow_up_required: false,
       follow_up_notes: '',
+      environmental_factors: [] as string[],
+      witnesses: [] as string[],
+      tags: [] as string[],
     }
   });
 
@@ -241,6 +246,23 @@ export const IncidentForm = ({ onSuccess }: IncidentFormProps) => {
 
         <FormField
           control={form.control}
+          name="consequence"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Consequence (What happened after?)</FormLabel>
+              <FormControl>
+                <TextareaWithVoice
+                  {...field}
+                  placeholder="What was the result of the behavior?"
+                  rows={2}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
           name="intervention_used"
           render={({ field }) => (
             <FormItem>
@@ -250,6 +272,58 @@ export const IncidentForm = ({ onSuccess }: IncidentFormProps) => {
                   {...field}
                   placeholder="What strategies were used?"
                   rows={2}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="environmental_factors"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Environmental Factors</FormLabel>
+              <FormControl>
+                <MultiSelectButtons
+                  options={['Loud Noise', 'Crowded Space', 'Bright Lights', 'Temperature Change', 'Transition', 'Schedule Change', 'New Person', 'Other']}
+                  selected={field.value}
+                  onSelect={field.onChange}
+                  placeholder="Select all that apply"
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="witnesses"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Witnesses</FormLabel>
+              <FormControl>
+                <ArrayTextInput
+                  values={field.value}
+                  onChange={field.onChange}
+                  placeholder="Add witness names..."
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="tags"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Tags</FormLabel>
+              <FormControl>
+                <ArrayTextInput
+                  values={field.value}
+                  onChange={field.onChange}
+                  placeholder="Add custom tags..."
                 />
               </FormControl>
             </FormItem>

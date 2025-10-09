@@ -13,6 +13,8 @@ import { ImageUploadPreview } from '@/components/shared/ImageUploadPreview';
 import { fetchWeatherData } from '@/utils/weatherService';
 import { uploadLogImages } from '@/utils/imageUpload';
 import { useAuth } from '@/hooks/useAuth';
+import { MultiSelectButtons } from '@/components/shared/MultiSelectButtons';
+import { ArrayTextInput } from '@/components/shared/ArrayTextInput';
 
 interface ParentLogFormProps {
   onSuccess?: () => void;
@@ -34,12 +36,14 @@ export const ParentLogForm = ({ onSuccess }: ParentLogFormProps) => {
       activity_type: '',
       observation: '',
       mood: '',
+      sensory_factors: [] as string[],
       communication_attempts: '',
       successes: '',
       challenges: '',
       strategies_used: '',
       duration_minutes: '',
       notes: '',
+      tags: [] as string[],
     }
   });
 
@@ -204,6 +208,41 @@ export const ParentLogForm = ({ onSuccess }: ParentLogFormProps) => {
 
         <FormField
           control={form.control}
+          name="sensory_factors"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Sensory Factors</FormLabel>
+              <FormControl>
+                <MultiSelectButtons
+                  options={['Seeking Input', 'Avoiding Touch', 'Sound Sensitive', 'Visual Sensitivity', 'Oral/Taste Seeking', 'Movement Seeking', 'Other']}
+                  selected={field.value}
+                  onSelect={field.onChange}
+                  placeholder="Select all that apply"
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="communication_attempts"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Communication Attempts</FormLabel>
+              <FormControl>
+                <TextareaWithVoice
+                  {...field}
+                  placeholder="How did the student attempt to communicate?"
+                  rows={2}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
           name="successes"
           render={({ field }) => (
             <FormItem>
@@ -247,6 +286,36 @@ export const ParentLogForm = ({ onSuccess }: ParentLogFormProps) => {
                   {...field}
                   placeholder="What techniques or strategies did you use?"
                   rows={2}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="duration_minutes"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Duration (minutes)</FormLabel>
+              <FormControl>
+                <Input type="number" {...field} placeholder="How long?" />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="tags"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Tags</FormLabel>
+              <FormControl>
+                <ArrayTextInput
+                  values={field.value}
+                  onChange={field.onChange}
+                  placeholder="Add custom tags..."
                 />
               </FormControl>
             </FormItem>

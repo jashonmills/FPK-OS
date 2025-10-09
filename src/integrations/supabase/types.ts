@@ -18,11 +18,14 @@ export type Database = {
         Row: {
           accuracy_percentage: number | null
           activities_completed: string[] | null
+          air_quality_fetched_at: string | null
+          aqi_european: number | null
           aqi_us: number | null
           areas_for_improvement: string | null
           attachments: Json | null
           behavioral_observations: string | null
           challenges: string | null
+          co: number | null
           correct_responses: number | null
           created_at: string | null
           created_by: string
@@ -40,10 +43,18 @@ export type Database = {
           materials_used: string[] | null
           modifications_used: string[] | null
           next_steps: string | null
+          no2: number | null
+          o3: number | null
           parent_communication: string | null
           performance_level: string | null
           pm10: number | null
           pm25: number | null
+          pollen_alder: number | null
+          pollen_birch: number | null
+          pollen_grass: number | null
+          pollen_mugwort: number | null
+          pollen_olive: number | null
+          pollen_ragweed: number | null
           progress_notes: string | null
           prompting_level: string | null
           session_duration_minutes: number | null
@@ -51,6 +62,7 @@ export type Database = {
           session_start_time: string | null
           skills_practiced: string[] | null
           skills_worked_on: string[] | null
+          so2: number | null
           strengths_observed: string | null
           student_id: string
           subject_area: string | null
@@ -69,11 +81,14 @@ export type Database = {
         Insert: {
           accuracy_percentage?: number | null
           activities_completed?: string[] | null
+          air_quality_fetched_at?: string | null
+          aqi_european?: number | null
           aqi_us?: number | null
           areas_for_improvement?: string | null
           attachments?: Json | null
           behavioral_observations?: string | null
           challenges?: string | null
+          co?: number | null
           correct_responses?: number | null
           created_at?: string | null
           created_by: string
@@ -91,10 +106,18 @@ export type Database = {
           materials_used?: string[] | null
           modifications_used?: string[] | null
           next_steps?: string | null
+          no2?: number | null
+          o3?: number | null
           parent_communication?: string | null
           performance_level?: string | null
           pm10?: number | null
           pm25?: number | null
+          pollen_alder?: number | null
+          pollen_birch?: number | null
+          pollen_grass?: number | null
+          pollen_mugwort?: number | null
+          pollen_olive?: number | null
+          pollen_ragweed?: number | null
           progress_notes?: string | null
           prompting_level?: string | null
           session_duration_minutes?: number | null
@@ -102,6 +125,7 @@ export type Database = {
           session_start_time?: string | null
           skills_practiced?: string[] | null
           skills_worked_on?: string[] | null
+          so2?: number | null
           strengths_observed?: string | null
           student_id: string
           subject_area?: string | null
@@ -120,11 +144,14 @@ export type Database = {
         Update: {
           accuracy_percentage?: number | null
           activities_completed?: string[] | null
+          air_quality_fetched_at?: string | null
+          aqi_european?: number | null
           aqi_us?: number | null
           areas_for_improvement?: string | null
           attachments?: Json | null
           behavioral_observations?: string | null
           challenges?: string | null
+          co?: number | null
           correct_responses?: number | null
           created_at?: string | null
           created_by?: string
@@ -142,10 +169,18 @@ export type Database = {
           materials_used?: string[] | null
           modifications_used?: string[] | null
           next_steps?: string | null
+          no2?: number | null
+          o3?: number | null
           parent_communication?: string | null
           performance_level?: string | null
           pm10?: number | null
           pm25?: number | null
+          pollen_alder?: number | null
+          pollen_birch?: number | null
+          pollen_grass?: number | null
+          pollen_mugwort?: number | null
+          pollen_olive?: number | null
+          pollen_ragweed?: number | null
           progress_notes?: string | null
           prompting_level?: string | null
           session_duration_minutes?: number | null
@@ -153,6 +188,7 @@ export type Database = {
           session_start_time?: string | null
           skills_practiced?: string[] | null
           skills_worked_on?: string[] | null
+          so2?: number | null
           strengths_observed?: string | null
           student_id?: string
           subject_area?: string | null
@@ -305,10 +341,13 @@ export type Database = {
       }
       incident_logs: {
         Row: {
+          air_quality_fetched_at: string | null
           antecedent: string | null
+          aqi_european: number | null
           aqi_us: number | null
           attachments: Json | null
           behavior_description: string
+          co: number | null
           consequence: string | null
           created_at: string | null
           created_by: string
@@ -325,13 +364,22 @@ export type Database = {
           injury_details: string | null
           intervention_used: string | null
           location: string
+          no2: number | null
           notification_method: string | null
+          o3: number | null
           parent_notified: boolean | null
           pm10: number | null
           pm25: number | null
+          pollen_alder: number | null
+          pollen_birch: number | null
+          pollen_grass: number | null
+          pollen_mugwort: number | null
+          pollen_olive: number | null
+          pollen_ragweed: number | null
           reporter_name: string
           reporter_role: string
           severity: string
+          so2: number | null
           student_id: string
           tags: string[] | null
           updated_at: string | null
@@ -345,10 +393,13 @@ export type Database = {
           witnesses: string[] | null
         }
         Insert: {
+          air_quality_fetched_at?: string | null
           antecedent?: string | null
+          aqi_european?: number | null
           aqi_us?: number | null
           attachments?: Json | null
           behavior_description: string
+          co?: number | null
           consequence?: string | null
           created_at?: string | null
           created_by: string
@@ -365,13 +416,22 @@ export type Database = {
           injury_details?: string | null
           intervention_used?: string | null
           location: string
+          no2?: number | null
           notification_method?: string | null
+          o3?: number | null
           parent_notified?: boolean | null
           pm10?: number | null
           pm25?: number | null
+          pollen_alder?: number | null
+          pollen_birch?: number | null
+          pollen_grass?: number | null
+          pollen_mugwort?: number | null
+          pollen_olive?: number | null
+          pollen_ragweed?: number | null
           reporter_name: string
           reporter_role: string
           severity: string
+          so2?: number | null
           student_id: string
           tags?: string[] | null
           updated_at?: string | null
@@ -385,10 +445,13 @@ export type Database = {
           witnesses?: string[] | null
         }
         Update: {
+          air_quality_fetched_at?: string | null
           antecedent?: string | null
+          aqi_european?: number | null
           aqi_us?: number | null
           attachments?: Json | null
           behavior_description?: string
+          co?: number | null
           consequence?: string | null
           created_at?: string | null
           created_by?: string
@@ -405,13 +468,22 @@ export type Database = {
           injury_details?: string | null
           intervention_used?: string | null
           location?: string
+          no2?: number | null
           notification_method?: string | null
+          o3?: number | null
           parent_notified?: boolean | null
           pm10?: number | null
           pm25?: number | null
+          pollen_alder?: number | null
+          pollen_birch?: number | null
+          pollen_grass?: number | null
+          pollen_mugwort?: number | null
+          pollen_olive?: number | null
+          pollen_ragweed?: number | null
           reporter_name?: string
           reporter_role?: string
           severity?: string
+          so2?: number | null
           student_id?: string
           tags?: string[] | null
           updated_at?: string | null
@@ -480,9 +552,12 @@ export type Database = {
       parent_logs: {
         Row: {
           activity_type: string
+          air_quality_fetched_at: string | null
+          aqi_european: number | null
           aqi_us: number | null
           attachments: Json | null
           challenges: string | null
+          co: number | null
           communication_attempts: string | null
           created_at: string | null
           created_by: string
@@ -493,12 +568,21 @@ export type Database = {
           log_date: string
           log_time: string
           mood: string | null
+          no2: number | null
           notes: string | null
+          o3: number | null
           observation: string
           pm10: number | null
           pm25: number | null
+          pollen_alder: number | null
+          pollen_birch: number | null
+          pollen_grass: number | null
+          pollen_mugwort: number | null
+          pollen_olive: number | null
+          pollen_ragweed: number | null
           reporter_name: string
           sensory_factors: string[] | null
+          so2: number | null
           strategies_used: string | null
           student_id: string
           successes: string | null
@@ -514,9 +598,12 @@ export type Database = {
         }
         Insert: {
           activity_type: string
+          air_quality_fetched_at?: string | null
+          aqi_european?: number | null
           aqi_us?: number | null
           attachments?: Json | null
           challenges?: string | null
+          co?: number | null
           communication_attempts?: string | null
           created_at?: string | null
           created_by: string
@@ -527,12 +614,21 @@ export type Database = {
           log_date: string
           log_time: string
           mood?: string | null
+          no2?: number | null
           notes?: string | null
+          o3?: number | null
           observation: string
           pm10?: number | null
           pm25?: number | null
+          pollen_alder?: number | null
+          pollen_birch?: number | null
+          pollen_grass?: number | null
+          pollen_mugwort?: number | null
+          pollen_olive?: number | null
+          pollen_ragweed?: number | null
           reporter_name: string
           sensory_factors?: string[] | null
+          so2?: number | null
           strategies_used?: string | null
           student_id: string
           successes?: string | null
@@ -548,9 +644,12 @@ export type Database = {
         }
         Update: {
           activity_type?: string
+          air_quality_fetched_at?: string | null
+          aqi_european?: number | null
           aqi_us?: number | null
           attachments?: Json | null
           challenges?: string | null
+          co?: number | null
           communication_attempts?: string | null
           created_at?: string | null
           created_by?: string
@@ -561,12 +660,21 @@ export type Database = {
           log_date?: string
           log_time?: string
           mood?: string | null
+          no2?: number | null
           notes?: string | null
+          o3?: number | null
           observation?: string
           pm10?: number | null
           pm25?: number | null
+          pollen_alder?: number | null
+          pollen_birch?: number | null
+          pollen_grass?: number | null
+          pollen_mugwort?: number | null
+          pollen_olive?: number | null
+          pollen_ragweed?: number | null
           reporter_name?: string
           sensory_factors?: string[] | null
+          so2?: number | null
           strategies_used?: string | null
           student_id?: string
           successes?: string | null
@@ -666,27 +774,48 @@ export type Database = {
       }
       sleep_records: {
         Row: {
+          air_quality_fetched_at: string | null
+          aqi_european: number | null
           aqi_us: number | null
+          asleep_location: string | null
           bedtime: string
+          co: number | null
           created_at: string | null
           created_by: string
           daytime_fatigue_level: number | null
+          daytime_medication_details: string | null
+          daytime_medication_taken: boolean | null
+          daytime_notes: string | null
           disturbance_details: string | null
+          disturbances: string[] | null
           family_id: string
+          fell_asleep_in_school: boolean | null
+          fell_asleep_time: string | null
           id: string
           medication_details: string | null
           nap_duration_minutes: number | null
+          nap_end_time: string | null
+          nap_start_time: string | null
           nap_taken: boolean | null
           nap_time: string | null
           nighttime_awakenings: number | null
+          no2: number | null
           notes: string | null
+          o3: number | null
           pm10: number | null
           pm25: number | null
+          pollen_alder: number | null
+          pollen_birch: number | null
+          pollen_grass: number | null
+          pollen_mugwort: number | null
+          pollen_olive: number | null
+          pollen_ragweed: number | null
           pre_bed_activities: string[] | null
           sleep_date: string
           sleep_disturbances: string[] | null
           sleep_medication: boolean | null
           sleep_quality_rating: number | null
+          so2: number | null
           student_id: string
           total_sleep_hours: number | null
           updated_at: string | null
@@ -700,27 +829,48 @@ export type Database = {
           weather_wind_speed: number | null
         }
         Insert: {
+          air_quality_fetched_at?: string | null
+          aqi_european?: number | null
           aqi_us?: number | null
+          asleep_location?: string | null
           bedtime: string
+          co?: number | null
           created_at?: string | null
           created_by: string
           daytime_fatigue_level?: number | null
+          daytime_medication_details?: string | null
+          daytime_medication_taken?: boolean | null
+          daytime_notes?: string | null
           disturbance_details?: string | null
+          disturbances?: string[] | null
           family_id: string
+          fell_asleep_in_school?: boolean | null
+          fell_asleep_time?: string | null
           id?: string
           medication_details?: string | null
           nap_duration_minutes?: number | null
+          nap_end_time?: string | null
+          nap_start_time?: string | null
           nap_taken?: boolean | null
           nap_time?: string | null
           nighttime_awakenings?: number | null
+          no2?: number | null
           notes?: string | null
+          o3?: number | null
           pm10?: number | null
           pm25?: number | null
+          pollen_alder?: number | null
+          pollen_birch?: number | null
+          pollen_grass?: number | null
+          pollen_mugwort?: number | null
+          pollen_olive?: number | null
+          pollen_ragweed?: number | null
           pre_bed_activities?: string[] | null
           sleep_date: string
           sleep_disturbances?: string[] | null
           sleep_medication?: boolean | null
           sleep_quality_rating?: number | null
+          so2?: number | null
           student_id: string
           total_sleep_hours?: number | null
           updated_at?: string | null
@@ -734,27 +884,48 @@ export type Database = {
           weather_wind_speed?: number | null
         }
         Update: {
+          air_quality_fetched_at?: string | null
+          aqi_european?: number | null
           aqi_us?: number | null
+          asleep_location?: string | null
           bedtime?: string
+          co?: number | null
           created_at?: string | null
           created_by?: string
           daytime_fatigue_level?: number | null
+          daytime_medication_details?: string | null
+          daytime_medication_taken?: boolean | null
+          daytime_notes?: string | null
           disturbance_details?: string | null
+          disturbances?: string[] | null
           family_id?: string
+          fell_asleep_in_school?: boolean | null
+          fell_asleep_time?: string | null
           id?: string
           medication_details?: string | null
           nap_duration_minutes?: number | null
+          nap_end_time?: string | null
+          nap_start_time?: string | null
           nap_taken?: boolean | null
           nap_time?: string | null
           nighttime_awakenings?: number | null
+          no2?: number | null
           notes?: string | null
+          o3?: number | null
           pm10?: number | null
           pm25?: number | null
+          pollen_alder?: number | null
+          pollen_birch?: number | null
+          pollen_grass?: number | null
+          pollen_mugwort?: number | null
+          pollen_olive?: number | null
+          pollen_ragweed?: number | null
           pre_bed_activities?: string[] | null
           sleep_date?: string
           sleep_disturbances?: string[] | null
           sleep_medication?: boolean | null
           sleep_quality_rating?: number | null
+          so2?: number | null
           student_id?: string
           total_sleep_hours?: number | null
           updated_at?: string | null

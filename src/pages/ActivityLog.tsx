@@ -6,7 +6,7 @@ import { SleepLogForm } from '@/components/sleep-log/SleepLogForm';
 import { IncidentTimeline } from '@/components/incident-log/IncidentTimeline';
 import { ParentLogTimeline } from '@/components/parent-log/ParentLogTimeline';
 import { EducatorLogTimeline } from '@/components/educator-log/EducatorLogTimeline';
-import { EducatorLogForm } from '@/components/educator-log/EducatorLogForm';
+import { EducatorLogFormComplete } from '@/components/educator-log/EducatorLogFormComplete';
 import { ActivityStatsCards } from '@/components/activity-log/ActivityStatsCards';
 import { LiveWeatherDisplay } from '@/components/weather/LiveWeatherDisplay';
 import { AlertCircle, Heart, Moon, GraduationCap, BarChart, Activity } from 'lucide-react';
@@ -65,7 +65,7 @@ const ActivityLog = () => {
         </TabsContent>
 
         <TabsContent value="educator-log" className="mt-6">
-          <EducatorLogForm onSuccess={handleLogCreated} />
+          <EducatorLogFormComplete onSuccess={handleLogCreated} />
         </TabsContent>
 
         <TabsContent value="sleep-log" className="mt-6">
