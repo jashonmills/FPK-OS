@@ -5973,6 +5973,7 @@ export type Database = {
           department: string | null
           display_name: string | null
           dual_language_enabled: boolean | null
+          email: string | null
           email_notifications: Json | null
           font_family: string | null
           full_name: string | null
@@ -6012,6 +6013,7 @@ export type Database = {
           department?: string | null
           display_name?: string | null
           dual_language_enabled?: boolean | null
+          email?: string | null
           email_notifications?: Json | null
           font_family?: string | null
           full_name?: string | null
@@ -6051,6 +6053,7 @@ export type Database = {
           department?: string | null
           display_name?: string | null
           dual_language_enabled?: boolean | null
+          email?: string | null
           email_notifications?: Json | null
           font_family?: string | null
           full_name?: string | null
