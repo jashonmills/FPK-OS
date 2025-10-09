@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -25,8 +25,15 @@ const DIAGNOSIS_OPTIONS = [
 
 const OnboardingWizard = () => {
   const [step, setStep] = useState(1);
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // If no user, redirect to auth
+    if (!user) {
+      navigate('/auth');
+    }
+  }, [user, navigate]);
 
   // Step 1: Family Profile
   const [familyName, setFamilyName] = useState('');
@@ -50,17 +57,31 @@ const OnboardingWizard = () => {
   };
 
   const handleSubmit = async () => {
-    if (!user) return;
+    if (!user || !session) {
+      toast.error('Authentication required. Please sign in again.');
+      navigate('/auth');
+      return;
+    }
 
     try {
+      console.log('Starting onboarding with user:', user.id);
+
       // 1. Create family
       const { data: family, error: familyError } = await supabase
         .from('families')
-        .insert({ family_name: familyName, created_by: user.id })
+        .insert({ 
+          family_name: familyName, 
+          created_by: user.id 
+        })
         .select()
         .single();
 
-      if (familyError) throw familyError;
+      if (familyError) {
+        console.error('Family creation error:', familyError);
+        throw new Error(`Failed to create family: ${familyError.message}`);
+      }
+
+      console.log('Family created:', family);
 
       // 2. Add user as family owner
       const { error: memberError } = await supabase
@@ -72,7 +93,12 @@ const OnboardingWizard = () => {
           relationship_to_student: 'Parent/Guardian',
         });
 
-      if (memberError) throw memberError;
+      if (memberError) {
+        console.error('Member creation error:', memberError);
+        throw new Error(`Failed to add family member: ${memberError.message}`);
+      }
+
+      console.log('Family member created');
 
       // 3. Create first student
       const { error: studentError } = await supabase
@@ -86,21 +112,32 @@ const OnboardingWizard = () => {
           primary_diagnosis: primaryDiagnosis,
         });
 
-      if (studentError) throw studentError;
+      if (studentError) {
+        console.error('Student creation error:', studentError);
+        throw new Error(`Failed to create student: ${studentError.message}`);
+      }
+
+      console.log('Student created');
 
       // 4. Create default dashboard config
-      await supabase
+      const { error: configError } = await supabase
         .from('family_dashboard_config')
         .insert({
           family_id: family.id,
           visible_sections: ['student_overview', 'educator_logs', 'progress_tracking'],
         });
 
+      if (configError) {
+        console.error('Config creation error:', configError);
+        // Non-critical error, don't block onboarding
+        console.warn('Dashboard config creation failed, continuing anyway');
+      }
+
       toast.success('Welcome! Your family profile is ready.');
       navigate('/dashboard');
     } catch (error: any) {
       console.error('Onboarding error:', error);
-      toast.error(error.message || 'Failed to complete onboarding');
+      toast.error(error.message || 'Failed to complete onboarding. Please try again.');
     }
   };
 
