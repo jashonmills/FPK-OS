@@ -46,26 +46,26 @@ export function MemberProfileDialog({ member, open, onOpenChange }: MemberProfil
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl bg-gradient-to-br from-orange-500/20 to-orange-600/10 backdrop-blur-md border-orange-400/30">
+      <DialogContent className="max-w-2xl bg-background/95 border-border">
         <DialogHeader>
-          <DialogTitle className="text-2xl text-white">Member Profile</DialogTitle>
-          <DialogDescription className="text-white/70">
+          <DialogTitle className="text-2xl text-foreground">Member Profile</DialogTitle>
+          <DialogDescription className="text-muted-foreground">
             View detailed information about this organization member
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
           {/* Profile Header */}
-          <div className="flex items-start gap-4 p-4 bg-white/10 rounded-lg backdrop-blur-sm">
-            <Avatar className="h-20 w-20 border-2 border-white/20">
+          <div className="flex items-start gap-4 p-4 bg-accent/50 rounded-lg border border-border">
+            <Avatar className="h-20 w-20 border-2 border-border">
               <AvatarImage src={member.profiles?.avatar_url} />
-              <AvatarFallback className="bg-orange-500 text-white text-xl">
+              <AvatarFallback className="bg-primary text-primary-foreground text-xl">
                 {getInitials(member.display_name || member.full_name || 'User')}
               </AvatarFallback>
             </Avatar>
             
             <div className="flex-1">
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-foreground">
                 {member.full_name || member.display_name || 'Unnamed User'}
               </h3>
               <Badge className={`mt-2 ${getRoleBadgeColor(member.role)}`}>
@@ -76,48 +76,48 @@ export function MemberProfileDialog({ member, open, onOpenChange }: MemberProfil
 
           {/* Contact Information */}
           <div className="space-y-4">
-            <h4 className="text-lg font-semibold text-white flex items-center gap-2">
+            <h4 className="text-lg font-semibold text-foreground flex items-center gap-2">
               <User className="h-5 w-5" />
               Contact Information
             </h4>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-3 bg-white/10 rounded-lg backdrop-blur-sm">
-                <div className="flex items-center gap-2 text-white/70 text-sm mb-1">
+              <div className="p-3 bg-accent/30 rounded-lg border border-border">
+                <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
                   <Mail className="h-4 w-4" />
                   Email
                 </div>
-                <p className="text-white font-medium">
+                <p className="text-foreground font-medium">
                   {member.profiles?.email || 'Not provided'}
                 </p>
               </div>
 
-              <div className="p-3 bg-white/10 rounded-lg backdrop-blur-sm">
-                <div className="flex items-center gap-2 text-white/70 text-sm mb-1">
+              <div className="p-3 bg-accent/30 rounded-lg border border-border">
+                <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
                   <Phone className="h-4 w-4" />
                   Phone Number
                 </div>
-                <p className="text-white font-medium">
+                <p className="text-foreground font-medium">
                   {(member.profiles as any)?.phone_number || 'Not provided'}
                 </p>
               </div>
 
-              <div className="p-3 bg-white/10 rounded-lg backdrop-blur-sm">
-                <div className="flex items-center gap-2 text-white/70 text-sm mb-1">
+              <div className="p-3 bg-accent/30 rounded-lg border border-border">
+                <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
                   <Phone className="h-4 w-4" />
                   Extension
                 </div>
-                <p className="text-white font-medium">
+                <p className="text-foreground font-medium">
                   {(member.profiles as any)?.phone_extension || 'N/A'}
                 </p>
               </div>
 
-              <div className="p-3 bg-white/10 rounded-lg backdrop-blur-sm">
-                <div className="flex items-center gap-2 text-white/70 text-sm mb-1">
+              <div className="p-3 bg-accent/30 rounded-lg border border-border">
+                <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
                   <BookOpen className="h-4 w-4" />
                   Subject/What They Teach
                 </div>
-                <p className="text-white font-medium">
+                <p className="text-foreground font-medium">
                   {(member.profiles as any)?.subject_taught || 'Not specified'}
                 </p>
               </div>
@@ -126,28 +126,28 @@ export function MemberProfileDialog({ member, open, onOpenChange }: MemberProfil
 
           {/* Professional Information */}
           <div className="space-y-4">
-            <h4 className="text-lg font-semibold text-white flex items-center gap-2">
+            <h4 className="text-lg font-semibold text-foreground flex items-center gap-2">
               <Briefcase className="h-5 w-5" />
               Professional Information
             </h4>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-3 bg-white/10 rounded-lg backdrop-blur-sm">
-                <div className="flex items-center gap-2 text-white/70 text-sm mb-1">
+              <div className="p-3 bg-accent/30 rounded-lg border border-border">
+                <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
                   <Briefcase className="h-4 w-4" />
                   Job Title
                 </div>
-                <p className="text-white font-medium">
+                <p className="text-foreground font-medium">
                   {(member.profiles as any)?.job_title || 'Not specified'}
                 </p>
               </div>
 
-              <div className="p-3 bg-white/10 rounded-lg backdrop-blur-sm">
-                <div className="flex items-center gap-2 text-white/70 text-sm mb-1">
+              <div className="p-3 bg-accent/30 rounded-lg border border-border">
+                <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
                   <Building2 className="h-4 w-4" />
                   Department
                 </div>
-                <p className="text-white font-medium">
+                <p className="text-foreground font-medium">
                   {(member.profiles as any)?.department || 'Not specified'}
                 </p>
               </div>
@@ -155,18 +155,18 @@ export function MemberProfileDialog({ member, open, onOpenChange }: MemberProfil
           </div>
 
           {/* Membership Information */}
-          <div className="p-4 bg-white/10 rounded-lg backdrop-blur-sm">
-            <h4 className="text-lg font-semibold text-white mb-3">Membership Information</h4>
+          <div className="p-4 bg-accent/30 rounded-lg border border-border">
+            <h4 className="text-lg font-semibold text-foreground mb-3">Membership Information</h4>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <p className="text-white/70">Status</p>
+                <p className="text-muted-foreground">Status</p>
                 <Badge variant="outline" className="mt-1 bg-green-500/20 text-green-300 border-green-400/30">
                   {member.status}
                 </Badge>
               </div>
               <div>
-                <p className="text-white/70">Joined</p>
-                <p className="text-white font-medium mt-1">
+                <p className="text-muted-foreground">Joined</p>
+                <p className="text-foreground font-medium mt-1">
                   {new Date(member.joined_at).toLocaleDateString()}
                 </p>
               </div>
