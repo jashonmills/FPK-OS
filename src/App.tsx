@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { FamilyProvider } from "@/contexts/FamilyContext";
 import { useAuth } from "@/hooks/useAuth";
+import { AppLayout } from "@/components/layout/AppLayout";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import OnboardingWizard from "./pages/OnboardingWizard";
@@ -54,7 +55,9 @@ const App = () => (
               path="/dashboard"
               element={
                 <ProtectedRoute>
-                  <Dashboard />
+                  <AppLayout>
+                    <Dashboard />
+                  </AppLayout>
                 </ProtectedRoute>
               }
             />
@@ -62,7 +65,9 @@ const App = () => (
               path="/activity-log"
               element={
                 <ProtectedRoute>
-                  <ActivityLog />
+                  <AppLayout>
+                    <ActivityLog />
+                  </AppLayout>
                 </ProtectedRoute>
               }
             />

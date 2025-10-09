@@ -1,9 +1,7 @@
 import React from 'react';
 import { useFamily } from '@/contexts/FamilyContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FamilyStudentSelector } from '@/components/FamilyStudentSelector';
 import { EducatorLogsSection } from '@/components/EducatorLogsSection';
 import { ProgressMetricsSection } from '@/components/ProgressMetricsSection';
 import { StudentOverview } from '@/components/StudentOverview';
@@ -36,18 +34,12 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background p-6 space-y-6">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header with Selector */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Progress Dashboard</h1>
-            <p className="text-muted-foreground">
-              Tracking progress for {selectedStudent.student_name}
-            </p>
-          </div>
-          <FamilyStudentSelector />
-        </div>
+    <div className="max-w-7xl mx-auto space-y-6">
+      <div className="mb-4">
+        <p className="text-muted-foreground">
+          Tracking progress for {selectedStudent.student_name}
+        </p>
+      </div>
 
         {/* Student Overview Cards */}
         <StudentOverview />
@@ -73,7 +65,6 @@ const Dashboard = () => {
             <ProgressMetricsSection />
           </TabsContent>
         </Tabs>
-      </div>
     </div>
   );
 };

@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { FamilyStudentSelector } from '@/components/FamilyStudentSelector';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { IncidentForm } from '@/components/incident-log/IncidentForm';
 import { ParentLogForm } from '@/components/parent-log/ParentLogForm';
@@ -16,15 +15,10 @@ const ActivityLog = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-8">
-      <div className="max-w-6xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-4xl font-bold">Activity Logs</h1>
-            <p className="text-muted-foreground mt-2">Track incidents, observations, and sleep patterns</p>
-          </div>
-          <FamilyStudentSelector />
-        </div>
+    <div className="max-w-6xl mx-auto space-y-6">
+      <div className="mb-4">
+        <p className="text-muted-foreground">Track incidents, observations, and sleep patterns</p>
+      </div>
 
         <Tabs defaultValue="add-logs" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
@@ -107,7 +101,6 @@ const ActivityLog = () => {
             </Tabs>
           </TabsContent>
         </Tabs>
-      </div>
     </div>
   );
 };

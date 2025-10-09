@@ -1,0 +1,121 @@
+import { Home, FileText, BarChart3, Settings } from 'lucide-react';
+import { NavLink } from 'react-router-dom';
+import { useFamily } from '@/contexts/FamilyContext';
+import { useAuth } from '@/hooks/useAuth';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarFooter,
+  SidebarHeader,
+  useSidebar,
+} from '@/components/ui/sidebar';
+
+const navItems = [
+  { title: 'Dashboard', url: '/dashboard', icon: Home },
+  { title: 'Activity Logs', url: '/activity-log', icon: FileText },
+  { title: 'Analytics', url: '#', icon: BarChart3, disabled: true },
+  { title: 'Settings', url: '#', icon: Settings, disabled: true },
+];
+
+export const AppSidebar = () => {
+  const { open } = useSidebar();
+  const { selectedFamily } = useFamily();
+  const { user, signOut } = useAuth();
+
+  return (
+    <Sidebar collapsible="icon">
+      <SidebarHeader>
+        <div className="flex items-center gap-2 px-2 py-4">
+          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold">
+            PH
+          </div>
+          {open && <span className="font-semibold text-lg">Progress Hub</span>}
+        </div>
+      </SidebarHeader>
+
+      <SidebarContent>
+        {selectedFamily && open && (
+          <div className="px-4 py-2">
+            <p className="text-sm font-medium text-muted-foreground">Family</p>
+            <p className="text-sm font-semibold truncate">{selectedFamily.family_name}</p>
+          </div>
+        )}
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {navItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild disabled={item.disabled}>
+                    <NavLink
+                      to={item.url}
+                      className={({ isActive }) =>
+                        isActive && !item.disabled
+                          ? 'bg-accent text-accent-foreground font-medium'
+                          : item.disabled
+                          ? 'opacity-50 cursor-not-allowed'
+                          : ''
+                      }
+                    >
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+
+      <SidebarFooter>
+        <div className="p-2">
+          {open ? (
+            <div className="flex items-center justify-between gap-2 p-2 rounded-lg hover:bg-accent">
+              <div className="flex items-center gap-2 min-w-0">
+                <Avatar className="h-8 w-8">
+                  <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                    {user?.email?.[0].toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{user?.email}</p>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={signOut}
+                className="text-xs"
+              >
+                Sign Out
+              </Button>
+            </div>
+          ) : (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={signOut}
+              className="w-full"
+            >
+              <Avatar className="h-8 w-8">
+                <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                  {user?.email?.[0].toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+            </Button>
+          )}
+        </div>
+      </SidebarFooter>
+    </Sidebar>
+  );
+};
