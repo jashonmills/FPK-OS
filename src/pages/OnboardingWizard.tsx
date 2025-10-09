@@ -25,15 +25,24 @@ const DIAGNOSIS_OPTIONS = [
 
 const OnboardingWizard = () => {
   const [step, setStep] = useState(1);
-  const { user, session } = useAuth();
+  const { user, session, loading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    // If no user, redirect to auth
-    if (!user) {
+    // Only redirect if we're sure there's no user (not during initial loading)
+    if (!loading && !user) {
       navigate('/auth');
     }
-  }, [user, navigate]);
+  }, [user, loading, navigate]);
+
+  // Show loading state while auth is initializing
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-pulse text-muted-foreground">Loading...</div>
+      </div>
+    );
+  }
 
   // Step 1: Family Profile
   const [familyName, setFamilyName] = useState('');

@@ -17,11 +17,7 @@ const Auth = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  useEffect(() => {
-    if (user) {
-      navigate('/onboarding');
-    }
-  }, [user, navigate]);
+  // Navigation happens in handleSignIn/handleSignUp after successful auth
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
