@@ -7713,6 +7713,7 @@ export type Database = {
       socratic_turns: {
         Row: {
           content: string
+          correct_part: string | null
           created_at: string
           id: string
           misconception: string | null
@@ -7723,6 +7724,7 @@ export type Database = {
         }
         Insert: {
           content: string
+          correct_part?: string | null
           created_at?: string
           id?: string
           misconception?: string | null
@@ -7733,6 +7735,7 @@ export type Database = {
         }
         Update: {
           content?: string
+          correct_part?: string | null
           created_at?: string
           id?: string
           misconception?: string | null
