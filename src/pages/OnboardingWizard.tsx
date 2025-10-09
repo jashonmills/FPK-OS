@@ -24,9 +24,23 @@ const DIAGNOSIS_OPTIONS = [
 ];
 
 const OnboardingWizard = () => {
+  // All hooks must be called before any early returns
   const [step, setStep] = useState(1);
   const { user, session, loading } = useAuth();
   const navigate = useNavigate();
+  
+  // Step 1: Family Profile
+  const [familyName, setFamilyName] = useState('');
+
+  // Step 2: First Student
+  const [studentName, setStudentName] = useState('');
+  const [dateOfBirth, setDateOfBirth] = useState('');
+  const [schoolName, setSchoolName] = useState('');
+  const [gradeLevel, setGradeLevel] = useState('');
+  const [primaryDiagnosis, setPrimaryDiagnosis] = useState<string[]>([]);
+
+  const totalSteps = 3;
+  const progress = (step / totalSteps) * 100;
 
   useEffect(() => {
     // Only redirect if we're sure there's no user (not during initial loading)
@@ -43,19 +57,6 @@ const OnboardingWizard = () => {
       </div>
     );
   }
-
-  // Step 1: Family Profile
-  const [familyName, setFamilyName] = useState('');
-
-  // Step 2: First Student
-  const [studentName, setStudentName] = useState('');
-  const [dateOfBirth, setDateOfBirth] = useState('');
-  const [schoolName, setSchoolName] = useState('');
-  const [gradeLevel, setGradeLevel] = useState('');
-  const [primaryDiagnosis, setPrimaryDiagnosis] = useState<string[]>([]);
-
-  const totalSteps = 3;
-  const progress = (step / totalSteps) * 100;
 
   const handleDiagnosisToggle = (diagnosis: string) => {
     setPrimaryDiagnosis(prev =>
