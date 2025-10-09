@@ -399,7 +399,7 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
       {socraticMode ? (
         <>
           {showSessionPanel && !session && !isPromoting && (
-            <div className="px-4">
+            <div className="px-2 sm:px-4">
               <SocraticSessionPanel
                 onStartSession={handleStartSocraticSession}
                 onCancel={() => {
