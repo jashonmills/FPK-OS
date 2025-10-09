@@ -194,28 +194,34 @@ Remember: Output ONLY the text the student should see. No JSON formatting.`;
     // Evaluate response
     const evaluationPrompt = `Evaluate this student response using the 0-3 rubric:
 0 = Off-topic or blank
-1 = Partial understanding with major gaps
-2 = Mostly correct with minor gaps
-3 = Fully correct and ready to advance
+1 = Partial understanding with major gaps (contains some correct ideas but significant misconceptions)
+2 = Mostly correct with minor gaps (understands the core concept but lacks precision)
+3 = Fully correct and ready to advance (demonstrates clear understanding and can explain why)
 
 Topic: ${session.topic}
 Objective: ${session.objective}
+Current Question: ${session.current_question}
 Student Response: "${studentResponse}"
 
+IMPORTANT: Your evaluation should consider:
+- What is CORRECT in their thinking (even if incomplete)?
+- What specific misconception or gap prevents full understanding?
+- What logical next step would build on their correct ideas?
+
 CRITICAL: Return ONLY valid JSON with this EXACT format. NO additional text, thoughts, or commentary:
-{"score": <0-3>, "misconception": "<brief explanation if score < 3, or empty string>"}`;
+{"score": <0-3>, "misconception": "<brief explanation if score < 3, or empty string>", "correct_part": "<what they got right, even if partial>"}`;
 
     const evalText = await geminiCall(evaluationPrompt);
     
     // Parse evaluation (handle potential markdown wrapping)
-    let evaluation: { score: number; misconception?: string };
+    let evaluation: { score: number; misconception?: string; correct_part?: string };
     try {
       const jsonMatch = evalText.match(/\{[\s\S]*\}/);
       const jsonStr = jsonMatch ? jsonMatch[0] : evalText;
       evaluation = JSON.parse(jsonStr);
     } catch (e) {
       console.error('Failed to parse evaluation:', evalText);
-      evaluation = { score: 1, misconception: 'Unable to evaluate response' };
+      evaluation = { score: 1, misconception: 'Unable to evaluate response', correct_part: '' };
     }
 
     const score = Math.max(0, Math.min(3, Math.round(evaluation.score)));
@@ -228,6 +234,7 @@ CRITICAL: Return ONLY valid JSON with this EXACT format. NO additional text, tho
       content: JSON.stringify(evaluation),
       score,
       misconception: evaluation.misconception || null,
+      correct_part: evaluation.correct_part || null,
       tag: 'evaluation'
     });
 
@@ -241,40 +248,64 @@ CRITICAL: Return ONLY valid JSON with this EXACT format. NO additional text, tho
     if (score >= 3) {
       // Advance to next concept
       nextState = 'NEXT';
-      const nextPrompt = `The student has mastered the previous concept. Generate the NEXT Socratic question (max 20 words) to progress toward the objective:
+      const nextPrompt = `The student has mastered the previous concept (score 3/3). 
+
+**Use the AVCQ Loop to transition:**
+1. ACKNOWLEDGE their correct answer: "${studentResponse}"
+2. VALIDATE what they got right
+3. CONNECT their understanding to the next concept
+4. QUESTION with a new challenge that builds on their knowledge
 
 Topic: ${session.topic}
 Objective: ${session.objective}
+Previous Question: ${session.current_question}
 Score History: ${scoreHistory.join(', ')}
-Average Score: ${avgScore.toFixed(1)}
 
-CRITICAL: Respond with ONLY the plain text question. No JSON. No "thought" field. Just the question itself.`;
+CRITICAL: Respond with ONLY plain text following AVCQ. No JSON. Max 40 words total.`;
 
       nextQuestion = cleanAIResponse(await geminiCall(nextPrompt));
     } else if (nudgeCount >= 3) {
       // Too many nudges, provide stronger hint and move on
-      const moveOnPrompt = `The student is struggling after ${nudgeCount} attempts. Provide ONE clear hint (max 30 words) and then ask a slightly easier question about the same concept:
+      const moveOnPrompt = `The student is struggling after ${nudgeCount} attempts.
+
+**Use the AVCQ Loop with a Level 3 (Direct Clue) hint:**
+1. ACKNOWLEDGE their effort: "${studentResponse}"
+2. VALIDATE any correct thinking (find SOMETHING right in their answer)
+3. CONNECT with a strong direct hint about the answer
+4. QUESTION with a much simpler version of the concept
 
 Topic: ${session.topic}
 Current Question: ${session.current_question}
-Misconception: ${evaluation.misconception}
+Student's Difficulty: ${evaluation.misconception}
+What They Got Right: ${evaluation.correct_part || 'their effort to engage'}
 
-Format: "Hint: <brief hint>. Now: <simpler question>"
+Format: "[Acknowledge] [Validate correct part] [Strong hint] [Simpler question]"
 
-CRITICAL: Respond with ONLY plain text. No JSON formatting.`;
+CRITICAL: Respond with ONLY plain text. No JSON. Max 45 words.`;
 
       nextQuestion = cleanAIResponse(await geminiCall(moveOnPrompt));
       nextState = 'NUDGE';
     } else {
       // Provide nudge/hint
       nextState = 'NUDGE';
-      const nudgePrompt = `The student needs help. Re-ask the SAME question in simpler words and add ONE short hint (max 25 words total):
+      const nudgePrompt = `The student needs help (score ${score}/3, attempt ${nudgeCount + 1}/3).
 
+**Use the AVCQ Loop with a Level ${nudgeCount + 1} hint:**
+1. ACKNOWLEDGE their answer: "${studentResponse}"
+2. VALIDATE the correct part: "${evaluation.correct_part || 'their engagement'}"
+3. CONNECT & DIFFERENTIATE (explain how their answer relates but differs)
+4. QUESTION with a ${['sensory', 'analogous scenario', 'direct clue'][nudgeCount]} hint
+
+Topic: ${session.topic}
 Original Question: ${session.current_question}
 Student's Difficulty: ${evaluation.misconception}
-Attempt: ${nudgeCount + 1}/3
 
-CRITICAL: Respond with ONLY plain text. No JSON. Just the simplified question with hint.`;
+Hint Level ${nudgeCount + 1}:
+- Level 1 = Sensory hint (feel, see, hear, touch)
+- Level 2 = Analogous scenario (relate to everyday experience)
+- Level 3 = Direct clue (almost give away the answer)
+
+CRITICAL: Respond with ONLY plain text following AVCQ. No JSON. Max 40 words.`;
 
       nextQuestion = cleanAIResponse(await geminiCall(nudgePrompt));
     }
@@ -287,6 +318,14 @@ CRITICAL: Respond with ONLY plain text. No JSON. Just the simplified question wi
     } catch {
       // Already clean, use as-is
     }
+
+    // AVCQ Compliance Logging
+    console.log('📊 AVCQ Check:', {
+      hasAcknowledge: finalNextQuestion.toLowerCase().includes(studentResponse.substring(0, 15).toLowerCase()),
+      hasValidate: finalNextQuestion.match(/right|correct|good|yes|true/i) !== null,
+      questionLength: finalNextQuestion.length,
+      nudgeLevel: nudgeCount + 1
+    });
 
     // Save next question
     await supabase.from('socratic_turns').insert({
