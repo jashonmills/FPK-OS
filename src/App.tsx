@@ -11,6 +11,7 @@ import Auth from "./pages/Auth";
 import OnboardingWizard from "./pages/OnboardingWizard";
 import Dashboard from "./pages/Dashboard";
 import ActivityLog from "./pages/ActivityLog";
+import Analytics from "./pages/Analytics";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -67,6 +68,16 @@ const App = () => (
                 <ProtectedRoute>
                   <AppLayout>
                     <ActivityLog />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/analytics"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <Analytics />
                   </AppLayout>
                 </ProtectedRoute>
               }

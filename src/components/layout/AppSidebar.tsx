@@ -21,7 +21,7 @@ import {
 const navItems = [
   { title: 'Dashboard', url: '/dashboard', icon: Home },
   { title: 'Activity Logs', url: '/activity-log', icon: FileText },
-  { title: 'Analytics', url: '#', icon: BarChart3, disabled: true },
+  { title: 'Analytics', url: '/analytics', icon: BarChart3 },
   { title: 'Settings', url: '#', icon: Settings, disabled: true },
 ];
 

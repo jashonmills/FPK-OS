@@ -339,6 +339,72 @@ export type Database = {
           },
         ]
       }
+      goals: {
+        Row: {
+          created_at: string | null
+          current_value: number | null
+          family_id: string
+          goal_description: string | null
+          goal_title: string
+          goal_type: string
+          id: string
+          is_active: boolean | null
+          start_date: string | null
+          student_id: string
+          target_date: string | null
+          target_value: number | null
+          unit: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          current_value?: number | null
+          family_id: string
+          goal_description?: string | null
+          goal_title: string
+          goal_type: string
+          id?: string
+          is_active?: boolean | null
+          start_date?: string | null
+          student_id: string
+          target_date?: string | null
+          target_value?: number | null
+          unit?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          current_value?: number | null
+          family_id?: string
+          goal_description?: string | null
+          goal_title?: string
+          goal_type?: string
+          id?: string
+          is_active?: boolean | null
+          start_date?: string | null
+          student_id?: string
+          target_date?: string | null
+          target_value?: number | null
+          unit?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goals_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "goals_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       incident_logs: {
         Row: {
           air_quality_fetched_at: string | null
@@ -1016,6 +1082,42 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_daily_log_counts: {
+        Args: { p_days?: number; p_family_id: string; p_student_id: string }
+        Returns: {
+          educator_count: number
+          incident_count: number
+          log_date: string
+          parent_count: number
+          total_count: number
+        }[]
+      }
+      get_intervention_effectiveness_data: {
+        Args: { p_days?: number; p_family_id: string; p_student_id: string }
+        Returns: {
+          incident_count: number
+          intervention_count: number
+          log_date: string
+        }[]
+      }
+      get_sleep_summary_data: {
+        Args: { p_days?: number; p_family_id: string; p_student_id: string }
+        Returns: {
+          nap_taken: boolean
+          sleep_date: string
+          sleep_quality_rating: number
+          total_sleep_hours: number
+        }[]
+      }
+      get_weekly_mood_counts: {
+        Args: { p_family_id: string; p_student_id: string }
+        Returns: {
+          count: number
+          day_of_week: string
+          day_order: number
+          mood: string
+        }[]
+      }
       is_family_member: {
         Args: { _family_id: string; _user_id: string }
         Returns: boolean
