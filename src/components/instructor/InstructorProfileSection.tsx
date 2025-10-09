@@ -12,6 +12,7 @@ import { Loader2 } from 'lucide-react';
 interface ProfileData {
   display_name: string;
   full_name: string;
+  email: string;
   job_title: string;
   department: string;
   subject_taught: string;
@@ -28,6 +29,7 @@ export function InstructorProfileSection() {
   const [profileData, setProfileData] = useState<ProfileData>({
     display_name: '',
     full_name: '',
+    email: '',
     job_title: '',
     department: '',
     subject_taught: '',
@@ -49,7 +51,7 @@ export function InstructorProfileSection() {
       setLoading(true);
       const { data, error } = await supabase
         .from('profiles')
-        .select('display_name, full_name, job_title, department, subject_taught, phone_number, phone_extension, avatar_url')
+        .select('display_name, full_name, email, job_title, department, subject_taught, phone_number, phone_extension, avatar_url')
         .eq('id', user.id)
         .single();
 
@@ -59,6 +61,7 @@ export function InstructorProfileSection() {
         setProfileData({
           display_name: data.display_name || '',
           full_name: data.full_name || '',
+          email: data.email || '',
           job_title: data.job_title || '',
           department: data.department || '',
           subject_taught: data.subject_taught || '',
@@ -89,6 +92,7 @@ export function InstructorProfileSection() {
         .update({
           display_name: profileData.display_name,
           full_name: profileData.full_name,
+          email: profileData.email,
           job_title: profileData.job_title,
           department: profileData.department,
           subject_taught: profileData.subject_taught,
@@ -247,10 +251,24 @@ export function InstructorProfileSection() {
         <OrgCardHeader>
           <OrgCardTitle className="text-white">Contact Information</OrgCardTitle>
           <OrgCardDescription className="text-white/80">
-            Phone number for organizational communication
+            Contact details for organizational communication
           </OrgCardDescription>
         </OrgCardHeader>
         <OrgCardContent className="space-y-4">
+          <div>
+            <Label htmlFor="email" className="text-white">Email Address</Label>
+            <Input
+              id="email"
+              type="email"
+              value={profileData.email}
+              onChange={(e) => setProfileData(prev => ({ ...prev, email: e.target.value }))}
+              placeholder="your.email@example.com"
+              className="mt-2 bg-white/20 border-white/30 text-white placeholder:text-white/50"
+            />
+            <p className="text-xs text-white/60 mt-1">
+              This email will be visible to organization members
+            </p>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="md:col-span-2">
               <Label htmlFor="phone-number" className="text-white">Phone Number</Label>
