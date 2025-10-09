@@ -130,14 +130,7 @@ export default function AIStudyCoach() {
         </div>
 
         {/* Enhanced AI Study Coach - Full Width */}
-        <div className={`
-          flex flex-col overflow-hidden
-          ${isMobile 
-            ? 'h-[calc(60vh+100px)]' 
-            : 'h-[calc(100vh-16rem+100px)]'
-          }
-          max-w-7xl mx-auto w-full px-2 sm:px-4
-        `}>
+        <div className="flex flex-col overflow-hidden min-h-[500px] h-[calc(100vh-20rem)] max-w-7xl mx-auto w-full px-2 sm:px-4">
           <EnhancedAIStudyCoach
             userId={user?.id}
             orgId={currentOrg?.organization_id}

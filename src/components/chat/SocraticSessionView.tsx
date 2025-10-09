@@ -59,24 +59,24 @@ export function SocraticSessionView({
   return (
     <div className="flex flex-col h-full max-h-full overflow-hidden">
       {/* Session Header */}
-      <Card className="mb-4 flex-shrink-0">
-        <CardHeader className="pb-3">
-          <div className="flex items-start justify-between">
-            <div className="space-y-1 flex-1">
+      <Card className="mb-3 sm:mb-4 flex-shrink-0">
+        <CardHeader className="p-3 sm:p-4 pb-2 sm:pb-3">
+          <div className="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-0">
+            <div className="space-y-1 flex-1 w-full sm:w-auto">
               <div className="flex items-center gap-2">
-                <Target className="h-4 w-4 text-primary" />
-                <h3 className="font-semibold">{session.topic}</h3>
+                <Target className="h-3 w-3 sm:h-4 sm:w-4 text-primary flex-shrink-0" />
+                <h3 className="font-semibold text-sm sm:text-base">{session.topic}</h3>
               </div>
-              <p className="text-sm text-muted-foreground">{session.objective}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">{session.objective}</p>
             </div>
             <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="gap-1">
-                <TrendingUp className="h-3 w-3" />
+              <Badge variant="secondary" className="gap-1 text-[10px] sm:text-xs px-1.5 sm:px-2">
+                <TrendingUp className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                 Avg: {avgScore}
               </Badge>
               {isComplete && (
-                <Badge variant="default" className="gap-1">
-                  <CheckCircle className="h-3 w-3" />
+                <Badge variant="default" className="gap-1 text-[10px] sm:text-xs px-1.5 sm:px-2">
+                  <CheckCircle className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                   Complete
                 </Badge>
               )}
@@ -84,7 +84,7 @@ export function SocraticSessionView({
           </div>
           
           {/* Progress Indicators */}
-          <div className="flex gap-2 pt-2">
+          <div className="flex gap-1.5 sm:gap-2 pt-2">
             {session.score_history?.map((score, idx) => (
               <div
                 key={idx}
@@ -103,20 +103,20 @@ export function SocraticSessionView({
 
       {/* Chat Messages */}
       <Card className="flex-1 flex flex-col min-h-0 overflow-hidden">
-        <div className="flex-1 overflow-y-auto p-4 overscroll-contain">
-          <div className="space-y-4">
+        <div className="flex-1 overflow-y-auto p-3 sm:p-4 overscroll-contain scroll-smooth" style={{ WebkitOverflowScrolling: 'touch' }}>
+          <div className="space-y-3 sm:space-y-4">
             {turns.map((turn) => (
               <div
                 key={turn.id}
                 className={`flex ${turn.role === 'student' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-[80%] rounded-lg p-3 ${
+                  className={`max-w-[85%] sm:max-w-[80%] rounded-lg p-2.5 sm:p-3 ${
                     turn.role === 'coach'
                       ? 'bg-primary/10 text-foreground'
                       : turn.role === 'student'
                       ? 'bg-secondary text-secondary-foreground'
-                      : 'bg-muted text-muted-foreground text-sm'
+                      : 'bg-muted text-muted-foreground text-xs sm:text-sm'
                   }`}
                 >
                   {turn.role === 'system' ? (
@@ -131,9 +131,9 @@ export function SocraticSessionView({
                     </div>
                   ) : (
                     <>
-                      <p className="whitespace-pre-wrap">{turn.content}</p>
+                      <p className="whitespace-pre-wrap text-xs sm:text-sm leading-relaxed">{turn.content}</p>
                       {turn.score !== undefined && turn.role === 'coach' && (
-                        <Badge variant="outline" className="mt-2 text-xs">
+                        <Badge variant="outline" className="mt-1.5 sm:mt-2 text-[10px] sm:text-xs">
                           Previous: {turn.score}/3
                         </Badge>
                       )}
@@ -155,7 +155,7 @@ export function SocraticSessionView({
         </div>
 
         {/* Input Area - Fixed at bottom */}
-        <div className="border-t p-4 bg-card" style={{
+        <div className="border-t p-3 sm:p-4 bg-card pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:pb-4" style={{
           position: 'sticky',
           bottom: 0,
           backgroundColor: 'hsl(var(--background))',
@@ -163,10 +163,10 @@ export function SocraticSessionView({
         }}>
           {isComplete ? (
             <div className="text-center space-y-3">
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 Session complete! Great work on mastering {session.topic}.
               </p>
-              <Button onClick={onEndSession}>Start New Session</Button>
+              <Button onClick={onEndSession} className="min-h-[44px]">Start New Session</Button>
             </div>
           ) : (
             <div className="flex gap-2">
@@ -181,8 +181,8 @@ export function SocraticSessionView({
                   setIsInputFocused(false);
                 }}
                 placeholder="Type your response..."
-                className="resize-none"
-                rows={2}
+                className="resize-none text-sm"
+                rows={3}
                 disabled={loading}
                 style={{ 
                   fontSize: '16px' // Prevent zoom on iOS
@@ -192,7 +192,7 @@ export function SocraticSessionView({
                 onClick={handleSend}
                 disabled={!input.trim() || loading}
                 size="icon"
-                className="shrink-0 h-auto"
+                className="shrink-0 h-auto min-h-[44px] min-w-[44px]"
               >
                 {loading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
