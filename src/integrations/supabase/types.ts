@@ -16,64 +16,157 @@ export type Database = {
     Tables: {
       educator_logs: {
         Row: {
+          accuracy_percentage: number | null
           activities_completed: string[] | null
+          aqi_us: number | null
+          areas_for_improvement: string | null
+          attachments: Json | null
           behavioral_observations: string | null
           challenges: string | null
+          correct_responses: number | null
           created_at: string | null
           created_by: string
           educator_name: string
           educator_role: string | null
+          engagement_level: string | null
           family_id: string
           goals_for_next_session: string | null
           id: string
+          iep_goal_addressed: string | null
+          lesson_topic: string | null
           log_date: string
+          log_time: string | null
           log_type: string
+          materials_used: string[] | null
+          modifications_used: string[] | null
+          next_steps: string | null
           parent_communication: string | null
+          performance_level: string | null
+          pm10: number | null
+          pm25: number | null
           progress_notes: string | null
+          prompting_level: string | null
           session_duration_minutes: number | null
+          session_end_time: string | null
+          session_start_time: string | null
+          skills_practiced: string[] | null
           skills_worked_on: string[] | null
+          strengths_observed: string | null
           student_id: string
+          subject_area: string | null
+          tags: string[] | null
+          teaching_method: string | null
+          total_attempts: number | null
           updated_at: string | null
+          weather_condition: string | null
+          weather_fetched_at: string | null
+          weather_humidity: number | null
+          weather_pressure_mb: number | null
+          weather_temp_c: number | null
+          weather_temp_f: number | null
+          weather_wind_speed: number | null
         }
         Insert: {
+          accuracy_percentage?: number | null
           activities_completed?: string[] | null
+          aqi_us?: number | null
+          areas_for_improvement?: string | null
+          attachments?: Json | null
           behavioral_observations?: string | null
           challenges?: string | null
+          correct_responses?: number | null
           created_at?: string | null
           created_by: string
           educator_name: string
           educator_role?: string | null
+          engagement_level?: string | null
           family_id: string
           goals_for_next_session?: string | null
           id?: string
+          iep_goal_addressed?: string | null
+          lesson_topic?: string | null
           log_date?: string
+          log_time?: string | null
           log_type: string
+          materials_used?: string[] | null
+          modifications_used?: string[] | null
+          next_steps?: string | null
           parent_communication?: string | null
+          performance_level?: string | null
+          pm10?: number | null
+          pm25?: number | null
           progress_notes?: string | null
+          prompting_level?: string | null
           session_duration_minutes?: number | null
+          session_end_time?: string | null
+          session_start_time?: string | null
+          skills_practiced?: string[] | null
           skills_worked_on?: string[] | null
+          strengths_observed?: string | null
           student_id: string
+          subject_area?: string | null
+          tags?: string[] | null
+          teaching_method?: string | null
+          total_attempts?: number | null
           updated_at?: string | null
+          weather_condition?: string | null
+          weather_fetched_at?: string | null
+          weather_humidity?: number | null
+          weather_pressure_mb?: number | null
+          weather_temp_c?: number | null
+          weather_temp_f?: number | null
+          weather_wind_speed?: number | null
         }
         Update: {
+          accuracy_percentage?: number | null
           activities_completed?: string[] | null
+          aqi_us?: number | null
+          areas_for_improvement?: string | null
+          attachments?: Json | null
           behavioral_observations?: string | null
           challenges?: string | null
+          correct_responses?: number | null
           created_at?: string | null
           created_by?: string
           educator_name?: string
           educator_role?: string | null
+          engagement_level?: string | null
           family_id?: string
           goals_for_next_session?: string | null
           id?: string
+          iep_goal_addressed?: string | null
+          lesson_topic?: string | null
           log_date?: string
+          log_time?: string | null
           log_type?: string
+          materials_used?: string[] | null
+          modifications_used?: string[] | null
+          next_steps?: string | null
           parent_communication?: string | null
+          performance_level?: string | null
+          pm10?: number | null
+          pm25?: number | null
           progress_notes?: string | null
+          prompting_level?: string | null
           session_duration_minutes?: number | null
+          session_end_time?: string | null
+          session_start_time?: string | null
+          skills_practiced?: string[] | null
           skills_worked_on?: string[] | null
+          strengths_observed?: string | null
           student_id?: string
+          subject_area?: string | null
+          tags?: string[] | null
+          teaching_method?: string | null
+          total_attempts?: number | null
           updated_at?: string | null
+          weather_condition?: string | null
+          weather_fetched_at?: string | null
+          weather_humidity?: number | null
+          weather_pressure_mb?: number | null
+          weather_temp_c?: number | null
+          weather_temp_f?: number | null
+          weather_wind_speed?: number | null
         }
         Relationships: [
           {
@@ -210,6 +303,300 @@ export type Database = {
           },
         ]
       }
+      incident_logs: {
+        Row: {
+          antecedent: string | null
+          aqi_us: number | null
+          attachments: Json | null
+          behavior_description: string
+          consequence: string | null
+          created_at: string | null
+          created_by: string
+          duration_minutes: number | null
+          environmental_factors: string[] | null
+          family_id: string
+          follow_up_notes: string | null
+          follow_up_required: boolean | null
+          id: string
+          incident_date: string
+          incident_time: string
+          incident_type: string
+          injuries: boolean | null
+          injury_details: string | null
+          intervention_used: string | null
+          location: string
+          notification_method: string | null
+          parent_notified: boolean | null
+          pm10: number | null
+          pm25: number | null
+          reporter_name: string
+          reporter_role: string
+          severity: string
+          student_id: string
+          tags: string[] | null
+          updated_at: string | null
+          weather_condition: string | null
+          weather_fetched_at: string | null
+          weather_humidity: number | null
+          weather_pressure_mb: number | null
+          weather_temp_c: number | null
+          weather_temp_f: number | null
+          weather_wind_speed: number | null
+          witnesses: string[] | null
+        }
+        Insert: {
+          antecedent?: string | null
+          aqi_us?: number | null
+          attachments?: Json | null
+          behavior_description: string
+          consequence?: string | null
+          created_at?: string | null
+          created_by: string
+          duration_minutes?: number | null
+          environmental_factors?: string[] | null
+          family_id: string
+          follow_up_notes?: string | null
+          follow_up_required?: boolean | null
+          id?: string
+          incident_date: string
+          incident_time: string
+          incident_type: string
+          injuries?: boolean | null
+          injury_details?: string | null
+          intervention_used?: string | null
+          location: string
+          notification_method?: string | null
+          parent_notified?: boolean | null
+          pm10?: number | null
+          pm25?: number | null
+          reporter_name: string
+          reporter_role: string
+          severity: string
+          student_id: string
+          tags?: string[] | null
+          updated_at?: string | null
+          weather_condition?: string | null
+          weather_fetched_at?: string | null
+          weather_humidity?: number | null
+          weather_pressure_mb?: number | null
+          weather_temp_c?: number | null
+          weather_temp_f?: number | null
+          weather_wind_speed?: number | null
+          witnesses?: string[] | null
+        }
+        Update: {
+          antecedent?: string | null
+          aqi_us?: number | null
+          attachments?: Json | null
+          behavior_description?: string
+          consequence?: string | null
+          created_at?: string | null
+          created_by?: string
+          duration_minutes?: number | null
+          environmental_factors?: string[] | null
+          family_id?: string
+          follow_up_notes?: string | null
+          follow_up_required?: boolean | null
+          id?: string
+          incident_date?: string
+          incident_time?: string
+          incident_type?: string
+          injuries?: boolean | null
+          injury_details?: string | null
+          intervention_used?: string | null
+          location?: string
+          notification_method?: string | null
+          parent_notified?: boolean | null
+          pm10?: number | null
+          pm25?: number | null
+          reporter_name?: string
+          reporter_role?: string
+          severity?: string
+          student_id?: string
+          tags?: string[] | null
+          updated_at?: string | null
+          weather_condition?: string | null
+          weather_fetched_at?: string | null
+          weather_humidity?: number | null
+          weather_pressure_mb?: number | null
+          weather_temp_c?: number | null
+          weather_temp_f?: number | null
+          weather_wind_speed?: number | null
+          witnesses?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "incident_logs_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incident_logs_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          message: string
+          reference_id: string | null
+          reference_table: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message: string
+          reference_id?: string | null
+          reference_table?: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          reference_id?: string | null
+          reference_table?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      parent_logs: {
+        Row: {
+          activity_type: string
+          aqi_us: number | null
+          attachments: Json | null
+          challenges: string | null
+          communication_attempts: string | null
+          created_at: string | null
+          created_by: string
+          duration_minutes: number | null
+          family_id: string
+          id: string
+          location: string
+          log_date: string
+          log_time: string
+          mood: string | null
+          notes: string | null
+          observation: string
+          pm10: number | null
+          pm25: number | null
+          reporter_name: string
+          sensory_factors: string[] | null
+          strategies_used: string | null
+          student_id: string
+          successes: string | null
+          tags: string[] | null
+          updated_at: string | null
+          weather_condition: string | null
+          weather_fetched_at: string | null
+          weather_humidity: number | null
+          weather_pressure_mb: number | null
+          weather_temp_c: number | null
+          weather_temp_f: number | null
+          weather_wind_speed: number | null
+        }
+        Insert: {
+          activity_type: string
+          aqi_us?: number | null
+          attachments?: Json | null
+          challenges?: string | null
+          communication_attempts?: string | null
+          created_at?: string | null
+          created_by: string
+          duration_minutes?: number | null
+          family_id: string
+          id?: string
+          location: string
+          log_date: string
+          log_time: string
+          mood?: string | null
+          notes?: string | null
+          observation: string
+          pm10?: number | null
+          pm25?: number | null
+          reporter_name: string
+          sensory_factors?: string[] | null
+          strategies_used?: string | null
+          student_id: string
+          successes?: string | null
+          tags?: string[] | null
+          updated_at?: string | null
+          weather_condition?: string | null
+          weather_fetched_at?: string | null
+          weather_humidity?: number | null
+          weather_pressure_mb?: number | null
+          weather_temp_c?: number | null
+          weather_temp_f?: number | null
+          weather_wind_speed?: number | null
+        }
+        Update: {
+          activity_type?: string
+          aqi_us?: number | null
+          attachments?: Json | null
+          challenges?: string | null
+          communication_attempts?: string | null
+          created_at?: string | null
+          created_by?: string
+          duration_minutes?: number | null
+          family_id?: string
+          id?: string
+          location?: string
+          log_date?: string
+          log_time?: string
+          mood?: string | null
+          notes?: string | null
+          observation?: string
+          pm10?: number | null
+          pm25?: number | null
+          reporter_name?: string
+          sensory_factors?: string[] | null
+          strategies_used?: string | null
+          student_id?: string
+          successes?: string | null
+          tags?: string[] | null
+          updated_at?: string | null
+          weather_condition?: string | null
+          weather_fetched_at?: string | null
+          weather_humidity?: number | null
+          weather_pressure_mb?: number | null
+          weather_temp_c?: number | null
+          weather_temp_f?: number | null
+          weather_wind_speed?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parent_logs_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "parent_logs_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       progress_metrics: {
         Row: {
           created_at: string | null
@@ -270,6 +657,96 @@ export type Database = {
           },
           {
             foreignKeyName: "progress_metrics_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sleep_records: {
+        Row: {
+          bedtime: string
+          created_at: string | null
+          created_by: string
+          daytime_fatigue_level: number | null
+          disturbance_details: string | null
+          family_id: string
+          id: string
+          medication_details: string | null
+          nap_duration_minutes: number | null
+          nap_taken: boolean | null
+          nap_time: string | null
+          nighttime_awakenings: number | null
+          notes: string | null
+          pre_bed_activities: string[] | null
+          sleep_date: string
+          sleep_disturbances: string[] | null
+          sleep_medication: boolean | null
+          sleep_quality_rating: number | null
+          student_id: string
+          total_sleep_hours: number | null
+          updated_at: string | null
+          wake_time: string
+        }
+        Insert: {
+          bedtime: string
+          created_at?: string | null
+          created_by: string
+          daytime_fatigue_level?: number | null
+          disturbance_details?: string | null
+          family_id: string
+          id?: string
+          medication_details?: string | null
+          nap_duration_minutes?: number | null
+          nap_taken?: boolean | null
+          nap_time?: string | null
+          nighttime_awakenings?: number | null
+          notes?: string | null
+          pre_bed_activities?: string[] | null
+          sleep_date: string
+          sleep_disturbances?: string[] | null
+          sleep_medication?: boolean | null
+          sleep_quality_rating?: number | null
+          student_id: string
+          total_sleep_hours?: number | null
+          updated_at?: string | null
+          wake_time: string
+        }
+        Update: {
+          bedtime?: string
+          created_at?: string | null
+          created_by?: string
+          daytime_fatigue_level?: number | null
+          disturbance_details?: string | null
+          family_id?: string
+          id?: string
+          medication_details?: string | null
+          nap_duration_minutes?: number | null
+          nap_taken?: boolean | null
+          nap_time?: string | null
+          nighttime_awakenings?: number | null
+          notes?: string | null
+          pre_bed_activities?: string[] | null
+          sleep_date?: string
+          sleep_disturbances?: string[] | null
+          sleep_medication?: boolean | null
+          sleep_quality_rating?: number | null
+          student_id?: string
+          total_sleep_hours?: number | null
+          updated_at?: string | null
+          wake_time?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sleep_records_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sleep_records_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "students"
