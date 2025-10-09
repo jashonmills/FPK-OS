@@ -75,13 +75,24 @@ const OnboardingWizard = () => {
 
     try {
       console.log('Starting onboarding with user:', user.id);
+      console.log('Session:', session);
+
+      // Verify we have a valid session
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      console.log('Current session from Supabase:', currentSession);
+
+      if (!currentSession) {
+        toast.error('No active session. Please sign in again.');
+        navigate('/auth');
+        return;
+      }
 
       // 1. Create family
       const { data: family, error: familyError } = await supabase
         .from('families')
         .insert({ 
           family_name: familyName, 
-          created_by: user.id 
+          created_by: currentSession.user.id 
         })
         .select()
         .single();
