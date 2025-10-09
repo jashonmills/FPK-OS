@@ -22,7 +22,7 @@ const navItems = [
   { title: 'Dashboard', url: '/dashboard', icon: Home },
   { title: 'Activity Logs', url: '/activity-log', icon: FileText },
   { title: 'Analytics', url: '/analytics', icon: BarChart3 },
-  { title: 'Settings', url: '#', icon: Settings, disabled: true },
+  { title: 'Settings', url: '/settings', icon: Settings },
 ];
 
 export const AppSidebar = () => {
@@ -55,15 +55,11 @@ export const AppSidebar = () => {
             <SidebarMenu>
               {navItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild disabled={item.disabled}>
+                  <SidebarMenuButton asChild>
                     <NavLink
                       to={item.url}
                       className={({ isActive }) =>
-                        isActive && !item.disabled
-                          ? 'bg-accent text-accent-foreground font-medium'
-                          : item.disabled
-                          ? 'opacity-50 cursor-not-allowed'
-                          : ''
+                        isActive ? 'bg-accent text-accent-foreground font-medium' : ''
                       }
                     >
                       <item.icon className="h-4 w-4" />
