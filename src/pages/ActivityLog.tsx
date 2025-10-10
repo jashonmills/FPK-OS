@@ -10,9 +10,13 @@ import { EducatorLogFormComplete } from '@/components/educator-log/EducatorLogFo
 import { ActivityStatsCards } from '@/components/activity-log/ActivityStatsCards';
 import { LiveWeatherDisplay } from '@/components/weather/LiveWeatherDisplay';
 import { AlertCircle, Heart, Moon, GraduationCap, BarChart, Activity } from 'lucide-react';
+import { useFamily } from '@/contexts/FamilyContext';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Info } from 'lucide-react';
 
 const ActivityLog = () => {
   const [refreshKey, setRefreshKey] = useState(0);
+  const { currentUserRole } = useFamily();
 
   const handleLogCreated = () => {
     setRefreshKey(prev => prev + 1);
@@ -28,24 +32,37 @@ const ActivityLog = () => {
 
       <ActivityStatsCards />
 
-      <Tabs defaultValue="new-incident" className="w-full">
+      {currentUserRole === 'viewer' && (
+        <Alert>
+          <Info className="h-4 w-4" />
+          <AlertDescription>
+            You have view-only access. Contact the family owner to request contributor access if you need to add or edit logs.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      <Tabs defaultValue={currentUserRole === 'viewer' ? 'recent-activity' : 'new-incident'} className="w-full">
         <TabsList className="grid w-full grid-cols-6">
-          <TabsTrigger value="new-incident">
-            <AlertCircle className="h-4 w-4 mr-2" />
-            New Incident
-          </TabsTrigger>
-          <TabsTrigger value="parent-log">
-            <Heart className="h-4 w-4 mr-2" />
-            Parent Log
-          </TabsTrigger>
-          <TabsTrigger value="educator-log">
-            <GraduationCap className="h-4 w-4 mr-2" />
-            Educator Log
-          </TabsTrigger>
-          <TabsTrigger value="sleep-log">
-            <Moon className="h-4 w-4 mr-2" />
-            Sleep Log
-          </TabsTrigger>
+          {(currentUserRole === 'owner' || currentUserRole === 'contributor') && (
+            <>
+              <TabsTrigger value="new-incident">
+                <AlertCircle className="h-4 w-4 mr-2" />
+                New Incident
+              </TabsTrigger>
+              <TabsTrigger value="parent-log">
+                <Heart className="h-4 w-4 mr-2" />
+                Parent Log
+              </TabsTrigger>
+              <TabsTrigger value="educator-log">
+                <GraduationCap className="h-4 w-4 mr-2" />
+                Educator Log
+              </TabsTrigger>
+              <TabsTrigger value="sleep-log">
+                <Moon className="h-4 w-4 mr-2" />
+                Sleep Log
+              </TabsTrigger>
+            </>
+          )}
           <TabsTrigger value="analytics">
             <BarChart className="h-4 w-4 mr-2" />
             Analytics
@@ -56,21 +73,25 @@ const ActivityLog = () => {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="new-incident" className="mt-6">
-          <IncidentForm onSuccess={handleLogCreated} />
-        </TabsContent>
+        {(currentUserRole === 'owner' || currentUserRole === 'contributor') && (
+          <>
+            <TabsContent value="new-incident" className="mt-6">
+              <IncidentForm onSuccess={handleLogCreated} />
+            </TabsContent>
 
-        <TabsContent value="parent-log" className="mt-6">
-          <ParentLogForm onSuccess={handleLogCreated} />
-        </TabsContent>
+            <TabsContent value="parent-log" className="mt-6">
+              <ParentLogForm onSuccess={handleLogCreated} />
+            </TabsContent>
 
-        <TabsContent value="educator-log" className="mt-6">
-          <EducatorLogFormComplete onSuccess={handleLogCreated} />
-        </TabsContent>
+            <TabsContent value="educator-log" className="mt-6">
+              <EducatorLogFormComplete onSuccess={handleLogCreated} />
+            </TabsContent>
 
-        <TabsContent value="sleep-log" className="mt-6">
-          <SleepLogForm onSuccess={handleLogCreated} />
-        </TabsContent>
+            <TabsContent value="sleep-log" className="mt-6">
+              <SleepLogForm onSuccess={handleLogCreated} />
+            </TabsContent>
+          </>
+        )}
 
         <TabsContent value="analytics" className="mt-6">
           <div className="text-center py-12">

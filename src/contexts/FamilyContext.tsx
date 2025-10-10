@@ -30,6 +30,7 @@ interface FamilyContextType {
   families: Family[];
   students: Student[];
   familyMembership: FamilyMember | null;
+  currentUserRole: 'owner' | 'contributor' | 'viewer' | null;
   setSelectedFamily: (family: Family) => void;
   setSelectedStudent: (student: Student) => void;
   refreshFamilies: () => Promise<void>;
@@ -189,6 +190,7 @@ export const FamilyProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         families,
         students,
         familyMembership,
+        currentUserRole: familyMembership?.role as 'owner' | 'contributor' | 'viewer' | null,
         setSelectedFamily,
         setSelectedStudent,
         refreshFamilies,

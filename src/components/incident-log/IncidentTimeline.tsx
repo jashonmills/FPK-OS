@@ -3,9 +3,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { useFamily } from '@/contexts/FamilyContext';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle, Clock, MapPin, User } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { AlertTriangle, Clock, MapPin, User, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { PotentialTriggersDisplay } from '@/components/incident/PotentialTriggersDisplay';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { toast } from 'sonner';
 
 interface IncidentLog {
   id: string;
@@ -29,7 +32,7 @@ interface IncidentTimelineProps {
 export const IncidentTimeline = ({ refreshKey }: IncidentTimelineProps) => {
   const [logs, setLogs] = useState<IncidentLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { selectedFamily, selectedStudent } = useFamily();
+  const { selectedFamily, selectedStudent, currentUserRole } = useFamily();
 
   useEffect(() => {
     fetchLogs();
@@ -54,6 +57,23 @@ export const IncidentTimeline = ({ refreshKey }: IncidentTimelineProps) => {
       console.error('Error fetching incidents:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleDelete = async (logId: string) => {
+    try {
+      const { error } = await supabase
+        .from('incident_logs')
+        .delete()
+        .eq('id', logId);
+
+      if (error) throw error;
+
+      toast.success('Incident log deleted successfully');
+      fetchLogs();
+    } catch (error) {
+      console.error('Error deleting log:', error);
+      toast.error('Failed to delete incident log');
     }
   };
 
@@ -134,6 +154,36 @@ export const IncidentTimeline = ({ refreshKey }: IncidentTimelineProps) => {
                     onClick={() => window.open(url, '_blank')}
                   />
                 ))}
+              </div>
+            )}
+
+            {currentUserRole === 'owner' && (
+              <div className="pt-3 border-t">
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete Log
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete Incident Log</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to delete this incident log? This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => handleDelete(log.id)}
+                        className="bg-destructive hover:bg-destructive/90"
+                      >
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             )}
           </CardContent>
