@@ -106,7 +106,7 @@ export const IntegrationsTab = () => {
                   <Activity className="h-4 w-4" />
                   Connect Garmin
                 </Button>
-                <Button variant="outline" onClick={() => navigate("/live-data-hub")} className="gap-2">
+                <Button variant="outline" onClick={() => navigate("/garmin-demo")} className="gap-2">
                   <ExternalLink className="h-4 w-4" />
                   Preview Demo
                 </Button>

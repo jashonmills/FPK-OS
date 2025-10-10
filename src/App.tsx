@@ -18,6 +18,9 @@ import Settings from "./pages/Settings";
 import AdminKBManager from "./pages/AdminKBManager";
 import Pricing from "./pages/Pricing";
 import ChartLibrary from "./pages/ChartLibrary";
+import LiveDataHub from "./pages/LiveDataHub";
+import GarminDemo from "./pages/GarminDemo";
+import GarminHub from "./pages/GarminHub";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -128,6 +131,30 @@ const App = () => (
                     <ChartLibrary />
                   </AppLayout>
                 </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/live-data-hub"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <LiveDataHub />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/garmin-demo"
+              element={
+                <ProtectedRoute>
+                  <GarminDemo />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/garmin-hub"
+              element={
+                <GarminHub />
               }
             />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
