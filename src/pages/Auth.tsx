@@ -76,7 +76,7 @@ const Auth = () => {
               <GraduationCap className="w-8 h-8 text-white" />
             </div>
           </div>
-          <CardTitle className="text-2xl">Progress Hub</CardTitle>
+          <CardTitle className="text-2xl">FPX MyCNS app</CardTitle>
           <CardDescription>
             Track special education progress with confidence
           </CardDescription>

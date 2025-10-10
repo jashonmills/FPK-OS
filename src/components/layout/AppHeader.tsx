@@ -19,7 +19,7 @@ export const AppHeader = () => {
       case '/settings':
         return 'Settings';
       default:
-        return 'Progress Hub';
+        return 'FPX MyCNS app';
     }
   };
 
