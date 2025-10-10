@@ -89,10 +89,46 @@ export function DocumentUploadModal({ open, onOpenChange }: DocumentUploadModalP
       });
 
       if (dbError) throw dbError;
+
+      return { familyId: selectedFamily.id };
     },
-    onSuccess: () => {
+    onSuccess: async (data) => {
       queryClient.invalidateQueries({ queryKey: ["documents"] });
       toast.success("Document uploaded successfully");
+      
+      // Check if we now have 5 documents and should trigger analysis
+      const { count } = await supabase
+        .from("documents")
+        .select("*", { count: "exact", head: true })
+        .eq("family_id", data.familyId);
+
+      if (count === 5) {
+        // Check if analysis hasn't been run yet
+        const { data: familyData } = await supabase
+          .from("families")
+          .select("initial_doc_analysis_status")
+          .eq("id", data.familyId)
+          .single();
+
+        if (familyData?.initial_doc_analysis_status === "pending") {
+          toast.info("Analyzing your documents to personalize your dashboard...");
+          
+          // Trigger the first-look-analysis
+          const { error: analysisError } = await supabase.functions.invoke(
+            "first-look-analysis",
+            { body: { family_id: data.familyId } }
+          );
+
+          if (analysisError) {
+            console.error("Analysis error:", analysisError);
+            toast.error("Document analysis failed. You can retry from Settings.");
+          } else {
+            toast.success("Analysis complete! Check out your personalized charts in Analytics.");
+            queryClient.invalidateQueries({ queryKey: ["families"] });
+          }
+        }
+      }
+
       onOpenChange(false);
       setFile(null);
       setCategory("general");
