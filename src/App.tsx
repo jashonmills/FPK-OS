@@ -18,6 +18,7 @@ import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
 import AdminKBManager from "./pages/AdminKBManager";
 import Pricing from "./pages/Pricing";
+import PricingAuthenticated from "./pages/PricingAuthenticated";
 import ChartLibrary from "./pages/ChartLibrary";
 import LiveDataHub from "./pages/LiveDataHub";
 import GarminDemo from "./pages/GarminDemo";
@@ -119,6 +120,14 @@ const App = () => (
                   <AppLayout>
                     <Settings />
                   </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/pricing-authenticated"
+              element={
+                <ProtectedRoute>
+                  <PricingAuthenticated />
                 </ProtectedRoute>
               }
             />

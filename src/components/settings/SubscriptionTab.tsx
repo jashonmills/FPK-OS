@@ -7,9 +7,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { CreditCard, Users, GraduationCap, HardDrive, TrendingUp } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 
 export const SubscriptionTab = () => {
   const { selectedFamily } = useFamily();
+  const navigate = useNavigate();
 
   const { data: familyData } = useQuery({
     queryKey: ['family-subscription', selectedFamily?.id],
@@ -214,7 +216,7 @@ export const SubscriptionTab = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button className="w-full" onClick={() => window.location.href = '/pricing'}>
+            <Button className="w-full" onClick={() => navigate('/pricing-authenticated')}>
               View Plans & Pricing
             </Button>
           </CardContent>

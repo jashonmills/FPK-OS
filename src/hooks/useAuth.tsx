@@ -24,6 +24,12 @@ export const useAuth = () => {
           // Use setTimeout to defer the navigation check
           setTimeout(async () => {
             try {
+              // Don't redirect if user is on the authenticated pricing page
+              const currentPath = window.location.pathname;
+              if (currentPath === '/pricing-authenticated') {
+                return;
+              }
+
               // Check for redirect parameter in URL
               const urlParams = new URLSearchParams(window.location.search);
               const redirectUrl = urlParams.get('redirect');
