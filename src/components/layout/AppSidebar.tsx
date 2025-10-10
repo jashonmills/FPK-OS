@@ -178,14 +178,14 @@ export const AppSidebar = () => {
                 <Avatar className="h-8 w-8">
                   <AvatarImage src={profile?.avatar_url} />
                   <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-                    {profile?.display_name?.[0]?.toUpperCase() || user?.email?.[0].toUpperCase()}
+                    {profile?.full_name?.[0]?.toUpperCase() || user?.email?.[0].toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate">
-                    {profile?.display_name || user?.email}
+                    {profile?.full_name || user?.email}
                   </p>
-                  {profile?.display_name && (
+                  {profile?.full_name && (
                     <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
                   )}
                 </div>
@@ -209,7 +209,7 @@ export const AppSidebar = () => {
               <Avatar className="h-8 w-8">
                 <AvatarImage src={profile?.avatar_url} />
                 <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-                  {profile?.display_name?.[0]?.toUpperCase() || user?.email?.[0].toUpperCase()}
+                  {profile?.full_name?.[0]?.toUpperCase() || user?.email?.[0].toUpperCase()}
                 </AvatarFallback>
               </Avatar>
             </Button>

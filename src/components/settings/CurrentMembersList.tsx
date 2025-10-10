@@ -28,7 +28,7 @@ export const CurrentMembersList = ({ familyId, isOwner }: CurrentMembersListProp
         .select(`
           *,
           profiles:user_id (
-            display_name,
+            full_name,
             avatar_url
           )
         `)
@@ -135,7 +135,7 @@ export const CurrentMembersList = ({ familyId, isOwner }: CurrentMembersListProp
                       </Avatar>
                       <div>
                         <p className="font-medium">
-                          {profile?.display_name || 'No name set'}
+                          {profile?.full_name || 'No name set'}
                           {isCurrentUser && (
                             <span className="ml-2 text-xs text-muted-foreground">(You)</span>
                           )}

@@ -79,7 +79,7 @@ export const UserProfileCard = ({ user }: UserProfileCardProps) => {
               {/* Name and Title */}
               <div>
                 <h3 className="text-2xl font-semibold">
-                  {profile?.full_name || profile?.display_name || 'No name set'}
+                  {profile?.full_name || 'No name set'}
                 </h3>
                 {profile?.professional_title && (
                   <p className="text-muted-foreground">{profile.professional_title}</p>
