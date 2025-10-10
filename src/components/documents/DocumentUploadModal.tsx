@@ -12,9 +12,6 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import * as pdfjs from "pdfjs-dist";
 
-// Configure PDF.js worker - use unpkg instead of cdnjs for better compatibility
-pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
-
 interface DocumentUploadModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -30,6 +27,12 @@ export function DocumentUploadModal({ open, onOpenChange }: DocumentUploadModalP
 
   const extractTextFromPDF = async (file: File): Promise<string> => {
     try {
+      // Configure worker inline before use
+      pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+        'pdfjs-dist/build/pdf.worker.min.mjs',
+        import.meta.url
+      ).toString();
+
       const arrayBuffer = await file.arrayBuffer();
       const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
       

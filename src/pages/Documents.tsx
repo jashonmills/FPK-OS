@@ -14,9 +14,6 @@ import { DocumentUploadModal } from "@/components/documents/DocumentUploadModal"
 import { DocumentViewerModal } from "@/components/documents/DocumentViewerModal";
 import * as pdfjs from "pdfjs-dist";
 
-// Configure PDF.js worker - use unpkg instead of cdnjs for better compatibility
-pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
-
 export default function Documents() {
   const { selectedFamily, selectedStudent } = useFamily();
   const queryClient = useQueryClient();
@@ -92,6 +89,12 @@ export default function Documents() {
 
   const extractTextFromPDF = async (fileBlob: Blob): Promise<string> => {
     try {
+      // Configure worker inline before use
+      pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+        'pdfjs-dist/build/pdf.worker.min.mjs',
+        import.meta.url
+      ).toString();
+
       const arrayBuffer = await fileBlob.arrayBuffer();
       const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
       
