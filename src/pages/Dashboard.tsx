@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { EducatorLogsSection } from '@/components/EducatorLogsSection';
 import { StudentOverview } from '@/components/StudentOverview';
 import { DocumentProgressOverview } from '@/components/dashboard/DocumentProgressOverview';
+import { ProgressMetricsSection } from '@/components/ProgressMetricsSection';
 import { AIInsightsWidget } from '@/components/dashboard/AIInsightsWidget';
 import { DailyBriefingWidget } from '@/components/dashboard/DailyBriefingWidget';
 import { Plus, TrendingUp, BookOpen, Activity, FileText, Sparkles } from 'lucide-react';
@@ -75,7 +76,7 @@ const Dashboard = () => {
           </TabsContent>
 
           <TabsContent value="metrics" className="space-y-4">
-            <DocumentProgressOverview />
+            <ProgressMetricsSection />
           </TabsContent>
 
           <TabsContent value="documents" className="space-y-4">
