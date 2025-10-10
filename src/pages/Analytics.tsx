@@ -12,8 +12,11 @@ import { MoodDistributionChart } from "@/components/analytics/MoodDistributionCh
 import { IncidentFrequencyChart } from "@/components/analytics/IncidentFrequencyChart";
 import { GoalProgressCards } from "@/components/analytics/GoalProgressCards";
 import { InterventionEffectivenessChart } from "@/components/analytics/InterventionEffectivenessChart";
-import { SensoryTriggerHeatmap } from "@/components/analytics/SensoryTriggerHeatmap";
-import { TimeOnTaskChart } from "@/components/analytics/TimeOnTaskChart";
+import { BehaviorFunctionAnalysis } from "@/components/analytics/BehaviorFunctionAnalysis";
+import { IEPGoalServiceTracker } from "@/components/analytics/IEPGoalServiceTracker";
+import { AcademicFluencyTrends } from "@/components/analytics/AcademicFluencyTrends";
+import { SensoryProfileHeatmap } from "@/components/analytics/SensoryProfileHeatmap";
+import { SocialInteractionFunnel } from "@/components/analytics/SocialInteractionFunnel";
 import { StrategyEffectiveness } from "@/components/analytics/StrategyEffectiveness";
 
 const Analytics = () => {
@@ -187,13 +190,15 @@ const Analytics = () => {
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {suggestedCharts.map((chart: any, index: number) => {
-              if (chart.chart_type === "sensory_trigger_heatmap") {
-                return <SensoryTriggerHeatmap key={index} />;
-              }
-              if (chart.chart_type === "time_on_task_chart") {
-                return <TimeOnTaskChart key={index} />;
-              }
-              return null;
+              const chartMap: Record<string, React.ReactNode> = {
+                behavior_function_analysis: <BehaviorFunctionAnalysis studentId={selectedStudent.id} familyId={selectedFamily!.id} />,
+                iep_goal_service_tracker: <IEPGoalServiceTracker studentId={selectedStudent.id} familyId={selectedFamily!.id} />,
+                academic_fluency_trends: <AcademicFluencyTrends studentId={selectedStudent.id} familyId={selectedFamily!.id} dateRange={{ from: new Date(Date.now() - parseInt(dateRange) * 24 * 60 * 60 * 1000), to: new Date() }} />,
+                sensory_profile_heatmap: <SensoryProfileHeatmap studentId={selectedStudent.id} familyId={selectedFamily!.id} />,
+                social_interaction_funnel: <SocialInteractionFunnel studentId={selectedStudent.id} familyId={selectedFamily!.id} />,
+              };
+              
+              return chartMap[chart.chart_type] ? <div key={index}>{chartMap[chart.chart_type]}</div> : null;
             })}
           </div>
         </div>

@@ -100,7 +100,15 @@ serve(async (req) => {
 
 **Function 1: Extract Historical Data.** Scan all documents for any mention of sleep, mood, or incidents with associated dates. Only extract data that is explicitly stated with dates.
 
-**Function 2: Recommend New Charts.** Analyze the content for recurring themes (e.g., 'sensory', 'focus', 'elopement', 'communication', 'time-on-task') and suggest new chart types that would be valuable for this family.
+**Function 2: Recommend New Charts.** Analyze the content for recurring themes and suggest new chart types that would be valuable for this family.
+
+**Chart Recommendation Library:**
+When you recommend charts, you MUST use one of the following chart_type names in your JSON output:
+1. behavior_function_analysis: Use this for documents focused on FBA/BIPs and behavioral functions (escape, tangible, sensory, attention).
+2. iep_goal_service_tracker: Use this for IEPs with clear goals and service minutes.
+3. academic_fluency_trends: Use this for students with learning disabilities and academic fluency goals (reading WPM, math facts).
+4. sensory_profile_heatmap: Use this when documents frequently mention sensory sensitivities or SPD.
+5. social_interaction_funnel: Use this when social skills and peer interaction are a primary focus.
 
 Format your response as a single JSON object:
 {
@@ -114,14 +122,14 @@ Format your response as a single JSON object:
   },
   "chart_recommendations": [
     { 
-      "chart_type": "sensory_trigger_heatmap", 
-      "reason": "Multiple documents mention sensory sensitivities to sound and light.",
+      "chart_type": "behavior_function_analysis", 
+      "reason": "Document includes FBA data with hypothesized functions for challenging behaviors.",
       "priority": "high"
     },
     { 
-      "chart_type": "time_on_task_chart", 
-      "reason": "Focus and attention metrics appear frequently.",
-      "priority": "medium"
+      "chart_type": "iep_goal_service_tracker", 
+      "reason": "IEP contains 8 goals across multiple domains with service delivery hours.",
+      "priority": "high"
     }
   ]
 }`;
