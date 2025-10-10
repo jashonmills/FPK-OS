@@ -46,7 +46,13 @@ export const PromptingLevelFading = ({ familyId, studentId, sampleData }: Prompt
 
   // Process data to show prompting level distribution over time
   const processedData = displayData.reduce((acc: any[], log: any) => {
-    const date = format(new Date(log.log_date), "MMM dd");
+    // Skip logs with invalid dates
+    if (!log.log_date) return acc;
+    
+    const dateObj = new Date(log.log_date);
+    if (isNaN(dateObj.getTime())) return acc;
+    
+    const date = format(dateObj, "MMM dd");
     const existing = acc.find(item => item.date === date);
     
     if (existing) {
