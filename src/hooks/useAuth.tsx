@@ -20,12 +20,30 @@ export const useAuth = () => {
         // Handle post-login routing
         if (event === 'SIGNED_IN' && session?.user) {
           console.log("User signed in. User ID:", session.user.id);
-          console.log("Checking onboarding status...");
           
           // Use setTimeout to defer the navigation check
           setTimeout(async () => {
             try {
-              console.log("Making RPC call to check_user_onboarding_status...");
+              // First check if profile setup is complete
+              const { data: profileData, error: profileError } = await supabase
+                .from('profiles')
+                .select('has_completed_profile_setup')
+                .eq('id', session.user.id)
+                .single();
+
+              if (profileError) {
+                console.error("Error checking profile setup:", profileError);
+              }
+
+              // If profile setup is not complete, redirect to profile setup
+              if (!profileData?.has_completed_profile_setup) {
+                console.log("Profile setup incomplete. Redirecting to profile-setup.");
+                navigate('/profile-setup');
+                return;
+              }
+
+              // Then check onboarding status
+              console.log("Checking onboarding status...");
               const { data: hasCompletedOnboarding, error } = await supabase.rpc('check_user_onboarding_status');
 
               console.log("RPC call completed. Data:", hasCompletedOnboarding, "Error:", error);
@@ -45,7 +63,7 @@ export const useAuth = () => {
                 navigate('/onboarding');
               }
             } catch (error) {
-              console.error("Exception checking onboarding status:", error);
+              console.error("Exception checking onboarding/profile status:", error);
               console.log("Falling back to dashboard due to exception");
               navigate('/dashboard');
             }

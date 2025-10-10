@@ -1,12 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
-import { User, Edit, Save, X, Mail } from 'lucide-react';
+import { Edit, Mail, Phone, Briefcase, Building2 } from 'lucide-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { UserProfileEditModal } from './UserProfileEditModal';
 
 interface UserProfileCardProps {
   user: {
@@ -16,10 +15,7 @@ interface UserProfileCardProps {
 }
 
 export const UserProfileCard = ({ user }: UserProfileCardProps) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [displayName, setDisplayName] = useState('');
-  const [phone, setPhone] = useState('');
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const queryClient = useQueryClient();
 
   // Fetch user profile
@@ -38,44 +34,8 @@ export const UserProfileCard = ({ user }: UserProfileCardProps) => {
     enabled: !!user.id,
   });
 
-  // Update form when profile loads
-  useEffect(() => {
-    if (profile) {
-      setDisplayName(profile.display_name || '');
-      setPhone(profile.phone || '');
-    }
-  }, [profile]);
-
-  const handleSave = async () => {
-    setIsSaving(true);
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          display_name: displayName,
-          phone: phone,
-        })
-        .eq('id', user.id);
-
-      if (error) throw error;
-
-      // Invalidate queries to refresh the data
-      queryClient.invalidateQueries({ queryKey: ['profile', user.id] });
-      
-      toast.success('Profile updated successfully');
-      setIsEditing(false);
-    } catch (error: any) {
-      console.error('Error updating profile:', error);
-      toast.error(error.message || 'Failed to update profile');
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleCancel = () => {
-    setDisplayName(profile?.display_name || '');
-    setPhone(profile?.phone || '');
-    setIsEditing(false);
+  const handleProfileUpdated = () => {
+    queryClient.invalidateQueries({ queryKey: ['profile', user.id] });
   };
 
   if (isLoading) {
@@ -90,94 +50,108 @@ export const UserProfileCard = ({ user }: UserProfileCardProps) => {
   }
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-            <User className="w-5 h-5 text-primary" />
-          </div>
+    <>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
           <div>
             <CardTitle>Your Profile</CardTitle>
-            <CardDescription>Manage your account information</CardDescription>
+            <CardDescription>Your account information and settings</CardDescription>
           </div>
-        </div>
-        {!isEditing ? (
-          <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
+          <Button variant="outline" size="sm" onClick={() => setIsEditModalOpen(true)}>
             <Edit className="w-4 h-4 mr-2" />
             Edit
           </Button>
-        ) : (
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={handleCancel} disabled={isSaving}>
-              <X className="w-4 h-4 mr-2" />
-              Cancel
-            </Button>
-            <Button size="sm" onClick={handleSave} disabled={isSaving}>
-              <Save className="w-4 h-4 mr-2" />
-              {isSaving ? 'Saving...' : 'Save'}
-            </Button>
-          </div>
-        )}
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {isEditing ? (
-          <>
-            <div className="space-y-2">
-              <Label htmlFor="display-name">Display Name</Label>
-              <Input
-                id="display-name"
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
-                placeholder="Your name"
-              />
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col md:flex-row gap-6">
+            {/* Avatar Section */}
+            <div className="flex-shrink-0">
+              <Avatar className="h-24 w-24">
+                <AvatarImage src={profile?.avatar_url || ''} alt={profile?.full_name || 'User'} />
+                <AvatarFallback className="text-2xl">
+                  {profile?.full_name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U'}
+                </AvatarFallback>
+              </Avatar>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="phone">Phone Number (Optional)</Label>
-              <Input
-                id="phone"
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="+1 (555) 123-4567"
-              />
-            </div>
-          </>
-        ) : (
-          <div className="space-y-3">
-            <div className="flex items-center gap-3 p-3 border rounded-lg bg-muted/30">
-              <Mail className="h-5 w-5 text-muted-foreground" />
+            {/* Profile Information */}
+            <div className="flex-1 space-y-4">
+              {/* Name and Title */}
               <div>
-                <p className="text-sm font-medium">Email Address</p>
-                <p className="text-sm text-muted-foreground">{user?.email}</p>
+                <h3 className="text-2xl font-semibold">
+                  {profile?.full_name || profile?.display_name || 'No name set'}
+                </h3>
+                {profile?.professional_title && (
+                  <p className="text-muted-foreground">{profile.professional_title}</p>
+                )}
               </div>
+
+              {/* Contact Information Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="flex items-center gap-3 p-3 border rounded-lg bg-muted/30">
+                  <Mail className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium">Email</p>
+                    <p className="text-sm text-muted-foreground truncate">{user?.email}</p>
+                  </div>
+                </div>
+
+                {profile?.phone && (
+                  <div className="flex items-center gap-3 p-3 border rounded-lg bg-muted/30">
+                    <Phone className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium">Phone</p>
+                      <p className="text-sm text-muted-foreground">{profile.phone}</p>
+                    </div>
+                  </div>
+                )}
+
+                {profile?.organization_name && (
+                  <div className="flex items-center gap-3 p-3 border rounded-lg bg-muted/30">
+                    <Building2 className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium">Organization</p>
+                      <p className="text-sm text-muted-foreground truncate">{profile.organization_name}</p>
+                    </div>
+                  </div>
+                )}
+
+                {profile?.professional_title && (
+                  <div className="flex items-center gap-3 p-3 border rounded-lg bg-muted/30">
+                    <Briefcase className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium">Title</p>
+                      <p className="text-sm text-muted-foreground truncate">{profile.professional_title}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Bio Section */}
+              {profile?.bio && (
+                <div className="pt-2">
+                  <p className="text-sm font-medium mb-1">About</p>
+                  <p className="text-sm text-muted-foreground">{profile.bio}</p>
+                </div>
+              )}
+
+              {/* Empty State Message */}
+              {!profile?.full_name && !profile?.professional_title && !profile?.phone && !profile?.organization_name && (
+                <p className="text-sm text-muted-foreground italic">
+                  Click Edit to complete your profile with more information.
+                </p>
+              )}
             </div>
-            {profile?.display_name && (
-              <div className="flex items-center gap-3 p-3 border rounded-lg bg-muted/30">
-                <User className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <p className="text-sm font-medium">Display Name</p>
-                  <p className="text-sm text-muted-foreground">{profile.display_name}</p>
-                </div>
-              </div>
-            )}
-            {profile?.phone && (
-              <div className="flex items-center gap-3 p-3 border rounded-lg bg-muted/30">
-                <User className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <p className="text-sm font-medium">Phone Number</p>
-                  <p className="text-sm text-muted-foreground">{profile.phone}</p>
-                </div>
-              </div>
-            )}
-            {(!profile?.display_name || !profile?.phone) && (
-              <p className="text-sm text-muted-foreground">
-                Click Edit to add more profile information.
-              </p>
-            )}
           </div>
-        )}
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+
+      <UserProfileEditModal
+        open={isEditModalOpen}
+        onOpenChange={setIsEditModalOpen}
+        profile={profile}
+        onProfileUpdated={handleProfileUpdated}
+      />
+    </>
   );
 };

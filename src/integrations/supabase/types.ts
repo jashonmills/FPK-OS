@@ -1509,26 +1509,41 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          bio: string | null
           created_at: string | null
           display_name: string | null
+          full_name: string | null
+          has_completed_profile_setup: boolean | null
           id: string
+          organization_name: string | null
           phone: string | null
+          professional_title: string | null
           updated_at: string | null
         }
         Insert: {
           avatar_url?: string | null
+          bio?: string | null
           created_at?: string | null
           display_name?: string | null
+          full_name?: string | null
+          has_completed_profile_setup?: boolean | null
           id: string
+          organization_name?: string | null
           phone?: string | null
+          professional_title?: string | null
           updated_at?: string | null
         }
         Update: {
           avatar_url?: string | null
+          bio?: string | null
           created_at?: string | null
           display_name?: string | null
+          full_name?: string | null
+          has_completed_profile_setup?: boolean | null
           id?: string
+          organization_name?: string | null
           phone?: string | null
+          professional_title?: string | null
           updated_at?: string | null
         }
         Relationships: []
@@ -2072,7 +2087,7 @@ export type Database = {
         }[]
       }
       get_user_family_role: {
-        Args: { _family_id: string; _user_id: string }
+        Args: { _family_id: string; _user_id: string } | { p_family_id: string }
         Returns: string
       }
       get_weekly_mood_counts: {

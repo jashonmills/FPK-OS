@@ -10,6 +10,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import AcceptInvite from "./pages/AcceptInvite";
 import OnboardingWizard from "./pages/OnboardingWizard";
+import ProfileSetup from "./pages/ProfileSetup";
 import Dashboard from "./pages/Dashboard";
 import ActivityLog from "./pages/ActivityLog";
 import Documents from "./pages/Documents";
@@ -60,6 +61,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <OnboardingWizard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile-setup"
+              element={
+                <ProtectedRoute>
+                  <ProfileSetup />
                 </ProtectedRoute>
               }
             />
