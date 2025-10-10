@@ -22,46 +22,46 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.ingest-academic-sources]
-verify_jwt = true
+verify_jwt = false
 
 [functions.scrape-kennedy-krieger]
-verify_jwt = true
+verify_jwt = false
 
 [functions.scrape-ucdavis-mind]
-verify_jwt = true
+verify_jwt = false
 
 [functions.scrape-vanderbilt-kennedy]
-verify_jwt = true
+verify_jwt = false
 
 [functions.scrape-autism-speaks]
-verify_jwt = true
+verify_jwt = false
 
 [functions.scrape-chadd]
-verify_jwt = true
+verify_jwt = false
 
 [functions.scrape-understood]
-verify_jwt = true
+verify_jwt = false
 
 [functions.scrape-aane]
-verify_jwt = true
+verify_jwt = false
 
 [functions.scrape-state-doe]
-verify_jwt = true
+verify_jwt = false
 
 [functions.scrape-autistic-blogs]
-verify_jwt = true
+verify_jwt = false
 
 [functions.scrape-prt-resources]
-verify_jwt = true
+verify_jwt = false
 
 [functions.scrape-esdm-resources]
-verify_jwt = true
+verify_jwt = false
 
 [functions.scrape-social-thinking]
-verify_jwt = true
+verify_jwt = false
 
 [functions.scrape-opencourseware]
-verify_jwt = true
+verify_jwt = false
 
 [functions.fetch-weather-data]
 verify_jwt = false
@@ -82,7 +82,7 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.ingest-pubmed]
-verify_jwt = true
+verify_jwt = false
 
 [functions.analyze-document]
 verify_jwt = true
@@ -100,31 +100,31 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.scrape-web-sources]
-verify_jwt = true
+verify_jwt = false
 
 [functions.scrape-idea-content]
-verify_jwt = true
+verify_jwt = false
 
 [functions.scrape-osep-content]
-verify_jwt = true
+verify_jwt = false
 
 [functions.scrape-bacb-content]
-verify_jwt = true
+verify_jwt = false
 
 [functions.scrape-nas-content]
-verify_jwt = true
+verify_jwt = false
 
 [functions.scrape-cec-content]
-verify_jwt = true
+verify_jwt = false
 
 [functions.scrape-cdc-content]
-verify_jwt = true
+verify_jwt = false
 
 [functions.scrape-aap-content]
-verify_jwt = true
+verify_jwt = false
 
 [functions.scrape-wwc-content]
-verify_jwt = true
+verify_jwt = false
 
 [functions.embed-family-data]
 verify_jwt = true
