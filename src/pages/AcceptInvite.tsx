@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useFamily } from "@/contexts/FamilyContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -12,6 +13,7 @@ const AcceptInvite = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
+  const { refreshFamilies } = useFamily();
   const token = searchParams.get('token');
 
   const [inviteData, setInviteData] = useState<any>(null);
@@ -99,6 +101,9 @@ const AcceptInvite = () => {
       if (data.success) {
         setSuccess(true);
         toast.success(`You've joined ${data.family_name}!`);
+        
+        // Refresh family context to load the newly joined family
+        await refreshFamilies();
         
         setTimeout(() => {
           navigate('/dashboard');
