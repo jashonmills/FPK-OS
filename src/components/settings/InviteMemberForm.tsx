@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -24,6 +25,7 @@ interface InviteMemberFormProps {
 
 export const InviteMemberForm = ({ familyId, familyName }: InviteMemberFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
+  const queryClient = useQueryClient();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -68,6 +70,10 @@ export const InviteMemberForm = ({ familyId, familyName }: InviteMemberFormProps
         toast.success("Invitation sent successfully!");
       }
 
+      // Invalidate queries to refresh the lists
+      queryClient.invalidateQueries({ queryKey: ['pending-invites', familyId] });
+      queryClient.invalidateQueries({ queryKey: ['family-members', familyId] });
+      
       form.reset();
     } catch (error) {
       console.error('Error sending invitation:', error);
