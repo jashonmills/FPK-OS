@@ -5,10 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Sparkles, Target, BookOpen } from "lucide-react";
 import { AlacartePurchaseModal } from "./AlacartePurchaseModal";
 import { useFamily } from "@/contexts/FamilyContext";
+import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 export function AlaCarteSection() {
   const { selectedFamily } = useFamily();
+  const { user } = useAuth();
   const [purchaseModalOpen, setPurchaseModalOpen] = useState(false);
   const [selectedPurchase, setSelectedPurchase] = useState<{
     type: string;
@@ -16,13 +20,39 @@ export function AlaCarteSection() {
     price: number;
   } | null>(null);
 
+  // Fetch family subscription data
+  const { data: familyData } = useQuery({
+    queryKey: ['family-subscription', selectedFamily?.id],
+    queryFn: async () => {
+      if (!selectedFamily?.id) return null;
+      
+      const { data, error } = await supabase
+        .from('families')
+        .select('subscription_tier')
+        .eq('id', selectedFamily.id)
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!selectedFamily?.id && !!user,
+  });
+
+  const currentTier = familyData?.subscription_tier || 'free';
+  const canPurchaseAlaCarte = currentTier === 'team' || currentTier === 'pro';
+
   const handlePurchaseClick = (type: string, title: string, price: number) => {
+    if (!user) {
+      toast.error("Please sign in to purchase à la carte items");
+      return;
+    }
+
     if (!selectedFamily) {
       toast.error("Please select a family first");
       return;
     }
 
-    if (selectedFamily.subscription_tier === "free") {
+    if (!canPurchaseAlaCarte) {
       toast.error("À la carte features require a paid subscription. Please upgrade to Team or Pro.");
       return;
     }
@@ -66,6 +96,11 @@ export function AlaCarteSection() {
             <p className="text-lg text-muted-foreground">
               Available for all Collaborative Team and Insights Pro subscribers.
             </p>
+            {!canPurchaseAlaCarte && user && (
+              <p className="text-sm text-amber-600 dark:text-amber-400 mt-2">
+                Upgrade to Team or Pro to access these features
+              </p>
+            )}
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
@@ -89,8 +124,9 @@ export function AlaCarteSection() {
                     <Button
                       onClick={() => handlePurchaseClick(item.type, item.title, item.price)}
                       className="w-full mt-auto"
+                      disabled={!canPurchaseAlaCarte}
                     >
-                      Purchase Now
+                      {canPurchaseAlaCarte ? 'Purchase Now' : 'Upgrade to Access'}
                     </Button>
                   </CardContent>
                 </Card>

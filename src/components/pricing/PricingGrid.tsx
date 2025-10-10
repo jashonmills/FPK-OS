@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 interface PricingGridProps {
   billingCycle: 'monthly' | 'annual';
@@ -18,6 +19,142 @@ export const PricingGrid = ({ billingCycle }: PricingGridProps) => {
   const { selectedFamily } = useFamily();
   const navigate = useNavigate();
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
+
+  // Fetch family subscription data
+  const { data: familyData } = useQuery({
+    queryKey: ['family-subscription', selectedFamily?.id],
+    queryFn: async () => {
+      if (!selectedFamily?.id) return null;
+      
+      const { data, error } = await supabase
+        .from('families')
+        .select('subscription_tier, subscription_status')
+        .eq('id', selectedFamily.id)
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!selectedFamily?.id && !!user,
+  });
+
+  const currentTier = familyData?.subscription_tier || 'free';
+  const subscriptionStatus = familyData?.subscription_status || 'active';
+
+  const getButtonConfig = (tier: string): {
+    text: string;
+    action: () => void;
+    variant: 'default' | 'outline' | 'destructive' | 'secondary' | 'ghost' | 'link';
+    disabled: boolean;
+  } => {
+    // Not authenticated
+    if (!user) {
+      return {
+        text: tier === 'free' ? 'Start for Free' : 'Start 14-Day Free Trial',
+        action: () => navigate('/auth'),
+        variant: tier === 'free' ? 'outline' : 'default',
+        disabled: false,
+      };
+    }
+
+    // User is authenticated
+    if (tier === 'free') {
+      return {
+        text: currentTier === 'free' ? 'Current Plan' : 'Downgrade to Free',
+        action: currentTier === 'free' 
+          ? () => navigate('/settings') 
+          : () => handleManageSubscription(),
+        variant: 'outline',
+        disabled: currentTier === 'free',
+      };
+    }
+
+    if (tier === 'team') {
+      if (currentTier === 'pro') {
+        return {
+          text: 'Downgrade to Team',
+          action: () => handleDowngrade('team'),
+          variant: 'default',
+          disabled: false,
+        };
+      }
+      if (currentTier === 'team') {
+        return {
+          text: 'Current Plan',
+          action: () => handleManageSubscription(),
+          variant: 'default',
+          disabled: false,
+        };
+      }
+      // currentTier === 'free'
+      return {
+        text: 'Upgrade to Team',
+        action: () => handleCheckout('team'),
+        variant: 'default',
+        disabled: false,
+      };
+    }
+
+    if (tier === 'pro') {
+      if (currentTier === 'pro') {
+        return {
+          text: 'Current Plan',
+          action: () => handleManageSubscription(),
+          variant: 'default',
+          disabled: false,
+        };
+      }
+      // currentTier === 'team' or 'free'
+      return {
+        text: 'Upgrade to Pro',
+        action: () => handleCheckout('pro'),
+        variant: 'default',
+        disabled: false,
+      };
+    }
+
+    return {
+      text: 'Select Plan',
+      action: () => {},
+      variant: 'default',
+      disabled: true,
+    };
+  };
+
+  const handleManageSubscription = async () => {
+    if (!selectedFamily?.id) {
+      toast.error("Please select a family first");
+      return;
+    }
+
+    setCheckoutLoading('manage');
+    try {
+      const { data, error } = await supabase.functions.invoke('manage-subscription', {
+        body: {
+          action: 'create_portal',
+          familyId: selectedFamily.id,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch (error) {
+      console.error('Portal error:', error);
+      toast.error('Failed to open subscription portal. Please try again.');
+    } finally {
+      setCheckoutLoading(null);
+    }
+  };
+
+  const handleDowngrade = (targetTier: string) => {
+    if (!window.confirm(`Are you sure you want to downgrade to ${targetTier === 'team' ? 'Collaborative Team' : 'Family'}? This will take effect at the end of your current billing period.`)) {
+      return;
+    }
+    handleManageSubscription();
+  };
 
   const handleCheckout = async (tier: string) => {
     if (!user) {
@@ -193,14 +330,19 @@ export const PricingGrid = ({ billingCycle }: PricingGridProps) => {
               </div>
             </CardHeader>
             <CardContent className="space-y-4 flex-1 flex flex-col">
-              <Button 
-                className="w-full" 
-                variant={tier.tier === 'free' ? 'outline' : 'default'}
-                onClick={() => handleCheckout(tier.tier)}
-                disabled={checkoutLoading === tier.tier}
-              >
-                {checkoutLoading === tier.tier ? 'Processing...' : tier.cta}
-              </Button>
+              {(() => {
+                const btnConfig = getButtonConfig(tier.tier);
+                return (
+                  <Button 
+                    className="w-full" 
+                    variant={btnConfig.variant}
+                    onClick={btnConfig.action}
+                    disabled={checkoutLoading !== null || btnConfig.disabled}
+                  >
+                    {checkoutLoading === tier.tier ? 'Processing...' : btnConfig.text}
+                  </Button>
+                );
+              })()}
               <div className="space-y-2 flex-1">
                 {featureRows.map((row) => {
                   const value = tier.features[row.key as keyof typeof tier.features];
@@ -238,14 +380,19 @@ export const PricingGrid = ({ billingCycle }: PricingGridProps) => {
                       {billingCycle === 'monthly' ? '/month' : '/year'}
                     </div>
                     <div className="mt-auto pt-2">
-                      <Button 
-                        className="w-full"
-                        variant={tier.tier === 'free' ? 'outline' : 'default'}
-                        onClick={() => handleCheckout(tier.tier)}
-                        disabled={checkoutLoading === tier.tier}
-                      >
-                        {checkoutLoading === tier.tier ? 'Processing...' : tier.cta}
-                      </Button>
+                      {(() => {
+                        const btnConfig = getButtonConfig(tier.tier);
+                        return (
+                          <Button 
+                            className="w-full"
+                            variant={btnConfig.variant}
+                            onClick={btnConfig.action}
+                            disabled={checkoutLoading !== null || btnConfig.disabled}
+                          >
+                            {checkoutLoading === tier.tier ? 'Processing...' : btnConfig.text}
+                          </Button>
+                        );
+                      })()}
                     </div>
                   </div>
                 </th>
