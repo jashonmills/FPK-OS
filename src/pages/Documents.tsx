@@ -18,11 +18,15 @@ import { DocumentViewerModal } from "@/components/documents/DocumentViewerModal"
 import { DocumentGuide } from "@/components/documents/DocumentGuide";
 import { DocumentsEmptyState } from "@/components/documents/DocumentsEmptyState";
 import * as pdfjs from "pdfjs-dist";
+import { ProductTour } from "@/components/onboarding/ProductTour";
+import { documentsTourSteps } from "@/components/onboarding/tourConfigs";
+import { useTourProgress } from "@/hooks/useTourProgress";
 
 export default function Documents() {
   const { selectedFamily, selectedStudent, currentUserRole } = useFamily();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { shouldRunTour, markTourAsSeen } = useTourProgress('has_seen_documents_tour');
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [viewerModalOpen, setViewerModalOpen] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<any>(null);
@@ -261,6 +265,14 @@ export default function Documents() {
 
   return (
     <>
+      <ProductTour 
+        run={shouldRunTour} 
+        onComplete={markTourAsSeen}
+        tourSteps={documentsTourSteps}
+        tourTitle="Welcome to Documents"
+        tourDescription="Upload and analyze important documents with AI assistance. Ready to learn more?"
+      />
+      
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <p className="text-muted-foreground">

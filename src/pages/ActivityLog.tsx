@@ -14,21 +14,34 @@ import { useFamily } from '@/contexts/FamilyContext';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Info } from 'lucide-react';
 import { ClearTestDataButton } from '@/components/admin/ClearTestDataButton';
+import { ProductTour } from '@/components/onboarding/ProductTour';
+import { activitiesTourSteps } from '@/components/onboarding/tourConfigs';
+import { useTourProgress } from '@/hooks/useTourProgress';
 
 const ActivityLog = () => {
   const [refreshKey, setRefreshKey] = useState(0);
   const { currentUserRole, familyMembership } = useFamily();
+  const { shouldRunTour, markTourAsSeen } = useTourProgress('has_seen_activities_tour');
 
   const handleLogCreated = () => {
     setRefreshKey(prev => prev + 1);
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
-      <div className="mb-4 flex justify-between items-center">
-        <p className="text-muted-foreground">Track incidents, observations, and sleep patterns</p>
-        {familyMembership?.role === 'owner' && <ClearTestDataButton />}
-      </div>
+    <>
+      <ProductTour 
+        run={shouldRunTour} 
+        onComplete={markTourAsSeen}
+        tourSteps={activitiesTourSteps}
+        tourTitle="Welcome to Activity Logs"
+        tourDescription="This is where you'll track all important events. Let me show you around!"
+      />
+      
+      <div className="max-w-6xl mx-auto space-y-6">
+        <div className="mb-4 flex justify-between items-center">
+          <p className="text-muted-foreground">Track incidents, observations, and sleep patterns</p>
+          {familyMembership?.role === 'owner' && <ClearTestDataButton />}
+        </div>
 
       <LiveWeatherDisplay />
 
@@ -136,7 +149,8 @@ const ActivityLog = () => {
           </Tabs>
         </TabsContent>
       </Tabs>
-    </div>
+      </div>
+    </>
   );
 };
 

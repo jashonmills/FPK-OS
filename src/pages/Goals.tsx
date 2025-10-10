@@ -16,10 +16,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
+import { ProductTour } from '@/components/onboarding/ProductTour';
+import { goalsTourSteps } from '@/components/onboarding/tourConfigs';
+import { useTourProgress } from '@/hooks/useTourProgress';
 
 const Goals = () => {
   const { selectedFamily, selectedStudent } = useFamily();
   const queryClient = useQueryClient();
+  const { shouldRunTour, markTourAsSeen } = useTourProgress('has_seen_goals_tour');
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [goalTitle, setGoalTitle] = useState('');
   const [goalDescription, setGoalDescription] = useState('');
@@ -217,8 +221,17 @@ const Goals = () => {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex justify-between items-center">
+    <>
+      <ProductTour 
+        run={shouldRunTour} 
+        onComplete={markTourAsSeen}
+        tourSteps={goalsTourSteps}
+        tourTitle="Welcome to Goals"
+        tourDescription="Set and track measurable goals for your child's development. Ready to get started?"
+      />
+      
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Goals</h1>
           <p className="text-muted-foreground">
@@ -368,7 +381,8 @@ const Goals = () => {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+      </div>
+    </>
   );
 };
 

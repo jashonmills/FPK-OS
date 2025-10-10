@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import fpxCnsLogo from '@/assets/fpx-cns-logo.png';
+import { supabase } from '@/integrations/supabase/client';
 
 export const AppHeader = () => {
   const location = useLocation();
@@ -31,8 +32,22 @@ export const AppHeader = () => {
     }
   };
 
-  const handleReplayTour = () => {
-    localStorage.removeItem('hasSeenProductTour');
+  const handleReplayTour = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      // Reset all tour flags
+      await supabase
+        .from('user_tour_progress')
+        .update({ 
+          has_seen_dashboard_tour: false,
+          has_seen_activities_tour: false,
+          has_seen_goals_tour: false,
+          has_seen_analytics_tour: false,
+          has_seen_settings_tour: false,
+          has_seen_documents_tour: false,
+        })
+        .eq('user_id', user.id);
+    }
     window.location.href = '/dashboard';
   };
 

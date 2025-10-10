@@ -2117,6 +2117,45 @@ export type Database = {
         }
         Relationships: []
       }
+      user_tour_progress: {
+        Row: {
+          created_at: string | null
+          has_seen_activities_tour: boolean | null
+          has_seen_analytics_tour: boolean | null
+          has_seen_dashboard_tour: boolean | null
+          has_seen_documents_tour: boolean | null
+          has_seen_goals_tour: boolean | null
+          has_seen_settings_tour: boolean | null
+          id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          has_seen_activities_tour?: boolean | null
+          has_seen_analytics_tour?: boolean | null
+          has_seen_dashboard_tour?: boolean | null
+          has_seen_documents_tour?: boolean | null
+          has_seen_goals_tour?: boolean | null
+          has_seen_settings_tour?: boolean | null
+          id?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          has_seen_activities_tour?: boolean | null
+          has_seen_analytics_tour?: boolean | null
+          has_seen_dashboard_tour?: boolean | null
+          has_seen_documents_tour?: boolean | null
+          has_seen_goals_tour?: boolean | null
+          has_seen_settings_tour?: boolean | null
+          id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       wearable_sleep_data: {
         Row: {
           avg_heart_rate: number | null

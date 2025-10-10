@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useFamily } from '@/contexts/FamilyContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -9,24 +9,13 @@ import { DocumentMetricsSection } from '@/components/dashboard/DocumentMetricsSe
 import { AIInsightsWidget } from '@/components/dashboard/AIInsightsWidget';
 import { DailyBriefingWidget } from '@/components/dashboard/DailyBriefingWidget';
 import { ProductTour } from '@/components/onboarding/ProductTour';
+import { dashboardTourSteps } from '@/components/onboarding/tourConfigs';
+import { useTourProgress } from '@/hooks/useTourProgress';
 import { Plus, TrendingUp, BookOpen, Activity, FileText, Sparkles } from 'lucide-react';
 
 const Dashboard = () => {
   const { selectedStudent, isLoading } = useFamily();
-  const [runTour, setRunTour] = useState(false);
-
-  useEffect(() => {
-    // Check if user has seen the tour before
-    const hasSeenTour = localStorage.getItem('hasSeenProductTour');
-    if (!hasSeenTour && selectedStudent) {
-      setRunTour(true);
-    }
-  }, [selectedStudent]);
-
-  const handleTourComplete = () => {
-    localStorage.setItem('hasSeenProductTour', 'true');
-    setRunTour(false);
-  };
+  const { shouldRunTour, markTourAsSeen } = useTourProgress('has_seen_dashboard_tour');
 
   if (isLoading) {
     return (
@@ -53,7 +42,11 @@ const Dashboard = () => {
 
   return (
     <>
-      <ProductTour run={runTour} onComplete={handleTourComplete} />
+      <ProductTour 
+        run={shouldRunTour} 
+        onComplete={markTourAsSeen}
+        tourSteps={dashboardTourSteps}
+      />
       
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="mb-4">

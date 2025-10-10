@@ -6,42 +6,13 @@ import { Button } from '@/components/ui/button';
 interface ProductTourProps {
   run: boolean;
   onComplete: () => void;
+  tourSteps: Step[];
+  tourTitle?: string;
+  tourDescription?: string;
 }
 
-const tourSteps: Step[] = [
-  {
-    target: 'main',
-    content: 'This is your Dashboard, your daily command center. Key insights and recent activity will appear here.',
-    placement: 'center',
-    title: 'Welcome to Your Dashboard',
-  },
-  {
-    target: '[data-tour="add-log"]',
-    content: 'This is the most important button. Use it to log behaviors, sleep, and other events as they happen. Consistent logging is the key to powerful insights.',
-    placement: 'bottom',
-    title: 'Logging Data',
-  },
-  {
-    target: '[data-tour="documents"]',
-    content: 'Click here to upload important files like IEPs and evaluations. Our AI can analyze them to help you set meaningful goals.',
-    placement: 'right',
-    title: 'Upload Documents',
-  },
-  {
-    target: '[data-tour="settings"]',
-    content: "You're not in this alone. Go here to invite your spouse, therapists, and teachers to collaborate as part of your support team.",
-    placement: 'right',
-    title: 'Invite Your Team',
-  },
-  {
-    target: '[data-tour="help"]',
-    content: 'If you ever need help or want to replay this tour, just click here. Welcome aboard!',
-    placement: 'bottom',
-    title: 'Getting Help',
-  },
-];
+export const ProductTour = ({ run, onComplete, tourSteps, tourTitle = "Welcome to the CNS Platform!", tourDescription = "We're excited to have you. Would you like a quick 2-minute tour to learn the basics?" }: ProductTourProps) => {
 
-export const ProductTour = ({ run, onComplete }: ProductTourProps) => {
   const [showWelcome, setShowWelcome] = useState(false);
   const [runTour, setRunTour] = useState(false);
 
@@ -75,9 +46,9 @@ export const ProductTour = ({ run, onComplete }: ProductTourProps) => {
       <Dialog open={showWelcome} onOpenChange={setShowWelcome}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-2xl">Welcome to the CNS Platform!</DialogTitle>
+            <DialogTitle className="text-2xl">{tourTitle}</DialogTitle>
             <DialogDescription className="text-base pt-2">
-              We're excited to have you. Would you like a quick 2-minute tour to learn the basics?
+              {tourDescription}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2 sm:gap-0">

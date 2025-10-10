@@ -20,10 +20,14 @@ import { SensoryProfileHeatmap } from "@/components/analytics/SensoryProfileHeat
 import { SocialInteractionFunnel } from "@/components/analytics/SocialInteractionFunnel";
 import { StrategyEffectiveness } from "@/components/analytics/StrategyEffectiveness";
 import { AnalyticsEmptyState } from "@/components/analytics/AnalyticsEmptyState";
+import { ProductTour } from "@/components/onboarding/ProductTour";
+import { analyticsTourSteps } from "@/components/onboarding/tourConfigs";
+import { useTourProgress } from "@/hooks/useTourProgress";
 
 const Analytics = () => {
   const { selectedFamily, selectedStudent } = useFamily();
   const [dateRange, setDateRange] = useState<"30" | "60" | "90">("30");
+  const { shouldRunTour, markTourAsSeen } = useTourProgress('has_seen_analytics_tour');
 
   // Fetch family data to check for trial charts
   const { data: familyData } = useQuery({
@@ -143,8 +147,17 @@ const Analytics = () => {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex justify-between items-center">
+    <>
+      <ProductTour 
+        run={shouldRunTour} 
+        onComplete={markTourAsSeen}
+        tourSteps={analyticsTourSteps}
+        tourTitle="Welcome to Analytics"
+        tourDescription="Visualize trends and unlock insights from your data. Let me show you the key features!"
+      />
+      
+      <div className="container mx-auto p-6 space-y-6" data-tour="chart-tabs">
+        <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Analytics Dashboard</h1>
           <p className="text-muted-foreground">
@@ -279,7 +292,8 @@ const Analytics = () => {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 };
 
