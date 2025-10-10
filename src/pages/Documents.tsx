@@ -12,6 +12,10 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { DocumentUploadModal } from "@/components/documents/DocumentUploadModal";
 import { DocumentViewerModal } from "@/components/documents/DocumentViewerModal";
+import * as pdfjs from "pdfjs-dist";
+
+// Configure PDF.js worker
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 export default function Documents() {
   const { selectedFamily, selectedStudent } = useFamily();
@@ -86,34 +90,69 @@ export default function Documents() {
     }
   };
 
+  const extractTextFromPDF = async (fileBlob: Blob): Promise<string> => {
+    try {
+      const arrayBuffer = await fileBlob.arrayBuffer();
+      const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
+      
+      let fullText = '';
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items
+          .map((item: any) => item.str)
+          .join(' ');
+        fullText += pageText + '\n\n';
+      }
+      
+      return fullText.trim();
+    } catch (error) {
+      console.error("PDF text extraction error:", error);
+      throw new Error("Failed to extract text from PDF");
+    }
+  };
+
   const handleAnalyzeDocument = async (documentId: string) => {
     setAnalyzingDocId(documentId);
     try {
       // First check if document has extracted content
       const { data: doc } = await supabase
         .from('documents')
-        .select('extracted_content')
+        .select('extracted_content, file_path, file_type')
         .eq('id', documentId)
         .single();
 
-      // If no extracted content, extract it first
-      if (!doc?.extracted_content) {
-        toast.info("Extracting text from document...");
-        const { error: extractError } = await supabase.functions.invoke('extract-document-text', {
-          body: { document_id: documentId }
-        });
+      // If no extracted content and it's a PDF, extract it first
+      if (!doc?.extracted_content && doc?.file_type === 'application/pdf') {
+        toast.info("Extracting text from PDF...");
+        
+        // Download the PDF from storage
+        const { data: fileData, error: downloadError } = await supabase.storage
+          .from('family-documents')
+          .download(doc.file_path);
 
-        if (extractError) {
-          console.error('Text extraction error:', extractError);
-          toast.error("Failed to extract text from document");
-          return;
+        if (downloadError || !fileData) {
+          throw new Error("Failed to download document");
         }
-        toast.success("Text extracted, now analyzing...");
-      } else {
-        toast.info("Analyzing document...");
+
+        // Extract text using PDF.js
+        const extractedText = await extractTextFromPDF(fileData);
+        
+        // Update the document with extracted content
+        const { error: updateError } = await supabase
+          .from('documents')
+          .update({ extracted_content: extractedText })
+          .eq('id', documentId);
+
+        if (updateError) {
+          throw new Error("Failed to save extracted text");
+        }
+
+        toast.success("Text extracted successfully!");
       }
 
       // Now analyze the document
+      toast.info("Analyzing document...");
       const { data, error } = await supabase.functions.invoke("analyze-document", {
         body: { document_id: documentId },
       });
@@ -123,6 +162,7 @@ export default function Documents() {
       toast.success(`Analysis complete! Found ${data.metrics_count} metrics, ${data.insights_count} insights`);
       queryClient.invalidateQueries({ queryKey: ["documents"] });
     } catch (error: any) {
+      console.error('Document analysis error:', error);
       toast.error("Failed to analyze document: " + error.message);
     } finally {
       setAnalyzingDocId(null);
