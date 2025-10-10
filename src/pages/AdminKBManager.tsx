@@ -10,13 +10,23 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Database, PlayCircle, Loader2, Book, Brain, Plus, X, TrendingUp } from "lucide-react";
+import { Database, PlayCircle, Loader2, Book, Brain, Plus, X, TrendingUp, LayoutGrid, List, Table as TableIcon } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 
-const ITEMS_PER_PAGE = 15;
+const ITEMS_PER_PAGE = 25;
+
+// Color mapping for focus areas
+const FOCUS_AREA_COLORS: Record<string, string> = {
+  autism: "bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800",
+  adhd: "bg-purple-500/10 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800",
+  "evidence-based-interventions": "bg-green-500/10 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800",
+  "special-education": "bg-orange-500/10 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-800",
+};
+
+type ViewMode = "table" | "list" | "grid";
 
 export default function AdminKBManager() {
   const { user } = useAuth();
@@ -35,6 +45,7 @@ export default function AdminKBManager() {
   const [currentPage, setCurrentPage] = useState(1);
   const [sourceFilter, setSourceFilter] = useState<string>("all");
   const [focusAreaFilter, setFocusAreaFilter] = useState<string>("all");
+  const [viewMode, setViewMode] = useState<ViewMode>("table");
 
   // Check if user is admin
   const { data: isAdmin, isLoading: checkingAdmin } = useQuery({
@@ -418,13 +429,38 @@ export default function AdminKBManager() {
         </CardContent>
       </Card>
 
-      {/* Documents Table */}
+      {/* Documents Section */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Database className="h-5 w-5" />
-            Knowledge Base Documents
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <Database className="h-5 w-5" />
+              Knowledge Base Documents
+            </CardTitle>
+            <div className="flex gap-1">
+              <Button
+                variant={viewMode === "table" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setViewMode("table")}
+              >
+                <TableIcon className="h-4 w-4" />
+              </Button>
+              <Button
+                variant={viewMode === "list" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setViewMode("list")}
+              >
+                <List className="h-4 w-4" />
+              </Button>
+              <Button
+                variant={viewMode === "grid" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setViewMode("grid")}
+              >
+                <LayoutGrid className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
           <div className="flex gap-4 mt-4">
             <div className="flex-1">
               <Label htmlFor="source-filter" className="text-sm">Filter by Source</Label>
@@ -471,52 +507,131 @@ export default function AdminKBManager() {
             </div>
           ) : (
             <>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Title</TableHead>
-                    <TableHead>Source</TableHead>
-                    <TableHead>Focus Areas</TableHead>
-                    <TableHead>Document Type</TableHead>
-                    <TableHead>Publication Date</TableHead>
-                    <TableHead>Added</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {paginatedDocuments?.map((doc) => (
-                    <TableRow key={doc.id}>
-                      <TableCell className="font-medium max-w-xs">
-                        <div className="truncate">{doc.title || "—"}</div>
-                      </TableCell>
-                      <TableCell className="text-sm">{doc.source_name}</TableCell>
-                      <TableCell>
-                        <div className="flex gap-1 flex-wrap">
-                          {doc.focus_areas?.map((area: string) => (
-                            <Badge key={area} variant="secondary" className="text-xs">
-                              {area}
-                            </Badge>
-                          ))}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{doc.document_type}</Badge>
-                      </TableCell>
-                      <TableCell className="text-sm">
-                        {doc.publication_date
-                          ? format(new Date(doc.publication_date), "MMM yyyy")
-                          : "—"}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground text-sm">
-                        {format(new Date(doc.created_at), "MMM dd, yyyy")}
-                      </TableCell>
+              {/* Table View */}
+              {viewMode === "table" && (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Title</TableHead>
+                      <TableHead>Source</TableHead>
+                      <TableHead>Focus Areas</TableHead>
+                      <TableHead>Document Type</TableHead>
+                      <TableHead>Publication Date</TableHead>
+                      <TableHead>Added</TableHead>
                     </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {paginatedDocuments?.map((doc) => (
+                      <TableRow key={doc.id}>
+                        <TableCell className="font-medium max-w-xs">
+                          <div className="truncate">{doc.title || "—"}</div>
+                        </TableCell>
+                        <TableCell className="text-sm">{doc.source_name}</TableCell>
+                        <TableCell>
+                          <div className="flex gap-1.5 flex-wrap">
+                            {doc.focus_areas?.map((area: string) => (
+                              <span
+                                key={area}
+                                className={`px-2 py-0.5 text-xs font-medium rounded-md border ${
+                                  FOCUS_AREA_COLORS[area] || "bg-muted text-muted-foreground border-border"
+                                }`}
+                              >
+                                {area}
+                              </span>
+                            ))}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className="rounded-md">{doc.document_type}</Badge>
+                        </TableCell>
+                        <TableCell className="text-sm">
+                          {doc.publication_date
+                            ? format(new Date(doc.publication_date), "MMM yyyy")
+                            : "—"}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground text-sm">
+                          {format(new Date(doc.created_at), "MMM dd, yyyy")}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+
+              {/* List View */}
+              {viewMode === "list" && (
+                <div className="space-y-2">
+                  {paginatedDocuments?.map((doc) => (
+                    <div key={doc.id} className="flex items-center gap-4 p-3 border rounded-lg hover:bg-muted/50 transition-colors">
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium truncate">{doc.title || "—"}</div>
+                        <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                          <span>{doc.source_name}</span>
+                          <span>•</span>
+                          <span>{doc.document_type}</span>
+                          {doc.publication_date && (
+                            <>
+                              <span>•</span>
+                              <span>{format(new Date(doc.publication_date), "MMM yyyy")}</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex gap-1.5 flex-wrap items-center">
+                        {doc.focus_areas?.map((area: string) => (
+                          <span
+                            key={area}
+                            className={`px-2 py-0.5 text-xs font-medium rounded-md border whitespace-nowrap ${
+                              FOCUS_AREA_COLORS[area] || "bg-muted text-muted-foreground border-border"
+                            }`}
+                          >
+                            {area}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
                   ))}
-                </TableBody>
-              </Table>
+                </div>
+              )}
+
+              {/* Grid View */}
+              {viewMode === "grid" && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {paginatedDocuments?.map((doc) => (
+                    <div key={doc.id} className="p-4 border rounded-lg hover:bg-muted/50 transition-colors space-y-3">
+                      <div className="space-y-1.5">
+                        <div className="font-medium line-clamp-2">{doc.title || "—"}</div>
+                        <div className="text-xs text-muted-foreground flex items-center gap-2">
+                          <span className="font-medium">{doc.source_name}</span>
+                          <span>•</span>
+                          <span>{doc.document_type}</span>
+                        </div>
+                      </div>
+                      <div className="flex gap-1.5 flex-wrap">
+                        {doc.focus_areas?.map((area: string) => (
+                          <span
+                            key={area}
+                            className={`px-2 py-0.5 text-xs font-medium rounded-md border ${
+                              FOCUS_AREA_COLORS[area] || "bg-muted text-muted-foreground border-border"
+                            }`}
+                          >
+                            {area}
+                          </span>
+                        ))}
+                      </div>
+                      {doc.publication_date && (
+                        <div className="text-xs text-muted-foreground">
+                          {format(new Date(doc.publication_date), "MMM yyyy")}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
 
               {/* Pagination */}
               {totalPages > 1 && (
-                <div className="flex items-center justify-between mt-4">
+                <div className="flex items-center justify-between mt-6 pt-4 border-t">
                   <p className="text-sm text-muted-foreground">
                     Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to{" "}
                     {Math.min(currentPage * ITEMS_PER_PAGE, kbDocuments.length)} of{" "}
