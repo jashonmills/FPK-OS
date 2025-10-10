@@ -33,7 +33,7 @@ const Analytics = () => {
         .from("families")
         .select("suggested_charts_config, special_chart_trial_ends_at")
         .eq("id", selectedFamily.id)
-        .single();
+        .maybeSingle();
       
       if (error) throw error;
       return data;

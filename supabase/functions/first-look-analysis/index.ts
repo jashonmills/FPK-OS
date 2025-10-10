@@ -111,7 +111,7 @@ serve(async (req) => {
 2. Behavioral Incidents: Extract any behavioral data points with dates and metrics
 3. Academic Fluency: Extract reading fluency (WPM) or math fluency baselines if mentioned
 4. Progress Tracking: Extract any progress metrics mentioned with values
-5. Social Skills: Extract social interaction, communication data
+5. Social Skills: Extract social interaction, communication data with baseline percentages
 
 Format your response as a single JSON object:
 {
@@ -143,6 +143,15 @@ Format your response as a single JSON object:
         "metric_value": 35,
         "target_value": 60,
         "metric_unit": "WPM",
+        "measurement_date": "2025-09-23"
+      }
+    ],
+    "social_skills": [
+      {
+        "metric_name": "Task Initiation",
+        "metric_value": 0.20,
+        "target_value": 0.80,
+        "metric_unit": "proficiency",
         "measurement_date": "2025-09-23"
       }
     ],
@@ -281,6 +290,7 @@ Format your response as a single JSON object:
       goals: 0,
       behavioral_metrics: 0,
       academic_metrics: 0,
+      social_skills: 0,
       progress_tracking: 0,
     };
 
@@ -366,6 +376,26 @@ Format your response as a single JSON object:
       const { error: academicError } = await supabase.from("document_metrics").insert(academicMetrics);
       if (!academicError) importedCounts.academic_metrics = academicMetrics.length;
       else console.error("Error inserting academic metrics:", academicError);
+    }
+
+    // Insert social skills data
+    if (analysisResult.baseline_data?.social_skills?.length > 0) {
+      const socialMetrics = analysisResult.baseline_data.social_skills.map((metric: any) => ({
+        family_id,
+        student_id: student.id,
+        document_id: null,
+        metric_type: "social_skill",
+        metric_name: metric.metric_name,
+        metric_value: metric.metric_value,
+        target_value: metric.target_value || null,
+        metric_unit: metric.metric_unit || "proficiency",
+        measurement_date: metric.measurement_date || null,
+        context: "AI Import: Social skills baseline from documents",
+      }));
+
+      const { error: socialError } = await supabase.from("document_metrics").insert(socialMetrics);
+      if (!socialError) importedCounts.social_skills = socialMetrics.length;
+      else console.error("Error inserting social skills:", socialError);
     }
 
     // Insert progress tracking data
