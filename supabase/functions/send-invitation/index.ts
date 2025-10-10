@@ -91,7 +91,8 @@ Deno.serve(async (req) => {
       );
     }
 
-    const appUrl = Deno.env.get('SUPABASE_URL')?.replace('.supabase.co', '.lovable.app') || 'https://your-app.lovable.app';
+    // Use the correct app URL - check for custom domain env var or use the Vite URL
+    const appUrl = Deno.env.get('APP_URL') || Deno.env.get('VITE_SUPABASE_URL')?.replace('pnxwemmpxldriwaomiey.supabase.co', 'fpx-cns-app-multi-sass.lovable.app') || 'https://fpx-cns-app-multi-sass.lovable.app';
     const inviteUrl = `${appUrl}/accept-invite?token=${invite.token}`;
 
     const roleDescription = role === 'viewer' 
