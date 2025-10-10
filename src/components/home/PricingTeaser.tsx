@@ -69,7 +69,7 @@ export const PricingTeaser = () => {
           {tiers.map((tier, index) => (
             <Card
               key={index}
-              className={`glass-card relative ${
+              className={`glass-card relative flex flex-col ${
                 tier.badge ? 'border-primary border-2 shadow-lg' : ''
               }`}
             >
@@ -87,8 +87,8 @@ export const PricingTeaser = () => {
                   {tier.tagline}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <ul className="space-y-3">
+              <CardContent className="space-y-4 flex-grow flex flex-col">
+                <ul className="space-y-3 flex-grow">
                   {tier.features.map((feature, i) => (
                     <li key={i} className="flex items-start gap-2">
                       <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
