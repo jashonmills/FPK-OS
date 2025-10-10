@@ -10,27 +10,33 @@ import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGrou
 const navItems = [{
   title: 'Dashboard',
   url: '/dashboard',
-  icon: Home
+  icon: Home,
+  dataTour: undefined
 }, {
   title: 'Activity Logs',
   url: '/activity-log',
-  icon: FileText
+  icon: FileText,
+  dataTour: 'add-log'
 }, {
   title: 'Documents',
   url: '/documents',
-  icon: FolderOpen
+  icon: FolderOpen,
+  dataTour: 'documents'
 }, {
   title: 'Goals',
   url: '/goals',
-  icon: Target
+  icon: Target,
+  dataTour: undefined
 }, {
   title: 'Analytics',
   url: '/analytics',
-  icon: BarChart3
+  icon: BarChart3,
+  dataTour: undefined
 }, {
   title: 'Settings',
   url: '/settings',
-  icon: Settings
+  icon: Settings,
+  dataTour: 'settings'
 }];
 export const AppSidebar = () => {
   const {
@@ -120,9 +126,11 @@ export const AppSidebar = () => {
             <SidebarMenu>
               {navItems.map(item => <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <NavLink to={item.url} className={({
-                  isActive
-                }) => isActive ? 'bg-accent text-accent-foreground font-medium' : ''}>
+                    <NavLink 
+                      to={item.url} 
+                      className={({isActive}) => isActive ? 'bg-accent text-accent-foreground font-medium' : ''}
+                      data-tour={item.dataTour}
+                    >
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
                     </NavLink>
