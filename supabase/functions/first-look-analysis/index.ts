@@ -170,9 +170,23 @@ Format your response as a single JSON object:
 
     let analysisResult;
     try {
-      analysisResult = JSON.parse(aiContent);
+      // Strip markdown code fences if present
+      let cleanedContent = aiContent.trim();
+      if (cleanedContent.startsWith('```json')) {
+        cleanedContent = cleanedContent.slice(7);
+      }
+      if (cleanedContent.startsWith('```')) {
+        cleanedContent = cleanedContent.slice(3);
+      }
+      if (cleanedContent.endsWith('```')) {
+        cleanedContent = cleanedContent.slice(0, -3);
+      }
+      
+      analysisResult = JSON.parse(cleanedContent.trim());
+      console.log("Successfully parsed AI response:", analysisResult);
     } catch (parseError) {
-      console.error("Failed to parse AI response:", parseError, aiContent);
+      console.error("Failed to parse AI response:", parseError);
+      console.error("Raw AI content:", aiContent);
       return new Response(
         JSON.stringify({ error: "Failed to parse AI response" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
