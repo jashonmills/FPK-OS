@@ -7,9 +7,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 interface SensoryProfileHeatmapProps {
   studentId: string;
   familyId: string;
+  sampleData?: any;
 }
 
-export const SensoryProfileHeatmap = ({ studentId, familyId }: SensoryProfileHeatmapProps) => {
+export const SensoryProfileHeatmap = ({ studentId, familyId, sampleData }: SensoryProfileHeatmapProps) => {
   const { data: parentLogs, isLoading: logsLoading } = useQuery({
     queryKey: ["parent_logs_sensory", studentId],
     queryFn: async () => {
@@ -21,6 +22,7 @@ export const SensoryProfileHeatmap = ({ studentId, familyId }: SensoryProfileHea
       if (error) throw error;
       return data;
     },
+    enabled: !sampleData,
   });
 
   const { data: incidents, isLoading: incidentsLoading } = useQuery({
@@ -34,11 +36,15 @@ export const SensoryProfileHeatmap = ({ studentId, familyId }: SensoryProfileHea
       if (error) throw error;
       return data;
     },
+    enabled: !sampleData,
   });
 
   const isLoading = logsLoading || incidentsLoading;
 
   const processHeatmapData = () => {
+    const displayParentLogs = sampleData?.parentLogs || parentLogs;
+    const displayIncidents = sampleData?.incidents || incidents;
+    
     const triggers = ["Loud Noises", "Bright Lights", "Crowded Spaces", "Textures", "Transitions"];
     const times = ["Morning", "Afternoon", "Evening"];
     const heatmap: Record<string, Record<string, number>> = {};
@@ -48,7 +54,7 @@ export const SensoryProfileHeatmap = ({ studentId, familyId }: SensoryProfileHea
     });
 
     // Process parent logs
-    parentLogs?.forEach((log) => {
+    displayParentLogs?.forEach((log) => {
       const sensoryFactors = log.sensory_factors || [];
       const logTime = log.log_time || "";
       const timeOfDay = getTimeOfDay(logTime);
@@ -62,7 +68,7 @@ export const SensoryProfileHeatmap = ({ studentId, familyId }: SensoryProfileHea
     });
 
     // Process incidents
-    incidents?.forEach((incident) => {
+    displayIncidents?.forEach((incident) => {
       const incidentTime = incident.incident_time || "";
       const timeOfDay = getTimeOfDay(incidentTime);
       const envFactors = incident.environmental_factors || [];

@@ -7,9 +7,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 interface SocialInteractionFunnelProps {
   studentId: string;
   familyId: string;
+  sampleData?: any;
 }
 
-export const SocialInteractionFunnel = ({ studentId, familyId }: SocialInteractionFunnelProps) => {
+export const SocialInteractionFunnel = ({ studentId, familyId, sampleData }: SocialInteractionFunnelProps) => {
   const { data: metrics, isLoading } = useQuery({
     queryKey: ["document_metrics_social", studentId],
     queryFn: async () => {
@@ -22,14 +23,16 @@ export const SocialInteractionFunnel = ({ studentId, familyId }: SocialInteracti
       if (error) throw error;
       return data;
     },
+    enabled: !sampleData,
   });
 
   const processFunnelData = () => {
-    if (!metrics) return [];
+    const displayMetrics = sampleData || metrics;
+    if (!displayMetrics) return [];
 
     const skillStats: Record<string, { total: number; success: number }> = {};
 
-    metrics.forEach((metric) => {
+    displayMetrics.forEach((metric) => {
       const skillName = metric.metric_name;
       if (!skillStats[skillName]) {
         skillStats[skillName] = { total: 0, success: 0 };

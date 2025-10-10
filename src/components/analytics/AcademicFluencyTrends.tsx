@@ -10,9 +10,10 @@ interface AcademicFluencyTrendsProps {
   studentId: string;
   familyId: string;
   dateRange: { from: Date; to: Date };
+  sampleData?: any;
 }
 
-export const AcademicFluencyTrends = ({ studentId, familyId, dateRange }: AcademicFluencyTrendsProps) => {
+export const AcademicFluencyTrends = ({ studentId, familyId, dateRange, sampleData }: AcademicFluencyTrendsProps) => {
   const { data: metrics, isLoading } = useQuery({
     queryKey: ["document_metrics_fluency", studentId, dateRange],
     queryFn: async () => {
@@ -28,16 +29,18 @@ export const AcademicFluencyTrends = ({ studentId, familyId, dateRange }: Academ
       if (error) throw error;
       return data;
     },
+    enabled: !sampleData,
   });
 
   const processChartData = () => {
-    if (!metrics) return { data: [], readingTarget: 0, mathTarget: 0 };
+    const displayMetrics = sampleData || metrics;
+    if (!displayMetrics) return { data: [], readingTarget: 0, mathTarget: 0 };
 
     const grouped: Record<string, { reading?: number; math?: number; date: string }> = {};
     let readingTarget = 0;
     let mathTarget = 0;
 
-    metrics.forEach((metric) => {
+    displayMetrics.forEach((metric) => {
       const date = metric.measurement_date || "";
       if (!grouped[date]) {
         grouped[date] = { date };

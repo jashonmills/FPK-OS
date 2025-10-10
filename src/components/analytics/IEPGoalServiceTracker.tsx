@@ -8,9 +8,10 @@ import { Progress } from "@/components/ui/progress";
 interface IEPGoalServiceTrackerProps {
   studentId: string;
   familyId: string;
+  sampleData?: any;
 }
 
-export const IEPGoalServiceTracker = ({ studentId, familyId }: IEPGoalServiceTrackerProps) => {
+export const IEPGoalServiceTracker = ({ studentId, familyId, sampleData }: IEPGoalServiceTrackerProps) => {
   const { data: goals, isLoading: goalsLoading } = useQuery({
     queryKey: ["goals_active", studentId],
     queryFn: async () => {
@@ -23,6 +24,7 @@ export const IEPGoalServiceTracker = ({ studentId, familyId }: IEPGoalServiceTra
       if (error) throw error;
       return data;
     },
+    enabled: !sampleData,
   });
 
   const { data: progressData, isLoading: progressLoading } = useQuery({
@@ -41,11 +43,12 @@ export const IEPGoalServiceTracker = ({ studentId, familyId }: IEPGoalServiceTra
   const isLoading = goalsLoading || progressLoading;
 
   const processGoalData = () => {
-    if (!goals || !progressData) return [];
+    const displayGoals = sampleData || goals;
+    if (!displayGoals || !progressData) return [];
 
     const goalCategories: Record<string, { goals: number; avgProgress: number; services: string[] }> = {};
 
-    goals.forEach((goal) => {
+    displayGoals.forEach((goal) => {
       const category = goal.goal_type || "Other";
       if (!goalCategories[category]) {
         goalCategories[category] = { goals: 0, avgProgress: 0, services: [] };

@@ -8,9 +8,10 @@ import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, Responsive
 interface BehaviorFunctionAnalysisProps {
   studentId: string;
   familyId: string;
+  sampleData?: any;
 }
 
-export const BehaviorFunctionAnalysis = ({ studentId, familyId }: BehaviorFunctionAnalysisProps) => {
+export const BehaviorFunctionAnalysis = ({ studentId, familyId, sampleData }: BehaviorFunctionAnalysisProps) => {
   const { data: incidents, isLoading: incidentsLoading } = useQuery({
     queryKey: ["incident_logs", studentId],
     queryFn: async () => {
@@ -22,6 +23,7 @@ export const BehaviorFunctionAnalysis = ({ studentId, familyId }: BehaviorFuncti
       if (error) throw error;
       return data;
     },
+    enabled: !sampleData,
   });
 
   const { data: behavioralMetrics, isLoading: metricsLoading } = useQuery({
@@ -36,17 +38,19 @@ export const BehaviorFunctionAnalysis = ({ studentId, familyId }: BehaviorFuncti
       if (error) throw error;
       return data;
     },
+    enabled: !sampleData,
   });
 
   const isLoading = incidentsLoading || metricsLoading;
 
   // Process data to create bubble chart
   const processBehaviorData = () => {
-    if (!incidents) return [];
+    const displayIncidents = sampleData || incidents;
+    if (!displayIncidents) return [];
 
     const behaviorCounts: Record<string, { count: number; functions: Record<string, number> }> = {};
 
-    incidents.forEach((incident) => {
+    displayIncidents.forEach((incident) => {
       const behavior = incident.incident_type;
       if (!behaviorCounts[behavior]) {
         behaviorCounts[behavior] = { count: 0, functions: {} };

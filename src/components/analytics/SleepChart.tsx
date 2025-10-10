@@ -8,9 +8,10 @@ interface SleepChartProps {
   familyId: string;
   studentId: string;
   days: number;
+  sampleData?: any;
 }
 
-export const SleepChart = ({ familyId, studentId, days }: SleepChartProps) => {
+export const SleepChart = ({ familyId, studentId, days, sampleData }: SleepChartProps) => {
   const { data, isLoading } = useQuery({
     queryKey: ["sleep-summary", familyId, studentId, days],
     queryFn: async () => {
@@ -24,13 +25,16 @@ export const SleepChart = ({ familyId, studentId, days }: SleepChartProps) => {
       return data;
     },
     staleTime: 5 * 60 * 1000,
+    enabled: !sampleData,
   });
+
+  const displayData = sampleData || data;
 
   if (isLoading) {
     return <Skeleton className="h-[300px] w-full" />;
   }
 
-  if (!data || data.length === 0) {
+  if (!displayData || displayData.length === 0) {
     return (
       <div className="h-[300px] flex items-center justify-center text-muted-foreground">
         No sleep data yet. Complete onboarding or add sleep records to see insights!
@@ -38,7 +42,7 @@ export const SleepChart = ({ familyId, studentId, days }: SleepChartProps) => {
     );
   }
 
-  const chartData = data.map((item: any) => ({
+  const chartData = displayData.map((item: any) => ({
     date: format(new Date(item.sleep_date), "MMM dd"),
     hours: Number(item.total_sleep_hours || 0),
     quality: Number(item.sleep_quality_rating || 0),

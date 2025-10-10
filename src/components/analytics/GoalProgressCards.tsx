@@ -11,9 +11,10 @@ import { GoalActivitiesModal } from "@/components/goals/GoalActivitiesModal";
 interface GoalProgressCardsProps {
   familyId: string;
   studentId: string;
+  sampleData?: any;
 }
 
-export const GoalProgressCards = ({ familyId, studentId }: GoalProgressCardsProps) => {
+export const GoalProgressCards = ({ familyId, studentId, sampleData }: GoalProgressCardsProps) => {
   const [selectedGoal, setSelectedGoal] = useState<{ id: string; title: string } | null>(null);
   
   const { data: goals, isLoading } = useQuery({
@@ -31,7 +32,10 @@ export const GoalProgressCards = ({ familyId, studentId }: GoalProgressCardsProp
       return data;
     },
     staleTime: 5 * 60 * 1000,
+    enabled: !sampleData,
   });
+
+  const displayGoals = sampleData || goals;
 
   if (isLoading) {
     return (
@@ -43,7 +47,7 @@ export const GoalProgressCards = ({ familyId, studentId }: GoalProgressCardsProp
     );
   }
 
-  if (!goals || goals.length === 0) {
+  if (!displayGoals || displayGoals.length === 0) {
     return (
       <Card>
         <CardHeader>
@@ -66,7 +70,7 @@ export const GoalProgressCards = ({ familyId, studentId }: GoalProgressCardsProp
         Active Goals
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {goals.map((goal: any) => {
+        {displayGoals.map((goal: any) => {
           const progress = goal.target_value 
             ? Math.min(Math.round((goal.current_value / goal.target_value) * 100), 100)
             : 0;

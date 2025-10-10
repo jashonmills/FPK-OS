@@ -6,7 +6,11 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle2, XCircle, TrendingUp } from "lucide-react";
 
-export const StrategyEffectiveness = () => {
+interface StrategyEffectivenessProps {
+  sampleData?: any;
+}
+
+export const StrategyEffectiveness = ({ sampleData }: StrategyEffectivenessProps = {}) => {
   const { selectedStudent } = useFamily();
 
   const { data: outcomes, isLoading } = useQuery({
@@ -22,10 +26,12 @@ export const StrategyEffectiveness = () => {
       if (error) throw error;
       return data;
     },
-    enabled: !!selectedStudent?.id,
+    enabled: !!selectedStudent?.id && !sampleData,
   });
 
-  if (!selectedStudent) {
+  const displayOutcomes = sampleData || outcomes;
+
+  if (!selectedStudent && !sampleData) {
     return (
       <Card>
         <CardHeader>
@@ -50,7 +56,7 @@ export const StrategyEffectiveness = () => {
   }
 
   // Calculate success rates by intervention
-  const interventionStats = outcomes?.reduce((acc, outcome) => {
+  const interventionStats = displayOutcomes?.reduce((acc, outcome) => {
     const name = outcome.intervention_name;
     if (!acc[name]) {
       acc[name] = { total: 0, successful: 0 };
@@ -63,7 +69,7 @@ export const StrategyEffectiveness = () => {
   }, {} as Record<string, { total: number; successful: number }>);
 
   const rankedInterventions = Object.entries(interventionStats || {})
-    .map(([name, stats]) => ({
+    .map(([name, stats]: [string, any]) => ({
       name,
       successRate: Math.round((stats.successful / stats.total) * 100),
       total: stats.total,
@@ -80,7 +86,7 @@ export const StrategyEffectiveness = () => {
           <CardTitle>Top 5 Most Effective Strategies</CardTitle>
         </div>
         <CardDescription>
-          {outcomes && outcomes.length > 0
+          {displayOutcomes && displayOutcomes.length > 0
             ? "Success rates based on recorded outcomes"
             : "No intervention data yet"}
         </CardDescription>

@@ -8,9 +8,10 @@ interface IncidentFrequencyChartProps {
   familyId: string;
   studentId: string;
   days: number;
+  sampleData?: any;
 }
 
-export const IncidentFrequencyChart = ({ familyId, studentId, days }: IncidentFrequencyChartProps) => {
+export const IncidentFrequencyChart = ({ familyId, studentId, days, sampleData }: IncidentFrequencyChartProps) => {
   const { data, isLoading } = useQuery({
     queryKey: ["incident-frequency", familyId, studentId, days],
     queryFn: async () => {
@@ -26,13 +27,16 @@ export const IncidentFrequencyChart = ({ familyId, studentId, days }: IncidentFr
       return data;
     },
     staleTime: 5 * 60 * 1000,
+    enabled: !sampleData,
   });
+
+  const displayData = sampleData || data;
 
   if (isLoading) {
     return <Skeleton className="h-[300px] w-full" />;
   }
 
-  if (!data || data.length === 0) {
+  if (!displayData || displayData.length === 0) {
     return (
       <div className="h-[300px] flex items-center justify-center text-muted-foreground">
         No incidents recorded. This is great progress!
@@ -41,7 +45,7 @@ export const IncidentFrequencyChart = ({ familyId, studentId, days }: IncidentFr
   }
 
   // Group by date and count incidents
-  const incidentsByDate = data.reduce((acc: any, incident: any) => {
+  const incidentsByDate = displayData.reduce((acc: any, incident: any) => {
     const date = incident.incident_date;
     if (!acc[date]) {
       acc[date] = 0;

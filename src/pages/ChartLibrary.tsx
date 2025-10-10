@@ -8,6 +8,22 @@ import { supabase } from "@/integrations/supabase/client";
 import { Lock, Sparkles, TrendingUp, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
+// Import sample data
+import {
+  sampleBehaviorData,
+  sampleIEPGoals,
+  sampleAcademicFluency,
+  sampleSocialSkills,
+  sampleSensoryProfile,
+  sampleActivityLogs,
+  sampleSleepData,
+  sampleMoodData,
+  sampleIncidentData,
+  sampleInterventionData,
+  sampleGoalProgress,
+  sampleStrategyData,
+} from "@/lib/sample-chart-data";
+
 // Import all chart components
 import { BehaviorFunctionAnalysis } from "@/components/analytics/BehaviorFunctionAnalysis";
 import { IEPGoalServiceTracker } from "@/components/analytics/IEPGoalServiceTracker";
@@ -237,15 +253,28 @@ const ChartLibrary = () => {
           <h2 className="text-2xl font-bold">Core Analytics ({freeCharts.length} charts)</h2>
         </div>
         <div className="grid grid-cols-1 gap-6">
-          {freeCharts.map((chart) => (
-            <ChartCard
-              key={chart.id}
-              chart={chart}
-              isLocked={false}
-              studentId={selectedStudent.id}
-              familyId={selectedFamily!.id}
-            />
-          ))}
+          {freeCharts.map((chart) => {
+            const sampleData = 
+              chart.id === "activity_log_chart" ? sampleActivityLogs :
+              chart.id === "sleep_chart" ? sampleSleepData :
+              chart.id === "mood_distribution" ? sampleMoodData :
+              chart.id === "incident_frequency" ? sampleIncidentData :
+              chart.id === "intervention_effectiveness" ? sampleInterventionData :
+              chart.id === "goal_progress_cards" ? sampleGoalProgress :
+              chart.id === "strategy_effectiveness" ? sampleStrategyData :
+              null;
+            
+            return (
+              <ChartCard
+                key={chart.id}
+                chart={chart}
+                isLocked={false}
+                studentId={selectedStudent.id}
+                familyId={selectedFamily!.id}
+                sampleData={sampleData}
+              />
+            );
+          })}
         </div>
       </div>
 
@@ -256,15 +285,26 @@ const ChartLibrary = () => {
           <h2 className="text-2xl font-bold">AI-Recommended Specialized Charts ({proCharts.length} charts)</h2>
         </div>
         <div className="grid grid-cols-1 gap-6">
-          {proCharts.map((chart) => (
-            <ChartCard
-              key={chart.id}
-              chart={chart}
-              isLocked={!isProUser}
-              studentId={selectedStudent.id}
-              familyId={selectedFamily!.id}
-            />
-          ))}
+          {proCharts.map((chart) => {
+            const sampleData = 
+              chart.id === "behavior_function_analysis" ? sampleBehaviorData :
+              chart.id === "iep_goal_service_tracker" ? sampleIEPGoals :
+              chart.id === "academic_fluency_trends" ? sampleAcademicFluency :
+              chart.id === "social_interaction_funnel" ? sampleSocialSkills :
+              chart.id === "sensory_profile_heatmap" ? sampleSensoryProfile :
+              null;
+            
+            return (
+              <ChartCard
+                key={chart.id}
+                chart={chart}
+                isLocked={!isProUser}
+                studentId={selectedStudent.id}
+                familyId={selectedFamily!.id}
+                sampleData={sampleData}
+              />
+            );
+          })}
         </div>
       </div>
     </div>
@@ -277,9 +317,11 @@ interface ChartCardProps {
   isLocked: boolean;
   studentId: string;
   familyId: string;
+  sampleData: any;
 }
 
-const ChartCard = ({ chart, isLocked, studentId, familyId }: ChartCardProps) => {
+const ChartCard = ({ chart, isLocked, studentId, familyId, sampleData }: ChartCardProps) => {
+  const navigate = useNavigate();
   const ChartComponent = chart.component;
   
   return (
@@ -303,58 +345,106 @@ const ChartCard = ({ chart, isLocked, studentId, familyId }: ChartCardProps) => 
       </CardHeader>
       <CardContent>
         {isLocked ? (
-          <div className="h-64 bg-muted/30 rounded-lg flex items-center justify-center relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-muted/50 to-muted/80 backdrop-blur-sm" />
-            <div className="relative z-10 text-center space-y-3">
-              <Lock className="h-12 w-12 mx-auto text-muted-foreground" />
-              <p className="text-muted-foreground font-medium">
-                Upgrade to Pro to unlock this chart
-              </p>
+          <div className="relative h-64 rounded-lg overflow-hidden">
+            {/* Render chart with sample data in background */}
+            <div className="absolute inset-0 opacity-30 blur-[2px] pointer-events-none">
+              {chart.id === "academic_fluency_trends" && (
+                <AcademicFluencyTrends 
+                  studentId={studentId} 
+                  familyId={familyId}
+                  dateRange={{ from: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), to: new Date() }}
+                  sampleData={sampleData}
+                />
+              )}
+              {chart.id === "behavior_function_analysis" && (
+                <BehaviorFunctionAnalysis studentId={studentId} familyId={familyId} sampleData={sampleData} />
+              )}
+              {chart.id === "iep_goal_service_tracker" && (
+                <IEPGoalServiceTracker studentId={studentId} familyId={familyId} sampleData={sampleData} />
+              )}
+              {chart.id === "social_interaction_funnel" && (
+                <SocialInteractionFunnel studentId={studentId} familyId={familyId} sampleData={sampleData} />
+              )}
+              {chart.id === "sensory_profile_heatmap" && (
+                <SensoryProfileHeatmap studentId={studentId} familyId={familyId} sampleData={sampleData} />
+              )}
+              {chart.id === "activity_log_chart" && (
+                <ActivityLogChart familyId={familyId} studentId={studentId} days={30} sampleData={sampleData} />
+              )}
+              {chart.id === "sleep_chart" && (
+                <SleepChart familyId={familyId} studentId={studentId} days={30} sampleData={sampleData} />
+              )}
+              {chart.id === "mood_distribution" && (
+                <MoodDistributionChart familyId={familyId} studentId={studentId} sampleData={sampleData} />
+              )}
+              {chart.id === "incident_frequency" && (
+                <IncidentFrequencyChart familyId={familyId} studentId={studentId} days={30} sampleData={sampleData} />
+              )}
+              {chart.id === "intervention_effectiveness" && (
+                <InterventionEffectivenessChart familyId={familyId} studentId={studentId} days={30} sampleData={sampleData} />
+              )}
+              {chart.id === "goal_progress_cards" && (
+                <GoalProgressCards familyId={familyId} studentId={studentId} sampleData={sampleData} />
+              )}
+              {chart.id === "strategy_effectiveness" && (
+                <StrategyEffectiveness sampleData={sampleData} />
+              )}
+            </div>
+            
+            {/* Overlay with lock and CTA */}
+            <div className="absolute inset-0 bg-gradient-to-br from-background/80 to-background/60 backdrop-blur-sm">
+              <div className="h-full flex flex-col items-center justify-center space-y-3">
+                <Lock className="h-12 w-12 text-muted-foreground" />
+                <p className="text-muted-foreground font-medium">Upgrade to Pro to unlock this chart</p>
+                <Button onClick={() => navigate("/pricing")} size="sm">
+                  View Plans
+                </Button>
+              </div>
             </div>
           </div>
         ) : (
-          // Render actual chart with real data from database
+          // Render chart with sample data for showroom mode
           <div className="min-h-64">
-            {/* Each chart renders with its real data from the database */}
             {chart.id === "academic_fluency_trends" && (
               <AcademicFluencyTrends 
                 studentId={studentId} 
                 familyId={familyId}
                 dateRange={{ from: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), to: new Date() }}
+                sampleData={sampleData}
               />
             )}
             {chart.id === "behavior_function_analysis" && (
-              <BehaviorFunctionAnalysis studentId={studentId} familyId={familyId} />
+              <BehaviorFunctionAnalysis studentId={studentId} familyId={familyId} sampleData={sampleData} />
             )}
             {chart.id === "iep_goal_service_tracker" && (
-              <IEPGoalServiceTracker studentId={studentId} familyId={familyId} />
+              <IEPGoalServiceTracker studentId={studentId} familyId={familyId} sampleData={sampleData} />
             )}
             {chart.id === "social_interaction_funnel" && (
-              <SocialInteractionFunnel studentId={studentId} familyId={familyId} />
+              <SocialInteractionFunnel studentId={studentId} familyId={familyId} sampleData={sampleData} />
             )}
             {chart.id === "sensory_profile_heatmap" && (
-              <SensoryProfileHeatmap studentId={studentId} familyId={familyId} />
+              <SensoryProfileHeatmap studentId={studentId} familyId={familyId} sampleData={sampleData} />
             )}
             {chart.id === "activity_log_chart" && (
-              <ActivityLogChart familyId={familyId} studentId={studentId} days={30} />
+              <ActivityLogChart familyId={familyId} studentId={studentId} days={30} sampleData={sampleData} />
             )}
             {chart.id === "sleep_chart" && (
-              <SleepChart familyId={familyId} studentId={studentId} days={30} />
+              <SleepChart familyId={familyId} studentId={studentId} days={30} sampleData={sampleData} />
             )}
             {chart.id === "mood_distribution" && (
-              <MoodDistributionChart familyId={familyId} studentId={studentId} />
+              <MoodDistributionChart familyId={familyId} studentId={studentId} sampleData={sampleData} />
             )}
             {chart.id === "incident_frequency" && (
-              <IncidentFrequencyChart familyId={familyId} studentId={studentId} days={30} />
+              <IncidentFrequencyChart familyId={familyId} studentId={studentId} days={30} sampleData={sampleData} />
             )}
             {chart.id === "intervention_effectiveness" && (
-              <InterventionEffectivenessChart familyId={familyId} studentId={studentId} days={30} />
+              <InterventionEffectivenessChart familyId={familyId} studentId={studentId} days={30} sampleData={sampleData} />
             )}
             {chart.id === "goal_progress_cards" && (
-              <GoalProgressCards familyId={familyId} studentId={studentId} />
+              <GoalProgressCards familyId={familyId} studentId={studentId} sampleData={sampleData} />
             )}
             {chart.id === "strategy_effectiveness" && (
-              <StrategyEffectiveness />
+              <StrategyEffectiveness sampleData={sampleData} />
             )}
           </div>
         )}

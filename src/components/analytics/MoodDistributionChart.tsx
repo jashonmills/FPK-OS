@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 interface MoodDistributionChartProps {
   familyId: string;
   studentId: string;
+  sampleData?: any;
 }
 
 const MOOD_COLORS: Record<string, string> = {
@@ -17,7 +18,7 @@ const MOOD_COLORS: Record<string, string> = {
   "irritable": "hsl(var(--destructive))",
 };
 
-export const MoodDistributionChart = ({ familyId, studentId }: MoodDistributionChartProps) => {
+export const MoodDistributionChart = ({ familyId, studentId, sampleData }: MoodDistributionChartProps) => {
   const { data, isLoading } = useQuery({
     queryKey: ["weekly-mood", familyId, studentId],
     queryFn: async () => {
@@ -30,13 +31,16 @@ export const MoodDistributionChart = ({ familyId, studentId }: MoodDistributionC
       return data;
     },
     staleTime: 5 * 60 * 1000,
+    enabled: !sampleData,
   });
+
+  const displayData = sampleData || data;
 
   if (isLoading) {
     return <Skeleton className="h-[300px] w-full" />;
   }
 
-  if (!data || data.length === 0) {
+  if (!displayData || displayData.length === 0) {
     return (
       <div className="h-[300px] flex items-center justify-center text-muted-foreground">
         No mood data for the past week. Log daily observations to track patterns!
@@ -46,14 +50,14 @@ export const MoodDistributionChart = ({ familyId, studentId }: MoodDistributionC
 
   // Transform data for stacked bar chart
   const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-  const moods = [...new Set(data.map((item: any) => item.mood))];
+  const moods = [...new Set(displayData.map((item: any) => item.mood))] as string[];
   
   const chartData = daysOfWeek.map((day, index) => {
     const dayData: any = { day };
     const dayOrder = index + 1;
     
-    moods.forEach(mood => {
-      const moodEntry = data.find((item: any) => 
+    moods.forEach((mood: string) => {
+      const moodEntry = displayData.find((item: any) => 
         item.day_of_week.trim() === day && item.mood === mood
       );
       dayData[mood] = moodEntry ? Number(moodEntry.count) : 0;
@@ -83,10 +87,10 @@ export const MoodDistributionChart = ({ familyId, studentId }: MoodDistributionC
           }}
         />
         <Legend />
-        {moods.map((mood) => (
+        {moods.map((mood: string) => (
           <Bar 
             key={mood} 
-            dataKey={mood} 
+            dataKey={mood as string} 
             stackId="a" 
             fill={MOOD_COLORS[mood] || "hsl(var(--muted))"}
           />

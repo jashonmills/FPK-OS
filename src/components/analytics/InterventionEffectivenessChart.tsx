@@ -8,9 +8,10 @@ interface InterventionEffectivenessChartProps {
   familyId: string;
   studentId: string;
   days: number;
+  sampleData?: any;
 }
 
-export const InterventionEffectivenessChart = ({ familyId, studentId, days }: InterventionEffectivenessChartProps) => {
+export const InterventionEffectivenessChart = ({ familyId, studentId, days, sampleData }: InterventionEffectivenessChartProps) => {
   const { data, isLoading } = useQuery({
     queryKey: ["intervention-effectiveness", familyId, studentId, days],
     queryFn: async () => {
@@ -24,13 +25,16 @@ export const InterventionEffectivenessChart = ({ familyId, studentId, days }: In
       return data;
     },
     staleTime: 5 * 60 * 1000,
+    enabled: !sampleData,
   });
+
+  const displayData = sampleData || data;
 
   if (isLoading) {
     return <Skeleton className="h-[300px] w-full" />;
   }
 
-  if (!data || data.length === 0) {
+  if (!displayData || displayData.length === 0) {
     return (
       <div className="h-[300px] flex items-center justify-center text-muted-foreground">
         No intervention data available yet. Log incidents with interventions to see effectiveness!
@@ -38,7 +42,7 @@ export const InterventionEffectivenessChart = ({ familyId, studentId, days }: In
     );
   }
 
-  const chartData = data.map((item: any) => ({
+  const chartData = displayData.map((item: any) => ({
     date: format(new Date(item.log_date), "MMM dd"),
     incidents: Number(item.incident_count),
     interventions: Number(item.intervention_count),

@@ -8,9 +8,10 @@ interface ActivityLogChartProps {
   familyId: string;
   studentId: string;
   days: number;
+  sampleData?: any;
 }
 
-export const ActivityLogChart = ({ familyId, studentId, days }: ActivityLogChartProps) => {
+export const ActivityLogChart = ({ familyId, studentId, days, sampleData }: ActivityLogChartProps) => {
   const { data, isLoading } = useQuery({
     queryKey: ["daily-log-counts", familyId, studentId, days],
     queryFn: async () => {
@@ -24,13 +25,17 @@ export const ActivityLogChart = ({ familyId, studentId, days }: ActivityLogChart
       return data;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
+    enabled: !sampleData, // Skip query if sample data provided
   });
+
+  // Use sample data if provided, otherwise use fetched data
+  const displayData = sampleData || data;
 
   if (isLoading) {
     return <Skeleton className="h-[300px] w-full" />;
   }
 
-  if (!data || data.length === 0) {
+  if (!displayData || displayData.length === 0) {
     return (
       <div className="h-[300px] flex items-center justify-center text-muted-foreground">
         No activity data available. Start logging to see trends!
@@ -38,7 +43,7 @@ export const ActivityLogChart = ({ familyId, studentId, days }: ActivityLogChart
     );
   }
 
-  const chartData = data.map((item: any) => ({
+  const chartData = displayData.map((item: any) => ({
     date: format(new Date(item.log_date), "MMM dd"),
     Incidents: Number(item.incident_count),
     Parent: Number(item.parent_count),
