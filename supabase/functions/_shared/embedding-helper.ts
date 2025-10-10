@@ -2,7 +2,7 @@
 // Uses Lovable AI's supported embedding models
 
 const LOVABLE_AI_API_URL = 'https://ai.gateway.lovable.dev/v1/embeddings';
-const EMBEDDING_MODEL = "google/gemini-2.5-flash-lite"; // Fast & cost-effective
+const EMBEDDING_MODEL = "text-embedding-3-small"; // OpenAI embedding model
 
 interface EmbeddingOptions {
   retries?: number;
@@ -38,9 +38,7 @@ export async function createEmbedding(
           'Authorization': `Bearer ${lovableApiKey}`,
         },
         body: JSON.stringify({
-          messages: [
-            { role: 'user', content: text }
-          ],
+          input: text,
           model: EMBEDDING_MODEL,
         }),
       });
