@@ -188,6 +188,26 @@ export default function Documents() {
     }
   };
 
+  const handleResetAnalysis = async () => {
+    if (!selectedFamily?.id) return;
+    
+    const toastId = toast.loading("Resetting analysis...");
+    try {
+      const { error } = await supabase.functions.invoke("reset-analysis", {
+        body: { family_id: selectedFamily.id },
+      });
+
+      if (error) throw error;
+
+      toast.success("Reset complete! Click 'Analyze My Documents' to re-run.", { id: toastId });
+      queryClient.invalidateQueries({ queryKey: ["family"] });
+      queryClient.invalidateQueries({ queryKey: ["documents"] });
+    } catch (error: any) {
+      console.error("Reset error:", error);
+      toast.error("Reset failed: " + error.message, { id: toastId });
+    }
+  };
+
   const handleAnalyzeAllDocuments = async () => {
     if (!selectedFamily?.id) return;
     
@@ -230,14 +250,23 @@ export default function Documents() {
           </p>
           <div className="flex gap-2">
             {shouldShowAnalyzeButton && (
-              <Button 
-                onClick={handleAnalyzeAllDocuments}
-                disabled={isAnalyzingAll}
-                variant="default"
-              >
-                <Sparkles className="mr-2 h-4 w-4" />
-                {isAnalyzingAll ? "Analyzing..." : "Analyze My Documents"}
-              </Button>
+              <>
+                <Button 
+                  onClick={handleAnalyzeAllDocuments}
+                  disabled={isAnalyzingAll}
+                  variant="default"
+                >
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  {isAnalyzingAll ? "Analyzing..." : "Analyze My Documents"}
+                </Button>
+                <Button 
+                  onClick={handleResetAnalysis}
+                  variant="outline"
+                  size="sm"
+                >
+                  Reset
+                </Button>
+              </>
             )}
             <Button onClick={() => setUploadModalOpen(true)}>
               <Upload className="mr-2 h-4 w-4" />
