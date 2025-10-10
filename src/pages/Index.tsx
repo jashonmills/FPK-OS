@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useEffect } from 'react';
 import { AppBackground } from '@/components/layout/AppBackground';
+import { PricingTeaser } from '@/components/home/PricingTeaser';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -130,6 +131,9 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+        {/* Pricing Teaser */}
+        <PricingTeaser />
 
         {/* Benefits Section */}
         <section className="py-20 px-4">

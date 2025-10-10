@@ -54,7 +54,7 @@ export const InviteMemberForm = ({ familyId, familyName }: InviteMemberFormProps
       if (inviteError) throw inviteError;
 
       // Call the edge function to send the email
-      const { error: functionError } = await supabase.functions.invoke('send-invitation', {
+      const { data: emailResponse, error: functionError } = await supabase.functions.invoke('send-invitation', {
         body: {
           email: values.email,
           role: values.role,
@@ -65,7 +65,19 @@ export const InviteMemberForm = ({ familyId, familyName }: InviteMemberFormProps
 
       if (functionError) {
         console.error('Email sending error:', functionError);
-        toast.success("Invitation created (email sending pending)");
+        
+        // Check if it's a subscription limit error
+        if (emailResponse?.upgradeRequired) {
+          toast.error(emailResponse.message, {
+            duration: 6000,
+            action: {
+              label: 'Upgrade',
+              onClick: () => window.location.href = '/pricing',
+            },
+          });
+        } else {
+          toast.success("Invitation created (email sending pending)");
+        }
       } else {
         toast.success("Invitation sent successfully!");
       }

@@ -1,7 +1,8 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FamilyMembersTab } from "@/components/settings/FamilyMembersTab";
 import { ProfileTab } from "@/components/settings/ProfileTab";
-import { Users, UserCircle } from "lucide-react";
+import { SubscriptionTab } from "@/components/settings/SubscriptionTab";
+import { Users, UserCircle, CreditCard } from "lucide-react";
 
 const Settings = () => {
   return (
@@ -14,7 +15,7 @@ const Settings = () => {
       </div>
 
       <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList className="grid w-full max-w-md grid-cols-2">
+        <TabsList className="grid w-full max-w-2xl grid-cols-3">
           <TabsTrigger value="profile" className="flex items-center gap-2">
             <UserCircle className="h-4 w-4" />
             Profile
@@ -22,6 +23,10 @@ const Settings = () => {
           <TabsTrigger value="members" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
             Family Members
+          </TabsTrigger>
+          <TabsTrigger value="subscription" className="flex items-center gap-2">
+            <CreditCard className="h-4 w-4" />
+            Subscription
           </TabsTrigger>
         </TabsList>
 
@@ -31,6 +36,10 @@ const Settings = () => {
 
         <TabsContent value="members">
           <FamilyMembersTab />
+        </TabsContent>
+
+        <TabsContent value="subscription">
+          <SubscriptionTab />
         </TabsContent>
       </Tabs>
     </div>

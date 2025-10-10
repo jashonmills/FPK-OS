@@ -14,6 +14,7 @@ import Dashboard from "./pages/Dashboard";
 import ActivityLog from "./pages/ActivityLog";
 import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
+import Pricing from "./pages/Pricing";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -46,6 +47,7 @@ const App = () => (
           <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/pricing" element={<Pricing />} />
           <Route path="/accept-invite" element={<AcceptInvite />} />
             <Route
               path="/onboarding"

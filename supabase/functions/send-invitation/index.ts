@@ -34,6 +34,44 @@ Deno.serve(async (req) => {
 
     const { email, role, familyId, familyName } = await req.json();
 
+    // Check if family can add more members based on subscription tier
+    const { data: canAdd, error: limitError } = await supabaseClient
+      .rpc('can_add_family_member', { _family_id: familyId });
+
+    if (limitError) {
+      console.error('Error checking family member limit:', limitError);
+      return new Response(
+        JSON.stringify({ error: 'Failed to check subscription limits' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (!canAdd) {
+      // Get current tier to provide helpful error message
+      const { data: family } = await supabaseClient
+        .from('families')
+        .select('subscription_tier')
+        .eq('id', familyId)
+        .single();
+
+      const tierLimits = {
+        free: '2 users',
+        team: '10 users',
+        pro: 'unlimited users'
+      };
+
+      const currentLimit = tierLimits[family?.subscription_tier as keyof typeof tierLimits] || '2 users';
+
+      return new Response(
+        JSON.stringify({ 
+          error: 'User limit reached',
+          message: `Your current plan (${family?.subscription_tier || 'free'}) allows ${currentLimit}. Upgrade to add more team members.`,
+          upgradeRequired: true,
+        }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Get the invite token from database
     const { data: invite, error: inviteError } = await supabaseClient
       .from('invites')
