@@ -1,4 +1,4 @@
-import { Home, FileText, BarChart3, Settings, FolderOpen, Database } from 'lucide-react';
+import { Home, FileText, BarChart3, Settings, FolderOpen, Database, TrendingUp } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useFamily } from '@/contexts/FamilyContext';
 import { useAuth } from '@/hooks/useAuth';
@@ -48,6 +48,21 @@ export const AppSidebar = () => {
     enabled: !!user?.id,
   });
 
+  // Check if user is family owner
+  const { data: isOwner } = useQuery({
+    queryKey: ["is-owner", user?.id, selectedFamily?.id],
+    queryFn: async () => {
+      if (!user?.id || !selectedFamily?.id) return false;
+      const { data, error } = await supabase.rpc("get_user_family_role", {
+        _user_id: user.id,
+        _family_id: selectedFamily.id,
+      });
+      if (error) throw error;
+      return data === "owner";
+    },
+    enabled: !!user?.id && !!selectedFamily?.id,
+  });
+
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
@@ -89,6 +104,29 @@ export const AppSidebar = () => {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {isOwner && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Premium</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <NavLink
+                      to="/chart-library"
+                      className={({ isActive }) =>
+                        isActive ? 'bg-accent text-accent-foreground font-medium' : ''
+                      }
+                    >
+                      <TrendingUp className="h-4 w-4" />
+                      <span>Chart Library</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
 
         {isAdmin && (
           <SidebarGroup>

@@ -17,6 +17,7 @@ import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
 import AdminKBManager from "./pages/AdminKBManager";
 import Pricing from "./pages/Pricing";
+import ChartLibrary from "./pages/ChartLibrary";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -115,6 +116,16 @@ const App = () => (
                 <ProtectedRoute>
                   <AppLayout>
                     <AdminKBManager />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/chart-library"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <ChartLibrary />
                   </AppLayout>
                 </ProtectedRoute>
               }
