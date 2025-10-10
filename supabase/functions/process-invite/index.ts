@@ -23,6 +23,7 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
+    console.log('Service Role client initialized for invite processing');
 
     // Get the user from the JWT
     const {
@@ -83,6 +84,12 @@ Deno.serve(async (req) => {
     }
 
     // Add user to family using admin client (bypasses RLS)
+    console.log('Attempting to insert family member with Service Role:', {
+      family_id: invite.family_id,
+      user_id: user.id,
+      role: invite.role
+    });
+    
     const { error: memberError } = await supabaseAdmin
       .from('family_members')
       .insert({
@@ -97,11 +104,15 @@ Deno.serve(async (req) => {
 
     if (memberError) {
       console.error('Error adding family member:', memberError);
+      console.error('User attempting insert:', user.id);
+      console.error('Target family:', invite.family_id);
       return new Response(
         JSON.stringify({ error: 'Failed to accept invitation' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    console.log('Family member added successfully, marking invite as accepted');
 
     // Mark invite as accepted using admin client
     await supabaseAdmin
