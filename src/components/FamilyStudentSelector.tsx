@@ -36,7 +36,7 @@ export const FamilyStudentSelector = () => {
           <SelectTrigger className="w-48">
             <div className="flex items-center gap-2">
               <Users className="w-4 h-4 text-muted-foreground" />
-              <SelectValue />
+              <span>{selectedFamily.family_name}</span>
             </div>
           </SelectTrigger>
           <SelectContent>
@@ -66,7 +66,7 @@ export const FamilyStudentSelector = () => {
                   {selectedStudent?.student_name.split(' ').map(n => n[0]).join('')}
                 </AvatarFallback>
               </Avatar>
-              <SelectValue placeholder="Select student" />
+              <span>{selectedStudent?.student_name || 'Select student'}</span>
             </div>
           </SelectTrigger>
           <SelectContent>
