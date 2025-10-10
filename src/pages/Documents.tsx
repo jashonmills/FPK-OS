@@ -88,14 +88,11 @@ export default function Documents() {
 
   return (
     <AppLayout>
-      <div className="container mx-auto py-6 space-y-6">
+      <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold">Documents</h1>
-            <p className="text-muted-foreground">
-              Manage IEPs, evaluations, progress reports, and more
-            </p>
-          </div>
+          <p className="text-muted-foreground">
+            Manage IEPs, evaluations, progress reports, and more
+          </p>
           <Button onClick={() => setUploadModalOpen(true)}>
             <Upload className="mr-2 h-4 w-4" />
             Upload Document

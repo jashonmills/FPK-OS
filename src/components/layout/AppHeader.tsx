@@ -11,6 +11,12 @@ export const AppHeader = () => {
         return 'Progress Dashboard';
       case '/activity-log':
         return 'Activity Logs';
+      case '/documents':
+        return 'Documents';
+      case '/analytics':
+        return 'Analytics';
+      case '/settings':
+        return 'Settings';
       default:
         return 'Progress Hub';
     }
