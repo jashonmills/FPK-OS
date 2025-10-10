@@ -2,12 +2,13 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useFamily } from "@/contexts/FamilyContext";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Upload, FileText, Eye, Trash2, Download } from "lucide-react";
+import { Upload, FileText, Eye, Trash2, Download, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { DocumentUploadModal } from "@/components/documents/DocumentUploadModal";
@@ -17,10 +18,12 @@ import * as pdfjs from "pdfjs-dist";
 export default function Documents() {
   const { selectedFamily, selectedStudent } = useFamily();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [viewerModalOpen, setViewerModalOpen] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<any>(null);
   const [analyzingDocId, setAnalyzingDocId] = useState<string | null>(null);
+  const [isAnalyzingAll, setIsAnalyzingAll] = useState(false);
 
   const { data: documents, isLoading } = useQuery({
     queryKey: ["documents", selectedFamily?.id],
@@ -31,6 +34,22 @@ export default function Documents() {
         .select("*")
         .eq("family_id", selectedFamily.id)
         .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!selectedFamily?.id,
+  });
+
+  const { data: familyData } = useQuery({
+    queryKey: ["family", selectedFamily?.id],
+    queryFn: async () => {
+      if (!selectedFamily?.id) return null;
+      const { data, error } = await supabase
+        .from("families")
+        .select("initial_doc_analysis_status, suggested_charts_config")
+        .eq("id", selectedFamily.id)
+        .single();
 
       if (error) throw error;
       return data;
@@ -168,6 +187,40 @@ export default function Documents() {
       setAnalyzingDocId(null);
     }
   };
+
+  const handleAnalyzeAllDocuments = async () => {
+    if (!selectedFamily?.id) return;
+    
+    setIsAnalyzingAll(true);
+    const toastId = toast.loading("Analyzing your documents to discover personalized insights...");
+    
+    try {
+      const { data, error } = await supabase.functions.invoke("first-look-analysis", {
+        body: { family_id: selectedFamily.id },
+      });
+
+      if (error) throw error;
+
+      toast.success("Analysis complete! Your personalized charts are ready.", { id: toastId });
+      queryClient.invalidateQueries({ queryKey: ["family"] });
+      
+      // Redirect to Analytics page
+      setTimeout(() => {
+        navigate("/analytics");
+      }, 1000);
+    } catch (error: any) {
+      console.error("First look analysis error:", error);
+      toast.error("Analysis failed: " + error.message, { id: toastId });
+    } finally {
+      setIsAnalyzingAll(false);
+    }
+  };
+
+  const shouldShowAnalyzeButton = 
+    documents && 
+    documents.length >= 5 && 
+    familyData?.initial_doc_analysis_status !== "complete";
+
   return (
     <>
       <div className="space-y-6">
@@ -175,10 +228,22 @@ export default function Documents() {
           <p className="text-muted-foreground">
             Manage IEPs, evaluations, progress reports, and more
           </p>
-          <Button onClick={() => setUploadModalOpen(true)}>
-            <Upload className="mr-2 h-4 w-4" />
-            Upload Document
-          </Button>
+          <div className="flex gap-2">
+            {shouldShowAnalyzeButton && (
+              <Button 
+                onClick={handleAnalyzeAllDocuments}
+                disabled={isAnalyzingAll}
+                variant="default"
+              >
+                <Sparkles className="mr-2 h-4 w-4" />
+                {isAnalyzingAll ? "Analyzing..." : "Analyze My Documents"}
+              </Button>
+            )}
+            <Button onClick={() => setUploadModalOpen(true)}>
+              <Upload className="mr-2 h-4 w-4" />
+              Upload Document
+            </Button>
+          </div>
         </div>
 
         <Card>
