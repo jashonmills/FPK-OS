@@ -11,12 +11,13 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Database, PlayCircle, Loader2, Book, Brain, Plus, X, TrendingUp, LayoutGrid, List, Table as TableIcon, ChevronDown, School, Users } from "lucide-react";
+import { Database, PlayCircle, Loader2, Book, Brain, Plus, X, TrendingUp, LayoutGrid, List, Table as TableIcon, ChevronDown, School, Users, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { ScrapedResourcesModal } from "@/components/admin/ScrapedResourcesModal";
+import { ClearKnowledgeBaseDialog } from "@/components/admin/ClearKnowledgeBaseDialog";
 
 const ITEMS_PER_PAGE = 25;
 
@@ -55,6 +56,9 @@ export default function AdminKBManager() {
   // Modal state for viewing scraped resources
   const [selectedSource, setSelectedSource] = useState<string | null>(null);
   const [resourcesModalOpen, setResourcesModalOpen] = useState(false);
+  
+  // Clear KB dialog state
+  const [clearDialogOpen, setClearDialogOpen] = useState(false);
 
   // Check if user is admin
   const { data: isAdmin, isLoading: checkingAdmin } = useQuery({
@@ -217,6 +221,24 @@ export default function AdminKBManager() {
     },
   });
 
+  // Clear knowledge base mutation
+  const clearKnowledgeBaseMutation = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.functions.invoke("clear-knowledge-base");
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["knowledge-base"] });
+      queryClient.invalidateQueries({ queryKey: ["kb-documents-count"] });
+      queryClient.invalidateQueries({ queryKey: ["kb-chunks-count"] });
+      toast.success("Knowledge base cleared successfully");
+    },
+    onError: (error: any) => {
+      toast.error("Failed to clear knowledge base: " + error.message);
+    },
+  });
+
   const addSearchQuery = () => {
     if (searchQuery.trim() && !searchQueries.includes(searchQuery.trim())) {
       setSearchQueries([...searchQueries, searchQuery.trim()]);
@@ -301,10 +323,27 @@ export default function AdminKBManager() {
       {/* Section 1: Statistics */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5" />
-            Knowledge Base Statistics
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5" />
+                Knowledge Base Statistics
+              </CardTitle>
+            </div>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => setClearDialogOpen(true)}
+              disabled={clearKnowledgeBaseMutation.isPending}
+            >
+              {clearKnowledgeBaseMutation.isPending ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Trash2 className="mr-2 h-4 w-4" />
+              )}
+              Clear & Reset KB
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -977,6 +1016,13 @@ export default function AdminKBManager() {
             ? (kbDocuments || []).filter(doc => doc.source_name === selectedSource)
             : []
         }
+      />
+      
+      {/* Clear Knowledge Base Dialog */}
+      <ClearKnowledgeBaseDialog
+        open={clearDialogOpen}
+        onOpenChange={setClearDialogOpen}
+        onConfirm={() => clearKnowledgeBaseMutation.mutate()}
       />
     </div>
   );

@@ -110,3 +110,6 @@ verify_jwt = true
 
 [functions.chat-with-data]
 verify_jwt = true
+
+[functions.clear-knowledge-base]
+verify_jwt = true
