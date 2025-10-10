@@ -87,10 +87,12 @@ export const InviteMemberForm = ({ familyId, familyName }: InviteMemberFormProps
 
       if (functionError) {
         console.error('Email sending error:', functionError);
+        console.log('Email response data:', emailResponse);
         
         // Check if it's a subscription limit error
+        // When there's an HTTP error, the response body is still in the data field
         if (emailResponse?.upgradeRequired) {
-          toast.error(emailResponse.message, {
+          toast.error(emailResponse.message || 'User limit reached. Please upgrade your plan.', {
             duration: 6000,
             action: {
               label: 'Upgrade',
