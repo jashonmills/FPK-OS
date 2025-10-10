@@ -72,7 +72,7 @@ export function AlaCarteSection() {
             {alaCarteItems.map((item) => {
               const Icon = item.icon;
               return (
-                <Card key={item.type} className="relative">
+                <Card key={item.type} className="relative flex flex-col">
                   <CardHeader>
                     <div className="flex items-start justify-between mb-2">
                       <Icon className="h-8 w-8 text-primary" />
@@ -82,13 +82,13 @@ export function AlaCarteSection() {
                     </div>
                     <CardTitle className="text-xl">{item.title}</CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <CardDescription className="mb-4 min-h-[80px]">
+                  <CardContent className="flex-1 flex flex-col">
+                    <CardDescription className="mb-4 flex-1">
                       {item.description}
                     </CardDescription>
                     <Button
                       onClick={() => handlePurchaseClick(item.type, item.title, item.price)}
-                      className="w-full"
+                      className="w-full mt-auto"
                     >
                       Purchase Now
                     </Button>

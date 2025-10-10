@@ -176,13 +176,13 @@ export const PricingGrid = ({ billingCycle }: PricingGridProps) => {
       {/* Mobile: Card Layout */}
       <div className="grid md:hidden gap-6">
         {tiers.map((tier) => (
-          <Card key={tier.tier} className={tier.badge ? 'border-primary' : ''}>
+          <Card key={tier.tier} className={`${tier.badge ? 'border-primary' : ''} flex flex-col`}>
             <CardHeader>
               {tier.badge && (
                 <Badge className="w-fit mb-2">{tier.badge}</Badge>
               )}
-              <CardTitle>{tier.name}</CardTitle>
-              <CardDescription>{tier.description}</CardDescription>
+              <CardTitle className="min-h-[2rem]">{tier.name}</CardTitle>
+              <CardDescription className="min-h-[3rem]">{tier.description}</CardDescription>
               <div className="mt-4">
                 <span className="text-4xl font-bold">
                   ${billingCycle === 'monthly' ? tier.monthlyPrice : tier.annualPrice}
@@ -192,7 +192,7 @@ export const PricingGrid = ({ billingCycle }: PricingGridProps) => {
                 </span>
               </div>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 flex-1 flex flex-col">
               <Button 
                 className="w-full" 
                 variant={tier.tier === 'free' ? 'outline' : 'default'}
@@ -201,7 +201,7 @@ export const PricingGrid = ({ billingCycle }: PricingGridProps) => {
               >
                 {checkoutLoading === tier.tier ? 'Processing...' : tier.cta}
               </Button>
-              <div className="space-y-2">
+              <div className="space-y-2 flex-1">
                 {featureRows.map((row) => {
                   const value = tier.features[row.key as keyof typeof tier.features];
                   return (
@@ -224,25 +224,29 @@ export const PricingGrid = ({ billingCycle }: PricingGridProps) => {
             <tr className="border-b">
               <th className="text-left p-4 w-1/4"></th>
               {tiers.map((tier) => (
-                <th key={tier.tier} className="p-4 text-center">
-                  <div className="space-y-2">
-                    {tier.badge && <Badge className="mx-auto">{tier.badge}</Badge>}
-                    <div className="text-xl font-bold">{tier.name}</div>
-                    <div className="text-sm text-muted-foreground">{tier.description}</div>
-                    <div className="text-3xl font-bold">
+                <th key={tier.tier} className="p-4 text-center align-top">
+                  <div className="space-y-2 flex flex-col h-full">
+                    <div className="min-h-[32px] flex items-center justify-center">
+                      {tier.badge && <Badge className="mx-auto">{tier.badge}</Badge>}
+                    </div>
+                    <div className="text-xl font-bold min-h-[2rem] flex items-center justify-center">{tier.name}</div>
+                    <div className="text-sm text-muted-foreground min-h-[3rem] flex items-center justify-center">{tier.description}</div>
+                    <div className="text-3xl font-bold min-h-[3rem] flex items-center justify-center">
                       ${billingCycle === 'monthly' ? tier.monthlyPrice : tier.annualPrice}
                     </div>
-                    <div className="text-sm text-muted-foreground">
+                    <div className="text-sm text-muted-foreground min-h-[2rem] flex items-center justify-center">
                       {billingCycle === 'monthly' ? '/month' : '/year'}
                     </div>
-                    <Button 
-                      className="w-full mt-2"
-                      variant={tier.tier === 'free' ? 'outline' : 'default'}
-                      onClick={() => handleCheckout(tier.tier)}
-                      disabled={checkoutLoading === tier.tier}
-                    >
-                      {checkoutLoading === tier.tier ? 'Processing...' : tier.cta}
-                    </Button>
+                    <div className="mt-auto pt-2">
+                      <Button 
+                        className="w-full"
+                        variant={tier.tier === 'free' ? 'outline' : 'default'}
+                        onClick={() => handleCheckout(tier.tier)}
+                        disabled={checkoutLoading === tier.tier}
+                      >
+                        {checkoutLoading === tier.tier ? 'Processing...' : tier.cta}
+                      </Button>
+                    </div>
                   </div>
                 </th>
               ))}
