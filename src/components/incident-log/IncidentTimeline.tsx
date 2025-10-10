@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AlertTriangle, Clock, MapPin, User } from 'lucide-react';
 import { format } from 'date-fns';
+import { PotentialTriggersDisplay } from '@/components/incident/PotentialTriggersDisplay';
 
 interface IncidentLog {
   id: string;
@@ -18,6 +19,7 @@ interface IncidentLog {
   weather_condition?: string;
   weather_temp_f?: number;
   attachments?: string[];
+  potential_triggers?: any;
 }
 
 interface IncidentTimelineProps {
@@ -112,6 +114,12 @@ export const IncidentTimeline = ({ refreshKey }: IncidentTimelineProps) => {
             {log.weather_condition && (
               <div className="text-xs text-muted-foreground bg-accent/30 px-3 py-1.5 rounded-md">
                 Weather: {log.weather_temp_f}°F, {log.weather_condition}
+              </div>
+            )}
+
+            {log.potential_triggers && (
+              <div className="mt-4">
+                <PotentialTriggersDisplay triggers={log.potential_triggers} />
               </div>
             )}
 

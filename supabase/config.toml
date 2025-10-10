@@ -26,3 +26,12 @@ verify_jwt = true
 
 [functions.first-look-analysis]
 verify_jwt = true
+
+[functions.analyze-incident-triggers]
+verify_jwt = true
+
+[functions.suggest-goal-activities]
+verify_jwt = true
+
+[functions.generate-daily-briefing]
+verify_jwt = true

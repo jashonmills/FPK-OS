@@ -289,6 +289,7 @@ export type Database = {
         Row: {
           accuracy_percentage: number | null
           activities_completed: string[] | null
+          addressed_goal_ids: string[] | null
           air_quality_fetched_at: string | null
           aqi_european: number | null
           aqi_us: number | null
@@ -352,6 +353,7 @@ export type Database = {
         Insert: {
           accuracy_percentage?: number | null
           activities_completed?: string[] | null
+          addressed_goal_ids?: string[] | null
           air_quality_fetched_at?: string | null
           aqi_european?: number | null
           aqi_us?: number | null
@@ -415,6 +417,7 @@ export type Database = {
         Update: {
           accuracy_percentage?: number | null
           activities_completed?: string[] | null
+          addressed_goal_ids?: string[] | null
           air_quality_fetched_at?: string | null
           aqi_european?: number | null
           aqi_us?: number | null
@@ -725,6 +728,7 @@ export type Database = {
           pollen_mugwort: number | null
           pollen_olive: number | null
           pollen_ragweed: number | null
+          potential_triggers: Json | null
           reporter_name: string
           reporter_role: string
           severity: string
@@ -777,6 +781,7 @@ export type Database = {
           pollen_mugwort?: number | null
           pollen_olive?: number | null
           pollen_ragweed?: number | null
+          potential_triggers?: Json | null
           reporter_name: string
           reporter_role: string
           severity: string
@@ -829,6 +834,7 @@ export type Database = {
           pollen_mugwort?: number | null
           pollen_olive?: number | null
           pollen_ragweed?: number | null
+          potential_triggers?: Json | null
           reporter_name?: string
           reporter_role?: string
           severity?: string
@@ -855,6 +861,61 @@ export type Database = {
           },
           {
             foreignKeyName: "incident_logs_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      intervention_outcomes: {
+        Row: {
+          created_at: string | null
+          de_escalation_time_minutes: number | null
+          family_id: string
+          id: string
+          incident_id: string
+          intervention_name: string
+          outcome_success: boolean
+          student_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          de_escalation_time_minutes?: number | null
+          family_id: string
+          id?: string
+          incident_id: string
+          intervention_name: string
+          outcome_success: boolean
+          student_id: string
+        }
+        Update: {
+          created_at?: string | null
+          de_escalation_time_minutes?: number | null
+          family_id?: string
+          id?: string
+          incident_id?: string
+          intervention_name?: string
+          outcome_success?: boolean
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "intervention_outcomes_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "intervention_outcomes_incident_id_fkey"
+            columns: ["incident_id"]
+            isOneToOne: false
+            referencedRelation: "incident_logs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "intervention_outcomes_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "students"

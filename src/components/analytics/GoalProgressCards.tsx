@@ -1,9 +1,12 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Target } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Target, Lightbulb } from "lucide-react";
+import { GoalActivitiesModal } from "@/components/goals/GoalActivitiesModal";
 
 interface GoalProgressCardsProps {
   familyId: string;
@@ -11,6 +14,8 @@ interface GoalProgressCardsProps {
 }
 
 export const GoalProgressCards = ({ familyId, studentId }: GoalProgressCardsProps) => {
+  const [selectedGoal, setSelectedGoal] = useState<{ id: string; title: string } | null>(null);
+  
   const { data: goals, isLoading } = useQuery({
     queryKey: ["active-goals", familyId, studentId],
     queryFn: async () => {
@@ -94,11 +99,29 @@ export const GoalProgressCards = ({ familyId, studentId }: GoalProgressCardsProp
                     Target Date: {new Date(goal.target_date).toLocaleDateString()}
                   </p>
                 )}
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full"
+                  onClick={() => setSelectedGoal({ id: goal.id, title: goal.goal_title })}
+                >
+                  <Lightbulb className="h-4 w-4 mr-2" />
+                  Get Activity Ideas
+                </Button>
               </CardContent>
             </Card>
           );
         })}
       </div>
+
+      {selectedGoal && (
+        <GoalActivitiesModal
+          open={!!selectedGoal}
+          onOpenChange={(open) => !open && setSelectedGoal(null)}
+          goalId={selectedGoal.id}
+          goalTitle={selectedGoal.title}
+        />
+      )}
     </div>
   );
 };

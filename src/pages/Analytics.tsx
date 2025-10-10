@@ -14,6 +14,7 @@ import { GoalProgressCards } from "@/components/analytics/GoalProgressCards";
 import { InterventionEffectivenessChart } from "@/components/analytics/InterventionEffectivenessChart";
 import { SensoryTriggerHeatmap } from "@/components/analytics/SensoryTriggerHeatmap";
 import { TimeOnTaskChart } from "@/components/analytics/TimeOnTaskChart";
+import { StrategyEffectiveness } from "@/components/analytics/StrategyEffectiveness";
 
 const Analytics = () => {
   const { selectedFamily, selectedStudent } = useFamily();
@@ -173,6 +174,9 @@ const Analytics = () => {
           />
         </CardContent>
       </Card>
+
+      {/* Strategy Effectiveness */}
+      <StrategyEffectiveness />
 
       {/* Specialized Trial Charts */}
       {hasActiveTrial && suggestedCharts.length > 0 && (

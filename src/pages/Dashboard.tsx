@@ -7,6 +7,7 @@ import { ProgressMetricsSection } from '@/components/ProgressMetricsSection';
 import { StudentOverview } from '@/components/StudentOverview';
 import { DocumentProgressOverview } from '@/components/dashboard/DocumentProgressOverview';
 import { AIInsightsWidget } from '@/components/dashboard/AIInsightsWidget';
+import { DailyBriefingWidget } from '@/components/dashboard/DailyBriefingWidget';
 import { Plus, TrendingUp, BookOpen, Activity, FileText, Sparkles } from 'lucide-react';
 
 const Dashboard = () => {
@@ -43,8 +44,11 @@ const Dashboard = () => {
         </p>
       </div>
 
-        {/* Student Overview Cards */}
-        <StudentOverview />
+      {/* Daily Briefing - Top Priority */}
+      <DailyBriefingWidget />
+
+      {/* Student Overview Cards */}
+      <StudentOverview />
 
         {/* Main Content Tabs */}
         <Tabs defaultValue="logs" className="space-y-4">
