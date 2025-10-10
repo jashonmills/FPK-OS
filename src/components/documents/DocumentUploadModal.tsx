@@ -27,11 +27,8 @@ export function DocumentUploadModal({ open, onOpenChange }: DocumentUploadModalP
 
   const extractTextFromPDF = async (file: File): Promise<string> => {
     try {
-      // Configure worker inline before use
-      pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-        'pdfjs-dist/build/pdf.worker.min.mjs',
-        import.meta.url
-      ).toString();
+      // Configure worker with reliable CDN
+      pdfjs.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
       const arrayBuffer = await file.arrayBuffer();
       const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
