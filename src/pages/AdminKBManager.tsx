@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Database, PlayCircle, Loader2, Book, Brain, Plus, X, TrendingUp, LayoutGrid, List, Table as TableIcon, ChevronDown } from "lucide-react";
+import { Database, PlayCircle, Loader2, Book, Brain, Plus, X, TrendingUp, LayoutGrid, List, Table as TableIcon, ChevronDown, School, Users } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { useAuth } from "@/hooks/useAuth";
@@ -295,10 +295,9 @@ export default function AdminKBManager() {
                   id="semantic-scholar"
                   checked={selectedAcademicSources.includes("semantic-scholar")}
                   onCheckedChange={() => toggleAcademicSource("semantic-scholar")}
-                  disabled
                 />
-                <label htmlFor="semantic-scholar" className="text-sm font-medium text-muted-foreground cursor-not-allowed">
-                  Semantic Scholar (Coming Soon)
+                <label htmlFor="semantic-scholar" className="text-sm font-medium cursor-pointer">
+                  Semantic Scholar
                 </label>
               </div>
             </div>
@@ -415,6 +414,227 @@ export default function AdminKBManager() {
               <PlayCircle className="mr-2 h-4 w-4" />
             )}
             Start Web Scraping
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Tier 2: Advanced Institutional & Community Resources */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <School className="h-5 w-5" />
+            Scrape Advanced Institutional & Community Resources (Tier 2)
+          </CardTitle>
+          <CardDescription>
+            Import practical strategies from leading research institutions and advocacy organizations
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Research Institutions */}
+          <div>
+            <Label className="mb-2 block font-semibold">Leading Research Institutions</Label>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="kennedy-krieger"
+                  checked={selectedWebSources.includes("kennedy-krieger")}
+                  onCheckedChange={() => toggleWebSource("kennedy-krieger")}
+                />
+                <label htmlFor="kennedy-krieger" className="text-sm font-medium cursor-pointer">
+                  Kennedy Krieger Institute
+                </label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="ucdavis-mind"
+                  checked={selectedWebSources.includes("ucdavis-mind")}
+                  onCheckedChange={() => toggleWebSource("ucdavis-mind")}
+                />
+                <label htmlFor="ucdavis-mind" className="text-sm font-medium cursor-pointer">
+                  UC Davis MIND Institute
+                </label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="vanderbilt-kennedy"
+                  checked={selectedWebSources.includes("vanderbilt-kennedy")}
+                  onCheckedChange={() => toggleWebSource("vanderbilt-kennedy")}
+                />
+                <label htmlFor="vanderbilt-kennedy" className="text-sm font-medium cursor-pointer">
+                  Vanderbilt Kennedy Center
+                </label>
+              </div>
+            </div>
+          </div>
+
+          {/* Advocacy Organizations */}
+          <div>
+            <Label className="mb-2 block font-semibold">Advocacy Organizations</Label>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="autism-speaks"
+                  checked={selectedWebSources.includes("autism-speaks")}
+                  onCheckedChange={() => toggleWebSource("autism-speaks")}
+                />
+                <label htmlFor="autism-speaks" className="text-sm font-medium cursor-pointer">
+                  Autism Speaks
+                </label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="chadd"
+                  checked={selectedWebSources.includes("chadd")}
+                  onCheckedChange={() => toggleWebSource("chadd")}
+                />
+                <label htmlFor="chadd" className="text-sm font-medium cursor-pointer">
+                  CHADD
+                </label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="understood"
+                  checked={selectedWebSources.includes("understood")}
+                  onCheckedChange={() => toggleWebSource("understood")}
+                />
+                <label htmlFor="understood" className="text-sm font-medium cursor-pointer">
+                  Understood.org
+                </label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="aane"
+                  checked={selectedWebSources.includes("aane")}
+                  onCheckedChange={() => toggleWebSource("aane")}
+                />
+                <label htmlFor="aane" className="text-sm font-medium cursor-pointer">
+                  AANE
+                </label>
+              </div>
+            </div>
+          </div>
+
+          {/* State DOE Resources */}
+          <div>
+            <Label className="mb-2 block font-semibold">State Department of Education Handbooks</Label>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="state-doe"
+                  checked={selectedWebSources.includes("state-doe")}
+                  onCheckedChange={() => toggleWebSource("state-doe")}
+                />
+                <label htmlFor="state-doe" className="text-sm font-medium cursor-pointer">
+                  State DOE (CA, TX, NY)
+                </label>
+              </div>
+            </div>
+          </div>
+
+          {/* Start Tier 2 Scraping Button */}
+          <Button
+            onClick={() => runWebScrapingMutation.mutate()}
+            disabled={isAnyRunning || selectedWebSources.length === 0}
+            className="w-full"
+          >
+            {runWebScrapingMutation.isPending ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <PlayCircle className="mr-2 h-4 w-4" />
+            )}
+            Start Advanced Resource Scraping
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Tier 3: Specialized & Lived Experience Resources */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Users className="h-5 w-5" />
+            Scrape Specialized Therapeutic Models & Community Voices (Tier 3)
+          </CardTitle>
+          <CardDescription>
+            Import specialized intervention frameworks and lived experience perspectives
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Therapeutic Models */}
+          <div>
+            <Label className="mb-2 block font-semibold">Therapeutic Models</Label>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="prt-resources"
+                  checked={selectedWebSources.includes("prt-resources")}
+                  onCheckedChange={() => toggleWebSource("prt-resources")}
+                />
+                <label htmlFor="prt-resources" className="text-sm font-medium cursor-pointer">
+                  PRT (Pivotal Response Treatment)
+                </label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="esdm-resources"
+                  checked={selectedWebSources.includes("esdm-resources")}
+                  onCheckedChange={() => toggleWebSource("esdm-resources")}
+                />
+                <label htmlFor="esdm-resources" className="text-sm font-medium cursor-pointer">
+                  ESDM (Early Start Denver Model)
+                </label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="social-thinking"
+                  checked={selectedWebSources.includes("social-thinking")}
+                  onCheckedChange={() => toggleWebSource("social-thinking")}
+                />
+                <label htmlFor="social-thinking" className="text-sm font-medium cursor-pointer">
+                  Social Thinking®
+                </label>
+              </div>
+            </div>
+          </div>
+
+          {/* Community & Academic */}
+          <div>
+            <Label className="mb-2 block font-semibold">Community & Academic Resources</Label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="autistic-blogs"
+                  checked={selectedWebSources.includes("autistic-blogs")}
+                  onCheckedChange={() => toggleWebSource("autistic-blogs")}
+                />
+                <label htmlFor="autistic-blogs" className="text-sm font-medium cursor-pointer">
+                  Curated Autistic Blogs
+                </label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="opencourseware"
+                  checked={selectedWebSources.includes("opencourseware")}
+                  onCheckedChange={() => toggleWebSource("opencourseware")}
+                />
+                <label htmlFor="opencourseware" className="text-sm font-medium cursor-pointer">
+                  MIT OpenCourseWare
+                </label>
+              </div>
+            </div>
+          </div>
+
+          {/* Start Tier 3 Scraping Button */}
+          <Button
+            onClick={() => runWebScrapingMutation.mutate()}
+            disabled={isAnyRunning || selectedWebSources.length === 0}
+            className="w-full"
+          >
+            {runWebScrapingMutation.isPending ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <PlayCircle className="mr-2 h-4 w-4" />
+            )}
+            Start Specialized Resource Scraping
           </Button>
         </CardContent>
       </Card>
