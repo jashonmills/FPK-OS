@@ -1,27 +1,32 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
-import { Mail } from "lucide-react";
+import { useFamily } from "@/contexts/FamilyContext";
+import { UserProfileCard } from "./UserProfileCard";
+import { StudentProfileCard } from "./StudentProfileCard";
+import { Users } from "lucide-react";
 
 export const ProfileTab = () => {
   const { user } = useAuth();
+  const { students, refreshStudents } = useFamily();
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Profile Information</CardTitle>
-        <CardDescription>
-          Your account details and preferences
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex items-center gap-3 p-4 border rounded-lg">
-          <Mail className="h-5 w-5 text-muted-foreground" />
-          <div>
-            <p className="text-sm font-medium">Email Address</p>
-            <p className="text-sm text-muted-foreground">{user?.email}</p>
+    <div className="space-y-6">
+      <UserProfileCard user={user || { id: '', email: '' }} />
+      
+      {students.length > 0 && (
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <Users className="w-5 h-5 text-muted-foreground" />
+            <h3 className="text-lg font-semibold">Student Profiles</h3>
           </div>
+          {students.map((student) => (
+            <StudentProfileCard
+              key={student.id}
+              student={student}
+              onUpdate={refreshStudents}
+            />
+          ))}
         </div>
-      </CardContent>
-    </Card>
+      )}
+    </div>
   );
 };
