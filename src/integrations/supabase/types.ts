@@ -1235,6 +1235,7 @@ export type Database = {
           error_message: string
           error_stack: string | null
           error_type: string
+          family_id: string | null
           id: string
           job_id: string | null
           metadata: Json | null
@@ -1245,6 +1246,7 @@ export type Database = {
           error_message: string
           error_stack?: string | null
           error_type: string
+          family_id?: string | null
           id?: string
           job_id?: string | null
           metadata?: Json | null
@@ -1255,6 +1257,7 @@ export type Database = {
           error_message?: string
           error_stack?: string | null
           error_type?: string
+          family_id?: string | null
           id?: string
           job_id?: string | null
           metadata?: Json | null
@@ -1262,6 +1265,13 @@ export type Database = {
           source_url?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "ingestion_errors_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "ingestion_errors_job_id_fkey"
             columns: ["job_id"]
@@ -1276,6 +1286,7 @@ export type Database = {
           completed_at: string | null
           created_at: string | null
           failed_documents: number | null
+          family_id: string | null
           function_name: string
           id: string
           metadata: Json | null
@@ -1288,6 +1299,7 @@ export type Database = {
           completed_at?: string | null
           created_at?: string | null
           failed_documents?: number | null
+          family_id?: string | null
           function_name: string
           id?: string
           metadata?: Json | null
@@ -1300,6 +1312,7 @@ export type Database = {
           completed_at?: string | null
           created_at?: string | null
           failed_documents?: number | null
+          family_id?: string | null
           function_name?: string
           id?: string
           metadata?: Json | null
@@ -1308,7 +1321,15 @@ export type Database = {
           successful_documents?: number | null
           total_documents?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "ingestion_jobs_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       intervention_outcomes: {
         Row: {
@@ -1414,6 +1435,7 @@ export type Database = {
           chunk_text: string
           created_at: string | null
           embedding: string
+          family_id: string | null
           id: string
           kb_id: string
           token_count: number | null
@@ -1422,6 +1444,7 @@ export type Database = {
           chunk_text: string
           created_at?: string | null
           embedding: string
+          family_id?: string | null
           id?: string
           kb_id: string
           token_count?: number | null
@@ -1430,11 +1453,19 @@ export type Database = {
           chunk_text?: string
           created_at?: string | null
           embedding?: string
+          family_id?: string | null
           id?: string
           kb_id?: string
           token_count?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "kb_chunks_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "kb_chunks_kb_id_fkey"
             columns: ["kb_id"]
@@ -1448,6 +1479,7 @@ export type Database = {
         Row: {
           created_at: string | null
           document_type: string
+          family_id: string | null
           focus_areas: string[] | null
           id: string
           keywords: string[] | null
@@ -1460,6 +1492,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           document_type: string
+          family_id?: string | null
           focus_areas?: string[] | null
           id?: string
           keywords?: string[] | null
@@ -1472,6 +1505,7 @@ export type Database = {
         Update: {
           created_at?: string | null
           document_type?: string
+          family_id?: string | null
           focus_areas?: string[] | null
           id?: string
           keywords?: string[] | null
@@ -1481,7 +1515,15 @@ export type Database = {
           summary?: string | null
           title?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_base_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notifications: {
         Row: {

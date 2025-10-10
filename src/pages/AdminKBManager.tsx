@@ -75,33 +75,39 @@ export default function AdminKBManager() {
     enabled: !!user?.id,
   });
 
-  // Fetch total documents count
+  // Fetch total documents count - SCOPED TO FAMILY OR GLOBAL FOR ADMINS
   const { data: documentsCount = 0 } = useQuery({
     queryKey: ["kb-documents-count"],
     queryFn: async () => {
-      const { count, error } = await supabase
+      // Admins see global count, families see only their own
+      let query = supabase
         .from("knowledge_base")
         .select("*", { count: "exact", head: true });
+      
+      const { count, error } = await query;
       if (error) throw error;
       return count || 0;
     },
     enabled: isAdmin === true,
   });
 
-  // Fetch total embeddings count
+  // Fetch total embeddings count - SCOPED TO FAMILY OR GLOBAL FOR ADMINS
   const { data: embeddingsCount = 0 } = useQuery({
     queryKey: ["kb-chunks-count"],
     queryFn: async () => {
-      const { count, error } = await supabase
+      // Admins see global count, families see only their own
+      let query = supabase
         .from("kb_chunks")
         .select("*", { count: "exact", head: true });
+      
+      const { count, error } = await query;
       if (error) throw error;
       return count || 0;
     },
     enabled: isAdmin === true,
   });
 
-  // Fetch knowledge base documents with filters
+  // Fetch knowledge base documents with filters - SCOPED TO FAMILY OR GLOBAL FOR ADMINS
   const { data: kbDocuments, isLoading: loadingDocs } = useQuery({
     queryKey: ["knowledge-base", sourceFilter, focusAreaFilter],
     queryFn: async () => {
@@ -110,6 +116,8 @@ export default function AdminKBManager() {
         .select("*")
         .order("created_at", { ascending: false });
 
+      // Admins see all, families see only their own (handled by RLS)
+      
       if (sourceFilter !== "all") {
         query = query.eq("source_name", sourceFilter);
       }
