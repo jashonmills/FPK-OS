@@ -1,19 +1,53 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { useFamily } from "@/contexts/FamilyContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Sparkles } from "lucide-react";
 import { ActivityLogChart } from "@/components/analytics/ActivityLogChart";
 import { SleepChart } from "@/components/analytics/SleepChart";
 import { MoodDistributionChart } from "@/components/analytics/MoodDistributionChart";
 import { IncidentFrequencyChart } from "@/components/analytics/IncidentFrequencyChart";
 import { GoalProgressCards } from "@/components/analytics/GoalProgressCards";
 import { InterventionEffectivenessChart } from "@/components/analytics/InterventionEffectivenessChart";
+import { SensoryTriggerHeatmap } from "@/components/analytics/SensoryTriggerHeatmap";
+import { TimeOnTaskChart } from "@/components/analytics/TimeOnTaskChart";
 
 const Analytics = () => {
   const { selectedFamily, selectedStudent } = useFamily();
   const [dateRange, setDateRange] = useState<"30" | "60" | "90">("30");
+
+  // Fetch family data to check for trial charts
+  const { data: familyData } = useQuery({
+    queryKey: ["family-trial", selectedFamily?.id],
+    queryFn: async () => {
+      if (!selectedFamily?.id) return null;
+      const { data, error } = await supabase
+        .from("families")
+        .select("suggested_charts_config, special_chart_trial_ends_at")
+        .eq("id", selectedFamily.id)
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!selectedFamily?.id,
+  });
+
+  const hasActiveTrial = familyData?.special_chart_trial_ends_at 
+    && new Date(familyData.special_chart_trial_ends_at) > new Date();
+
+  const suggestedCharts = (familyData?.suggested_charts_config as any[]) || [];
+
+  const getDaysUntilTrialEnds = () => {
+    if (!familyData?.special_chart_trial_ends_at) return 0;
+    const endDate = new Date(familyData.special_chart_trial_ends_at);
+    const today = new Date();
+    const diffTime = endDate.getTime() - today.getTime();
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  };
 
   if (!selectedStudent) {
     return (
@@ -49,6 +83,17 @@ const Analytics = () => {
           </SelectContent>
         </Select>
       </div>
+
+      {/* Trial Banner */}
+      {hasActiveTrial && suggestedCharts.length > 0 && (
+        <Alert className="border-primary bg-primary/5">
+          <Sparkles className="h-4 w-4" />
+          <AlertDescription>
+            <strong>🎉 AI Discovery!</strong> We've unlocked {suggestedCharts.length} specialized charts for you based on your documents. 
+            This free preview ends in {getDaysUntilTrialEnds()} days.
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Goal Progress Cards - Top Priority */}
       <GoalProgressCards 
@@ -128,6 +173,27 @@ const Analytics = () => {
           />
         </CardContent>
       </Card>
+
+      {/* Specialized Trial Charts */}
+      {hasActiveTrial && suggestedCharts.length > 0 && (
+        <div className="space-y-6">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-primary" />
+            <h2 className="text-2xl font-bold">AI-Recommended Specialized Charts</h2>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {suggestedCharts.map((chart: any, index: number) => {
+              if (chart.chart_type === "sensory_trigger_heatmap") {
+                return <SensoryTriggerHeatmap key={index} />;
+              }
+              if (chart.chart_type === "time_on_task_chart") {
+                return <TimeOnTaskChart key={index} />;
+              }
+              return null;
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

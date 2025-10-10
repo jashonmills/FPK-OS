@@ -498,12 +498,15 @@ export type Database = {
           created_by: string
           family_name: string
           id: string
+          initial_doc_analysis_status: string | null
           max_students: number | null
           metadata: Json | null
+          special_chart_trial_ends_at: string | null
           storage_limit_mb: number | null
           stripe_customer_id: string | null
           subscription_status: string | null
           subscription_tier: string | null
+          suggested_charts_config: Json | null
           updated_at: string | null
         }
         Insert: {
@@ -511,12 +514,15 @@ export type Database = {
           created_by: string
           family_name: string
           id?: string
+          initial_doc_analysis_status?: string | null
           max_students?: number | null
           metadata?: Json | null
+          special_chart_trial_ends_at?: string | null
           storage_limit_mb?: number | null
           stripe_customer_id?: string | null
           subscription_status?: string | null
           subscription_tier?: string | null
+          suggested_charts_config?: Json | null
           updated_at?: string | null
         }
         Update: {
@@ -524,12 +530,15 @@ export type Database = {
           created_by?: string
           family_name?: string
           id?: string
+          initial_doc_analysis_status?: string | null
           max_students?: number | null
           metadata?: Json | null
+          special_chart_trial_ends_at?: string | null
           storage_limit_mb?: number | null
           stripe_customer_id?: string | null
           subscription_status?: string | null
           subscription_tier?: string | null
+          suggested_charts_config?: Json | null
           updated_at?: string | null
         }
         Relationships: []

@@ -5,7 +5,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { EducatorLogsSection } from '@/components/EducatorLogsSection';
 import { ProgressMetricsSection } from '@/components/ProgressMetricsSection';
 import { StudentOverview } from '@/components/StudentOverview';
-import { Plus, TrendingUp, BookOpen, Activity } from 'lucide-react';
+import { DocumentProgressOverview } from '@/components/dashboard/DocumentProgressOverview';
+import { AIInsightsWidget } from '@/components/dashboard/AIInsightsWidget';
+import { Plus, TrendingUp, BookOpen, Activity, FileText, Sparkles } from 'lucide-react';
 
 const Dashboard = () => {
   const { selectedStudent, isLoading } = useFamily();
@@ -46,7 +48,7 @@ const Dashboard = () => {
 
         {/* Main Content Tabs */}
         <Tabs defaultValue="logs" className="space-y-4">
-          <TabsList className="grid w-full max-w-md grid-cols-2">
+          <TabsList className="grid w-full max-w-2xl grid-cols-4">
             <TabsTrigger value="logs">
               <BookOpen className="w-4 h-4 mr-2" />
               Educator Logs
@@ -54,6 +56,14 @@ const Dashboard = () => {
             <TabsTrigger value="metrics">
               <TrendingUp className="w-4 h-4 mr-2" />
               Progress Metrics
+            </TabsTrigger>
+            <TabsTrigger value="documents">
+              <FileText className="w-4 h-4 mr-2" />
+              Document Analysis
+            </TabsTrigger>
+            <TabsTrigger value="insights">
+              <Sparkles className="w-4 h-4 mr-2" />
+              AI Insights
             </TabsTrigger>
           </TabsList>
 
@@ -63,6 +73,14 @@ const Dashboard = () => {
 
           <TabsContent value="metrics" className="space-y-4">
             <ProgressMetricsSection />
+          </TabsContent>
+
+          <TabsContent value="documents" className="space-y-4">
+            <DocumentProgressOverview />
+          </TabsContent>
+
+          <TabsContent value="insights" className="space-y-4">
+            <AIInsightsWidget />
           </TabsContent>
         </Tabs>
     </div>

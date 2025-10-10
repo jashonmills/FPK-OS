@@ -19,6 +19,7 @@ export default function Documents() {
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [viewerModalOpen, setViewerModalOpen] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<any>(null);
+  const [analyzingDocId, setAnalyzingDocId] = useState<string | null>(null);
 
   const { data: documents, isLoading } = useQuery({
     queryKey: ["documents", selectedFamily?.id],
@@ -85,6 +86,23 @@ export default function Documents() {
     }
   };
 
+  const handleAnalyzeDocument = async (documentId: string) => {
+    setAnalyzingDocId(documentId);
+    try {
+      const { data, error } = await supabase.functions.invoke("analyze-document", {
+        body: { document_id: documentId },
+      });
+
+      if (error) throw error;
+
+      toast.success(`Analysis complete! Found ${data.metrics_count} metrics, ${data.insights_count} insights`);
+      queryClient.invalidateQueries({ queryKey: ["documents"] });
+    } catch (error: any) {
+      toast.error("Failed to analyze document: " + error.message);
+    } finally {
+      setAnalyzingDocId(null);
+    }
+  };
   return (
     <>
       <div className="space-y-6">
@@ -144,6 +162,16 @@ export default function Documents() {
                       <TableCell>{doc.file_size_kb ? `${Math.round(doc.file_size_kb)} KB` : "—"}</TableCell>
                       <TableCell>
                         <div className="flex justify-end gap-2">
+                          {!doc.last_analyzed_at && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleAnalyzeDocument(doc.id)}
+                              disabled={analyzingDocId === doc.id}
+                            >
+                              {analyzingDocId === doc.id ? "Analyzing..." : "🔍 Analyze"}
+                            </Button>
+                          )}
                           <Button
                             variant="ghost"
                             size="icon"
