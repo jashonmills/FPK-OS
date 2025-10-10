@@ -127,10 +127,17 @@ Format your entire response as a single, valid JSON object with the following st
       );
     }
 
-    // Parse the AI response
+    // Parse the AI response - strip markdown code blocks if present
     let analysisResult;
     try {
-      analysisResult = JSON.parse(aiContent);
+      let cleanContent = aiContent.trim();
+      
+      // Remove markdown code blocks if present
+      if (cleanContent.startsWith('```')) {
+        cleanContent = cleanContent.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '').trim();
+      }
+      
+      analysisResult = JSON.parse(cleanContent);
     } catch (parseError) {
       console.error("Failed to parse AI response:", parseError, aiContent);
       return new Response(
