@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useFamily } from '@/contexts/FamilyContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -53,6 +54,7 @@ const OnboardingWizard = () => {
   const [targetDate, setTargetDate] = useState("");
   
   const { user, session, loading } = useAuth();
+  const { refreshFamilies } = useFamily();
   const navigate = useNavigate();
 
   const progress = (step / totalSteps) * 100;
@@ -238,6 +240,15 @@ const OnboardingWizard = () => {
       }
 
       toast.success('Welcome! Your dashboard is ready with initial data.');
+      
+      // Force context to refresh before navigating
+      console.log('Refreshing family context...');
+      await refreshFamilies();
+      console.log('Family context refreshed, navigating to dashboard');
+      
+      // Small delay to ensure state updates propagate
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       navigate('/dashboard');
     } catch (error: any) {
       console.error('Onboarding error:', error);
