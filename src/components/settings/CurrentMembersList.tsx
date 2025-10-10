@@ -20,9 +20,12 @@ export const CurrentMembersList = ({ familyId, isOwner }: CurrentMembersListProp
   const queryClient = useQueryClient();
   const { user } = useAuth();
 
-  const { data: members, isLoading } = useQuery({
+  const { data: members, isLoading, error: queryError } = useQuery({
     queryKey: ['family-members', familyId],
     queryFn: async () => {
+      console.log('🔍 Fetching family members for familyId:', familyId);
+      console.log('🔍 Current user:', user?.id);
+      
       const { data, error } = await supabase
         .from('family_members')
         .select(`
@@ -35,11 +38,33 @@ export const CurrentMembersList = ({ familyId, isOwner }: CurrentMembersListProp
         .eq('family_id', familyId)
         .order('joined_at', { ascending: false });
 
-      if (error) throw error;
+      console.log('🔍 Query result:', { data, error });
+      console.log('🔍 Number of members returned:', data?.length || 0);
+      
+      if (data) {
+        data.forEach((member, index) => {
+          console.log(`🔍 Member ${index + 1}:`, {
+            id: member.id,
+            user_id: member.user_id,
+            role: member.role,
+            profile: member.profiles
+          });
+        });
+      }
+
+      if (error) {
+        console.error('❌ Error fetching family members:', error);
+        throw error;
+      }
       return data;
     },
     enabled: !!familyId,
   });
+
+  // Add error logging
+  if (queryError) {
+    console.error('❌ Query error:', queryError);
+  }
 
   const handleRoleChange = async (memberId: string, newRole: string) => {
     try {
@@ -80,6 +105,15 @@ export const CurrentMembersList = ({ familyId, isOwner }: CurrentMembersListProp
     }
   };
 
+  console.log('📊 CurrentMembersList render:', {
+    isLoading,
+    hasMembers: !!members,
+    memberCount: members?.length,
+    familyId,
+    isOwner,
+    currentUserId: user?.id
+  });
+
   if (isLoading) {
     return (
       <Card>
@@ -92,11 +126,19 @@ export const CurrentMembersList = ({ familyId, isOwner }: CurrentMembersListProp
   }
 
   if (!members || members.length === 0) {
+    console.warn('⚠️ No members found!', {
+      members,
+      familyId,
+      queryError
+    });
+    
     return (
       <Card>
         <CardHeader>
           <CardTitle>Current Members</CardTitle>
-          <CardDescription>No members found</CardDescription>
+          <CardDescription>
+            No members found (Check console for debugging info)
+          </CardDescription>
         </CardHeader>
       </Card>
     );
