@@ -236,10 +236,7 @@ export default function Documents() {
     }
   };
 
-  const shouldShowAnalyzeButton = 
-    documents && 
-    documents.length >= 5 && 
-    familyData?.initial_doc_analysis_status !== "complete";
+  const shouldShowAnalyzeButtons = documents && documents.length >= 5;
 
   return (
     <>
@@ -249,7 +246,7 @@ export default function Documents() {
             Manage IEPs, evaluations, progress reports, and more
           </p>
           <div className="flex gap-2">
-            {shouldShowAnalyzeButton && (
+            {shouldShowAnalyzeButtons && (
               <>
                 <Button 
                   onClick={handleAnalyzeAllDocuments}
