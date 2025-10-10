@@ -1148,6 +1148,86 @@ export type Database = {
           },
         ]
       }
+      ingestion_errors: {
+        Row: {
+          error_message: string
+          error_stack: string | null
+          error_type: string
+          id: string
+          job_id: string | null
+          metadata: Json | null
+          occurred_at: string | null
+          source_url: string | null
+        }
+        Insert: {
+          error_message: string
+          error_stack?: string | null
+          error_type: string
+          id?: string
+          job_id?: string | null
+          metadata?: Json | null
+          occurred_at?: string | null
+          source_url?: string | null
+        }
+        Update: {
+          error_message?: string
+          error_stack?: string | null
+          error_type?: string
+          id?: string
+          job_id?: string | null
+          metadata?: Json | null
+          occurred_at?: string | null
+          source_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ingestion_errors_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "ingestion_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ingestion_jobs: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          failed_documents: number | null
+          function_name: string
+          id: string
+          metadata: Json | null
+          started_at: string | null
+          status: string
+          successful_documents: number | null
+          total_documents: number | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          failed_documents?: number | null
+          function_name: string
+          id?: string
+          metadata?: Json | null
+          started_at?: string | null
+          status?: string
+          successful_documents?: number | null
+          total_documents?: number | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          failed_documents?: number | null
+          function_name?: string
+          id?: string
+          metadata?: Json | null
+          started_at?: string | null
+          status?: string
+          successful_documents?: number | null
+          total_documents?: number | null
+        }
+        Relationships: []
+      }
       intervention_outcomes: {
         Row: {
           created_at: string | null
