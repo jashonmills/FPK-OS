@@ -4,8 +4,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Calendar, Clock, User, GraduationCap, Volume2, VolumeX } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Calendar, Clock, User, GraduationCap, Volume2, VolumeX, Trash2 } from 'lucide-react';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
+import { toast } from 'sonner';
 
 interface EducatorLog {
   id: string;
@@ -28,7 +30,7 @@ interface EducatorLogTimelineProps {
 }
 
 export const EducatorLogTimeline = ({ refreshKey }: EducatorLogTimelineProps) => {
-  const { selectedFamily, selectedStudent } = useFamily();
+  const { selectedFamily, selectedStudent, currentUserRole } = useFamily();
   const [logs, setLogs] = useState<EducatorLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [speakingLogId, setSpeakingLogId] = useState<string | null>(null);
@@ -59,6 +61,23 @@ export const EducatorLogTimeline = ({ refreshKey }: EducatorLogTimelineProps) =>
       console.error('Error fetching educator logs:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleDelete = async (logId: string) => {
+    try {
+      const { error } = await supabase
+        .from('educator_logs')
+        .delete()
+        .eq('id', logId);
+      
+      if (error) throw error;
+      
+      toast.success("Educator log deleted successfully");
+      fetchLogs();
+    } catch (error: any) {
+      console.error('Error deleting educator log:', error);
+      toast.error(error.message || "Failed to delete educator log");
     }
   };
 
@@ -113,11 +132,11 @@ export const EducatorLogTimeline = ({ refreshKey }: EducatorLogTimelineProps) =>
       {logs.map((log) => (
         <Card key={log.id}>
           <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
                 <GraduationCap className="h-5 w-5 text-primary" />
                 <span className="text-lg capitalize">{log.log_type} Session</span>
-              </div>
+              </CardTitle>
               <div className="flex items-center gap-2">
                 <Button
                   size="sm"
@@ -135,8 +154,31 @@ export const EducatorLogTimeline = ({ refreshKey }: EducatorLogTimelineProps) =>
                 <Badge className={getLogTypeColor(log.log_type)}>
                   {log.log_type}
                 </Badge>
+                {currentUserRole === 'owner' && (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="ghost" size="sm">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Educator Log</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to delete this educator log? This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => handleDelete(log.id)}>
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                )}
               </div>
-            </CardTitle>
+            </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4 text-sm">

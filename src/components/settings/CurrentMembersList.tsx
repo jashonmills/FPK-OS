@@ -58,14 +58,19 @@ export const CurrentMembersList = ({ familyId, isOwner }: CurrentMembersListProp
     }
   };
 
-  const handleRemoveMember = async (memberId: string) => {
+  const handleRemoveMember = async (memberId: string, userId: string) => {
     try {
+      console.log('Attempting to delete member:', { memberId, userId, familyId, currentUser: user?.id });
+      
       const { error } = await supabase
         .from('family_members')
         .delete()
         .eq('id', memberId);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Delete error details:', error);
+        throw error;
+      }
 
       queryClient.invalidateQueries({ queryKey: ['family-members', familyId] });
       toast.success('Member removed successfully');
@@ -181,9 +186,9 @@ export const CurrentMembersList = ({ familyId, isOwner }: CurrentMembersListProp
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                               <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleRemoveMember(member.id)}>
-                                Remove
-                              </AlertDialogAction>
+                            <AlertDialogAction onClick={() => handleRemoveMember(member.id, member.user_id)}>
+                              Remove
+                            </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
                         </AlertDialog>

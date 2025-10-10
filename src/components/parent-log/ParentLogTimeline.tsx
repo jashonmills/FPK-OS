@@ -3,7 +3,10 @@ import { useFamily } from '@/contexts/FamilyContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Clock, MapPin, User, Heart } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Calendar, Clock, MapPin, User, Heart, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface ParentLog {
   id: string;
@@ -27,7 +30,7 @@ interface ParentLogTimelineProps {
 }
 
 export const ParentLogTimeline = ({ refreshKey }: ParentLogTimelineProps) => {
-  const { selectedFamily, selectedStudent } = useFamily();
+  const { selectedFamily, selectedStudent, currentUserRole } = useFamily();
   const [logs, setLogs] = useState<ParentLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -60,6 +63,23 @@ export const ParentLogTimeline = ({ refreshKey }: ParentLogTimelineProps) => {
     }
   };
 
+  const handleDelete = async (logId: string) => {
+    try {
+      const { error } = await supabase
+        .from('parent_logs')
+        .delete()
+        .eq('id', logId);
+      
+      if (error) throw error;
+      
+      toast.success("Parent log deleted successfully");
+      fetchLogs();
+    } catch (error: any) {
+      console.error('Error deleting parent log:', error);
+      toast.error(error.message || "Failed to delete parent log");
+    }
+  };
+
   if (isLoading) {
     return <div className="text-center py-12">Loading...</div>;
   }
@@ -81,15 +101,39 @@ export const ParentLogTimeline = ({ refreshKey }: ParentLogTimelineProps) => {
       {logs.map((log) => (
         <Card key={log.id}>
           <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
                 <Heart className="h-5 w-5 text-primary" />
                 <span className="text-lg">{log.activity_type}</span>
-              </div>
-              {log.mood && (
-                <Badge variant="outline">{log.mood}</Badge>
+                {log.mood && (
+                  <Badge variant="outline">{log.mood}</Badge>
+                )}
+              </CardTitle>
+              {currentUserRole === 'owner' && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="ghost" size="sm">
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete Parent Log</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to delete this parent observation? This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => handleDelete(log.id)}>
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               )}
-            </CardTitle>
+            </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4 text-sm">

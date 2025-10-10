@@ -18,7 +18,7 @@ import { DocumentGuide } from "@/components/documents/DocumentGuide";
 import * as pdfjs from "pdfjs-dist";
 
 export default function Documents() {
-  const { selectedFamily, selectedStudent } = useFamily();
+  const { selectedFamily, selectedStudent, currentUserRole } = useFamily();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
@@ -365,13 +365,15 @@ export default function Documents() {
                           >
                             <Download className="h-4 w-4" />
                           </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => deleteMutation.mutate(doc.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          {currentUserRole === 'owner' && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => deleteMutation.mutate(doc.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
