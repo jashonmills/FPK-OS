@@ -12,8 +12,10 @@ import AcceptInvite from "./pages/AcceptInvite";
 import OnboardingWizard from "./pages/OnboardingWizard";
 import Dashboard from "./pages/Dashboard";
 import ActivityLog from "./pages/ActivityLog";
+import Documents from "./pages/Documents";
 import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
+import AdminKBManager from "./pages/AdminKBManager";
 import Pricing from "./pages/Pricing";
 import NotFound from "./pages/NotFound";
 
@@ -88,11 +90,31 @@ const App = () => (
               }
             />
             <Route
+              path="/documents"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <Documents />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/settings"
               element={
                 <ProtectedRoute>
                   <AppLayout>
                     <Settings />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/kb-manager"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <AdminKBManager />
                   </AppLayout>
                 </ProtectedRoute>
               }

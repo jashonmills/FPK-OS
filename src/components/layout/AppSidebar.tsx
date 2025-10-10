@@ -1,4 +1,4 @@
-import { Home, FileText, BarChart3, Settings } from 'lucide-react';
+import { Home, FileText, BarChart3, Settings, FolderOpen } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useFamily } from '@/contexts/FamilyContext';
 import { useAuth } from '@/hooks/useAuth';
@@ -21,6 +21,7 @@ import {
 const navItems = [
   { title: 'Dashboard', url: '/dashboard', icon: Home },
   { title: 'Activity Logs', url: '/activity-log', icon: FileText },
+  { title: 'Documents', url: '/documents', icon: FolderOpen },
   { title: 'Analytics', url: '/analytics', icon: BarChart3 },
   { title: 'Settings', url: '/settings', icon: Settings },
 ];

@@ -14,6 +14,277 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_insights: {
+        Row: {
+          confidence_score: number | null
+          content: string
+          document_id: string | null
+          family_id: string
+          generated_at: string | null
+          id: string
+          insight_type: string
+          is_active: boolean | null
+          priority: string | null
+          student_id: string
+          title: string | null
+        }
+        Insert: {
+          confidence_score?: number | null
+          content: string
+          document_id?: string | null
+          family_id: string
+          generated_at?: string | null
+          id?: string
+          insight_type: string
+          is_active?: boolean | null
+          priority?: string | null
+          student_id: string
+          title?: string | null
+        }
+        Update: {
+          confidence_score?: number | null
+          content?: string
+          document_id?: string | null
+          family_id?: string
+          generated_at?: string | null
+          id?: string
+          insight_type?: string
+          is_active?: boolean | null
+          priority?: string | null
+          student_id?: string
+          title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_insights_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_insights_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_insights_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_comparisons: {
+        Row: {
+          comparison_summary: string | null
+          document_id_a: string
+          document_id_b: string
+          family_id: string
+          generated_at: string | null
+          id: string
+          student_id: string
+        }
+        Insert: {
+          comparison_summary?: string | null
+          document_id_a: string
+          document_id_b: string
+          family_id: string
+          generated_at?: string | null
+          id?: string
+          student_id: string
+        }
+        Update: {
+          comparison_summary?: string | null
+          document_id_a?: string
+          document_id_b?: string
+          family_id?: string
+          generated_at?: string | null
+          id?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_comparisons_document_id_a_fkey"
+            columns: ["document_id_a"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_comparisons_document_id_b_fkey"
+            columns: ["document_id_b"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_comparisons_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_comparisons_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_metrics: {
+        Row: {
+          context: string | null
+          created_at: string | null
+          document_id: string
+          duration_minutes: number | null
+          end_time: string | null
+          family_id: string
+          id: string
+          intervention_used: string | null
+          measurement_date: string | null
+          metric_name: string
+          metric_type: string
+          metric_unit: string | null
+          metric_value: number | null
+          start_time: string | null
+          student_id: string
+          target_value: number | null
+        }
+        Insert: {
+          context?: string | null
+          created_at?: string | null
+          document_id: string
+          duration_minutes?: number | null
+          end_time?: string | null
+          family_id: string
+          id?: string
+          intervention_used?: string | null
+          measurement_date?: string | null
+          metric_name: string
+          metric_type: string
+          metric_unit?: string | null
+          metric_value?: number | null
+          start_time?: string | null
+          student_id: string
+          target_value?: number | null
+        }
+        Update: {
+          context?: string | null
+          created_at?: string | null
+          document_id?: string
+          duration_minutes?: number | null
+          end_time?: string | null
+          family_id?: string
+          id?: string
+          intervention_used?: string | null
+          measurement_date?: string | null
+          metric_name?: string
+          metric_type?: string
+          metric_unit?: string | null
+          metric_value?: number | null
+          start_time?: string | null
+          student_id?: string
+          target_value?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_metrics_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_metrics_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_metrics_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      documents: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          document_date: string | null
+          extracted_content: string | null
+          family_id: string
+          file_name: string
+          file_path: string
+          file_size_kb: number | null
+          file_type: string | null
+          id: string
+          last_analyzed_at: string | null
+          metadata: Json | null
+          student_id: string | null
+          updated_at: string | null
+          uploaded_by: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          document_date?: string | null
+          extracted_content?: string | null
+          family_id: string
+          file_name: string
+          file_path: string
+          file_size_kb?: number | null
+          file_type?: string | null
+          id?: string
+          last_analyzed_at?: string | null
+          metadata?: Json | null
+          student_id?: string | null
+          updated_at?: string | null
+          uploaded_by?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          document_date?: string | null
+          extracted_content?: string | null
+          family_id?: string
+          file_name?: string
+          file_path?: string
+          file_size_kb?: number | null
+          file_type?: string | null
+          id?: string
+          last_analyzed_at?: string | null
+          metadata?: Json | null
+          student_id?: string | null
+          updated_at?: string | null
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documents_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       educator_logs: {
         Row: {
           accuracy_percentage: number | null
@@ -626,6 +897,80 @@ export type Database = {
           },
         ]
       }
+      kb_chunks: {
+        Row: {
+          chunk_text: string
+          created_at: string | null
+          embedding: string
+          id: string
+          kb_id: string
+          token_count: number | null
+        }
+        Insert: {
+          chunk_text: string
+          created_at?: string | null
+          embedding: string
+          id?: string
+          kb_id: string
+          token_count?: number | null
+        }
+        Update: {
+          chunk_text?: string
+          created_at?: string | null
+          embedding?: string
+          id?: string
+          kb_id?: string
+          token_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kb_chunks_kb_id_fkey"
+            columns: ["kb_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_base"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      knowledge_base: {
+        Row: {
+          created_at: string | null
+          document_type: string
+          focus_areas: string[] | null
+          id: string
+          keywords: string[] | null
+          publication_date: string | null
+          source_name: string
+          source_url: string | null
+          summary: string | null
+          title: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          document_type: string
+          focus_areas?: string[] | null
+          id?: string
+          keywords?: string[] | null
+          publication_date?: string | null
+          source_name: string
+          source_url?: string | null
+          summary?: string | null
+          title?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          document_type?: string
+          focus_areas?: string[] | null
+          id?: string
+          keywords?: string[] | null
+          publication_date?: string | null
+          source_name?: string
+          source_url?: string | null
+          summary?: string | null
+          title?: string | null
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string | null
@@ -885,6 +1230,79 @@ export type Database = {
           },
         ]
       }
+      progress_tracking: {
+        Row: {
+          baseline_value: number | null
+          created_at: string | null
+          current_value: number | null
+          document_id: string | null
+          family_id: string
+          id: string
+          metric_type: string
+          notes: string | null
+          period_end: string | null
+          period_start: string | null
+          progress_percentage: number | null
+          student_id: string
+          target_value: number | null
+          trend: string | null
+        }
+        Insert: {
+          baseline_value?: number | null
+          created_at?: string | null
+          current_value?: number | null
+          document_id?: string | null
+          family_id: string
+          id?: string
+          metric_type: string
+          notes?: string | null
+          period_end?: string | null
+          period_start?: string | null
+          progress_percentage?: number | null
+          student_id: string
+          target_value?: number | null
+          trend?: string | null
+        }
+        Update: {
+          baseline_value?: number | null
+          created_at?: string | null
+          current_value?: number | null
+          document_id?: string | null
+          family_id?: string
+          id?: string
+          metric_type?: string
+          notes?: string | null
+          period_end?: string | null
+          period_start?: string | null
+          progress_percentage?: number | null
+          student_id?: string
+          target_value?: number | null
+          trend?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "progress_tracking_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "progress_tracking_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "progress_tracking_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sleep_records: {
         Row: {
           air_quality_fetched_at: string | null
@@ -1124,11 +1542,36 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      binary_quantize: {
+        Args: { "": string } | { "": unknown }
+        Returns: unknown
+      }
       can_add_family_member: {
         Args: { _family_id: string }
         Returns: boolean
@@ -1192,6 +1635,45 @@ export type Database = {
           mood: string
         }[]
       }
+      halfvec_avg: {
+        Args: { "": number[] }
+        Returns: unknown
+      }
+      halfvec_out: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      halfvec_send: {
+        Args: { "": unknown }
+        Returns: string
+      }
+      halfvec_typmod_in: {
+        Args: { "": unknown[] }
+        Returns: number
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      hnsw_bit_support: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      hnsw_halfvec_support: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      hnsw_sparsevec_support: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      hnswhandler: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
       is_family_member: {
         Args: { _family_id: string; _user_id: string }
         Returns: boolean
@@ -1200,13 +1682,69 @@ export type Database = {
         Args: { _family_id: string; _user_id: string }
         Returns: boolean
       }
+      ivfflat_bit_support: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      ivfflat_halfvec_support: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      ivfflathandler: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      l2_norm: {
+        Args: { "": unknown } | { "": unknown }
+        Returns: number
+      }
+      l2_normalize: {
+        Args: { "": string } | { "": unknown } | { "": unknown }
+        Returns: string
+      }
       mark_expired_invites: {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      sparsevec_out: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      sparsevec_send: {
+        Args: { "": unknown }
+        Returns: string
+      }
+      sparsevec_typmod_in: {
+        Args: { "": unknown[] }
+        Returns: number
+      }
+      vector_avg: {
+        Args: { "": number[] }
+        Returns: string
+      }
+      vector_dims: {
+        Args: { "": string } | { "": unknown }
+        Returns: number
+      }
+      vector_norm: {
+        Args: { "": string }
+        Returns: number
+      }
+      vector_out: {
+        Args: { "": string }
+        Returns: unknown
+      }
+      vector_send: {
+        Args: { "": string }
+        Returns: string
+      }
+      vector_typmod_in: {
+        Args: { "": unknown[] }
+        Returns: number
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "member"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1333,6 +1871,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "member"],
+    },
   },
 } as const
