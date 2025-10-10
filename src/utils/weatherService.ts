@@ -25,16 +25,16 @@ export interface WeatherData {
   air_quality_fetched_at?: string;
 }
 
-export const fetchWeatherData = async (): Promise<WeatherData> => {
+export const fetchWeatherData = async (latitude: number, longitude: number): Promise<WeatherData> => {
   try {
     const { data, error } = await supabase.functions.invoke('fetch-weather-data', {
-      body: { latitude: 42.4391, longitude: -123.3284 } // Grants Pass, OR
+      body: { latitude, longitude }
     });
 
     if (error) throw error;
     return data as WeatherData;
   } catch (error) {
     console.error('Failed to fetch weather:', error);
-    return {};
+    throw error;
   }
 };

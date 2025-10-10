@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { fetchWeatherData } from '@/utils/weatherService';
+import { useWeatherForLog } from '@/hooks/useWeatherForLog';
 
 interface EducatorLogFormProps {
   onSuccess?: () => void;
@@ -41,6 +41,8 @@ export const EducatorLogForm = ({ onSuccess }: EducatorLogFormProps) => {
 
   const logType = watch('log_type');
 
+  const { getWeatherForLog } = useWeatherForLog();
+
   const onSubmit = async (data: any) => {
     if (!selectedFamily?.id || !selectedStudent?.id) {
       toast.error('Please select a family and student');
@@ -49,7 +51,7 @@ export const EducatorLogForm = ({ onSuccess }: EducatorLogFormProps) => {
 
     setIsSubmitting(true);
     try {
-      const weatherData = await fetchWeatherData();
+      const weatherData = await getWeatherForLog();
 
       const user = await supabase.auth.getUser();
 

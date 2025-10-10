@@ -11,7 +11,7 @@ import { QuickButtons } from '@/components/shared/QuickButtons';
 import { TextareaWithVoice } from '@/components/shared/TextareaWithVoice';
 import { ImageUploadPreview } from '@/components/shared/ImageUploadPreview';
 import { Checkbox } from '@/components/ui/checkbox';
-import { fetchWeatherData } from '@/utils/weatherService';
+import { useWeatherForLog } from '@/hooks/useWeatherForLog';
 import { uploadLogImages } from '@/utils/imageUpload';
 import { useAuth } from '@/hooks/useAuth';
 import { MultiSelectButtons } from '@/components/shared/MultiSelectButtons';
@@ -54,6 +54,8 @@ export const IncidentForm = ({ onSuccess }: IncidentFormProps) => {
     }
   });
 
+  const { getWeatherForLog } = useWeatherForLog();
+
   const onSubmit = async (data: any) => {
     if (!selectedFamily || !selectedStudent || !user) {
       toast.error('Please select a family and student');
@@ -62,7 +64,7 @@ export const IncidentForm = ({ onSuccess }: IncidentFormProps) => {
 
     setIsSubmitting(true);
     try {
-      const weather = await fetchWeatherData();
+      const weather = await getWeatherForLog();
       
       const { data: incident, error: insertError } = await supabase
         .from('incident_logs')

@@ -1,32 +1,40 @@
 import { useEffect, useState } from 'react';
-import { Cloud, Droplets, Gauge, Wind, MapPin } from 'lucide-react';
+import { Cloud, Droplets, Gauge, Wind, MapPin, RefreshCw } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { fetchWeatherData, type WeatherData } from '@/utils/weatherService';
+import { useLocation } from '@/hooks/useLocation';
 import { toast } from 'sonner';
 
 export const LiveWeatherDisplay = () => {
   const [weather, setWeather] = useState<WeatherData | null>(null);
-  const [location] = useState('Grants Pass, OR');
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingWeather, setIsLoadingWeather] = useState(false);
+  const { location, status, error, getLocation } = useLocation();
 
-  const loadWeather = async () => {
+  const loadWeather = async (lat: number, lon: number) => {
     try {
-      setIsLoading(true);
-      const data = await fetchWeatherData();
+      setIsLoadingWeather(true);
+      const data = await fetchWeatherData(lat, lon);
       setWeather(data);
     } catch (error) {
       console.error('Failed to load weather:', error);
       toast.error('Failed to load weather data');
     } finally {
-      setIsLoading(false);
+      setIsLoadingWeather(false);
     }
   };
 
   useEffect(() => {
-    loadWeather();
-    const interval = setInterval(loadWeather, 10 * 60 * 1000); // Refresh every 10 minutes
-    return () => clearInterval(interval);
-  }, []);
+    getLocation();
+  }, [getLocation]);
+
+  useEffect(() => {
+    if (status === 'success' && location) {
+      loadWeather(location.lat, location.lon);
+      const interval = setInterval(() => loadWeather(location.lat, location.lon), 10 * 60 * 1000);
+      return () => clearInterval(interval);
+    }
+  }, [status, location]);
 
   const getAQIColor = (aqi?: number) => {
     if (!aqi) return 'text-muted-foreground';
@@ -47,13 +55,55 @@ export const LiveWeatherDisplay = () => {
     return 'Hazardous';
   };
 
-  if (isLoading) {
+  if (status === 'pending') {
     return (
       <Card className="backdrop-blur-md bg-card/80">
         <CardContent className="pt-6">
-          <div className="animate-pulse space-y-4">
-            <div className="h-4 bg-muted rounded w-1/4"></div>
-            <div className="h-8 bg-muted rounded w-1/3"></div>
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <MapPin className="h-4 w-4 animate-pulse" />
+              <span>Fetching your location...</span>
+            </div>
+            <div className="animate-pulse space-y-4">
+              <div className="h-4 bg-muted rounded w-1/4"></div>
+              <div className="h-8 bg-muted rounded w-1/3"></div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (status === 'error') {
+    return (
+      <Card className="backdrop-blur-md bg-card/80">
+        <CardContent className="pt-6">
+          <div className="space-y-4">
+            <div className="text-destructive font-medium">Unable to get your location</div>
+            <p className="text-sm text-muted-foreground">{error}</p>
+            <Button onClick={getLocation} variant="outline" size="sm" className="gap-2">
+              <RefreshCw className="h-4 w-4" />
+              Retry
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (isLoadingWeather || !weather) {
+    return (
+      <Card className="backdrop-blur-md bg-card/80">
+        <CardContent className="pt-6">
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Cloud className="h-4 w-4 animate-pulse" />
+              <span>Loading weather for your location...</span>
+            </div>
+            <div className="animate-pulse space-y-4">
+              <div className="h-4 bg-muted rounded w-1/4"></div>
+              <div className="h-8 bg-muted rounded w-1/3"></div>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -79,7 +129,7 @@ export const LiveWeatherDisplay = () => {
         </div>
         <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
           <MapPin className="h-3 w-3" />
-          <span>{location}</span>
+          <span>Your Location</span>
         </div>
       </CardHeader>
       

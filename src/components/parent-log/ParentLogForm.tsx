@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { QuickButtons } from '@/components/shared/QuickButtons';
 import { TextareaWithVoice } from '@/components/shared/TextareaWithVoice';
 import { ImageUploadPreview } from '@/components/shared/ImageUploadPreview';
-import { fetchWeatherData } from '@/utils/weatherService';
+import { useWeatherForLog } from '@/hooks/useWeatherForLog';
 import { uploadLogImages } from '@/utils/imageUpload';
 import { useAuth } from '@/hooks/useAuth';
 import { MultiSelectButtons } from '@/components/shared/MultiSelectButtons';
@@ -47,6 +47,8 @@ export const ParentLogForm = ({ onSuccess }: ParentLogFormProps) => {
     }
   });
 
+  const { getWeatherForLog } = useWeatherForLog();
+
   const onSubmit = async (data: any) => {
     if (!selectedFamily || !selectedStudent || !user) {
       toast.error('Please select a family and student');
@@ -55,7 +57,7 @@ export const ParentLogForm = ({ onSuccess }: ParentLogFormProps) => {
 
     setIsSubmitting(true);
     try {
-      const weather = await fetchWeatherData();
+      const weather = await getWeatherForLog();
       
       const { data: parentLog, error: insertError } = await supabase
         .from('parent_logs')

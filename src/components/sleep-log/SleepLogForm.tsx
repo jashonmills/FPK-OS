@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { TextareaWithVoice } from '@/components/shared/TextareaWithVoice';
 import { useAuth } from '@/hooks/useAuth';
-import { fetchWeatherData } from '@/utils/weatherService';
+import { useWeatherForLog } from '@/hooks/useWeatherForLog';
 import { MultiSelectButtons } from '@/components/shared/MultiSelectButtons';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
@@ -68,6 +68,8 @@ export const SleepLogForm = ({ onSuccess }: SleepLogFormProps) => {
     return Math.max(0, (endH * 60 + endM) - (startH * 60 + startM));
   };
 
+  const { getWeatherForLog } = useWeatherForLog();
+
   const onSubmit = async (data: any) => {
     if (!selectedFamily || !selectedStudent || !user) {
       toast.error('Please select a family and student');
@@ -76,7 +78,7 @@ export const SleepLogForm = ({ onSuccess }: SleepLogFormProps) => {
 
     setIsSubmitting(true);
     try {
-      const weatherData = await fetchWeatherData();
+      const weatherData = await getWeatherForLog();
       const fellAsleep = data.fell_asleep_time || data.bedtime;
       const totalSleepHours = calculateSleepHours(fellAsleep, data.wake_time);
       const napDuration = data.nap_taken ? calculateNapDuration() : null;

@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { fetchWeatherData } from '@/utils/weatherService';
+import { useWeatherForLog } from '@/hooks/useWeatherForLog';
 import { TextareaWithVoice } from '@/components/shared/TextareaWithVoice';
 import { MultiSelectButtons } from '@/components/shared/MultiSelectButtons';
 import { ArrayTextInput } from '@/components/shared/ArrayTextInput';
@@ -100,6 +100,8 @@ export const EducatorLogFormComplete = ({ onSuccess }: EducatorLogFormProps) => 
     return total > 0 ? ((correct / total) * 100).toFixed(1) : '0';
   };
 
+  const { getWeatherForLog } = useWeatherForLog();
+
   const onSubmit = async (data: any) => {
     if (!selectedFamily?.id || !selectedStudent?.id) {
       toast.error('Please select a family and student');
@@ -108,7 +110,7 @@ export const EducatorLogFormComplete = ({ onSuccess }: EducatorLogFormProps) => 
 
     setIsSubmitting(true);
     try {
-      const weatherData = await fetchWeatherData();
+      const weatherData = await getWeatherForLog();
       const user = await supabase.auth.getUser();
       
       const accuracy = calculateAccuracy();
