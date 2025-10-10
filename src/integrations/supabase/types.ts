@@ -2214,6 +2214,10 @@ export type Database = {
         Args: { "": unknown[] }
         Returns: number
       }
+      users_share_family: {
+        Args: { _user_id_1: string; _user_id_2: string }
+        Returns: boolean
+      }
       vector_avg: {
         Args: { "": number[] }
         Returns: string
