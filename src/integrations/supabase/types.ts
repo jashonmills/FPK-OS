@@ -1897,6 +1897,38 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      match_family_data: {
+        Args: {
+          match_count?: number
+          match_threshold?: number
+          p_family_id?: string
+          query_embedding: string
+        }
+        Returns: {
+          chunk_text: string
+          family_id: string
+          id: string
+          metadata: Json
+          similarity: number
+          source_id: string
+          source_table: string
+          student_id: string
+        }[]
+      }
+      match_kb_chunks: {
+        Args: {
+          match_count?: number
+          match_threshold?: number
+          query_embedding: string
+        }
+        Returns: {
+          chunk_text: string
+          id: string
+          kb_id: string
+          similarity: number
+          source_name: string
+        }[]
+      }
       sparsevec_out: {
         Args: { "": unknown }
         Returns: unknown
