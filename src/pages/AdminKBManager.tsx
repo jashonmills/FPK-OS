@@ -369,18 +369,12 @@ export default function AdminKBManager() {
                     id={source}
                     checked={selectedWebSources.includes(source)}
                     onCheckedChange={() => toggleWebSource(source)}
-                    disabled={source !== "cdc" && source !== "wwc" && source !== "aap"}
                   />
                   <label
                     htmlFor={source}
-                    className={`text-sm font-medium cursor-pointer ${
-                      source !== "cdc" && source !== "wwc" && source !== "aap"
-                        ? "text-muted-foreground cursor-not-allowed"
-                        : ""
-                    }`}
+                    className="text-sm font-medium cursor-pointer"
                   >
                     {source.toUpperCase()}
-                    {source !== "cdc" && source !== "wwc" && source !== "aap" && " (Coming Soon)"}
                   </label>
                 </div>
               ))}
@@ -397,18 +391,12 @@ export default function AdminKBManager() {
                     id={source}
                     checked={selectedWebSources.includes(source)}
                     onCheckedChange={() => toggleWebSource(source)}
-                    disabled={source !== "cdc" && source !== "wwc" && source !== "aap"}
                   />
                   <label
                     htmlFor={source}
-                    className={`text-sm font-medium cursor-pointer ${
-                      source !== "cdc" && source !== "wwc" && source !== "aap"
-                        ? "text-muted-foreground cursor-not-allowed"
-                        : ""
-                    }`}
+                    className="text-sm font-medium cursor-pointer"
                   >
                     {source.toUpperCase()}
-                    {source !== "cdc" && source !== "wwc" && source !== "aap" && " (Coming Soon)"}
                   </label>
                 </div>
               ))}

@@ -35,3 +35,21 @@ verify_jwt = true
 
 [functions.generate-daily-briefing]
 verify_jwt = true
+
+[functions.scrape-web-sources]
+verify_jwt = true
+
+[functions.scrape-idea-content]
+verify_jwt = true
+
+[functions.scrape-osep-content]
+verify_jwt = true
+
+[functions.scrape-bacb-content]
+verify_jwt = true
+
+[functions.scrape-nas-content]
+verify_jwt = true
+
+[functions.scrape-cec-content]
+verify_jwt = true

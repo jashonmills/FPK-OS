@@ -27,7 +27,11 @@ serve(async (req) => {
       "cdc": "scrape-cdc-content",
       "aap": "scrape-aap-content",
       "wwc": "scrape-wwc-content",
-      // Add more mappings as we build out scrapers
+      "idea": "scrape-idea-content",
+      "osep": "scrape-osep-content",
+      "bacb": "scrape-bacb-content",
+      "nas": "scrape-nas-content",
+      "cec": "scrape-cec-content",
     };
 
     // Process each source
