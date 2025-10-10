@@ -63,16 +63,16 @@ export const PendingInvitesList = ({ familyId }: PendingInvitesListProps) => {
     try {
       const { error } = await supabase
         .from('invites')
-        .update({ status: 'revoked' })
+        .delete()
         .eq('id', inviteId);
 
       if (error) throw error;
 
       toast.success("Invitation revoked");
       queryClient.invalidateQueries({ queryKey: ['pending-invites', familyId] });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error revoking invite:', error);
-      toast.error("Failed to revoke invitation");
+      toast.error(error.message || "Failed to revoke invitation");
     }
   };
 
