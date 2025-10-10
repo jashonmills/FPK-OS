@@ -20,6 +20,7 @@ interface StudentProfileCardProps {
     secondary_conditions: string[] | null;
   };
   onUpdate: () => void;
+  canEdit?: boolean;
 }
 
 const DIAGNOSIS_OPTIONS = [
@@ -52,7 +53,7 @@ const GRADE_OPTIONS = [
   'Other',
 ];
 
-export const StudentProfileCard = ({ student, onUpdate }: StudentProfileCardProps) => {
+export const StudentProfileCard = ({ student, onUpdate, canEdit = true }: StudentProfileCardProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   
@@ -129,22 +130,26 @@ export const StudentProfileCard = ({ student, onUpdate }: StudentProfileCardProp
             <CardDescription>Student Profile</CardDescription>
           </div>
         </div>
-        {!isEditing ? (
-          <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
-            <Edit className="w-4 h-4 mr-2" />
-            Edit
-          </Button>
-        ) : (
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={handleCancel} disabled={isSaving}>
-              <X className="w-4 h-4 mr-2" />
-              Cancel
-            </Button>
-            <Button size="sm" onClick={handleSave} disabled={isSaving}>
-              <Save className="w-4 h-4 mr-2" />
-              {isSaving ? 'Saving...' : 'Save'}
-            </Button>
-          </div>
+        {canEdit && (
+          <>
+            {!isEditing ? (
+              <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
+                <Edit className="w-4 h-4 mr-2" />
+                Edit
+              </Button>
+            ) : (
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={handleCancel} disabled={isSaving}>
+                  <X className="w-4 h-4 mr-2" />
+                  Cancel
+                </Button>
+                <Button size="sm" onClick={handleSave} disabled={isSaving}>
+                  <Save className="w-4 h-4 mr-2" />
+                  {isSaving ? 'Saving...' : 'Save'}
+                </Button>
+              </div>
+            )}
+          </>
         )}
       </CardHeader>
       <CardContent className="space-y-4">

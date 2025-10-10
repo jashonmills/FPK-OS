@@ -6,7 +6,8 @@ import { Users } from "lucide-react";
 
 export const ProfileTab = () => {
   const { user } = useAuth();
-  const { students, refreshStudents } = useFamily();
+  const { students, refreshStudents, familyMembership } = useFamily();
+  const isOwner = familyMembership?.role === 'owner';
 
   return (
     <div className="space-y-6">
@@ -23,6 +24,7 @@ export const ProfileTab = () => {
               key={student.id}
               student={student}
               onUpdate={refreshStudents}
+              canEdit={isOwner}
             />
           ))}
         </div>
