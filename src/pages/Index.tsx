@@ -14,6 +14,7 @@ import {
 import { useEffect } from 'react';
 import { AppBackground } from '@/components/layout/AppBackground';
 import { PricingTeaser } from '@/components/home/PricingTeaser';
+import fpxCnsLogo from '@/assets/fpx-cns-logo.png';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -64,9 +65,11 @@ const Index = () => {
           <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-accent/10 to-secondary/20" />
         <div className="max-w-6xl mx-auto text-center text-foreground relative z-10">
             <div className="flex justify-center mb-6">
-              <div className="w-20 h-20 rounded-full glass flex items-center justify-center">
-                <GraduationCap className="w-10 h-10 text-primary" />
-              </div>
+              <img 
+                src={fpxCnsLogo} 
+                alt="FPX CNS-app Logo" 
+                className="w-32 h-32 object-contain"
+              />
             </div>
             <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
               Track Special Education Progress
