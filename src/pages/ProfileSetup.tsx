@@ -111,7 +111,24 @@ const ProfileSetup = () => {
       if (error) throw error;
 
       toast.success('Profile created successfully!');
-      navigate('/dashboard');
+
+      // Check onboarding status before redirecting
+      const { data: hasCompletedOnboarding, error: onboardingError } = 
+        await supabase.rpc('check_user_onboarding_status');
+
+      if (onboardingError) {
+        console.error('Error checking onboarding status:', onboardingError);
+        // Default to onboarding to be safe
+        navigate('/onboarding');
+        return;
+      }
+
+      // Redirect based on onboarding status
+      if (hasCompletedOnboarding) {
+        navigate('/dashboard');
+      } else {
+        navigate('/onboarding');
+      }
     } catch (error: any) {
       console.error('Error saving profile:', error);
       toast.error(error.message || 'Failed to save profile');
