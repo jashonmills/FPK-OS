@@ -68,7 +68,7 @@ const Index = () => {
               <img 
                 src={fpxCnsLogo} 
                 alt="FPX CNS-app Logo" 
-                className="w-32 h-32 object-contain"
+                className="w-48 h-48 object-contain"
               />
             </div>
             <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
