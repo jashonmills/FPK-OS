@@ -298,7 +298,7 @@ const ChartLibrary = () => {
               <ChartCard
                 key={chart.id}
                 chart={chart}
-                isLocked={!isProUser}
+                isLocked={false}
                 studentId={selectedStudent.id}
                 familyId={selectedFamily!.id}
                 sampleData={sampleData}
@@ -325,7 +325,7 @@ const ChartCard = ({ chart, isLocked, studentId, familyId, sampleData }: ChartCa
   const ChartComponent = chart.component;
   
   return (
-    <Card className={isLocked ? "border-2 border-primary/20 relative" : ""}>
+    <Card>
       <CardHeader>
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
@@ -338,73 +338,11 @@ const ChartCard = ({ chart, isLocked, studentId, familyId, sampleData }: ChartCa
               <strong>Unlocked by:</strong> {chart.unlockedBy}
             </p>
           </div>
-          {isLocked && (
-            <Lock className="h-6 w-6 text-muted-foreground shrink-0" />
-          )}
         </div>
       </CardHeader>
       <CardContent>
-        {isLocked ? (
-          <div className="relative h-64 rounded-lg overflow-hidden">
-            {/* Render chart with sample data in background */}
-            <div className="absolute inset-0 opacity-30 blur-[2px] pointer-events-none">
-              {chart.id === "academic_fluency_trends" && (
-                <AcademicFluencyTrends 
-                  studentId={studentId} 
-                  familyId={familyId}
-                  dateRange={{ from: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), to: new Date() }}
-                  sampleData={sampleData}
-                />
-              )}
-              {chart.id === "behavior_function_analysis" && (
-                <BehaviorFunctionAnalysis studentId={studentId} familyId={familyId} sampleData={sampleData} />
-              )}
-              {chart.id === "iep_goal_service_tracker" && (
-                <IEPGoalServiceTracker studentId={studentId} familyId={familyId} sampleData={sampleData} />
-              )}
-              {chart.id === "social_interaction_funnel" && (
-                <SocialInteractionFunnel studentId={studentId} familyId={familyId} sampleData={sampleData} />
-              )}
-              {chart.id === "sensory_profile_heatmap" && (
-                <SensoryProfileHeatmap studentId={studentId} familyId={familyId} sampleData={sampleData} />
-              )}
-              {chart.id === "activity_log_chart" && (
-                <ActivityLogChart familyId={familyId} studentId={studentId} days={30} sampleData={sampleData} />
-              )}
-              {chart.id === "sleep_chart" && (
-                <SleepChart familyId={familyId} studentId={studentId} days={30} sampleData={sampleData} />
-              )}
-              {chart.id === "mood_distribution" && (
-                <MoodDistributionChart familyId={familyId} studentId={studentId} sampleData={sampleData} />
-              )}
-              {chart.id === "incident_frequency" && (
-                <IncidentFrequencyChart familyId={familyId} studentId={studentId} days={30} sampleData={sampleData} />
-              )}
-              {chart.id === "intervention_effectiveness" && (
-                <InterventionEffectivenessChart familyId={familyId} studentId={studentId} days={30} sampleData={sampleData} />
-              )}
-              {chart.id === "goal_progress_cards" && (
-                <GoalProgressCards familyId={familyId} studentId={studentId} sampleData={sampleData} />
-              )}
-              {chart.id === "strategy_effectiveness" && (
-                <StrategyEffectiveness sampleData={sampleData} />
-              )}
-            </div>
-            
-            {/* Overlay with lock and CTA */}
-            <div className="absolute inset-0 bg-gradient-to-br from-background/80 to-background/60 backdrop-blur-sm">
-              <div className="h-full flex flex-col items-center justify-center space-y-3">
-                <Lock className="h-12 w-12 text-muted-foreground" />
-                <p className="text-muted-foreground font-medium">Upgrade to Pro to unlock this chart</p>
-                <Button onClick={() => navigate("/pricing")} size="sm">
-                  View Plans
-                </Button>
-              </div>
-            </div>
-          </div>
-        ) : (
-          // Render chart with sample data for showroom mode
-          <div className="min-h-64">
+        {/* Render chart with sample data for full interactive showroom */}
+        <div className="min-h-64">
             {chart.id === "academic_fluency_trends" && (
               <AcademicFluencyTrends 
                 studentId={studentId} 
@@ -447,7 +385,6 @@ const ChartCard = ({ chart, isLocked, studentId, familyId, sampleData }: ChartCa
               <StrategyEffectiveness sampleData={sampleData} />
             )}
           </div>
-        )}
       </CardContent>
     </Card>
   );
