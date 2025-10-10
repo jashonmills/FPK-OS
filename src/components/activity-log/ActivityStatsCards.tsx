@@ -133,11 +133,11 @@ export const ActivityStatsCards = () => {
 
   if (isLoading) {
     return (
-      <div className="grid gap-4 md:grid-cols-4 mb-6">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 mb-6">
         {[1, 2, 3, 4].map((i) => (
           <Card key={i}>
-            <CardContent className="p-6">
-              <div className="h-20 animate-pulse bg-muted rounded" />
+            <CardContent className="p-4 sm:p-6">
+              <div className="h-16 sm:h-20 animate-pulse bg-muted rounded" />
             </CardContent>
           </Card>
         ))}
@@ -146,17 +146,17 @@ export const ActivityStatsCards = () => {
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-4 mb-6">
+    <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 mb-6">
       {statCards.map((card) => (
         <Card key={card.label} className="hover:shadow-md transition-shadow">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className={`p-3 rounded-lg ${card.bgColor}`}>
-                <card.icon className={`h-6 w-6 ${card.color}`} />
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className={`p-2 sm:p-3 rounded-lg ${card.bgColor} flex-shrink-0`}>
+                <card.icon className={`h-5 w-5 sm:h-6 sm:w-6 ${card.color}`} />
               </div>
-              <div>
-                <p className="text-sm text-muted-foreground">{card.label}</p>
-                <p className="text-2xl font-bold">
+              <div className="min-w-0 flex-1">
+                <p className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">{card.label}</p>
+                <p className={`${card.isText ? 'text-lg sm:text-xl' : 'text-xl sm:text-2xl'} font-bold truncate`} title={card.isText ? String(card.value) : undefined}>
                   {card.isText ? card.value : card.value}
                 </p>
               </div>
