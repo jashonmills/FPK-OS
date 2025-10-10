@@ -19,29 +19,39 @@ export const useAuth = () => {
 
         // Handle post-login routing
         if (event === 'SIGNED_IN' && session?.user) {
-          console.log("User signed in. Checking onboarding status...");
+          console.log("User signed in. User ID:", session.user.id);
+          console.log("Checking onboarding status...");
           
-          try {
-            const { data: hasCompletedOnboarding, error } = await supabase.rpc('check_user_onboarding_status');
+          // Use setTimeout to defer the navigation check
+          setTimeout(async () => {
+            try {
+              console.log("Making RPC call to check_user_onboarding_status...");
+              const { data: hasCompletedOnboarding, error } = await supabase.rpc('check_user_onboarding_status');
 
-            if (error) {
-              console.error("Error checking onboarding status:", error);
-              navigate('/dashboard'); // Safe fallback
-              return;
-            }
+              console.log("RPC call completed. Data:", hasCompletedOnboarding, "Error:", error);
 
-            if (hasCompletedOnboarding) {
-              console.log("User has completed onboarding. Redirecting to dashboard.");
+              if (error) {
+                console.error("Error checking onboarding status:", error);
+                console.log("Falling back to dashboard due to error");
+                navigate('/dashboard');
+                return;
+              }
+
+              if (hasCompletedOnboarding) {
+                console.log("✓ User has completed onboarding. Redirecting to dashboard.");
+                navigate('/dashboard');
+              } else {
+                console.log("✗ New user detected. Redirecting to onboarding.");
+                navigate('/onboarding');
+              }
+            } catch (error) {
+              console.error("Exception checking onboarding status:", error);
+              console.log("Falling back to dashboard due to exception");
               navigate('/dashboard');
-            } else {
-              console.log("New user detected. Redirecting to onboarding.");
-              navigate('/onboarding');
             }
-          } catch (error) {
-            console.error("Exception checking onboarding status:", error);
-            navigate('/dashboard'); // Safe fallback
-          }
+          }, 100);
         } else if (event === 'SIGNED_OUT') {
+          console.log("User signed out. Redirecting to auth.");
           navigate('/auth');
         }
       }
