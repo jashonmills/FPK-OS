@@ -22,6 +22,8 @@ import {
   sampleInterventionData,
   sampleGoalProgress,
   sampleStrategyData,
+  samplePromptingData,
+  sampleSleepBehaviorData,
 } from "@/lib/sample-chart-data";
 
 // Import all chart components
@@ -37,6 +39,8 @@ import { IncidentFrequencyChart } from "@/components/analytics/IncidentFrequency
 import { InterventionEffectivenessChart } from "@/components/analytics/InterventionEffectivenessChart";
 import { GoalProgressCards } from "@/components/analytics/GoalProgressCards";
 import { StrategyEffectiveness } from "@/components/analytics/StrategyEffectiveness";
+import { PromptingLevelFading } from "@/components/analytics/PromptingLevelFading";
+import { SleepBehaviorCorrelation } from "@/components/analytics/SleepBehaviorCorrelation";
 
 const CHART_INFO = [
   {
@@ -78,6 +82,22 @@ const CHART_INFO = [
     unlockedBy: "Sensory Profile Assessments, Occupational Therapy Evaluations, Sensory Processing Disorder (SPD) Reports",
     tier: "pro",
     component: SensoryProfileHeatmap,
+  },
+  {
+    id: "prompting_level_fading",
+    title: "Prompting Level Fading",
+    description: "Shows the transition from intrusive prompts (e.g., 'Hand-over-Hand') to independence.",
+    unlockedBy: "ABA Session Notes, Educator Logs, OT Notes",
+    tier: "pro",
+    component: PromptingLevelFading,
+  },
+  {
+    id: "sleep_behavior_correlation",
+    title: "Sleep & Behavior Correlation",
+    description: "Shows the relationship between sleep quality and next-day behavior.",
+    unlockedBy: "Neurology Report, Parent Journal, Sleep Logs",
+    tier: "pro",
+    component: SleepBehaviorCorrelation,
   },
   {
     id: "activity_log_chart",
@@ -231,7 +251,7 @@ const ChartLibrary = () => {
                   Unlock the Full Picture with Our Pro Plan
                 </h3>
                 <p className="text-muted-foreground">
-                  Gain access to all 5 specialized AI-recommended charts, plus unlimited document analysis and the full power of our AI co-pilot. See patterns and insights you're missing.
+                  Gain access to all 7 specialized AI-recommended charts, plus unlimited document analysis and the full power of our AI co-pilot. See patterns and insights you're missing.
                 </p>
               </div>
               <Button 
@@ -292,6 +312,8 @@ const ChartLibrary = () => {
               chart.id === "academic_fluency_trends" ? sampleAcademicFluency :
               chart.id === "social_interaction_funnel" ? sampleSocialSkills :
               chart.id === "sensory_profile_heatmap" ? sampleSensoryProfile :
+              chart.id === "prompting_level_fading" ? samplePromptingData :
+              chart.id === "sleep_behavior_correlation" ? sampleSleepBehaviorData :
               null;
             
             return (
@@ -381,10 +403,16 @@ const ChartCard = ({ chart, isLocked, studentId, familyId, sampleData }: ChartCa
             {chart.id === "goal_progress_cards" && (
               <GoalProgressCards familyId={familyId} studentId={studentId} sampleData={sampleData} />
             )}
-            {chart.id === "strategy_effectiveness" && (
-              <StrategyEffectiveness sampleData={sampleData} />
-            )}
-          </div>
+          {chart.id === "strategy_effectiveness" && (
+            <StrategyEffectiveness sampleData={sampleData} />
+          )}
+          {chart.id === "prompting_level_fading" && (
+            <PromptingLevelFading familyId={familyId} studentId={studentId} sampleData={sampleData} />
+          )}
+          {chart.id === "sleep_behavior_correlation" && (
+            <SleepBehaviorCorrelation familyId={familyId} studentId={studentId} sampleData={sampleData} />
+          )}
+        </div>
       </CardContent>
     </Card>
   );

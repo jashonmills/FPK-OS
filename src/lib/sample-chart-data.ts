@@ -170,3 +170,29 @@ export const sampleStrategyData = [
   { strategy_name: "First-Then Board", success_count: 16, total_uses: 22, success_rate: 73 },
   { strategy_name: "Sensory Bin", success_count: 9, total_uses: 12, success_rate: 75 },
 ];
+
+// For Prompting Level Fading chart
+export const samplePromptingData = [
+  { date: "Sep 01", "Hand-over-Hand": 5, "Physical": 2, "Model": 1, "Verbal": 0, "Gestural": 0, "Independent": 0 },
+  { date: "Sep 08", "Hand-over-Hand": 4, "Physical": 3, "Model": 2, "Verbal": 1, "Gestural": 0, "Independent": 0 },
+  { date: "Sep 15", "Hand-over-Hand": 2, "Physical": 4, "Model": 3, "Verbal": 2, "Gestural": 1, "Independent": 0 },
+  { date: "Sep 22", "Hand-over-Hand": 1, "Physical": 3, "Model": 4, "Verbal": 3, "Gestural": 2, "Independent": 1 },
+  { date: "Sep 29", "Hand-over-Hand": 0, "Physical": 2, "Model": 3, "Verbal": 5, "Gestural": 3, "Independent": 2 },
+  { date: "Oct 06", "Hand-over-Hand": 0, "Physical": 1, "Model": 2, "Verbal": 4, "Gestural": 5, "Independent": 4 },
+];
+
+// For Sleep & Behavior Correlation chart
+export const sampleSleepBehaviorData = [
+  { date: "Sep 25", sleep_hours: 9.5, next_day_incidents: 0 },
+  { date: "Sep 26", sleep_hours: 8.0, next_day_incidents: 1 },
+  { date: "Sep 27", sleep_hours: 6.5, next_day_incidents: 3 },
+  { date: "Sep 28", sleep_hours: 7.0, next_day_incidents: 2 },
+  { date: "Sep 29", sleep_hours: 9.0, next_day_incidents: 0 },
+  { date: "Sep 30", sleep_hours: 8.5, next_day_incidents: 1 },
+  { date: "Oct 01", sleep_hours: 7.5, next_day_incidents: 1 },
+  { date: "Oct 02", sleep_hours: 5.5, next_day_incidents: 4 },
+  { date: "Oct 03", sleep_hours: 6.0, next_day_incidents: 3 },
+  { date: "Oct 04", sleep_hours: 8.5, next_day_incidents: 1 },
+  { date: "Oct 05", sleep_hours: 9.5, next_day_incidents: 0 },
+  { date: "Oct 06", sleep_hours: 9.0, next_day_incidents: 0 },
+];
