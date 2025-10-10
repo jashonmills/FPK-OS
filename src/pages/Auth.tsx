@@ -31,7 +31,7 @@ const Auth = () => {
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/onboarding`,
+          emailRedirectTo: `${window.location.origin}`,
         },
       });
 
@@ -58,7 +58,6 @@ const Auth = () => {
       if (error) throw error;
 
       toast.success('Welcome back!');
-      navigate('/onboarding');
     } catch (error: any) {
       toast.error(error.message || 'Failed to sign in');
     } finally {
