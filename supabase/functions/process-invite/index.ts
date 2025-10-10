@@ -7,6 +7,7 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Client with user JWT for authentication verification
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
@@ -15,6 +16,12 @@ Deno.serve(async (req) => {
           headers: { Authorization: req.headers.get('Authorization')! },
         },
       }
+    );
+
+    // Admin client with service role for inserting family members (bypasses RLS)
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
     // Get the user from the JWT
@@ -32,8 +39,8 @@ Deno.serve(async (req) => {
 
     const { token } = await req.json();
 
-    // Find the invite
-    const { data: invite, error: inviteError } = await supabaseClient
+    // Find the invite using admin client
+    const { data: invite, error: inviteError } = await supabaseAdmin
       .from('invites')
       .select('*')
       .eq('token', token)
@@ -60,8 +67,8 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Check if user is already a member
-    const { data: existingMember } = await supabaseClient
+    // Check if user is already a member using admin client
+    const { data: existingMember } = await supabaseAdmin
       .from('family_members')
       .select('id')
       .eq('family_id', invite.family_id)
@@ -75,8 +82,8 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Add user to family
-    const { error: memberError } = await supabaseClient
+    // Add user to family using admin client (bypasses RLS)
+    const { error: memberError } = await supabaseAdmin
       .from('family_members')
       .insert({
         family_id: invite.family_id,
@@ -96,14 +103,14 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Mark invite as accepted
-    await supabaseClient
+    // Mark invite as accepted using admin client
+    await supabaseAdmin
       .from('invites')
       .update({ status: 'accepted' })
       .eq('id', invite.id);
 
-    // Get family name for response
-    const { data: family } = await supabaseClient
+    // Get family name for response using admin client
+    const { data: family } = await supabaseAdmin
       .from('families')
       .select('family_name')
       .eq('id', invite.family_id)
