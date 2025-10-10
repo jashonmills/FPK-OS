@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -12,11 +12,13 @@ import { Loader2, GraduationCap, ArrowLeft } from 'lucide-react';
 import { AppBackground } from '@/components/layout/AppBackground';
 
 const Auth = () => {
+  const [searchParams] = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
+  const redirectUrl = searchParams.get('redirect');
 
   // Navigation happens in handleSignIn/handleSignUp after successful auth
 
