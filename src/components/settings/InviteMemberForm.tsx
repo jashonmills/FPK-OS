@@ -41,17 +41,39 @@ export const InviteMemberForm = ({ familyId, familyName }: InviteMemberFormProps
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      // Create the invite in the database
-      const { error: inviteError } = await supabase
+      // Check for existing pending invite
+      const { data: existingInvite } = await supabase
         .from('invites')
-        .insert({
-          family_id: familyId,
-          inviter_id: user.id,
-          invitee_email: values.email,
-          role: values.role,
-        });
+        .select('id')
+        .eq('family_id', familyId)
+        .eq('invitee_email', values.email)
+        .eq('status', 'pending')
+        .single();
 
-      if (inviteError) throw inviteError;
+      if (existingInvite) {
+        // Update existing invite with new role and reset expiration
+        const { error: updateError } = await supabase
+          .from('invites')
+          .update({
+            role: values.role,
+            expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+          })
+          .eq('id', existingInvite.id);
+
+        if (updateError) throw updateError;
+      } else {
+        // Create new invite
+        const { error: inviteError } = await supabase
+          .from('invites')
+          .insert({
+            family_id: familyId,
+            inviter_id: user.id,
+            invitee_email: values.email,
+            role: values.role,
+          });
+
+        if (inviteError) throw inviteError;
+      }
 
       // Call the edge function to send the email
       const { data: emailResponse, error: functionError } = await supabase.functions.invoke('send-invitation', {
