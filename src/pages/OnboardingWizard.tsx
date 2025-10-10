@@ -29,6 +29,7 @@ const DIAGNOSIS_OPTIONS = [
 const OnboardingWizard = () => {
   const [step, setStep] = useState(1);
   const totalSteps = 4;
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Step 1: Family Setup
   const [familyName, setFamilyName] = useState("");
