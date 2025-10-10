@@ -1,13 +1,15 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Trash2 } from "lucide-react";
-import { toast } from "sonner";
-import { format } from "date-fns";
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Trash2, User } from 'lucide-react';
+import { toast } from 'sonner';
+import { format } from 'date-fns';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useAuth } from '@/hooks/useAuth';
 
 interface CurrentMembersListProps {
   familyId: string;
@@ -16,40 +18,43 @@ interface CurrentMembersListProps {
 
 export const CurrentMembersList = ({ familyId, isOwner }: CurrentMembersListProps) => {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   const { data: members, isLoading } = useQuery({
     queryKey: ['family-members', familyId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('family_members')
-        .select('*')
+        .select(`
+          *,
+          profiles:user_id (
+            display_name,
+            avatar_url
+          )
+        `)
         .eq('family_id', familyId)
         .order('joined_at', { ascending: false });
 
       if (error) throw error;
       return data;
     },
+    enabled: !!familyId,
   });
 
   const handleRoleChange = async (memberId: string, newRole: string) => {
     try {
       const { error } = await supabase
         .from('family_members')
-        .update({ 
-          role: newRole,
-          permissions: newRole === 'viewer' 
-            ? { can_edit: false, can_delete: false, can_invite: false }
-            : { can_edit: true, can_delete: false, can_invite: false }
-        })
+        .update({ role: newRole })
         .eq('id', memberId);
 
       if (error) throw error;
 
-      toast.success("Member role updated");
       queryClient.invalidateQueries({ queryKey: ['family-members', familyId] });
-    } catch (error) {
-      console.error('Error updating role:', error);
-      toast.error("Failed to update role");
+      toast.success('Member role updated successfully');
+    } catch (error: any) {
+      console.error('Error updating member role:', error);
+      toast.error(error.message || 'Failed to update member role');
     }
   };
 
@@ -62,89 +67,135 @@ export const CurrentMembersList = ({ familyId, isOwner }: CurrentMembersListProp
 
       if (error) throw error;
 
-      toast.success("Member removed");
       queryClient.invalidateQueries({ queryKey: ['family-members', familyId] });
-    } catch (error) {
+      toast.success('Member removed successfully');
+    } catch (error: any) {
       console.error('Error removing member:', error);
-      toast.error("Failed to remove member");
+      toast.error(error.message || 'Failed to remove member');
     }
   };
 
   if (isLoading) {
-    return <div className="text-center py-8 text-muted-foreground">Loading members...</div>;
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Current Members</CardTitle>
+          <CardDescription>Loading members...</CardDescription>
+        </CardHeader>
+      </Card>
+    );
   }
 
   if (!members || members.length === 0) {
-    return <div className="text-center py-8 text-muted-foreground">No members yet</div>;
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Current Members</CardTitle>
+          <CardDescription>No members found</CardDescription>
+        </CardHeader>
+      </Card>
+    );
   }
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>User ID</TableHead>
-          <TableHead>Role</TableHead>
-          <TableHead>Joined</TableHead>
-          {isOwner && <TableHead className="text-right">Actions</TableHead>}
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {members.map((member) => (
-          <TableRow key={member.id}>
-            <TableCell className="font-mono text-xs">{member.user_id.slice(0, 8)}...</TableCell>
-            <TableCell>
-              {isOwner && member.role !== 'owner' ? (
-                <Select
-                  value={member.role}
-                  onValueChange={(value) => handleRoleChange(member.id, value)}
-                >
-                  <SelectTrigger className="w-32">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="contributor">Contributor</SelectItem>
-                    <SelectItem value="viewer">Viewer</SelectItem>
-                  </SelectContent>
-                </Select>
-              ) : (
-                <Badge variant={member.role === 'owner' ? 'default' : 'secondary'}>
-                  {member.role}
-                </Badge>
-              )}
-            </TableCell>
-            <TableCell className="text-sm text-muted-foreground">
-              {format(new Date(member.joined_at), 'MMM d, yyyy')}
-            </TableCell>
-            {isOwner && (
-              <TableCell className="text-right">
-                {member.role !== 'owner' && (
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="ghost" size="sm">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Remove Member</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Are you sure you want to remove this member? They will lose access to all family data.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => handleRemoveMember(member.id)}>
-                          Remove
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                )}
-              </TableCell>
-            )}
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+    <Card>
+      <CardHeader>
+        <CardTitle>Current Members</CardTitle>
+        <CardDescription>Manage family members and their roles</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Member</TableHead>
+              <TableHead>Role</TableHead>
+              <TableHead>Joined</TableHead>
+              {isOwner && <TableHead className="text-right">Actions</TableHead>}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {members.map((member) => {
+              const profile = member.profiles as any;
+              const isCurrentUser = member.user_id === user?.id;
+              
+              return (
+                <TableRow key={member.id}>
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={profile?.avatar_url} />
+                        <AvatarFallback>
+                          <User className="h-4 w-4" />
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-medium">
+                          {profile?.display_name || 'No name set'}
+                          {isCurrentUser && (
+                            <span className="ml-2 text-xs text-muted-foreground">(You)</span>
+                          )}
+                        </p>
+                        <p className="text-xs text-muted-foreground font-mono">
+                          {member.user_id.slice(0, 8)}...
+                        </p>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {isOwner && member.role !== 'owner' ? (
+                      <Select
+                        value={member.role}
+                        onValueChange={(value) => handleRoleChange(member.id, value)}
+                      >
+                        <SelectTrigger className="w-32">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="member">Member</SelectItem>
+                          <SelectItem value="editor">Editor</SelectItem>
+                          <SelectItem value="viewer">Viewer</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <span className="text-sm capitalize">{member.role}</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-sm text-muted-foreground">
+                    {format(new Date(member.joined_at), 'MMM d, yyyy')}
+                  </TableCell>
+                  {isOwner && (
+                    <TableCell className="text-right">
+                      {member.role !== 'owner' && (
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Remove Member</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to remove this member from the family? This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleRemoveMember(member.id)}>
+                                Remove
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      )}
+                    </TableCell>
+                  )}
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
   );
 };

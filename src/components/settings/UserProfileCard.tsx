@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { User, Edit, Save, X, Mail } from 'lucide-react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 interface UserProfileCardProps {
   user: {
@@ -19,19 +20,48 @@ export const UserProfileCard = ({ user }: UserProfileCardProps) => {
   const [isSaving, setIsSaving] = useState(false);
   const [displayName, setDisplayName] = useState('');
   const [phone, setPhone] = useState('');
+  const queryClient = useQueryClient();
+
+  // Fetch user profile
+  const { data: profile, isLoading } = useQuery({
+    queryKey: ['profile', user.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user.id,
+  });
+
+  // Update form when profile loads
+  useEffect(() => {
+    if (profile) {
+      setDisplayName(profile.display_name || '');
+      setPhone(profile.phone || '');
+    }
+  }, [profile]);
 
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const { error } = await supabase.auth.updateUser({
-        data: {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
           display_name: displayName,
           phone: phone,
-        },
-      });
+        })
+        .eq('id', user.id);
 
       if (error) throw error;
 
+      // Invalidate queries to refresh the data
+      queryClient.invalidateQueries({ queryKey: ['profile', user.id] });
+      
       toast.success('Profile updated successfully');
       setIsEditing(false);
     } catch (error: any) {
@@ -43,10 +73,21 @@ export const UserProfileCard = ({ user }: UserProfileCardProps) => {
   };
 
   const handleCancel = () => {
-    setDisplayName('');
-    setPhone('');
+    setDisplayName(profile?.display_name || '');
+    setPhone(profile?.phone || '');
     setIsEditing(false);
   };
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Your Profile</CardTitle>
+          <CardDescription>Loading...</CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
 
   return (
     <Card>
@@ -111,9 +152,29 @@ export const UserProfileCard = ({ user }: UserProfileCardProps) => {
                 <p className="text-sm text-muted-foreground">{user?.email}</p>
               </div>
             </div>
-            <p className="text-sm text-muted-foreground">
-              Click Edit to add more profile information like display name and phone number.
-            </p>
+            {profile?.display_name && (
+              <div className="flex items-center gap-3 p-3 border rounded-lg bg-muted/30">
+                <User className="h-5 w-5 text-muted-foreground" />
+                <div>
+                  <p className="text-sm font-medium">Display Name</p>
+                  <p className="text-sm text-muted-foreground">{profile.display_name}</p>
+                </div>
+              </div>
+            )}
+            {profile?.phone && (
+              <div className="flex items-center gap-3 p-3 border rounded-lg bg-muted/30">
+                <User className="h-5 w-5 text-muted-foreground" />
+                <div>
+                  <p className="text-sm font-medium">Phone Number</p>
+                  <p className="text-sm text-muted-foreground">{profile.phone}</p>
+                </div>
+              </div>
+            )}
+            {(!profile?.display_name || !profile?.phone) && (
+              <p className="text-sm text-muted-foreground">
+                Click Edit to add more profile information.
+              </p>
+            )}
           </div>
         )}
       </CardContent>

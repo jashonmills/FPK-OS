@@ -4,7 +4,7 @@ import { useFamily } from '@/contexts/FamilyContext';
 import { useAuth } from '@/hooks/useAuth';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
   Sidebar,
@@ -61,6 +61,24 @@ export const AppSidebar = () => {
       return data === "owner";
     },
     enabled: !!user?.id && !!selectedFamily?.id,
+  });
+
+  // Fetch user profile
+  const { data: profile } = useQuery({
+    queryKey: ['profile', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user?.id,
   });
 
   return (
@@ -158,12 +176,18 @@ export const AppSidebar = () => {
             <div className="flex items-center justify-between gap-2 p-2 rounded-lg hover:bg-accent">
               <div className="flex items-center gap-2 min-w-0">
                 <Avatar className="h-8 w-8">
+                  <AvatarImage src={profile?.avatar_url} />
                   <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-                    {user?.email?.[0].toUpperCase()}
+                    {profile?.display_name?.[0]?.toUpperCase() || user?.email?.[0].toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{user?.email}</p>
+                  <p className="text-sm font-medium truncate">
+                    {profile?.display_name || user?.email}
+                  </p>
+                  {profile?.display_name && (
+                    <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                  )}
                 </div>
               </div>
               <Button
@@ -183,8 +207,9 @@ export const AppSidebar = () => {
               className="w-full"
             >
               <Avatar className="h-8 w-8">
+                <AvatarImage src={profile?.avatar_url} />
                 <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-                  {user?.email?.[0].toUpperCase()}
+                  {profile?.display_name?.[0]?.toUpperCase() || user?.email?.[0].toUpperCase()}
                 </AvatarFallback>
               </Avatar>
             </Button>
