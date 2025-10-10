@@ -230,6 +230,72 @@ export type Database = {
           },
         ]
       }
+      calendar_events: {
+        Row: {
+          attendees: Json | null
+          created_at: string | null
+          end_time: string
+          event_description: string | null
+          event_title: string
+          family_id: string
+          id: string
+          integration_id: string
+          is_all_day: boolean | null
+          location: string | null
+          original_event_id: string
+          provider: string
+          start_time: string
+          updated_at: string | null
+        }
+        Insert: {
+          attendees?: Json | null
+          created_at?: string | null
+          end_time: string
+          event_description?: string | null
+          event_title: string
+          family_id: string
+          id?: string
+          integration_id: string
+          is_all_day?: boolean | null
+          location?: string | null
+          original_event_id: string
+          provider: string
+          start_time: string
+          updated_at?: string | null
+        }
+        Update: {
+          attendees?: Json | null
+          created_at?: string | null
+          end_time?: string
+          event_description?: string | null
+          event_title?: string
+          family_id?: string
+          id?: string
+          integration_id?: string
+          is_all_day?: boolean | null
+          location?: string | null
+          original_event_id?: string
+          provider?: string
+          start_time?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_events_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_events_integration_id_fkey"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "external_integrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_conversations: {
         Row: {
           created_at: string | null
@@ -762,6 +828,7 @@ export type Database = {
           last_sync_at: string | null
           provider: string
           refresh_token: string | null
+          status: string | null
           token_expires_at: string | null
           updated_at: string | null
         }
@@ -774,6 +841,7 @@ export type Database = {
           last_sync_at?: string | null
           provider: string
           refresh_token?: string | null
+          status?: string | null
           token_expires_at?: string | null
           updated_at?: string | null
         }
@@ -786,6 +854,7 @@ export type Database = {
           last_sync_at?: string | null
           provider?: string
           refresh_token?: string | null
+          status?: string | null
           token_expires_at?: string | null
           updated_at?: string | null
         }
