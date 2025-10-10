@@ -78,6 +78,76 @@ export type Database = {
           },
         ]
       }
+      chat_conversations: {
+        Row: {
+          created_at: string | null
+          created_by: string
+          family_id: string
+          id: string
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by: string
+          family_id: string
+          id?: string
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string
+          family_id?: string
+          id?: string
+          title?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_conversations_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string | null
+          id: string
+          role: string
+          sources: Json | null
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string | null
+          id?: string
+          role: string
+          sources?: Json | null
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string | null
+          id?: string
+          role?: string
+          sources?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "chat_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       document_comparisons: {
         Row: {
           comparison_summary: string | null
@@ -580,6 +650,57 @@ export type Database = {
             columns: ["family_id"]
             isOneToOne: true
             referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      family_data_embeddings: {
+        Row: {
+          chunk_text: string
+          created_at: string | null
+          embedding: string
+          family_id: string
+          id: string
+          metadata: Json | null
+          source_id: string
+          source_table: string
+          student_id: string | null
+        }
+        Insert: {
+          chunk_text: string
+          created_at?: string | null
+          embedding: string
+          family_id: string
+          id?: string
+          metadata?: Json | null
+          source_id: string
+          source_table: string
+          student_id?: string | null
+        }
+        Update: {
+          chunk_text?: string
+          created_at?: string | null
+          embedding?: string
+          family_id?: string
+          id?: string
+          metadata?: Json | null
+          source_id?: string
+          source_table?: string
+          student_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "family_data_embeddings_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "family_data_embeddings_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
             referencedColumns: ["id"]
           },
         ]
