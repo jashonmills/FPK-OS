@@ -141,7 +141,7 @@ export type Database = {
         Row: {
           context: string | null
           created_at: string | null
-          document_id: string
+          document_id: string | null
           duration_minutes: number | null
           end_time: string | null
           family_id: string
@@ -159,7 +159,7 @@ export type Database = {
         Insert: {
           context?: string | null
           created_at?: string | null
-          document_id: string
+          document_id?: string | null
           duration_minutes?: number | null
           end_time?: string | null
           family_id: string
@@ -177,7 +177,7 @@ export type Database = {
         Update: {
           context?: string | null
           created_at?: string | null
-          document_id?: string
+          document_id?: string | null
           duration_minutes?: number | null
           end_time?: string | null
           family_id?: string

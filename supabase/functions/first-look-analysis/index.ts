@@ -272,22 +272,26 @@ Format your response as a single JSON object:
 
     // Insert IEP goals if any
     if (analysisResult.baseline_data?.iep_goals?.length > 0) {
-      const goals = analysisResult.baseline_data.iep_goals.map((goal: any) => ({
-        family_id,
-        student_id: student.id,
-        goal_title: goal.goal_title,
-        goal_type: goal.goal_type,
-        goal_description: goal.goal_description || null,
-        current_value: goal.current_value || 0,
-        target_value: goal.target_value || null,
-        unit: goal.unit || null,
-        start_date: goal.start_date || new Date().toISOString().split('T')[0],
-        is_active: true,
-      }));
+      const goals = analysisResult.baseline_data.iep_goals
+        .filter((goal: any) => typeof goal.current_value === 'number') // Only insert if current_value is numeric
+        .map((goal: any) => ({
+          family_id,
+          student_id: student.id,
+          goal_title: goal.goal_title,
+          goal_type: goal.goal_type,
+          goal_description: goal.goal_description || null,
+          current_value: goal.current_value || 0,
+          target_value: goal.target_value || null,
+          unit: goal.unit || null,
+          start_date: goal.start_date || new Date().toISOString().split('T')[0],
+          is_active: true,
+        }));
 
-      const { error: goalsError } = await supabase.from("goals").insert(goals);
-      if (!goalsError) importedCounts.goals = goals.length;
-      else console.error("Error inserting goals:", goalsError);
+      if (goals.length > 0) {
+        const { error: goalsError } = await supabase.from("goals").insert(goals);
+        if (!goalsError) importedCounts.goals = goals.length;
+        else console.error("Error inserting goals:", goalsError);
+      }
     }
 
     // Insert behavioral metrics
@@ -331,19 +335,28 @@ Format your response as a single JSON object:
 
     // Insert progress tracking data
     if (analysisResult.baseline_data?.progress_tracking?.length > 0) {
-      const progressData = analysisResult.baseline_data.progress_tracking.map((progress: any) => ({
-        family_id,
-        student_id: student.id,
-        metric_type: progress.metric_type,
-        current_value: progress.current_value || null,
-        target_value: progress.target_value || null,
-        trend: progress.trend || "stable",
-        notes: progress.notes || "AI Import from document analysis",
-      }));
+      const progressData = analysisResult.baseline_data.progress_tracking
+        .filter((progress: any) => {
+          // Only include if values are numeric or null
+          const currentIsValid = progress.current_value === null || typeof progress.current_value === 'number';
+          const targetIsValid = progress.target_value === null || typeof progress.target_value === 'number';
+          return currentIsValid && targetIsValid;
+        })
+        .map((progress: any) => ({
+          family_id,
+          student_id: student.id,
+          metric_type: progress.metric_type,
+          current_value: progress.current_value || null,
+          target_value: progress.target_value || null,
+          trend: progress.trend || "stable",
+          notes: progress.notes || "AI Import from document analysis",
+        }));
 
-      const { error: progressError } = await supabase.from("progress_tracking").insert(progressData);
-      if (!progressError) importedCounts.progress_tracking = progressData.length;
-      else console.error("Error inserting progress tracking:", progressError);
+      if (progressData.length > 0) {
+        const { error: progressError } = await supabase.from("progress_tracking").insert(progressData);
+        if (!progressError) importedCounts.progress_tracking = progressData.length;
+        else console.error("Error inserting progress tracking:", progressError);
+      }
     }
 
     return new Response(
