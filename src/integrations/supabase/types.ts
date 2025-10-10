@@ -1771,6 +1771,10 @@ export type Database = {
         Args: { _family_id: string }
         Returns: boolean
       }
+      check_user_onboarding_status: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       get_daily_log_counts: {
         Args: { p_days?: number; p_family_id: string; p_student_id: string }
         Returns: {
