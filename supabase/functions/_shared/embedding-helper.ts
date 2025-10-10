@@ -38,7 +38,9 @@ export async function createEmbedding(
           'Authorization': `Bearer ${lovableApiKey}`,
         },
         body: JSON.stringify({
-          input: text,
+          messages: [
+            { role: 'user', content: text }
+          ],
           model: EMBEDDING_MODEL,
         }),
       });
