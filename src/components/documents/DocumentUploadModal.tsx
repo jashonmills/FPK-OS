@@ -10,6 +10,10 @@ import { Input } from "@/components/ui/input";
 import { Upload } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
+import * as pdfjs from "pdfjs-dist";
+
+// Configure PDF.js worker
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 interface DocumentUploadModalProps {
   open: boolean;
@@ -24,10 +28,39 @@ export function DocumentUploadModal({ open, onOpenChange }: DocumentUploadModalP
   const [category, setCategory] = useState("general");
   const [documentDate, setDocumentDate] = useState("");
 
+  const extractTextFromPDF = async (file: File): Promise<string> => {
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
+      
+      let fullText = '';
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items
+          .map((item: any) => item.str)
+          .join(' ');
+        fullText += pageText + '\n\n';
+      }
+      
+      return fullText.trim();
+    } catch (error) {
+      console.error("PDF text extraction error:", error);
+      return "";
+    }
+  };
+
   const uploadMutation = useMutation({
     mutationFn: async () => {
       if (!file || !selectedFamily?.id || !user?.id) {
         throw new Error("Missing required data");
+      }
+
+      // Extract text from PDF first
+      let extractedContent = "";
+      if (file.type === "application/pdf") {
+        toast.info("Extracting text from PDF...");
+        extractedContent = await extractTextFromPDF(file);
       }
 
       const fileExt = file.name.split(".").pop();
@@ -41,7 +74,7 @@ export function DocumentUploadModal({ open, onOpenChange }: DocumentUploadModalP
 
       if (uploadError) throw uploadError;
 
-      // Insert metadata into database
+      // Insert metadata into database with extracted content
       const { error: dbError } = await supabase.from("documents").insert({
         family_id: selectedFamily.id,
         student_id: selectedStudent?.id || null,
@@ -52,6 +85,7 @@ export function DocumentUploadModal({ open, onOpenChange }: DocumentUploadModalP
         file_size_kb: Math.round(file.size / 1024),
         category,
         document_date: documentDate || null,
+        extracted_content: extractedContent || null,
       });
 
       if (dbError) throw dbError;
