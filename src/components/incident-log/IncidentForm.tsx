@@ -16,6 +16,7 @@ import { uploadLogImages } from '@/utils/imageUpload';
 import { useAuth } from '@/hooks/useAuth';
 import { MultiSelectButtons } from '@/components/shared/MultiSelectButtons';
 import { ArrayTextInput } from '@/components/shared/ArrayTextInput';
+import { InfoTooltip } from '@/components/shared/InfoTooltip';
 
 interface IncidentFormProps {
   onSuccess?: () => void;
@@ -234,7 +235,10 @@ export const IncidentForm = ({ onSuccess }: IncidentFormProps) => {
           name="antecedent"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Antecedent (What happened before?)</FormLabel>
+              <FormLabel className="flex items-center gap-2">
+                Antecedent (What happened before?)
+                <InfoTooltip content="What happened immediately before the behavior occurred? Examples: 'Was asked to switch activities,' 'Loud noise from outside,' 'Was left alone for a moment,' 'Presented with non-preferred task.'" />
+              </FormLabel>
               <FormControl>
                 <TextareaWithVoice
                   {...field}
@@ -251,7 +255,10 @@ export const IncidentForm = ({ onSuccess }: IncidentFormProps) => {
           name="consequence"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Consequence (What happened after?)</FormLabel>
+              <FormLabel className="flex items-center gap-2">
+                Consequence (What happened after?)
+                <InfoTooltip content="What happened immediately after the behavior? This includes your reaction or the natural result. Examples: 'Verbal redirection was given,' 'Item was removed,' 'Gained access to preferred toy,' 'Received sensory break.'" />
+              </FormLabel>
               <FormControl>
                 <TextareaWithVoice
                   {...field}
@@ -285,7 +292,10 @@ export const IncidentForm = ({ onSuccess }: IncidentFormProps) => {
           name="environmental_factors"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Environmental Factors</FormLabel>
+              <FormLabel className="flex items-center gap-2">
+                Environmental Factors
+                <InfoTooltip content="Environmental conditions present during the incident. These factors can trigger or worsen behavioral responses. Select all that apply." />
+              </FormLabel>
               <FormControl>
                 <MultiSelectButtons
                   options={['Loud Noise', 'Crowded Space', 'Bright Lights', 'Temperature Change', 'Transition', 'Schedule Change', 'New Person', 'Other']}

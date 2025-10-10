@@ -15,6 +15,7 @@ import { uploadLogImages } from '@/utils/imageUpload';
 import { useAuth } from '@/hooks/useAuth';
 import { MultiSelectButtons } from '@/components/shared/MultiSelectButtons';
 import { ArrayTextInput } from '@/components/shared/ArrayTextInput';
+import { InfoTooltip } from '@/components/shared/InfoTooltip';
 
 interface ParentLogFormProps {
   onSuccess?: () => void;
@@ -213,7 +214,10 @@ export const ParentLogForm = ({ onSuccess }: ParentLogFormProps) => {
           name="sensory_factors"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Sensory Factors</FormLabel>
+              <FormLabel className="flex items-center gap-2">
+                Sensory Factors
+                <InfoTooltip content="Sensory processing patterns observed. 'Seeking' means actively looking for sensory input, while 'Avoiding' or 'Sensitive' indicates difficulty tolerating certain inputs." />
+              </FormLabel>
               <FormControl>
                 <MultiSelectButtons
                   options={['Seeking Input', 'Avoiding Touch', 'Sound Sensitive', 'Visual Sensitivity', 'Oral/Taste Seeking', 'Movement Seeking', 'Other']}
@@ -231,7 +235,10 @@ export const ParentLogForm = ({ onSuccess }: ParentLogFormProps) => {
           name="communication_attempts"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Communication Attempts</FormLabel>
+              <FormLabel className="flex items-center gap-2">
+                Communication Attempts
+                <InfoTooltip content="Note how your child tried to communicate, whether through words, gestures, AAC device, pictures, pointing, or behavior. All forms of communication are important to document." />
+              </FormLabel>
               <FormControl>
                 <TextareaWithVoice
                   {...field}

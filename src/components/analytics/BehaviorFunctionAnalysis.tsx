@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
+import { InfoTooltip } from '@/components/shared/InfoTooltip';
 
 interface BehaviorFunctionAnalysisProps {
   studentId: string;
@@ -140,7 +141,10 @@ export const BehaviorFunctionAnalysis = ({ studentId, familyId, sampleData }: Be
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle>Behavior Function Analysis</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              Behavior Function Analysis
+              <InfoTooltip content="This chart categorizes behaviors by their hypothesized function: Escape (avoiding something), Tangible (getting something), Sensory (seeking stimulation), or Attention (seeking interaction). Understanding function helps target effective interventions." />
+            </CardTitle>
             <CardDescription>Understanding the "why" behind behaviors</CardDescription>
           </div>
           <Badge variant="secondary">AI Recommended</Badge>

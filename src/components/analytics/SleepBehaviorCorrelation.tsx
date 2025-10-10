@@ -3,6 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { ComposedChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { format, addDays } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { InfoTooltip } from '@/components/shared/InfoTooltip';
 
 interface SleepBehaviorCorrelationProps {
   familyId: string;
