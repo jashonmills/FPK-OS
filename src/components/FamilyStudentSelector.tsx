@@ -1,5 +1,7 @@
 import React from 'react';
 import { useFamily } from '@/contexts/FamilyContext';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import {
   Select,
   SelectContent,
@@ -20,19 +22,39 @@ export const FamilyStudentSelector = () => {
     setSelectedStudent,
   } = useFamily();
 
+  // Fetch family members for the dropdown
+  const { data: familyMembers } = useQuery({
+    queryKey: ['family-members-selector', selectedFamily?.id],
+    queryFn: async () => {
+      if (!selectedFamily?.id) return [];
+      
+      const { data, error } = await supabase
+        .from('family_members')
+        .select(`
+          id,
+          user_id,
+          role,
+          profiles:user_id (
+            full_name,
+            avatar_url
+          )
+        `)
+        .eq('family_id', selectedFamily.id)
+        .order('role', { ascending: true }); // Owner first
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!selectedFamily?.id,
+  });
+
   if (!selectedFamily) return null;
 
   return (
     <div className="flex items-center gap-3">
-      {/* Family Selector (show only if multiple families) */}
-      {families.length > 1 && (
-        <Select
-          value={selectedFamily.id}
-          onValueChange={(id) => {
-            const family = families.find(f => f.id === id);
-            if (family) setSelectedFamily(family);
-          }}
-        >
+      {/* Family Members Selector - show owner and members */}
+      {familyMembers && familyMembers.length > 0 && (
+        <Select value="current" disabled>
           <SelectTrigger className="w-48">
             <div className="flex items-center gap-2">
               <Users className="w-4 h-4 text-muted-foreground" />
@@ -40,11 +62,25 @@ export const FamilyStudentSelector = () => {
             </div>
           </SelectTrigger>
           <SelectContent>
-            {families.map((family) => (
-              <SelectItem key={family.id} value={family.id}>
-                {family.family_name}
-              </SelectItem>
-            ))}
+            {familyMembers.map((member) => {
+              const profile = member.profiles as any;
+              return (
+                <SelectItem key={member.id} value={member.id}>
+                  <div className="flex items-center gap-2">
+                    <Avatar className="w-6 h-6">
+                      <AvatarImage src={profile?.avatar_url} />
+                      <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                        {profile?.full_name?.[0]?.toUpperCase() || <User className="w-3 h-3" />}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span>{profile?.full_name || 'No name set'}</span>
+                    {member.role === 'owner' && (
+                      <span className="text-xs text-muted-foreground ml-1">(Owner)</span>
+                    )}
+                  </div>
+                </SelectItem>
+              );
+            })}
           </SelectContent>
         </Select>
       )}
