@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useFamily } from "@/contexts/FamilyContext";
-import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -87,7 +86,7 @@ export default function Documents() {
   };
 
   return (
-    <AppLayout>
+    <>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <p className="text-muted-foreground">
@@ -187,6 +186,6 @@ export default function Documents() {
         onOpenChange={setViewerModalOpen}
         document={selectedDocument}
       />
-    </AppLayout>
+    </>
   );
 }
