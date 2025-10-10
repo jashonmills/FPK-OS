@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import { ScrapedResourcesModal } from "@/components/admin/ScrapedResourcesModal";
 
 const ITEMS_PER_PAGE = 25;
 
@@ -50,6 +51,10 @@ export default function AdminKBManager() {
   const [focusAreaFilter, setFocusAreaFilter] = useState<string>("all");
   const [viewMode, setViewMode] = useState<ViewMode>("table");
   const [documentsOpen, setDocumentsOpen] = useState(true);
+  
+  // Modal state for viewing scraped resources
+  const [selectedSource, setSelectedSource] = useState<string | null>(null);
+  const [resourcesModalOpen, setResourcesModalOpen] = useState(false);
 
   // Check if user is admin
   const { data: isAdmin, isLoading: checkingAdmin } = useQuery({
@@ -806,7 +811,17 @@ export default function AdminKBManager() {
                         <TableCell className="font-medium max-w-xs">
                           <div className="truncate">{doc.title || "—"}</div>
                         </TableCell>
-                        <TableCell className="text-sm">{doc.source_name}</TableCell>
+                        <TableCell className="text-sm">
+                          <button
+                            onClick={() => {
+                              setSelectedSource(doc.source_name);
+                              setResourcesModalOpen(true);
+                            }}
+                            className="text-primary hover:underline font-medium cursor-pointer"
+                          >
+                            {doc.source_name}
+                          </button>
+                        </TableCell>
                         <TableCell>
                           <div className="flex gap-1.5 flex-wrap">
                             {doc.focus_areas?.map((area: string) => (
@@ -846,7 +861,15 @@ export default function AdminKBManager() {
                       <div className="flex-1 min-w-0">
                         <div className="font-medium truncate">{doc.title || "—"}</div>
                         <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
-                          <span>{doc.source_name}</span>
+                          <button
+                            onClick={() => {
+                              setSelectedSource(doc.source_name);
+                              setResourcesModalOpen(true);
+                            }}
+                            className="text-primary hover:underline font-medium cursor-pointer"
+                          >
+                            {doc.source_name}
+                          </button>
                           <span>•</span>
                           <span>{doc.document_type}</span>
                           {doc.publication_date && (
@@ -943,6 +966,18 @@ export default function AdminKBManager() {
         </CollapsibleContent>
       </Card>
       </Collapsible>
+      
+      {/* Scraped Resources Modal */}
+      <ScrapedResourcesModal
+        open={resourcesModalOpen}
+        onOpenChange={setResourcesModalOpen}
+        sourceName={selectedSource || ""}
+        resources={
+          selectedSource
+            ? (kbDocuments || []).filter(doc => doc.source_name === selectedSource)
+            : []
+        }
+      />
     </div>
   );
 }

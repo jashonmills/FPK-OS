@@ -39,7 +39,9 @@ serve(async (req) => {
     const lovableApiKey = Deno.env.get("LOVABLE_API_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { state = "CA" } = await req.json();
+    // Handle empty body gracefully
+    const body = await req.text();
+    const { state = "CA" } = body ? JSON.parse(body) : {};
     const targetUrls = STATE_URLS[state] || STATE_URLS["CA"];
 
     let processedCount = 0;
@@ -112,7 +114,7 @@ serve(async (req) => {
           },
           body: JSON.stringify({
             input: chunk,
-            model: "text-embedding-3-small"
+            model: "google/gemini-2.5-flash-lite"
           })
         });
 
