@@ -77,9 +77,11 @@ const ProfileSetup = () => {
 
     setIsSaving(true);
     try {
+      // Use upsert to handle both new and existing profiles
       const { error } = await supabase
         .from('profiles')
-        .update({
+        .upsert({
+          id: user.id,
           full_name: fullName,
           avatar_url: avatarUrl || null,
           phone: phone || null,
@@ -87,8 +89,9 @@ const ProfileSetup = () => {
           organization_name: organizationName || null,
           bio: bio || null,
           has_completed_profile_setup: true,
-        })
-        .eq('id', user.id);
+        }, {
+          onConflict: 'id'
+        });
 
       if (error) throw error;
 

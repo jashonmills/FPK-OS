@@ -87,17 +87,20 @@ export const UserProfileEditModal = ({
 
     setIsSaving(true);
     try {
+      // Use upsert to handle both new and existing profiles
       const { error } = await supabase
         .from('profiles')
-        .update({
+        .upsert({
+          id: profile.id,
           full_name: fullName,
           avatar_url: avatarUrl || null,
           phone: phone || null,
           professional_title: professionalTitle || null,
           organization_name: organizationName || null,
           bio: bio || null,
-        })
-        .eq('id', profile.id);
+        }, {
+          onConflict: 'id'
+        });
 
       if (error) throw error;
 
