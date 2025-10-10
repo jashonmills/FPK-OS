@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.38/deno-dom-wasm.ts";
+import { createEmbedding, chunkText, validateContent } from "../_shared/embedding-helper.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -26,7 +27,6 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const lovableApiKey = Deno.env.get("LOVABLE_API_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     let processedCount = 0;
@@ -35,7 +35,6 @@ serve(async (req) => {
     for (const target of TARGET_URLS) {
       console.log(`Processing: ${target.url}`);
 
-      // Check if already exists
       const { data: existing } = await supabase
         .from("knowledge_base")
         .select("id")
@@ -48,7 +47,6 @@ serve(async (req) => {
         continue;
       }
 
-      // Fetch and parse HTML
       const response = await fetch(target.url);
       const html = await response.text();
       const doc = new DOMParser().parseFromString(html, "text/html");
@@ -58,22 +56,21 @@ serve(async (req) => {
         continue;
       }
 
-      // Extract main content
       const mainContent = doc.querySelector("main") || doc.querySelector("article") || doc.body;
       let textContent = mainContent?.textContent || "";
       
-      // Clean up the text
       textContent = textContent
         .replace(/\s+/g, " ")
         .replace(/\n+/g, "\n")
         .trim();
 
-      if (textContent.length < 100) {
-        console.log(`Skipping ${target.url} - insufficient content`);
+      console.log(`✅ Extracted ${textContent.length} characters from ${target.url}`);
+
+      if (!validateContent(textContent, target.url, 100)) {
+        skippedCount++;
         continue;
       }
 
-      // Insert into knowledge_base
       const { data: kbEntry, error: kbError } = await supabase
         .from("knowledge_base")
         .insert({
@@ -92,39 +89,26 @@ serve(async (req) => {
         continue;
       }
 
-      // Chunk and embed
-      const chunks = chunkText(textContent, 500);
-      console.log(`Created ${chunks.length} chunks for ${target.title}`);
+      const chunks = chunkText(textContent);
+      console.log(`📦 Split into ${chunks.length} chunks for ${target.title}`);
 
-      for (const chunk of chunks) {
-        const embeddingResponse = await fetch("https://ai.gateway.lovable.dev/v1/embeddings", {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${lovableApiKey}`,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            input: chunk,
-            model: "text-embedding-3-small"
-          })
-        });
+      for (let i = 0; i < chunks.length; i++) {
+        try {
+          console.log(`🔄 Creating embedding for chunk ${i + 1}/${chunks.length}...`);
+          const embedding = await createEmbedding(chunks[i]);
 
-        if (!embeddingResponse.ok) {
-          console.error("Embedding API error:", await embeddingResponse.text());
+          await supabase.from("kb_chunks").insert({
+            kb_id: kbEntry.id,
+            chunk_text: chunks[i],
+            embedding,
+            token_count: Math.ceil(chunks[i].length / 4)
+          });
+
+          await new Promise((resolve) => setTimeout(resolve, 100));
+        } catch (error) {
+          console.error(`❌ Failed to create embedding for chunk ${i + 1}:`, error);
           continue;
         }
-
-        const embeddingData = await embeddingResponse.json();
-        const embedding = embeddingData.data[0].embedding;
-
-        await supabase.from("kb_chunks").insert({
-          kb_id: kbEntry.id,
-          chunk_text: chunk,
-          embedding,
-          token_count: Math.ceil(chunk.length / 4)
-        });
-
-        await new Promise((resolve) => setTimeout(resolve, 100));
       }
 
       processedCount++;
@@ -148,27 +132,3 @@ serve(async (req) => {
     );
   }
 });
-
-function chunkText(text: string, maxTokens: number): string[] {
-  const sentences = text.split(/[.!?]+\s+/);
-  const chunks: string[] = [];
-  let currentChunk = "";
-
-  for (const sentence of sentences) {
-    const proposedChunk = currentChunk + (currentChunk ? ". " : "") + sentence;
-    const approximateTokens = Math.ceil(proposedChunk.length / 4);
-
-    if (approximateTokens > maxTokens && currentChunk) {
-      chunks.push(currentChunk + ".");
-      currentChunk = sentence;
-    } else {
-      currentChunk = proposedChunk;
-    }
-  }
-
-  if (currentChunk) {
-    chunks.push(currentChunk + ".");
-  }
-
-  return chunks.filter(c => c.trim().length > 0);
-}

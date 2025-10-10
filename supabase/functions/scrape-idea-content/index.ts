@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.38/deno-dom-wasm.ts";
+import { createEmbedding, chunkText, validateContent } from "../_shared/embedding-helper.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -15,7 +16,6 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const lovableApiKey = Deno.env.get("LOVABLE_API_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const targetUrls = [
@@ -39,7 +39,6 @@ serve(async (req) => {
 
     for (const target of targetUrls) {
       try {
-        // Check if already exists
         const { data: existing } = await supabase
           .from("knowledge_base")
           .select("id")
@@ -62,22 +61,21 @@ serve(async (req) => {
           continue;
         }
 
-        // Extract main content
         const contentElement = doc.querySelector("main") || doc.querySelector(".content") || doc.body;
         let textContent = contentElement?.textContent || "";
 
-        // Clean up the text
         textContent = textContent
           .replace(/\s+/g, " ")
           .replace(/\n+/g, "\n")
           .trim();
 
-        if (!textContent || textContent.length < 100) {
-          console.warn(`Insufficient content for ${target.url}`);
+        console.log(`✅ Extracted ${textContent.length} characters from ${target.url}`);
+
+        if (!validateContent(textContent, target.url, 100)) {
+          skippedCount++;
           continue;
         }
 
-        // Insert into knowledge_base
         const { data: kbEntry, error: kbError } = await supabase
           .from("knowledge_base")
           .insert({
@@ -98,54 +96,31 @@ serve(async (req) => {
 
         console.log(`Created KB entry for: ${target.title}`);
 
-        // Chunk and embed
-        const chunks = chunkText(textContent, 500);
-        console.log(`Created ${chunks.length} chunks for ${target.title}`);
+        const chunks = chunkText(textContent);
+        console.log(`📦 Split into ${chunks.length} chunks for ${target.title}`);
 
-        for (const chunk of chunks) {
-          // Generate embedding
-          const embeddingResponse = await fetch("https://ai.gateway.lovable.dev/v1/embeddings", {
-            method: "POST",
-            headers: {
-              "Authorization": `Bearer ${lovableApiKey}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              input: chunk,
-              model: "text-embedding-3-small",
-            }),
-          });
+        for (let i = 0; i < chunks.length; i++) {
+          try {
+            console.log(`🔄 Creating embedding for chunk ${i + 1}/${chunks.length}...`);
+            const embedding = await createEmbedding(chunks[i]);
 
-          if (!embeddingResponse.ok) {
-            console.error(`Embedding API error for chunk in ${target.title}`);
-            continue;
-          }
-
-          const embeddingData = await embeddingResponse.json();
-          const embedding = embeddingData.data[0].embedding;
-
-          // Insert chunk
-          const { error: chunkError } = await supabase
-            .from("kb_chunks")
-            .insert({
+            await supabase.from("kb_chunks").insert({
               kb_id: kbEntry.id,
-              chunk_text: chunk,
-              embedding: JSON.stringify(embedding),
-              token_count: Math.ceil(chunk.length / 4),
+              chunk_text: chunks[i],
+              embedding,
+              token_count: Math.ceil(chunks[i].length / 4),
             });
 
-          if (chunkError) {
-            console.error(`Error inserting chunk for ${target.title}:`, chunkError);
+            await new Promise((resolve) => setTimeout(resolve, 100));
+          } catch (error) {
+            console.error(`❌ Failed to create embedding for chunk ${i + 1}:`, error);
+            continue;
           }
-
-          // Rate limiting
-          await new Promise((resolve) => setTimeout(resolve, 100));
         }
 
         processedCount++;
         console.log(`Completed processing: ${target.title}`);
 
-        // Rate limiting between documents
         await new Promise((resolve) => setTimeout(resolve, 2000));
       } catch (error) {
         console.error(`Error processing ${target.title}:`, error);
@@ -169,29 +144,3 @@ serve(async (req) => {
     );
   }
 });
-
-function chunkText(text: string, maxTokens: number): string[] {
-  const chunks: string[] = [];
-  const sentences = text.split(/[.!?]+\s+/);
-  let currentChunk = "";
-  let currentTokens = 0;
-
-  for (const sentence of sentences) {
-    const sentenceTokens = Math.ceil(sentence.length / 4);
-
-    if (currentTokens + sentenceTokens > maxTokens && currentChunk) {
-      chunks.push(currentChunk.trim());
-      currentChunk = "";
-      currentTokens = 0;
-    }
-
-    currentChunk += sentence + ". ";
-    currentTokens += sentenceTokens;
-  }
-
-  if (currentChunk.trim()) {
-    chunks.push(currentChunk.trim());
-  }
-
-  return chunks;
-}
