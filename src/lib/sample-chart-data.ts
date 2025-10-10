@@ -1,82 +1,76 @@
 // Sample data for Chart Library showcase
 // This data is designed to make each chart look impressive and easy to understand
 
+// For Behavior Function Analysis chart
 export const sampleBehaviorData = [
   {
-    name: "Elopement",
-    frequency: 8,
-    function: "Escape",
-    x: 30,
-    y: 70,
+    behavior_type: "Elopement",
+    behavior_function: "Escape",
+    count: 8,
   },
   {
-    name: "Verbal Outbursts",
-    frequency: 12,
-    function: "Attention",
-    x: 70,
-    y: 50,
+    behavior_type: "Verbal Outbursts",
+    behavior_function: "Attention",
+    count: 12,
   },
   {
-    name: "Property Destruction",
-    frequency: 5,
-    function: "Tangible",
-    x: 50,
-    y: 30,
+    behavior_type: "Property Destruction",
+    behavior_function: "Tangible",
+    count: 5,
   },
   {
-    name: "Self-Stimulation",
-    frequency: 15,
-    function: "Sensory",
-    x: 20,
-    y: 40,
+    behavior_type: "Self-Stimulation",
+    behavior_function: "Sensory",
+    count: 15,
   },
   {
-    name: "Non-Compliance",
-    frequency: 10,
-    function: "Escape",
-    x: 60,
-    y: 80,
+    behavior_type: "Non-Compliance",
+    behavior_function: "Escape",
+    count: 10,
   },
 ];
 
+// For IEP Goal & Service Tracker
 export const sampleIEPGoals = [
   {
-    category: "life_skill",
-    activeGoals: 2,
-    avgProgress: 75,
+    goal_type: "life_skill",
+    active_goals: 2,
+    avg_progress: 75,
   },
   {
-    category: "behavioral",
-    activeGoals: 3,
-    avgProgress: 45,
+    goal_type: "behavioral",
+    active_goals: 3,
+    avg_progress: 45,
   },
   {
-    category: "academic",
-    activeGoals: 4,
-    avgProgress: 60,
+    goal_type: "academic",
+    active_goals: 4,
+    avg_progress: 60,
   },
   {
-    category: "social",
-    activeGoals: 2,
-    avgProgress: 30,
+    goal_type: "social",
+    active_goals: 2,
+    avg_progress: 30,
   },
 ];
 
+// For Academic Fluency Trends
 export const sampleAcademicFluency = [
-  { date: "2025-09-01", reading: 25, math: 12 },
-  { date: "2025-09-08", reading: 28, math: 14 },
-  { date: "2025-09-15", reading: 30, math: 15 },
-  { date: "2025-09-22", reading: 32, math: 16 },
-  { date: "2025-09-29", reading: 35, math: 18 },
-  { date: "2025-10-06", reading: 38, math: 20 },
+  { log_date: "2025-09-01", reading_wpm: 25, math_problems_per_min: 12 },
+  { log_date: "2025-09-08", reading_wpm: 28, math_problems_per_min: 14 },
+  { log_date: "2025-09-15", reading_wpm: 30, math_problems_per_min: 15 },
+  { log_date: "2025-09-22", reading_wpm: 32, math_problems_per_min: 16 },
+  { log_date: "2025-09-29", reading_wpm: 35, math_problems_per_min: 18 },
+  { log_date: "2025-10-06", reading_wpm: 38, math_problems_per_min: 20 },
 ];
 
+// For Social Interaction Funnel
 export const sampleSocialSkills = [
-  { skill: "Task Initiation", successRate: 75, totalAttempts: 45 },
-  { skill: "Social Reciprocity", successRate: 60, totalAttempts: 38 },
-  { skill: "Peer Play Initiation", successRate: 45, totalAttempts: 30 },
-  { skill: "Social Referencing", successRate: 55, totalAttempts: 25 },
-  { skill: "Turn-Taking", successRate: 70, totalAttempts: 42 },
+  { skill_name: "Task Initiation", success_rate: 75, total_attempts: 45 },
+  { skill_name: "Social Reciprocity", success_rate: 60, total_attempts: 38 },
+  { skill_name: "Peer Play Initiation", success_rate: 45, total_attempts: 30 },
+  { skill_name: "Social Referencing", success_rate: 55, total_attempts: 25 },
+  { skill_name: "Turn-Taking", success_rate: 70, total_attempts: 42 },
 ];
 
 export const sampleSensoryProfile = [
