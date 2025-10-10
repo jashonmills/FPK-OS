@@ -10,7 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Database, PlayCircle, Loader2, Book, Brain, Plus, X, TrendingUp, LayoutGrid, List, Table as TableIcon } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Database, PlayCircle, Loader2, Book, Brain, Plus, X, TrendingUp, LayoutGrid, List, Table as TableIcon, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { useAuth } from "@/hooks/useAuth";
@@ -46,6 +47,7 @@ export default function AdminKBManager() {
   const [sourceFilter, setSourceFilter] = useState<string>("all");
   const [focusAreaFilter, setFocusAreaFilter] = useState<string>("all");
   const [viewMode, setViewMode] = useState<ViewMode>("table");
+  const [documentsOpen, setDocumentsOpen] = useState(true);
 
   // Check if user is admin
   const { data: isAdmin, isLoading: checkingAdmin } = useQuery({
@@ -430,13 +432,19 @@ export default function AdminKBManager() {
       </Card>
 
       {/* Documents Section */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <Database className="h-5 w-5" />
-              Knowledge Base Documents
-            </CardTitle>
+      <Collapsible open={documentsOpen} onOpenChange={setDocumentsOpen}>
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" className="p-0 hover:bg-transparent">
+                  <CardTitle className="flex items-center gap-2">
+                    <Database className="h-5 w-5" />
+                    Knowledge Base Documents
+                    <ChevronDown className={`h-4 w-4 transition-transform ${documentsOpen ? "" : "-rotate-90"}`} />
+                  </CardTitle>
+                </Button>
+              </CollapsibleTrigger>
             <div className="flex gap-1">
               <Button
                 variant={viewMode === "table" ? "default" : "outline"}
@@ -461,7 +469,8 @@ export default function AdminKBManager() {
               </Button>
             </div>
           </div>
-          <div className="flex gap-4 mt-4">
+          <CollapsibleContent>
+            <div className="flex gap-4 mt-4">
             <div className="flex-1">
               <Label htmlFor="source-filter" className="text-sm">Filter by Source</Label>
               <Select value={sourceFilter} onValueChange={setSourceFilter}>
@@ -491,8 +500,10 @@ export default function AdminKBManager() {
               </Select>
             </div>
           </div>
+          </CollapsibleContent>
         </CardHeader>
-        <CardContent>
+        <CollapsibleContent>
+          <CardContent>
           {loadingDocs ? (
             <div className="text-center py-8">
               <Loader2 className="h-8 w-8 animate-spin mx-auto" />
@@ -660,7 +671,9 @@ export default function AdminKBManager() {
             </>
           )}
         </CardContent>
+        </CollapsibleContent>
       </Card>
+      </Collapsible>
     </div>
   );
 }
