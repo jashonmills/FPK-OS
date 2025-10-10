@@ -114,6 +114,8 @@ export default function Documents() {
 
   const handleAnalyzeDocument = async (documentId: string) => {
     setAnalyzingDocId(documentId);
+    const toastId = toast.loading("Preparing document for analysis...");
+    
     try {
       // First check if document has extracted content
       const { data: doc } = await supabase
@@ -124,7 +126,7 @@ export default function Documents() {
 
       // If no extracted content and it's a PDF, extract it first
       if (!doc?.extracted_content && doc?.file_type === 'application/pdf') {
-        toast.info("Extracting text from PDF...");
+        toast.loading("Extracting text from PDF...", { id: toastId });
         
         // Download the PDF from storage
         const { data: fileData, error: downloadError } = await supabase.storage
@@ -147,23 +149,21 @@ export default function Documents() {
         if (updateError) {
           throw new Error("Failed to save extracted text");
         }
-
-        toast.success("Text extracted successfully!");
       }
 
       // Now analyze the document
-      toast.info("Analyzing document...");
+      toast.loading("Analyzing document with AI...", { id: toastId });
       const { data, error } = await supabase.functions.invoke("analyze-document", {
         body: { document_id: documentId },
       });
 
       if (error) throw error;
 
-      toast.success(`Analysis complete! Found ${data.metrics_count} metrics, ${data.insights_count} insights`);
+      toast.success(`Analysis complete! Found ${data.metrics_count} metrics, ${data.insights_count} insights`, { id: toastId });
       queryClient.invalidateQueries({ queryKey: ["documents"] });
     } catch (error: any) {
       console.error('Document analysis error:', error);
-      toast.error("Failed to analyze document: " + error.message);
+      toast.error("Failed to analyze document: " + error.message, { id: toastId });
     } finally {
       setAnalyzingDocId(null);
     }

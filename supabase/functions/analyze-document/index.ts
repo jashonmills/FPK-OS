@@ -132,10 +132,8 @@ Format your entire response as a single, valid JSON object with the following st
     try {
       let cleanContent = aiContent.trim();
       
-      // Remove markdown code blocks if present
-      if (cleanContent.startsWith('```')) {
-        cleanContent = cleanContent.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '').trim();
-      }
+      // Remove markdown code blocks (handles both ```json and ``` formats)
+      cleanContent = cleanContent.replace(/^```(?:json)?\s*/g, '').replace(/\s*```$/g, '');
       
       analysisResult = JSON.parse(cleanContent);
     } catch (parseError) {
