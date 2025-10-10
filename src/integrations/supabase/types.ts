@@ -78,6 +78,111 @@ export type Database = {
           },
         ]
       }
+      alert_configurations: {
+        Row: {
+          created_at: string | null
+          family_id: string
+          heart_rate_duration_seconds: number | null
+          heart_rate_threshold_percent: number | null
+          id: string
+          is_active: boolean | null
+          stress_level_threshold: number | null
+          student_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          family_id: string
+          heart_rate_duration_seconds?: number | null
+          heart_rate_threshold_percent?: number | null
+          id?: string
+          is_active?: boolean | null
+          stress_level_threshold?: number | null
+          student_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          family_id?: string
+          heart_rate_duration_seconds?: number | null
+          heart_rate_threshold_percent?: number | null
+          id?: string
+          is_active?: boolean | null
+          stress_level_threshold?: number | null
+          student_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alert_configurations_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "alert_configurations_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      biometric_alerts: {
+        Row: {
+          alert_time: string | null
+          alert_type: string
+          baseline_value: number | null
+          created_at: string | null
+          family_id: string
+          id: string
+          notes: string | null
+          resolved_at: string | null
+          student_id: string
+          trigger_value: number | null
+        }
+        Insert: {
+          alert_time?: string | null
+          alert_type: string
+          baseline_value?: number | null
+          created_at?: string | null
+          family_id: string
+          id?: string
+          notes?: string | null
+          resolved_at?: string | null
+          student_id: string
+          trigger_value?: number | null
+        }
+        Update: {
+          alert_time?: string | null
+          alert_type?: string
+          baseline_value?: number | null
+          created_at?: string | null
+          family_id?: string
+          id?: string
+          notes?: string | null
+          resolved_at?: string | null
+          student_id?: string
+          trigger_value?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "biometric_alerts_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "biometric_alerts_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_conversations: {
         Row: {
           created_at: string | null
@@ -561,6 +666,53 @@ export type Database = {
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      external_integrations: {
+        Row: {
+          access_token: string | null
+          created_at: string | null
+          family_id: string
+          id: string
+          is_active: boolean | null
+          last_sync_at: string | null
+          provider: string
+          refresh_token: string | null
+          token_expires_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          access_token?: string | null
+          created_at?: string | null
+          family_id: string
+          id?: string
+          is_active?: boolean | null
+          last_sync_at?: string | null
+          provider: string
+          refresh_token?: string | null
+          token_expires_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          access_token?: string | null
+          created_at?: string | null
+          family_id?: string
+          id?: string
+          is_active?: boolean | null
+          last_sync_at?: string | null
+          provider?: string
+          refresh_token?: string | null
+          token_expires_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "external_integrations_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
             referencedColumns: ["id"]
           },
         ]
@@ -1753,6 +1905,81 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      wearable_sleep_data: {
+        Row: {
+          avg_heart_rate: number | null
+          avg_respiration_rate: number | null
+          avg_spo2: number | null
+          awake_seconds: number | null
+          created_at: string | null
+          deep_sleep_seconds: number | null
+          family_id: string
+          id: string
+          light_sleep_seconds: number | null
+          raw_data: Json | null
+          rem_sleep_seconds: number | null
+          restlessness_score: number | null
+          sleep_date: string
+          sleep_end_time: string | null
+          sleep_score: number | null
+          sleep_start_time: string | null
+          student_id: string
+        }
+        Insert: {
+          avg_heart_rate?: number | null
+          avg_respiration_rate?: number | null
+          avg_spo2?: number | null
+          awake_seconds?: number | null
+          created_at?: string | null
+          deep_sleep_seconds?: number | null
+          family_id: string
+          id?: string
+          light_sleep_seconds?: number | null
+          raw_data?: Json | null
+          rem_sleep_seconds?: number | null
+          restlessness_score?: number | null
+          sleep_date: string
+          sleep_end_time?: string | null
+          sleep_score?: number | null
+          sleep_start_time?: string | null
+          student_id: string
+        }
+        Update: {
+          avg_heart_rate?: number | null
+          avg_respiration_rate?: number | null
+          avg_spo2?: number | null
+          awake_seconds?: number | null
+          created_at?: string | null
+          deep_sleep_seconds?: number | null
+          family_id?: string
+          id?: string
+          light_sleep_seconds?: number | null
+          raw_data?: Json | null
+          rem_sleep_seconds?: number | null
+          restlessness_score?: number | null
+          sleep_date?: string
+          sleep_end_time?: string | null
+          sleep_score?: number | null
+          sleep_start_time?: string | null
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wearable_sleep_data_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wearable_sleep_data_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
