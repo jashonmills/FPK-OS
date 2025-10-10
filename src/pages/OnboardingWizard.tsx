@@ -37,6 +37,8 @@ const OnboardingWizard = () => {
   const [studentName, setStudentName] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [primaryDiagnosis, setPrimaryDiagnosis] = useState<string[]>([]);
+  const [schoolName, setSchoolName] = useState("");
+  const [gradeLevel, setGradeLevel] = useState("");
   
   // Step 3: 30-Day Snapshot
   const [sleepQuality, setSleepQuality] = useState("good");
@@ -124,6 +126,8 @@ const OnboardingWizard = () => {
           student_name: studentName,
           date_of_birth: dateOfBirth,
           primary_diagnosis: primaryDiagnosis,
+          school_name: schoolName || null,
+          grade_level: gradeLevel || null,
         })
         .select()
         .single();
@@ -353,6 +357,47 @@ const OnboardingWizard = () => {
                           </label>
                         </div>
                       ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-4 p-4 bg-muted/30 rounded-lg border border-border/50">
+                    <div className="space-y-2">
+                      <Label htmlFor="schoolName">What school does your child attend? (Optional)</Label>
+                      <Input
+                        id="schoolName"
+                        placeholder="e.g., Lincoln Elementary School"
+                        value={schoolName}
+                        onChange={(e) => setSchoolName(e.target.value)}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        This helps us show school information in your dashboard analytics
+                      </p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="gradeLevel">What grade are they in? (Optional)</Label>
+                      <Select value={gradeLevel} onValueChange={setGradeLevel}>
+                        <SelectTrigger id="gradeLevel">
+                          <SelectValue placeholder="Select grade level" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Pre-K">Pre-K</SelectItem>
+                          <SelectItem value="Kindergarten">Kindergarten</SelectItem>
+                          <SelectItem value="1st Grade">1st Grade</SelectItem>
+                          <SelectItem value="2nd Grade">2nd Grade</SelectItem>
+                          <SelectItem value="3rd Grade">3rd Grade</SelectItem>
+                          <SelectItem value="4th Grade">4th Grade</SelectItem>
+                          <SelectItem value="5th Grade">5th Grade</SelectItem>
+                          <SelectItem value="6th Grade">6th Grade</SelectItem>
+                          <SelectItem value="7th Grade">7th Grade</SelectItem>
+                          <SelectItem value="8th Grade">8th Grade</SelectItem>
+                          <SelectItem value="9th Grade">9th Grade</SelectItem>
+                          <SelectItem value="10th Grade">10th Grade</SelectItem>
+                          <SelectItem value="11th Grade">11th Grade</SelectItem>
+                          <SelectItem value="12th Grade">12th Grade</SelectItem>
+                          <SelectItem value="Other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
                 </div>
