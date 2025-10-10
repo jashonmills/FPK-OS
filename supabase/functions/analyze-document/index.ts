@@ -13,7 +13,7 @@ serve(async (req) => {
   }
 
   try {
-    const { document_id } = await req.json();
+    const { document_id, bypass_limit } = await req.json();
 
     if (!document_id) {
       return new Response(
@@ -48,6 +48,55 @@ serve(async (req) => {
         JSON.stringify({ error: "Document has no extracted content to analyze" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
+    }
+
+    // Check usage limits (unless bypassed for à la carte purchases)
+    if (!bypass_limit) {
+      const { data: family } = await supabase
+        .from("families")
+        .select("subscription_tier")
+        .eq("id", document.family_id)
+        .single();
+
+      if (family?.subscription_tier === "team") {
+        const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM format
+
+        // Get or create usage record
+        const { data: usage } = await supabase
+          .from("document_analysis_usage")
+          .select("*")
+          .eq("family_id", document.family_id)
+          .eq("month_year", currentMonth)
+          .single();
+
+        if (usage && usage.documents_analyzed >= 20) {
+          return new Response(
+            JSON.stringify({
+              error: "Monthly document analysis limit reached",
+              limit: 20,
+              used: usage.documents_analyzed,
+              upgrade_required: true,
+            }),
+            { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        // Increment usage counter
+        if (usage) {
+          await supabase
+            .from("document_analysis_usage")
+            .update({ documents_analyzed: usage.documents_analyzed + 1 })
+            .eq("id", usage.id);
+        } else {
+          await supabase
+            .from("document_analysis_usage")
+            .insert({
+              family_id: document.family_id,
+              month_year: currentMonth,
+              documents_analyzed: 1,
+            });
+        }
+      }
     }
 
     // Stage 1: Identify document type using the matrix

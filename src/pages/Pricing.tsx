@@ -5,6 +5,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { PricingGrid } from '@/components/pricing/PricingGrid';
 import { FAQ } from '@/components/pricing/FAQ';
+import { AlaCarteSection } from '@/components/pricing/AlaCarteSection';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -72,6 +73,9 @@ const Pricing = () => {
             <PricingGrid billingCycle={billingCycle} />
           </div>
         </section>
+
+        {/* À La Carte Section */}
+        <AlaCarteSection />
 
         {/* FAQ */}
         <section className="px-4">

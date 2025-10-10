@@ -8,6 +8,10 @@ import {
 export const FAQ = () => {
   const faqs = [
     {
+      question: 'What are "On-Demand" or "À La Carte" tools?',
+      answer: 'These are powerful, specialized AI services that you can purchase individually without needing to change your monthly subscription. For example, if you\'re on the Collaborative Team plan and only need one AI-generated goal, you can buy it as a one-time add-on for $4.99.',
+    },
+    {
       question: 'Can I change my plan later?',
       answer: 'Yes, you can upgrade, downgrade, or cancel at any time from your settings. Changes to your plan take effect immediately, and we\'ll prorate any charges if you upgrade mid-cycle.',
     },

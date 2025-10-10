@@ -134,3 +134,9 @@ verify_jwt = true
 
 [functions.clear-knowledge-base]
 verify_jwt = true
+
+[functions.purchase-alacarte]
+verify_jwt = true
+
+[functions.generate-resource-pack]
+verify_jwt = true

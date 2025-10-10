@@ -3,9 +3,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle2, X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useFamily } from '@/contexts/FamilyContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 
 interface PricingGridProps {
   billingCycle: 'monthly' | 'annual';
@@ -13,7 +15,9 @@ interface PricingGridProps {
 
 export const PricingGrid = ({ billingCycle }: PricingGridProps) => {
   const { user } = useAuth();
+  const { selectedFamily } = useFamily();
   const navigate = useNavigate();
+  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
 
   const handleCheckout = async (tier: string) => {
     if (!user) {
@@ -21,11 +25,17 @@ export const PricingGrid = ({ billingCycle }: PricingGridProps) => {
       return;
     }
 
+    if (!selectedFamily?.id) {
+      toast.error("Please select a family first");
+      return;
+    }
+
+    setCheckoutLoading(tier);
     try {
       const { data, error } = await supabase.functions.invoke('manage-subscription', {
         body: {
           action: 'create_checkout',
-          familyId: 'current_family_id', // This will be set dynamically
+          familyId: selectedFamily.id,
           tier,
           billingCycle,
         },
@@ -39,6 +49,8 @@ export const PricingGrid = ({ billingCycle }: PricingGridProps) => {
     } catch (error) {
       console.error('Checkout error:', error);
       toast.error('Failed to start checkout. Please try again.');
+    } finally {
+      setCheckoutLoading(null);
     }
   };
 
@@ -59,6 +71,9 @@ export const PricingGrid = ({ billingCycle }: PricingGridProps) => {
         diagnosisCharts: false,
         pdfExport: false,
         aiDocAnalysis: false,
+        aiGoalGen: false,
+        deepDive: false,
+        resourcePack: false,
         predictiveInsights: false,
         interventionRecs: false,
         comments: false,
@@ -81,7 +96,10 @@ export const PricingGrid = ({ billingCycle }: PricingGridProps) => {
         universalCharts: true,
         diagnosisCharts: true,
         pdfExport: true,
-        aiDocAnalysis: true,
+        aiDocAnalysis: '20/month',
+        aiGoalGen: 'alacarte',
+        deepDive: 'alacarte',
+        resourcePack: 'alacarte',
         predictiveInsights: false,
         interventionRecs: false,
         comments: true,
@@ -105,7 +123,10 @@ export const PricingGrid = ({ billingCycle }: PricingGridProps) => {
         universalCharts: true,
         diagnosisCharts: true,
         pdfExport: true,
-        aiDocAnalysis: true,
+        aiDocAnalysis: 'Unlimited',
+        aiGoalGen: true,
+        deepDive: 'alacarte',
+        resourcePack: 'alacarte',
         predictiveInsights: true,
         interventionRecs: true,
         comments: true,
@@ -116,120 +137,111 @@ export const PricingGrid = ({ billingCycle }: PricingGridProps) => {
   ];
 
   const featureRows = [
-    { label: 'Student Profiles', key: 'students' },
-    { label: 'User Accounts', key: 'users' },
-    { label: 'Document Storage', key: 'storage' },
-    { label: 'All 4 Log Forms', key: 'allLogs' },
-    { label: 'Environmental Data', key: 'environmentalData' },
+    { label: 'Students', key: 'students' },
+    { label: 'Team Members', key: 'users' },
+    { label: 'Storage', key: 'storage' },
+    { label: 'All Activity Logs', key: 'allLogs' },
+    { label: 'Environmental Context', key: 'environmentalData' },
     { label: 'Universal Charts', key: 'universalCharts' },
     { label: 'Diagnosis-Specific Charts', key: 'diagnosisCharts' },
-    { label: 'Export PDF Reports', key: 'pdfExport' },
+    { label: 'PDF Export', key: 'pdfExport' },
     { label: 'AI Document Analysis', key: 'aiDocAnalysis' },
+    { label: 'AI Goal Generation', key: 'aiGoalGen' },
+    { label: 'On-Demand Deep-Dive', key: 'deepDive' },
+    { label: 'Personalized Resource Pack', key: 'resourcePack' },
     { label: 'Predictive Insights', key: 'predictiveInsights' },
     { label: 'Intervention Recommendations', key: 'interventionRecs' },
     { label: 'Comment on Logs', key: 'comments' },
     { label: 'Priority Support', key: 'prioritySupport' },
   ];
 
-  return (
-    <div className="space-y-8">
-      {/* Mobile View - Cards */}
-      <div className="md:hidden grid gap-6">
-        {tiers.map((tier) => {
-          const price = billingCycle === 'monthly' ? tier.monthlyPrice : tier.annualPrice;
-          const savings = billingCycle === 'annual' ? tier.monthlyPrice * 12 - tier.annualPrice : 0;
+  const renderFeatureValue = (value: any) => {
+    if (typeof value === 'boolean') {
+      return value ? (
+        <CheckCircle2 className="h-5 w-5 text-green-500 mx-auto" />
+      ) : (
+        <X className="h-5 w-5 text-muted-foreground mx-auto" />
+      );
+    }
+    if (value === 'alacarte') {
+      return (
+        <Badge variant="outline" className="text-xs">À La Carte</Badge>
+      );
+    }
+    return <span className="text-sm">{value}</span>;
+  };
 
-          return (
-            <Card key={tier.name} className={`relative ${tier.badge ? 'border-primary border-2' : ''}`}>
+  return (
+    <div className="space-y-12">
+      {/* Mobile: Card Layout */}
+      <div className="grid md:hidden gap-6">
+        {tiers.map((tier) => (
+          <Card key={tier.tier} className={tier.badge ? 'border-primary' : ''}>
+            <CardHeader>
               {tier.badge && (
-                <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  {tier.badge}
-                </Badge>
+                <Badge className="w-fit mb-2">{tier.badge}</Badge>
               )}
-              <CardHeader>
-                <CardTitle className="text-2xl">{tier.name}</CardTitle>
-                <CardDescription>{tier.description}</CardDescription>
-                <div className="mt-4">
-                  <div className="text-4xl font-bold">
-                    ${price}
-                    {price > 0 && (
-                      <span className="text-base font-normal text-muted-foreground">
-                        /{billingCycle === 'monthly' ? 'month' : 'year'}
-                      </span>
-                    )}
-                  </div>
-                  {savings > 0 && (
-                    <p className="text-sm text-green-600 mt-1">Save ${savings}/year</p>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent>
-                <Button
-                  className="w-full mb-6"
-                  variant={tier.tier === 'free' ? 'outline' : 'default'}
-                  onClick={() => tier.tier === 'free' ? navigate('/auth') : handleCheckout(tier.tier)}
-                >
-                  {tier.cta}
-                </Button>
-                <div className="space-y-3">
-                  {featureRows.map((row) => {
-                    const value = tier.features[row.key as keyof typeof tier.features];
-                    return (
-                      <div key={row.key} className="flex items-center justify-between">
-                        <span className="text-sm">{row.label}</span>
-                        {typeof value === 'boolean' ? (
-                          value ? (
-                            <CheckCircle2 className="w-5 h-5 text-primary" />
-                          ) : (
-                            <X className="w-5 h-5 text-muted-foreground" />
-                          )
-                        ) : (
-                          <span className="font-medium">{value}</span>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
+              <CardTitle>{tier.name}</CardTitle>
+              <CardDescription>{tier.description}</CardDescription>
+              <div className="mt-4">
+                <span className="text-4xl font-bold">
+                  ${billingCycle === 'monthly' ? tier.monthlyPrice : tier.annualPrice}
+                </span>
+                <span className="text-muted-foreground">
+                  {billingCycle === 'monthly' ? '/month' : '/year'}
+                </span>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Button 
+                className="w-full" 
+                variant={tier.tier === 'free' ? 'outline' : 'default'}
+                onClick={() => handleCheckout(tier.tier)}
+                disabled={checkoutLoading === tier.tier}
+              >
+                {checkoutLoading === tier.tier ? 'Processing...' : tier.cta}
+              </Button>
+              <div className="space-y-2">
+                {featureRows.map((row) => {
+                  const value = tier.features[row.key as keyof typeof tier.features];
+                  return (
+                    <div key={row.key} className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">{row.label}</span>
+                      <div>{renderFeatureValue(value)}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
-      {/* Desktop View - Table */}
+      {/* Desktop: Table Layout */}
       <div className="hidden md:block overflow-x-auto">
         <table className="w-full border-collapse">
           <thead>
-            <tr className="border-b-2">
-              <th className="p-4 text-left font-semibold">Features</th>
+            <tr className="border-b">
+              <th className="text-left p-4 w-1/4"></th>
               {tiers.map((tier) => (
-                <th key={tier.name} className="p-4 text-center">
-                  <div className="relative">
-                    {tier.badge && (
-                      <Badge className="absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap">
-                        {tier.badge}
-                      </Badge>
-                    )}
-                    <div className="font-bold text-xl mb-2">{tier.name}</div>
-                    <div className="text-3xl font-bold text-primary">
+                <th key={tier.tier} className="p-4 text-center">
+                  <div className="space-y-2">
+                    {tier.badge && <Badge className="mx-auto">{tier.badge}</Badge>}
+                    <div className="text-xl font-bold">{tier.name}</div>
+                    <div className="text-sm text-muted-foreground">{tier.description}</div>
+                    <div className="text-3xl font-bold">
                       ${billingCycle === 'monthly' ? tier.monthlyPrice : tier.annualPrice}
-                      {tier.monthlyPrice > 0 && (
-                        <span className="text-base font-normal text-muted-foreground">
-                          /{billingCycle === 'monthly' ? 'mo' : 'yr'}
-                        </span>
-                      )}
                     </div>
-                    {billingCycle === 'annual' && tier.monthlyPrice > 0 && (
-                      <p className="text-sm text-green-600 mt-1">
-                        Save ${tier.monthlyPrice * 12 - tier.annualPrice}
-                      </p>
-                    )}
-                    <Button
-                      className="mt-4 w-full"
+                    <div className="text-sm text-muted-foreground">
+                      {billingCycle === 'monthly' ? '/month' : '/year'}
+                    </div>
+                    <Button 
+                      className="w-full mt-2"
                       variant={tier.tier === 'free' ? 'outline' : 'default'}
-                      onClick={() => tier.tier === 'free' ? navigate('/auth') : handleCheckout(tier.tier)}
+                      onClick={() => handleCheckout(tier.tier)}
+                      disabled={checkoutLoading === tier.tier}
                     >
-                      {tier.cta}
+                      {checkoutLoading === tier.tier ? 'Processing...' : tier.cta}
                     </Button>
                   </div>
                 </th>
@@ -237,25 +249,14 @@ export const PricingGrid = ({ billingCycle }: PricingGridProps) => {
             </tr>
           </thead>
           <tbody>
-            {featureRows.map((row, idx) => (
-              <tr key={row.key} className={idx % 2 === 0 ? 'bg-muted/30' : ''}>
+            {featureRows.map((row) => (
+              <tr key={row.key} className="border-b hover:bg-muted/50">
                 <td className="p-4 font-medium">{row.label}</td>
-                {tiers.map((tier) => {
-                  const value = tier.features[row.key as keyof typeof tier.features];
-                  return (
-                    <td key={`${tier.name}-${row.key}`} className="p-4 text-center">
-                      {typeof value === 'boolean' ? (
-                        value ? (
-                          <CheckCircle2 className="w-5 h-5 text-primary mx-auto" />
-                        ) : (
-                          <X className="w-5 h-5 text-muted-foreground mx-auto" />
-                        )
-                      ) : (
-                        <span className="font-medium">{value}</span>
-                      )}
-                    </td>
-                  );
-                })}
+                {tiers.map((tier) => (
+                  <td key={tier.tier} className="p-4 text-center">
+                    {renderFeatureValue(tier.features[row.key as keyof typeof tier.features])}
+                  </td>
+                ))}
               </tr>
             ))}
           </tbody>

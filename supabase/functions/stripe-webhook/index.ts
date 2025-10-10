@@ -39,6 +39,54 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
+    // Handle payment intent succeeded (for à la carte purchases)
+    if (event.type === 'payment_intent.succeeded') {
+      const paymentIntent = event.data.object as Stripe.PaymentIntent;
+      
+      console.log('Payment intent succeeded:', paymentIntent.id);
+
+      // Find the purchase record
+      const { data: purchase } = await supabaseAdmin
+        .from('alacarte_purchases')
+        .select('*')
+        .eq('stripe_payment_intent_id', paymentIntent.id)
+        .single();
+
+      if (purchase) {
+        // Update status to completed
+        await supabaseAdmin
+          .from('alacarte_purchases')
+          .update({ status: 'completed' })
+          .eq('id', purchase.id);
+
+        // Execute the purchased service
+        try {
+          if (purchase.purchase_type === 'deep_dive' && purchase.metadata.document_id) {
+            await supabaseAdmin.functions.invoke('analyze-document', {
+              body: {
+                document_id: purchase.metadata.document_id,
+                bypass_limit: true,
+              },
+            });
+          } else if (purchase.purchase_type === 'resource_pack') {
+            await supabaseAdmin.functions.invoke('generate-resource-pack', {
+              body: {
+                student_id: purchase.metadata.student_id,
+                family_id: purchase.family_id,
+              },
+            });
+          }
+        } catch (execError) {
+          console.error('Error executing purchased service:', execError);
+        }
+      }
+
+      return new Response(JSON.stringify({ received: true }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session;

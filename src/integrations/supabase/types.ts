@@ -78,6 +78,53 @@ export type Database = {
           },
         ]
       }
+      alacarte_purchases: {
+        Row: {
+          amount: number
+          created_at: string | null
+          family_id: string
+          id: string
+          metadata: Json | null
+          purchase_type: string
+          status: string
+          stripe_payment_intent_id: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          family_id: string
+          id?: string
+          metadata?: Json | null
+          purchase_type: string
+          status?: string
+          stripe_payment_intent_id?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          family_id?: string
+          id?: string
+          metadata?: Json | null
+          purchase_type?: string
+          status?: string
+          stripe_payment_intent_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alacarte_purchases_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       alert_configurations: {
         Row: {
           created_at: string | null
@@ -249,6 +296,41 @@ export type Database = {
             columns: ["conversation_id"]
             isOneToOne: false
             referencedRelation: "chat_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_analysis_usage: {
+        Row: {
+          created_at: string | null
+          documents_analyzed: number | null
+          family_id: string
+          id: string
+          month_year: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          documents_analyzed?: number | null
+          family_id: string
+          id?: string
+          month_year: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          documents_analyzed?: number | null
+          family_id?: string
+          id?: string
+          month_year?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_analysis_usage_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
             referencedColumns: ["id"]
           },
         ]
