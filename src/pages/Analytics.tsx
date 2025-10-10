@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useFamily } from "@/contexts/FamilyContext";
+import confetti from "canvas-confetti";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -53,6 +54,41 @@ const Analytics = () => {
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   };
 
+  // Confetti celebration effect when charts are unlocked
+  useEffect(() => {
+    const shouldCelebrate = sessionStorage.getItem('showChartsCelebration') === 'true';
+    
+    if (shouldCelebrate && hasActiveTrial && suggestedCharts.length > 0) {
+      sessionStorage.removeItem('showChartsCelebration');
+      
+      const duration = 3000;
+      const end = Date.now() + duration;
+      
+      const colors = ['#a855f7', '#ec4899', '#f59e0b', '#10b981'];
+      
+      (function frame() {
+        confetti({
+          particleCount: 2,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0 },
+          colors: colors
+        });
+        confetti({
+          particleCount: 2,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1 },
+          colors: colors
+        });
+        
+        if (Date.now() < end) {
+          requestAnimationFrame(frame);
+        }
+      }());
+    }
+  }, [hasActiveTrial, suggestedCharts]);
+
   if (!selectedStudent) {
     return (
       <div className="container mx-auto p-6">
@@ -90,7 +126,7 @@ const Analytics = () => {
 
       {/* Trial Banner */}
       {hasActiveTrial && suggestedCharts.length > 0 && (
-        <Alert className="border-primary bg-primary/5">
+        <Alert className="border-2 border-primary bg-primary/5 shadow-[0_0_20px_hsl(var(--primary)/0.5)] animate-pulse">
           <Sparkles className="h-4 w-4" />
           <AlertDescription>
             <strong>🎉 AI Discovery!</strong> We've unlocked {suggestedCharts.length} specialized charts for you based on your documents. 

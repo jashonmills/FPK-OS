@@ -224,6 +224,8 @@ export default function Documents() {
       toast.success("Analysis complete! Your personalized charts are ready.", { id: toastId });
       queryClient.invalidateQueries({ queryKey: ["family"] });
       
+      sessionStorage.setItem('showChartsCelebration', 'true');
+      
       // Redirect to Analytics page
       setTimeout(() => {
         navigate("/analytics");
