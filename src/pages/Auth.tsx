@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { Loader2, GraduationCap } from 'lucide-react';
+import { Loader2, GraduationCap, ArrowLeft } from 'lucide-react';
 import { AppBackground } from '@/components/layout/AppBackground';
 
 const Auth = () => {
@@ -70,6 +70,17 @@ const Auth = () => {
       <div className="min-h-screen flex items-center justify-center p-4">
         <Card className="glass-card w-full max-w-md shadow-lg">
         <CardHeader className="text-center space-y-2">
+          <div className="flex justify-start mb-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/')}
+              className="gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Home
+            </Button>
+          </div>
           <div className="flex justify-center mb-2">
             <div className="w-16 h-16 rounded-full flex items-center justify-center"
                  style={{ background: 'var(--gradient-hero)' }}>
