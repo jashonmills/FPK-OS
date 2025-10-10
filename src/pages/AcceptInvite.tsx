@@ -29,29 +29,29 @@ const AcceptInvite = () => {
       }
 
       try {
-        console.log('Fetching invite with token:', token);
-        
-        // Fetch invite data - need to use the anon client since user isn't authenticated yet
-        const response = await fetch(
-          `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/invites?token=eq.${token}&select=*,families:family_id(family_name)`,
-          {
-            headers: {
-              'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
-              'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-            },
-          }
-        );
+        const { data, error } = await supabase
+          .from('invites')
+          .select(`
+            *,
+            families:family_id (
+              family_name
+            )
+          `)
+          .eq('token', token)
+          .maybeSingle();
 
-        const invites = await response.json();
-        console.log('Invite API result:', invites);
-
-        if (!response.ok || !invites || invites.length === 0) {
-          setError("This invitation is invalid or has expired");
+        if (error) {
+          console.error('Error fetching invite:', error);
+          setError("Failed to load invitation");
           setIsLoading(false);
           return;
         }
 
-        const data = invites[0];
+        if (!data) {
+          setError("This invitation is invalid or has expired");
+          setIsLoading(false);
+          return;
+        }
 
         // Check status
         if (data.status !== 'pending') {
@@ -69,7 +69,6 @@ const AcceptInvite = () => {
 
         setInviteData(data);
       } catch (err) {
-        console.error('Error fetching invite:', err);
         setError("Failed to load invitation");
       } finally {
         setIsLoading(false);
