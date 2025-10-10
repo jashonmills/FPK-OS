@@ -230,6 +230,7 @@ export type Database = {
           max_students: number | null
           metadata: Json | null
           storage_limit_mb: number | null
+          stripe_customer_id: string | null
           subscription_status: string | null
           subscription_tier: string | null
           updated_at: string | null
@@ -242,6 +243,7 @@ export type Database = {
           max_students?: number | null
           metadata?: Json | null
           storage_limit_mb?: number | null
+          stripe_customer_id?: string | null
           subscription_status?: string | null
           subscription_tier?: string | null
           updated_at?: string | null
@@ -254,6 +256,7 @@ export type Database = {
           max_students?: number | null
           metadata?: Json | null
           storage_limit_mb?: number | null
+          stripe_customer_id?: string | null
           subscription_status?: string | null
           subscription_tier?: string | null
           updated_at?: string | null
@@ -1126,6 +1129,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_add_family_member: {
+        Args: { _family_id: string }
+        Returns: boolean
+      }
+      can_add_student: {
+        Args: { _family_id: string }
+        Returns: boolean
+      }
       get_daily_log_counts: {
         Args: { p_days?: number; p_family_id: string; p_student_id: string }
         Returns: {
@@ -1144,6 +1155,10 @@ export type Database = {
           log_date: string
         }[]
       }
+      get_max_users_for_tier: {
+        Args: { tier: string }
+        Returns: number
+      }
       get_sleep_summary_data: {
         Args: { p_days?: number; p_family_id: string; p_student_id: string }
         Returns: {
@@ -1151,6 +1166,17 @@ export type Database = {
           sleep_date: string
           sleep_quality_rating: number
           total_sleep_hours: number
+        }[]
+      }
+      get_subscription_tier_details: {
+        Args: { tier: string }
+        Returns: {
+          annual_price: number
+          max_students: number
+          max_users: number
+          monthly_price: number
+          storage_limit_mb: number
+          tier_name: string
         }[]
       }
       get_user_family_role: {
