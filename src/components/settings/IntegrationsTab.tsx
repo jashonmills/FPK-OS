@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Activity, Check, ExternalLink } from "lucide-react";
+import { Activity, Check, ExternalLink, Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useFamily } from "@/contexts/FamilyContext";
 import { useEffect, useState } from "react";
@@ -12,13 +12,17 @@ export const IntegrationsTab = () => {
   const navigate = useNavigate();
   const { selectedFamily } = useFamily();
   const [hasGarminConnection, setHasGarminConnection] = useState(false);
+  const [hasGoogleCalendar, setHasGoogleCalendar] = useState(false);
+  const [googleCalendarId, setGoogleCalendarId] = useState<string | null>(null);
+  const [isSyncing, setIsSyncing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const checkGarminConnection = async () => {
+    const checkIntegrations = async () => {
       if (!selectedFamily) return;
 
-      const { data, error } = await supabase
+      // Check Garmin
+      const { data: garminData } = await supabase
         .from("external_integrations")
         .select("*")
         .eq("family_id", selectedFamily.id)
@@ -26,17 +30,94 @@ export const IntegrationsTab = () => {
         .eq("is_active", true)
         .maybeSingle();
 
-      if (!error && data) {
+      if (garminData) {
         setHasGarminConnection(true);
       }
+
+      // Check Google Calendar
+      const { data: googleData } = await supabase
+        .from("external_integrations")
+        .select("id")
+        .eq("family_id", selectedFamily.id)
+        .eq("provider", "google_calendar")
+        .eq("is_active", true)
+        .maybeSingle();
+
+      if (googleData) {
+        setHasGoogleCalendar(true);
+        setGoogleCalendarId(googleData.id);
+      }
+
       setIsLoading(false);
     };
 
-    checkGarminConnection();
+    checkIntegrations();
   }, [selectedFamily]);
 
   const handleConnectGarmin = () => {
     toast.info("Garmin integration coming soon! This will connect to your Garmin device for real-time biometric monitoring.");
+  };
+
+  const handleConnectGoogleCalendar = async () => {
+    if (!selectedFamily) return;
+
+    try {
+      const { data, error } = await supabase.functions.invoke('connect-google-calendar', {
+        body: { family_id: selectedFamily.id }
+      });
+
+      if (error) throw error;
+
+      if (data.auth_url) {
+        window.location.href = data.auth_url;
+      }
+    } catch (error) {
+      console.error('Error connecting Google Calendar:', error);
+      toast.error('Failed to connect Google Calendar. Please try again.');
+    }
+  };
+
+  const handleSyncGoogleCalendar = async () => {
+    if (!selectedFamily || !googleCalendarId) return;
+
+    setIsSyncing(true);
+    try {
+      const { error } = await supabase.functions.invoke('sync-calendar-events', {
+        body: { 
+          family_id: selectedFamily.id,
+          integration_id: googleCalendarId
+        }
+      });
+
+      if (error) throw error;
+
+      toast.success('Calendar synced successfully!');
+    } catch (error) {
+      console.error('Error syncing calendar:', error);
+      toast.error('Failed to sync calendar. Please try again.');
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  const handleDisconnectGoogleCalendar = async () => {
+    if (!selectedFamily || !googleCalendarId) return;
+
+    try {
+      const { error } = await supabase
+        .from('external_integrations')
+        .update({ is_active: false, status: 'revoked' })
+        .eq('id', googleCalendarId);
+
+      if (error) throw error;
+
+      setHasGoogleCalendar(false);
+      setGoogleCalendarId(null);
+      toast.success('Google Calendar disconnected');
+    } catch (error) {
+      console.error('Error disconnecting:', error);
+      toast.error('Failed to disconnect Google Calendar');
+    }
   };
 
   return (
@@ -123,6 +204,69 @@ export const IntegrationsTab = () => {
         </CardContent>
       </Card>
 
+      {/* Google Calendar */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Calendar className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <CardTitle>Google Calendar</CardTitle>
+                <CardDescription>Sync events to correlate with behavioral data</CardDescription>
+              </div>
+            </div>
+            {hasGoogleCalendar && (
+              <Badge variant="default" className="flex items-center gap-1">
+                <Check className="h-3 w-3" />
+                Connected
+              </Badge>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <h4 className="font-medium">What Gets Synced</h4>
+            <ul className="text-sm text-muted-foreground space-y-1">
+              <li>• Therapy appointments</li>
+              <li>• School events and meetings</li>
+              <li>• Doctor visits</li>
+              <li>• Family activities and outings</li>
+            </ul>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t">
+            {hasGoogleCalendar ? (
+              <>
+                <Button 
+                  onClick={handleSyncGoogleCalendar} 
+                  disabled={isSyncing}
+                  className="gap-2"
+                >
+                  <Calendar className="h-4 w-4" />
+                  {isSyncing ? 'Syncing...' : 'Sync Now'}
+                </Button>
+                <Button variant="outline" onClick={handleDisconnectGoogleCalendar}>
+                  Disconnect
+                </Button>
+              </>
+            ) : (
+              <Button onClick={handleConnectGoogleCalendar} className="gap-2">
+                <Calendar className="h-4 w-4" />
+                Connect Google Calendar
+              </Button>
+            )}
+          </div>
+
+          <div className="p-4 bg-muted rounded-lg">
+            <p className="text-sm text-muted-foreground">
+              Calendar events will be overlaid on your analytics charts, helping you understand how scheduled activities correlate with behavior patterns.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Future integrations placeholder */}
       <Card className="opacity-60">
         <CardHeader>
@@ -132,7 +276,7 @@ export const IntegrationsTab = () => {
             </div>
             <div>
               <CardTitle>More Integrations Coming Soon</CardTitle>
-              <CardDescription>Apple Health, Fitbit, and more...</CardDescription>
+              <CardDescription>Microsoft Calendar, Apple Health, and more...</CardDescription>
             </div>
           </div>
         </CardHeader>
