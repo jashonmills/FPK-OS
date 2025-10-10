@@ -1,5 +1,47 @@
 project_id = "pnxwemmpxldriwaomiey"
 
+[functions.ingest-academic-sources]
+verify_jwt = true
+
+[functions.scrape-kennedy-krieger]
+verify_jwt = true
+
+[functions.scrape-ucdavis-mind]
+verify_jwt = true
+
+[functions.scrape-vanderbilt-kennedy]
+verify_jwt = true
+
+[functions.scrape-autism-speaks]
+verify_jwt = true
+
+[functions.scrape-chadd]
+verify_jwt = true
+
+[functions.scrape-understood]
+verify_jwt = true
+
+[functions.scrape-aane]
+verify_jwt = true
+
+[functions.scrape-state-doe]
+verify_jwt = true
+
+[functions.scrape-autistic-blogs]
+verify_jwt = true
+
+[functions.scrape-prt-resources]
+verify_jwt = true
+
+[functions.scrape-esdm-resources]
+verify_jwt = true
+
+[functions.scrape-social-thinking]
+verify_jwt = true
+
+[functions.scrape-opencourseware]
+verify_jwt = true
+
 [functions.fetch-weather-data]
 verify_jwt = false
 

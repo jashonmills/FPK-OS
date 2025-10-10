@@ -32,6 +32,19 @@ serve(async (req) => {
       "bacb": "scrape-bacb-content",
       "nas": "scrape-nas-content",
       "cec": "scrape-cec-content",
+      "kennedy-krieger": "scrape-kennedy-krieger",
+      "ucdavis-mind": "scrape-ucdavis-mind",
+      "vanderbilt-kennedy": "scrape-vanderbilt-kennedy",
+      "autism-speaks": "scrape-autism-speaks",
+      "chadd": "scrape-chadd",
+      "understood": "scrape-understood",
+      "aane": "scrape-aane",
+      "state-doe": "scrape-state-doe",
+      "autistic-blogs": "scrape-autistic-blogs",
+      "prt-resources": "scrape-prt-resources",
+      "esdm-resources": "scrape-esdm-resources",
+      "social-thinking": "scrape-social-thinking",
+      "opencourseware": "scrape-opencourseware",
     };
 
     // Process each source
