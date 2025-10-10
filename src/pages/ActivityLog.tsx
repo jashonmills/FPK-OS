@@ -13,10 +13,11 @@ import { AlertCircle, Heart, Moon, GraduationCap, BarChart, Activity } from 'luc
 import { useFamily } from '@/contexts/FamilyContext';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Info } from 'lucide-react';
+import { ClearTestDataButton } from '@/components/admin/ClearTestDataButton';
 
 const ActivityLog = () => {
   const [refreshKey, setRefreshKey] = useState(0);
-  const { currentUserRole } = useFamily();
+  const { currentUserRole, familyMembership } = useFamily();
 
   const handleLogCreated = () => {
     setRefreshKey(prev => prev + 1);
@@ -24,8 +25,9 @@ const ActivityLog = () => {
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
-      <div className="mb-4">
+      <div className="mb-4 flex justify-between items-center">
         <p className="text-muted-foreground">Track incidents, observations, and sleep patterns</p>
+        {familyMembership?.role === 'owner' && <ClearTestDataButton />}
       </div>
 
       <LiveWeatherDisplay />
