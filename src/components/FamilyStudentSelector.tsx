@@ -23,10 +23,12 @@ export const FamilyStudentSelector = () => {
   } = useFamily();
 
   // Fetch family members for the dropdown
-  const { data: familyMembers } = useQuery({
+  const { data: familyMembers, error: membersError } = useQuery({
     queryKey: ['family-members-selector', selectedFamily?.id],
     queryFn: async () => {
       if (!selectedFamily?.id) return [];
+      
+      console.log('🔍 [Header] Fetching family members for:', selectedFamily.id);
       
       const { data, error } = await supabase
         .from('family_members')
@@ -42,10 +44,27 @@ export const FamilyStudentSelector = () => {
         .eq('family_id', selectedFamily.id)
         .order('role', { ascending: true }); // Owner first
 
-      if (error) throw error;
+      console.log('🔍 [Header] Family members result:', { data, error });
+      console.log('🔍 [Header] Number of members:', data?.length || 0);
+
+      if (error) {
+        console.error('❌ [Header] Error fetching family members:', error);
+        throw error;
+      }
       return data;
     },
     enabled: !!selectedFamily?.id,
+  });
+
+  // Log any query errors
+  if (membersError) {
+    console.error('❌ [Header] Query error:', membersError);
+  }
+
+  console.log('📊 [Header] FamilyStudentSelector render:', {
+    hasFamilyMembers: !!familyMembers,
+    memberCount: familyMembers?.length,
+    selectedFamily: selectedFamily?.family_name
   });
 
   if (!selectedFamily) return null;
@@ -60,12 +79,12 @@ export const FamilyStudentSelector = () => {
             <span>{selectedFamily.family_name}</span>
           </div>
         </SelectTrigger>
-        <SelectContent className="bg-popover">
+        <SelectContent className="bg-popover z-50">
           {familyMembers && familyMembers.length > 0 ? (
             familyMembers.map((member) => {
               const profile = member.profiles as any;
               return (
-                <SelectItem key={member.id} value={member.id}>
+                <SelectItem key={member.id} value={member.id} disabled>
                   <div className="flex items-center gap-3">
                     <Avatar className="w-6 h-6">
                       <AvatarImage src={profile?.avatar_url} />
@@ -85,7 +104,7 @@ export const FamilyStudentSelector = () => {
             })
           ) : (
             <SelectItem value="no-members" disabled>
-              No members found
+              {membersError ? 'Error loading members' : 'No members found'}
             </SelectItem>
           )}
         </SelectContent>
@@ -111,7 +130,7 @@ export const FamilyStudentSelector = () => {
               <span>{selectedStudent?.student_name || 'Select student'}</span>
             </div>
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="z-50">
             {students.map((student) => (
               <SelectItem key={student.id} value={student.id}>
                 <div className="flex items-center gap-2">
