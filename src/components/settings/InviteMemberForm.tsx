@@ -98,7 +98,8 @@ export const InviteMemberForm = ({ familyId, familyName }: InviteMemberFormProps
             },
           });
         } else {
-          toast.success("Invitation created (email sending pending)");
+          // Email sending failed
+          toast.error("Invitation created but email failed to send. Please contact support if this persists.");
         }
       } else {
         toast.success("Invitation sent successfully!");

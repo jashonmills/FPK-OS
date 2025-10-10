@@ -1,5 +1,20 @@
 project_id = "pnxwemmpxldriwaomiey"
 
+[functions.send-invitation]
+verify_jwt = true
+
+[functions.process-invite]
+verify_jwt = true
+
+[functions.clear-test-data]
+verify_jwt = true
+
+[functions.reset-analysis]
+verify_jwt = true
+
+[functions.extract-document-text]
+verify_jwt = true
+
 [functions.sync-garmin-data]
 verify_jwt = true
 
