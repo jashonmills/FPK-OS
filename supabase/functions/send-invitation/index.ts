@@ -101,13 +101,13 @@ Deno.serve(async (req) => {
 
     // Send email via Resend
     const { data: emailData, error: emailError } = await resend.emails.send({
-      from: 'Progress Hub <onboarding@resend.dev>',
+      from: 'FPX My CNS-App <onboarding@resend.dev>',
       to: [email],
       subject: `You've been invited to join ${familyName}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h1 style="color: #333;">You're Invited!</h1>
-          <p>You've been invited to join <strong>${familyName}</strong> on Progress Hub.</p>
+          <p>You've been invited to join <strong>${familyName}</strong> on FPX My CNS-App.</p>
           
           <p>As a <strong>${role}</strong>, you'll be able to ${roleDescription}.</p>
           
