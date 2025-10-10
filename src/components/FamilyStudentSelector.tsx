@@ -71,12 +71,42 @@ export const FamilyStudentSelector = () => {
 
   return (
     <div className="flex items-center gap-3">
-      {/* Family Members Dropdown */}
+      {/* Family Switcher - Only show if user is in multiple families */}
+      {families.length > 1 && (
+        <Select
+          value={selectedFamily.id}
+          onValueChange={(id) => {
+            const family = families.find(f => f.id === id);
+            if (family) setSelectedFamily(family);
+          }}
+        >
+          <SelectTrigger className="w-56">
+            <div className="flex items-center gap-2">
+              <Users className="w-4 h-4 text-muted-foreground" />
+              <span className="font-medium">{selectedFamily.family_name}</span>
+            </div>
+          </SelectTrigger>
+          <SelectContent className="bg-popover z-50">
+            {families.map((family) => (
+              <SelectItem key={family.id} value={family.id}>
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4" />
+                  <span>{family.family_name}</span>
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
+
+      {/* Family Members Viewer */}
       <Select value="view-members">
         <SelectTrigger className="w-48">
           <div className="flex items-center gap-2">
-            <Users className="w-4 h-4 text-muted-foreground" />
-            <span>{selectedFamily.family_name}</span>
+            <User className="w-4 h-4 text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">
+              {familyMembers?.length || 0} members
+            </span>
           </div>
         </SelectTrigger>
         <SelectContent className="bg-popover z-50">
