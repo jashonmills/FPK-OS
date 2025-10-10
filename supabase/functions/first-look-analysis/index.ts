@@ -100,11 +100,18 @@ serve(async (req) => {
 
 **CRITICAL: Extract ALL historical baseline data with dates when mentioned in documents.**
 
+**GOAL TYPE MAPPING - Use ONLY these exact values:**
+- "academic" - for reading, math, writing goals
+- "behavioral" - for behavior regulation, self-management
+- "social" - for social skills, interaction, communication
+- "life_skill" - for functional skills, daily living, self-care
+
 **Data to Extract:**
 1. IEP Goals: Extract any goals mentioned with baseline/current/target values
 2. Behavioral Incidents: Extract any behavioral data points with dates and metrics
 3. Academic Fluency: Extract reading fluency (WPM) or math fluency baselines if mentioned
 4. Progress Tracking: Extract any progress metrics mentioned with values
+5. Social Skills: Extract social interaction, communication data
 
 Format your response as a single JSON object:
 {
@@ -112,7 +119,7 @@ Format your response as a single JSON object:
     "iep_goals": [
       { 
         "goal_title": "Communication Skills",
-        "goal_type": "communication",
+        "goal_type": "social",
         "goal_description": "Use AAC device to make requests",
         "current_value": 50,
         "target_value": 90,
@@ -141,11 +148,13 @@ Format your response as a single JSON object:
     ],
     "progress_tracking": [
       {
-        "metric_type": "communication_skills",
-        "current_value": 50,
-        "target_value": 90,
-        "trend": "improving",
-        "notes": "Beginning to use AAC for requests"
+        "metric_type": "task_initiation",
+        "current_value": 20,
+        "target_value": 80,
+        "unit": "percent",
+        "trend": "stable",
+        "notes": "Beginning to initiate tasks",
+        "measurement_date": "2025-09-23"
       }
     ]
   },
@@ -163,6 +172,11 @@ Format your response as a single JSON object:
     {
       "chart_type": "academic_fluency_trends",
       "reason": "Specific academic fluency baseline data mentioned (Reading/Math WPM).",
+      "priority": "medium"
+    },
+    {
+      "chart_type": "social_interaction_funnel",
+      "reason": "Social skills baseline data found.",
       "priority": "medium"
     }
   ]
@@ -272,20 +286,41 @@ Format your response as a single JSON object:
 
     // Insert IEP goals if any
     if (analysisResult.baseline_data?.iep_goals?.length > 0) {
+      // Map goal types to allowed values
+      const goalTypeMap: Record<string, string> = {
+        'communication': 'social',
+        'speech_language': 'social',
+        'functional_skills': 'life_skill',
+        'adaptive_self_management': 'behavioral',
+        'adaptive_daily_living': 'life_skill',
+        'reading_language_arts': 'academic',
+        'reading_comprehension': 'academic',
+        'written_language': 'academic',
+        'mathematics': 'academic',
+        'social_skills': 'social',
+        'behavioral': 'behavioral',
+        'academic': 'academic',
+        'social': 'social',
+        'life_skill': 'life_skill',
+      };
+
       const goals = analysisResult.baseline_data.iep_goals
         .filter((goal: any) => typeof goal.current_value === 'number') // Only insert if current_value is numeric
-        .map((goal: any) => ({
-          family_id,
-          student_id: student.id,
-          goal_title: goal.goal_title,
-          goal_type: goal.goal_type,
-          goal_description: goal.goal_description || null,
-          current_value: goal.current_value || 0,
-          target_value: goal.target_value || null,
-          unit: goal.unit || null,
-          start_date: goal.start_date || new Date().toISOString().split('T')[0],
-          is_active: true,
-        }));
+        .map((goal: any) => {
+          const mappedType = goalTypeMap[goal.goal_type.toLowerCase()] || 'life_skill';
+          return {
+            family_id,
+            student_id: student.id,
+            goal_title: goal.goal_title,
+            goal_type: mappedType,
+            goal_description: goal.goal_description || null,
+            current_value: goal.current_value || 0,
+            target_value: goal.target_value || null,
+            unit: goal.unit || null,
+            start_date: goal.start_date || new Date().toISOString().split('T')[0],
+            is_active: true,
+          };
+        });
 
       if (goals.length > 0) {
         const { error: goalsError } = await supabase.from("goals").insert(goals);
@@ -350,6 +385,7 @@ Format your response as a single JSON object:
           target_value: progress.target_value || null,
           trend: progress.trend || "stable",
           notes: progress.notes || "AI Import from document analysis",
+          period_start: progress.measurement_date || null,
         }));
 
       if (progressData.length > 0) {
