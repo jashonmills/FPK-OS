@@ -82,8 +82,9 @@ const AcceptInvite = () => {
 
   const handleAcceptInvite = async () => {
     if (!user) {
-      // Redirect to auth with return URL
-      navigate(`/auth?redirect=/accept-invite?token=${token}`);
+      // Redirect to auth with full invite URL preserved
+      const currentUrl = `/accept-invite?token=${token}`;
+      navigate(`/auth?redirect=${encodeURIComponent(currentUrl)}`);
       return;
     }
 

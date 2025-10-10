@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,6 +13,8 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 const ProfileSetup = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectUrl = searchParams.get('redirect');
   const { user } = useAuth();
   const [isSaving, setIsSaving] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState('');
@@ -112,7 +114,14 @@ const ProfileSetup = () => {
 
       toast.success('Profile created successfully!');
 
-      // Check onboarding status before redirecting
+      // If there's a redirect URL (like invite acceptance), go there instead
+      if (redirectUrl) {
+        console.log('Redirect URL found, navigating to:', redirectUrl);
+        navigate(redirectUrl);
+        return;
+      }
+
+      // Otherwise, check onboarding status before redirecting
       const { data: hasCompletedOnboarding, error: onboardingError } = 
         await supabase.rpc('check_user_onboarding_status');
 

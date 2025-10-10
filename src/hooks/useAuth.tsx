@@ -24,6 +24,10 @@ export const useAuth = () => {
           // Use setTimeout to defer the navigation check
           setTimeout(async () => {
             try {
+              // Check for redirect parameter in URL
+              const urlParams = new URLSearchParams(window.location.search);
+              const redirectUrl = urlParams.get('redirect');
+              
               // First check if profile setup is complete
               const { data: profileData, error: profileError } = await supabase
                 .from('profiles')
@@ -35,10 +39,20 @@ export const useAuth = () => {
                 console.error("Error checking profile setup:", profileError);
               }
 
-              // If profile setup is not complete, redirect to profile setup
+              // If profile setup is not complete, redirect to profile setup (preserving redirect param)
               if (!profileData?.has_completed_profile_setup) {
                 console.log("Profile setup incomplete. Redirecting to profile-setup.");
-                navigate('/profile-setup');
+                const profileUrl = redirectUrl 
+                  ? `/profile-setup?redirect=${encodeURIComponent(redirectUrl)}`
+                  : '/profile-setup';
+                navigate(profileUrl);
+                return;
+              }
+
+              // If profile is complete AND redirect exists, go there (invited member flow)
+              if (redirectUrl) {
+                console.log("Profile complete, following redirect:", redirectUrl);
+                navigate(redirectUrl);
                 return;
               }
 
