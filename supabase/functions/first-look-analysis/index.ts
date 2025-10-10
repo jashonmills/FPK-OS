@@ -96,28 +96,57 @@ serve(async (req) => {
       .join("\n\n");
 
     // Call AI for first look analysis
-    const systemPrompt = `You are an AI Onboarding Specialist. You will be given text from a new user's first 5 documents. Your job is to backfill their historical data and recommend specialized analytics.
+    const systemPrompt = `You are an AI Onboarding Specialist. You will be given text from a new user's first 5 documents. Your job is to extract baseline data that can populate analytics charts.
 
-**Function 1: Extract Historical Data.** Scan all documents for any mention of sleep, mood, or incidents with associated dates. Only extract data that is explicitly stated with dates.
+**CRITICAL: Extract ALL historical baseline data with dates when mentioned in documents.**
 
-**Function 2: Recommend New Charts.** Analyze the content for recurring themes and suggest new chart types that would be valuable for this family.
-
-**Chart Recommendation Library:**
-When you recommend charts, you MUST use one of the following chart_type names in your JSON output:
-1. behavior_function_analysis: Use this for documents focused on FBA/BIPs and behavioral functions (escape, tangible, sensory, attention).
-2. iep_goal_service_tracker: Use this for IEPs with clear goals and service minutes.
-3. academic_fluency_trends: Use this for students with learning disabilities and academic fluency goals (reading WPM, math facts).
-4. sensory_profile_heatmap: Use this when documents frequently mention sensory sensitivities or SPD.
-5. social_interaction_funnel: Use this when social skills and peer interaction are a primary focus.
+**Data to Extract:**
+1. IEP Goals: Extract any goals mentioned with baseline/current/target values
+2. Behavioral Incidents: Extract any behavioral data points with dates and metrics
+3. Academic Fluency: Extract reading fluency (WPM) or math fluency baselines if mentioned
+4. Progress Tracking: Extract any progress metrics mentioned with values
 
 Format your response as a single JSON object:
 {
-  "historical_data": {
-    "sleep_records": [
-      { "record_date": "YYYY-MM-DD", "total_sleep_hours": 6.5, "sleep_quality_rating": 2, "notes": "From document" }
+  "baseline_data": {
+    "iep_goals": [
+      { 
+        "goal_title": "Communication Skills",
+        "goal_type": "communication",
+        "goal_description": "Use AAC device to make requests",
+        "current_value": 50,
+        "target_value": 90,
+        "unit": "percent",
+        "start_date": "2025-09-01"
+      }
     ],
-    "mood_observations": [
-      { "observation_date": "YYYY-MM-DD", "mood": "anxious", "context": "From IEP notes" }
+    "behavioral_metrics": [
+      {
+        "metric_name": "Elopement",
+        "metric_type": "behavioral_incident",
+        "metric_value": 2,
+        "metric_unit": "per week",
+        "measurement_date": "2025-09-23",
+        "context": "From BIP baseline data"
+      }
+    ],
+    "academic_fluency": [
+      {
+        "metric_name": "Reading Fluency",
+        "metric_value": 35,
+        "target_value": 60,
+        "metric_unit": "WPM",
+        "measurement_date": "2025-09-23"
+      }
+    ],
+    "progress_tracking": [
+      {
+        "metric_type": "communication_skills",
+        "current_value": 50,
+        "target_value": 90,
+        "trend": "improving",
+        "notes": "Beginning to use AAC for requests"
+      }
     ]
   },
   "chart_recommendations": [
@@ -128,11 +157,23 @@ Format your response as a single JSON object:
     },
     { 
       "chart_type": "iep_goal_service_tracker", 
-      "reason": "IEP contains 8 goals across multiple domains with service delivery hours.",
+      "reason": "IEP contains goals across multiple domains with service delivery hours.",
       "priority": "high"
+    },
+    {
+      "chart_type": "academic_fluency_trends",
+      "reason": "Specific academic fluency baseline data mentioned (Reading/Math WPM).",
+      "priority": "medium"
     }
   ]
-}`;
+}
+
+**Chart Type Options:**
+- behavior_function_analysis: For FBA/BIP behavioral data
+- iep_goal_service_tracker: For IEP goals with measurable targets
+- academic_fluency_trends: For reading/math fluency data
+- sensory_profile_heatmap: For sensory sensitivities/SPD data
+- social_interaction_funnel: For social skills data`;
 
     const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -206,37 +247,110 @@ Format your response as a single JSON object:
       })
       .eq("id", family_id);
 
-    // Insert historical sleep records if any (with ai_import flag in metadata)
-    if (analysisResult.historical_data?.sleep_records?.length > 0) {
-      const { data: students } = await supabase
-        .from("students")
-        .select("id")
-        .eq("family_id", family_id)
-        .limit(1)
-        .single();
+    // Get student for data insertion
+    const { data: student } = await supabase
+      .from("students")
+      .select("id")
+      .eq("family_id", family_id)
+      .limit(1)
+      .single();
 
-      if (students) {
-        const sleepRecords = analysisResult.historical_data.sleep_records.map((record: any) => ({
-          family_id,
-          student_id: students.id,
-          sleep_date: record.record_date,
-          total_sleep_hours: record.total_sleep_hours,
-          sleep_quality_rating: record.sleep_quality_rating || null,
-          notes: `AI Import: ${record.notes || ""}`,
-          bedtime: "00:00",
-          wake_time: "00:00",
-          created_by: family.created_by,
-        }));
+    if (!student) {
+      console.error("No student found for family");
+      return new Response(
+        JSON.stringify({ error: "No student found" }),
+        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
-        await supabase.from("sleep_records").insert(sleepRecords);
-      }
+    let importedCounts = {
+      goals: 0,
+      behavioral_metrics: 0,
+      academic_metrics: 0,
+      progress_tracking: 0,
+    };
+
+    // Insert IEP goals if any
+    if (analysisResult.baseline_data?.iep_goals?.length > 0) {
+      const goals = analysisResult.baseline_data.iep_goals.map((goal: any) => ({
+        family_id,
+        student_id: student.id,
+        goal_title: goal.goal_title,
+        goal_type: goal.goal_type,
+        goal_description: goal.goal_description || null,
+        current_value: goal.current_value || 0,
+        target_value: goal.target_value || null,
+        unit: goal.unit || null,
+        start_date: goal.start_date || new Date().toISOString().split('T')[0],
+        is_active: true,
+      }));
+
+      const { error: goalsError } = await supabase.from("goals").insert(goals);
+      if (!goalsError) importedCounts.goals = goals.length;
+      else console.error("Error inserting goals:", goalsError);
+    }
+
+    // Insert behavioral metrics
+    if (analysisResult.baseline_data?.behavioral_metrics?.length > 0) {
+      const behavioralMetrics = analysisResult.baseline_data.behavioral_metrics.map((metric: any) => ({
+        family_id,
+        student_id: student.id,
+        document_id: null,
+        metric_type: metric.metric_type || "behavioral_incident",
+        metric_name: metric.metric_name,
+        metric_value: metric.metric_value,
+        metric_unit: metric.metric_unit || null,
+        measurement_date: metric.measurement_date || null,
+        context: metric.context || "AI Import from document analysis",
+      }));
+
+      const { error: behavioralError } = await supabase.from("document_metrics").insert(behavioralMetrics);
+      if (!behavioralError) importedCounts.behavioral_metrics = behavioralMetrics.length;
+      else console.error("Error inserting behavioral metrics:", behavioralError);
+    }
+
+    // Insert academic fluency data
+    if (analysisResult.baseline_data?.academic_fluency?.length > 0) {
+      const academicMetrics = analysisResult.baseline_data.academic_fluency.map((metric: any) => ({
+        family_id,
+        student_id: student.id,
+        document_id: null,
+        metric_type: "academic_fluency",
+        metric_name: metric.metric_name,
+        metric_value: metric.metric_value,
+        target_value: metric.target_value || null,
+        metric_unit: metric.metric_unit || "WPM",
+        measurement_date: metric.measurement_date || null,
+        context: "AI Import: Baseline from documents",
+      }));
+
+      const { error: academicError } = await supabase.from("document_metrics").insert(academicMetrics);
+      if (!academicError) importedCounts.academic_metrics = academicMetrics.length;
+      else console.error("Error inserting academic metrics:", academicError);
+    }
+
+    // Insert progress tracking data
+    if (analysisResult.baseline_data?.progress_tracking?.length > 0) {
+      const progressData = analysisResult.baseline_data.progress_tracking.map((progress: any) => ({
+        family_id,
+        student_id: student.id,
+        metric_type: progress.metric_type,
+        current_value: progress.current_value || null,
+        target_value: progress.target_value || null,
+        trend: progress.trend || "stable",
+        notes: progress.notes || "AI Import from document analysis",
+      }));
+
+      const { error: progressError } = await supabase.from("progress_tracking").insert(progressData);
+      if (!progressError) importedCounts.progress_tracking = progressData.length;
+      else console.error("Error inserting progress tracking:", progressError);
     }
 
     return new Response(
       JSON.stringify({
         success: true,
         chart_recommendations: analysisResult.chart_recommendations || [],
-        historical_records_imported: analysisResult.historical_data?.sleep_records?.length || 0,
+        imported_data: importedCounts,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
