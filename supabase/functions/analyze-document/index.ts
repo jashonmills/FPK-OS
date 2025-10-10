@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { DOCUMENT_INTELLIGENCE_MATRIX, identifyDocumentType } from "../_shared/document-matrix.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -49,12 +50,46 @@ serve(async (req) => {
       );
     }
 
-    // Call AI to analyze the document
-    const systemPrompt = `You are an expert AI data analyst specializing in special education documents (IEPs, FBAs, Clinical Reports). Your task is to extract structured data from the provided text.
+    // Stage 1: Identify document type using the matrix
+    const identifiedType = identifyDocumentType(document.extracted_content);
+    
+    if (identifiedType) {
+      console.log(`✅ Document identified as: ${identifiedType.doc_type}`);
+    } else {
+      console.log("⚠️ Could not identify document type, using generic analysis");
+    }
+
+    // Stage 2: Build type-specific system prompt
+    const systemPrompt = identifiedType 
+      ? `You are analyzing a **${identifiedType.doc_type}** document.
+
+**Expected Data to Extract:**
+${identifiedType.expected_data}
+
+**CRITICAL INSTRUCTIONS:**
+1. This document should contain: ${identifiedType.expected_data}
+2. ONLY extract data that is explicitly present in the text - DO NOT INFER OR HALLUCINATE
+3. If the expected data is not found, return empty arrays
+4. For metrics: Extract exact values, dates, times, and units
+5. For insights: Only create insights based on explicit recommendations in the document
+6. PRIORITIZE TIME-BASED DATA: Extract exact timestamps, start/end times, and durations
+
+${identifiedType.generates_chart ? `**Chart Generation:** This document type typically populates the "${identifiedType.generates_chart}" chart.` : ''}
+
+Format your response as a single, valid JSON object with the following structure:`
+      : `You are an expert AI data analyst specializing in special education documents.
+  
+**Document Type:** Unknown/Generic
+  
+Extract any structured data you can find. Focus on:
+- Quantifiable metrics (frequencies, percentages, scores)
+- Goals or targets with baseline/current/target values
+- Recommendations or action items
+- Progress indicators
 
 **CRITICAL RULES:**
-1. DO NOT INFER OR HALLUCINATE. Only extract data that is explicitly stated in the text. If a metric is not present, do not create it.
-2. PRIORITIZE TIME-BASED DATA. Extract exact timestamps, start/end times, and durations whenever mentioned.
+1. DO NOT INFER OR HALLUCINATE. Only extract data that is explicitly stated.
+2. PRIORITIZE TIME-BASED DATA. Extract exact timestamps, start/end times, and durations.
 3. QUANTIFY EVERYTHING. Convert phrases like "five instances" into a numeric value.
 
 Format your entire response as a single, valid JSON object with the following structure:
@@ -231,7 +266,8 @@ Format your entire response as a single, valid JSON object with the following st
 
     return new Response(
       JSON.stringify({ 
-        success: true, 
+        success: true,
+        identified_doc_type: identifiedType?.doc_type || "Unknown",
         metrics_count: analysisResult.metrics?.length || 0,
         insights_count: analysisResult.insights?.length || 0,
         progress_count: analysisResult.progress?.length || 0,

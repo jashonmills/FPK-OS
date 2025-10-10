@@ -8,11 +8,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Upload, FileText, Eye, Trash2, Download, Sparkles } from "lucide-react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Upload, FileText, Eye, Trash2, Download, Sparkles, HelpCircle } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { DocumentUploadModal } from "@/components/documents/DocumentUploadModal";
 import { DocumentViewerModal } from "@/components/documents/DocumentViewerModal";
+import { DocumentGuide } from "@/components/documents/DocumentGuide";
 import * as pdfjs from "pdfjs-dist";
 
 export default function Documents() {
@@ -24,6 +26,7 @@ export default function Documents() {
   const [selectedDocument, setSelectedDocument] = useState<any>(null);
   const [analyzingDocId, setAnalyzingDocId] = useState<string | null>(null);
   const [isAnalyzingAll, setIsAnalyzingAll] = useState(false);
+  const [guideOpen, setGuideOpen] = useState(false);
 
   const { data: documents, isLoading } = useQuery({
     queryKey: ["documents", selectedFamily?.id],
@@ -267,6 +270,24 @@ export default function Documents() {
                 </Button>
               </>
             )}
+            
+            <Sheet open={guideOpen} onOpenChange={setGuideOpen}>
+              <SheetTrigger asChild>
+                <Button variant="outline">
+                  <HelpCircle className="mr-2 h-4 w-4" />
+                  Document Guide
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-full sm:max-w-2xl overflow-y-auto">
+                <SheetHeader>
+                  <SheetTitle>What Should I Upload?</SheetTitle>
+                </SheetHeader>
+                <div className="mt-6">
+                  <DocumentGuide />
+                </div>
+              </SheetContent>
+            </Sheet>
+            
             <Button onClick={() => setUploadModalOpen(true)}>
               <Upload className="mr-2 h-4 w-4" />
               Upload Document
