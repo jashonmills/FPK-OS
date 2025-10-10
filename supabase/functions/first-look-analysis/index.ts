@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { CHART_MANIFEST, formatManifestForAI } from "../_shared/chart-manifest.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -95,8 +96,133 @@ serve(async (req) => {
       .map((doc, i) => `=== Document ${i + 1}: ${doc.file_name} ===\n${doc.extracted_content || "No content"}`)
       .join("\n\n");
 
-    // Call AI for first look analysis
-    const systemPrompt = `You are an AI Onboarding Specialist. You will be given text from a new user's first 5 documents. Your job is to extract baseline data that can populate analytics charts.
+    // === STEP 1: AI "PROPOSE" - Get chart recommendations with confidence scores ===
+    
+    const chartManifestJson = formatManifestForAI();
+    
+    const proposeSystemPrompt = `You are a data analyst specializing in special education document analysis. Your job is to analyze uploaded documents and recommend relevant analytics charts.
+
+**CHART MANIFEST:**
+${chartManifestJson}
+
+**YOUR TASK:**
+1. Analyze the provided documents
+2. For each chart in the manifest above, determine if there is strong supporting evidence in the documents
+3. For charts with good evidence, output the chartId and a confidence score (0.0 to 1.0)
+4. A confidence score represents how relevant and useful that chart would be based on the document content
+
+**OUTPUT FORMAT:**
+Return ONLY a valid JSON array of objects. Each object must have:
+- chartId: string (exact chartId from manifest)
+- confidence: number (0.0 to 1.0)
+
+Example output:
+[
+  {"chartId": "iep_goal_service_tracker", "confidence": 0.95},
+  {"chartId": "behavior_function_analysis", "confidence": 0.85},
+  {"chartId": "academic_fluency_trends", "confidence": 0.70}
+]
+
+**CONFIDENCE SCORING GUIDE:**
+- 0.9-1.0: Document explicitly contains this data type with detailed metrics
+- 0.7-0.89: Document mentions this area with some data points
+- 0.5-0.69: Document references this area but limited data
+- Below 0.5: Don't include (insufficient evidence)
+
+Return ONLY the JSON array, no other text.`;
+
+    const proposeResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${lovableApiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash",
+        messages: [
+          { role: "system", content: proposeSystemPrompt },
+          { role: "user", content: `Analyze these 5 documents and recommend charts:\n\n${combinedText}` },
+        ],
+      }),
+    });
+
+    if (!proposeResponse.ok) {
+      const errorText = await proposeResponse.text();
+      console.error("AI Propose step error:", proposeResponse.status, errorText);
+      return new Response(
+        JSON.stringify({ error: "Chart recommendation failed" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const proposeData = await proposeResponse.json();
+    const proposeContent = proposeData.choices?.[0]?.message?.content;
+
+    if (!proposeContent) {
+      return new Response(
+        JSON.stringify({ error: "AI returned no chart recommendations" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // === STEP 2: CODE "RANK" - Deterministically select top 3 charts ===
+    
+    let proposedCharts;
+    try {
+      // Clean the response
+      let cleanedContent = proposeContent.trim();
+      if (cleanedContent.startsWith('```json')) cleanedContent = cleanedContent.slice(7);
+      if (cleanedContent.startsWith('```')) cleanedContent = cleanedContent.slice(3);
+      if (cleanedContent.endsWith('```')) cleanedContent = cleanedContent.slice(0, -3);
+      
+      proposedCharts = JSON.parse(cleanedContent.trim());
+      console.log("AI proposed charts:", proposedCharts);
+    } catch (parseError) {
+      console.error("Failed to parse chart proposals:", parseError);
+      console.error("Raw content:", proposeContent);
+      return new Response(
+        JSON.stringify({ error: "Failed to parse chart recommendations" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Validate and filter proposed charts
+    if (!Array.isArray(proposedCharts)) {
+      proposedCharts = [];
+    }
+
+    // Filter to only valid chartIds from manifest
+    const validChartIds = CHART_MANIFEST.map(c => c.chartId);
+    const validProposals = proposedCharts.filter((proposal: any) => 
+      proposal.chartId && 
+      validChartIds.includes(proposal.chartId) &&
+      typeof proposal.confidence === 'number'
+    );
+
+    // Sort by confidence (descending) and take top 3
+    const rankedCharts = validProposals
+      .sort((a: any, b: any) => b.confidence - a.confidence)
+      .slice(0, 3);
+
+    // Extract just the chartIds for storage
+    const recommendedChartIds = rankedCharts.map((chart: any) => chart.chartId);
+    
+    // Build chart recommendations in the expected format for backward compatibility
+    const chartRecommendations = rankedCharts.map((chart: any) => {
+      const manifestItem = CHART_MANIFEST.find(c => c.chartId === chart.chartId);
+      return {
+        chart_type: chart.chartId,
+        reason: manifestItem?.description || "Recommended based on document content",
+        priority: chart.confidence >= 0.85 ? "high" : chart.confidence >= 0.70 ? "medium" : "low",
+        confidence: chart.confidence
+      };
+    });
+
+    console.log("Final ranked chart recommendations:", chartRecommendations);
+
+    // === STEP 3: Extract baseline data using separate AI call ===
+    
+    const extractSystemPrompt = `You are an AI data extraction specialist. Extract baseline data from these documents to populate analytics charts.
 
 **CRITICAL: Extract ALL historical baseline data with dates when mentioned in documents.**
 
@@ -166,39 +292,10 @@ Format your response as a single JSON object:
         "measurement_date": "2025-09-23"
       }
     ]
-  },
-  "chart_recommendations": [
-    { 
-      "chart_type": "behavior_function_analysis", 
-      "reason": "Document includes FBA data with hypothesized functions for challenging behaviors.",
-      "priority": "high"
-    },
-    { 
-      "chart_type": "iep_goal_service_tracker", 
-      "reason": "IEP contains goals across multiple domains with service delivery hours.",
-      "priority": "high"
-    },
-    {
-      "chart_type": "academic_fluency_trends",
-      "reason": "Specific academic fluency baseline data mentioned (Reading/Math WPM).",
-      "priority": "medium"
-    },
-    {
-      "chart_type": "social_interaction_funnel",
-      "reason": "Social skills baseline data found.",
-      "priority": "medium"
-    }
-  ]
-}
+  }
+}`;
 
-**Chart Type Options:**
-- behavior_function_analysis: For FBA/BIP behavioral data
-- iep_goal_service_tracker: For IEP goals with measurable targets
-- academic_fluency_trends: For reading/math fluency data
-- sensory_profile_heatmap: For sensory sensitivities/SPD data
-- social_interaction_funnel: For social skills data`;
-
-    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const extractResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${lovableApiKey}`,
@@ -207,27 +304,27 @@ Format your response as a single JSON object:
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: `Analyze these 5 documents:\n\n${combinedText}` },
+          { role: "system", content: extractSystemPrompt },
+          { role: "user", content: `Extract baseline data from these 5 documents:\n\n${combinedText}` },
         ],
       }),
     });
 
-    if (!aiResponse.ok) {
-      const errorText = await aiResponse.text();
-      console.error("AI API error:", aiResponse.status, errorText);
+    if (!extractResponse.ok) {
+      const errorText = await extractResponse.text();
+      console.error("AI extraction error:", extractResponse.status, errorText);
       return new Response(
-        JSON.stringify({ error: "AI analysis failed" }),
+        JSON.stringify({ error: "Data extraction failed" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const aiData = await aiResponse.json();
-    const aiContent = aiData.choices?.[0]?.message?.content;
+    const extractData = await extractResponse.json();
+    const extractContent = extractData.choices?.[0]?.message?.content;
 
-    if (!aiContent) {
+    if (!extractContent) {
       return new Response(
-        JSON.stringify({ error: "AI returned no content" }),
+        JSON.stringify({ error: "AI returned no extracted data" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -235,7 +332,7 @@ Format your response as a single JSON object:
     let analysisResult;
     try {
       // Strip markdown code fences if present
-      let cleanedContent = aiContent.trim();
+      let cleanedContent = extractContent.trim();
       if (cleanedContent.startsWith('```json')) {
         cleanedContent = cleanedContent.slice(7);
       }
@@ -247,28 +344,30 @@ Format your response as a single JSON object:
       }
       
       analysisResult = JSON.parse(cleanedContent.trim());
-      console.log("Successfully parsed AI response:", analysisResult);
+      console.log("Successfully parsed extracted data:", analysisResult);
     } catch (parseError) {
-      console.error("Failed to parse AI response:", parseError);
-      console.error("Raw AI content:", aiContent);
+      console.error("Failed to parse extracted data:", parseError);
+      console.error("Raw extraction content:", extractContent);
       return new Response(
-        JSON.stringify({ error: "Failed to parse AI response" }),
+        JSON.stringify({ error: "Failed to parse extracted data" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Store chart recommendations
+    // Store deterministic chart recommendations
     const trialEndsAt = new Date();
     trialEndsAt.setDate(trialEndsAt.getDate() + 30); // 30 day trial
 
     await supabase
       .from("families")
       .update({
-        suggested_charts_config: analysisResult.chart_recommendations || [],
+        suggested_charts_config: chartRecommendations, // Store the detailed recommendations
         special_chart_trial_ends_at: trialEndsAt.toISOString(),
         initial_doc_analysis_status: "complete",
       })
       .eq("id", family_id);
+
+    console.log("Stored chart recommendations:", chartRecommendations);
 
     // Get student for data insertion
     const { data: student } = await supabase
@@ -428,8 +527,9 @@ Format your response as a single JSON object:
     return new Response(
       JSON.stringify({
         success: true,
-        chart_recommendations: analysisResult.chart_recommendations || [],
+        chart_recommendations: chartRecommendations,
         imported_data: importedCounts,
+        deterministic: true, // Flag to indicate we're using the new deterministic system
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
