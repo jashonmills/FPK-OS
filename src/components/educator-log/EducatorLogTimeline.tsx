@@ -3,7 +3,9 @@ import { useFamily } from '@/contexts/FamilyContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Clock, User, GraduationCap } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Calendar, Clock, User, GraduationCap, Volume2, VolumeX } from 'lucide-react';
+import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 
 interface EducatorLog {
   id: string;
@@ -29,6 +31,8 @@ export const EducatorLogTimeline = ({ refreshKey }: EducatorLogTimelineProps) =>
   const { selectedFamily, selectedStudent } = useFamily();
   const [logs, setLogs] = useState<EducatorLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [speakingLogId, setSpeakingLogId] = useState<string | null>(null);
+  const { speak, stop, isSpeaking, isLoading: isTTSLoading } = useTextToSpeech();
 
   useEffect(() => {
     if (selectedFamily?.id && selectedStudent?.id) {
@@ -68,6 +72,26 @@ export const EducatorLogTimeline = ({ refreshKey }: EducatorLogTimelineProps) =>
     return colors[type] || 'bg-gray-500';
   };
 
+  const handleListen = (log: EducatorLog) => {
+    if (speakingLogId === log.id && isSpeaking) {
+      stop();
+      setSpeakingLogId(null);
+    } else {
+      // Combine all text fields for speech
+      const textParts = [
+        `${log.log_type} session`,
+        log.progress_notes && `Progress notes: ${log.progress_notes}`,
+        log.behavioral_observations && `Behavioral observations: ${log.behavioral_observations}`,
+        log.challenges && `Challenges: ${log.challenges}`,
+        log.goals_for_next_session && `Goals for next session: ${log.goals_for_next_session}`,
+      ].filter(Boolean);
+      
+      const fullText = textParts.join('. ');
+      setSpeakingLogId(log.id);
+      speak(fullText);
+    }
+  };
+
   if (isLoading) {
     return <div className="text-center py-12">Loading...</div>;
   }
@@ -94,9 +118,24 @@ export const EducatorLogTimeline = ({ refreshKey }: EducatorLogTimelineProps) =>
                 <GraduationCap className="h-5 w-5 text-primary" />
                 <span className="text-lg capitalize">{log.log_type} Session</span>
               </div>
-              <Badge className={getLogTypeColor(log.log_type)}>
-                {log.log_type}
-              </Badge>
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => handleListen(log)}
+                  disabled={isTTSLoading}
+                  title="Listen to this log"
+                >
+                  {speakingLogId === log.id && isSpeaking ? (
+                    <VolumeX className="h-4 w-4 animate-pulse" />
+                  ) : (
+                    <Volume2 className="h-4 w-4" />
+                  )}
+                </Button>
+                <Badge className={getLogTypeColor(log.log_type)}>
+                  {log.log_type}
+                </Badge>
+              </div>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">

@@ -3,6 +3,7 @@ import { Mic, MicOff } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface TextareaWithVoiceProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   value?: string;
@@ -17,6 +18,7 @@ export const TextareaWithVoice = forwardRef<HTMLTextAreaElement, TextareaWithVoi
   ...props
 }, ref) => {
   const [isRecording, setIsRecording] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
 
   const startRecording = async () => {
@@ -32,8 +34,42 @@ export const TextareaWithVoice = forwardRef<HTMLTextAreaElement, TextareaWithVoi
         reader.onloadend = async () => {
           const base64Audio = (reader.result as string).split(',')[1];
           
-          // TODO: Implement transcription via edge function when OpenAI key is added
-          toast.info('Voice transcription requires OpenAI API key setup');
+          try {
+            setIsTranscribing(true);
+            toast.loading('Transcribing audio...', { id: 'transcription' });
+
+            // Call the transcription edge function
+            const { data, error } = await supabase.functions.invoke('transcribe-audio', {
+              body: { audio: base64Audio },
+            });
+
+            if (error) throw error;
+
+            if (data?.text) {
+              // Append transcribed text to current value
+              const newValue = value ? `${value}\n${data.text}` : data.text;
+              
+              // Create a synthetic event to trigger onChange
+              if (onChange) {
+                const syntheticEvent = {
+                  target: { value: newValue },
+                } as React.ChangeEvent<HTMLTextAreaElement>;
+                onChange(syntheticEvent);
+              }
+
+              // Call optional callback
+              if (onVoiceTranscript) {
+                onVoiceTranscript(data.text);
+              }
+
+              toast.success('Audio transcribed successfully!', { id: 'transcription' });
+            }
+          } catch (error) {
+            console.error('Transcription error:', error);
+            toast.error('Failed to transcribe audio', { id: 'transcription' });
+          } finally {
+            setIsTranscribing(false);
+          }
         };
         reader.readAsDataURL(audioBlob);
         
@@ -65,6 +101,7 @@ export const TextareaWithVoice = forwardRef<HTMLTextAreaElement, TextareaWithVoi
         variant={isRecording ? 'destructive' : 'ghost'}
         className="absolute bottom-2 right-2"
         onClick={isRecording ? stopRecording : startRecording}
+        disabled={isTranscribing}
       >
         {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
       </Button>
