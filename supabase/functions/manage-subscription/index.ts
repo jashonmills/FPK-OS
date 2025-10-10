@@ -8,10 +8,10 @@ const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
 });
 
 const STRIPE_PRICES = {
-  team_monthly: 'price_team_monthly', // Replace with actual Stripe price IDs
-  team_annual: 'price_team_annual',
-  pro_monthly: 'price_pro_monthly',
-  pro_annual: 'price_pro_annual',
+  team_monthly: 'price_1SGoFOGIfNQON3xUrpVpLf4o',
+  team_annual: 'price_1SGoFOGIfNQON3xUXtEqdFg4',
+  pro_monthly: 'price_1SGoFOGIfNQON3xU8Kc9AV8L',
+  pro_annual: 'price_1SGoFOGIfNQON3xUpPhN9fZv',
 };
 
 Deno.serve(async (req) => {
