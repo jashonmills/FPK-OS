@@ -98,9 +98,15 @@ Generate 3 practical, at-home activities to support this goal.`;
       );
     }
 
+    // Parse the AI response - strip markdown code blocks if present
     let result;
     try {
-      result = JSON.parse(aiContent);
+      let cleanContent = aiContent.trim();
+      
+      // Remove markdown code blocks (handles both ```json and ``` formats)
+      cleanContent = cleanContent.replace(/^```(?:json)?\s*/g, '').replace(/\s*```$/g, '');
+      
+      result = JSON.parse(cleanContent);
     } catch (parseError) {
       console.error("Failed to parse AI response:", parseError, aiContent);
       return new Response(
