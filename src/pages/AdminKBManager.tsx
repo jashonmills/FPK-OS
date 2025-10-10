@@ -47,9 +47,8 @@ export default function AdminKBManager() {
     enabled: isAdmin === true,
   });
 
-  const runIngestionMutation = useMutation({
+  const runPubMedMutation = useMutation({
     mutationFn: async () => {
-      setIsRunningIngestion(true);
       const { data, error } = await supabase.functions.invoke("ingest-pubmed", {
         body: { focus_areas: ["autism", "adhd"] },
       });
@@ -58,13 +57,55 @@ export default function AdminKBManager() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["knowledge-base"] });
-      toast.success("Knowledge base ingestion completed successfully");
+      toast.success("PubMed ingestion completed successfully");
     },
     onError: (error: any) => {
-      toast.error("Ingestion failed: " + error.message);
+      toast.error("PubMed ingestion failed: " + error.message);
     },
-    onSettled: () => {
-      setIsRunningIngestion(false);
+  });
+
+  const runCDCMutation = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.functions.invoke("scrape-cdc-content");
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["knowledge-base"] });
+      toast.success("CDC content scraping completed successfully");
+    },
+    onError: (error: any) => {
+      toast.error("CDC scraping failed: " + error.message);
+    },
+  });
+
+  const runAAPMutation = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.functions.invoke("scrape-aap-content");
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["knowledge-base"] });
+      toast.success("AAP content scraping completed successfully");
+    },
+    onError: (error: any) => {
+      toast.error("AAP scraping failed: " + error.message);
+    },
+  });
+
+  const runWWCMutation = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.functions.invoke("scrape-wwc-content");
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["knowledge-base"] });
+      toast.success("WWC content scraping completed successfully");
+    },
+    onError: (error: any) => {
+      toast.error("WWC scraping failed: " + error.message);
     },
   });
 
@@ -88,28 +129,68 @@ export default function AdminKBManager() {
     );
   }
 
+  const isAnyRunning = runPubMedMutation.isPending || runCDCMutation.isPending || 
+                       runAAPMutation.isPending || runWWCMutation.isPending;
+
   return (
     <div className="container mx-auto py-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">Knowledge Base Manager</h1>
-          <p className="text-muted-foreground">Admin-only area for managing evidence-based resources</p>
-        </div>
+      <div>
+        <h1 className="text-3xl font-bold">Knowledge Base Manager</h1>
+        <p className="text-muted-foreground">Admin-only area for managing evidence-based resources</p>
+      </div>
+
+      {/* Ingestion Buttons */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Button
-          onClick={() => runIngestionMutation.mutate()}
-          disabled={isRunningIngestion}
+          onClick={() => runPubMedMutation.mutate()}
+          disabled={isAnyRunning}
+          variant="outline"
         >
-          {isRunningIngestion ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Running Ingestion...
-            </>
+          {runPubMedMutation.isPending ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
-            <>
-              <PlayCircle className="mr-2 h-4 w-4" />
-              Run PubMed Ingestion
-            </>
+            <PlayCircle className="mr-2 h-4 w-4" />
           )}
+          PubMed
+        </Button>
+        
+        <Button
+          onClick={() => runCDCMutation.mutate()}
+          disabled={isAnyRunning}
+          variant="outline"
+        >
+          {runCDCMutation.isPending ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <PlayCircle className="mr-2 h-4 w-4" />
+          )}
+          CDC
+        </Button>
+
+        <Button
+          onClick={() => runAAPMutation.mutate()}
+          disabled={isAnyRunning}
+          variant="outline"
+        >
+          {runAAPMutation.isPending ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <PlayCircle className="mr-2 h-4 w-4" />
+          )}
+          AAP
+        </Button>
+
+        <Button
+          onClick={() => runWWCMutation.mutate()}
+          disabled={isAnyRunning}
+          variant="outline"
+        >
+          {runWWCMutation.isPending ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <PlayCircle className="mr-2 h-4 w-4" />
+          )}
+          WWC
         </Button>
       </div>
 
@@ -129,10 +210,9 @@ export default function AdminKBManager() {
             <div className="text-center py-12">
               <Database className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
               <p className="text-muted-foreground mb-4">No documents in knowledge base yet</p>
-              <Button onClick={() => runIngestionMutation.mutate()}>
-                <PlayCircle className="mr-2 h-4 w-4" />
-                Run First Ingestion
-              </Button>
+              <p className="text-sm text-muted-foreground">
+                Click one of the buttons above to start ingesting content
+              </p>
             </div>
           ) : (
             <Table>

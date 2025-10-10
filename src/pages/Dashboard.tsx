@@ -3,7 +3,6 @@ import { useFamily } from '@/contexts/FamilyContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { EducatorLogsSection } from '@/components/EducatorLogsSection';
-import { ProgressMetricsSection } from '@/components/ProgressMetricsSection';
 import { StudentOverview } from '@/components/StudentOverview';
 import { DocumentProgressOverview } from '@/components/dashboard/DocumentProgressOverview';
 import { AIInsightsWidget } from '@/components/dashboard/AIInsightsWidget';
@@ -76,7 +75,7 @@ const Dashboard = () => {
           </TabsContent>
 
           <TabsContent value="metrics" className="space-y-4">
-            <ProgressMetricsSection />
+            <DocumentProgressOverview />
           </TabsContent>
 
           <TabsContent value="documents" className="space-y-4">
