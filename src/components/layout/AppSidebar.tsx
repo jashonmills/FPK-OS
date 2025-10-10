@@ -1,4 +1,4 @@
-import { Home, FileText, BarChart3, Settings, FolderOpen, Database, TrendingUp } from 'lucide-react';
+import { Home, FileText, BarChart3, Settings, FolderOpen, Database, TrendingUp, Target } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useFamily } from '@/contexts/FamilyContext';
 import { useAuth } from '@/hooks/useAuth';
@@ -19,6 +19,10 @@ const navItems = [{
   title: 'Documents',
   url: '/documents',
   icon: FolderOpen
+}, {
+  title: 'Goals',
+  url: '/goals',
+  icon: Target
 }, {
   title: 'Analytics',
   url: '/analytics',

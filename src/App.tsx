@@ -14,6 +14,7 @@ import ProfileSetup from "./pages/ProfileSetup";
 import Dashboard from "./pages/Dashboard";
 import ActivityLog from "./pages/ActivityLog";
 import Documents from "./pages/Documents";
+import Goals from "./pages/Goals";
 import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
 import AdminKBManager from "./pages/AdminKBManager";
@@ -109,6 +110,16 @@ const App = () => (
                 <ProtectedRoute>
                   <AppLayout>
                     <Documents />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/goals"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <Goals />
                   </AppLayout>
                 </ProtectedRoute>
               }

@@ -19,6 +19,7 @@ import { AcademicFluencyTrends } from "@/components/analytics/AcademicFluencyTre
 import { SensoryProfileHeatmap } from "@/components/analytics/SensoryProfileHeatmap";
 import { SocialInteractionFunnel } from "@/components/analytics/SocialInteractionFunnel";
 import { StrategyEffectiveness } from "@/components/analytics/StrategyEffectiveness";
+import { AnalyticsEmptyState } from "@/components/analytics/AnalyticsEmptyState";
 
 const Analytics = () => {
   const { selectedFamily, selectedStudent } = useFamily();
@@ -45,6 +46,36 @@ const Analytics = () => {
     && new Date(familyData.special_chart_trial_ends_at) > new Date();
 
   const suggestedCharts = (familyData?.suggested_charts_config as any[]) || [];
+
+  // Check if there's enough data to show analytics
+  const { data: hasData } = useQuery({
+    queryKey: ["analytics-data", selectedFamily?.id, selectedStudent?.id],
+    queryFn: async () => {
+      if (!selectedFamily?.id || !selectedStudent?.id) return false;
+      
+      // Check if there's at least one log entry
+      const { count: parentLogCount } = await supabase
+        .from("parent_logs")
+        .select("*", { count: "exact", head: true })
+        .eq("family_id", selectedFamily.id)
+        .eq("student_id", selectedStudent.id);
+
+      const { count: educatorLogCount } = await supabase
+        .from("educator_logs")
+        .select("*", { count: "exact", head: true })
+        .eq("family_id", selectedFamily.id)
+        .eq("student_id", selectedStudent.id);
+
+      const { count: incidentLogCount } = await supabase
+        .from("incident_logs")
+        .select("*", { count: "exact", head: true })
+        .eq("family_id", selectedFamily.id)
+        .eq("student_id", selectedStudent.id);
+
+      return (parentLogCount || 0) + (educatorLogCount || 0) + (incidentLogCount || 0) > 0;
+    },
+    enabled: !!selectedFamily?.id && !!selectedStudent?.id,
+  });
 
   const getDaysUntilTrialEnds = () => {
     if (!familyData?.special_chart_trial_ends_at) return 0;
@@ -98,6 +129,15 @@ const Analytics = () => {
             Please select a student to view analytics.
           </AlertDescription>
         </Alert>
+      </div>
+    );
+  }
+
+  // Show empty state if no data
+  if (hasData === false) {
+    return (
+      <div className="container mx-auto p-6">
+        <AnalyticsEmptyState />
       </div>
     );
   }

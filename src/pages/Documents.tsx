@@ -15,6 +15,7 @@ import { format } from "date-fns";
 import { DocumentUploadModal } from "@/components/documents/DocumentUploadModal";
 import { DocumentViewerModal } from "@/components/documents/DocumentViewerModal";
 import { DocumentGuide } from "@/components/documents/DocumentGuide";
+import { DocumentsEmptyState } from "@/components/documents/DocumentsEmptyState";
 import * as pdfjs from "pdfjs-dist";
 
 export default function Documents() {
@@ -243,6 +244,20 @@ export default function Documents() {
 
   const shouldShowAnalyzeButtons = documents && documents.length >= 5;
 
+  // Show empty state if no documents
+  if (!isLoading && (!documents || documents.length === 0)) {
+    return (
+      <>
+        <DocumentsEmptyState onUpload={() => setUploadModalOpen(true)} />
+        
+        <DocumentUploadModal
+          open={uploadModalOpen}
+          onOpenChange={setUploadModalOpen}
+        />
+      </>
+    );
+  }
+
   return (
     <>
       <div className="space-y-6">
@@ -302,15 +317,6 @@ export default function Documents() {
           <CardContent>
             {isLoading ? (
               <div className="text-center py-8 text-muted-foreground">Loading documents...</div>
-            ) : !documents || documents.length === 0 ? (
-              <div className="text-center py-12">
-                <FileText className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                <p className="text-muted-foreground mb-4">No documents uploaded yet</p>
-                <Button onClick={() => setUploadModalOpen(true)}>
-                  <Upload className="mr-2 h-4 w-4" />
-                  Upload Your First Document
-                </Button>
-              </div>
             ) : (
               <Table>
                 <TableHeader>
