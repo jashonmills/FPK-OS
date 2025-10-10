@@ -52,38 +52,44 @@ export const FamilyStudentSelector = () => {
 
   return (
     <div className="flex items-center gap-3">
-      {/* Family Members Selector - show owner and members */}
-      {familyMembers && familyMembers.length > 0 && (
-        <Select value="current" disabled>
-          <SelectTrigger className="w-48">
-            <div className="flex items-center gap-2">
-              <Users className="w-4 h-4 text-muted-foreground" />
-              <span>{selectedFamily.family_name}</span>
-            </div>
-          </SelectTrigger>
-          <SelectContent>
-            {familyMembers.map((member) => {
+      {/* Family Members Dropdown */}
+      <Select value="view-members">
+        <SelectTrigger className="w-48">
+          <div className="flex items-center gap-2">
+            <Users className="w-4 h-4 text-muted-foreground" />
+            <span>{selectedFamily.family_name}</span>
+          </div>
+        </SelectTrigger>
+        <SelectContent className="bg-popover">
+          {familyMembers && familyMembers.length > 0 ? (
+            familyMembers.map((member) => {
               const profile = member.profiles as any;
               return (
                 <SelectItem key={member.id} value={member.id}>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-3">
                     <Avatar className="w-6 h-6">
                       <AvatarImage src={profile?.avatar_url} />
                       <AvatarFallback className="bg-primary/10 text-primary text-xs">
                         {profile?.full_name?.[0]?.toUpperCase() || <User className="w-3 h-3" />}
                       </AvatarFallback>
                     </Avatar>
-                    <span>{profile?.full_name || 'No name set'}</span>
-                    {member.role === 'owner' && (
-                      <span className="text-xs text-muted-foreground ml-1">(Owner)</span>
-                    )}
+                    <div className="flex flex-col">
+                      <span className="font-medium">{profile?.full_name || 'No name set'}</span>
+                      <span className="text-xs text-muted-foreground capitalize">
+                        {member.role}
+                      </span>
+                    </div>
                   </div>
                 </SelectItem>
               );
-            })}
-          </SelectContent>
-        </Select>
-      )}
+            })
+          ) : (
+            <SelectItem value="no-members" disabled>
+              No members found
+            </SelectItem>
+          )}
+        </SelectContent>
+      </Select>
 
       {/* Student Selector */}
       {students.length > 0 && (
