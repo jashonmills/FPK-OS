@@ -12,8 +12,8 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import * as pdfjs from "pdfjs-dist";
 
-// Configure PDF.js worker
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+// Configure PDF.js worker - use unpkg instead of cdnjs for better compatibility
+pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
 
 interface DocumentUploadModalProps {
   open: boolean;
