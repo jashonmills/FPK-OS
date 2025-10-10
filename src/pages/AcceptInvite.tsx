@@ -29,6 +29,8 @@ const AcceptInvite = () => {
       }
 
       try {
+        console.log('Fetching invite with token:', token);
+        
         const { data, error } = await supabase
           .from('invites')
           .select(`
@@ -38,11 +40,26 @@ const AcceptInvite = () => {
             )
           `)
           .eq('token', token)
-          .eq('status', 'pending')
-          .single();
+          .maybeSingle(); // Use maybeSingle instead of single
 
-        if (error || !data) {
+        console.log('Invite query result:', { data, error });
+
+        if (error) {
+          console.error('Error fetching invite:', error);
+          setError("Failed to load invitation");
+          setIsLoading(false);
+          return;
+        }
+
+        if (!data) {
           setError("This invitation is invalid or has expired");
+          setIsLoading(false);
+          return;
+        }
+
+        // Check status
+        if (data.status !== 'pending') {
+          setError(`This invitation has been ${data.status}`);
           setIsLoading(false);
           return;
         }
