@@ -54,6 +54,15 @@ verify_jwt = true
 [functions.scrape-cec-content]
 verify_jwt = true
 
+[functions.scrape-cdc-content]
+verify_jwt = true
+
+[functions.scrape-aap-content]
+verify_jwt = true
+
+[functions.scrape-wwc-content]
+verify_jwt = true
+
 [functions.embed-family-data]
 verify_jwt = true
 

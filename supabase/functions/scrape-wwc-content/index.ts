@@ -1,7 +1,10 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.75.0';
 import { corsHeaders } from "../_shared/cors.ts";
 
 const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -70,26 +73,34 @@ serve(async (req) => {
       chunks_created: 0,
     };
 
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
     for (const doc of scrapedDocuments) {
-      const { data: kbDoc, error: kbError } = await Deno.env.get('SUPABASE_URL') 
-        ? await fetch(Deno.env.get('SUPABASE_URL')! + '/rest/v1/knowledge_base', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'apikey': Deno.env.get('SUPABASE_ANON_KEY')!,
-              'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
-              'Prefer': 'return=representation',
-            },
-            body: JSON.stringify({
-              title: doc.title,
-              source_name: doc.source_name,
-              source_url: doc.source_url,
-              document_type: doc.document_type,
-              focus_areas: doc.focus_areas,
-              summary: doc.summary,
-            }),
-          }).then(r => r.json())
-        : { data: null, error: new Error('No Supabase URL') };
+      // Check if document already exists
+      const { data: existing } = await supabase
+        .from('knowledge_base')
+        .select('id')
+        .eq('source_url', doc.source_url)
+        .single();
+
+      if (existing) {
+        console.log(`Document already exists for ${doc.source_url}, skipping...`);
+        continue;
+      }
+
+      // Insert document
+      const { data: kbDoc, error: kbError } = await supabase
+        .from('knowledge_base')
+        .insert({
+          title: doc.title,
+          source_name: doc.source_name,
+          source_url: doc.source_url,
+          document_type: doc.document_type,
+          focus_areas: doc.focus_areas,
+          summary: doc.summary,
+        })
+        .select()
+        .single();
 
       if (kbError || !kbDoc) {
         console.error('Error inserting KB document:', kbError);
@@ -119,22 +130,18 @@ serve(async (req) => {
         const embeddingData = await embeddingResponse.json();
         const embedding = embeddingData.data[0].embedding;
 
-        await fetch(Deno.env.get('SUPABASE_URL')! + '/rest/v1/kb_chunks', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': Deno.env.get('SUPABASE_ANON_KEY')!,
-            'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
-          },
-          body: JSON.stringify({
-            kb_id: Array.isArray(kbDoc) ? kbDoc[0].id : kbDoc.id,
+        const { error: chunkError } = await supabase
+          .from('kb_chunks')
+          .insert({
+            kb_id: kbDoc.id,
             chunk_text: chunk,
             embedding,
             token_count: Math.ceil(chunk.length / 4),
-          }),
-        });
+          });
 
-        results.chunks_created++;
+        if (!chunkError) {
+          results.chunks_created++;
+        }
       }
     }
 
