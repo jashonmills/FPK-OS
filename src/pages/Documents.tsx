@@ -89,6 +89,31 @@ export default function Documents() {
   const handleAnalyzeDocument = async (documentId: string) => {
     setAnalyzingDocId(documentId);
     try {
+      // First check if document has extracted content
+      const { data: doc } = await supabase
+        .from('documents')
+        .select('extracted_content')
+        .eq('id', documentId)
+        .single();
+
+      // If no extracted content, extract it first
+      if (!doc?.extracted_content) {
+        toast.info("Extracting text from document...");
+        const { error: extractError } = await supabase.functions.invoke('extract-document-text', {
+          body: { document_id: documentId }
+        });
+
+        if (extractError) {
+          console.error('Text extraction error:', extractError);
+          toast.error("Failed to extract text from document");
+          return;
+        }
+        toast.success("Text extracted, now analyzing...");
+      } else {
+        toast.info("Analyzing document...");
+      }
+
+      // Now analyze the document
       const { data, error } = await supabase.functions.invoke("analyze-document", {
         body: { document_id: documentId },
       });
