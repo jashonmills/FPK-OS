@@ -39,8 +39,10 @@ export default function AdminKBManager() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchQueries, setSearchQueries] = useState<string[]>(["autism", "adhd"]);
 
-  // Web scraping state
-  const [selectedWebSources, setSelectedWebSources] = useState<string[]>([]);
+  // Web scraping state - split by tier
+  const [selectedWebSources, setSelectedWebSources] = useState<string[]>([]); // Tier 1
+  const [selectedTier2Sources, setSelectedTier2Sources] = useState<string[]>([]); // Tier 2
+  const [selectedTier3Sources, setSelectedTier3Sources] = useState<string[]>([]); // Tier 3
 
   // Table state
   const [currentPage, setCurrentPage] = useState(1);
@@ -150,7 +152,7 @@ export default function AdminKBManager() {
     },
   });
 
-  // Web scraping mutation
+  // Web scraping mutation - Tier 1
   const runWebScrapingMutation = useMutation({
     mutationFn: async () => {
       const { data, error } = await supabase.functions.invoke("scrape-web-sources", {
@@ -163,10 +165,50 @@ export default function AdminKBManager() {
       queryClient.invalidateQueries({ queryKey: ["knowledge-base"] });
       queryClient.invalidateQueries({ queryKey: ["kb-documents-count"] });
       queryClient.invalidateQueries({ queryKey: ["kb-chunks-count"] });
-      toast.success("Web scraping completed successfully");
+      toast.success("Tier 1 web scraping completed successfully");
     },
     onError: (error: any) => {
-      toast.error("Web scraping failed: " + error.message);
+      toast.error("Tier 1 web scraping failed: " + error.message);
+    },
+  });
+
+  // Web scraping mutation - Tier 2
+  const runTier2ScrapingMutation = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.functions.invoke("scrape-web-sources", {
+        body: { sources: selectedTier2Sources },
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["knowledge-base"] });
+      queryClient.invalidateQueries({ queryKey: ["kb-documents-count"] });
+      queryClient.invalidateQueries({ queryKey: ["kb-chunks-count"] });
+      toast.success("Tier 2 advanced resource scraping completed successfully");
+    },
+    onError: (error: any) => {
+      toast.error("Tier 2 advanced resource scraping failed: " + error.message);
+    },
+  });
+
+  // Web scraping mutation - Tier 3
+  const runTier3ScrapingMutation = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.functions.invoke("scrape-web-sources", {
+        body: { sources: selectedTier3Sources },
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["knowledge-base"] });
+      queryClient.invalidateQueries({ queryKey: ["kb-documents-count"] });
+      queryClient.invalidateQueries({ queryKey: ["kb-chunks-count"] });
+      toast.success("Tier 3 specialized resource scraping completed successfully");
+    },
+    onError: (error: any) => {
+      toast.error("Tier 3 specialized resource scraping failed: " + error.message);
     },
   });
 
@@ -197,6 +239,22 @@ export default function AdminKBManager() {
     );
   };
 
+  const toggleTier2Source = (source: string) => {
+    setSelectedTier2Sources(prev =>
+      prev.includes(source)
+        ? prev.filter(s => s !== source)
+        : [...prev, source]
+    );
+  };
+
+  const toggleTier3Source = (source: string) => {
+    setSelectedTier3Sources(prev =>
+      prev.includes(source)
+        ? prev.filter(s => s !== source)
+        : [...prev, source]
+    );
+  };
+
   if (checkingAdmin) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -217,7 +275,10 @@ export default function AdminKBManager() {
     );
   }
 
-  const isAnyRunning = runAcademicIngestionMutation.isPending || runWebScrapingMutation.isPending;
+  const isAnyRunning = runAcademicIngestionMutation.isPending || 
+                       runWebScrapingMutation.isPending || 
+                       runTier2ScrapingMutation.isPending || 
+                       runTier3ScrapingMutation.isPending;
 
   return (
     <div className="container mx-auto py-6 space-y-6">
@@ -437,8 +498,8 @@ export default function AdminKBManager() {
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="kennedy-krieger"
-                  checked={selectedWebSources.includes("kennedy-krieger")}
-                  onCheckedChange={() => toggleWebSource("kennedy-krieger")}
+                  checked={selectedTier2Sources.includes("kennedy-krieger")}
+                  onCheckedChange={() => toggleTier2Source("kennedy-krieger")}
                 />
                 <label htmlFor="kennedy-krieger" className="text-sm font-medium cursor-pointer">
                   Kennedy Krieger Institute
@@ -447,8 +508,8 @@ export default function AdminKBManager() {
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="ucdavis-mind"
-                  checked={selectedWebSources.includes("ucdavis-mind")}
-                  onCheckedChange={() => toggleWebSource("ucdavis-mind")}
+                  checked={selectedTier2Sources.includes("ucdavis-mind")}
+                  onCheckedChange={() => toggleTier2Source("ucdavis-mind")}
                 />
                 <label htmlFor="ucdavis-mind" className="text-sm font-medium cursor-pointer">
                   UC Davis MIND Institute
@@ -457,8 +518,8 @@ export default function AdminKBManager() {
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="vanderbilt-kennedy"
-                  checked={selectedWebSources.includes("vanderbilt-kennedy")}
-                  onCheckedChange={() => toggleWebSource("vanderbilt-kennedy")}
+                  checked={selectedTier2Sources.includes("vanderbilt-kennedy")}
+                  onCheckedChange={() => toggleTier2Source("vanderbilt-kennedy")}
                 />
                 <label htmlFor="vanderbilt-kennedy" className="text-sm font-medium cursor-pointer">
                   Vanderbilt Kennedy Center
@@ -474,8 +535,8 @@ export default function AdminKBManager() {
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="autism-speaks"
-                  checked={selectedWebSources.includes("autism-speaks")}
-                  onCheckedChange={() => toggleWebSource("autism-speaks")}
+                  checked={selectedTier2Sources.includes("autism-speaks")}
+                  onCheckedChange={() => toggleTier2Source("autism-speaks")}
                 />
                 <label htmlFor="autism-speaks" className="text-sm font-medium cursor-pointer">
                   Autism Speaks
@@ -484,8 +545,8 @@ export default function AdminKBManager() {
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="chadd"
-                  checked={selectedWebSources.includes("chadd")}
-                  onCheckedChange={() => toggleWebSource("chadd")}
+                  checked={selectedTier2Sources.includes("chadd")}
+                  onCheckedChange={() => toggleTier2Source("chadd")}
                 />
                 <label htmlFor="chadd" className="text-sm font-medium cursor-pointer">
                   CHADD
@@ -494,8 +555,8 @@ export default function AdminKBManager() {
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="understood"
-                  checked={selectedWebSources.includes("understood")}
-                  onCheckedChange={() => toggleWebSource("understood")}
+                  checked={selectedTier2Sources.includes("understood")}
+                  onCheckedChange={() => toggleTier2Source("understood")}
                 />
                 <label htmlFor="understood" className="text-sm font-medium cursor-pointer">
                   Understood.org
@@ -504,8 +565,8 @@ export default function AdminKBManager() {
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="aane"
-                  checked={selectedWebSources.includes("aane")}
-                  onCheckedChange={() => toggleWebSource("aane")}
+                  checked={selectedTier2Sources.includes("aane")}
+                  onCheckedChange={() => toggleTier2Source("aane")}
                 />
                 <label htmlFor="aane" className="text-sm font-medium cursor-pointer">
                   AANE
@@ -521,8 +582,8 @@ export default function AdminKBManager() {
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="state-doe"
-                  checked={selectedWebSources.includes("state-doe")}
-                  onCheckedChange={() => toggleWebSource("state-doe")}
+                  checked={selectedTier2Sources.includes("state-doe")}
+                  onCheckedChange={() => toggleTier2Source("state-doe")}
                 />
                 <label htmlFor="state-doe" className="text-sm font-medium cursor-pointer">
                   State DOE (CA, TX, NY)
@@ -533,11 +594,11 @@ export default function AdminKBManager() {
 
           {/* Start Tier 2 Scraping Button */}
           <Button
-            onClick={() => runWebScrapingMutation.mutate()}
-            disabled={isAnyRunning || selectedWebSources.length === 0}
+            onClick={() => runTier2ScrapingMutation.mutate()}
+            disabled={isAnyRunning || selectedTier2Sources.length === 0}
             className="w-full"
           >
-            {runWebScrapingMutation.isPending ? (
+            {runTier2ScrapingMutation.isPending ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
               <PlayCircle className="mr-2 h-4 w-4" />
@@ -566,8 +627,8 @@ export default function AdminKBManager() {
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="prt-resources"
-                  checked={selectedWebSources.includes("prt-resources")}
-                  onCheckedChange={() => toggleWebSource("prt-resources")}
+                  checked={selectedTier3Sources.includes("prt-resources")}
+                  onCheckedChange={() => toggleTier3Source("prt-resources")}
                 />
                 <label htmlFor="prt-resources" className="text-sm font-medium cursor-pointer">
                   PRT (Pivotal Response Treatment)
@@ -576,8 +637,8 @@ export default function AdminKBManager() {
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="esdm-resources"
-                  checked={selectedWebSources.includes("esdm-resources")}
-                  onCheckedChange={() => toggleWebSource("esdm-resources")}
+                  checked={selectedTier3Sources.includes("esdm-resources")}
+                  onCheckedChange={() => toggleTier3Source("esdm-resources")}
                 />
                 <label htmlFor="esdm-resources" className="text-sm font-medium cursor-pointer">
                   ESDM (Early Start Denver Model)
@@ -586,8 +647,8 @@ export default function AdminKBManager() {
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="social-thinking"
-                  checked={selectedWebSources.includes("social-thinking")}
-                  onCheckedChange={() => toggleWebSource("social-thinking")}
+                  checked={selectedTier3Sources.includes("social-thinking")}
+                  onCheckedChange={() => toggleTier3Source("social-thinking")}
                 />
                 <label htmlFor="social-thinking" className="text-sm font-medium cursor-pointer">
                   Social Thinking®
@@ -603,8 +664,8 @@ export default function AdminKBManager() {
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="autistic-blogs"
-                  checked={selectedWebSources.includes("autistic-blogs")}
-                  onCheckedChange={() => toggleWebSource("autistic-blogs")}
+                  checked={selectedTier3Sources.includes("autistic-blogs")}
+                  onCheckedChange={() => toggleTier3Source("autistic-blogs")}
                 />
                 <label htmlFor="autistic-blogs" className="text-sm font-medium cursor-pointer">
                   Curated Autistic Blogs
@@ -613,8 +674,8 @@ export default function AdminKBManager() {
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="opencourseware"
-                  checked={selectedWebSources.includes("opencourseware")}
-                  onCheckedChange={() => toggleWebSource("opencourseware")}
+                  checked={selectedTier3Sources.includes("opencourseware")}
+                  onCheckedChange={() => toggleTier3Source("opencourseware")}
                 />
                 <label htmlFor="opencourseware" className="text-sm font-medium cursor-pointer">
                   MIT OpenCourseWare
@@ -625,11 +686,11 @@ export default function AdminKBManager() {
 
           {/* Start Tier 3 Scraping Button */}
           <Button
-            onClick={() => runWebScrapingMutation.mutate()}
-            disabled={isAnyRunning || selectedWebSources.length === 0}
+            onClick={() => runTier3ScrapingMutation.mutate()}
+            disabled={isAnyRunning || selectedTier3Sources.length === 0}
             className="w-full"
           >
-            {runWebScrapingMutation.isPending ? (
+            {runTier3ScrapingMutation.isPending ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
               <PlayCircle className="mr-2 h-4 w-4" />
