@@ -67,13 +67,33 @@ export function useOrgGroupMembers(groupId?: string) {
         throw profilesError;
       }
 
-      // Map profiles to members
+      // Fetch org_students data (legacy system)
+      const { data: orgStudents, error: orgStudentsError } = await supabase
+        .from('org_students')
+        .select('linked_user_id, full_name, avatar_url')
+        .eq('org_id', orgId)
+        .in('linked_user_id', userIds);
+
+      if (orgStudentsError) console.error('Error fetching org_students:', orgStudentsError);
+
+      // Map profiles and org_students to members
       const profilesMap = new Map(profiles?.map(p => [p.id, p]) || []);
+      const orgStudentsMap = new Map(orgStudents?.map(s => [s.linked_user_id, s]) || []);
       
-      return groupMembers.map(member => ({
-        ...member,
-        profiles: profilesMap.get(member.user_id)
-      })) as GroupMember[];
+      return groupMembers.map(member => {
+        const profile = profilesMap.get(member.user_id);
+        const orgStudent = orgStudentsMap.get(member.user_id);
+        
+        return {
+          ...member,
+          profiles: {
+            display_name: orgStudent?.full_name || profile?.full_name || profile?.display_name,
+            full_name: orgStudent?.full_name || profile?.full_name,
+            email: profile?.email,
+            avatar_url: orgStudent?.avatar_url || profile?.avatar_url,
+          }
+        };
+      }) as GroupMember[];
     },
     staleTime: 1000 * 60 * 5,
   });
@@ -120,15 +140,30 @@ export function useOrgGroupMembers(groupId?: string) {
 
       if (profilesError) throw profilesError;
 
-      // Map profiles to available students
+      // Fetch org_students data (legacy system with student names)
+      const { data: orgStudents, error: orgStudentsError } = await supabase
+        .from('org_students')
+        .select('linked_user_id, full_name')
+        .eq('org_id', orgId)
+        .in('linked_user_id', availableUserIds);
+
+      if (orgStudentsError) console.error('Error fetching org_students:', orgStudentsError);
+
+      // Create maps for easy lookup
       const orgMembersMap = new Map(orgMembers?.map(m => [m.user_id, m]) || []);
+      const orgStudentsMap = new Map(orgStudents?.map(s => [s.linked_user_id, s]) || []);
       
       const available = profiles?.map(profile => {
         const member = orgMembersMap.get(profile.id);
+        const orgStudent = orgStudentsMap.get(profile.id);
+        
+        // Prefer org_students name, fallback to profile
+        const name = orgStudent?.full_name || profile.full_name || profile.display_name;
+        
         return {
           user_id: profile.id,
-          display_name: profile.display_name || profile.full_name,
-          full_name: profile.full_name,
+          display_name: name,
+          full_name: name,
           email: profile.email,
           avatar_url: profile.avatar_url,
           role: member?.role || 'student',
