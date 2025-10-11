@@ -14,7 +14,8 @@ import {
   ClipboardCheck,
   Paintbrush,
   Compass,
-  Sparkles
+  Sparkles,
+  Gamepad2
 } from 'lucide-react';
 
 export type NavItem = {
@@ -48,6 +49,7 @@ export const navOrgStudent: NavItem[] = [
   { label: 'Goals', icon: React.createElement(Flag), to: '/dashboard/learner/goals?org=:orgId' },
   { label: 'Achievements & XP', icon: React.createElement(Medal), to: '/dashboard/learner/gamification?org=:orgId' },
   { label: 'Notes', icon: React.createElement(Notebook), to: '/dashboard/learner/notes?org=:orgId' },
+  { label: 'Games', icon: React.createElement(Gamepad2), to: '/org/:orgId/games' },
 ];
 
 export const navOrgInstructor: NavItem[] = [
@@ -61,6 +63,7 @@ export const navOrgInstructor: NavItem[] = [
   { label: 'Analytics', icon: React.createElement(BarChart3), to: '/dashboard/instructor/analytics?org=:orgId' },
   { label: 'Live Learning Hub', icon: React.createElement(Compass), to: '/dashboard/learner/live-hub?org=:orgId' },
   { label: 'Branding', icon: React.createElement(Paintbrush), to: '/dashboard/instructor/branding?org=:orgId' },
+  { label: 'Games', icon: React.createElement(Gamepad2), to: '/org/:orgId/games' },
 ];
 
 // Helper function to inject orgId into routes
