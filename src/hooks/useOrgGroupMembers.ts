@@ -213,6 +213,44 @@ export function useOrgGroupMembers(groupId?: string) {
     },
   });
 
+  // Bulk add members to group
+  const bulkAddMembersMutation = useMutation({
+    mutationFn: async (userIds: string[]) => {
+      const { data: user } = await supabase.auth.getUser();
+      
+      const inserts = userIds.map(userId => ({
+        group_id: groupId!,
+        user_id: userId,
+        added_by: user.user?.id,
+      }));
+      
+      const { data, error } = await supabase
+        .from('org_group_members')
+        .insert(inserts)
+        .select();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['org-group-members', groupId] });
+      queryClient.invalidateQueries({ queryKey: ['org-available-students'] });
+      queryClient.invalidateQueries({ queryKey: ['org-groups'] });
+      toast({
+        title: "Success",
+        description: `${data.length} member${data.length > 1 ? 's' : ''} added to group successfully.`,
+      });
+    },
+    onError: (error) => {
+      console.error('Error adding members to group:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add members to group.",
+        variant: "destructive",
+      });
+    },
+  });
+
   // Remove member from group
   const removeMemberMutation = useMutation({
     mutationFn: async (userId: string) => {
@@ -249,8 +287,10 @@ export function useOrgGroupMembers(groupId?: string) {
     isLoading: loadingMembers || loadingAvailable,
     error,
     addMember: addMemberMutation.mutate,
+    bulkAddMembers: bulkAddMembersMutation.mutate,
     removeMember: removeMemberMutation.mutate,
     isAddingMember: addMemberMutation.isPending,
+    isBulkAddingMembers: bulkAddMembersMutation.isPending,
     isRemovingMember: removeMemberMutation.isPending,
   };
 }

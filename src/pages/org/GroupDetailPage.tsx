@@ -24,6 +24,7 @@ import {
 } from '@/components/ui/dialog';
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -44,14 +45,17 @@ const GroupDetailPage = () => {
     availableStudents, 
     isLoading: loadingMembers,
     addMember,
+    bulkAddMembers,
     removeMember,
     isAddingMember,
+    isBulkAddingMembers,
     isRemovingMember
   } = useOrgGroupMembers(groupId);
 
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [removeUserId, setRemoveUserId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedUserIds, setSelectedUserIds] = useState<Set<string>>(new Set());
 
   const group = groups.find(g => g.id === groupId);
 
@@ -95,11 +99,38 @@ const GroupDetailPage = () => {
     setSearchQuery('');
   };
 
+  const handleBulkAddMembers = () => {
+    if (selectedUserIds.size > 0) {
+      bulkAddMembers(Array.from(selectedUserIds));
+      setSelectedUserIds(new Set());
+      setAddDialogOpen(false);
+      setSearchQuery('');
+    }
+  };
+
   const handleRemoveMember = () => {
     if (removeUserId) {
       removeMember(removeUserId);
       setRemoveUserId(null);
     }
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedUserIds.size === filteredAvailableStudents.length) {
+      setSelectedUserIds(new Set());
+    } else {
+      setSelectedUserIds(new Set(filteredAvailableStudents.map(s => s.user_id)));
+    }
+  };
+
+  const toggleSelectUser = (userId: string) => {
+    const newSelected = new Set(selectedUserIds);
+    if (newSelected.has(userId)) {
+      newSelected.delete(userId);
+    } else {
+      newSelected.add(userId);
+    }
+    setSelectedUserIds(newSelected);
   };
 
   return (
@@ -146,6 +177,26 @@ const GroupDetailPage = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
 
+              {filteredAvailableStudents.length > 0 && (
+                <div className="flex items-center justify-between px-2 py-1 bg-muted/50 rounded">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="select-all"
+                      checked={selectedUserIds.size === filteredAvailableStudents.length && filteredAvailableStudents.length > 0}
+                      onCheckedChange={toggleSelectAll}
+                    />
+                    <label htmlFor="select-all" className="text-sm font-medium cursor-pointer">
+                      Select All ({filteredAvailableStudents.length})
+                    </label>
+                  </div>
+                  {selectedUserIds.size > 0 && (
+                    <span className="text-sm text-muted-foreground">
+                      {selectedUserIds.size} selected
+                    </span>
+                  )}
+                </div>
+              )}
+
               <div className="max-h-[400px] overflow-y-auto space-y-2">
                 {filteredAvailableStudents.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
@@ -159,6 +210,10 @@ const GroupDetailPage = () => {
                     <Card key={student.user_id} className="p-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
+                          <Checkbox
+                            checked={selectedUserIds.has(student.user_id)}
+                            onCheckedChange={() => toggleSelectUser(student.user_id)}
+                          />
                           <Avatar className="h-10 w-10">
                             <AvatarImage src={student.avatar_url} />
                             <AvatarFallback>
@@ -196,6 +251,28 @@ const GroupDetailPage = () => {
                   ))
                 )}
               </div>
+
+              {selectedUserIds.size > 0 && (
+                <div className="sticky bottom-0 pt-4 bg-background border-t">
+                  <Button
+                    className="w-full"
+                    onClick={handleBulkAddMembers}
+                    disabled={isBulkAddingMembers}
+                  >
+                    {isBulkAddingMembers ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Adding...
+                      </>
+                    ) : (
+                      <>
+                        <UserPlus className="w-4 h-4 mr-2" />
+                        Add {selectedUserIds.size} Selected Student{selectedUserIds.size > 1 ? 's' : ''}
+                      </>
+                    )}
+                  </Button>
+                </div>
+              )}
             </div>
           </DialogContent>
         </Dialog>
