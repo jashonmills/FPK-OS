@@ -4,8 +4,14 @@ import { OrgBanner } from '@/components/branding/OrgBanner';
 import { useOrgContext } from './OrgContext';
 export function OrgPageBanner() {
   const location = useLocation();
-  const { currentOrg } = useOrgContext();
+  const { currentOrg, isLoading } = useOrgContext();
 
+  // Don't render anything while loading to prevent flash
+  if (isLoading) {
+    return null;
+  }
+
+  // After loading, if no org, don't show banner
   if (!currentOrg) {
     return null;
   }

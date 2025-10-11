@@ -6,8 +6,13 @@ import { useOrgContext } from './OrgContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 export function OrgWelcomeBanner() {
-  const { currentOrg } = useOrgContext();
+  const { currentOrg, isLoading } = useOrgContext();
   const isMobile = useIsMobile();
+
+  // Don't show while loading
+  if (isLoading) {
+    return null;
+  }
 
   if (!currentOrg) {
     return null;

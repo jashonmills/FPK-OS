@@ -10,10 +10,11 @@ import { CalendarDays, Clock, CheckCircle2, AlertCircle } from 'lucide-react';
 
 // Keep using the existing StudentAssignment interface but pass through the original assignments
 export default function AssignmentsDashboard() {
-  const { currentOrg } = useOrgContext();
-  const { assignments, isLoading } = useStudentAssignments(currentOrg?.organization_id);
+  const { currentOrg, isLoading: orgLoading } = useOrgContext();
+  const { assignments, isLoading: assignmentsLoading } = useStudentAssignments(currentOrg?.organization_id);
 
-  if (isLoading) {
+  // Show loading if either org or assignments are loading
+  if (orgLoading || assignmentsLoading) {
     return (
       <div className="container mx-auto p-6">
         <div className="text-center">Loading assignments...</div>

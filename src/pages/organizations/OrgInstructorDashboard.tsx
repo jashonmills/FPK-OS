@@ -16,7 +16,20 @@ import CoursesTab from '@/components/instructor/CoursesTab';
 import { TourGuide } from '@/components/tour/TourGuide';
 
 export default function OrgInstructorDashboard() {
-  const { currentOrg } = useOrgContext();
+  const { currentOrg, isLoading } = useOrgContext();
+
+  // Show loading state while fetching organization
+  if (isLoading) {
+    return (
+      <div className="w-full max-w-6xl mx-auto px-6 py-8">
+        <Card>
+          <CardContent className="py-12 text-center">
+            <div className="animate-pulse">Loading organization...</div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (!currentOrg) {
     return (
