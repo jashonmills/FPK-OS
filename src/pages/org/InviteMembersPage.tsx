@@ -71,7 +71,7 @@ const InviteMembersPage = () => {
   const { currentOrg } = useOrgContext();
   const { canManageStudents, canManageOrg } = useOrgPermissions();
   
-  // Email invitation state
+  // Email invitation state - STAFF ONLY (students use Students tab)
   const [emails, setEmails] = useState(['']);
   const [selectedRole, setSelectedRole] = useState('instructor');
   const [inviteMessage, setInviteMessage] = useState('');
@@ -97,13 +97,11 @@ const InviteMembersPage = () => {
     );
   }
 
-  // Role descriptions for tooltips
+  // Role descriptions for tooltips - STAFF ROLES ONLY
   const roleDescriptions = {
-    owner: 'Full org management (members, courses, settings, subscriptions)',
     admin: 'Full org management (members, courses, settings) - cannot manage subscriptions',
     instructor: 'Create/assign courses, view analytics for their students',
     'instructor-aide': 'Assist instructors (no org settings)',
-    student: 'Access assigned courses and complete learning activities',
     viewer: 'Read-only analytics and rosters'
   };
 
@@ -139,7 +137,7 @@ const InviteMembersPage = () => {
         await emailInviteMutation.mutateAsync({
           orgId: orgId!,
           email: email.trim(),
-          role: selectedRole as 'student' | 'instructor'
+          role: selectedRole as 'instructor' | 'instructor_aide' | 'viewer'
         });
       }
       
