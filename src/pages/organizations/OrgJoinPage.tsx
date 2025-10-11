@@ -109,7 +109,17 @@ const OrgJoinPage = () => {
                 } 
               });
             } else {
-              // Already authenticated, proceed to auto-join
+              // Authenticated - verify email matches
+              if (user.email?.toLowerCase() !== email.toLowerCase()) {
+                setValidationStatus('error');
+                toast({
+                  title: 'Email Mismatch',
+                  description: `This invitation is for ${email}, but you're logged in as ${user.email}. Please log out and sign in with the correct account.`,
+                  variant: 'destructive'
+                });
+                return;
+              }
+              // Email matches, proceed to auto-join
               setValidationStatus('existing_user');
               setInviteValue(tokenFromUrl);
               setIsFromEmail(true);
@@ -194,6 +204,11 @@ const OrgJoinPage = () => {
 
   // Show error state
   if (validationStatus === 'error') {
+    const handleSignOut = async () => {
+      await supabase.auth.signOut();
+      window.location.reload();
+    };
+
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
@@ -206,16 +221,32 @@ const OrgJoinPage = () => {
           <CardContent className="space-y-4">
             <Alert variant="destructive">
               <AlertDescription>
-                This invitation link is invalid or has expired. Please request a new invitation from your organization administrator.
+                {invitedEmail && user ? (
+                  <>
+                    This invitation is for <strong>{invitedEmail}</strong>, but you're currently logged in as <strong>{user.email}</strong>.
+                    <br /><br />
+                    Please log out and sign in with the correct account to accept this invitation.
+                  </>
+                ) : (
+                  'This invitation link is invalid or has expired. Please request a new invitation from your organization administrator.'
+                )}
               </AlertDescription>
             </Alert>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={() => navigate('/login')} className="flex-1">
-                Back to Login
-              </Button>
-              <Button onClick={() => navigate('/')} className="flex-1">
-                Go Home
-              </Button>
+              {invitedEmail && user ? (
+                <Button onClick={handleSignOut} className="w-full">
+                  Log Out
+                </Button>
+              ) : (
+                <>
+                  <Button variant="outline" onClick={() => navigate('/login')} className="flex-1">
+                    Back to Login
+                  </Button>
+                  <Button onClick={() => navigate('/')} className="flex-1">
+                    Go Home
+                  </Button>
+                </>
+              )}
             </div>
           </CardContent>
         </Card>
