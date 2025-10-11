@@ -5529,6 +5529,7 @@ export type Database = {
           parent_email: string | null
           pin_hash: string | null
           status: string
+          student_email: string | null
           student_id: string | null
           token_expires_at: string | null
           updated_at: string
@@ -5550,6 +5551,7 @@ export type Database = {
           parent_email?: string | null
           pin_hash?: string | null
           status?: string
+          student_email?: string | null
           student_id?: string | null
           token_expires_at?: string | null
           updated_at?: string
@@ -5571,6 +5573,7 @@ export type Database = {
           parent_email?: string | null
           pin_hash?: string | null
           status?: string
+          student_email?: string | null
           student_id?: string | null
           token_expires_at?: string | null
           updated_at?: string
