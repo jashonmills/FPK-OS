@@ -106,6 +106,47 @@ export const UserDetailsDialog: React.FC<UserDetailsDialogProps> = ({
     }
   };
 
+  const handleDeleteUser = async () => {
+    if (!confirm(`⚠️ PERMANENT DELETION WARNING ⚠️\n\nAre you sure you want to PERMANENTLY DELETE ${user.name}?\n\nThis will:\n- Remove all user data from the system\n- Delete all enrollments and progress\n- Remove from all organizations\n- Cannot be undone\n\nType the user's email to confirm: ${user.email}`)) {
+      return;
+    }
+
+    const confirmEmail = prompt(`Type "${user.email}" to confirm deletion:`);
+    if (confirmEmail !== user.email) {
+      toast({
+        title: "Deletion Cancelled",
+        description: "Email confirmation did not match",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.functions.invoke('handle-user-deletion', {
+        body: { userId: user.id }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "User Deleted",
+        description: `${user.name} has been permanently removed from the system.`,
+      });
+
+      onUserUpdated?.();
+      onOpenChange(false);
+    } catch (error: any) {
+      console.error('Delete user error:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete user",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleBanUser = async () => {
     if (!confirm(`Are you sure you want to ban ${user.name}? This will prevent them from logging in.`)) {
       return;
@@ -113,17 +154,10 @@ export const UserDetailsDialog: React.FC<UserDetailsDialogProps> = ({
 
     setIsLoading(true);
     try {
-      // Note: Actual ban implementation would require a Supabase edge function
-      // For now, we'll show a placeholder message
       toast({
         title: "Feature Coming Soon",
         description: "User ban functionality requires Supabase edge function implementation",
       });
-      
-      // TODO: Call edge function to ban user
-      // const { error } = await supabase.functions.invoke('ban-user', {
-      //   body: { userId: user.id }
-      // });
     } catch (error: any) {
       toast({
         title: "Error",
@@ -322,6 +356,18 @@ export const UserDetailsDialog: React.FC<UserDetailsDialogProps> = ({
                 >
                   <Ban className="h-4 w-4 mr-2" />
                   Ban User Account (Coming Soon)
+                </Button>
+
+                <Separator className="my-2" />
+                
+                <Button
+                  variant="destructive"
+                  onClick={handleDeleteUser}
+                  disabled={isLoading}
+                  className="justify-start bg-red-600 hover:bg-red-700"
+                >
+                  <UserX className="h-4 w-4 mr-2" />
+                  Permanently Delete User
                 </Button>
               </div>
             </div>

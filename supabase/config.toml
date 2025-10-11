@@ -135,3 +135,6 @@ verify_jwt = false
 
 [functions.educator-pin-login]
 verify_jwt = false
+
+[functions.handle-user-deletion]
+verify_jwt = true
