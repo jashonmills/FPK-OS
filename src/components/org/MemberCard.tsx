@@ -225,8 +225,8 @@ export function MemberCard({
 
   // Large Tiles View - Full detail card (default)
   return (
-    <Card className="bg-orange-500/80 backdrop-blur-sm border border-orange-400/50 hover:bg-orange-500/85 transition-colors">
-      <CardHeader className="pb-3">
+    <Card className="bg-orange-500/80 backdrop-blur-sm border border-orange-400/50 hover:bg-orange-500/85 transition-colors flex flex-col h-full">
+      <CardHeader className="pb-3 shrink-0">
         <div className="flex items-center gap-4">
           <Avatar className="h-16 w-16 border-2 border-orange-300/30">
             <AvatarImage src={member.profiles?.avatar_url} />
@@ -254,9 +254,9 @@ export function MemberCard({
         </div>
       </CardHeader>
 
-      <CardContent className="flex flex-col h-full">
+      <CardContent className="flex flex-col flex-1 min-h-0">
         {/* Content wrapper with flex-1 to push button to bottom */}
-        <div className="space-y-3 flex-1">
+        <div className="space-y-3 flex-1 overflow-auto">
           {/* Job Title / Department */}
           {(member.profiles?.job_title || member.profiles?.department) && (
             <div className="space-y-2">
@@ -308,7 +308,7 @@ export function MemberCard({
         </div>
 
         {/* View Profile Button - always at bottom */}
-        <div className="mt-auto pt-3 space-y-2">
+        <div className="mt-auto pt-3 space-y-2 shrink-0">
           <Button
             variant="outline"
             size="sm"
