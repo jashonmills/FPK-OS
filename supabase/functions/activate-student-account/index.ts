@@ -59,11 +59,15 @@ serve(async (req) => {
     
     console.log('[activate-student-account] PIN hashed successfully');
 
+    // Normalize the full name (trim and collapse whitespace)
+    const normalizedName = full_name.trim().replace(/\s+/g, ' ');
+    console.log('[activate-student-account] Normalized name:', normalizedName);
+
     // Use database function to activate student account
     const { data: activationData, error: activationError } = await supabaseAdmin
       .rpc('activate_student_account', {
         p_token: token,
-        p_full_name: full_name,
+        p_full_name: normalizedName,
         p_pin_hash: pinHash
       });
 
