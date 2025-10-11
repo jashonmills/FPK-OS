@@ -100,6 +100,7 @@ const BetaManagement = lazy(() => import("./pages/admin/BetaManagement"));
 const OrganizationManagement = lazy(() => import("./pages/admin/OrganizationManagement"));
 const OrganizationDetail = lazy(() => import("./pages/admin/OrganizationDetail"));
 const InstructorConsole = lazy(() => import("./pages/admin/InstructorConsole"));
+const AdminSettings = lazy(() => import("./pages/admin/Settings"));
 
 // Instructor pages
 const InstructorDashboard = lazy(() => import("./pages/dashboard/InstructorDashboard"));
@@ -347,6 +348,7 @@ const App: React.FC = () => {
             <Route path="admin/lessons" element={<LazyRoute><LessonManager /></LazyRoute>} />
             <Route path="admin/thresholds" element={<LazyRoute><ThresholdManagement /></LazyRoute>} />
             <Route path="admin/beta" element={<LazyRoute><BetaManagement /></LazyRoute>} />
+            <Route path="admin/settings" element={<LazyRoute><AdminSettings /></LazyRoute>} />
             
             {/* Organizations Hub - Fixed missing route */}
             <Route path="organizations" element={<LazyRoute><OrgHub /></LazyRoute>} />
