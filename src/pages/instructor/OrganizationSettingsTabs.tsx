@@ -852,6 +852,36 @@ export default function OrganizationSettingsTabs() {
           open={memberProfileOpen}
           onOpenChange={setMemberProfileOpen}
         />
+
+        {/* Remove Member Confirmation Dialog */}
+        <AlertDialog open={removeConfirmOpen} onOpenChange={setRemoveConfirmOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Remove Member?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to remove{' '}
+                <span className="font-semibold">
+                  {members.find(m => m.user_id === memberToRemove)?.full_name || 'this member'}
+                </span>{' '}
+                from the organization? This action cannot be undone. They will immediately lose access to all organization resources.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => {
+                setRemoveConfirmOpen(false);
+                setMemberToRemove(null);
+              }}>
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={confirmRemoveMember}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                Remove Member
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </Tabs>
     </div>
   );
