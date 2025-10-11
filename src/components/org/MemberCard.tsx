@@ -164,70 +164,75 @@ export function MemberCard({ member, viewMode = 'large-tiles', onViewProfile }: 
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-3">
-        {/* Job Title / Department */}
-        {(member.profiles?.job_title || member.profiles?.department) && (
-          <div className="space-y-2">
-            {member.profiles?.job_title && (
-              <div className="flex items-center gap-2 text-sm text-orange-100">
-                <Briefcase className="w-4 h-4 text-orange-300 shrink-0" />
-                <span className="truncate">{member.profiles.job_title}</span>
-              </div>
-            )}
-            {member.profiles?.department && (
-              <div className="flex items-center gap-2 text-sm text-orange-100">
-                <Building2 className="w-4 h-4 text-orange-300 shrink-0" />
-                <span className="truncate">{member.profiles.department}</span>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Subject Taught (for instructors) */}
-        {member.profiles?.subject_taught && (
-          <div className="text-sm text-orange-100/90">
-            <span className="font-medium">Subject: </span>
-            {member.profiles.subject_taught}
-          </div>
-        )}
-
-        {/* Contact Information */}
-        <div className="space-y-2 pt-2 border-t border-orange-400/30">
-          {member.profiles?.email && (
-            <a 
-              href={`mailto:${member.profiles.email}`}
-              className="flex items-center gap-2 text-sm text-orange-200 hover:text-orange-100 transition-colors group"
-            >
-              <Mail className="w-4 h-4 text-orange-300 shrink-0 group-hover:text-orange-200" />
-              <span className="truncate">{member.profiles.email}</span>
-            </a>
-          )}
-          
-          {member.profiles?.phone_number && (
-            <div className="flex items-center gap-2 text-sm text-orange-100">
-              <Phone className="w-4 h-4 text-orange-300 shrink-0" />
-              <span>
-                {member.profiles.phone_number}
-                {member.profiles.phone_extension && ` ext. ${member.profiles.phone_extension}`}
-              </span>
+      <CardContent className="flex flex-col h-full">
+        {/* Content wrapper with flex-1 to push button to bottom */}
+        <div className="space-y-3 flex-1">
+          {/* Job Title / Department */}
+          {(member.profiles?.job_title || member.profiles?.department) && (
+            <div className="space-y-2">
+              {member.profiles?.job_title && (
+                <div className="flex items-center gap-2 text-sm text-orange-100">
+                  <Briefcase className="w-4 h-4 text-orange-300 shrink-0" />
+                  <span className="truncate">{member.profiles.job_title}</span>
+                </div>
+              )}
+              {member.profiles?.department && (
+                <div className="flex items-center gap-2 text-sm text-orange-100">
+                  <Building2 className="w-4 h-4 text-orange-300 shrink-0" />
+                  <span className="truncate">{member.profiles.department}</span>
+                </div>
+              )}
             </div>
           )}
+
+          {/* Subject Taught (for instructors) */}
+          {member.profiles?.subject_taught && (
+            <div className="text-sm text-orange-100/90">
+              <span className="font-medium">Subject: </span>
+              {member.profiles.subject_taught}
+            </div>
+          )}
+
+          {/* Contact Information */}
+          <div className="space-y-2 pt-2 border-t border-orange-400/30">
+            {member.profiles?.email && (
+              <a 
+                href={`mailto:${member.profiles.email}`}
+                className="flex items-center gap-2 text-sm text-orange-200 hover:text-orange-100 transition-colors group"
+              >
+                <Mail className="w-4 h-4 text-orange-300 shrink-0 group-hover:text-orange-200" />
+                <span className="truncate">{member.profiles.email}</span>
+              </a>
+            )}
+            
+            {member.profiles?.phone_number && (
+              <div className="flex items-center gap-2 text-sm text-orange-100">
+                <Phone className="w-4 h-4 text-orange-300 shrink-0" />
+                <span>
+                  {member.profiles.phone_number}
+                  {member.profiles.phone_extension && ` ext. ${member.profiles.phone_extension}`}
+                </span>
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* View Profile Button */}
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => onViewProfile?.(member)}
-          className="w-full mt-3 bg-white/10 border-white/30 text-white hover:bg-white/20"
-        >
-          <UserCircle className="h-4 w-4 mr-2" />
-          View Full Profile
-        </Button>
+        {/* View Profile Button - always at bottom */}
+        <div className="mt-auto pt-3 space-y-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onViewProfile?.(member)}
+            className="w-full bg-white/10 border-white/30 text-white hover:bg-white/20"
+          >
+            <UserCircle className="h-4 w-4 mr-2" />
+            View Full Profile
+          </Button>
 
-        {/* Member Since */}
-        <div className="text-xs text-orange-200/60 text-center pt-2">
-          Member since {new Date(member.joined_at).toLocaleDateString()}
+          {/* Member Since */}
+          <div className="text-xs text-orange-200/60 text-center">
+            Member since {new Date(member.joined_at).toLocaleDateString()}
+          </div>
         </div>
       </CardContent>
     </Card>
