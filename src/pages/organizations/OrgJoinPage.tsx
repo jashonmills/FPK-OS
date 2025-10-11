@@ -44,18 +44,45 @@ const OrgJoinPage = () => {
             body: { token: tokenFromUrl }
           });
 
-          if (validateError || !validateData.valid) {
+          console.log('Validation response:', { validateData, validateError });
+
+          if (validateError) {
+            console.error('Validation error:', validateError);
             setValidationStatus('error');
             toast({ 
-              title: 'Invalid Invitation', 
-              description: 'This invitation link is invalid or has expired.', 
+              title: 'Invitation Error', 
+              description: validateError.message || 'Failed to validate invitation. Please try again.', 
               variant: 'destructive' 
             });
             return;
           }
 
-          const email = validateData.invited_email;
-          const orgName = validateData.organization_name;
+          if (!validateData || !validateData.valid) {
+            console.error('Invalid validation data:', validateData);
+            setValidationStatus('error');
+            toast({ 
+              title: 'Invalid Invitation', 
+              description: validateData?.error || 'This invitation link is invalid or has expired.', 
+              variant: 'destructive' 
+            });
+            return;
+          }
+
+          const email = validateData.invitedEmail;
+          const orgName = validateData.organization?.name || 'the organization';
+          const orgId = validateData.organization?.id;
+          
+          if (!orgId) {
+            console.error('Missing organization ID in validation response');
+            setValidationStatus('error');
+            toast({ 
+              title: 'Invitation Error', 
+              description: 'Invalid invitation data. Please contact the organization administrator.', 
+              variant: 'destructive' 
+            });
+            return;
+          }
+          
           setInvitedEmail(email);
           setOrganizationName(orgName);
 
@@ -114,8 +141,8 @@ const OrgJoinPage = () => {
         console.error('Validation error:', error);
         setValidationStatus('error');
         toast({ 
-          title: 'Error', 
-          description: 'Failed to process invitation. Please try again.', 
+          title: 'Invitation Error', 
+          description: error.message || 'Failed to process invitation. Please try again.', 
           variant: 'destructive' 
         });
       }
