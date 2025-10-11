@@ -15,7 +15,7 @@ export interface UserIdentity {
   };
   memberships: Array<{
     orgId: string;
-    role: 'owner' | 'instructor' | 'student';
+    role: 'owner' | 'admin' | 'instructor' | 'instructor_aide' | 'viewer' | 'student';
   }>;
 }
 
@@ -87,7 +87,7 @@ const fetchUserIdentity = async (user: any): Promise<UserIdentity | null> => {
       },
       memberships: (membershipsData || []).map(m => ({ 
         orgId: m.org_id, 
-        role: m.role as 'owner' | 'instructor' | 'student'
+        role: m.role as 'owner' | 'admin' | 'instructor' | 'instructor_aide' | 'viewer' | 'student'
       })),
     };
   }

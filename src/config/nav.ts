@@ -76,13 +76,13 @@ export function injectOrgId(navItems: NavItem[], orgId: string | null): NavItem[
 // Helper function to determine navigation context
 export function getNavigationContext(
   isPersonalMode: boolean,
-  userRole: 'owner' | 'instructor' | 'student' | null
+  userRole: 'owner' | 'admin' | 'instructor' | 'instructor_aide' | 'viewer' | 'student' | null
 ) {
   if (isPersonalMode) {
     return 'personal';
   }
   
-  if (userRole === 'owner' || userRole === 'instructor') {
+  if (userRole === 'owner' || userRole === 'admin' || userRole === 'instructor') {
     return 'org-instructor';
   }
   

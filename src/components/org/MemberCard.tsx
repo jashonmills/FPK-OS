@@ -22,7 +22,7 @@ interface MemberCardProps {
   viewMode?: 'list' | 'large-tiles' | 'small-tiles';
   onViewProfile?: (member: OrgMember) => void;
   onRemoveMember?: (userId: string) => void;
-  onChangeRole?: (userId: string, newRole: 'owner' | 'instructor' | 'student') => void;
+  onChangeRole?: (userId: string, newRole: 'owner' | 'admin' | 'instructor' | 'instructor_aide' | 'viewer' | 'student') => void;
   canManage?: boolean;
 }
 

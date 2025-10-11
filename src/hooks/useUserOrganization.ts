@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 export interface UserOrganizationMembership {
   organization_id: string;
-  role: 'owner' | 'instructor' | 'student';
+  role: 'owner' | 'admin' | 'instructor' | 'instructor_aide' | 'viewer' | 'student';
   status: 'active' | 'pending' | 'inactive';
   organizations: {
     id: string;

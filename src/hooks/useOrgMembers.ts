@@ -4,7 +4,7 @@ import { getActiveOrgId } from '@/lib/org/context';
 
 export interface OrgMember {
   user_id: string;
-  role: 'owner' | 'instructor' | 'student';
+  role: 'owner' | 'admin' | 'instructor' | 'instructor_aide' | 'viewer' | 'student';
   status: 'active' | 'inactive' | 'pending';
   joined_at: string;
   id?: string;
@@ -56,7 +56,7 @@ export function useOrgMembers(searchQuery?: string, roleFilter?: string) {
         .neq('role', 'student'); // Exclude students from members view
 
       if (roleFilter) {
-        query = query.eq('role', roleFilter as 'owner' | 'instructor' | 'student');
+        query = query.eq('role', roleFilter as 'owner' | 'admin' | 'instructor' | 'instructor_aide' | 'viewer' | 'student');
       }
 
       const { data, error } = await query.order('joined_at', { ascending: false });

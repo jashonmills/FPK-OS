@@ -31,7 +31,7 @@ interface OrgContextType {
   switchToPersonal: () => void;
   // Navigation context helpers
   getNavigationContext: () => 'personal' | 'org-student' | 'org-instructor';
-  getUserRole: () => 'owner' | 'instructor' | 'student' | null;
+  getUserRole: () => 'owner' | 'admin' | 'instructor' | 'instructor_aide' | 'viewer' | 'student' | null;
 }
 
 const OrgContext = createContext<OrgContextType | undefined>(undefined);
@@ -129,14 +129,14 @@ export function OrgProvider({ children, orgId }: { children: React.ReactNode; or
       return 'personal';
     }
     
-    if (currentOrg?.role === 'owner' || currentOrg?.role === 'instructor') {
+    if (currentOrg?.role === 'owner' || currentOrg?.role === 'admin' || currentOrg?.role === 'instructor') {
       return 'org-instructor';
     }
     
     return 'org-student';
   };
 
-  const getUserRole = (): 'owner' | 'instructor' | 'student' | null => {
+  const getUserRole = (): 'owner' | 'admin' | 'instructor' | 'instructor_aide' | 'viewer' | 'student' | null => {
     return currentOrg?.role || null;
   };
 

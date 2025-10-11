@@ -1,7 +1,7 @@
 export type OrgSubscriptionTier = 'basic' | 'standard' | 'premium' | 'beta';
 export type NoteVisibilityScope = 'student-only' | 'instructor-visible' | 'org-public';
 export type InvitationStatus = 'pending' | 'accepted' | 'declined' | 'expired';
-export type MemberRole = 'owner' | 'instructor' | 'student';
+export type MemberRole = 'owner' | 'admin' | 'instructor' | 'instructor_aide' | 'viewer' | 'student';
 export type MemberStatus = 'active' | 'paused' | 'blocked' | 'removed';
 
 export interface Organization {

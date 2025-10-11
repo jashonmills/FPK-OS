@@ -38,7 +38,7 @@ export function ManualStaffAddDialog({
   const [email, setEmail] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [role, setRole] = useState<'instructor' | 'instructor-aide' | 'viewer'>('instructor');
+  const [role, setRole] = useState<'admin' | 'instructor' | 'instructor-aide' | 'viewer'>('instructor');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleAdd = async () => {
@@ -90,7 +90,12 @@ export function ManualStaffAddDialog({
 
       toast({
         title: 'Staff member added',
-        description: `${firstName} ${lastName} has been added as ${role === 'instructor-aide' ? 'an Instructor Aide' : `a${role === 'instructor' ? 'n Instructor' : ' Viewer'}`}.`,
+        description: `${firstName} ${lastName} has been added as ${
+          role === 'admin' ? 'an Admin' :
+          role === 'instructor-aide' ? 'an Instructor Aide' : 
+          role === 'instructor' ? 'an Instructor' : 
+          'a Viewer'
+        }.`,
       });
 
       // Track analytics
@@ -186,19 +191,21 @@ export function ManualStaffAddDialog({
             <Label htmlFor="role">Role</Label>
             <Select
               value={role}
-              onValueChange={(value) => setRole(value as 'instructor' | 'instructor-aide' | 'viewer')}
+              onValueChange={(value) => setRole(value as 'admin' | 'instructor' | 'instructor-aide' | 'viewer')}
               disabled={isLoading}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select role" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="admin">Admin</SelectItem>
                 <SelectItem value="instructor">Instructor</SelectItem>
                 <SelectItem value="instructor-aide">Instructor Aide</SelectItem>
                 <SelectItem value="viewer">Viewer</SelectItem>
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground">
+              {role === 'admin' && 'Full organization management except subscription changes'}
               {role === 'instructor' && 'Can create/assign courses and view analytics for their students'}
               {role === 'instructor-aide' && 'Can assist instructors but cannot modify organization settings'}
               {role === 'viewer' && 'Read-only access to analytics and rosters'}

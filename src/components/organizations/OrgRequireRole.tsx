@@ -3,7 +3,7 @@ import { useOrgContext } from '@/components/organizations/OrgContext';
 import { Navigate } from 'react-router-dom';
 
 interface OrgRequireRoleProps {
-  roles: Array<'owner' | 'instructor' | 'student'>;
+  roles: Array<'owner' | 'admin' | 'instructor' | 'instructor_aide' | 'viewer' | 'student'>;
   children: React.ReactNode;
   fallback?: React.ReactNode;
 }

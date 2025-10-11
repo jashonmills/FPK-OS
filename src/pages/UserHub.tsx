@@ -14,7 +14,7 @@ interface Entitlements {
   org_memberships: Array<{
     org_id: string;
     org_name: string;
-    role: 'owner' | 'instructor' | 'student';
+    role: 'owner' | 'admin' | 'instructor' | 'instructor_aide' | 'viewer' | 'student';
     status: string;
   }>;
   pending_invites: Array<{

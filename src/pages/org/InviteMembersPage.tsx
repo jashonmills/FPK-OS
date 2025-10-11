@@ -99,7 +99,8 @@ const InviteMembersPage = () => {
 
   // Role descriptions for tooltips
   const roleDescriptions = {
-    owner: 'Full org management (members, courses, settings)',
+    owner: 'Full org management (members, courses, settings, subscriptions)',
+    admin: 'Full org management (members, courses, settings) - cannot manage subscriptions',
     instructor: 'Create/assign courses, view analytics for their students',
     'instructor-aide': 'Assist instructors (no org settings)',
     student: 'Access assigned courses and complete learning activities',
@@ -231,7 +232,10 @@ const InviteMembersPage = () => {
                           </SelectTrigger>
                           <SelectContent>
                             {canManageOrg() && (
-                              <SelectItem value="instructor">Instructor</SelectItem>
+                              <>
+                                <SelectItem value="admin">Admin</SelectItem>
+                                <SelectItem value="instructor">Instructor</SelectItem>
+                              </>
                             )}
                             <SelectItem value="student">Student</SelectItem>
                             {canManageOrg() && (

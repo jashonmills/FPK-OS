@@ -55,7 +55,8 @@ const ACCENT_PRESETS = [
 ];
 
 const roleDescriptions = {
-  owner: 'Full org management (members, courses, settings)',
+  owner: 'Full org management (members, courses, settings, subscriptions)',
+  admin: 'Full org management (members, courses, settings) - cannot manage subscriptions',
   instructor: 'Create/assign courses, view analytics for their students',
   'instructor-aide': 'Assist instructors (no org settings)',
   student: 'Access assigned courses and complete learning activities',
@@ -107,7 +108,7 @@ export default function OrganizationSettingsTabs() {
     }
   };
 
-  const handleChangeRole = (userId: string, newRole: 'owner' | 'instructor' | 'student') => {
+  const handleChangeRole = (userId: string, newRole: 'owner' | 'admin' | 'instructor' | 'instructor_aide' | 'viewer' | 'student') => {
     changeRole({ userId, newRole });
   };
 
@@ -648,6 +649,7 @@ export default function OrganizationSettingsTabs() {
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
+                                <SelectItem value="admin">Admin</SelectItem>
                                 <SelectItem value="instructor">Instructor</SelectItem>
                                 <SelectItem value="student">Student</SelectItem>
                                 <SelectItem value="instructor-aide">Instructor Aide</SelectItem>
