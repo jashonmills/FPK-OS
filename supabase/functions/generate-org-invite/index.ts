@@ -12,7 +12,7 @@ const corsHeaders = {
 interface GenerateInviteRequest {
   orgId: string;
   email: string;
-  role: 'student' | 'instructor';
+  role: 'owner' | 'instructor' | 'student' | 'instructor_aide' | 'viewer' | 'admin';
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -81,10 +81,11 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    if (!['student', 'instructor'].includes(role)) {
+    const validRoles = ['owner', 'instructor', 'student', 'instructor_aide', 'viewer', 'admin'];
+    if (!validRoles.includes(role)) {
       console.error("Invalid role provided:", role);
       return new Response(
-        JSON.stringify({ error: "Invalid role. Must be 'student' or 'instructor'" }),
+        JSON.stringify({ error: `Invalid role. Must be one of: ${validRoles.join(', ')}` }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
