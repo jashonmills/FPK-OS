@@ -175,18 +175,20 @@ export default function OrganizationManagement() {
             <TableBody>
               {filteredOrganizations.map((org) => (
                 <TableRow key={org.id}>
-                  <TableCell>
+                  <TableCell className="max-w-xs">
                     <div>
                       <div className="font-medium">{org.name}</div>
                       {org.description && (
-                        <div className="text-sm text-muted-foreground">
+                        <div className="text-sm text-muted-foreground line-clamp-2 max-w-xs">
                           {org.description}
                         </div>
                       )}
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="text-sm">{(org as any).owner_name || org.owner_id}</div>
+                    <div className="text-sm truncate max-w-[200px]">
+                      {(org as any).owner_email || org.owner_id}
+                    </div>
                   </TableCell>
                   <TableCell>
                     <Badge variant={getTierVariant(org.plan) as any}>

@@ -18,10 +18,13 @@ export function useAdminOrganizations() {
 
       console.log('🔍 Admin Organizations Hook - Fetching organizations for admin:', user.id);
 
-      // Fetch ALL organizations - admin policies will handle access control
+      // Fetch ALL organizations with owner details - admin policies will handle access control
       const { data, error } = await supabase
         .from('organizations')
-        .select('*')
+        .select(`
+          *,
+          owner:owner_id(email, id)
+        `)
         .order('created_at', { ascending: false });
 
       console.log('📊 Admin Organizations Query Result:', { data, error });
@@ -32,11 +35,12 @@ export function useAdminOrganizations() {
       }
 
       // Transform data to match our interface  
-      return data.map((org): Organization => ({
+      return data.map((org): Organization & { owner_email?: string } => ({
         id: org.id,
         name: org.name,
         description: org.description || undefined,
         owner_id: org.owner_id,
+        owner_email: (org.owner as any)?.email || undefined,
         plan: org.plan as any, // Type assertion for database enum
         seat_cap: org.seat_cap,
         seats_used: org.seats_used || 0,
