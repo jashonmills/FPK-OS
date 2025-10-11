@@ -87,25 +87,33 @@ const OrgJoinPage = () => {
           setOrganizationName(orgName);
 
           // Step 2: Check if user exists
+          console.log(`🔍 Checking if email exists: ${email}`);
           const { data: existsData, error: existsError } = await supabase.functions.invoke('check-email-exists', {
             body: { email }
           });
 
+          console.log(`📧 Email check result for ${email}:`, existsData);
+
           if (existsError) {
-            console.error('Error checking email:', existsError);
+            console.error('❌ Error checking email:', existsError);
             throw existsError;
           }
 
           // Step 3: Route accordingly
           if (existsData.exists) {
+            console.log(`✅ Email ${email} EXISTS in database - routing to login`);
             // Existing user - check if authenticated
             if (!user) {
+              console.log(`🔄 User not authenticated, redirecting to /login with email: ${email}`);
               localStorage.setItem('pendingInvite', tokenFromUrl);
               localStorage.setItem('pendingInviteOrgName', orgName);
+              localStorage.setItem('pendingInviteEmail', email);
               navigate('/login', { 
                 state: { 
-                  message: `Please sign in to join ${orgName}`,
-                  returnUrl: `/org/join?token=${tokenFromUrl}`
+                  email: email,
+                  message: `Please sign in with ${email} to join ${orgName}`,
+                  returnUrl: `/org/join?token=${tokenFromUrl}`,
+                  inviteContext: true
                 } 
               });
             } else {
@@ -125,10 +133,12 @@ const OrgJoinPage = () => {
               setIsFromEmail(true);
             }
           } else {
+            console.log(`🆕 Email ${email} is NEW - routing to signup`);
             // New user - redirect to signup
             localStorage.setItem('pendingInvite', tokenFromUrl);
             localStorage.setItem('pendingInviteEmail', email);
             localStorage.setItem('pendingInviteOrgName', orgName);
+            console.log(`🔄 Redirecting to /signup/invitation for new user: ${email}`);
             navigate('/signup/invitation', { replace: true });
           }
         } else if (codeFromUrl) {

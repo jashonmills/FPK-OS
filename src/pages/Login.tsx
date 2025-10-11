@@ -180,7 +180,7 @@ const Login = () => {
   };
 
   const [signInData, setSignInData] = useState({
-    email: '',
+    email: location.state?.email || '',
     password: ''
   });
 
@@ -414,6 +414,17 @@ const Login = () => {
                 <TabsTrigger value="signin">{tString('signIn')}</TabsTrigger>
                 <TabsTrigger value="signup">{tString('signUp')}</TabsTrigger>
               </TabsList>
+
+              {/* Invitation Message */}
+              {location.state?.inviteContext && location.state?.message && (
+                <Alert className="mb-4 border-primary/20 bg-primary/5">
+                  <AlertDescription className="text-primary">
+                    <strong>📧 Invitation Detected</strong>
+                    <br />
+                    {location.state.message}
+                  </AlertDescription>
+                </Alert>
+              )}
 
               {error && (
                 <Alert className="mb-4 border-red-200 bg-red-50">
