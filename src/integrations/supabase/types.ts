@@ -5743,7 +5743,7 @@ export type Database = {
           is_suspended: boolean
           logo_url: string | null
           name: string
-          owner_id: string
+          owner_id: string | null
           plan: string
           restrict_general_chat: boolean | null
           seat_cap: number
@@ -5772,7 +5772,7 @@ export type Database = {
           is_suspended?: boolean
           logo_url?: string | null
           name: string
-          owner_id: string
+          owner_id?: string | null
           plan?: string
           restrict_general_chat?: boolean | null
           seat_cap?: number
@@ -5801,7 +5801,7 @@ export type Database = {
           is_suspended?: boolean
           logo_url?: string | null
           name?: string
-          owner_id?: string
+          owner_id?: string | null
           plan?: string
           restrict_general_chat?: boolean | null
           seat_cap?: number
