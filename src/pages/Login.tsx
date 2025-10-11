@@ -143,8 +143,8 @@ const Login = () => {
         }
       }
       
-      console.log('🔄 Login: No redirect, going to dashboard');
-      navigate('/dashboard/learner', { replace: true });
+      console.log('🔄 Login: No redirect, going to post-login handler');
+      navigate('/post-login', { replace: true });
     }
   }, [user, loading, navigate, searchParams, location.state]);
 
@@ -235,8 +235,8 @@ const Login = () => {
         console.log('🔄 Login: Sign in successful, redirecting to return URL:', returnUrl);
         navigate(returnUrl, { replace: true });
       } else {
-        console.log('🔄 Login: Sign in successful, redirecting to dashboard');
-        navigate('/dashboard/learner', { replace: true });
+        console.log('🔄 Login: Sign in successful, redirecting to post-login handler');
+        navigate('/post-login', { replace: true });
       }
     } catch (err) {
       setError('An unexpected error occurred. Please try again.');
@@ -304,7 +304,7 @@ const Login = () => {
         } else if (returnUrl) {
           navigate(returnUrl, { replace: true });
         } else {
-          navigate('/dashboard/learner', { replace: true });
+          navigate('/post-login', { replace: true });
         }
       } else {
         // Email confirmation required

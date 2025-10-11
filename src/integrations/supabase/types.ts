@@ -6024,6 +6024,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          access_scope: string | null
           app_reminders: Json | null
           avatar_url: string | null
           beta_access: boolean | null
@@ -6064,6 +6065,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          access_scope?: string | null
           app_reminders?: Json | null
           avatar_url?: string | null
           beta_access?: boolean | null
@@ -6104,6 +6106,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          access_scope?: string | null
           app_reminders?: Json | null
           avatar_url?: string | null
           beta_access?: boolean | null

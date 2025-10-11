@@ -20,6 +20,9 @@ import "./App.css";
 // Non-critical imports for better bundle splitting
 const Index = lazy(() => import("./pages/Index"));
 const Login = lazy(() => import("./pages/Login"));
+const PostLoginHandler = lazy(() => import("./components/auth/PostLoginHandler"));
+const ChooseOrganization = lazy(() => import("./pages/ChooseOrganization"));
+const NoOrganizationAccess = lazy(() => import("./pages/NoOrganizationAccess"));
 const SignupWithInvitation = lazy(() => import("./pages/SignupWithInvitation"));
 const OrganizationFinderPage = lazy(() => import("./pages/OrganizationFinderPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -256,6 +259,24 @@ const App: React.FC = () => {
           <Route path="/" element={<LazyRoute><Index /></LazyRoute>} />
           <Route path="/courses" element={<LazyRoute><CoursesPage /></LazyRoute>} />
           <Route path="/login" element={<LazyRoute><Login /></LazyRoute>} />
+          
+          {/* Post-login routing handler */}
+          <Route path="/post-login" element={
+            <LazyRoute><PostLoginHandler /></LazyRoute>
+          } />
+          
+          {/* Organization selection for multi-org users */}
+          <Route path="/choose-organization" element={
+            <RouteProtector>
+              <LazyRoute><ChooseOrganization /></LazyRoute>
+            </RouteProtector>
+          } />
+          
+          {/* No access page for org-only users without memberships */}
+          <Route path="/no-organization-access" element={
+            <LazyRoute><NoOrganizationAccess /></LazyRoute>
+          } />
+          
           <Route path="/signup/invitation" element={<LazyRoute><SignupWithInvitation /></LazyRoute>} />
           <Route path="/organization-login" element={<LazyRoute><OrganizationFinderPage /></LazyRoute>} />
           <Route path="/auth/confirm" element={<LazyRoute><EmailConfirm /></LazyRoute>} />

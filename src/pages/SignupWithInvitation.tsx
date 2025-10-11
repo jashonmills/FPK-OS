@@ -110,6 +110,7 @@ export default function SignupWithInvitation() {
           bio: data.bio || null,
           phone_number: data.phone_number || null,
           phone_extension: data.phone_extension || null,
+          access_scope: 'organization_only', // Organization staff are scoped to org access only
         });
 
       if (profileError) {
