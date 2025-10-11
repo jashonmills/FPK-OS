@@ -34,10 +34,11 @@ export function PendingInvitationsList() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedInviteId, setSelectedInviteId] = useState<string | null>(null);
 
-  const handleCopyEmail = (email: string, id: string) => {
-    navigator.clipboard.writeText(email);
+  const handleCopyInviteLink = (inviteToken: string, id: string) => {
+    const inviteUrl = `https://fpkuniversity.com/org/join?token=${inviteToken}`;
+    navigator.clipboard.writeText(inviteUrl);
     setCopiedId(id);
-    toast({ title: 'Email copied to clipboard' });
+    toast({ title: 'Invitation link copied to clipboard' });
     setTimeout(() => setCopiedId(null), 2000);
   };
 
@@ -171,17 +172,17 @@ export function PendingInvitationsList() {
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleCopyEmail(invitation.invited_email, invitation.id)}
-                  >
-                    {copiedId === invitation.id ? (
-                      <Check className="h-4 w-4" />
-                    ) : (
-                      <Copy className="h-4 w-4" />
-                    )}
-                  </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleCopyInviteLink(invitation.invite_token, invitation.id)}
+              >
+                {copiedId === invitation.id ? (
+                  <Check className="h-4 w-4" />
+                ) : (
+                  <Copy className="h-4 w-4" />
+                )}
+              </Button>
 
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -190,6 +191,12 @@ export function PendingInvitationsList() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        onClick={() => handleCopyInviteLink(invitation.invite_token, invitation.id)}
+                      >
+                        <Copy className="h-4 w-4 mr-2" />
+                        Copy Invite Link
+                      </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => handleDeleteClick(invitation.id)}
                         className="text-destructive focus:text-destructive"

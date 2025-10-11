@@ -5,6 +5,7 @@ import { getActiveOrgId } from '@/lib/org/context';
 export interface PendingInvitation {
   id: string;
   invited_email: string;
+  invite_token: string;
   role: string;
   created_at: string;
   expires_at: string;
@@ -27,6 +28,7 @@ export function usePendingInvitations() {
         .select(`
           id,
           invited_email,
+          invite_token,
           role,
           created_at,
           expires_at,
