@@ -84,6 +84,7 @@ Deno.serve(async (req) => {
       'student_course_assignments',
       
       // Study and reading sessions
+      'daily_activities', // Must delete before auth.users
       'study_sessions',
       'reading_sessions',
       'slide_analytics',
