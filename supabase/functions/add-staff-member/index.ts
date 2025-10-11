@@ -199,6 +199,24 @@ const handler = async (req: Request): Promise<Response> => {
       }
     }
 
+    // Generate magic link for the user (new or existing)
+    let magicLink: string | null = null;
+    try {
+      const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
+        type: 'magiclink',
+        email: email.toLowerCase(),
+      });
+
+      if (linkError) {
+        console.error('Error generating magic link:', linkError);
+      } else {
+        magicLink = linkData?.properties?.action_link || null;
+        console.log('Magic link generated successfully');
+      }
+    } catch (linkErr) {
+      console.error('Failed to generate magic link:', linkErr);
+    }
+
     // Add user to organization
     const { error: addMemberError } = await supabase
       .from('org_members')
@@ -344,6 +362,8 @@ const handler = async (req: Request): Promise<Response> => {
         success: true,
         userId: newUserId,
         isNewUser,
+        magicLink,
+        email: email.toLowerCase(),
         message: `Successfully added ${firstName} ${lastName} as ${role}`
       }),
       {

@@ -10,6 +10,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   Select,
   SelectContent,
@@ -19,7 +20,7 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { UserPlus, Loader2 } from 'lucide-react';
+import { UserPlus, Loader2, Copy, Check } from 'lucide-react';
 
 interface ManualStaffAddDialogProps {
   open: boolean;
@@ -40,6 +41,9 @@ export function ManualStaffAddDialog({
   const [lastName, setLastName] = useState('');
   const [role, setRole] = useState<'admin' | 'instructor' | 'instructor-aide' | 'viewer'>('instructor');
   const [isLoading, setIsLoading] = useState(false);
+  const [magicLink, setMagicLink] = useState<string | null>(null);
+  const [memberEmail, setMemberEmail] = useState<string>('');
+  const [copied, setCopied] = useState(false);
 
   const handleAdd = async () => {
     if (!email.trim() || !firstName.trim() || !lastName.trim()) {
@@ -88,6 +92,12 @@ export function ManualStaffAddDialog({
         throw new Error(errorMessage);
       }
 
+      // Set magic link if available
+      if (data.magicLink) {
+        setMagicLink(data.magicLink);
+        setMemberEmail(data.email);
+      }
+
       toast({
         title: 'Staff member added',
         description: `${firstName} ${lastName} has been added as ${
@@ -110,12 +120,15 @@ export function ManualStaffAddDialog({
         },
       });
 
-      // Reset form
-      setEmail('');
-      setFirstName('');
-      setLastName('');
-      setRole('instructor');
-      onOpenChange(false);
+      // Only close if no magic link to show
+      if (!data.magicLink) {
+        setEmail('');
+        setFirstName('');
+        setLastName('');
+        setRole('instructor');
+        onOpenChange(false);
+      }
+      
       onSuccess?.();
     } catch (error: any) {
       console.error('Error adding staff member:', error);
@@ -135,24 +148,89 @@ export function ManualStaffAddDialog({
       setFirstName('');
       setLastName('');
       setRole('instructor');
+      setMagicLink(null);
+      setMemberEmail('');
+      setCopied(false);
       onOpenChange(false);
+    }
+  };
+
+  const copyToClipboard = async () => {
+    if (!magicLink) return;
+    
+    try {
+      await navigator.clipboard.writeText(magicLink);
+      setCopied(true);
+      toast({
+        title: 'Copied!',
+        description: 'Login link copied to clipboard',
+      });
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to copy link',
+        variant: 'destructive',
+      });
     }
   };
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <UserPlus className="h-5 w-5" />
-            Add Staff Member Manually
+            {magicLink ? 'Member Added Successfully' : 'Add Staff Member Manually'}
           </DialogTitle>
           <DialogDescription>
-            Directly add a staff member to your organization. They will receive a welcome email with access instructions.
+            {magicLink 
+              ? 'Copy the login link below and send it to the new member'
+              : 'Directly add a staff member to your organization. They will receive a welcome email with access instructions.'
+            }
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        {magicLink ? (
+          <div className="space-y-4 py-4">
+            <Alert>
+              <AlertDescription>
+                Share this one-time login link with <strong>{memberEmail}</strong>. 
+                They can use it to log in and set their own password.
+              </AlertDescription>
+            </Alert>
+
+            <div className="space-y-2">
+              <Label>Login Link</Label>
+              <div className="flex gap-2">
+                <Input
+                  value={magicLink}
+                  readOnly
+                  className="font-mono text-sm"
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={copyToClipboard}
+                  title="Copy to clipboard"
+                >
+                  {copied ? (
+                    <Check className="h-4 w-4 text-green-600" />
+                  ) : (
+                    <Copy className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            <Alert>
+              <AlertDescription className="text-sm">
+                💡 This link expires in 1 hour. The user will be able to set their own password after logging in. A welcome email has also been sent.
+              </AlertDescription>
+            </Alert>
+          </div>
+        ) : (
+          <div className="space-y-4 py-4">
           <div className="space-y-2">
             <Label htmlFor="firstName">First Name</Label>
             <Input
@@ -212,24 +290,33 @@ export function ManualStaffAddDialog({
             </p>
           </div>
         </div>
+        )}
 
         <DialogFooter>
-          <Button variant="outline" onClick={handleClose} disabled={isLoading}>
-            Cancel
-          </Button>
-          <Button onClick={handleAdd} disabled={isLoading}>
-            {isLoading ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Adding...
-              </>
-            ) : (
-              <>
-                <UserPlus className="h-4 w-4 mr-2" />
-                Add Staff Member
-              </>
-            )}
-          </Button>
+          {magicLink ? (
+            <Button onClick={handleClose}>
+              Done
+            </Button>
+          ) : (
+            <>
+              <Button variant="outline" onClick={handleClose} disabled={isLoading}>
+                Cancel
+              </Button>
+              <Button onClick={handleAdd} disabled={isLoading}>
+                {isLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Adding...
+                  </>
+                ) : (
+                  <>
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    Add Staff Member
+                  </>
+                )}
+              </Button>
+            </>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
