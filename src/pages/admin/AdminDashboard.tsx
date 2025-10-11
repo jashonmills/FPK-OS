@@ -15,7 +15,7 @@ const AdminDashboard = () => {
       title: "User Management",
       description: "Manage users, roles, and permissions",
       icon: Users,
-      path: "/dashboard/admin/user-management",
+      path: "/dashboard/admin/users",
       color: "text-blue-600"
     },
     {
@@ -29,21 +29,21 @@ const AdminDashboard = () => {
       title: "Instructor Console",
       description: "Monitor instructor dashboards and organization activity",
       icon: GraduationCap,
-      path: "/dashboard/admin/instructor-console",
+      path: "/dashboard/admin/instructors",
       color: "text-purple-600"
     },
     {
       title: "Course Manager",
       description: "Create and manage learning courses",
       icon: BookOpen,
-      path: "/dashboard/admin/course-manager",
+      path: "/dashboard/admin/courses",
       color: "text-green-600"
     },
     {
-      title: "EPUB Storage",
-      description: "Manage EPUB downloads and storage",
+      title: "SCORM Packages",
+      description: "Manage SCORM packages and assignments",
       icon: Download,
-      path: "/dashboard/admin/epub-storage",
+      path: "/dashboard/admin/scorm",
       color: "text-indigo-600"
     },
     {
@@ -161,7 +161,7 @@ const AdminDashboard = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4">
             <div 
               className="text-center cursor-pointer hover:bg-white/20 rounded-lg p-3 transition-colors"
-              onClick={() => navigate('/dashboard/admin/user-management')}
+              onClick={() => navigate('/dashboard/admin/users')}
             >
               <div className="text-2xl font-bold text-blue-600">
                 {getStatValue(stats?.activeUsers || null, isLoading)}
@@ -181,7 +181,7 @@ const AdminDashboard = () => {
             
             <div 
               className="text-center cursor-pointer hover:bg-white/20 rounded-lg p-3 transition-colors"
-              onClick={() => navigate('/dashboard/admin/instructor-console')}
+              onClick={() => navigate('/dashboard/admin/instructors')}
             >
               <div className="text-2xl font-bold text-purple-600">
                 {getStatValue(stats?.totalInstructors || null, isLoading)}
@@ -201,7 +201,7 @@ const AdminDashboard = () => {
             
             <div 
               className="text-center cursor-pointer hover:bg-white/20 rounded-lg p-3 transition-colors"
-              onClick={() => navigate('/dashboard/admin/course-manager')}
+              onClick={() => navigate('/dashboard/admin/courses')}
             >
               <div className="text-2xl font-bold text-indigo-600">
                 {getStatValue(stats?.courses || null, isLoading)}
@@ -211,12 +211,12 @@ const AdminDashboard = () => {
             
             <div 
               className="text-center cursor-pointer hover:bg-white/20 rounded-lg p-3 transition-colors"
-              onClick={() => navigate('/dashboard/admin/epub-storage')}
+              onClick={() => navigate('/dashboard/admin/scorm')}
             >
               <div className="text-2xl font-bold text-pink-600">
                 {getStatValue(stats?.booksInStorage || null, isLoading)}
               </div>
-              <div className="text-sm text-muted-foreground">Books</div>
+              <div className="text-sm text-muted-foreground">SCORM Packages</div>
             </div>
             
             <div className="text-center">
