@@ -5138,6 +5138,38 @@ export type Database = {
           },
         ]
       }
+      org_group_course_assignments: {
+        Row: {
+          assigned_at: string
+          assigned_by: string
+          course_id: string
+          group_id: string
+          id: string
+        }
+        Insert: {
+          assigned_at?: string
+          assigned_by: string
+          course_id: string
+          group_id: string
+          id?: string
+        }
+        Update: {
+          assigned_at?: string
+          assigned_by?: string
+          course_id?: string
+          group_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_group_course_assignments_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "org_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       org_group_members: {
         Row: {
           added_at: string | null
@@ -7959,6 +7991,8 @@ export type Database = {
           notes: string | null
           org_id: string
           progress_percentage: number | null
+          source_id: string | null
+          source_type: string | null
           status: string
           student_id: string
           updated_at: string
@@ -7975,6 +8009,8 @@ export type Database = {
           notes?: string | null
           org_id: string
           progress_percentage?: number | null
+          source_id?: string | null
+          source_type?: string | null
           status?: string
           student_id: string
           updated_at?: string
@@ -7991,6 +8027,8 @@ export type Database = {
           notes?: string | null
           org_id?: string
           progress_percentage?: number | null
+          source_id?: string | null
+          source_type?: string | null
           status?: string
           student_id?: string
           updated_at?: string

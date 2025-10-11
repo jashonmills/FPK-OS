@@ -3,9 +3,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useOrgGroups, type OrgGroup } from '@/hooks/useOrgGroups';
-import { Users, MoreHorizontal, Edit, Trash2, UserPlus } from 'lucide-react';
+import { Users, MoreHorizontal, Edit, Trash2, UserPlus, BookOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useOrgContext } from '@/components/organizations/OrgContext';
+import { GroupCourseAssignmentDialog } from '@/components/org/groups/GroupCourseAssignmentDialog';
+import { useState } from 'react';
 
 interface GroupCardProps {
   group: OrgGroup;
@@ -15,6 +17,7 @@ export function GroupCard({ group }: GroupCardProps) {
   const { deleteGroup, isDeleting } = useOrgGroups();
   const navigate = useNavigate();
   const { currentOrg } = useOrgContext();
+  const [assignDialogOpen, setAssignDialogOpen] = useState(false);
 
   const handleDelete = () => {
     if (window.confirm(`Are you sure you want to delete "${group.name}"?`)) {
@@ -44,6 +47,10 @@ export function GroupCard({ group }: GroupCardProps) {
               <DropdownMenuItem onClick={handleManageMembers}>
                 <UserPlus className="w-4 h-4 mr-2" />
                 Manage Members
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setAssignDialogOpen(true)}>
+                <BookOpen className="w-4 h-4 mr-2" />
+                Assign Course
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Edit className="w-4 h-4 mr-2" />
@@ -76,6 +83,13 @@ export function GroupCard({ group }: GroupCardProps) {
           </div>
         </div>
       </CardContent>
+
+      <GroupCourseAssignmentDialog
+        open={assignDialogOpen}
+        onOpenChange={setAssignDialogOpen}
+        groupId={group.id}
+        groupName={group.name}
+      />
     </Card>
   );
 }
