@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { OrgStudent } from "@/hooks/useOrgStudents";
+import { supabase } from "@/integrations/supabase/client";
 export default function StudentsManagementNew() {
   const {
     orgId
@@ -93,9 +94,30 @@ export default function StudentsManagementNew() {
       deleteStudent(studentId);
     }
   };
-  const handleSendInvite = (student: any) => {
-    // TODO: Implement invite functionality
-    toast.info("Invite functionality coming soon");
+  const handleSendInvite = async (student: OrgStudent) => {
+    if (!student.parent_email) {
+      toast.error("No email address on file for this student");
+      return;
+    }
+
+    try {
+      toast.info("Sending invitation email...");
+      
+      const { data, error } = await supabase.functions.invoke('send-student-invite-email', {
+        body: {
+          studentId: student.id,
+          orgId: orgId,
+          recipientEmail: student.parent_email,
+        }
+      });
+
+      if (error) throw error;
+
+      toast.success(`Invitation email sent to ${student.parent_email}`);
+    } catch (error: any) {
+      console.error('Error sending invitation:', error);
+      toast.error(error.message || 'Failed to send invitation email');
+    }
   };
   const handleGenerateActivationLink = (student: OrgStudent) => {
     setSelectedStudent(student);

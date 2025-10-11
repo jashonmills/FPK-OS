@@ -46,9 +46,48 @@ serve(async (req) => {
       throw new Error('Organization not found');
     }
 
+    // Generate activation token if it doesn't exist or is expired
+    let activationToken = student.activation_token;
+    let tokenExpiresAt = student.token_expires_at;
+    
+    if (!activationToken || !tokenExpiresAt || new Date(tokenExpiresAt) < new Date()) {
+      console.log('Generating new activation token for student:', studentId);
+      
+      // Generate new token
+      const { data: tokenData, error: tokenError } = await supabaseAdmin
+        .rpc('generate_activation_token');
+      
+      if (tokenError || !tokenData) {
+        console.error('Token generation error:', tokenError);
+        throw new Error('Failed to generate activation token');
+      }
+      
+      activationToken = tokenData;
+      const expiresAt = new Date();
+      expiresAt.setHours(expiresAt.getHours() + 48); // 48 hour expiration
+      tokenExpiresAt = expiresAt.toISOString();
+      
+      // Update student record with new token
+      const { error: updateError } = await supabaseAdmin
+        .from('org_students')
+        .update({
+          activation_token: activationToken,
+          token_expires_at: tokenExpiresAt,
+          activation_status: 'pending'
+        })
+        .eq('id', studentId);
+      
+      if (updateError) {
+        console.error('Failed to update student with token:', updateError);
+        throw new Error('Failed to save activation token');
+      }
+      
+      console.log('✅ Generated and saved new activation token');
+    }
+
     // Build activation URL
     const siteUrl = Deno.env.get('SITE_URL') || 'https://fpkuniversity.com';
-    const activationUrl = `${siteUrl}/${org.slug}/activate?token=${student.activation_token}`;
+    const activationUrl = `${siteUrl}/${org.slug}/activate?token=${activationToken}`;
 
     // Send email via Resend
     const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
@@ -71,7 +110,7 @@ serve(async (req) => {
           <p style="color: #666; font-size: 14px;">Or copy and paste this link into your browser:</p>
           <p style="color: #4F46E5; word-break: break-all; font-size: 12px;">${activationUrl}</p>
           <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;" />
-          <p style="color: #999; font-size: 12px;">This activation link will expire on ${new Date(student.token_expires_at).toLocaleDateString()}.</p>
+          <p style="color: #999; font-size: 12px;">This activation link will expire on ${new Date(tokenExpiresAt).toLocaleDateString()}.</p>
           <p style="color: #999; font-size: 12px;">If you didn't request this invitation, please ignore this email.</p>
         </div>
       `
