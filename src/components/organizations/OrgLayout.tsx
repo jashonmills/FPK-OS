@@ -1,6 +1,7 @@
 import React from 'react';
 import { Outlet, Navigate, useParams } from 'react-router-dom';
 import { OrgProvider } from './OrgContext';
+import { TourProvider } from '@/contexts/TourContext';
 import OrgHeader from './OrgHeader';
 import { OrgNavigation } from './OrgNavigation';
 import { OrgPageBanner } from './OrgPageBanner';
@@ -98,17 +99,19 @@ export default function OrgLayout() {
 
   return (
     <OrgProvider orgId={orgId}>
-      <EnhancedOrgThemeProvider>
-        {loading ? (
-          <div className="min-h-screen flex items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin" />
-          </div>
-        ) : !user ? (
-          <Navigate to="/auth" replace />
-        ) : (
-          <OrgLayoutContent />
-        )}
-      </EnhancedOrgThemeProvider>
+      <TourProvider>
+        <EnhancedOrgThemeProvider>
+          {loading ? (
+            <div className="min-h-screen flex items-center justify-center">
+              <Loader2 className="h-8 w-8 animate-spin" />
+            </div>
+          ) : !user ? (
+            <Navigate to="/auth" replace />
+          ) : (
+            <OrgLayoutContent />
+          )}
+        </EnhancedOrgThemeProvider>
+      </TourProvider>
     </OrgProvider>
   );
 }
