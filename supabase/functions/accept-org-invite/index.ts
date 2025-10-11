@@ -263,37 +263,20 @@ const handler = async (req: Request): Promise<Response> => {
       console.log(`Created org membership: user=${user.id}, org=${invite.org_id}, role=${invite.role}`);
     }
 
-    // Mark invite as used based on type
-    if (isCodeInvite) {
-      // For code invites, increment uses_count
-      const { error: updateError } = await supabase
-        .from('org_invites')
-        .update({
-          uses_count: (invite.uses_count || 0) + 1
-        })
-        .eq('id', invite.id);
+    // Mark email invite as used (this function only handles email invites from user_invites)
+    const { error: updateError } = await supabase
+      .from('user_invites')
+      .update({
+        is_used: true,
+        used_at: new Date().toISOString(),
+        used_by: user.id
+      })
+      .eq('id', invite.id);
 
-      if (updateError) {
-        console.error("Error incrementing code invite uses:", updateError);
-      } else {
-        console.log("Code invite uses incremented successfully");
-      }
+    if (updateError) {
+      console.error("Error marking email invite as used:", updateError);
     } else {
-      // For email invites, mark as used
-      const { error: updateError } = await supabase
-        .from('user_invites')
-        .update({
-          is_used: true,
-          used_at: new Date().toISOString(),
-          used_by: user.id
-        })
-        .eq('id', invite.id);
-
-      if (updateError) {
-        console.error("Error marking email invite as used:", updateError);
-      } else {
-        console.log("Email invite marked as used successfully");
-      }
+      console.log("Email invite marked as used successfully");
     }
 
     // Log to audit_logs
