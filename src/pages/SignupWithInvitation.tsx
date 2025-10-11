@@ -17,8 +17,13 @@ import { useToast } from '@/hooks/use-toast';
 
 const signupSchema = z.object({
   full_name: z.string().min(2, 'Name must be at least 2 characters'),
+  display_name: z.string().min(2, 'Display name is required'),
   title: z.string().min(2, 'Title/Position is required'),
+  department: z.string().min(2, 'Department is required'),
+  subject_taught: z.string().min(2, 'Subject(s) taught is required'),
   bio: z.string().optional(),
+  phone_number: z.string().optional(),
+  phone_extension: z.string().optional(),
   password: z.string().min(8, 'Password must be at least 8 characters'),
   confirmPassword: z.string(),
   agreeToTerms: z.boolean().refine(val => val === true, 'You must agree to the terms'),
@@ -41,8 +46,13 @@ export default function SignupWithInvitation() {
     resolver: zodResolver(signupSchema),
     defaultValues: {
       full_name: '',
+      display_name: '',
       title: '',
+      department: '',
+      subject_taught: '',
       bio: '',
+      phone_number: '',
+      phone_extension: '',
       password: '',
       confirmPassword: '',
       agreeToTerms: false,
@@ -74,36 +84,37 @@ export default function SignupWithInvitation() {
     setIsLoading(true);
 
     try {
-      // Step 1: Create auth user
+      // Step 1: Create auth user (DO NOT put profile data in options.data)
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password: data.password,
         options: {
           emailRedirectTo: `${window.location.origin}/org/join?token=${inviteToken}`,
-          data: {
-            full_name: data.full_name,
-            title: data.title,
-            bio: data.bio,
-          }
         }
       });
 
       if (authError) throw authError;
-      if (!authData.user) throw new Error('Failed to create user');
+      if (!authData.user) throw new Error('Failed to create user account.');
 
-      // Step 2: Create profile
+      // Step 2: Insert all collected data into the profiles table
       const { error: profileError } = await supabase
         .from('profiles')
         .insert({
           id: authData.user.id,
+          email: email,
           full_name: data.full_name,
-          display_name: data.full_name.split(' ')[0], // Use first name as display name
+          display_name: data.display_name,
           job_title: data.title,
+          department: data.department,
+          subject_taught: data.subject_taught,
+          bio: data.bio || null,
+          phone_number: data.phone_number || null,
+          phone_extension: data.phone_extension || null,
         });
 
       if (profileError) {
         console.error('Profile creation error:', profileError);
-        // Continue even if profile creation fails - it might already exist
+        throw new Error(`Your account was created, but we failed to save your profile. Please contact support. Error: ${profileError.message}`);
       }
 
       // Step 3: Accept the organization invitation
@@ -182,7 +193,7 @@ export default function SignupWithInvitation() {
               </p>
             </div>
 
-            {/* Account Information */}
+            {/* Personal Information */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="full_name">Full Name *</Label>
@@ -197,6 +208,24 @@ export default function SignupWithInvitation() {
               </div>
 
               <div className="space-y-2">
+                <Label htmlFor="display_name">Display Name *</Label>
+                <Input
+                  id="display_name"
+                  {...form.register('display_name')}
+                  placeholder="John"
+                />
+                <p className="text-xs text-muted-foreground">
+                  This is how your name will appear to students.
+                </p>
+                {form.formState.errors.display_name && (
+                  <p className="text-sm text-destructive">{form.formState.errors.display_name.message}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Professional Information */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
                 <Label htmlFor="title">Title/Position *</Label>
                 <Input
                   id="title"
@@ -206,6 +235,53 @@ export default function SignupWithInvitation() {
                 {form.formState.errors.title && (
                   <p className="text-sm text-destructive">{form.formState.errors.title.message}</p>
                 )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="department">Department *</Label>
+                <Input
+                  id="department"
+                  {...form.register('department')}
+                  placeholder="e.g., Mathematics, Science, Administration"
+                />
+                {form.formState.errors.department && (
+                  <p className="text-sm text-destructive">{form.formState.errors.department.message}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Subject(s) Taught */}
+            <div className="space-y-2">
+              <Label htmlFor="subject_taught">Subject(s) Taught *</Label>
+              <Input
+                id="subject_taught"
+                {...form.register('subject_taught')}
+                placeholder="e.g., Algebra, Chemistry, Special Education"
+              />
+              {form.formState.errors.subject_taught && (
+                <p className="text-sm text-destructive">{form.formState.errors.subject_taught.message}</p>
+              )}
+            </div>
+
+            {/* Contact Information */}
+            <div className="grid grid-cols-3 gap-4">
+              <div className="col-span-2 space-y-2">
+                <Label htmlFor="phone_number">Phone Number (Optional)</Label>
+                <Input
+                  id="phone_number"
+                  type="tel"
+                  {...form.register('phone_number')}
+                  placeholder="(555) 123-4567"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="phone_extension">Extension</Label>
+                <Input
+                  id="phone_extension"
+                  {...form.register('phone_extension')}
+                  placeholder="1234"
+                />
               </div>
             </div>
 
