@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { LogIn, Loader2 } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { LogIn, Loader2, Shield } from 'lucide-react';
 import { useOrgBranding } from '@/hooks/useOrgBranding';
 import { OrgBanner } from '@/components/branding/OrgBanner';
 import { useAuth } from '@/hooks/useAuth';
 import { useStudentPortalContext } from '@/hooks/useStudentPortalContext';
+import { AdminPasswordLoginForm } from '@/components/auth/AdminPasswordLoginForm';
 
 export default function OrgPortalLanding() {
   const { orgSlug } = useParams<{ orgSlug: string }>();
@@ -16,6 +18,7 @@ export default function OrgPortalLanding() {
   const [orgId, setOrgId] = useState<string | null>(null);
   const [orgName, setOrgName] = useState<string>('');
   const [loading, setLoading] = useState(true);
+  const [showAdminLoginModal, setShowAdminLoginModal] = useState(false);
   const { data: branding } = useOrgBranding(orgId);
 
   // Redirect authenticated student portal users to their dashboard
@@ -154,6 +157,16 @@ export default function OrgPortalLanding() {
               Educator & Staff Login
             </Button>
 
+            <Button
+              onClick={() => setShowAdminLoginModal(true)}
+              className="w-full h-12 text-lg bg-purple-600 hover:bg-purple-700 text-white"
+              size="lg"
+              variant="outline"
+            >
+              <Shield className="w-5 h-5 mr-2" />
+              Admin & Owner Login
+            </Button>
+
             <div className="text-center text-sm text-gray-500">
               <p>Need help? Contact your organization administrator.</p>
             </div>
@@ -166,6 +179,29 @@ export default function OrgPortalLanding() {
           </div>
         </div>
       </div>
+
+      {/* Admin Login Modal */}
+      <Dialog open={showAdminLoginModal} onOpenChange={setShowAdminLoginModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Shield className="w-5 h-5 text-purple-600" />
+              Administrator Login
+            </DialogTitle>
+          </DialogHeader>
+          {orgId && orgName && (
+            <AdminPasswordLoginForm
+              orgId={orgId}
+              orgName={orgName}
+              onSuccess={() => {
+                setShowAdminLoginModal(false);
+                navigate(`/org/${orgId}`);
+              }}
+              onCancel={() => setShowAdminLoginModal(false)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
