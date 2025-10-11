@@ -63,22 +63,22 @@ const Dashboard = () => {
 
           {/* Main Content Tabs */}
           <Tabs defaultValue="logs" className="space-y-4">
-            <TabsList className="grid w-full max-w-2xl grid-cols-4">
-              <TabsTrigger value="logs">
-                <BookOpen className="w-4 h-4 mr-2" />
-                Educator Logs
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1">
+              <TabsTrigger value="logs" className="text-xs sm:text-sm">
+                <BookOpen className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+                <span className="hidden sm:inline">Educator </span>Logs
               </TabsTrigger>
-              <TabsTrigger value="metrics">
-                <TrendingUp className="w-4 h-4 mr-2" />
-                Progress Metrics
+              <TabsTrigger value="metrics" className="text-xs sm:text-sm">
+                <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+                <span className="hidden sm:inline">Progress </span>Metrics
               </TabsTrigger>
-              <TabsTrigger value="documents">
-                <FileText className="w-4 h-4 mr-2" />
-                Document Analysis
+              <TabsTrigger value="documents" className="text-xs sm:text-sm">
+                <FileText className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+                <span className="hidden sm:inline">Document </span>Docs
               </TabsTrigger>
-              <TabsTrigger value="insights">
-                <Sparkles className="w-4 h-4 mr-2" />
-                AI Insights
+              <TabsTrigger value="insights" className="text-xs sm:text-sm">
+                <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+                <span className="hidden sm:inline">AI </span>Insights
               </TabsTrigger>
             </TabsList>
 

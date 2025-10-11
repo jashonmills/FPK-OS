@@ -274,25 +274,29 @@ export default function Documents() {
       />
       
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <p className="text-muted-foreground">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
+          <p className="text-muted-foreground text-sm sm:text-base">
             Manage IEPs, evaluations, progress reports, and more
           </p>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             {shouldShowAnalyzeButtons && (
               <>
                 <Button 
                   onClick={handleAnalyzeAllDocuments}
                   disabled={isAnalyzingAll}
                   variant="default"
+                  size="sm"
+                  className="text-xs sm:text-sm"
                 >
-                  <Sparkles className="mr-2 h-4 w-4" />
-                  {isAnalyzingAll ? "Analyzing..." : "Analyze My Documents"}
+                  <Sparkles className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline">{isAnalyzingAll ? "Analyzing..." : "Analyze My Documents"}</span>
+                  <span className="sm:hidden">{isAnalyzingAll ? "Analyzing..." : "Analyze"}</span>
                 </Button>
                 <Button 
                   onClick={handleResetAnalysis}
                   variant="outline"
                   size="sm"
+                  className="text-xs sm:text-sm"
                 >
                   Reset
                 </Button>
@@ -301,9 +305,9 @@ export default function Documents() {
             
             <Sheet open={guideOpen} onOpenChange={setGuideOpen}>
               <SheetTrigger asChild>
-                <Button variant="outline">
-                  <HelpCircle className="mr-2 h-4 w-4" />
-                  Document Guide
+                <Button variant="outline" size="sm" className="text-xs sm:text-sm">
+                  <HelpCircle className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline">Document </span>Guide
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="w-full sm:max-w-2xl overflow-y-auto">
@@ -316,9 +320,9 @@ export default function Documents() {
               </SheetContent>
             </Sheet>
             
-            <Button onClick={() => setUploadModalOpen(true)}>
-              <Upload className="mr-2 h-4 w-4" />
-              Upload Document
+            <Button onClick={() => setUploadModalOpen(true)} size="sm" className="text-xs sm:text-sm">
+              <Upload className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Upload </span>Document
             </Button>
           </div>
         </div>

@@ -230,16 +230,16 @@ const Goals = () => {
         tourDescription="Set and track measurable goals for your child's development. Ready to get started?"
       />
       
-      <div className="container mx-auto p-6 space-y-6">
-        <div className="flex justify-between items-center">
+      <div className="container mx-auto p-3 sm:p-4 md:p-6 space-y-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
         <div>
-          <h1 className="text-3xl font-bold">Goals</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl font-bold">Goals</h1>
+          <p className="text-muted-foreground text-sm sm:text-base">
             Track progress for {selectedStudent.student_name}
           </p>
         </div>
-        <Button onClick={() => setCreateModalOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
+        <Button onClick={() => setCreateModalOpen(true)} size="sm" className="text-xs sm:text-sm">
+          <Plus className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
           Create Goal
         </Button>
       </div>

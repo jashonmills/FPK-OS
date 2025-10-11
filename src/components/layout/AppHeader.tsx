@@ -52,20 +52,20 @@ export const AppHeader = () => {
   };
 
   return (
-    <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background px-6">
+    <header className="sticky top-0 z-10 flex h-14 sm:h-16 items-center gap-2 sm:gap-4 border-b bg-background px-2 sm:px-4 md:px-6">
       <SidebarTrigger />
       <img 
         src={fpxCnsLogo} 
         alt="FPX CNS-app Logo" 
-        className="h-10 w-10 object-contain"
+        className="h-8 w-8 sm:h-10 sm:w-10 object-contain"
       />
-      <div className="flex items-center justify-between flex-1">
-        <h1 className="text-xl font-semibold">{getPageTitle()}</h1>
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between flex-1 min-w-0 gap-2">
+        <h1 className="text-base sm:text-lg md:text-xl font-semibold truncate">{getPageTitle()}</h1>
+        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" data-tour="help">
-                <HelpCircle className="h-5 w-5" />
+              <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-10 sm:w-10" data-tour="help">
+                <HelpCircle className="h-4 w-4 sm:h-5 sm:w-5" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">

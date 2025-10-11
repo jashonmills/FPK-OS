@@ -70,7 +70,7 @@ export const FamilyStudentSelector = () => {
   if (!selectedFamily) return null;
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
       {/* Family Switcher - Only show if user is in multiple families */}
       {families.length > 1 && (
         <Select
@@ -80,10 +80,10 @@ export const FamilyStudentSelector = () => {
             if (family) setSelectedFamily(family);
           }}
         >
-          <SelectTrigger className="w-56">
-            <div className="flex items-center gap-2">
-              <Users className="w-4 h-4 text-muted-foreground" />
-              <span className="font-medium">{selectedFamily.family_name}</span>
+          <SelectTrigger className="w-32 sm:w-44 md:w-56 text-xs sm:text-sm">
+            <div className="flex items-center gap-1 sm:gap-2 min-w-0">
+              <Users className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground shrink-0" />
+              <span className="font-medium truncate">{selectedFamily.family_name}</span>
             </div>
           </SelectTrigger>
           <SelectContent className="bg-popover z-50">
@@ -101,11 +101,12 @@ export const FamilyStudentSelector = () => {
 
       {/* Family Members Viewer */}
       <Select value="view-members">
-        <SelectTrigger className="w-48">
-          <div className="flex items-center gap-2">
-            <User className="w-4 h-4 text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">
-              {familyMembers?.length || 0} members
+        <SelectTrigger className="w-24 sm:w-32 md:w-48 text-xs sm:text-sm">
+          <div className="flex items-center gap-1 sm:gap-2">
+            <User className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground shrink-0" />
+            <span className="text-xs sm:text-sm text-muted-foreground">
+              <span className="hidden sm:inline">{familyMembers?.length || 0} members</span>
+              <span className="sm:hidden">{familyMembers?.length || 0}</span>
             </span>
           </div>
         </SelectTrigger>
@@ -149,15 +150,15 @@ export const FamilyStudentSelector = () => {
             if (student) setSelectedStudent(student);
           }}
         >
-          <SelectTrigger className="w-64">
-            <div className="flex items-center gap-2">
-              <Avatar className="w-6 h-6">
+          <SelectTrigger className="w-36 sm:w-48 md:w-64 text-xs sm:text-sm">
+            <div className="flex items-center gap-1 sm:gap-2 min-w-0">
+              <Avatar className="w-5 h-5 sm:w-6 sm:h-6 shrink-0">
                 <AvatarImage src={selectedStudent?.photo_url || ''} />
                 <AvatarFallback className="bg-primary/10 text-primary text-xs">
                   {selectedStudent?.student_name.split(' ').map(n => n[0]).join('')}
                 </AvatarFallback>
               </Avatar>
-              <span>{selectedStudent?.student_name || 'Select student'}</span>
+              <span className="truncate">{selectedStudent?.student_name || 'Select student'}</span>
             </div>
           </SelectTrigger>
           <SelectContent className="z-50">

@@ -156,17 +156,17 @@ const Analytics = () => {
         tourDescription="Visualize trends and unlock insights from your data. Let me show you the key features!"
       />
       
-      <div className="container mx-auto p-6 space-y-6" data-tour="chart-tabs">
-        <div className="flex justify-between items-center">
+      <div className="container mx-auto p-3 sm:p-4 md:p-6 space-y-6" data-tour="chart-tabs">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
         <div>
-          <h1 className="text-3xl font-bold">Analytics Dashboard</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl font-bold">Analytics Dashboard</h1>
+          <p className="text-muted-foreground text-sm sm:text-base">
             Insights and progress tracking for {selectedStudent.student_name}
           </p>
         </div>
         
         <Select value={dateRange} onValueChange={(value: "30" | "60" | "90") => setDateRange(value)}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-full sm:w-[180px] text-xs sm:text-sm">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
