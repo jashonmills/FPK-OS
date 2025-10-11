@@ -9837,6 +9837,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      user_has_org_role: {
+        Args: { _org_id: string; _roles: string[]; _user_id: string }
+        Returns: boolean
+      }
       user_is_linked_to_student: {
         Args: { p_student_id: string }
         Returns: boolean
