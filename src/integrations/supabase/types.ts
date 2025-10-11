@@ -9614,6 +9614,10 @@ export type Database = {
         Args: { p_org_id?: string; p_scope?: string; p_time_range?: unknown }
         Returns: Json
       }
+      get_analytics_kpis: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       get_analytics_trends: {
         Args: { date_from?: string; date_to?: string; package_id?: string }
         Returns: {
@@ -9622,6 +9626,30 @@ export type Database = {
           completion_rate: number
           date: string
           enrollments: number
+        }[]
+      }
+      get_completion_breakdown: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          count: number
+          percentage: number
+          status: string
+        }[]
+      }
+      get_course_enrollment_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          completion_rate: number
+          course_id: string
+          course_title: string
+          enrollment_count: number
+        }[]
+      }
+      get_daily_active_users: {
+        Args: { days_limit?: number }
+        Returns: {
+          active_users: number
+          activity_date: string
         }[]
       }
       get_global_avg_score: {
@@ -9659,6 +9687,16 @@ export type Database = {
         Args: { p_org_id: string }
         Returns: Json
       }
+      get_organization_leaderboard: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          avg_progress: number
+          member_count: number
+          org_id: string
+          org_name: string
+          total_enrollments: number
+        }[]
+      }
       get_organization_statistics: {
         Args: { p_org_id: string }
         Returns: Json
@@ -9685,6 +9723,13 @@ export type Database = {
           | { p_org_id: string; p_student_id: string }
           | { p_user_id?: string }
         Returns: Json
+      }
+      get_time_spent_by_day: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          day_name: string
+          total_hours: number
+        }[]
       }
       get_user_entitlements: {
         Args: { p_user_id: string }
