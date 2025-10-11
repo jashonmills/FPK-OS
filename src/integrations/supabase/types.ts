@@ -9917,7 +9917,13 @@ export type Database = {
         | "completed"
         | "passed"
         | "failed"
-      member_role: "owner" | "instructor" | "student"
+      member_role:
+        | "owner"
+        | "instructor"
+        | "student"
+        | "instructor_aide"
+        | "viewer"
+        | "admin"
       member_status: "active" | "paused" | "blocked" | "removed"
       note_visibility_scope:
         | "student-only"
@@ -10077,7 +10083,14 @@ export const Constants = {
         "passed",
         "failed",
       ],
-      member_role: ["owner", "instructor", "student"],
+      member_role: [
+        "owner",
+        "instructor",
+        "student",
+        "instructor_aide",
+        "viewer",
+        "admin",
+      ],
       member_status: ["active", "paused", "blocked", "removed"],
       note_visibility_scope: [
         "student-only",
