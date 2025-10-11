@@ -57,10 +57,24 @@ const handler = async (req: Request): Promise<Response> => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Parse request body
-    const { orgId, email, role }: GenerateInviteRequest = await req.json();
+    let orgId, email, role;
+    try {
+      const body = await req.json();
+      orgId = body.orgId;
+      email = body.email;
+      role = body.role;
+      console.log(`Request body parsed:`, { orgId, email, role });
+    } catch (parseError) {
+      console.error("Failed to parse request body:", parseError);
+      return new Response(
+        JSON.stringify({ error: "Invalid JSON in request body" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     // Validate input
     if (!orgId || !email || !role) {
+      console.error("Missing required fields:", { orgId: !!orgId, email: !!email, role: !!role });
       return new Response(
         JSON.stringify({ error: "Missing required fields: orgId, email, role" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -68,6 +82,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     if (!['student', 'instructor'].includes(role)) {
+      console.error("Invalid role provided:", role);
       return new Response(
         JSON.stringify({ error: "Invalid role. Must be 'student' or 'instructor'" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -77,6 +92,7 @@ const handler = async (req: Request): Promise<Response> => {
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
+      console.error("Invalid email format:", email);
       return new Response(
         JSON.stringify({ error: "Invalid email format" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
