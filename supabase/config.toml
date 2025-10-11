@@ -103,6 +103,9 @@ verify_jwt = false
 [functions.generate-org-invite]
 verify_jwt = true
 
+[functions.add-staff-member]
+verify_jwt = true
+
 [functions.generate-org-invite-code]
 verify_jwt = true
 
