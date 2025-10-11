@@ -24,6 +24,7 @@ import { CreateOrgStudentData } from '@/hooks/useOrgStudents';
 
 const studentSchema = z.object({
   full_name: z.string().min(1, 'Full name is required'),
+  student_email: z.string().email('Invalid email').min(1, 'Student email is required'),
   grade_level: z.string().optional(),
   student_id: z.string().optional(),
   date_of_birth: z.string().optional(),
@@ -51,6 +52,7 @@ export function AddStudentDialog({
     resolver: zodResolver(studentSchema),
     defaultValues: {
       full_name: '',
+      student_email: '',
       grade_level: '',
       student_id: '',
       date_of_birth: '',
@@ -63,6 +65,7 @@ export function AddStudentDialog({
   const handleSubmit = (data: StudentFormData) => {
     const formData: CreateOrgStudentData = {
       full_name: data.full_name,
+      student_email: data.student_email,
       grade_level: data.grade_level || undefined,
       student_id: data.student_id || undefined,
       date_of_birth: data.date_of_birth || undefined,
@@ -96,6 +99,20 @@ export function AddStudentDialog({
                   <FormLabel>Full Name *</FormLabel>
                   <FormControl>
                     <Input placeholder="Enter student's full name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="student_email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Student Email *</FormLabel>
+                  <FormControl>
+                    <Input type="email" placeholder="student@example.com" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

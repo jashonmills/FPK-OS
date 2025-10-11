@@ -17,7 +17,7 @@ interface StudentEmailConfirmationDialogProps {
   onOpenChange: (open: boolean) => void;
   studentId: string;
   studentName: string;
-  parentEmail?: string;
+  studentEmail?: string;
   orgId: string;
 }
 
@@ -26,17 +26,17 @@ export function StudentEmailConfirmationDialog({
   onOpenChange,
   studentId,
   studentName,
-  parentEmail,
+  studentEmail,
   orgId,
 }: StudentEmailConfirmationDialogProps) {
   const [isSending, setIsSending] = useState(false);
   const { toast } = useToast();
 
   const handleSendEmail = async () => {
-    if (!parentEmail) {
+    if (!studentEmail) {
       toast({
         title: 'No Email Address',
-        description: 'This student does not have a parent email address on file.',
+        description: 'This student does not have an email address on file.',
         variant: 'destructive',
       });
       return;
@@ -49,23 +49,23 @@ export function StudentEmailConfirmationDialog({
         body: {
           studentId,
           orgId,
-          recipientEmail: parentEmail,
+          recipientEmail: studentEmail,
         },
       });
 
       if (error) throw error;
 
       toast({
-        title: 'Invitation Sent!',
-        description: `Email sent to ${parentEmail}`,
+        title: 'Activation Email Sent!',
+        description: `PIN activation link sent to ${studentEmail}`,
       });
 
       onOpenChange(false);
     } catch (error: any) {
-      console.error('Error sending student invitation email:', error);
+      console.error('Error sending student activation email:', error);
       toast({
         title: 'Failed to send email',
-        description: error.message || 'There was an error sending the invitation email.',
+        description: error.message || 'There was an error sending the activation email.',
         variant: 'destructive',
       });
     } finally {
@@ -90,15 +90,15 @@ export function StudentEmailConfirmationDialog({
           <Alert>
             <Mail className="h-4 w-4" />
             <AlertDescription>
-              Would you like to automatically send an activation email invitation?
-              {parentEmail && (
+              Send the PIN activation link to the student's email?
+              {studentEmail && (
                 <div className="mt-2 text-sm">
-                  <strong>Recipient:</strong> {parentEmail}
+                  <strong>Recipient:</strong> {studentEmail}
                 </div>
               )}
-              {!parentEmail && (
+              {!studentEmail && (
                 <div className="mt-2 text-sm text-muted-foreground">
-                  No parent email address is on file for this student.
+                  No email address is on file for this student.
                 </div>
               )}
             </AlertDescription>
@@ -115,7 +115,7 @@ export function StudentEmailConfirmationDialog({
             <Button
               className="flex-1"
               onClick={handleSendEmail}
-              disabled={!parentEmail || isSending}
+              disabled={!studentEmail || isSending}
             >
               {isSending ? (
                 <>
@@ -125,7 +125,7 @@ export function StudentEmailConfirmationDialog({
               ) : (
                 <>
                   <Mail className="mr-2 h-4 w-4" />
-                  Send Invitation Email
+                  Send Activation Email
                 </>
               )}
             </Button>

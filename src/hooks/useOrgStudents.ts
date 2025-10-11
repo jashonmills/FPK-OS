@@ -7,6 +7,7 @@ export interface OrgStudent {
   id: string;
   org_id: string;
   full_name: string;
+  student_email?: string;
   grade_level?: string;
   student_id?: string;
   date_of_birth?: string;
@@ -26,6 +27,7 @@ export interface OrgStudent {
 
 export interface CreateOrgStudentData {
   full_name: string;
+  student_email?: string;
   grade_level?: string;
   student_id?: string;
   date_of_birth?: string;

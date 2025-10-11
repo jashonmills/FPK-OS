@@ -230,7 +230,7 @@ export default function StudentsManagementNew() {
           onOpenChange={setShowEmailConfirmation}
           studentId={newlyCreatedStudent?.id || ''}
           studentName={newlyCreatedStudent?.full_name || ''}
-          parentEmail={newlyCreatedStudent?.parent_email}
+          studentEmail={newlyCreatedStudent?.student_email}
           orgId={orgId}
         />
       </div>
