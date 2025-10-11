@@ -1,13 +1,12 @@
-
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
-import { Users, BookOpen, TrendingUp, Award, Clock, Target, BarChart3, MessageCircle } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Skeleton } from '@/components/ui/skeleton';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell, Legend } from 'recharts';
+import { Users, BookOpen, TrendingUp, Clock, Building2, Activity, BarChart3, MessageCircle, Target } from 'lucide-react';
 import ErrorBoundaryUnified from '@/components/ErrorBoundaryUnified';
+import { useAnalyticsDashboard } from '@/hooks/useAnalyticsDashboard';
 
 // Dynamic imports for admin analytics components
 const CoursePerformanceAnalytics = React.lazy(() => 
@@ -26,210 +25,92 @@ const AdminGoalsAnalytics = React.lazy(() =>
   import('@/components/analytics/AdminGoalsAnalytics')
 );
 
-interface UserStats {
-  totalUsers: number;
-  newUsersThisWeek: number;
-  roleDistribution: Record<string, number>;
-  activeUsers: number;
-  retentionRate: number;
-}
-
-interface CourseStats {
-  totalCourses: number;
-  publishedCourses: number;
-  totalEnrollments: number;
-  avgEnrollmentsPerCourse: number;
-  completionRate: number;
-}
-
-interface StudyStats {
-  totalSessions: number;
-  avgSessionDuration: number;
-  accuracyRate: number;
-  studyStreak: number;
-}
-
 const Analytics = () => {
   const [activeTab, setActiveTab] = useState('overview');
-  // User statistics
-  const { data: userStats = {
-    totalUsers: 0,
-    newUsersThisWeek: 0,
-    roleDistribution: {},
-    activeUsers: 0,
-    retentionRate: 0
-  } as UserStats } = useQuery({
-    queryKey: ['admin-user-stats'],
-    queryFn: async () => {
-      const { data: profiles, error: profilesError } = await supabase
-        .from('profiles')
-        .select('id, created_at');
+  const {
+    kpis,
+    dailyActiveUsers,
+    timeSpentByDay,
+    courseEnrollments,
+    completionBreakdown,
+    orgLeaderboard,
+    isLoading
+  } = useAnalyticsDashboard();
 
-      const { data: roles, error: rolesError } = await supabase
-        .from('user_roles')
-        .select('role');
-
-      if (profilesError || rolesError) throw new Error('Failed to fetch user stats');
-
-      const totalUsers = profiles?.length || 0;
-      const newUsersThisWeek = profiles?.filter(p => 
-        new Date(p.created_at) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-      ).length || 0;
-
-      const roleDistribution = roles?.reduce((acc: Record<string, number>, r) => {
-        acc[r.role] = (acc[r.role] || 0) + 1;
-        return acc;
-      }, {}) || {};
-
-      return {
-        totalUsers,
-        newUsersThisWeek,
-        roleDistribution,
-        activeUsers: Math.floor(totalUsers * 0.75), // Mock active users
-        retentionRate: 85, // Mock retention rate
-      } as UserStats;
-    },
-  });
-
-  // Course statistics
-  const { data: courseStats = {
-    totalCourses: 0,
-    publishedCourses: 0,
-    totalEnrollments: 0,
-    avgEnrollmentsPerCourse: 0,
-    completionRate: 0
-  } as CourseStats } = useQuery({
-    queryKey: ['admin-course-stats'],
-    queryFn: async () => {
-      const [coursesResult, enrollmentsResult, interactiveCourseEnrollmentsResult] = await Promise.allSettled([
-        supabase.from('courses').select('id, status, created_at'),
-        supabase.from('enrollments').select('course_id, enrolled_at'),
-        supabase.from('interactive_course_enrollments').select('course_id, enrolled_at, completion_percentage')
-      ]);
-
-      let totalCourses = 0;
-      let publishedCourses = 0;
-      let totalEnrollments = 0;
-      let completedCourses = 0;
-
-      // Process regular courses
-      if (coursesResult.status === 'fulfilled' && coursesResult.value.data) {
-        totalCourses += coursesResult.value.data.length;
-        publishedCourses += coursesResult.value.data.filter(c => c.status === 'published').length;
-      }
-
-      // Process regular enrollments
-      if (enrollmentsResult.status === 'fulfilled' && enrollmentsResult.value.data) {
-        totalEnrollments += enrollmentsResult.value.data.length;
-      }
-
-      // Process interactive course enrollments
-      if (interactiveCourseEnrollmentsResult.status === 'fulfilled' && interactiveCourseEnrollmentsResult.value.data) {
-        const interactiveEnrollments = interactiveCourseEnrollmentsResult.value.data;
-        totalEnrollments += interactiveEnrollments.length;
-        completedCourses += interactiveEnrollments.filter(e => (e.completion_percentage || 0) >= 100).length;
-        totalCourses += 4; // Economics, Algebra, Trigonometry, Linear Equations
-        publishedCourses += 4; // All interactive courses are published
-      }
-
-      const avgEnrollmentsPerCourse = totalCourses > 0 ? Math.round(totalEnrollments / totalCourses) : 0;
-      const completionRate = totalEnrollments > 0 ? Math.round((completedCourses / totalEnrollments) * 100) : 0;
-
-      return {
-        totalCourses,
-        publishedCourses,
-        totalEnrollments,
-        avgEnrollmentsPerCourse,
-        completionRate,
-      } as CourseStats;
-    },
-  });
-
-  // Study sessions data
-  const { data: studyStats = {
-    totalSessions: 0,
-    avgSessionDuration: 0,
-    accuracyRate: 0,
-    studyStreak: 0
-  } as StudyStats } = useQuery({
-    queryKey: ['admin-study-stats'],
-    queryFn: async () => {
-      const { data: sessions, error } = await supabase
-        .from('study_sessions')
-        .select('created_at, session_duration_seconds, correct_answers, total_cards');
-
-      if (error) throw new Error('Failed to fetch study stats');
-
-      const totalSessions = sessions?.length || 0;
-      const avgSessionDuration = sessions?.reduce((acc, s) => acc + (s.session_duration_seconds || 0), 0) / totalSessions || 0;
-      const totalCorrectAnswers = sessions?.reduce((acc, s) => acc + (s.correct_answers || 0), 0) || 0;
-      const totalQuestions = sessions?.reduce((acc, s) => acc + (s.total_cards || 0), 0) || 0;
-      const accuracyRate = totalQuestions > 0 ? Math.round((totalCorrectAnswers / totalQuestions) * 100) : 0;
-
-      return {
-        totalSessions,
-        avgSessionDuration: Math.round(avgSessionDuration / 60), // Convert to minutes
-        accuracyRate,
-        studyStreak: 12, // Mock study streak
-      } as StudyStats;
-    },
-  });
-
-  // Mock data for charts
-  const weeklyActivityData = [
-    { name: 'Mon', users: 45, sessions: 120 },
-    { name: 'Tue', users: 52, sessions: 140 },
-    { name: 'Wed', users: 48, sessions: 110 },
-    { name: 'Thu', users: 61, sessions: 180 },
-    { name: 'Fri', users: 55, sessions: 160 },
-    { name: 'Sat', users: 40, sessions: 95 },
-    { name: 'Sun', users: 35, sessions: 80 },
-  ];
-
-  const enrollmentTrendsData = [
-    { month: 'Jan', enrollments: 120 },
-    { month: 'Feb', enrollments: 150 },
-    { month: 'Mar', enrollments: 180 },
-    { month: 'Apr', enrollments: 220 },
-    { month: 'May', enrollments: 280 },
-    { month: 'Jun', enrollments: 350 },
-  ];
-
-  const roleDistributionData = Object.entries(userStats.roleDistribution).map(([role, count]) => ({
-    name: role,
-    value: count,
+  // Transform daily active users for chart
+  const dailyActiveUsersChart = dailyActiveUsers.map(item => ({
+    date: new Date(item.activity_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    users: Number(item.active_users)
   }));
 
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+  // Transform time spent data for chart
+  const timeSpentChart = timeSpentByDay.map(item => ({
+    day: item.day_name,
+    hours: Number(item.total_hours).toFixed(1)
+  }));
+
+  // Transform course enrollments for horizontal bar chart
+  const courseEnrollmentsChart = courseEnrollments.map(item => ({
+    title: item.course_title.length > 30 ? item.course_title.substring(0, 30) + '...' : item.course_title,
+    enrollments: Number(item.enrollment_count),
+    completionRate: Number(item.completion_rate)
+  }));
+
+  // Transform completion breakdown for doughnut chart
+  const completionChart = completionBreakdown.map(item => ({
+    name: item.status,
+    value: Number(item.count),
+    percentage: Number(item.percentage)
+  }));
+
+  const COMPLETION_COLORS = {
+    'Not Started': '#94a3b8',
+    'In Progress': '#3b82f6',
+    'Completed': '#10b981'
+  };
 
   const statCards = [
     {
       title: 'Total Users',
-      value: userStats.totalUsers,
-      change: `+${userStats.newUsersThisWeek} this week`,
+      value: kpis.totalUsers,
+      change: 'Active platform users',
       icon: Users,
       color: 'text-blue-600',
     },
     {
-      title: 'Published Courses',
-      value: courseStats.publishedCourses,
-      change: `${courseStats.totalCourses} total courses`,
-      icon: BookOpen,
+      title: 'Weekly Active Users',
+      value: kpis.weeklyActiveUsers,
+      change: 'Last 7 days',
+      icon: Activity,
       color: 'text-green-600',
     },
     {
-      title: 'Study Sessions',
-      value: studyStats.totalSessions,
-      change: `${studyStats.avgSessionDuration} min avg`,
-      icon: Clock,
+      title: 'Total Enrollments',
+      value: kpis.totalEnrollments,
+      change: 'All courses',
+      icon: BookOpen,
       color: 'text-purple-600',
     },
     {
-      title: 'Overall Accuracy',
-      value: `${studyStats.accuracyRate}%`,
-      change: `${userStats.retentionRate}% retention`,
-      icon: Target,
+      title: 'Avg Course Progress',
+      value: `${kpis.avgCourseProgress}%`,
+      change: 'Completion rate',
+      icon: TrendingUp,
       color: 'text-orange-600',
+    },
+    {
+      title: 'Time Spent (Week)',
+      value: `${kpis.totalTimeWeek.toFixed(1)}h`,
+      change: 'Learning hours',
+      icon: Clock,
+      color: 'text-pink-600',
+    },
+    {
+      title: 'Organizations',
+      value: kpis.totalOrganizations,
+      change: 'Total active',
+      icon: Building2,
+      color: 'text-indigo-600',
     },
   ];
 
@@ -270,7 +151,7 @@ const Analytics = () => {
           <ErrorBoundaryUnified>
             <div className="space-y-6">
               {/* Stats Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
                 {statCards.map((stat, index) => (
                   <Card key={index}>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -278,8 +159,14 @@ const Analytics = () => {
                       <stat.icon className={`h-4 w-4 ${stat.color}`} />
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold">{stat.value}</div>
-                      <p className="text-xs text-muted-foreground">{stat.change}</p>
+                      {isLoading ? (
+                        <Skeleton className="h-8 w-16" />
+                      ) : (
+                        <>
+                          <div className="text-2xl font-bold">{stat.value}</div>
+                          <p className="text-xs text-muted-foreground">{stat.change}</p>
+                        </>
+                      )}
                     </CardContent>
                   </Card>
                 ))}
@@ -287,96 +174,167 @@ const Analytics = () => {
 
               {/* Charts Grid */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Weekly Activity */}
+                {/* Daily Active Users */}
                 <Card>
                   <CardHeader>
-                    <CardTitle>Weekly Activity</CardTitle>
+                    <CardTitle>Daily Active Users (Last 30 Days)</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <BarChart data={weeklyActivityData}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="name" />
-                        <YAxis />
-                        <Tooltip />
-                        <Bar dataKey="users" fill="#8884d8" name="Active Users" />
-                        <Bar dataKey="sessions" fill="#82ca9d" name="Study Sessions" />
-                      </BarChart>
-                    </ResponsiveContainer>
+                    {isLoading ? (
+                      <Skeleton className="h-[300px] w-full" />
+                    ) : (
+                      <ResponsiveContainer width="100%" height={300}>
+                        <LineChart data={dailyActiveUsersChart}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis 
+                            dataKey="date" 
+                            tick={{ fontSize: 12 }}
+                            angle={-45}
+                            textAnchor="end"
+                            height={80}
+                          />
+                          <YAxis />
+                          <Tooltip />
+                          <Line 
+                            type="monotone" 
+                            dataKey="users" 
+                            stroke="#3b82f6" 
+                            strokeWidth={2}
+                            name="Active Users"
+                          />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    )}
                   </CardContent>
                 </Card>
 
-                {/* Enrollment Trends */}
+                {/* Time Spent by Day */}
                 <Card>
                   <CardHeader>
-                    <CardTitle>Enrollment Trends</CardTitle>
+                    <CardTitle>Time Spent by Day (Last 7 Days)</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <LineChart data={enrollmentTrendsData}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="month" />
-                        <YAxis />
-                        <Tooltip />
-                        <Line type="monotone" dataKey="enrollments" stroke="#8884d8" strokeWidth={2} />
-                      </LineChart>
-                    </ResponsiveContainer>
+                    {isLoading ? (
+                      <Skeleton className="h-[300px] w-full" />
+                    ) : (
+                      <ResponsiveContainer width="100%" height={300}>
+                        <BarChart data={timeSpentChart}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="day" />
+                          <YAxis label={{ value: 'Hours', angle: -90, position: 'insideLeft' }} />
+                          <Tooltip />
+                          <Bar dataKey="hours" fill="#10b981" name="Hours" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    )}
                   </CardContent>
                 </Card>
 
-                {/* Role Distribution */}
+                {/* Top 10 Most Enrolled Courses */}
                 <Card>
                   <CardHeader>
-                    <CardTitle>User Role Distribution</CardTitle>
+                    <CardTitle>Top 10 Most Enrolled Courses</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <PieChart>
-                        <Pie
-                          data={roleDistributionData}
-                          cx="50%"
-                          cy="50%"
-                          labelLine={false}
-                          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                          outerRadius={80}
-                          fill="#8884d8"
-                          dataKey="value"
-                        >
-                          {roleDistributionData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                          ))}
-                        </Pie>
-                        <Tooltip />
-                      </PieChart>
-                    </ResponsiveContainer>
+                    {isLoading ? (
+                      <Skeleton className="h-[300px] w-full" />
+                    ) : (
+                      <ResponsiveContainer width="100%" height={300}>
+                        <BarChart data={courseEnrollmentsChart} layout="vertical">
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis type="number" />
+                          <YAxis 
+                            dataKey="title" 
+                            type="category" 
+                            width={150}
+                            tick={{ fontSize: 11 }}
+                          />
+                          <Tooltip />
+                          <Bar dataKey="enrollments" fill="#8b5cf6" name="Enrollments" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    )}
                   </CardContent>
                 </Card>
 
-                {/* Quick Insights */}
+                {/* Overall Course Completion */}
                 <Card>
                   <CardHeader>
-                    <CardTitle>Quick Insights</CardTitle>
+                    <CardTitle>Overall Course Completion</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Course Completion Rate</span>
-                      <Badge variant="secondary">{courseStats.completionRate}%</Badge>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Avg Enrollments per Course</span>
-                      <Badge variant="outline">{courseStats.avgEnrollmentsPerCourse}</Badge>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Active Users</span>
-                      <Badge variant="default">{userStats.activeUsers}</Badge>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Average Study Streak</span>
-                      <Badge className="fpk-gradient text-white">{studyStats.studyStreak} days</Badge>
-                    </div>
+                  <CardContent>
+                    {isLoading ? (
+                      <Skeleton className="h-[300px] w-full" />
+                    ) : (
+                      <ResponsiveContainer width="100%" height={300}>
+                        <PieChart>
+                          <Pie
+                            data={completionChart}
+                            cx="50%"
+                            cy="50%"
+                            labelLine={false}
+                            label={({ name, percentage }) => `${name}: ${percentage}%`}
+                            outerRadius={80}
+                            fill="#8884d8"
+                            dataKey="value"
+                          >
+                            {completionChart.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={COMPLETION_COLORS[entry.name]} />
+                            ))}
+                          </Pie>
+                          <Tooltip />
+                          <Legend />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    )}
                   </CardContent>
                 </Card>
               </div>
+
+              {/* Organization Leaderboard Table */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Organization Leaderboard</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {isLoading ? (
+                    <div className="space-y-2">
+                      {[1, 2, 3, 4, 5].map(i => (
+                        <Skeleton key={i} className="h-12 w-full" />
+                      ))}
+                    </div>
+                  ) : (
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Organization Name</TableHead>
+                          <TableHead className="text-right">Members</TableHead>
+                          <TableHead className="text-right">Enrollments</TableHead>
+                          <TableHead className="text-right">Avg Progress</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {orgLeaderboard.length === 0 ? (
+                          <TableRow>
+                            <TableCell colSpan={4} className="text-center text-muted-foreground">
+                              No organization data available
+                            </TableCell>
+                          </TableRow>
+                        ) : (
+                          orgLeaderboard.map((org) => (
+                            <TableRow key={org.org_id}>
+                              <TableCell className="font-medium">{org.org_name}</TableCell>
+                              <TableCell className="text-right">{org.member_count}</TableCell>
+                              <TableCell className="text-right">{org.total_enrollments}</TableCell>
+                              <TableCell className="text-right">{org.avg_progress}%</TableCell>
+                            </TableRow>
+                          ))
+                        )}
+                      </TableBody>
+                    </Table>
+                  )}
+                </CardContent>
+              </Card>
             </div>
           </ErrorBoundaryUnified>
         </TabsContent>
