@@ -53,7 +53,6 @@ const OrgHub = lazy(() => import("./pages/organizations/OrgHub"));
 const OrgCreatePage = lazy(() => import("./pages/organizations/OrgCreatePage"));
 const OrgJoinPage = lazy(() => import("./pages/organizations/OrgJoinPage"));
 const ReceivedInvitationsPage = lazy(() => import("./pages/organizations/ReceivedInvitationsPage"));
-const InviteMembersPage = lazy(() => import("./pages/org/InviteMembersPage"));
 const InviteManagement = lazy(() => import("./pages/organizations/InviteManagement"));
 const OrgPageLayout = lazy(() => import("./components/organizations/OrgPageLayout").then(module => ({ default: module.OrgPageLayout })));
 const StudentSettings = lazy(() => import("./pages/organizations/StudentSettings"));
