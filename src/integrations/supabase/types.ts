@@ -9847,7 +9847,7 @@ export type Database = {
               p_table_name: string
               p_user_id: string
             }
-        Returns: undefined
+        Returns: string
       }
       reset_monthly_quotas: {
         Args: Record<PropertyKey, never>
