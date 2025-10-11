@@ -5582,7 +5582,7 @@ export type Database = {
       organization_course_assignments: {
         Row: {
           assigned_at: string
-          assigned_by: string
+          assigned_by: string | null
           course_id: string
           created_at: string
           id: string
@@ -5592,7 +5592,7 @@ export type Database = {
         }
         Insert: {
           assigned_at?: string
-          assigned_by: string
+          assigned_by?: string | null
           course_id: string
           created_at?: string
           id?: string
@@ -5602,7 +5602,7 @@ export type Database = {
         }
         Update: {
           assigned_at?: string
-          assigned_by?: string
+          assigned_by?: string | null
           course_id?: string
           created_at?: string
           id?: string
@@ -7981,7 +7981,7 @@ export type Database = {
       student_course_assignments: {
         Row: {
           assigned_at: string
-          assigned_by: string
+          assigned_by: string | null
           completion_date: string | null
           course_id: string
           created_at: string
@@ -7999,7 +7999,7 @@ export type Database = {
         }
         Insert: {
           assigned_at?: string
-          assigned_by: string
+          assigned_by?: string | null
           completion_date?: string | null
           course_id: string
           created_at?: string
@@ -8017,7 +8017,7 @@ export type Database = {
         }
         Update: {
           assigned_at?: string
-          assigned_by?: string
+          assigned_by?: string | null
           completion_date?: string | null
           course_id?: string
           created_at?: string
