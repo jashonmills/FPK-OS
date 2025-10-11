@@ -400,6 +400,7 @@ export type Database = {
       audit_logs: {
         Row: {
           action_type: string
+          actor_email: string | null
           created_at: string
           details: Json | null
           id: string
@@ -408,12 +409,14 @@ export type Database = {
           organization_id: string | null
           resource_id: string | null
           resource_type: string
+          status: string | null
           target_user_id: string | null
           user_agent: string | null
           user_id: string | null
         }
         Insert: {
           action_type: string
+          actor_email?: string | null
           created_at?: string
           details?: Json | null
           id?: string
@@ -422,12 +425,14 @@ export type Database = {
           organization_id?: string | null
           resource_id?: string | null
           resource_type: string
+          status?: string | null
           target_user_id?: string | null
           user_agent?: string | null
           user_id?: string | null
         }
         Update: {
           action_type?: string
+          actor_email?: string | null
           created_at?: string
           details?: Json | null
           id?: string
@@ -436,6 +441,7 @@ export type Database = {
           organization_id?: string | null
           resource_id?: string | null
           resource_type?: string
+          status?: string | null
           target_user_id?: string | null
           user_agent?: string | null
           user_id?: string | null
