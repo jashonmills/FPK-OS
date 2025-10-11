@@ -22,7 +22,7 @@ export function PendingInvitationsList() {
 
   if (isLoading) {
     return (
-      <Card className="bg-white/10 border-orange-400/30">
+      <Card className="bg-orange-500/20 backdrop-blur-sm border-orange-400/30">
         <CardContent className="p-8 text-center">
           <p className="text-white/70">Loading pending invitations...</p>
         </CardContent>
@@ -32,7 +32,7 @@ export function PendingInvitationsList() {
 
   if (invitations.length === 0) {
     return (
-      <Card className="bg-white/10 border-orange-400/30">
+      <Card className="bg-orange-500/20 backdrop-blur-sm border-orange-400/30">
         <CardContent className="p-8 text-center">
           <Mail className="h-12 w-12 mx-auto mb-4 text-white/40" />
           <p className="text-white/70">No pending invitations</p>
@@ -45,7 +45,7 @@ export function PendingInvitationsList() {
   }
 
   return (
-    <Card className="bg-white/10 border-orange-400/30">
+    <Card className="bg-orange-500/20 backdrop-blur-sm border-orange-400/30">
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
           <CardTitle className="text-xl text-white flex items-center gap-2">
@@ -71,7 +71,7 @@ export function PendingInvitationsList() {
           {invitations.map((invitation) => (
             <div
               key={invitation.id}
-              className="bg-white/5 border border-white/10 rounded-lg p-4 hover:bg-white/10 transition-colors"
+              className="bg-orange-400/20 backdrop-blur-sm border border-orange-300/30 rounded-lg p-4 hover:bg-orange-400/30 transition-colors"
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 space-y-2">
