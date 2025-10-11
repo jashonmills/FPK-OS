@@ -16,6 +16,7 @@ import { StudentsTable } from "@/components/students/StudentsTable";
 import { GenerateActivationLinkDialog } from "@/components/students/GenerateActivationLinkDialog";
 import { StudentActivityHeatmap } from "@/components/students/StudentActivityHeatmap";
 import { ImportStudentsCSV } from "@/components/students/ImportStudentsCSV";
+import { StudentEmailConfirmationDialog } from "@/components/students/StudentEmailConfirmationDialog";
 import { useEmailInvitation } from "@/hooks/useInvitationSystem";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -32,8 +33,10 @@ export default function StudentsManagementNew() {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<OrgStudent | null>(null);
-const [showImportCSV, setShowImportCSV] = useState(false);
+  const [showImportCSV, setShowImportCSV] = useState(false);
   const [showActivationDialog, setShowActivationDialog] = useState(false);
+  const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
+  const [newlyCreatedStudent, setNewlyCreatedStudent] = useState<OrgStudent | null>(null);
   const isMobile = useIsMobile();
   const {
     currentOrg
@@ -42,6 +45,7 @@ const [showImportCSV, setShowImportCSV] = useState(false);
     students,
     isLoading: studentsLoading,
     createStudent,
+    createStudentAsync,
     updateStudent,
     deleteStudent,
     isCreating,
@@ -63,9 +67,17 @@ const [showImportCSV, setShowImportCSV] = useState(false);
   const totalStudents = students.length;
   const linkedStudents = students.filter(s => s.linked_user_id).length;
   const activeMembers = members.filter(m => m.role === 'student').length;
-  const handleAddStudent = (studentData: any) => {
-    createStudent(studentData);
-    // Email confirmation will be handled in a future enhancement
+  const handleAddStudent = async (studentData: any) => {
+    try {
+      const createdStudent = await createStudentAsync(studentData);
+      if (createdStudent) {
+        setNewlyCreatedStudent(createdStudent as OrgStudent);
+        setShowEmailConfirmation(true);
+      }
+    } catch (error) {
+      // Error handling is already done in the mutation
+      console.error('Error creating student:', error);
+    }
   };
   const handleEditStudent = (student: OrgStudent) => {
     setSelectedStudent(student);
@@ -212,6 +224,15 @@ const [showImportCSV, setShowImportCSV] = useState(false);
         <ImportStudentsCSV open={showImportCSV} onOpenChange={setShowImportCSV} orgId={orgId!} />
 
         <GenerateActivationLinkDialog open={showActivationDialog} onOpenChange={setShowActivationDialog} student={selectedStudent} orgSlug={currentOrg?.organizations?.slug || orgId!} />
+
+        <StudentEmailConfirmationDialog
+          open={showEmailConfirmation}
+          onOpenChange={setShowEmailConfirmation}
+          studentId={newlyCreatedStudent?.id || ''}
+          studentName={newlyCreatedStudent?.full_name || ''}
+          parentEmail={newlyCreatedStudent?.parent_email}
+          orgId={orgId}
+        />
       </div>
     </PageShell>;
 }

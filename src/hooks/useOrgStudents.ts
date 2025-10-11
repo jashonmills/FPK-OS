@@ -364,6 +364,7 @@ export function useOrgStudents(orgId: string, searchQuery?: string) {
     error,
     refetch,
     createStudent: createStudentMutation.mutate,
+    createStudentAsync: createStudentMutation.mutateAsync,
     updateStudent: updateStudentMutation.mutate,
     deleteStudent: deleteStudentMutation.mutate,
     isCreating: createStudentMutation.isPending,
