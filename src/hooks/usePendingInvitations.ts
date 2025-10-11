@@ -11,10 +11,6 @@ export interface PendingInvitation {
   is_used: boolean;
   used_at: string | null;
   created_by: string | null;
-  creator_profile?: {
-    display_name?: string;
-    full_name?: string;
-  };
 }
 
 export function usePendingInvitations() {
@@ -36,11 +32,7 @@ export function usePendingInvitations() {
           expires_at,
           is_used,
           used_at,
-          created_by,
-          profiles:created_by (
-            display_name,
-            full_name
-          )
+          created_by
         `)
         .eq('org_id', orgId)
         .eq('is_used', false)
@@ -52,12 +44,7 @@ export function usePendingInvitations() {
         throw error;
       }
 
-      return (data || []).map(invite => ({
-        ...invite,
-        creator_profile: Array.isArray(invite.profiles) 
-          ? invite.profiles[0] 
-          : invite.profiles
-      })) as PendingInvitation[];
+      return (data || []) as PendingInvitation[];
     },
     staleTime: 1000 * 60 * 2, // 2 minutes
   });

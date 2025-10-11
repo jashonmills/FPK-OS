@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Mail, Clock, User, RefreshCw, Copy, Check } from 'lucide-react';
+import { Mail, Clock, RefreshCw, Copy, Check } from 'lucide-react';
 import { usePendingInvitations } from '@/hooks/usePendingInvitations';
 import { format, formatDistanceToNow } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
@@ -101,15 +101,6 @@ export function PendingInvitationsList() {
                         Sent {formatDistanceToNow(new Date(invitation.created_at), { addSuffix: true })}
                       </span>
                     </div>
-                    
-                    {invitation.creator_profile && (
-                      <div className="flex items-center gap-1">
-                        <User className="h-3 w-3" />
-                        <span>
-                          by {invitation.creator_profile.display_name || invitation.creator_profile.full_name || 'Unknown'}
-                        </span>
-                      </div>
-                    )}
                     
                     <div className="flex items-center gap-1">
                       <Clock className="h-3 w-3" />

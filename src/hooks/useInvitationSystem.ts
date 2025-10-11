@@ -58,6 +58,7 @@ export function useEmailInvitation() {
         });
         queryClient.invalidateQueries({ queryKey: ['org-invites'] });
         queryClient.invalidateQueries({ queryKey: ['user-invites'] });
+        queryClient.invalidateQueries({ queryKey: ['pending-invitations'] });
       } else {
         throw new Error(data.error || 'Failed to send invitation');
       }
