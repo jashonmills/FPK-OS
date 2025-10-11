@@ -134,6 +134,16 @@ export function useGamification() {
       setUserStats(data);
     } catch (error) {
       console.error('Failed to fetch user stats:', error);
+      // Set default empty state to prevent crashes
+      setUserStats({
+        xp: {
+          total_xp: 0,
+          level: 1,
+          next_level_xp: 100
+        },
+        badges: [],
+        streaks: []
+      });
     } finally {
       setIsLoading(false);
     }
