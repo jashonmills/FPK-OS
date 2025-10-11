@@ -16,15 +16,10 @@ import {
 } from 'lucide-react';
 import {
   Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
+import { AddMembersDialog } from '@/components/org/groups/AddMembersDialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -54,8 +49,6 @@ const GroupDetailPage = () => {
 
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [removeUserId, setRemoveUserId] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedUserIds, setSelectedUserIds] = useState<Set<string>>(new Set());
 
   const group = groups.find(g => g.id === groupId);
 
@@ -86,26 +79,14 @@ const GroupDetailPage = () => {
     );
   }
 
-  const filteredAvailableStudents = availableStudents.filter(student => {
-    const displayName = student.display_name || student.full_name || '';
-    const email = student.email || '';
-    return displayName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-           email.toLowerCase().includes(searchQuery.toLowerCase());
-  });
-
   const handleAddMember = (userId: string) => {
     addMember(userId);
     setAddDialogOpen(false);
-    setSearchQuery('');
   };
 
-  const handleBulkAddMembers = () => {
-    if (selectedUserIds.size > 0) {
-      bulkAddMembers(Array.from(selectedUserIds));
-      setSelectedUserIds(new Set());
-      setAddDialogOpen(false);
-      setSearchQuery('');
-    }
+  const handleBulkAddMembers = (userIds: string[]) => {
+    bulkAddMembers(userIds);
+    setAddDialogOpen(false);
   };
 
   const handleRemoveMember = () => {
@@ -113,24 +94,6 @@ const GroupDetailPage = () => {
       removeMember(removeUserId);
       setRemoveUserId(null);
     }
-  };
-
-  const toggleSelectAll = () => {
-    if (selectedUserIds.size === filteredAvailableStudents.length) {
-      setSelectedUserIds(new Set());
-    } else {
-      setSelectedUserIds(new Set(filteredAvailableStudents.map(s => s.user_id)));
-    }
-  };
-
-  const toggleSelectUser = (userId: string) => {
-    const newSelected = new Set(selectedUserIds);
-    if (newSelected.has(userId)) {
-      newSelected.delete(userId);
-    } else {
-      newSelected.add(userId);
-    }
-    setSelectedUserIds(newSelected);
   };
 
   return (
@@ -162,120 +125,18 @@ const GroupDetailPage = () => {
               Add Members
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[80vh]">
-            <DialogHeader>
-              <DialogTitle>Add Members to {group.name}</DialogTitle>
-              <DialogDescription>
-                Select students to add to this group
-              </DialogDescription>
-            </DialogHeader>
-            
-            <div className="space-y-4">
-              <Input
-                placeholder="Search by name or email..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-
-              {filteredAvailableStudents.length > 0 && (
-                <div className="flex items-center justify-between px-2 py-1 bg-muted/50 rounded">
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      id="select-all"
-                      checked={selectedUserIds.size === filteredAvailableStudents.length && filteredAvailableStudents.length > 0}
-                      onCheckedChange={toggleSelectAll}
-                    />
-                    <label htmlFor="select-all" className="text-sm font-medium cursor-pointer">
-                      Select All ({filteredAvailableStudents.length})
-                    </label>
-                  </div>
-                  {selectedUserIds.size > 0 && (
-                    <span className="text-sm text-muted-foreground">
-                      {selectedUserIds.size} selected
-                    </span>
-                  )}
-                </div>
-              )}
-
-              <div className="max-h-[400px] overflow-y-auto space-y-2">
-                {filteredAvailableStudents.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    {availableStudents.length === 0 
-                      ? 'All students are already in this group'
-                      : 'No students found matching your search'
-                    }
-                  </div>
-                ) : (
-                  filteredAvailableStudents.map((student) => (
-                    <Card key={student.user_id} className="p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <Checkbox
-                            checked={selectedUserIds.has(student.user_id)}
-                            onCheckedChange={() => toggleSelectUser(student.user_id)}
-                          />
-                          <Avatar className="h-10 w-10">
-                            <AvatarImage src={student.avatar_url} />
-                            <AvatarFallback>
-                              {(student.display_name || student.full_name || 'U')[0].toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <p className="font-medium">
-                              {student.display_name || student.full_name || 'Unnamed Student'}
-                            </p>
-                            {student.email && (
-                              <p className="text-sm text-muted-foreground flex items-center gap-1">
-                                <Mail className="w-3 h-3" />
-                                {student.email}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                        <Button
-                          size="sm"
-                          onClick={() => handleAddMember(student.user_id)}
-                          disabled={isAddingMember}
-                        >
-                          {isAddingMember ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <>
-                              <UserPlus className="w-4 h-4 mr-2" />
-                              Add
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    </Card>
-                  ))
-                )}
-              </div>
-
-              {selectedUserIds.size > 0 && (
-                <div className="sticky bottom-0 pt-4 bg-background border-t">
-                  <Button
-                    className="w-full"
-                    onClick={handleBulkAddMembers}
-                    disabled={isBulkAddingMembers}
-                  >
-                    {isBulkAddingMembers ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Adding...
-                      </>
-                    ) : (
-                      <>
-                        <UserPlus className="w-4 h-4 mr-2" />
-                        Add {selectedUserIds.size} Selected Student{selectedUserIds.size > 1 ? 's' : ''}
-                      </>
-                    )}
-                  </Button>
-                </div>
-              )}
-            </div>
-          </DialogContent>
         </Dialog>
+
+        <AddMembersDialog
+          open={addDialogOpen}
+          onOpenChange={setAddDialogOpen}
+          groupName={group.name}
+          availableStudents={availableStudents}
+          onAddMember={handleAddMember}
+          onBulkAddMembers={handleBulkAddMembers}
+          isAddingMember={isAddingMember}
+          isBulkAddingMembers={isBulkAddingMembers}
+        />
       </div>
 
       {/* Stats */}

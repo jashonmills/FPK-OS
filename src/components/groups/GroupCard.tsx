@@ -7,6 +7,7 @@ import { Users, MoreHorizontal, Edit, Trash2, UserPlus, BookOpen } from 'lucide-
 import { useNavigate } from 'react-router-dom';
 import { useOrgContext } from '@/components/organizations/OrgContext';
 import { GroupCourseAssignmentDialog } from '@/components/org/groups/GroupCourseAssignmentDialog';
+import { EditGroupDialog } from '@/components/org/groups/EditGroupDialog';
 import { useState } from 'react';
 
 interface GroupCardProps {
@@ -14,10 +15,11 @@ interface GroupCardProps {
 }
 
 export function GroupCard({ group }: GroupCardProps) {
-  const { deleteGroup, isDeleting } = useOrgGroups();
+  const { deleteGroup, updateGroup, isDeleting, isUpdating } = useOrgGroups();
   const navigate = useNavigate();
   const { currentOrg } = useOrgContext();
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   const handleDelete = () => {
     if (window.confirm(`Are you sure you want to delete "${group.name}"?`)) {
@@ -52,7 +54,7 @@ export function GroupCard({ group }: GroupCardProps) {
                 <BookOpen className="w-4 h-4 mr-2" />
                 Assign Course
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
                 <Edit className="w-4 h-4 mr-2" />
                 Edit Group
               </DropdownMenuItem>
@@ -89,6 +91,16 @@ export function GroupCard({ group }: GroupCardProps) {
         onOpenChange={setAssignDialogOpen}
         groupId={group.id}
         groupName={group.name}
+      />
+
+      <EditGroupDialog
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        groupId={group.id}
+        groupName={group.name}
+        groupDescription={group.description}
+        onUpdate={updateGroup}
+        isUpdating={isUpdating}
       />
     </Card>
   );

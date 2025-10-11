@@ -77,16 +77,17 @@ export function useOrgGroups() {
   });
 
   const updateGroupMutation = useMutation({
-    mutationFn: async (groupData: { id: string; name: string }) => {
+    mutationFn: async (groupData: { id: string; name: string; description?: string }) => {
       const { data, error } = await supabase
         .from('org_groups')
         .update({
           name: groupData.name,
+          description: groupData.description,
         })
         .eq('id', groupData.id)
         .eq('org_id', orgId)
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       return data;
