@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Checkbox } from '@/components/ui/checkbox';
 import { 
   Sheet,
   SheetContent,
@@ -36,9 +37,11 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { ImportStudentsCSV } from '@/components/students/ImportStudentsCSV';
 import { EditStudentDialog } from '@/components/students/EditStudentDialog';
+import { BulkStudentActions } from '@/components/students/BulkStudentActions';
 import { useOrgStudents, type OrgStudent } from '@/hooks/useOrgStudents';
 import { assertOrg } from '@/lib/org/context';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function StudentsPage() {
   const { currentOrg, getUserRole } = useOrgContext();
@@ -51,6 +54,8 @@ export default function StudentsPage() {
   const [selectedStudent, setSelectedStudent] = useState<OrgStudent | null>(null);
   const [editingStudent, setEditingStudent] = useState<OrgStudent | null>(null);
   const [showImportCSV, setShowImportCSV] = useState(false);
+  const [selectedStudentIds, setSelectedStudentIds] = useState<Set<string>>(new Set());
+  const [isProcessing, setIsProcessing] = useState(false);
 
   // Use the proper hook for students
   const { 
@@ -100,8 +105,126 @@ export default function StudentsPage() {
     deleteStudent(studentId);
   };
 
+  const handleSelectStudent = (studentId: string) => {
+    const newSelection = new Set(selectedStudentIds);
+    if (newSelection.has(studentId)) {
+      newSelection.delete(studentId);
+    } else {
+      newSelection.add(studentId);
+    }
+    setSelectedStudentIds(newSelection);
+  };
+
+  const handleSelectAll = () => {
+    if (selectedStudentIds.size === filteredStudents.length) {
+      setSelectedStudentIds(new Set());
+    } else {
+      setSelectedStudentIds(new Set(filteredStudents.map(s => s.id)));
+    }
+  };
+
+  const handleBulkDelete = async (studentIds: string[]) => {
+    setIsProcessing(true);
+    try {
+      // Delete each student - cascades will handle related data
+      for (const studentId of studentIds) {
+        await deleteStudent(studentId);
+      }
+      
+      toast({
+        title: "Success",
+        description: `Successfully deleted ${studentIds.length} student${studentIds.length > 1 ? 's' : ''}`,
+      });
+      setSelectedStudentIds(new Set());
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete some students. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleBulkStatusChange = async (studentIds: string[], status: 'active' | 'inactive') => {
+    setIsProcessing(true);
+    try {
+      const { error } = await supabase
+        .from('org_students')
+        .update({ status })
+        .in('id', studentIds);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: `Successfully updated ${studentIds.length} student${studentIds.length > 1 ? 's' : ''}`,
+      });
+      setSelectedStudentIds(new Set());
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update student status. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleBulkExport = (studentIds: string[]) => {
+    const selectedData = students.filter(s => studentIds.includes(s.id));
+    const csv = [
+      ['Name', 'Email', 'Grade', 'Student ID', 'Status', 'Added Date'].join(','),
+      ...selectedData.map(s => [
+        s.full_name || '',
+        s.parent_email || '',
+        s.grade_level || '',
+        s.student_id || '',
+        s.linked_user_id ? 'Active Account' : 'Profile Only',
+        new Date(s.created_at).toLocaleDateString()
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `students-export-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+
+    toast({
+      title: "Success",
+      description: `Exported ${selectedData.length} student${selectedData.length > 1 ? 's' : ''}`,
+    });
+  };
+
+  const handleBulkEmail = (selectedStudents: OrgStudent[]) => {
+    const emails = selectedStudents
+      .filter(s => s.parent_email)
+      .map(s => s.parent_email)
+      .join(',');
+    
+    window.location.href = `mailto:${emails}`;
+  };
+
+  const selectedStudents = students.filter(s => selectedStudentIds.has(s.id));
+
   return (
     <div className="w-full max-w-7xl mx-auto px-6 space-y-6 overflow-x-hidden">
+      {/* Bulk Actions Toolbar */}
+      <BulkStudentActions
+        selectedStudents={selectedStudents}
+        onClearSelection={() => setSelectedStudentIds(new Set())}
+        onBulkDelete={handleBulkDelete}
+        onBulkStatusChange={handleBulkStatusChange}
+        onBulkExport={handleBulkExport}
+        onBulkEmail={handleBulkEmail}
+        isProcessing={isProcessing}
+      />
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -190,8 +313,24 @@ export default function StudentsPage() {
       {/* Students List */}
       <OrgCard className="bg-orange-500/65 border-orange-400/50">
         <OrgCardHeader>
-          <OrgCardTitle className="text-white">Student Roster</OrgCardTitle>
-          <OrgCardDescription className="text-white/80">Manage your organization's students</OrgCardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <OrgCardTitle className="text-white">Student Roster</OrgCardTitle>
+              <OrgCardDescription className="text-white/80">
+                Manage your organization's students
+              </OrgCardDescription>
+            </div>
+            {filteredStudents.length > 0 && canManageMembers && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSelectAll}
+                className="border-white/30 text-white hover:bg-white/10 bg-transparent"
+              >
+                {selectedStudentIds.size === filteredStudents.length ? 'Deselect All' : 'Select All'}
+              </Button>
+            )}
+          </div>
         </OrgCardHeader>
         <OrgCardContent>
           {isLoading ? (
@@ -209,8 +348,22 @@ export default function StudentsPage() {
           ) : (
             <div className="space-y-4">
               {filteredStudents.map((student) => (
-                <div key={student.id} className="flex items-center justify-between p-4 border border-white/20 rounded-lg bg-white/5">
+                <div 
+                  key={student.id} 
+                  className={`flex items-center justify-between p-4 border rounded-lg transition-all ${
+                    selectedStudentIds.has(student.id) 
+                      ? 'border-white/50 bg-white/20 shadow-md' 
+                      : 'border-white/20 bg-white/5'
+                  }`}
+                >
                   <div className="flex items-center gap-3">
+                    {canManageMembers && (
+                      <Checkbox
+                        checked={selectedStudentIds.has(student.id)}
+                        onCheckedChange={() => handleSelectStudent(student.id)}
+                        className="border-white/30 data-[state=checked]:bg-white data-[state=checked]:text-orange-600"
+                      />
+                    )}
                     <Avatar>
                       <AvatarFallback className="bg-white/10 text-white">
                         {getInitials(student.full_name, student.parent_email)}
