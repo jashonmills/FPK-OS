@@ -321,17 +321,48 @@ export default function OrgPortalHome() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => (
-          <Card key={index} className="bg-orange-500/65 border-orange-400/50">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-white/80">{stat.label}</CardTitle>
-              <stat.icon className="h-4 w-4 text-white/70" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-white">{stat.value}</div>
-            </CardContent>
-          </Card>
-        ))}
+        {stats.map((stat, index) => {
+          const isZero = stat.value === '0' || stat.value === '0%';
+          const getCTALink = () => {
+            if (!isZero || isStudent) return null;
+            
+            if (stat.label === 'Course Assignments') {
+              return {
+                text: '+ Assign Course',
+                onClick: () => navigate(`/org/${currentOrg?.organization_id}/courses`)
+              };
+            }
+            if (stat.label === 'Active Goals') {
+              return {
+                text: '+ Create Goal',
+                onClick: () => navigate(`/org/${currentOrg?.organization_id}/goals-notes`)
+              };
+            }
+            return null;
+          };
+          
+          const cta = getCTALink();
+          
+          return (
+            <Card key={index} className="bg-orange-500/65 border-orange-400/50">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-white/80">{stat.label}</CardTitle>
+                <stat.icon className="h-4 w-4 text-white/70" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-white">{stat.value}</div>
+                {cta && (
+                  <button
+                    onClick={cta.onClick}
+                    className="text-xs text-white/80 hover:text-white hover:underline mt-2 transition-all"
+                  >
+                    {cta.text}
+                  </button>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -350,31 +381,64 @@ export default function OrgPortalHome() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {isStudent && studentStats?.myProgress ? (
-              <div className="space-y-3">
-                <div className="flex justify-between text-sm text-white/80">
-                  <span>Overall Progress</span>
-                  <span>{studentStats.myProgress}%</span>
-                </div>
-                <Progress value={studentStats.myProgress} className="h-2" />
-                <div className="grid grid-cols-2 gap-4 text-center">
-                  <div>
-                    <div className="text-2xl font-bold text-white">{studentStats.myEnrollments}</div>
-                    <div className="text-xs text-white/80">Enrolled</div>
+            {isStudent ? (
+              studentStats?.myProgress ? (
+                <div className="space-y-3">
+                  <div className="flex justify-between text-sm text-white/80">
+                    <span>Overall Progress</span>
+                    <span>{studentStats.myProgress}%</span>
                   </div>
-                  <div>
-                    <div className="text-2xl font-bold text-white">{studentStats.completedCourses}</div>
-                    <div className="text-xs text-white/80">Completed</div>
+                  <Progress value={studentStats.myProgress} className="h-2" />
+                  <div className="grid grid-cols-2 gap-4 text-center">
+                    <div>
+                      <div className="text-2xl font-bold text-white">{studentStats.myEnrollments}</div>
+                      <div className="text-xs text-white/80">Enrolled</div>
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold text-white">{studentStats.completedCourses}</div>
+                      <div className="text-xs text-white/80">Completed</div>
+                    </div>
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div className="text-center py-8">
+                  <TrendingUp className="h-8 w-8 mx-auto text-white/70 mb-2" />
+                  <p className="text-sm text-white/80">No courses enrolled yet</p>
+                </div>
+              )
             ) : (
-              <div className="text-center py-8">
-                <TrendingUp className="h-8 w-8 mx-auto text-white/70 mb-2" />
-                <p className="text-sm text-white/80">
-                  {isStudent ? 'No courses enrolled yet' : 'No progress data available yet'}
-                </p>
-              </div>
+              analytics && (analytics.completionRate > 0 || analytics.averageProgress > 0) ? (
+                <div className="space-y-3">
+                  <div className="flex justify-between text-sm text-white/80">
+                    <span>Completion Rate</span>
+                    <span>{analytics.completionRate}%</span>
+                  </div>
+                  <Progress value={analytics.completionRate} className="h-2" />
+                  <div className="grid grid-cols-2 gap-4 text-center mt-4">
+                    <div>
+                      <div className="text-2xl font-bold text-white">{analytics.averageProgress}%</div>
+                      <div className="text-xs text-white/80">Average Progress</div>
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold text-white">{analytics.totalLearningHours}h</div>
+                      <div className="text-xs text-white/80">Learning Hours</div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <TrendingUp className="h-8 w-8 mx-auto text-white/70 mb-2" />
+                  <p className="text-sm text-white/80 mb-3">No progress data available yet</p>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="text-white border-white/30 hover:bg-white/20"
+                    onClick={() => navigate(`/org/${currentOrg?.organization_id}/courses`)}
+                  >
+                    Assign First Course
+                  </Button>
+                </div>
+              )
             )}
           </CardContent>
         </Card>
@@ -584,6 +648,22 @@ export default function OrgPortalHome() {
                 >
                   <Target className="h-4 w-4" />
                   <span>Create Goal</span>
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="flex items-center space-x-2 border-border text-foreground hover:bg-accent"
+                  onClick={() => navigate(`/org/${currentOrg?.organization_id}/students`)}
+                >
+                  <Users className="h-4 w-4" />
+                  <span>Invite New Member</span>
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="flex items-center space-x-2 border-border text-foreground hover:bg-accent"
+                  onClick={() => navigate(`/org/${currentOrg?.organization_id}/groups`)}
+                >
+                  <Users className="h-4 w-4" />
+                  <span>Create a New Group</span>
                 </Button>
               </>
             )}
