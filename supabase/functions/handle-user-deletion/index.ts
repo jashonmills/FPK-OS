@@ -1,171 +1,265 @@
-import "https://deno.land/x/xhr@0.1.0/mod.ts";
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.0';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-serve(async (req) => {
+Deno.serve(async (req) => {
+  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    
-    // Create client for authentication check
-    const authHeader = req.headers.get('Authorization')!;
-    const token = authHeader.replace('Bearer ', '');
-    const supabaseClient = createClient(supabaseUrl, Deno.env.get('SUPABASE_ANON_KEY')!, {
-      global: { headers: { Authorization: authHeader } }
-    });
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
+      }
+    );
 
-    // Verify caller is authenticated
-    const { data: { user }, error: userError } = await supabaseClient.auth.getUser(token);
-    if (userError || !user) {
-      return new Response(
-        JSON.stringify({ error: 'Authentication required' }), 
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    // Get the authorization header
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      throw new Error('No authorization header');
     }
 
-    // Check if caller is admin
-    const { data: roles, error: roleError } = await supabaseClient
+    // Verify the user is authenticated and is an admin
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token);
+    
+    if (authError || !user) {
+      throw new Error('Unauthorized');
+    }
+
+    // Check if user is admin
+    const { data: userRole } = await supabaseClient
       .from('user_roles')
       .select('role')
       .eq('user_id', user.id)
       .eq('role', 'admin')
       .single();
 
-    if (roleError || !roles) {
-      return new Response(
-        JSON.stringify({ error: 'Forbidden: Admin access required' }), 
-        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    if (!userRole) {
+      throw new Error('Admin access required');
     }
 
-    // Get userId from request body
+    // Get the userId to delete from request body
     const { userId } = await req.json();
+    
     if (!userId) {
-      return new Response(
-        JSON.stringify({ error: 'userId is required' }), 
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      throw new Error('userId is required');
     }
 
-    // Create admin client with service role key for deletion operations
-    const adminClient = createClient(supabaseUrl, supabaseServiceKey);
+    console.log(`[handle-user-deletion] Admin ${user.email} requesting deletion of user: ${userId}`);
 
-    console.log(`Starting deletion process for user: ${userId}`);
+    // Delete user data in correct order (respecting foreign key constraints)
+    // Order matters! Delete child records before parent records
 
-    // Step 1: Delete from dependent tables in correct order
-    // Start with the most dependent tables first
-    
-    // User activity and progress
-    await adminClient.from('lesson_progress').delete().eq('user_id', userId);
-    await adminClient.from('goal_progress').delete().eq('user_id', userId);
-    await adminClient.from('user_xp').delete().eq('user_id', userId);
-    await adminClient.from('achievements').delete().eq('user_id', userId);
-    await adminClient.from('learning_attempts').delete().eq('user_id', userId);
-    
-    // Chat and AI related
-    await adminClient.from('chat_messages').delete().in('session_id', 
-      (await adminClient.from('chat_sessions').select('id').eq('user_id', userId)).data?.map(s => s.id) || []
-    );
-    await adminClient.from('chat_sessions').delete().eq('user_id', userId);
-    await adminClient.from('conversation_memory').delete().eq('user_id', userId);
-    await adminClient.from('ai_recommendations').delete().eq('user_id', userId);
-    await adminClient.from('ai_inbox').delete().eq('user_id', userId);
-    
-    // Reading and study sessions
-    await adminClient.from('reading_sessions').delete().eq('user_id', userId);
-    await adminClient.from('study_sessions').delete().eq('user_id', userId);
-    
-    // Course related
-    await adminClient.from('enrollments').delete().eq('user_id', userId);
-    await adminClient.from('interactive_course_enrollments').delete().eq('user_id', userId);
-    await adminClient.from('interactive_lesson_analytics').delete().eq('user_id', userId);
-    await adminClient.from('course_progress').delete().eq('user_id', userId);
-    
-    // Goals and notes
-    await adminClient.from('goals').delete().eq('user_id', userId);
-    await adminClient.from('notes').delete().eq('user_id', userId);
-    
-    // Organization memberships
-    await adminClient.from('org_members').delete().eq('user_id', userId);
-    
-    // Student-specific data
-    await adminClient.from('org_students').delete().eq('linked_user_id', userId);
-    await adminClient.from('student_profiles').delete().eq('user_id', userId);
-    await adminClient.from('student_course_assignments').delete().eq('student_id', userId);
-    
-    // Analytics and behavioral data
-    await adminClient.from('analytics_metrics').delete().eq('user_id', userId);
-    await adminClient.from('behavioral_analytics').delete().eq('user_id', userId);
-    await adminClient.from('slide_analytics').delete().eq('user_id', userId);
-    await adminClient.from('anomaly_alerts').delete().eq('user_id', userId);
-    
-    // Learning paths
-    await adminClient.from('adaptive_learning_paths').delete().eq('user_id', userId);
-    
-    // Book and quiz data
-    await adminClient.from('book_quiz_sessions').delete().eq('user_id', userId);
-    
-    // Feedback and activity logs
-    await adminClient.from('beta_feedback').delete().eq('user_id', userId);
-    await adminClient.from('activity_log').delete().eq('user_id', userId);
-    
-    // Subscription data
-    await adminClient.from('subscribers').delete().eq('user_id', userId);
-    
-    // User roles
-    await adminClient.from('user_roles').delete().eq('user_id', userId);
-    
-    // Step 2: Delete profile
-    const { error: profileError } = await adminClient
-      .from('profiles')
-      .delete()
-      .eq('id', userId);
-    
-    if (profileError) {
-      console.error('Error deleting profile:', profileError);
-      throw new Error(`Failed to delete profile: ${profileError.message}`);
+    // 1. Delete user-specific data tables
+    const tablesToDelete = [
+      // Gamification & Progress
+      'achievements',
+      'book_quiz_sessions',
+      
+      // Learning data
+      'attempt_answers',
+      'learning_attempts',
+      'interactive_lesson_analytics',
+      'interactive_course_enrollments',
+      'enrollments',
+      'course_progress',
+      'student_course_assignments',
+      
+      // Study sessions
+      'study_sessions',
+      'reading_sessions',
+      'slide_analytics',
+      'behavioral_analytics',
+      
+      // Goals and plans
+      'daily_goals',
+      'goal_progress',
+      'study_plans',
+      
+      // Chat and AI
+      'chat_messages', // Delete before chat_sessions
+      'chat_sessions',
+      'conversation_memory',
+      'ai_outputs',
+      'ai_recommendations',
+      'ai_inbox',
+      
+      // Analytics
+      'activity_log',
+      'analytics_metrics',
+      'anomaly_alerts',
+      'adaptive_learning_paths',
+      
+      // SCORM
+      'scorm_runtime',
+      'scorm_enrollments',
+      
+      // IEP and parent data
+      'iep_goals',
+      'iep_services',
+      'iep_accommodations',
+      'ieps',
+      'parent_iep_sessions',
+      
+      // Organization memberships
+      'org_group_members',
+      'org_members',
+      
+      // Student-specific
+      'org_students', // If linked_user_id matches
+      
+      // Feedback and support
+      'beta_feedback',
+      'contact_submissions',
+      
+      // User consent and audit
+      'user_consent',
+      'audit_log',
+      'audit_logs',
+      
+      // Subscriptions
+      'coupon_redemptions',
+      'subscribers',
+      'payments',
+      
+      // User roles
+      'user_roles',
+      
+      // Finally, profile
+      'profiles'
+    ];
+
+    let deletedCounts: Record<string, number> = {};
+
+    for (const table of tablesToDelete) {
+      try {
+        // Determine the column to use for deletion
+        let deleteColumn = 'user_id';
+        
+        // Special cases for tables with different column names
+        if (table === 'chat_messages') {
+          // Delete messages from user's chat sessions
+          const { data: sessions } = await supabaseClient
+            .from('chat_sessions')
+            .select('id')
+            .eq('user_id', userId);
+          
+          if (sessions && sessions.length > 0) {
+            const sessionIds = sessions.map(s => s.id);
+            const { error } = await supabaseClient
+              .from('chat_messages')
+              .delete()
+              .in('session_id', sessionIds);
+            
+            if (!error) {
+              deletedCounts[table] = sessions.length;
+            }
+          }
+          continue;
+        } else if (table === 'org_students') {
+          deleteColumn = 'linked_user_id';
+        } else if (table === 'profiles') {
+          deleteColumn = 'id';
+        } else if (table === 'contact_submissions' || table === 'beta_feedback') {
+          // These tables have nullable user_id
+          deleteColumn = 'user_id';
+        } else if (table === 'audit_log' || table === 'audit_logs') {
+          // Delete both user_id and target_user_id records
+          const { count: count1 } = await supabaseClient
+            .from(table)
+            .delete()
+            .eq('user_id', userId)
+            .select('*', { count: 'exact', head: true });
+          
+          const { count: count2 } = await supabaseClient
+            .from(table)
+            .delete()
+            .eq('target_user_id', userId)
+            .select('*', { count: 'exact', head: true });
+          
+          deletedCounts[table] = (count1 || 0) + (count2 || 0);
+          continue;
+        }
+
+        const { count, error } = await supabaseClient
+          .from(table)
+          .delete()
+          .eq(deleteColumn, userId)
+          .select('*', { count: 'exact', head: true });
+
+        if (error && error.code !== 'PGRST116') { // PGRST116 = table doesn't exist or no rows
+          console.warn(`Warning deleting from ${table}:`, error);
+        } else if (count && count > 0) {
+          deletedCounts[table] = count;
+          console.log(`Deleted ${count} records from ${table}`);
+        }
+      } catch (err) {
+        console.warn(`Error deleting from ${table}:`, err);
+        // Continue with other tables even if one fails
+      }
     }
 
-    // Step 3: Delete from auth.users (final step)
-    const { error: deleteUserError } = await adminClient.auth.admin.deleteUser(userId);
-    
-    if (deleteUserError) {
-      console.error('Error deleting user from auth:', deleteUserError);
-      throw new Error(`Failed to delete user from auth: ${deleteUserError.message}`);
+    // Finally, delete the auth user (this is the most critical step)
+    console.log(`Deleting auth user: ${userId}`);
+    const { error: deleteAuthError } = await supabaseClient.auth.admin.deleteUser(userId);
+
+    if (deleteAuthError) {
+      console.error('Error deleting auth user:', deleteAuthError);
+      throw new Error(`Failed to delete auth user: ${deleteAuthError.message}`);
     }
 
-    console.log(`Successfully deleted user: ${userId}`);
+    console.log(`Successfully deleted user ${userId}. Records deleted:`, deletedCounts);
+
+    // Log the deletion for audit purposes
+    await supabaseClient
+      .from('audit_logs')
+      .insert({
+        user_id: user.id,
+        action_type: 'user_deletion',
+        resource_type: 'user',
+        resource_id: userId,
+        details: {
+          deleted_by: user.email,
+          deleted_records: deletedCounts,
+          timestamp: new Date().toISOString()
+        },
+        status: 'success'
+      });
 
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         success: true,
-        message: 'User successfully deleted'
-      }), 
-      { 
-        status: 200, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        message: 'User and all associated data deleted successfully',
+        deletedRecords: deletedCounts
+      }),
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200
       }
     );
 
   } catch (error: any) {
-    console.error('Error in handle-user-deletion:', error);
+    console.error('[handle-user-deletion] Error:', error);
+    
     return new Response(
-      JSON.stringify({ 
-        error: error.message || 'An error occurred during user deletion',
-        details: error.toString()
-      }), 
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      JSON.stringify({
+        success: false,
+        error: error.message || 'Failed to delete user'
+      }),
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 400
       }
     );
   }
