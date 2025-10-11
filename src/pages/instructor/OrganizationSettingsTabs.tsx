@@ -44,6 +44,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { useNavigate } from 'react-router-dom';
 
 const ACCENT_PRESETS = [
   { name: 'FPK Purple', value: '280 100% 70%', hex: '#a855f7' },
@@ -65,6 +67,7 @@ const roleDescriptions = {
 export default function OrganizationSettingsTabs() {
   const { currentOrg } = useOrgContext();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   // Branding state
   const { data: branding, isLoading: brandingLoading } = useOrgBranding(currentOrg?.organization_id || null);
@@ -79,7 +82,7 @@ export default function OrganizationSettingsTabs() {
 
   // Invitation state
   const [emails, setEmails] = useState(['']);
-  const [selectedRole, setSelectedRole] = useState('student');
+  const [selectedRole, setSelectedRole] = useState('instructor');
   const [inviteMessage, setInviteMessage] = useState('');
   const [expiresIn, setExpiresIn] = useState('7');
   const [manualAddDialogOpen, setManualAddDialogOpen] = useState(false);
@@ -590,6 +593,22 @@ export default function OrganizationSettingsTabs() {
           {/* Single Column Layout */}
           <div className="max-w-3xl mx-auto space-y-6">
             
+            {/* Contextual Alert */}
+            <Alert className="bg-blue-500/20 border-blue-400/50">
+              <Info className="h-4 w-4 text-white" />
+              <AlertTitle className="text-white">Staff Invitations Only</AlertTitle>
+              <AlertDescription className="text-white/80">
+                Looking to add students? Use the{' '}
+                <button
+                  onClick={() => navigate(`/org/${currentOrg?.organization_id}/students`)}
+                  className="underline font-medium hover:text-white"
+                >
+                  Students tab
+                </button>
+                {' '}for student rostering. This page is for inviting staff members.
+              </AlertDescription>
+            </Alert>
+
             {/* Email Invites */}
             <OrgCard className="bg-orange-500/65 border-orange-400/50">
               <OrgCardHeader>
@@ -650,7 +669,6 @@ export default function OrganizationSettingsTabs() {
                               <SelectContent>
                                 <SelectItem value="owner">Owner</SelectItem>
                                 <SelectItem value="instructor">Instructor</SelectItem>
-                                <SelectItem value="student">Student</SelectItem>
                                 <SelectItem value="instructor_aide">Instructor Aide</SelectItem>
                                 <SelectItem value="viewer">Viewer</SelectItem>
                               </SelectContent>
