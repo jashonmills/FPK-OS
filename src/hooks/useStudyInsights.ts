@@ -24,12 +24,14 @@ export const useStudyInsights = () => {
 
       if (error) {
         console.error('Error fetching insights:', error);
-        throw error;
+        // Return empty array instead of throwing to prevent infinite loading
+        return [];
       }
 
       return data?.insights || [];
     },
     enabled: !!user,
+    retry: false, // Disable retries to prevent infinite loading on API errors
     staleTime: 1000 * 60 * 30, // 30 minutes
     gcTime: 1000 * 60 * 60, // 1 hour (renamed from cacheTime)
   });

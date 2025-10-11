@@ -8,7 +8,7 @@ import { Brain, TrendingUp, Target, Lightbulb } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const AIInsightsSection = () => {
-  const { insights, isLoading } = useStudyInsights();
+  const { insights, isLoading, error } = useStudyInsights();
   const navigate = useNavigate();
 
   const getInsightIcon = (type: string) => {
@@ -30,28 +30,8 @@ const AIInsightsSection = () => {
     }
   };
 
-  if (isLoading) {
-    return (
-      <Card>
-        <CardContent className="p-6">
-          <div className="animate-pulse">
-            <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
-            <div className="space-y-3">
-              {[1, 2, 3].map(i => (
-                <div key={i} className="flex gap-3">
-                  <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
-                  <div className="flex-1">
-                    <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                    <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
+  // Don't show loading state to prevent blocking the page
+  // If there's an error or no insights, we'll show the empty state below
 
   const topInsights = insights.slice(0, 3);
 
