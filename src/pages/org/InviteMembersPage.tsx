@@ -73,7 +73,7 @@ const InviteMembersPage = () => {
   
   // Email invitation state
   const [emails, setEmails] = useState(['']);
-  const [selectedRole, setSelectedRole] = useState('student');
+  const [selectedRole, setSelectedRole] = useState('instructor');
   const [inviteMessage, setInviteMessage] = useState('');
   const [expiresIn, setExpiresIn] = useState('7');
   
@@ -187,6 +187,20 @@ const InviteMembersPage = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="mobile-section-spacing">
+              <Alert className="mb-4">
+                <Info className="h-4 w-4" />
+                <AlertDescription>
+                  <strong>Looking to add students?</strong> Use the{' '}
+                  <Button 
+                    variant="link" 
+                    className="p-0 h-auto underline" 
+                    onClick={() => navigate(`/org/${orgId}/students`)}
+                  >
+                    Students tab
+                  </Button>
+                  {' '}for student rostering and activation. This page is for inviting staff members (instructors, admins, etc.).
+                </AlertDescription>
+              </Alert>
               <div className="mobile-stack">
                 <Label>Email addresses</Label>
                 {emails.map((email, index) => (
@@ -235,14 +249,12 @@ const InviteMembersPage = () => {
                               <>
                                 <SelectItem value="admin">Admin</SelectItem>
                                 <SelectItem value="instructor">Instructor</SelectItem>
-                              </>
-                            )}
-                            <SelectItem value="student">Student</SelectItem>
-                            {canManageOrg() && (
-                              <>
                                 <SelectItem value="instructor-aide">Instructor Aide</SelectItem>
                                 <SelectItem value="viewer">Viewer</SelectItem>
                               </>
+                            )}
+                            {!canManageOrg() && (
+                              <SelectItem value="instructor">Instructor</SelectItem>
                             )}
                           </SelectContent>
                         </Select>

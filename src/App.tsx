@@ -20,6 +20,7 @@ import "./App.css";
 // Non-critical imports for better bundle splitting
 const Index = lazy(() => import("./pages/Index"));
 const Login = lazy(() => import("./pages/Login"));
+const SignupWithInvitation = lazy(() => import("./pages/SignupWithInvitation"));
 const OrganizationFinderPage = lazy(() => import("./pages/OrganizationFinderPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const DashboardLayout = lazy(() => import("./components/DashboardLayout"));
@@ -256,6 +257,7 @@ const App: React.FC = () => {
           <Route path="/" element={<LazyRoute><Index /></LazyRoute>} />
           <Route path="/courses" element={<LazyRoute><CoursesPage /></LazyRoute>} />
           <Route path="/login" element={<LazyRoute><Login /></LazyRoute>} />
+          <Route path="/signup/invitation" element={<LazyRoute><SignupWithInvitation /></LazyRoute>} />
           <Route path="/organization-login" element={<LazyRoute><OrganizationFinderPage /></LazyRoute>} />
           <Route path="/auth/confirm" element={<LazyRoute><EmailConfirm /></LazyRoute>} />
           <Route path="/reset-password" element={<LazyRoute><ResetPassword /></LazyRoute>} />

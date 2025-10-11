@@ -9,6 +9,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useOrganizationInvitation } from '@/hooks/useOrganizationInvitation';
+import { supabase } from '@/integrations/supabase/client';
 
 const OrgJoinPage = () => {
   const navigate = useNavigate();
@@ -18,59 +19,110 @@ const OrgJoinPage = () => {
   const [inviteValue, setInviteValue] = useState('');
   const [isFromEmail, setIsFromEmail] = useState(false);
   const [hasAttemptedAutoJoin, setHasAttemptedAutoJoin] = useState(false);
+  const [validationStatus, setValidationStatus] = useState<'idle' | 'validating' | 'new_user' | 'existing_user' | 'error'>('idle');
+  const [invitedEmail, setInvitedEmail] = useState<string>('');
+  const [organizationName, setOrganizationName] = useState<string>('');
   const { joinOrganization, isJoining } = useOrganizationInvitation();
 
-  // Handle authentication and invitation detection
+  // Handle authentication and invitation detection with intelligent routing
   useEffect(() => {
-    console.log('[OrgJoinPage] Component mounted', {
-      pathname: window.location.pathname,
-      search: window.location.search,
-      loading,
-      authenticated: !!user
-    });
-
-    // Load invitation from URL
-    const tokenFromUrl = searchParams.get('token');
-    const codeFromUrl = searchParams.get('code');
-    
-    console.log('[OrgJoinPage] Extracted params', {
-      tokenFromUrl: tokenFromUrl ? `${tokenFromUrl.substring(0, 8)}...` : null,
-      codeFromUrl
-    });
-    
-    if (tokenFromUrl || codeFromUrl) {
-      setInviteValue(tokenFromUrl || codeFromUrl || '');
-      setIsFromEmail(!!tokenFromUrl);
-    }
-
-    // If not loading and not authenticated, store invite and redirect to login
-    if (!loading && !user) {
-      const invite = tokenFromUrl || codeFromUrl;
+    const validateAndRoute = async () => {
+      if (loading) return;
       
-      if (invite) {
-        localStorage.setItem('pendingInvite', invite);
-        localStorage.setItem('pendingInviteSource', tokenFromUrl ? 'email' : 'code');
+      const tokenFromUrl = searchParams.get('token');
+      const codeFromUrl = searchParams.get('code');
+      
+      if (!tokenFromUrl && !codeFromUrl) return;
+
+      setValidationStatus('validating');
+      
+      try {
+        // Only validate email invitations (tokens), not code invitations
+        if (tokenFromUrl) {
+          // Step 1: Validate the invitation token
+          const { data: validateData, error: validateError } = await supabase.functions.invoke('validate-org-invite', {
+            body: { token: tokenFromUrl }
+          });
+
+          if (validateError || !validateData.valid) {
+            setValidationStatus('error');
+            toast({ 
+              title: 'Invalid Invitation', 
+              description: 'This invitation link is invalid or has expired.', 
+              variant: 'destructive' 
+            });
+            return;
+          }
+
+          const email = validateData.invited_email;
+          const orgName = validateData.organization_name;
+          setInvitedEmail(email);
+          setOrganizationName(orgName);
+
+          // Step 2: Check if user exists
+          const { data: existsData, error: existsError } = await supabase.functions.invoke('check-email-exists', {
+            body: { email }
+          });
+
+          if (existsError) {
+            console.error('Error checking email:', existsError);
+            throw existsError;
+          }
+
+          // Step 3: Route accordingly
+          if (existsData.exists) {
+            // Existing user - check if authenticated
+            if (!user) {
+              localStorage.setItem('pendingInvite', tokenFromUrl);
+              localStorage.setItem('pendingInviteOrgName', orgName);
+              navigate('/login', { 
+                state: { 
+                  message: `Please sign in to join ${orgName}`,
+                  returnUrl: `/org/join?token=${tokenFromUrl}`
+                } 
+              });
+            } else {
+              // Already authenticated, proceed to auto-join
+              setValidationStatus('existing_user');
+              setInviteValue(tokenFromUrl);
+              setIsFromEmail(true);
+            }
+          } else {
+            // New user - redirect to signup
+            localStorage.setItem('pendingInvite', tokenFromUrl);
+            localStorage.setItem('pendingInviteEmail', email);
+            localStorage.setItem('pendingInviteOrgName', orgName);
+            navigate('/signup/invitation', { replace: true });
+          }
+        } else if (codeFromUrl) {
+          // Code-based invitations: check authentication first
+          setInviteValue(codeFromUrl);
+          setIsFromEmail(false);
+          
+          if (!user) {
+            localStorage.setItem('pendingInvite', codeFromUrl);
+            localStorage.setItem('pendingInviteSource', 'code');
+            navigate('/login', { 
+              state: { returnUrl: `/org/join?code=${codeFromUrl}` } 
+            });
+            return;
+          }
+          
+          setValidationStatus('existing_user');
+        }
+      } catch (error: any) {
+        console.error('Validation error:', error);
+        setValidationStatus('error');
+        toast({ 
+          title: 'Error', 
+          description: 'Failed to process invitation. Please try again.', 
+          variant: 'destructive' 
+        });
       }
-      
-      navigate('/login', { 
-        state: { returnUrl: `/org/join${invite ? `?${tokenFromUrl ? 'token' : 'code'}=${invite}` : ''}` } 
-      });
-      return;
-    }
+    };
 
-    // If authenticated, check for pending invite from localStorage
-    if (user && !tokenFromUrl && !codeFromUrl) {
-      const pending = localStorage.getItem('pendingInvite');
-      const source = localStorage.getItem('pendingInviteSource');
-      
-      if (pending) {
-        setInviteValue(pending);
-        setIsFromEmail(source === 'email');
-        localStorage.removeItem('pendingInvite');
-        localStorage.removeItem('pendingInviteSource');
-      }
-    }
-  }, [searchParams, navigate, user, loading]);
+    validateAndRoute();
+  }, [searchParams, user, loading, navigate, toast]);
 
   // Auto-join when authenticated with invite code/token
   useEffect(() => {
@@ -86,16 +138,60 @@ const OrgJoinPage = () => {
     await joinOrganization(inviteValue.trim());
   };
 
-  // Show loading while checking authentication or auto-joining
-  if (loading || (user && inviteValue && !hasAttemptedAutoJoin)) {
+  // Show loading while checking authentication, validating, or auto-joining
+  if (loading || validationStatus === 'validating' || (user && inviteValue && !hasAttemptedAutoJoin)) {
     return (
-      <div className="max-w-md mx-auto space-y-6 flex items-center justify-center min-h-[50vh]">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">
-            {loading ? 'Checking authentication...' : 'Joining organization...'}
-          </p>
-        </div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Card className="w-full max-w-md">
+          <CardContent className="pt-6">
+            <div className="text-center space-y-4">
+              <Loader2 className="h-12 w-12 animate-spin mx-auto text-primary" />
+              <div>
+                <h2 className="text-xl font-semibold">
+                  {loading ? 'Checking authentication...' : 
+                   validationStatus === 'validating' ? 'Validating Your Invitation' : 
+                   'Joining organization...'}
+                </h2>
+                {organizationName && validationStatus === 'validating' && (
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Please wait while we verify your invitation to {organizationName}...
+                  </p>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (validationStatus === 'error') {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-destructive">
+              <AlertCircle className="h-5 w-5" />
+              Invitation Error
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Alert variant="destructive">
+              <AlertDescription>
+                This invitation link is invalid or has expired. Please request a new invitation from your organization administrator.
+              </AlertDescription>
+            </Alert>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => navigate('/login')} className="flex-1">
+                Back to Login
+              </Button>
+              <Button onClick={() => navigate('/')} className="flex-1">
+                Go Home
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }

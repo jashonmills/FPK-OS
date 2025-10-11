@@ -65,6 +65,7 @@ const [showImportCSV, setShowImportCSV] = useState(false);
   const activeMembers = members.filter(m => m.role === 'student').length;
   const handleAddStudent = (studentData: any) => {
     createStudent(studentData);
+    // Email confirmation will be handled in a future enhancement
   };
   const handleEditStudent = (student: OrgStudent) => {
     setSelectedStudent(student);

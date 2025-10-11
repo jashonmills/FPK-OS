@@ -212,6 +212,23 @@ const Login = () => {
         description: tString('signInSuccess'),
       });
       
+      // Check for pending invitation first
+      const pendingInvite = localStorage.getItem('pendingInvite');
+      const pendingOrgName = localStorage.getItem('pendingInviteOrgName');
+
+      if (pendingInvite) {
+        toast({
+          title: 'Invitation Detected',
+          description: `Completing your invitation to ${pendingOrgName || 'the organization'}...`,
+        });
+        
+        // Clear the stored org name (keep token for OrgJoinPage)
+        localStorage.removeItem('pendingInviteOrgName');
+        
+        navigate(`/org/join?token=${pendingInvite}`);
+        return;
+      }
+      
       // Check for return URL after successful sign in
       const returnUrl = location.state?.returnUrl;
       if (returnUrl) {
