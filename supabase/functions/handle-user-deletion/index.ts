@@ -61,13 +61,20 @@ Deno.serve(async (req) => {
     // Delete user data in correct order (respecting foreign key constraints)
     // Order matters! Delete child records before parent records
 
-    // 1. Delete user-specific data tables
+    // 1. Delete user-specific data tables (in correct order)
     const tablesToDelete = [
-      // Gamification & Progress
+      // XP and Badges (delete user_badges first)
+      'user_badges',
       'achievements',
-      'book_quiz_sessions',
+      'user_xp',
+      'xp_events',
+      'xp_transactions',
       
-      // Learning data
+      // Quiz and Gamification
+      'book_quiz_sessions',
+      'user_streaks',
+      
+      // Learning data (child tables first)
       'attempt_answers',
       'learning_attempts',
       'interactive_lesson_analytics',
@@ -76,7 +83,7 @@ Deno.serve(async (req) => {
       'course_progress',
       'student_course_assignments',
       
-      // Study sessions
+      // Study and reading sessions
       'study_sessions',
       'reading_sessions',
       'slide_analytics',
@@ -88,7 +95,7 @@ Deno.serve(async (req) => {
       'study_plans',
       
       // Chat and AI
-      'chat_messages', // Delete before chat_sessions
+      'chat_messages', // Must delete before chat_sessions
       'chat_sessions',
       'conversation_memory',
       'ai_outputs',
@@ -117,7 +124,13 @@ Deno.serve(async (req) => {
       'org_members',
       
       // Student-specific
-      'org_students', // If linked_user_id matches
+      'org_students', // Uses linked_user_id
+      'student_profiles',
+      
+      // Course-related
+      'course_collections',
+      'course_collection_items',
+      'course_duplicates',
       
       // Feedback and support
       'beta_feedback',
@@ -125,18 +138,19 @@ Deno.serve(async (req) => {
       
       // User consent and audit
       'user_consent',
+      'data_subject_requests',
       'audit_log',
       'audit_logs',
       
-      // Subscriptions
+      // Subscriptions and payments
       'coupon_redemptions',
       'subscribers',
       'payments',
       
-      // User roles
+      // User roles (delete before profile)
       'user_roles',
       
-      // Finally, profile
+      // Profile (delete last)
       'profiles'
     ];
 
@@ -210,12 +224,13 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Finally, delete the auth user (this is the most critical step)
+    // Finally, delete the auth user (hard delete by default)
     console.log(`Deleting auth user: ${userId}`);
     const { error: deleteAuthError } = await supabaseClient.auth.admin.deleteUser(userId);
 
     if (deleteAuthError) {
       console.error('Error deleting auth user:', deleteAuthError);
+      console.error('Error details:', JSON.stringify(deleteAuthError, null, 2));
       throw new Error(`Failed to delete auth user: ${deleteAuthError.message}`);
     }
 
