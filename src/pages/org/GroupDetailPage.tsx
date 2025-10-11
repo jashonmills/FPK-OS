@@ -35,7 +35,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 
-export default function GroupDetailPage() {
+const GroupDetailPage = () => {
   const { groupId, orgId } = useParams<{ groupId: string; orgId: string }>();
   const navigate = useNavigate();
   const { groups, isLoading: loadingGroup } = useOrgGroups();
@@ -327,4 +327,6 @@ export default function GroupDetailPage() {
       </AlertDialog>
     </div>
   );
-}
+};
+
+export default GroupDetailPage;
