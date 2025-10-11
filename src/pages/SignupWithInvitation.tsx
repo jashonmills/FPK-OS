@@ -99,7 +99,7 @@ export default function SignupWithInvitation() {
       // Step 2: Insert all collected data into the profiles table
       const { error: profileError } = await supabase
         .from('profiles')
-        .insert({
+        .upsert({
           id: authData.user.id,
           email: email,
           full_name: data.full_name,
