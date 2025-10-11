@@ -30,11 +30,9 @@ const AIInsightsSection = () => {
     }
   };
 
-  // Don't show loading state to prevent blocking the page
-  // If there's an error or no insights, we'll show the empty state below
-
   const topInsights = insights.slice(0, 3);
 
+  // Don't block page load - render immediately with appropriate state
   return (
     <Card>
       <CardHeader>
@@ -52,14 +50,23 @@ const AIInsightsSection = () => {
         {topInsights.length === 0 ? (
           <div className="text-center py-8">
             <Brain className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="font-semibold mb-2">No insights yet</h3>
+            <h3 className="font-semibold mb-2">
+              {isLoading ? 'Loading insights...' : 'No insights yet'}
+            </h3>
             <p className="text-sm text-muted-foreground mb-4">
-              Continue learning to get personalized AI insights
+              {error 
+                ? 'Unable to load insights. Your learning data is safe.'
+                : isLoading
+                ? 'Analyzing your learning patterns...'
+                : 'Continue learning to get personalized AI insights'
+              }
             </p>
-            <Button onClick={() => navigate('/dashboard/ai-study-coach')}>
-              <Brain className="h-4 w-4 mr-2" />
-              Talk to AI Coach
-            </Button>
+            {!isLoading && !error && (
+              <Button onClick={() => navigate('/dashboard/ai-study-coach')}>
+                <Brain className="h-4 w-4 mr-2" />
+                Talk to AI Coach
+              </Button>
+            )}
           </div>
         ) : (
           <div className="space-y-4">
