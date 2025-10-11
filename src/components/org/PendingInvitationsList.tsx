@@ -2,22 +2,81 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Mail, Clock, RefreshCw, Copy, Check } from 'lucide-react';
+import { Mail, Clock, RefreshCw, Copy, Check, MoreVertical, Trash2, Send } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { usePendingInvitations } from '@/hooks/usePendingInvitations';
 import { format, formatDistanceToNow } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export function PendingInvitationsList() {
   const { data: invitations = [], isLoading, refetch } = usePendingInvitations();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedInviteId, setSelectedInviteId] = useState<string | null>(null);
 
   const handleCopyEmail = (email: string, id: string) => {
     navigator.clipboard.writeText(email);
     setCopiedId(id);
     toast({ title: 'Email copied to clipboard' });
     setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const deleteInvitation = useMutation({
+    mutationFn: async (inviteId: string) => {
+      const { error } = await supabase
+        .from('user_invites')
+        .delete()
+        .eq('id', inviteId);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast({
+        title: "Invitation Cancelled",
+        description: "The invitation has been deleted successfully.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['pending-invitations'] });
+      setDeleteDialogOpen(false);
+      setSelectedInviteId(null);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Failed to Delete Invitation",
+        description: error.message || "There was an error deleting the invitation.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleDeleteClick = (inviteId: string) => {
+    setSelectedInviteId(inviteId);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (selectedInviteId) {
+      deleteInvitation.mutate(selectedInviteId);
+    }
   };
 
   if (isLoading) {
@@ -111,23 +170,61 @@ export function PendingInvitationsList() {
                   </div>
                 </div>
 
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleCopyEmail(invitation.invited_email, invitation.id)}
-                  className="shrink-0"
-                >
-                  {copiedId === invitation.id ? (
-                    <Check className="h-4 w-4" />
-                  ) : (
-                    <Copy className="h-4 w-4" />
-                  )}
-                </Button>
+                <div className="flex items-center gap-2 shrink-0">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleCopyEmail(invitation.invited_email, invitation.id)}
+                  >
+                    {copiedId === invitation.id ? (
+                      <Check className="h-4 w-4" />
+                    ) : (
+                      <Copy className="h-4 w-4" />
+                    )}
+                  </Button>
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        onClick={() => handleDeleteClick(invitation.id)}
+                        className="text-destructive focus:text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Cancel Invitation
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </div>
             </div>
           ))}
         </div>
       </CardContent>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cancel Invitation</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to cancel this invitation? The recipient will no longer be able to accept it.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep Invitation</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Cancel Invitation
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }
