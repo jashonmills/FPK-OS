@@ -9652,6 +9652,10 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: Json
       }
+      get_user_role: {
+        Args: Record<PropertyKey, never>
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
       get_user_subscription_status: {
         Args: { check_user_id?: string }
         Returns: string
@@ -9730,16 +9734,27 @@ export type Database = {
         Returns: boolean
       }
       record_audit_event: {
-        Args: {
-          p_action: string
-          p_legal_basis?: string
-          p_new_values?: Json
-          p_old_values?: Json
-          p_purpose?: string
-          p_record_id?: string
-          p_table_name: string
-          p_user_id: string
-        }
+        Args:
+          | {
+              p_action: string
+              p_legal_basis?: string
+              p_new_values?: Json
+              p_old_values?: Json
+              p_purpose?: string
+              p_record_id?: string
+              p_table_name: string
+              p_user_id: string
+            }
+          | {
+              p_action: string
+              p_legal_basis?: string
+              p_new_values?: Json
+              p_old_values?: Json
+              p_purpose?: string
+              p_record_id?: string
+              p_table_name: string
+              p_user_id: string
+            }
         Returns: undefined
       }
       reset_monthly_quotas: {
@@ -9830,6 +9845,10 @@ export type Database = {
           p_processing_purpose: string
           p_user_id: string
         }
+        Returns: Json
+      }
+      validate_org_invite: {
+        Args: { code: string }
         Returns: Json
       }
       validate_student_pin: {
