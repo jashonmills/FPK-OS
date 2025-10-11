@@ -28,11 +28,22 @@ import {
 } from '@/components/ui/tooltip';
 import { ManualStaffAddDialog } from '@/components/org/ManualStaffAddDialog';
 import { useOrgMembers, OrgMember } from '@/hooks/useOrgMembers';
+import { useOrgMemberActions } from '@/hooks/useOrgMemberActions';
 import { MemberProfileDialog } from '@/components/org/MemberProfileDialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { InstructorProfileSection } from '@/components/instructor/InstructorProfileSection';
 import { MemberCard } from '@/components/org/MemberCard';
 import { PendingInvitationsList } from '@/components/org/PendingInvitationsList';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 const ACCENT_PRESETS = [
   { name: 'FPK Purple', value: '280 100% 70%', hex: '#a855f7' },
@@ -76,9 +87,29 @@ export default function OrganizationSettingsTabs() {
   
   // Members state
   const { members, isLoading: membersLoading, refetch: refetchMembers } = useOrgMembers();
+  const { removeMember, changeRole, isRemovingMember, isChangingRole } = useOrgMemberActions();
   const [selectedMember, setSelectedMember] = useState<OrgMember | null>(null);
   const [memberProfileOpen, setMemberProfileOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'large-tiles' | 'small-tiles'>('large-tiles');
+  const [removeConfirmOpen, setRemoveConfirmOpen] = useState(false);
+  const [memberToRemove, setMemberToRemove] = useState<string | null>(null);
+
+  const handleRemoveMember = (userId: string) => {
+    setMemberToRemove(userId);
+    setRemoveConfirmOpen(true);
+  };
+
+  const confirmRemoveMember = () => {
+    if (memberToRemove) {
+      removeMember(memberToRemove);
+      setRemoveConfirmOpen(false);
+      setMemberToRemove(null);
+    }
+  };
+
+  const handleChangeRole = (userId: string, newRole: 'owner' | 'instructor' | 'student') => {
+    changeRole({ userId, newRole });
+  };
 
   if (!currentOrg) {
     return (
@@ -788,10 +819,13 @@ export default function OrganizationSettingsTabs() {
                       key={member.user_id}
                       member={member}
                       viewMode={viewMode}
+                      canManage={true}
                       onViewProfile={(member) => {
                         setSelectedMember(member);
                         setMemberProfileOpen(true);
                       }}
+                      onRemoveMember={handleRemoveMember}
+                      onChangeRole={handleChangeRole}
                     />
                   ))}
                 </div>

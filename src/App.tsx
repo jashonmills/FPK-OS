@@ -120,6 +120,7 @@ const ParentIEPAccess = lazy(() => import("./pages/ParentIEPAccess"));
 const LegacyRedirect = lazy(() => import("./components/redirect/LegacyRedirect"));
 const Assignments = lazy(() => import("./pages/org/assignments"));
 const GroupsPage = lazy(() => import("./pages/org/GroupsPage"));
+const GroupDetailPage = lazy(() => import("./pages/org/GroupDetailPage"));
 const AssignmentsDashboard = lazy(() => import("./pages/student/AssignmentsDashboard"));
 const AssignmentsManagement = lazy(() => import("./pages/instructor/AssignmentsManagement"));
 const GoalsManagement = lazy(() => import("./pages/org/goals"));
@@ -713,6 +714,7 @@ const App: React.FC = () => {
             <Route path=":orgId/catalog-demo" element={<LazyRoute><LegacyRedirect toOrgCourses /></LazyRoute>} />
             <Route path=":orgId/assignments" element={<LazyRoute><Assignments /></LazyRoute>} />
             <Route path=":orgId/groups" element={<LazyRoute><GroupsPage /></LazyRoute>} />
+            <Route path=":orgId/groups/:groupId" element={<LazyRoute><GroupDetailPage /></LazyRoute>} />
             <Route path=":orgId/goals-notes" element={<LazyRoute><GoalsAndNotes /></LazyRoute>} />
             <Route path=":orgId/ai-coach" element={<LazyRoute><OrgAIStudyCoach /></LazyRoute>} />
             <Route path=":orgId/analytics/courses/:courseId" element={<LazyRoute><CourseAnalytics /></LazyRoute>} />

@@ -4,6 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useOrgGroups, type OrgGroup } from '@/hooks/useOrgGroups';
 import { Users, MoreHorizontal, Edit, Trash2, UserPlus } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useOrgContext } from '@/components/organizations/OrgContext';
 
 interface GroupCardProps {
   group: OrgGroup;
@@ -11,11 +13,17 @@ interface GroupCardProps {
 
 export function GroupCard({ group }: GroupCardProps) {
   const { deleteGroup, isDeleting } = useOrgGroups();
+  const navigate = useNavigate();
+  const { currentOrg } = useOrgContext();
 
   const handleDelete = () => {
     if (window.confirm(`Are you sure you want to delete "${group.name}"?`)) {
       deleteGroup(group.id);
     }
+  };
+
+  const handleManageMembers = () => {
+    navigate(`/org/${currentOrg?.organization_id}/groups/${group.id}`);
   };
 
   return (
@@ -33,7 +41,7 @@ export function GroupCard({ group }: GroupCardProps) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={handleManageMembers}>
                 <UserPlus className="w-4 h-4 mr-2" />
                 Manage Members
               </DropdownMenuItem>

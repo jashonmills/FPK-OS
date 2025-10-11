@@ -2,16 +2,41 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Mail, Phone, UserCircle, Briefcase, Building2 } from 'lucide-react';
+import { Mail, Phone, UserCircle, Briefcase, Building2, MoreVertical, UserMinus, UserCog } from 'lucide-react';
 import { OrgMember } from '@/hooks/useOrgMembers';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  DropdownMenuLabel,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+} from '@/components/ui/dropdown-menu';
+import { useAuth } from '@/hooks/useAuth';
 
 interface MemberCardProps {
   member: OrgMember;
   viewMode?: 'list' | 'large-tiles' | 'small-tiles';
   onViewProfile?: (member: OrgMember) => void;
+  onRemoveMember?: (userId: string) => void;
+  onChangeRole?: (userId: string, newRole: 'owner' | 'instructor' | 'student') => void;
+  canManage?: boolean;
 }
 
-export function MemberCard({ member, viewMode = 'large-tiles', onViewProfile }: MemberCardProps) {
+export function MemberCard({ 
+  member, 
+  viewMode = 'large-tiles', 
+  onViewProfile,
+  onRemoveMember,
+  onChangeRole,
+  canManage = false
+}: MemberCardProps) {
+  const { user } = useAuth();
+  const isCurrentUser = user?.id === member.user_id;
+
   const getInitials = (name: string) => {
     return name
       .split(' ')
@@ -51,6 +76,60 @@ export function MemberCard({ member, viewMode = 'large-tiles', onViewProfile }: 
 
   const displayName = member.full_name || member.display_name || 'Unnamed User';
 
+  const ActionsMenu = () => {
+    if (!canManage || isCurrentUser) return null;
+
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-white hover:bg-white/20">
+            <MoreVertical className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuLabel>Member Actions</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          
+          {onChangeRole && (
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>
+                <UserCog className="h-4 w-4 mr-2" />
+                Change Role
+              </DropdownMenuSubTrigger>
+              <DropdownMenuSubContent>
+                <DropdownMenuItem 
+                  onClick={() => onChangeRole(member.user_id, 'instructor')}
+                  disabled={member.role === 'instructor'}
+                >
+                  Instructor
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => onChangeRole(member.user_id, 'student')}
+                  disabled={member.role === 'student'}
+                >
+                  Student
+                </DropdownMenuItem>
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
+          )}
+          
+          {onRemoveMember && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem 
+                onClick={() => onRemoveMember(member.user_id)}
+                className="text-destructive focus:text-destructive"
+              >
+                <UserMinus className="h-4 w-4 mr-2" />
+                Remove from Organization
+              </DropdownMenuItem>
+            </>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  };
+
   // List View - Compact horizontal layout
   if (viewMode === 'list') {
     return (
@@ -66,6 +145,7 @@ export function MemberCard({ member, viewMode = 'large-tiles', onViewProfile }: 
           <div className="flex-1 min-w-0">
             <h4 className="font-semibold text-orange-200 truncate">
               {displayName}
+              {isCurrentUser && <Badge variant="outline" className="ml-2 text-xs">You</Badge>}
             </h4>
             <div className="flex items-center gap-2 flex-wrap">
               <Badge className={getRoleBadgeColor(member.role) + ' text-xs'}>
@@ -78,14 +158,17 @@ export function MemberCard({ member, viewMode = 'large-tiles', onViewProfile }: 
           </div>
         </div>
         
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => onViewProfile?.(member)}
-          className="shrink-0 bg-white/10 border-white/30 text-white hover:bg-white/20"
-        >
-          <UserCircle className="h-4 w-4" />
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onViewProfile?.(member)}
+            className="shrink-0 bg-white/10 border-white/30 text-white hover:bg-white/20"
+          >
+            <UserCircle className="h-4 w-4" />
+          </Button>
+          <ActionsMenu />
+        </div>
       </div>
     );
   }
@@ -95,21 +178,25 @@ export function MemberCard({ member, viewMode = 'large-tiles', onViewProfile }: 
     return (
       <Card className="bg-orange-500/80 backdrop-blur-sm border border-orange-400/50 hover:bg-orange-500/85 transition-colors">
         <CardContent className="p-4 space-y-3">
-          <div className="flex flex-col items-center text-center">
-            <Avatar className="h-12 w-12 border-2 border-orange-300/30 mb-2">
-              <AvatarImage src={member.profiles?.avatar_url} />
-              <AvatarFallback className="bg-orange-500 text-white">
-                {getInitials(displayName)}
-              </AvatarFallback>
-            </Avatar>
-            
-            <h4 className="font-semibold text-orange-200 truncate w-full text-sm">
-              {displayName}
-            </h4>
-            
-            <Badge className={getRoleBadgeColor(member.role) + ' text-xs mt-1'}>
-              {member.role}
-            </Badge>
+          <div className="flex items-start justify-between">
+            <div className="flex flex-col items-center text-center flex-1">
+              <Avatar className="h-12 w-12 border-2 border-orange-300/30 mb-2">
+                <AvatarImage src={member.profiles?.avatar_url} />
+                <AvatarFallback className="bg-orange-500 text-white">
+                  {getInitials(displayName)}
+                </AvatarFallback>
+              </Avatar>
+              
+              <h4 className="font-semibold text-orange-200 truncate w-full text-sm">
+                {displayName}
+              </h4>
+              {isCurrentUser && <Badge variant="outline" className="text-xs mt-1">You</Badge>}
+              
+              <Badge className={getRoleBadgeColor(member.role) + ' text-xs mt-1'}>
+                {member.role}
+              </Badge>
+            </div>
+            <ActionsMenu />
           </div>
           
           {member.profiles?.email && (
@@ -151,6 +238,7 @@ export function MemberCard({ member, viewMode = 'large-tiles', onViewProfile }: 
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-orange-200 truncate text-lg">
               {displayName}
+              {isCurrentUser && <Badge variant="outline" className="ml-2">You</Badge>}
             </h3>
             <div className="flex items-center gap-2 mt-2 flex-wrap">
               <Badge className={getRoleBadgeColor(member.role)}>
@@ -161,6 +249,8 @@ export function MemberCard({ member, viewMode = 'large-tiles', onViewProfile }: 
               </Badge>
             </div>
           </div>
+          
+          <ActionsMenu />
         </div>
       </CardHeader>
 
@@ -207,7 +297,7 @@ export function MemberCard({ member, viewMode = 'large-tiles', onViewProfile }: 
             
             {member.profiles?.phone_number && (
               <div className="flex items-center gap-2 text-sm text-orange-100">
-                <Phone className="w-4 h-4 text-orange-300 shrink-0" />
+                <Phone className="w-4 w-4 text-orange-300 shrink-0" />
                 <span>
                   {member.profiles.phone_number}
                   {member.profiles.phone_extension && ` ext. ${member.profiles.phone_extension}`}
