@@ -27,9 +27,9 @@ import { Link } from 'react-router-dom';
 
 export default function OrganizationManagement() {
   const [searchQuery, setSearchQuery] = useState('');
-  const { organizations, isLoading } = useAdminOrganizations();
+  const { organizations, isLoading, error } = useAdminOrganizations();
 
-  console.log('🔍 OrganizationManagement Component - Organizations:', organizations, 'Loading:', isLoading);
+  console.log('🔍 OrganizationManagement Component - Organizations:', organizations, 'Loading:', isLoading, 'Error:', error);
 
   const filteredOrganizations = organizations?.filter(org =>
     org.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -49,6 +49,34 @@ export default function OrganizationManagement() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">Loading organizations...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Card className="max-w-md">
+          <CardHeader>
+            <CardTitle>Error Loading Organizations</CardTitle>
+            <CardDescription>
+              There was an error fetching the organization data.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-destructive mb-4">
+              {error instanceof Error ? error.message : 'Unknown error occurred'}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              This might be due to missing admin permissions. Please verify:
+            </p>
+            <ul className="list-disc list-inside text-sm text-muted-foreground mt-2 space-y-1">
+              <li>You have admin role assigned in user_roles table</li>
+              <li>RLS policies allow admins to view organizations</li>
+              <li>Your session is properly authenticated</li>
+            </ul>
+          </CardContent>
+        </Card>
       </div>
     );
   }
