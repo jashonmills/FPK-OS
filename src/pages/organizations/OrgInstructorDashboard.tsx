@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useOrgContext } from '@/components/organizations/OrgContext';
 import CoursesTab from '@/components/instructor/CoursesTab';
+import { TourGuide } from '@/components/tour/TourGuide';
 
 export default function OrgInstructorDashboard() {
   const { currentOrg } = useOrgContext();
@@ -56,9 +57,11 @@ export default function OrgInstructorDashboard() {
 
   return (
     <div className="space-y-6">
+      <TourGuide tourName="dashboard" />
+      
       {/* Co-branding header for Waterford and Wexford Education */}
       {currentOrg.organizations.name === 'Waterford and Wexford Education' && (
-        <div className="bg-gradient-to-r from-primary/5 to-accent/5 rounded-lg p-4 mb-6">
+        <div className="bg-gradient-to-r from-primary/5 to-accent/5 rounded-lg p-4 mb-6" data-tour="welcome-card">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-3">
@@ -85,7 +88,7 @@ export default function OrgInstructorDashboard() {
         </div>
       )}
       
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between" data-tour="welcome-card">
         <div>
           <h1 className="text-3xl font-bold">Instructor Dashboard</h1>
           <p className="text-muted-foreground mt-2">
@@ -98,8 +101,7 @@ export default function OrgInstructorDashboard() {
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {quickStats.map((stat, index) => (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" data-tour="key-metrics">{quickStats.map((stat, index) => (
           <Card key={index}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">{stat.label}</CardTitle>
@@ -117,10 +119,10 @@ export default function OrgInstructorDashboard() {
       </div>
 
       {/* Main Content Tabs */}
-      <Tabs defaultValue="courses" className="space-y-4">
+      <Tabs defaultValue="courses" className="space-y-4" data-tour="recent-activity">
         <TabsList>
           <TabsTrigger value="courses">Courses</TabsTrigger>
-          <TabsTrigger value="students">Students</TabsTrigger>
+          <TabsTrigger value="students" data-tour="students-nav">Students</TabsTrigger>
           <TabsTrigger value="goals">Goals</TabsTrigger>
           <TabsTrigger value="notes">Notes</TabsTrigger>
         </TabsList>

@@ -21,6 +21,7 @@ import { useStudentPortalContext } from '@/hooks/useStudentPortalContext';
 import { useOrgContext } from './OrgContext';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { TourHelpButton } from '@/components/tour/TourHelpButton';
 
 const OrgHeader = () => {
   const { user, signOut } = useAuth();
@@ -108,6 +109,9 @@ const OrgHeader = () => {
 
         {/* Right Side Actions */}
         <div className="flex items-center gap-2">
+          {/* Help & Tours Button */}
+          <TourHelpButton />
+          
           {/* Language Switcher */}
           <LanguageSwitcher />
 

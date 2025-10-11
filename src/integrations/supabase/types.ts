@@ -5207,6 +5207,14 @@ export type Database = {
           access_revoked_at: string | null
           access_revoked_reason: string | null
           created_at: string
+          has_seen_ai_assistant_tour: boolean | null
+          has_seen_courses_tour: boolean | null
+          has_seen_dashboard_tour: boolean | null
+          has_seen_goals_notes_tour: boolean | null
+          has_seen_groups_tour: boolean | null
+          has_seen_iep_tour: boolean | null
+          has_seen_settings_tour: boolean | null
+          has_seen_students_tour: boolean | null
           id: string
           invitation_link: string | null
           joined_at: string | null
@@ -5220,6 +5228,14 @@ export type Database = {
           access_revoked_at?: string | null
           access_revoked_reason?: string | null
           created_at?: string
+          has_seen_ai_assistant_tour?: boolean | null
+          has_seen_courses_tour?: boolean | null
+          has_seen_dashboard_tour?: boolean | null
+          has_seen_goals_notes_tour?: boolean | null
+          has_seen_groups_tour?: boolean | null
+          has_seen_iep_tour?: boolean | null
+          has_seen_settings_tour?: boolean | null
+          has_seen_students_tour?: boolean | null
           id?: string
           invitation_link?: string | null
           joined_at?: string | null
@@ -5233,6 +5249,14 @@ export type Database = {
           access_revoked_at?: string | null
           access_revoked_reason?: string | null
           created_at?: string
+          has_seen_ai_assistant_tour?: boolean | null
+          has_seen_courses_tour?: boolean | null
+          has_seen_dashboard_tour?: boolean | null
+          has_seen_goals_notes_tour?: boolean | null
+          has_seen_groups_tour?: boolean | null
+          has_seen_iep_tour?: boolean | null
+          has_seen_settings_tour?: boolean | null
+          has_seen_students_tour?: boolean | null
           id?: string
           invitation_link?: string | null
           joined_at?: string | null
@@ -9669,6 +9693,10 @@ export type Database = {
           p_resource_type: string
           p_user_id: string
         }
+        Returns: undefined
+      }
+      mark_tour_complete: {
+        Args: { p_org_id: string; p_tour_name: string; p_user_id: string }
         Returns: undefined
       }
       migrate_existing_scorm_lessons: {
