@@ -26,7 +26,7 @@ export function useEmailInvitation() {
     mutationFn: async ({ orgId, email, role = 'student' }: {
       orgId: string;
       email: string;
-      role?: 'student' | 'instructor';
+      role?: 'owner' | 'instructor' | 'student' | 'instructor_aide' | 'viewer';
     }) => {
       // Call new token-based edge function
       const { data, error } = await supabase.functions.invoke('generate-org-invite', {
@@ -65,9 +65,33 @@ export function useEmailInvitation() {
     },
     onError: (error: any) => {
       console.error('Error sending invitation:', error);
+      
+      // Try to extract detailed error message from edge function response
+      let errorMessage = "There was an error sending the invitation email.";
+      
+      if (error.context?.body) {
+        try {
+          const errorBody = typeof error.context.body === 'string' 
+            ? JSON.parse(error.context.body) 
+            : error.context.body;
+          
+          if (errorBody.error) {
+            errorMessage = errorBody.error;
+            if (errorBody.details) {
+              errorMessage += ` (${errorBody.details})`;
+            }
+          }
+        } catch (e) {
+          // If parsing fails, use the error message directly
+          errorMessage = error.message || errorMessage;
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: "Failed to Send Invitation",
-        description: error.message || "There was an error sending the invitation email.",
+        description: errorMessage,
         variant: "destructive",
       });
     },

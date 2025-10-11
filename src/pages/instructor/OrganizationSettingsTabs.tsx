@@ -56,9 +56,8 @@ const ACCENT_PRESETS = [
 
 const roleDescriptions = {
   owner: 'Full org management (members, courses, settings, subscriptions)',
-  admin: 'Full org management (members, courses, settings) - cannot manage subscriptions',
   instructor: 'Create/assign courses, view analytics for their students',
-  'instructor-aide': 'Assist instructors (no org settings)',
+  instructor_aide: 'Assist instructors (no org settings)',
   student: 'Access assigned courses and complete learning activities',
   viewer: 'Read-only analytics and rosters'
 };
@@ -108,7 +107,7 @@ export default function OrganizationSettingsTabs() {
     }
   };
 
-  const handleChangeRole = (userId: string, newRole: 'owner' | 'admin' | 'instructor' | 'instructor_aide' | 'viewer' | 'student') => {
+  const handleChangeRole = (userId: string, newRole: 'owner' | 'instructor' | 'instructor_aide' | 'viewer' | 'student') => {
     changeRole({ userId, newRole });
   };
 
@@ -206,7 +205,7 @@ export default function OrganizationSettingsTabs() {
         await emailInviteMutation.mutateAsync({
           orgId: currentOrg.organization_id,
           email: email.trim(),
-          role: selectedRole as 'student' | 'instructor'
+          role: selectedRole as 'owner' | 'instructor' | 'student' | 'instructor_aide' | 'viewer'
         });
       }
       
@@ -649,10 +648,10 @@ export default function OrganizationSettingsTabs() {
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="admin">Admin</SelectItem>
+                                <SelectItem value="owner">Owner</SelectItem>
                                 <SelectItem value="instructor">Instructor</SelectItem>
                                 <SelectItem value="student">Student</SelectItem>
-                                <SelectItem value="instructor-aide">Instructor Aide</SelectItem>
+                                <SelectItem value="instructor_aide">Instructor Aide</SelectItem>
                                 <SelectItem value="viewer">Viewer</SelectItem>
                               </SelectContent>
                             </Select>

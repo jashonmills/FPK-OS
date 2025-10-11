@@ -12,7 +12,7 @@ const corsHeaders = {
 interface GenerateInviteRequest {
   orgId: string;
   email: string;
-  role: 'owner' | 'instructor' | 'student' | 'instructor_aide' | 'viewer' | 'admin';
+  role: 'owner' | 'instructor' | 'student' | 'instructor_aide' | 'viewer';
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -81,11 +81,14 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    const validRoles = ['owner', 'instructor', 'student', 'instructor_aide', 'viewer', 'admin'];
+    const validRoles = ['owner', 'instructor', 'student', 'instructor_aide', 'viewer'];
     if (!validRoles.includes(role)) {
       console.error("Invalid role provided:", role);
       return new Response(
-        JSON.stringify({ error: `Invalid role. Must be one of: ${validRoles.join(', ')}` }),
+        JSON.stringify({ 
+          error: `Invalid role. Must be one of: ${validRoles.join(', ')}`, 
+          details: `Note: 'admin' is a system-wide role, not an organization role. For organization management, use 'owner' or 'instructor'.`
+        }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
