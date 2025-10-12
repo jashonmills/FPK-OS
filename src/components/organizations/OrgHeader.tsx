@@ -3,6 +3,7 @@ import { Search, Settings, User, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useIsMobile } from '@/hooks/use-mobile';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,6 +30,7 @@ const OrgHeader = () => {
   const navigate = useNavigate();
   const { isStudentPortalUser, studentId } = useStudentPortalContext();
   const { currentOrg } = useOrgContext();
+  const isMobile = useIsMobile();
 
   // Fetch student name from org_students table for student-only users
   const { data: studentRecord } = useQuery({
@@ -69,19 +71,20 @@ const OrgHeader = () => {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-16 items-center justify-between px-4">
+      <div className="flex h-16 items-center justify-between px-2 sm:px-4 gap-2">
         {/* Left side - Back button, brand and org switcher */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1 sm:gap-3 min-w-0 flex-1">
           <Button 
             variant="ghost" 
-            size="sm"
+            size={isMobile ? "icon" : "sm"}
             onClick={() => navigate('/dashboard/organizations')}
-            className="hover:text-primary"
+            className="hover:text-primary flex-shrink-0"
+            title="All Organizations"
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            All Organizations
+            <ArrowLeft className="h-4 w-4" />
+            {!isMobile && <span className="ml-2">All Organizations</span>}
           </Button>
-          <div className="hidden sm:flex items-center gap-3 ml-4">
+          <div className="hidden md:flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg flex items-center justify-center">
               <img 
                 src="/assets/fpk-character-logo.png" 
@@ -91,7 +94,7 @@ const OrgHeader = () => {
             </div>
             <span className="font-semibold text-lg">Organizations</span>
           </div>
-          <div className="ml-4">
+          <div className="min-w-0 flex-shrink">
             <OrgSwitcher />
           </div>
         </div>
@@ -108,12 +111,12 @@ const OrgHeader = () => {
         </div>
 
         {/* Right Side Actions */}
-        <div className="flex items-center gap-2">
-          {/* Help & Tours Button */}
-          <TourHelpButton />
+        <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+          {/* Help & Tours Button - Hidden on mobile */}
+          {!isMobile && <TourHelpButton />}
           
-          {/* Language Switcher */}
-          <LanguageSwitcher />
+          {/* Language Switcher - Hidden on mobile */}
+          {!isMobile && <LanguageSwitcher />}
 
           {/* Notifications */}
           <NotificationDropdown />
@@ -121,14 +124,14 @@ const OrgHeader = () => {
           {/* User Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="flex items-center gap-2 px-2">
+              <Button variant="ghost" className="flex items-center gap-2 px-1 sm:px-2">
                 <Avatar className="h-8 w-8">
                   <AvatarImage src={profile?.avatar_url || ""} alt={getDisplayName()} />
                   <AvatarFallback className="fpk-gradient text-white text-sm">
                     {getInitials()}
                   </AvatarFallback>
                 </Avatar>
-                <span className="hidden sm:block font-medium">{getDisplayName()}</span>
+                <span className="hidden md:block font-medium truncate max-w-[120px]">{getDisplayName()}</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">

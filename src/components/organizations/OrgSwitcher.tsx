@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
+import { useIsMobile } from '@/hooks/use-mobile';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,6 +23,7 @@ export function OrgSwitcher() {
     switchToPersonal,
     isLoading 
   } = useOrgContext();
+  const isMobile = useIsMobile();
 
   if (isLoading) {
     return (
@@ -38,25 +40,28 @@ export function OrgSwitcher() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="flex items-center gap-2 w-full sm:w-auto sm:min-w-[200px] justify-between">
-          <div className="flex items-center gap-2">
+        <Button 
+          variant="outline" 
+          className="flex items-center gap-1 sm:gap-2 sm:min-w-[200px] justify-between h-9 px-2 sm:px-3 max-w-[180px] sm:max-w-none"
+        >
+          <div className="flex items-center gap-1 sm:gap-2 min-w-0">
             {isPersonalMode ? (
-              <User className="h-4 w-4" />
+              <User className="h-4 w-4 flex-shrink-0" />
             ) : (
-              <Building2 className="h-4 w-4" />
+              <Building2 className="h-4 w-4 flex-shrink-0" />
             )}
-            <div className="flex flex-col items-start">
-              <span className="text-sm font-medium truncate max-w-[120px]">
+            <div className="flex flex-col items-start min-w-0">
+              <span className="text-xs sm:text-sm font-medium truncate max-w-[100px] sm:max-w-[140px]">
                 {currentContext}
               </span>
-              {currentRole && (
+              {currentRole && !isMobile && (
                 <Badge variant="secondary" className="text-xs h-4 px-1">
                   {currentRole}
                 </Badge>
               )}
             </div>
           </div>
-          <ChevronDown className="h-4 w-4" />
+          <ChevronDown className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-[250px]">
