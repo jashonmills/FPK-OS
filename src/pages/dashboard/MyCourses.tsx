@@ -547,6 +547,7 @@ const VIDEO_PRODUCTION_COURSE = {
     const isIntroductionToScience = course.id === 'interactive-science';
     const isGeometryFundamentals = course.id === 'geometry';
     const isELTEmpoweringLearning = course.id === 'elt-empowering-learning-techniques';
+    const isVideoProduction = course.id === 'introduction-video-production';
 
     // Handle enrollment for hardcoded courses
     const handleEnrollment = async () => {
@@ -646,6 +647,10 @@ const VIDEO_PRODUCTION_COURSE = {
       
       if (course.id === 'el-handwriting') {
         return '/courses/el-handwriting';
+      }
+      
+      if (isVideoProduction) {
+        return '/courses/introduction-video-production';
       }
       
       const identifier = course.slug || course.id;
