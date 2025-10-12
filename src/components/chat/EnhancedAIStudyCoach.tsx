@@ -347,7 +347,7 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
     : undefined;
 
   return (
-    <div className="flex flex-col h-full max-h-full overflow-hidden gap-4">
+    <div className="flex flex-col h-full max-h-full gap-4">{/* Removed overflow-hidden to allow scrolling */}
       {/* Onboarding for first-time users */}
       <ModeOnboarding onComplete={() => {}} userRole={currentOrg?.role} />
       
@@ -390,7 +390,7 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
       {socraticMode ? (
         <>
           {!session && !isPromoting && (
-            <div className="px-2 sm:px-4">
+            <div className="flex-1 overflow-y-auto px-2 sm:px-4">
               <SocraticSessionPanel
                 onStartSession={handleStartSocraticSession}
                 onCancel={() => {
