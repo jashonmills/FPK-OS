@@ -24,9 +24,9 @@ export default function FullScreenGamePage() {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-background">
+    <div className="fixed inset-0 flex flex-col bg-background">
       {/* Header with Back button */}
-      <header className="flex items-center gap-3 p-4 border-b bg-card">
+      <header className="flex items-center gap-3 p-4 border-b bg-card shrink-0">
         <Button 
           variant="outline" 
           size="icon"
@@ -38,7 +38,7 @@ export default function FullScreenGamePage() {
       </header>
 
       {/* Iframe fills the rest of the screen */}
-      <main className="flex-1 overflow-hidden">
+      <main className="flex-1 min-h-0">
         <iframe
           src={gameUrl}
           title={gameTitle}
