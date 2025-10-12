@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
+import { OrgButton as Button } from '@/components/org/OrgButton';
 import { Mail, Phone, UserCircle, Briefcase, Building2, MoreVertical, UserMinus, UserCog } from 'lucide-react';
 import { OrgMember } from '@/hooks/useOrgMembers';
 import {

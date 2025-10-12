@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { OrgButton } from '@/components/org/OrgButton';
 import { UserPlus, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -56,7 +56,7 @@ export function BulkEnrollButton({ orgId }: BulkEnrollButtonProps) {
 
   return (
     <>
-      <Button
+      <OrgButton
         onClick={() => setShowConfirmDialog(true)}
         disabled={isEnrolling}
         variant="outline"
@@ -73,7 +73,7 @@ export function BulkEnrollButton({ orgId }: BulkEnrollButtonProps) {
             Bulk Enroll Students
           </>
         )}
-      </Button>
+      </OrgButton>
 
       <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
         <AlertDialogContent>

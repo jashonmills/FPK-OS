@@ -6,7 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+import { OrgButton } from '@/components/org/OrgButton';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -135,13 +135,13 @@ export function SimpleInviteDialog({ open, onOpenChange, organizationId }: Simpl
                     onChange={(e) => setEmail(e.target.value)}
                   />
                 </div>
-                <Button 
+                <OrgButton 
                   onClick={handleEmailInvite} 
                   disabled={isLoading || !email.trim()}
                   className="w-full"
                 >
                   {isLoading ? 'Sending...' : 'Send Invitation'}
-                </Button>
+                </OrgButton>
               </CardContent>
             </Card>
           </TabsContent>
@@ -159,16 +159,16 @@ export function SimpleInviteDialog({ open, onOpenChange, organizationId }: Simpl
               </CardHeader>
               <CardContent className="space-y-4">
                 {!inviteLink ? (
-                  <Button onClick={generateInviteLink} className="w-full">
+                  <OrgButton onClick={generateInviteLink} className="w-full">
                     Generate Invite Link
-                  </Button>
+                  </OrgButton>
                 ) : (
                   <div className="space-y-3">
                     <div className="p-3 bg-muted rounded-lg">
                       <p className="text-sm break-all">{inviteLink}</p>
                     </div>
                     <div className="flex gap-2">
-                      <Button 
+                      <OrgButton 
                         onClick={copyToClipboard}
                         variant="outline"
                         className="flex-1"
@@ -184,10 +184,10 @@ export function SimpleInviteDialog({ open, onOpenChange, organizationId }: Simpl
                             Copy Link
                           </>
                         )}
-                      </Button>
-                      <Button onClick={generateInviteLink} variant="outline">
+                      </OrgButton>
+                      <OrgButton onClick={generateInviteLink} variant="outline">
                         Generate New
-                      </Button>
+                      </OrgButton>
                     </div>
                   </div>
                 )}

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { OrgButton } from '@/components/org/OrgButton';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
   Tooltip,
@@ -139,38 +139,38 @@ export function StudentActivityHeatmap({ orgId, className }: StudentActivityHeat
           
           {/* Status Filter Buttons */}
           <div className="flex gap-1">
-            <Button
+            <OrgButton
               variant={filterStatus === 'all' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setFilterStatus('all')}
               className="text-xs"
             >
               All ({students.length})
-            </Button>
-            <Button
+            </OrgButton>
+            <OrgButton
               variant={filterStatus === 'active' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setFilterStatus('active')}
               className="text-xs text-green-600 border-green-300 hover:bg-green-50"
             >
               Active ({statusCounts.active})
-            </Button>
-            <Button
+            </OrgButton>
+            <OrgButton
               variant={filterStatus === 'caution' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setFilterStatus('caution')}
               className="text-xs text-yellow-600 border-yellow-300 hover:bg-yellow-50"
             >
               Caution ({statusCounts.caution})
-            </Button>
-            <Button
+            </OrgButton>
+            <OrgButton
               variant={filterStatus === 'struggling' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setFilterStatus('struggling')}
               className="text-xs text-red-600 border-red-300 hover:bg-red-50"
             >
               Help Needed ({statusCounts.struggling})
-            </Button>
+            </OrgButton>
           </div>
         </div>
       </CardHeader>
