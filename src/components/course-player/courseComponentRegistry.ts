@@ -23,6 +23,21 @@ import { ELHandwritingEmulationDeepDiveLesson } from '@/components/course/el-han
 import { ELHandwritingBeyondDeepDiveLesson } from '@/components/course/el-handwriting-lessons/ELHandwritingBeyondDeepDiveLesson';
 import { ELHandwritingFinalTestLesson } from '@/components/course/el-handwriting-lessons/ELHandwritingFinalTestLesson';
 
+// EL Optimal Learning State Components
+import { IntroductionLesson } from '@/components/course/learning-state-lessons/IntroductionLesson';
+import { TechniquesLesson } from '@/components/course/learning-state-lessons/TechniquesLesson';
+import { BigStrongTreeLesson } from '@/components/course/learning-state-lessons/BigStrongTreeLesson';
+import { EnergyBearLesson } from '@/components/course/learning-state-lessons/EnergyBearLesson';
+import { FiveFourThreeTwoOneLesson } from '@/components/course/learning-state-lessons/FiveFourThreeTwoOneLesson';
+import { LabyrinthLesson } from '@/components/course/learning-state-lessons/LabyrinthLesson';
+import { BreathingLesson } from '@/components/course/learning-state-lessons/BreathingLesson';
+import { PhoenixBreathLesson } from '@/components/course/learning-state-lessons/PhoenixBreathLesson';
+import { SandTimerLesson } from '@/components/course/learning-state-lessons/SandTimerLesson';
+import { RaisingBookScreenLesson } from '@/components/course/learning-state-lessons/RaisingBookScreenLesson';
+import { LookingUpLesson } from '@/components/course/learning-state-lessons/LookingUpLesson';
+import { WorkingTimeLimitsLesson } from '@/components/course/learning-state-lessons/WorkingTimeLimitsLesson';
+import { UseImaginationLesson } from '@/components/course/learning-state-lessons/UseImaginationLesson';
+
 /**
  * Registry of all course lesson configurations
  * Key: course slug or ID (matches content_component from database)
@@ -104,8 +119,40 @@ export const COURSE_COMPONENT_REGISTRY: Record<string, CourseLesson[]> = {
     }
   ],
   
+  'optimal-learning-state': [
+    { id: 1, title: "Introduction", description: "Getting Into The Most Effective Learning State", component: IntroductionLesson, unit: "Foundation", unitColor: "bg-blue-100 text-blue-700" },
+    { id: 2, title: "Learning Techniques", description: "Overview of techniques for optimal learning", component: TechniquesLesson, unit: "Foundation", unitColor: "bg-blue-100 text-blue-700" },
+    { id: 3, title: "Big Strong Tree", description: "Planting and grounding technique", component: BigStrongTreeLesson, unit: "Grounding Techniques", unitColor: "bg-green-100 text-green-700" },
+    { id: 4, title: "Your Energy Bear", description: "Using your energy bear for grounding", component: EnergyBearLesson, unit: "Grounding Techniques", unitColor: "bg-green-100 text-green-700" },
+    { id: 5, title: "5, 4, 3, 2, 1 Technique", description: "Sensory grounding method", component: FiveFourThreeTwoOneLesson, unit: "Grounding Techniques", unitColor: "bg-green-100 text-green-700" },
+    { id: 6, title: "Labyrinths", description: "Using labyrinths for focus and brain integration", component: LabyrinthLesson, unit: "Focus Techniques", unitColor: "bg-purple-100 text-purple-700" },
+    { id: 7, title: "Box Breathing", description: "Breathing technique for calm and control", component: BreathingLesson, unit: "Breathing Techniques", unitColor: "bg-indigo-100 text-indigo-700" },
+    { id: 8, title: "Phoenix Flames Breath", description: "Empowering breath technique", component: PhoenixBreathLesson, unit: "Breathing Techniques", unitColor: "bg-indigo-100 text-indigo-700" },
+    { id: 9, title: "Sand Timer", description: "Using timers for regulation and focus", component: SandTimerLesson, unit: "Regulation Tools", unitColor: "bg-orange-100 text-orange-700" },
+    { id: 10, title: "Raising Book/Screen", description: "Optimal positioning for learning materials", component: RaisingBookScreenLesson, unit: "Learning Environment", unitColor: "bg-yellow-100 text-yellow-700" },
+    { id: 11, title: "Looking Up", description: "Visual positioning techniques", component: LookingUpLesson, unit: "Learning Environment", unitColor: "bg-yellow-100 text-yellow-700" },
+    { id: 12, title: "Working Time Limits", description: "Managing focus and concentration periods", component: WorkingTimeLimitsLesson, unit: "Learning Environment", unitColor: "bg-yellow-100 text-yellow-700" },
+    { id: 13, title: "Use Their Imagination", description: "Developing visualization and creative thinking", component: UseImaginationLesson, unit: "Creativity Tools", unitColor: "bg-pink-100 text-pink-700" }
+  ],
+  
+  // Aliases for backward compatibility
+  'learning-state-beta': [
+    { id: 1, title: "Introduction", description: "Getting Into The Most Effective Learning State", component: IntroductionLesson, unit: "Foundation", unitColor: "bg-blue-100 text-blue-700" },
+    { id: 2, title: "Learning Techniques", description: "Overview of techniques for optimal learning", component: TechniquesLesson, unit: "Foundation", unitColor: "bg-blue-100 text-blue-700" },
+    { id: 3, title: "Big Strong Tree", description: "Planting and grounding technique", component: BigStrongTreeLesson, unit: "Grounding Techniques", unitColor: "bg-green-100 text-green-700" },
+    { id: 4, title: "Your Energy Bear", description: "Using your energy bear for grounding", component: EnergyBearLesson, unit: "Grounding Techniques", unitColor: "bg-green-100 text-green-700" },
+    { id: 5, title: "5, 4, 3, 2, 1 Technique", description: "Sensory grounding method", component: FiveFourThreeTwoOneLesson, unit: "Grounding Techniques", unitColor: "bg-green-100 text-green-700" },
+    { id: 6, title: "Labyrinths", description: "Using labyrinths for focus and brain integration", component: LabyrinthLesson, unit: "Focus Techniques", unitColor: "bg-purple-100 text-purple-700" },
+    { id: 7, title: "Box Breathing", description: "Breathing technique for calm and control", component: BreathingLesson, unit: "Breathing Techniques", unitColor: "bg-indigo-100 text-indigo-700" },
+    { id: 8, title: "Phoenix Flames Breath", description: "Empowering breath technique", component: PhoenixBreathLesson, unit: "Breathing Techniques", unitColor: "bg-indigo-100 text-indigo-700" },
+    { id: 9, title: "Sand Timer", description: "Using timers for regulation and focus", component: SandTimerLesson, unit: "Regulation Tools", unitColor: "bg-orange-100 text-orange-700" },
+    { id: 10, title: "Raising Book/Screen", description: "Optimal positioning for learning materials", component: RaisingBookScreenLesson, unit: "Learning Environment", unitColor: "bg-yellow-100 text-yellow-700" },
+    { id: 11, title: "Looking Up", description: "Visual positioning techniques", component: LookingUpLesson, unit: "Learning Environment", unitColor: "bg-yellow-100 text-yellow-700" },
+    { id: 12, title: "Working Time Limits", description: "Managing focus and concentration periods", component: WorkingTimeLimitsLesson, unit: "Learning Environment", unitColor: "bg-yellow-100 text-yellow-700" },
+    { id: 13, title: "Use Their Imagination", description: "Developing visualization and creative thinking", component: UseImaginationLesson, unit: "Creativity Tools", unitColor: "bg-pink-100 text-pink-700" }
+  ],
+  
   // Add more courses here as they are migrated:
-  // 'optimal-learning-state': [...],
   // 'interactive-algebra': [...],
   // etc.
 };

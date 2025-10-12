@@ -642,6 +642,12 @@ const VIDEO_PRODUCTION_COURSE = {
 
     // Fixed course route logic
     const getCourseRoute = () => {
+      // Check if course has been migrated to new Universal Player
+      if (course.framework_type === 'sequential' && course.content_component) {
+        return `/courses/player/${course.slug || course.id}`;
+      }
+      
+      // Legacy routing for non-migrated courses
       if (isOptimalLearningState) {
         return '/courses/optimal-learning-state';
       }
