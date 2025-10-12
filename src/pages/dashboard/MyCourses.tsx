@@ -528,15 +528,23 @@ const VIDEO_PRODUCTION_COURSE = {
       const matchesDifficulty = difficultyFilter === 'all' || course.difficulty_level === difficultyFilter;
       return matchesSearch && matchesDifficulty;
     }).sort((a, b) => {
-      // Empowering Learning courses should be first
-      const empoweringLearningIds = ['el-handwriting', 'empowering-learning-handwriting', 'empowering-learning-numeracy', 'empowering-learning-reading', 'el-spelling-reading', 'optimal-learning-state'];
-      const aIsEmpowering = empoweringLearningIds.includes(a.id);
-      const bIsEmpowering = empoweringLearningIds.includes(b.id);
+      // Use centralized EL_COURSE_IDS array for consistency
+      const aIsEL = EL_COURSE_IDS.includes(a.id);
+      const bIsEL = EL_COURSE_IDS.includes(b.id);
       
-      if (aIsEmpowering && !bIsEmpowering) return -1;
-      if (!aIsEmpowering && bIsEmpowering) return 1;
+      // EL courses come first
+      if (aIsEL && !bIsEL) return -1;
+      if (!aIsEL && bIsEL) return 1;
       
-      // Then other courses by name
+      // Both are EL courses - sort by position in EL_COURSE_IDS array
+      // This ensures "EL Optimal Learning State" displays first
+      if (aIsEL && bIsEL) {
+        const aIndex = EL_COURSE_IDS.indexOf(a.id);
+        const bIndex = EL_COURSE_IDS.indexOf(b.id);
+        return aIndex - bIndex;
+      }
+      
+      // Neither are EL courses - keep original order
       return 0;
     });
   };

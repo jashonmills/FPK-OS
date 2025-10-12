@@ -163,6 +163,9 @@ const CourseCreationWizard = lazy(() => import("./components/course-builder/Cour
 // Native Course Player
 const NativeCoursePlayer = lazy(() => import("./components/native-courses/NativeCoursePlayer"));
 
+// Universal Course Player - Project Phoenix
+const UniversalCoursePlayer = lazy(() => import("./components/course-player/UniversalCoursePlayer").then(m => ({ default: m.UniversalCoursePlayer })));
+
 // Interactive Course Pages
 const InteractiveLinearEquationsCoursePage = lazy(() => import("./pages/courses/InteractiveLinearEquationsCoursePage"));
 const InteractiveTrigonometryCoursePage = lazy(() => import("./pages/courses/InteractiveTrigonometryCoursePage"));
@@ -498,6 +501,18 @@ const App: React.FC = () => {
           } />
           
           {/* Interactive Course Routes */}
+          {/* Universal Course Player - Project Phoenix POC */}
+          <Route path="/courses/player/:courseSlug" element={
+            <RouteProtector>
+              <LazyRoute><UniversalCoursePlayer /></LazyRoute>
+            </RouteProtector>
+          } />
+          <Route path="/courses/player/:courseSlug/:lessonId" element={
+            <RouteProtector>
+              <LazyRoute><UniversalCoursePlayer /></LazyRoute>
+            </RouteProtector>
+          } />
+          
           <Route path="/courses/interactive-linear-equations" element={
             <RouteProtector>
               <LazyRoute><InteractiveLinearEquationsCoursePage /></LazyRoute>

@@ -1390,6 +1390,7 @@ export type Database = {
       courses: {
         Row: {
           asset_path: string | null
+          content_component: string | null
           course_visibility: string | null
           created_at: string | null
           created_by: string | null
@@ -1398,6 +1399,7 @@ export type Database = {
           discoverable: boolean | null
           duration_minutes: number | null
           featured: boolean | null
+          framework_type: string | null
           id: string
           instructor_name: string | null
           is_free: boolean | null
@@ -1415,6 +1417,7 @@ export type Database = {
         }
         Insert: {
           asset_path?: string | null
+          content_component?: string | null
           course_visibility?: string | null
           created_at?: string | null
           created_by?: string | null
@@ -1423,6 +1426,7 @@ export type Database = {
           discoverable?: boolean | null
           duration_minutes?: number | null
           featured?: boolean | null
+          framework_type?: string | null
           id: string
           instructor_name?: string | null
           is_free?: boolean | null
@@ -1440,6 +1444,7 @@ export type Database = {
         }
         Update: {
           asset_path?: string | null
+          content_component?: string | null
           course_visibility?: string | null
           created_at?: string | null
           created_by?: string | null
@@ -1448,6 +1453,7 @@ export type Database = {
           discoverable?: boolean | null
           duration_minutes?: number | null
           featured?: boolean | null
+          framework_type?: string | null
           id?: string
           instructor_name?: string | null
           is_free?: boolean | null
