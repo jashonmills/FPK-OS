@@ -533,8 +533,8 @@ const VIDEO_PRODUCTION_COURSE = {
 
   const CourseCard = ({ course, isEnrolled = false }: { course: any; isEnrolled?: boolean }) => {
     const progress = isEnrolled ? getCourseProgress(course.id) : null;
-    const isOptimalLearningState = course.id === 'optimal-learning-state';
-    const isEmpoweringLearningSpelling = course.id === 'el-spelling-reading';
+    const isOptimalLearningState = course.id === 'optimal-learning-state' || course.slug === 'optimal-learning-state' || course.id === 'learning-state-beta';
+    const isEmpoweringLearningSpelling = course.id === 'el-spelling-reading' || course.slug === 'el-spelling-reading';
     const isEmpoweringLearningReading = course.id === 'empowering-learning-reading';
     const isEmpoweringLearningNumeracy = course.id === 'empowering-learning-numeracy';
     const isEmpoweringLearningHandwriting = course.id === 'empowering-learning-handwriting';
@@ -547,7 +547,7 @@ const VIDEO_PRODUCTION_COURSE = {
     const isIntroductionToScience = course.id === 'interactive-science';
     const isGeometryFundamentals = course.id === 'geometry';
     const isELTEmpoweringLearning = course.id === 'elt-empowering-learning-techniques';
-    const isVideoProduction = course.id === 'introduction-video-production';
+    const isVideoProduction = course.id === 'introduction-video-production' || course.slug === 'introduction-video-production';
 
     // Handle enrollment for hardcoded courses
     const handleEnrollment = async () => {
