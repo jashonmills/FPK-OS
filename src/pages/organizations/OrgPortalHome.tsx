@@ -111,24 +111,24 @@ export default function OrgPortalHome() {
     return (
       <div className="container mx-auto px-6 py-8 space-y-6">
         {/* Welcome Card */}
-        <Card className="bg-orange-500/65 border-orange-400/50">
+        <Card className="bg-brand-accent border-brand-accent/50">
           <CardHeader>
             <div className="flex items-center gap-4">
               {branding?.logo_url && (
                 <img src={branding.logo_url} alt="Organization logo" className="h-16 w-16 object-contain" />
               )}
               <div>
-                <CardTitle className="text-white text-2xl">Welcome to {currentOrg.organizations?.name}</CardTitle>
-                <CardDescription className="text-white/80">Student Dashboard</CardDescription>
+                <CardTitle className="text-brand-accent-foreground text-2xl">Welcome to {currentOrg.organizations?.name}</CardTitle>
+                <CardDescription className="text-brand-accent-foreground/80">Student Dashboard</CardDescription>
               </div>
             </div>
           </CardHeader>
         </Card>
 
         {/* XP & Level Card */}
-        <Card className="bg-orange-500/65 border-orange-400/50">
+        <Card className="bg-brand-accent border-brand-accent/50">
           <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
+            <CardTitle className="text-brand-accent-foreground flex items-center gap-2">
               <Star className="h-5 w-5" />
               Your Learning Progress
             </CardTitle>
@@ -143,16 +143,16 @@ export default function OrgPortalHome() {
             
             <div className="grid grid-cols-3 gap-4 mt-4">
               <div className="text-center">
-                <div className="text-2xl font-bold text-white">{userStats?.level || 1}</div>
-                <div className="text-xs text-white/80">Level</div>
+                <div className="text-2xl font-bold text-brand-accent-foreground">{userStats?.level || 1}</div>
+                <div className="text-xs text-brand-accent-foreground/80">Level</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-white">{userStats?.total_xp || 0}</div>
-                <div className="text-xs text-white/80">Total XP</div>
+                <div className="text-2xl font-bold text-brand-accent-foreground">{userStats?.total_xp || 0}</div>
+                <div className="text-xs text-brand-accent-foreground/80">Total XP</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-white">{userStats?.current_streak || 0}</div>
-                <div className="text-xs text-white/80 flex items-center justify-center gap-1">
+                <div className="text-2xl font-bold text-brand-accent-foreground">{userStats?.current_streak || 0}</div>
+                <div className="text-xs text-brand-accent-foreground/80 flex items-center justify-center gap-1">
                   <Flame className="h-3 w-3" />
                   Day Streak
                 </div>
@@ -163,9 +163,9 @@ export default function OrgPortalHome() {
 
         {/* Achievements & Badges */}
         {userStats?.recent_badges && userStats.recent_badges.length > 0 && (
-          <Card className="bg-orange-500/65 border-orange-400/50">
+          <Card className="bg-brand-accent border-brand-accent/50">
             <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
+              <CardTitle className="text-brand-accent-foreground flex items-center gap-2">
                 <Trophy className="h-5 w-5" />
                 Recent Achievements
               </CardTitle>
@@ -173,17 +173,17 @@ export default function OrgPortalHome() {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {userStats.recent_badges.slice(0, 3).map((badge, index) => (
-                  <div key={index} className="flex items-center gap-3 p-3 bg-white/10 rounded-lg">
+                  <div key={index} className="flex items-center gap-3 p-3 bg-background/10 rounded-lg">
                     <Trophy className="h-8 w-8 text-yellow-400" />
                     <div>
-                      <div className="text-white font-semibold">{badge.name}</div>
-                      <div className="text-xs text-white/80">{badge.xp_reward} XP</div>
+                      <div className="text-brand-accent-foreground font-semibold">{badge.name}</div>
+                      <div className="text-xs text-brand-accent-foreground/80">{badge.xp_reward} XP</div>
                     </div>
                   </div>
                 ))}
               </div>
               <div className="mt-4 text-center">
-                <Badge className="bg-white/20 text-white border-white/30">
+                <Badge className="bg-background/20 text-brand-accent-foreground border-brand-accent-foreground/30">
                   {userStats.badges_count || 0} Total Badges
                 </Badge>
               </div>
@@ -193,51 +193,51 @@ export default function OrgPortalHome() {
 
         {/* Course Progress Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="bg-orange-500/65 border-orange-400/50">
+          <Card className="bg-brand-accent border-brand-accent/50">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-white/80">My Courses</CardTitle>
+              <CardTitle className="text-sm font-medium text-brand-accent-foreground/80">My Courses</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-white">{studentStats?.myEnrollments || 0}</div>
-              <p className="text-xs text-white/80">Enrolled</p>
+              <div className="text-2xl font-bold text-brand-accent-foreground">{studentStats?.myEnrollments || 0}</div>
+              <p className="text-xs text-brand-accent-foreground/80">Enrolled</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-orange-500/65 border-orange-400/50">
+          <Card className="bg-brand-accent border-brand-accent/50">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-white/80">Completed</CardTitle>
+              <CardTitle className="text-sm font-medium text-brand-accent-foreground/80">Completed</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-white">{studentStats?.completedCourses || 0}</div>
-              <p className="text-xs text-white/80">Courses finished</p>
+              <div className="text-2xl font-bold text-brand-accent-foreground">{studentStats?.completedCourses || 0}</div>
+              <p className="text-xs text-brand-accent-foreground/80">Courses finished</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-orange-500/65 border-orange-400/50">
+          <Card className="bg-brand-accent border-brand-accent/50">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-white/80">My Goals</CardTitle>
+              <CardTitle className="text-sm font-medium text-brand-accent-foreground/80">My Goals</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-white">{studentStats?.myGoals || 0}</div>
-              <p className="text-xs text-white/80">Active goals</p>
+              <div className="text-2xl font-bold text-brand-accent-foreground">{studentStats?.myGoals || 0}</div>
+              <p className="text-xs text-brand-accent-foreground/80">Active goals</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-orange-500/65 border-orange-400/50">
+          <Card className="bg-brand-accent border-brand-accent/50">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-white/80">Progress</CardTitle>
+              <CardTitle className="text-sm font-medium text-brand-accent-foreground/80">Progress</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-white">{studentStats?.myProgress || 0}%</div>
-              <p className="text-xs text-white/80">Overall completion</p>
+              <div className="text-2xl font-bold text-brand-accent-foreground">{studentStats?.myProgress || 0}%</div>
+              <p className="text-xs text-brand-accent-foreground/80">Overall completion</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Quick Actions */}
-        <Card className="bg-orange-500/65 border-orange-400/50">
+        <Card className="bg-brand-accent border-brand-accent/50">
           <CardHeader>
-            <CardTitle className="text-white">Quick Actions</CardTitle>
+            <CardTitle className="text-brand-accent-foreground">Quick Actions</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-4">
@@ -346,17 +346,17 @@ export default function OrgPortalHome() {
           const cta = getCTALink();
           
           return (
-            <Card key={index} className="bg-orange-500/65 border-orange-400/50">
+            <Card key={index} className="bg-brand-accent border-brand-accent/50">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-white/80">{stat.label}</CardTitle>
-                <stat.icon className="h-4 w-4 text-white/70" />
+                <CardTitle className="text-sm font-medium text-brand-accent-foreground/80">{stat.label}</CardTitle>
+                <stat.icon className="h-4 w-4 text-brand-accent-foreground/70" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-white">{stat.value}</div>
+                <div className="text-2xl font-bold text-brand-accent-foreground">{stat.value}</div>
                 {cta && (
                   <button
                     onClick={cta.onClick}
-                    className="text-xs text-white/80 hover:text-white hover:underline mt-2 transition-all"
+                    className="text-xs text-brand-accent-foreground/80 hover:text-brand-accent-foreground hover:underline mt-2 transition-all"
                   >
                     {cta.text}
                   </button>
@@ -370,17 +370,17 @@ export default function OrgPortalHome() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Progress Overview */}
         <Collapsible defaultOpen={false}>
-          <Card className="bg-orange-500/65 border-orange-400/50">
+          <Card className="bg-brand-accent border-brand-accent/50">
             <CollapsibleTrigger className="w-full group">
-              <CardHeader className="cursor-pointer hover:bg-white/5 transition-colors">
-                <CardTitle className="flex items-center justify-between text-white">
+              <CardHeader className="cursor-pointer hover:bg-background/5 transition-colors">
+                <CardTitle className="flex items-center justify-between text-brand-accent-foreground">
                   <div className="flex items-center space-x-2">
-                    <TrendingUp className="h-5 w-5 text-white/70" />
+                    <TrendingUp className="h-5 w-5 text-brand-accent-foreground/70" />
                     <span>{isStudent ? 'My Progress' : 'Progress Overview'}</span>
                   </div>
-                  <ChevronDown className="h-5 w-5 text-white/70 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                  <ChevronDown className="h-5 w-5 text-brand-accent-foreground/70 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                 </CardTitle>
-                <CardDescription className="text-white/80 text-left">
+                <CardDescription className="text-brand-accent-foreground/80 text-left">
                   {isStudent 
                     ? 'Your personal learning progress in this organization'
                     : 'Current completion rates across all courses'
@@ -393,55 +393,55 @@ export default function OrgPortalHome() {
                 {isStudent ? (
                   studentStats?.myProgress ? (
                     <div className="space-y-3">
-                      <div className="flex justify-between text-sm text-white/80">
+                      <div className="flex justify-between text-sm text-brand-accent-foreground/80">
                         <span>Overall Progress</span>
                         <span>{studentStats.myProgress}%</span>
                       </div>
                       <Progress value={studentStats.myProgress} className="h-2" />
                       <div className="grid grid-cols-2 gap-4 text-center">
                         <div>
-                          <div className="text-2xl font-bold text-white">{studentStats.myEnrollments}</div>
-                          <div className="text-xs text-white/80">Enrolled</div>
+                          <div className="text-2xl font-bold text-brand-accent-foreground">{studentStats.myEnrollments}</div>
+                          <div className="text-xs text-brand-accent-foreground/80">Enrolled</div>
                         </div>
                         <div>
-                          <div className="text-2xl font-bold text-white">{studentStats.completedCourses}</div>
-                          <div className="text-xs text-white/80">Completed</div>
+                          <div className="text-2xl font-bold text-brand-accent-foreground">{studentStats.completedCourses}</div>
+                          <div className="text-xs text-brand-accent-foreground/80">Completed</div>
                         </div>
                       </div>
                     </div>
                   ) : (
                     <div className="text-center py-8">
-                      <TrendingUp className="h-8 w-8 mx-auto text-white/70 mb-2" />
-                      <p className="text-sm text-white/80">No courses enrolled yet</p>
+                      <TrendingUp className="h-8 w-8 mx-auto text-brand-accent-foreground/70 mb-2" />
+                      <p className="text-sm text-brand-accent-foreground/80">No courses enrolled yet</p>
                     </div>
                   )
                 ) : (
                   analytics && (analytics.completionRate > 0 || analytics.averageProgress > 0) ? (
                     <div className="space-y-3">
-                      <div className="flex justify-between text-sm text-white/80">
+                      <div className="flex justify-between text-sm text-brand-accent-foreground/80">
                         <span>Completion Rate</span>
                         <span>{analytics.completionRate}%</span>
                       </div>
                       <Progress value={analytics.completionRate} className="h-2" />
                       <div className="grid grid-cols-2 gap-4 text-center mt-4">
                         <div>
-                          <div className="text-2xl font-bold text-white">{analytics.averageProgress}%</div>
-                          <div className="text-xs text-white/80">Average Progress</div>
+                          <div className="text-2xl font-bold text-brand-accent-foreground">{analytics.averageProgress}%</div>
+                          <div className="text-xs text-brand-accent-foreground/80">Average Progress</div>
                         </div>
                         <div>
-                          <div className="text-2xl font-bold text-white">{analytics.totalLearningHours}h</div>
-                          <div className="text-xs text-white/80">Learning Hours</div>
+                          <div className="text-2xl font-bold text-brand-accent-foreground">{analytics.totalLearningHours}h</div>
+                          <div className="text-xs text-brand-accent-foreground/80">Learning Hours</div>
                         </div>
                       </div>
                     </div>
                   ) : (
                     <div className="text-center py-8">
-                      <TrendingUp className="h-8 w-8 mx-auto text-white/70 mb-2" />
-                      <p className="text-sm text-white/80 mb-3">No progress data available yet</p>
+                      <TrendingUp className="h-8 w-8 mx-auto text-brand-accent-foreground/70 mb-2" />
+                      <p className="text-sm text-brand-accent-foreground/80 mb-3">No progress data available yet</p>
                       <Button 
                         variant="outline" 
                         size="sm"
-                        className="text-white border-white/30 hover:bg-white/20"
+                        className="text-brand-accent-foreground border-brand-accent-foreground/30 hover:bg-background/20"
                         onClick={() => navigate(`/org/${currentOrg?.organization_id}/courses`)}
                       >
                         Assign First Course
@@ -456,17 +456,17 @@ export default function OrgPortalHome() {
 
         {/* Recent Activity */}
         <Collapsible defaultOpen={false}>
-          <Card className="bg-orange-500/65 border-orange-400/50">
+          <Card className="bg-brand-accent border-brand-accent/50">
             <CollapsibleTrigger className="w-full group">
-              <CardHeader className="cursor-pointer hover:bg-white/5 transition-colors">
-                <CardTitle className="flex items-center justify-between text-white">
+              <CardHeader className="cursor-pointer hover:bg-background/5 transition-colors">
+                <CardTitle className="flex items-center justify-between text-brand-accent-foreground">
                   <div className="flex items-center space-x-2">
-                    <Calendar className="h-5 w-5 text-white/70" />
+                    <Calendar className="h-5 w-5 text-brand-accent-foreground/70" />
                     <span>Recent Activity</span>
                   </div>
-                  <ChevronDown className="h-5 w-5 text-white/70 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                  <ChevronDown className="h-5 w-5 text-brand-accent-foreground/70 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                 </CardTitle>
-                <CardDescription className="text-white/80 text-left">
+                <CardDescription className="text-brand-accent-foreground/80 text-left">
                   {isStudent 
                     ? 'Your recent learning activity'
                     : 'Latest updates from your organization'
@@ -480,12 +480,12 @@ export default function OrgPortalHome() {
                   {recentActivity.length > 0 ? (
                     recentActivity.map((activity, index) => (
                       <div key={index} className="flex items-start space-x-3">
-                        <div className="w-2 h-2 bg-white/70 rounded-full mt-2" />
+                        <div className="w-2 h-2 bg-brand-accent-foreground/70 rounded-full mt-2" />
                         <div className="flex-1 space-y-1">
-                          <p className="text-sm font-medium leading-none text-white">
+                          <p className="text-sm font-medium leading-none text-brand-accent-foreground">
                             {activity.event}
                           </p>
-                          <p className="text-sm text-white/80">
+                          <p className="text-sm text-brand-accent-foreground/80">
                             {new Date(activity.created_at).toLocaleString()}
                           </p>
                         </div>
@@ -493,8 +493,8 @@ export default function OrgPortalHome() {
                     ))
                   ) : (
                     <div className="text-center py-8">
-                      <Calendar className="h-8 w-8 mx-auto text-white/70 mb-2" />
-                      <p className="text-sm text-white/80">
+                      <Calendar className="h-8 w-8 mx-auto text-brand-accent-foreground/70 mb-2" />
+                      <p className="text-sm text-brand-accent-foreground/80">
                         {isStudent ? 'No recent activity' : 'No recent activity'}
                       </p>
                     </div>
@@ -510,17 +510,17 @@ export default function OrgPortalHome() {
       {!isStudent && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Progress Trend */}
-          <Card className="bg-orange-500/65 border-orange-400/50">
+          <Card className="bg-brand-accent border-brand-accent/50">
             <CardHeader>
-              <CardTitle className="text-white">Learning Progress Trend</CardTitle>
-              <CardDescription className="text-white/80">
+              <CardTitle className="text-brand-accent-foreground">Learning Progress Trend</CardTitle>
+              <CardDescription className="text-brand-accent-foreground/80">
                 Average completion percentage over the last 6 months
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="h-48 bg-white/10 rounded-lg flex items-center justify-center">
-                  <div className="text-center text-white/70">
+                <div className="h-48 bg-background/10 rounded-lg flex items-center justify-center">
+                  <div className="text-center text-brand-accent-foreground/70">
                     <TrendingUp className="w-12 h-12 mx-auto mb-2" />
                     {analytics && analytics.totalStudents > 0 ? (
                       <>
@@ -538,16 +538,16 @@ export default function OrgPortalHome() {
                 
                 <div className="grid grid-cols-3 gap-4 text-center">
                   <div>
-                    <div className="text-sm text-white/70">Current Progress</div>
-                    <div className="text-xl font-bold text-white">{Math.round(analytics?.averageProgress || 0)}%</div>
+                    <div className="text-sm text-brand-accent-foreground/70">Current Progress</div>
+                    <div className="text-xl font-bold text-brand-accent-foreground">{Math.round(analytics?.averageProgress || 0)}%</div>
                   </div>
                   <div>
-                    <div className="text-sm text-white/70">Active Students</div>
-                    <div className="text-xl font-bold text-white">{analytics?.activeStudents || 0}</div>
+                    <div className="text-sm text-brand-accent-foreground/70">Active Students</div>
+                    <div className="text-xl font-bold text-brand-accent-foreground">{analytics?.activeStudents || 0}</div>
                   </div>
                   <div>
-                    <div className="text-sm text-white/70">Total Students</div>
-                    <div className="text-xl font-bold text-white">{analytics?.totalStudents || 0}</div>
+                    <div className="text-sm text-brand-accent-foreground/70">Total Students</div>
+                    <div className="text-xl font-bold text-brand-accent-foreground">{analytics?.totalStudents || 0}</div>
                   </div>
                 </div>
               </div>
@@ -555,10 +555,10 @@ export default function OrgPortalHome() {
           </Card>
 
           {/* Engagement Metrics */}
-          <Card className="bg-orange-500/65 border-orange-400/50">
+          <Card className="bg-brand-accent border-brand-accent/50">
             <CardHeader>
-              <CardTitle className="text-white">Student Engagement</CardTitle>
-              <CardDescription className="text-white/80">
+              <CardTitle className="text-brand-accent-foreground">Student Engagement</CardTitle>
+              <CardDescription className="text-brand-accent-foreground/80">
                 Weekly engagement metrics and activity levels
               </CardDescription>
             </CardHeader>
@@ -566,14 +566,14 @@ export default function OrgPortalHome() {
               <div className="space-y-4">
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-white">Weekly Engagement</span>
-                    <Badge variant="default" className="bg-white/20 text-white border-white/30">
+                    <span className="text-sm text-brand-accent-foreground">Weekly Engagement</span>
+                    <Badge variant="default" className="bg-background/20 text-brand-accent-foreground border-brand-accent-foreground/30">
                       {Math.round(analytics?.averageProgress || 0)}%
                     </Badge>
                   </div>
-                  <div className="w-full bg-white/20 rounded-full h-2">
+                  <div className="w-full bg-background/20 rounded-full h-2">
                     <div 
-                      className="bg-purple-400 h-2 rounded-full"
+                      className="bg-brand-accent-foreground/70 h-2 rounded-full"
                       style={{ width: `${Math.round(analytics?.averageProgress || 0)}%` }}
                     />
                   </div>
@@ -613,10 +613,10 @@ export default function OrgPortalHome() {
       )}
 
       {/* Quick Actions */}
-      <Card className="bg-orange-500/65 border-orange-400/50">
+      <Card className="bg-brand-accent border-brand-accent/50">
         <CardHeader>
-          <CardTitle className="text-white">Quick Actions</CardTitle>
-          <CardDescription className="text-white/80">
+          <CardTitle className="text-brand-accent-foreground">Quick Actions</CardTitle>
+          <CardDescription className="text-brand-accent-foreground/80">
             {isStudent 
               ? 'Common tasks for your learning'
               : 'Common tasks for organization management'
@@ -628,7 +628,7 @@ export default function OrgPortalHome() {
             {isStudent ? (
               <>
                 <Button 
-                  className="flex items-center space-x-2 bg-white/20 hover:bg-white/30 text-white border-white/30"
+                  className="flex items-center space-x-2 bg-background/20 hover:bg-background/30 text-brand-accent-foreground border-brand-accent-foreground/30"
                   onClick={() => navigate(`/org/${currentOrg?.organization_id}/courses`)}
                 >
                   <BookOpen className="h-4 w-4" />

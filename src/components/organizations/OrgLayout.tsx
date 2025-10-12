@@ -76,9 +76,6 @@ function OrgLayoutContent() {
         <div className="absolute inset-0 bg-black dark-mode-overlay" />
       </div>
       
-      {/* Background gradient overlay */}
-      <div className="fixed inset-0 bg-gradient-to-br from-purple-900/20 via-purple-800/10 to-purple-900/30 pointer-events-none z-0" />
-      
       {/* Main content with higher z-index */}
       <div className="relative z-10">
         {/* Fixed Header */}

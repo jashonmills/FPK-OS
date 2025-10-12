@@ -66,6 +66,10 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
+				'brand-accent': {
+					DEFAULT: 'hsl(var(--brand-accent))',
+					foreground: 'hsl(var(--brand-accent-foreground))'
+				},
 				// FPK University Custom Colors
 				'fpk-purple': '#4C1D6B',  /* Darker purple */
 				'fpk-amber': '#B45309',   /* Darker amber for better contrast */

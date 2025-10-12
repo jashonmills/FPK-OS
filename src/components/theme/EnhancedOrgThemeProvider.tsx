@@ -15,9 +15,9 @@ export function EnhancedOrgThemeProvider({ children }: EnhancedOrgThemeProviderP
     const root = document.documentElement;
 
     if (isPersonalMode || !branding?.theme_accent) {
-      // Reset to default theme
-      root.style.removeProperty('--accent');
-      root.style.removeProperty('--accent-foreground');
+      // Reset to default theme (keep default CSS variable values)
+      root.style.removeProperty('--brand-accent');
+      root.style.removeProperty('--brand-accent-foreground');
       root.style.removeProperty('--org-tile-bg');
       root.style.removeProperty('--org-tile-border');
       root.style.removeProperty('--org-tile-text');
@@ -25,41 +25,38 @@ export function EnhancedOrgThemeProvider({ children }: EnhancedOrgThemeProviderP
       return;
     }
 
-    console.log('🎨 EnhancedOrgThemeProvider: Applying theme', branding.theme_accent);
+    console.log('🎨 EnhancedOrgThemeProvider: Applying brand accent', branding.theme_accent);
 
-    // Apply organization theme using existing theme_accent (already in HSL format)
-    root.style.setProperty('--accent', branding.theme_accent);
+    // Apply organization's brand accent color (overrides CSS variable)
+    root.style.setProperty('--brand-accent', branding.theme_accent);
     
-    // Calculate contrast color with improved threshold for better readability
-    // Using more conservative threshold: colors need to be VERY light before we use dark text
+    // Calculate contrast color for text on the brand accent
     const accent = tinycolor(`hsl(${branding.theme_accent})`);
     const luminance = accent.getLuminance();
     
     // Luminance threshold: 0.6 means only very light colors get dark text
-    // This ensures purple/dark colors always get white text for readability
     const shouldUseDarkText = luminance > 0.6;
     const contrast = shouldUseDarkText ? '#0f172a' : '#ffffff';
     const contrastHsl = tinycolor(contrast).toHsl();
     
-    root.style.setProperty('--accent-foreground', `${Math.round(contrastHsl.h)} ${Math.round(contrastHsl.s * 100)}% ${Math.round(contrastHsl.l * 100)}%`);
+    root.style.setProperty('--brand-accent-foreground', `${Math.round(contrastHsl.h)} ${Math.round(contrastHsl.s * 100)}% ${Math.round(contrastHsl.l * 100)}%`);
 
-    // Set organization tile colors using space-separated RGB format for CSS variables
+    // Also apply to org-tile colors for backward compatibility
     root.style.setProperty('--org-tile-bg', branding.theme_accent);
     root.style.setProperty('--org-tile-border', branding.theme_accent);
     root.style.setProperty('--org-tile-text', contrast === '#ffffff' ? '255 255 255' : '15 23 42');
 
-    console.log('🎨 EnhancedOrgThemeProvider: Set CSS variables', {
-      '--org-tile-bg': branding.theme_accent,
-      '--org-tile-border': branding.theme_accent,
-      '--org-tile-text': contrast === '#ffffff' ? '255 255 255' : '15 23 42',
+    console.log('🎨 EnhancedOrgThemeProvider: Set brand accent variables', {
+      '--brand-accent': branding.theme_accent,
+      '--brand-accent-foreground': `${Math.round(contrastHsl.h)} ${Math.round(contrastHsl.s * 100)}% ${Math.round(contrastHsl.l * 100)}%`,
       luminance: luminance.toFixed(3),
       usingWhiteText: contrast === '#ffffff'
     });
 
     // Cleanup on unmount
     return () => {
-      root.style.removeProperty('--accent');
-      root.style.removeProperty('--accent-foreground');
+      root.style.removeProperty('--brand-accent');
+      root.style.removeProperty('--brand-accent-foreground');
       root.style.removeProperty('--org-tile-bg');
       root.style.removeProperty('--org-tile-border');
       root.style.removeProperty('--org-tile-text');

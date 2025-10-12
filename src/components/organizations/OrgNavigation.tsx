@@ -135,7 +135,7 @@ export function OrgNavigation() {
         {/* Mobile Menu Button */}
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="fixed top-20 left-4 z-50 p-3 bg-purple-900/90 backdrop-blur-sm rounded-lg text-white shadow-lg md:hidden hover:bg-purple-800/90 transition-colors"
+          className="fixed top-20 left-4 z-50 p-3 bg-brand-accent/90 backdrop-blur-sm rounded-lg text-brand-accent-foreground shadow-lg md:hidden hover:bg-brand-accent/80 transition-colors"
           aria-label="Toggle navigation menu"
         >
           {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -151,7 +151,7 @@ export function OrgNavigation() {
 
         {/* Mobile Navigation */}
         <nav className={cn(
-          "fixed top-0 left-0 w-80 h-full bg-purple-900/95 backdrop-blur-sm transform transition-transform duration-300 z-50 md:hidden",
+          "fixed top-0 left-0 w-80 h-full bg-brand-accent/95 backdrop-blur-sm transform transition-transform duration-300 z-50 md:hidden",
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         )}>
           <div className="pt-16 p-4 overflow-y-auto h-full">
@@ -166,8 +166,8 @@ export function OrgNavigation() {
                     cn(
                       'flex items-center space-x-3 px-4 py-3 rounded-md text-base font-medium transition-colors',
                       isActive
-                        ? 'bg-orange-500/70 text-white'
-                        : 'text-white/80 hover:text-white hover:bg-orange-500/40'
+                        ? 'bg-brand-accent-foreground/20 text-brand-accent-foreground'
+                        : 'text-brand-accent-foreground/80 hover:text-brand-accent-foreground hover:bg-brand-accent-foreground/10'
                     )
                   }
                 >
@@ -186,14 +186,14 @@ export function OrgNavigation() {
   return (
     <TooltipProvider>
       <nav className={cn(
-        "fixed top-16 left-0 h-[calc(100vh-4rem)] bg-purple-900/65 backdrop-blur-sm border-r z-40 hidden md:flex flex-col transition-all duration-300",
+        "fixed top-16 left-0 h-[calc(100vh-4rem)] bg-brand-accent/65 backdrop-blur-sm border-r z-40 hidden md:flex flex-col transition-all duration-300",
         isCollapsed ? "w-16" : "w-64"
       )}>
         {/* Collapse Toggle Button - Always visible at top */}
-        <div className={cn("p-2 border-b border-white/10 flex-shrink-0", isCollapsed && "px-1")}>
+        <div className={cn("p-2 border-b border-brand-accent-foreground/10 flex-shrink-0", isCollapsed && "px-1")}>
           <button
             onClick={toggleCollapse}
-            className="w-full flex items-center justify-center px-3 py-2 rounded-md text-white/80 hover:text-white hover:bg-orange-500/40 transition-colors"
+            className="w-full flex items-center justify-center px-3 py-2 rounded-md text-brand-accent-foreground/80 hover:text-brand-accent-foreground hover:bg-brand-accent-foreground/10 transition-colors"
             aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             {isCollapsed ? (
@@ -220,8 +220,8 @@ export function OrgNavigation() {
                       'flex items-center rounded-md text-sm font-medium transition-colors',
                       isCollapsed ? 'justify-center px-3 py-2' : 'space-x-3 px-3 py-2',
                       isActive
-                        ? 'bg-orange-500/70 text-white'
-                        : 'text-white/80 hover:text-white hover:bg-orange-500/40'
+                        ? 'bg-brand-accent-foreground/20 text-brand-accent-foreground'
+                        : 'text-brand-accent-foreground/80 hover:text-brand-accent-foreground hover:bg-brand-accent-foreground/10'
                     )
                   }
                 >
@@ -236,7 +236,7 @@ export function OrgNavigation() {
                     <TooltipTrigger asChild>
                       {navContent}
                     </TooltipTrigger>
-                    <TooltipContent side="right" className="bg-purple-900 text-white border-purple-700">
+                    <TooltipContent side="right" className="bg-brand-accent text-brand-accent-foreground border-brand-accent/70">
                       <p>{item.label}</p>
                     </TooltipContent>
                   </Tooltip>
