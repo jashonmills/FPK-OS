@@ -12,6 +12,7 @@ import React from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import { useCourses } from '@/hooks/useCourses';
 import { SequentialCoursePlayer } from './SequentialCoursePlayer';
+import { SequentialCourseShell } from './SequentialCourseShell';
 import { getCourseLessons, hasCourseComponents } from './courseComponentRegistry';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -117,7 +118,27 @@ export const UniversalCoursePlayer: React.FC = () => {
   // Route to appropriate player based on framework_type
   switch ((courseData as any).framework_type) {
     case 'sequential': {
-      // Check if we have lesson components registered for this course
+      const contentVersion = (courseData as any).content_version || 'v1';
+      
+      // v2 courses use the new SequentialCourseShell for 100% UI consistency
+      if (contentVersion === 'v2') {
+        return (
+          <SequentialCourseShell
+            courseData={{
+              id: courseData.id,
+              title: courseData.title,
+              description: courseData.description || '',
+              slug: courseSlug || '',
+              background_image: courseData.thumbnail_url || undefined,
+              estimated_hours: courseData.duration_minutes ? Math.ceil(courseData.duration_minutes / 60) : undefined,
+              difficulty_level: (courseData as any).difficulty || 'Beginner',
+              content_version: contentVersion
+            }}
+          />
+        );
+      }
+      
+      // v1 courses still use the old player (legacy support)
       const lessons = getCourseLessons(contentComponent);
       
       if (!lessons) {
@@ -157,7 +178,7 @@ export const UniversalCoursePlayer: React.FC = () => {
           backgroundImage={courseData.thumbnail_url || undefined}
           estimatedHours={courseData.duration_minutes ? Math.ceil(courseData.duration_minutes / 60) : 4}
           difficultyLevel={(courseData as any).difficulty || 'Beginner'}
-          contentVersion={(courseData as any).content_version || 'v1'}
+          contentVersion={contentVersion}
           courseSlug={courseSlug}
         />
       );
