@@ -10,9 +10,16 @@ export const useAuth = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Set a timeout to prevent infinite loading on network errors
+    const loadingTimeout = setTimeout(() => {
+      console.warn("Auth loading timeout - setting loading to false");
+      setLoading(false);
+    }, 5000); // 5 second timeout
+
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        clearTimeout(loadingTimeout);
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
@@ -96,13 +103,23 @@ export const useAuth = () => {
     );
 
     // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    supabase.auth.getSession()
+      .then(({ data: { session } }) => {
+        clearTimeout(loadingTimeout);
+        setSession(session);
+        setUser(session?.user ?? null);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error getting session:", error);
+        clearTimeout(loadingTimeout);
+        setLoading(false);
+      });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      clearTimeout(loadingTimeout);
+      subscription.unsubscribe();
+    };
   }, [navigate]);
 
   const signOut = async () => {
