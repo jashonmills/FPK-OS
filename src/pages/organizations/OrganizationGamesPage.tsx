@@ -69,7 +69,7 @@ const gamesList: Game[] = [
   {
     title: "Addition Journey Quest",
     url: "https://addition-journey-quest.lovable.app/",
-    imageUrl: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/fpk-games-assets/addition-quest-BjQBPkJ2%20(1).jpg",
+    imageUrl: "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/fpk-games-assets/addition-quest-BjQBPkJ2.jpg",
     grades: "Grades 3–6",
     description: "Collect, combine, and conquer addition challenges on an adventure board with power‑ups and quick math checks.",
     outcomes: [
