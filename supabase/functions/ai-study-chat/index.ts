@@ -101,6 +101,50 @@ serve(async (req) => {
 
     const requestParseTime = performance.now() - requestParseStart;
 
+    // SERVER-SIDE ENFORCEMENT: Check if student is allowed to use Free Chat
+    // This prevents students from bypassing UI restrictions via direct API calls
+    if (chatMode !== 'org_admin' && chatMode !== 'socratic' && !socraticMode && !intent) {
+      // Only enforce for students in organizations (not personal mode)
+      if (orgId) {
+        console.log('🔒 Checking Free Chat permissions for org:', orgId);
+        
+        const { data: orgSettings, error: orgError } = await supabase
+          .from('organizations')
+          .select('is_ai_free_chat_enabled')
+          .eq('id', orgId)
+          .maybeSingle();
+
+        if (orgError) {
+          console.error('❌ Error fetching org settings:', orgError);
+          return new Response(
+            JSON.stringify({ 
+              error: 'Could not verify organization settings.',
+              code: 'ORG_SETTINGS_ERROR'
+            }), 
+            { 
+              status: 500, 
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+            }
+          );
+        }
+
+        // Block Free Chat if the organization has disabled it
+        if (orgSettings && orgSettings.is_ai_free_chat_enabled === false) {
+          console.log('🚫 Free Chat mode disabled for this organization');
+          return new Response(
+            JSON.stringify({
+              error: 'Free Chat mode is disabled for your organization. Please use Structured Learning Sessions.',
+              code: 'FREE_CHAT_DISABLED'
+            }),
+            {
+              status: 403,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+            }
+          );
+        }
+      }
+    }
+
     // Handle Socratic session requests FIRST (before regular chat processing)
     if (intent && ['start', 'respond', 'complete'].includes(intent)) {
       console.log('🎓 Socratic session request detected:', {

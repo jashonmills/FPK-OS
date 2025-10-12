@@ -21,10 +21,11 @@ interface EnhancedAIStudyCoachProps {
   flashcards?: any[];
   insights?: any[];
   fixedHeight?: boolean;
+  isFreeChatAllowed?: boolean; // New prop to control Free Chat access
 }
 
 export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
-  const { userId, orgId, chatMode } = props;
+  const { userId, orgId, chatMode, isFreeChatAllowed = true } = props;
   const [socraticMode, setSocraticMode] = useState(false);
   const [showSessionPanel, setShowSessionPanel] = useState(false);
   const [isPromoting, setIsPromoting] = useState(false);
@@ -46,27 +47,12 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
     completeSession
   } = useSocraticSession(userId, orgId);
 
-  // Fetch organization settings to check if General Chat is restricted
+  // Force Socratic mode if Free Chat is disabled
   useEffect(() => {
-    if (orgId || currentOrg?.organization_id) {
-      const fetchOrgSettings = async () => {
-        const { data } = await supabase
-          .from('organizations')
-          .select('restrict_general_chat')
-          .eq('id', orgId || currentOrg?.organization_id)
-          .single();
-        
-        if (data) {
-          setOrgSettings(data);
-          // If general chat is restricted, force structured mode
-          if (data.restrict_general_chat) {
-            setSocraticMode(true);
-          }
-        }
-      };
-      fetchOrgSettings();
+    if (!isFreeChatAllowed && !socraticMode) {
+      setSocraticMode(true);
     }
-  }, [orgId, currentOrg]);
+  }, [isFreeChatAllowed, socraticMode]);
 
   const handleStartSocraticSession = async (topic: string, objective: string) => {
     console.log('handleStartSocraticSession called with:', { topic, objective, userId, orgId });
@@ -171,8 +157,8 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
   };
 
   const toggleSocraticMode = () => {
-    // Don't allow toggling if organization restricts general chat
-    if (orgSettings?.restrict_general_chat && socraticMode) {
+    // Don't allow toggling if Free Chat is disabled
+    if (!isFreeChatAllowed && socraticMode) {
       return;
     }
     
@@ -367,32 +353,37 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
       
       {/* Mode Toggle and Data Source Selector */}
       <div className="flex justify-between items-center px-4 gap-2">
-        {/* Data Source Toggle - Only show in Personal Mode and Free Chat */}
-        {isPersonalMode && !socraticMode && (
-          <DataSourceToggle
-            dataSource={dataSource}
-            onDataSourceChange={setDataSource}
-          />
+        {/* Only show toggles if Free Chat is allowed */}
+        {isFreeChatAllowed ? (
+          <>
+            {/* Data Source Toggle - Only show in Personal Mode and Free Chat */}
+            {isPersonalMode && !socraticMode && (
+              <DataSourceToggle
+                dataSource={dataSource}
+                onDataSourceChange={setDataSource}
+              />
+            )}
+            
+            {/* Spacer for org mode or when in structured mode */}
+            {(!isPersonalMode || socraticMode) && <div className="flex-1" />}
+            
+            {/* Socratic Mode Toggle */}
+            <SocraticModeToggle
+              enabled={socraticMode}
+              onToggle={toggleSocraticMode}
+              sessionActive={!!session && session.state !== 'COMPLETED'}
+              averageScore={averageScore}
+            />
+          </>
+        ) : (
+          <>
+            <div className="flex-1" />
+            {/* Locked mode indicator when Free Chat is disabled */}
+            <div className="flex items-center gap-2 text-sm text-muted-foreground px-3 py-2 bg-muted/50 rounded-md border border-border">
+              <span className="font-medium">Structured Learning Session Mode</span>
+            </div>
+          </>
         )}
-        
-        {/* Spacer for org mode or when in structured mode */}
-        {(!isPersonalMode || socraticMode) && <div className="flex-1" />}
-        
-        {/* Organization restriction message */}
-        {orgSettings?.restrict_general_chat && (
-          <div className="text-xs text-muted-foreground mr-4 self-center">
-            Your organization has enabled Structured Mode for focused learning
-          </div>
-        )}
-        
-        {/* Socratic Mode Toggle */}
-        <SocraticModeToggle
-          enabled={socraticMode}
-          onToggle={toggleSocraticMode}
-          sessionActive={!!session && session.state !== 'COMPLETED'}
-          averageScore={averageScore}
-          disabled={orgSettings?.restrict_general_chat}
-        />
       </div>
 
       {/* Show Socratic Session Panel or Chat Interface */}

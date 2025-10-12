@@ -9,6 +9,7 @@ import { MobilePageLayout, MobileSectionHeader } from '@/components/layout/Mobil
 import { useIsMobile } from '@/hooks/use-mobile';
 import { EnhancedAIStudyCoach } from '@/components/chat/EnhancedAIStudyCoach';
 import { AdminAIAssistant } from '@/components/admin/AdminAIAssistant';
+import { supabase } from '@/integrations/supabase/client';
 
 interface StudyTip {
   id: string;
@@ -61,9 +62,28 @@ export default function AIStudyCoach() {
   const { user } = useAuth();
   const isMobile = useIsMobile();
   const { isOrgOwner, isOrgInstructor } = useOrgPermissions();
+  const [isFreeChatAllowed, setIsFreeChatAllowed] = React.useState(true);
 
   // Check if user is admin (owner or instructor)
   const isAdmin = isOrgOwner() || isOrgInstructor();
+
+  // Fetch organization's Free Chat setting for students
+  React.useEffect(() => {
+    if (!isAdmin && currentOrg?.organization_id) {
+      const fetchOrgSettings = async () => {
+        const { data } = await supabase
+          .from('organizations')
+          .select('is_ai_free_chat_enabled')
+          .eq('id', currentOrg.organization_id)
+          .maybeSingle();
+        
+        if (data) {
+          setIsFreeChatAllowed(data.is_ai_free_chat_enabled ?? true);
+        }
+      };
+      fetchOrgSettings();
+    }
+  }, [isAdmin, currentOrg]);
 
   return (
     <MobilePageLayout className="min-h-screen">
@@ -137,6 +157,7 @@ export default function AIStudyCoach() {
             chatMode="general"
             showHeader={true}
             fixedHeight={true}
+            isFreeChatAllowed={isFreeChatAllowed}
           />
             </div>
           </>

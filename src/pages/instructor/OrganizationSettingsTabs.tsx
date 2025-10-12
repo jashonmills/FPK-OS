@@ -34,6 +34,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { InstructorProfileSection } from '@/components/instructor/InstructorProfileSection';
 import { MemberCard } from '@/components/org/MemberCard';
 import { PendingInvitationsList } from '@/components/org/PendingInvitationsList';
+import { AILearningCoachSettings } from '@/components/org/AILearningCoachSettings';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -313,6 +314,8 @@ export default function OrganizationSettingsTabs() {
               </Button>
             </OrgCardContent>
           </OrgCard>
+
+          <AILearningCoachSettings orgId={currentOrg.organization_id} />
 
           {currentOrg.role === 'owner' && (
             <OrgCard className="bg-red-500/20 border-red-400/50">
