@@ -452,9 +452,27 @@ const VIDEO_PRODUCTION_COURSE = {
   const enrolledCourses = allAvailableCourses.filter(course => 
     enrolledCourseIds.includes(course.id)
   );
-  const availableCourses = allAvailableCourses.filter(course => 
-    !enrolledCourseIds.includes(course.id) && course.status === 'published'
-  );
+  
+  // Course aliases to prevent duplicates in Available Courses
+  const courseAliases: Record<string, string[]> = {
+    'optimal-learning-state': ['learning-state-beta', 'empowering-learning-state'],
+    'el-spelling-reading': ['empowering-learning-spelling', '06efda03-9f0b-4c00-a064-eb65ada9fbae'],
+  };
+  
+  const availableCourses = allAvailableCourses.filter(course => {
+    // Check if enrolled by exact ID match
+    if (enrolledCourseIds.includes(course.id)) return false;
+    
+    // Check for known course aliases/duplicates
+    if (courseAliases[course.id]) {
+      const hasAlias = courseAliases[course.id].some(alias => 
+        enrolledCourseIds.includes(alias)
+      );
+      if (hasAlias) return false;
+    }
+    
+    return course.status === 'published';
+  });
 
   // Native course filtering
   const enrolledNativeCourseIds = nativeEnrollments.map(e => e.course_id);
@@ -482,7 +500,7 @@ const VIDEO_PRODUCTION_COURSE = {
       return matchesSearch && matchesDifficulty;
     }).sort((a, b) => {
       // Empowering Learning courses should be first
-      const empoweringLearningIds = ['el-handwriting', 'empowering-learning-handwriting', 'empowering-learning-numeracy', 'empowering-learning-reading', 'empowering-learning-spelling', 'optimal-learning-state'];
+      const empoweringLearningIds = ['el-handwriting', 'empowering-learning-handwriting', 'empowering-learning-numeracy', 'empowering-learning-reading', 'el-spelling-reading', 'optimal-learning-state'];
       const aIsEmpowering = empoweringLearningIds.includes(a.id);
       const bIsEmpowering = empoweringLearningIds.includes(b.id);
       

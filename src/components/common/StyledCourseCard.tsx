@@ -48,9 +48,8 @@ export function StyledCourseCard({
     'empowering-learning-handwriting',
     'empowering-learning-numeracy', 
     'empowering-learning-reading',
-    'empowering-learning-spelling',
+    'el-spelling-reading',
     'optimal-learning-state',
-    '06efda03-9f0b-4c00-a064-eb65ada9fbae', // Native Empowering Learning for Spelling course
     'empowering-learning-australia',
   ].includes(id);
   
