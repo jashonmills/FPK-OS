@@ -43,7 +43,7 @@ interface Course {
 const courses: Course[] = [
   {
     id: 'optimal-learning-state',
-    title: 'Optimal Learning State Course',
+    title: 'EL Optimal Learning State',
     description: 'Master the optimal learning state through calming techniques and brain integration methods.',
     summary: 'Learn essential techniques to achieve the most effective learning state, including breathing exercises, grounding methods, and brain integration activities designed to enhance focus and memory retention.',
     duration: '~3 Hours',
