@@ -495,15 +495,15 @@ const VIDEO_PRODUCTION_COURSE = {
 
   // The 5 EL course IDs to group at the top (including aliases)
   const EL_COURSE_IDS = [
-    'el-handwriting',
-    'el-spelling-reading',
-    'empowering-learning-reading',
-    'empowering-learning-numeracy',
     'optimal-learning-state',
     'learning-state-beta', // Alias for optimal-learning-state
     'empowering-learning-state', // Another alias for optimal-learning-state
+    'el-handwriting',
+    'el-spelling-reading',
     'empowering-learning-spelling', // Alias for el-spelling-reading
-    '06efda03-9f0b-4c00-a064-eb65ada9fbae' // Another alias for el-spelling-reading
+    '06efda03-9f0b-4c00-a064-eb65ada9fbae', // Another alias for el-spelling-reading
+    'empowering-learning-reading',
+    'empowering-learning-numeracy'
   ];
 
   // Helper function to separate EL courses from other courses
