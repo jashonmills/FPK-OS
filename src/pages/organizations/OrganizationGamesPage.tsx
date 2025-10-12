@@ -95,7 +95,7 @@ export default function OrganizationGamesPage() {
           <Gamepad2 className="h-8 w-8 text-primary" />
           <h1 className="text-4xl font-bold text-foreground">Educational Games</h1>
         </div>
-        <p className="text-muted-foreground text-2xl font-semibold">
+        <p className="text-2xl font-semibold text-slate-50">
           Engage with interactive educational games that make learning fun and effective.
         </p>
       </div>
