@@ -174,7 +174,7 @@ const EMPOWERING_LEARNING_READING_COURSE = {
 
 const EMPOWERING_LEARNING_NUMERACY_COURSE = {
   id: 'empowering-learning-numeracy',
-  title: 'Empowering Learning for Numeracy',
+  title: 'EL Numeracy',
   description: 'Master mathematics through visual memory techniques and number triangles. Learn addition, subtraction, multiplication and division using proven visual learning methods.',
   instructor_name: 'FPK University',
   duration_minutes: 120,
@@ -250,7 +250,7 @@ const FPK_GAMES = [
 
 const EMPOWERING_LEARNING_HANDWRITING_COURSE = {
   id: 'empowering-learning-handwriting',
-  title: 'Empowering Learning: Handwriting',
+  title: 'Advanced EL Handwriting',
   description: 'Master handwriting techniques through systematic practice and understanding. Develop fluency, readability, and confidence in written communication.',
   instructor_name: 'FPK University',
   duration_minutes: 180,
