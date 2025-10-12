@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Addition Journey Quest</title>
+  <script src="SCORM_API_wrapper.js"></script>
+  <style>
+    body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+    iframe { border: 0; width: 100%; height: 100%; }
+  </style>
+</head>
+<body>
+  <iframe id="game-frame" src="game/index.html"></iframe>
+  <script>
+    var scorm = pipwerks.SCORM;
+    scorm.version = "1.2";
+
+    // Function to initialize communication with the LMS
+    function init() {
+      scorm.init();
+    }
+
+    // Function the game will call to report completion and score
+    function setComplete(score, maxScore = 100, minScore = 0) {
+      if (scorm.isAvailable()) {
+        scorm.set("cmi.core.lesson_status", "completed");
+        scorm.set("cmi.core.score.raw", score);
+        scorm.set("cmi.core.score.max", maxScore);
+        scorm.set("cmi.core.score.min", minScore);
+        scorm.save(); // Commit the data to the LMS
+      }
+    }
+
+    // Function to terminate communication
+    function quit() {
+      scorm.quit();
+    }
+
+    window.onload = init;
+    window.onbeforeunload = quit;
+  </script>
+</body>
+</html>
