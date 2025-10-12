@@ -55,17 +55,12 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+				// NEW: Semantic sidebar color (uses brand accent)
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar))',
-					background: 'hsl(var(--sidebar-background))',
-					foreground: 'hsl(var(--sidebar-foreground))',
-					primary: 'hsl(var(--sidebar-primary))',
-					'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
-					accent: 'hsl(var(--sidebar-accent))',
-					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
-					border: 'hsl(var(--sidebar-border))',
-					ring: 'hsl(var(--sidebar-ring))'
+					foreground: 'hsl(var(--sidebar-foreground))'
 				},
+				// NEW: Brand accent color (organization-specific, theme-aware)
 				'brand-accent': {
 					DEFAULT: 'hsl(var(--brand-accent))',
 					foreground: 'hsl(var(--brand-accent-foreground))'

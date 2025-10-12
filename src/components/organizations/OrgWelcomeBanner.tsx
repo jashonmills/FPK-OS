@@ -29,7 +29,7 @@ export function OrgWelcomeBanner() {
   const displayName = sanitizeOrgName(currentOrg.organizations.name);
 
   return (
-    <Card className="bg-orange-500/65 border-orange-400/50 mb-4 sm:mb-6">
+    <Card className="bg-brand-accent/65 border-brand-accent/50 mb-4 sm:mb-6">
       <CardContent className={isMobile ? "p-4" : "p-6"}>
         {isMobile ? (
           // Mobile Layout: Logo at top, content stacked

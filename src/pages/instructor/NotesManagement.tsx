@@ -70,7 +70,7 @@ export default function NotesManagement() {
 
       {/* Stats Cards */}
       <div className="mobile-analytics-grid">
-        <OrgCard className="bg-orange-500/65 border-orange-400/50">
+        <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
           <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
               <Notebook className="w-4 h-4 text-white/70" />
@@ -80,7 +80,7 @@ export default function NotesManagement() {
           </OrgCardContent>
         </OrgCard>
         
-        <OrgCard className="bg-orange-500/65 border-orange-400/50">
+        <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
           <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
               <Users className="w-4 h-4 text-white/70" />
@@ -90,7 +90,7 @@ export default function NotesManagement() {
           </OrgCardContent>
         </OrgCard>
         
-        <OrgCard className="bg-orange-500/65 border-orange-400/50">
+        <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
           <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
               <FileText className="w-4 h-4 text-white/70" />
@@ -100,7 +100,7 @@ export default function NotesManagement() {
           </OrgCardContent>
         </OrgCard>
         
-        <OrgCard className="bg-orange-500/65 border-orange-400/50">
+        <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
           <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-white">This Week</span>
@@ -116,7 +116,7 @@ export default function NotesManagement() {
       </div>
 
       {/* Search and Filters */}
-      <OrgCard className="bg-orange-500/65 border-orange-400/50">
+      <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
         <OrgCardHeader>
           <div className="flex items-center gap-4">
             <div className="relative flex-1">
@@ -138,7 +138,7 @@ export default function NotesManagement() {
 
       {/* Folders Section */}
       {folders.length > 0 && (
-        <OrgCard className="bg-orange-500/65 border-orange-400/50">
+        <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
           <OrgCardHeader>
             <OrgCardTitle className="text-white flex items-center gap-2">
               <span>📁 Folders ({folders.length})</span>
@@ -160,7 +160,7 @@ export default function NotesManagement() {
       {/* Notes Grid */}
       <div className="mobile-grid">
         {notes.map((note) => (
-          <OrgCard key={note.id} className="flex flex-col bg-orange-500/65 border-orange-400/50">
+          <OrgCard key={note.id} className="flex flex-col bg-brand-accent/65 border-brand-accent/50">
             <OrgCardHeader className="pb-3">
               <div className="space-y-2">
                 <OrgCardTitle className="text-lg line-clamp-2 text-white">{note.title}</OrgCardTitle>
@@ -218,7 +218,7 @@ export default function NotesManagement() {
 
       {/* Empty state */}
       {notes.length === 0 && !isLoading && (
-        <OrgCard className="bg-orange-500/65 border-orange-400/50">
+        <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
           <OrgCardContent className="text-center py-12">
             <Notebook className="h-12 w-12 mx-auto text-white/70 mb-4" />
             <h3 className="text-lg font-semibold mb-2 text-white">No Notes Created</h3>

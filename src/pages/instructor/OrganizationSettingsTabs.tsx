@@ -233,7 +233,7 @@ export default function OrganizationSettingsTabs() {
       </div>
 
       <Tabs defaultValue="general" className="space-y-6">
-        <TabsList className="bg-orange-500/65 border border-orange-400/50 text-white">
+        <TabsList className="bg-brand-accent/65 border border-brand-accent/50 text-white">
           <TabsTrigger value="general" className="flex items-center gap-2">
             <Settings className="h-4 w-4" />
             General
@@ -258,7 +258,7 @@ export default function OrganizationSettingsTabs() {
 
         {/* General Settings Tab */}
         <TabsContent value="general" className="space-y-6">
-          <OrgCard className="bg-orange-500/65 border-orange-400/50">
+          <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
             <OrgCardHeader>
               <OrgCardTitle className="text-white">Organization Overview</OrgCardTitle>
               <OrgCardDescription className="text-white/80">
@@ -295,7 +295,7 @@ export default function OrganizationSettingsTabs() {
             </OrgCardContent>
           </OrgCard>
 
-          <OrgCard className="bg-orange-500/65 border-orange-400/50">
+          <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
             <OrgCardHeader>
               <OrgCardTitle className="text-white">Organization Settings</OrgCardTitle>
               <OrgCardDescription className="text-white/80">
@@ -338,7 +338,7 @@ export default function OrganizationSettingsTabs() {
             {/* Branding Settings */}
             <div className="space-y-6">
               {/* Logo Upload */}
-              <OrgCard className="bg-orange-500/65 border-orange-400/50">
+              <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
                 <OrgCardHeader>
                   <OrgCardTitle className="text-white">Logo</OrgCardTitle>
                   <OrgCardDescription className="text-white/80">
@@ -391,7 +391,7 @@ export default function OrganizationSettingsTabs() {
               </OrgCard>
 
               {/* Banner Upload */}
-              <OrgCard className="bg-orange-500/65 border-orange-400/50">
+              <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
                 <OrgCardHeader>
                   <OrgCardTitle className="text-white">Banner (Optional)</OrgCardTitle>
                   <OrgCardDescription className="text-white/80">
@@ -442,7 +442,7 @@ export default function OrganizationSettingsTabs() {
               </OrgCard>
 
               {/* Theme Accent */}
-              <OrgCard className="bg-orange-500/65 border-orange-400/50">
+              <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
                 <OrgCardHeader>
                   <OrgCardTitle className="text-white">Accent Color</OrgCardTitle>
                   <OrgCardDescription className="text-white/80">
@@ -506,7 +506,7 @@ export default function OrganizationSettingsTabs() {
 
             {/* Preview Panel */}
             <div>
-              <OrgCard className="bg-orange-500/65 border-orange-400/50">
+              <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
                 <OrgCardHeader>
                   <OrgCardTitle className="flex items-center gap-2 text-white">
                     <Eye className="w-5 h-5" />
@@ -613,7 +613,7 @@ export default function OrganizationSettingsTabs() {
             </Alert>
 
             {/* Email Invites */}
-            <OrgCard className="bg-orange-500/65 border-orange-400/50">
+            <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
               <OrgCardHeader>
                 <OrgCardTitle className="flex items-center gap-2 text-white">
                   <Mail className="h-5 w-5" />
@@ -714,7 +714,7 @@ export default function OrganizationSettingsTabs() {
             </OrgCard>
 
             {/* Manual Add Staff */}
-            <OrgCard className="bg-orange-500/65 border-orange-400/50">
+            <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
               <OrgCardHeader>
                 <OrgCardTitle className="flex items-center gap-2 text-white">
                   <UserPlus className="h-5 w-5" />
@@ -757,7 +757,7 @@ export default function OrganizationSettingsTabs() {
 
         {/* Members Tab */}
         <TabsContent value="members" className="space-y-6">
-          <OrgCard className="bg-orange-500/65 border-orange-400/50">
+          <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
             <OrgCardHeader>
               <div className="flex items-center justify-between">
                 <div>

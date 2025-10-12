@@ -99,7 +99,7 @@ export default function AssignmentsManagement() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <OrgCard className="bg-orange-500/65 border-orange-400/50">
+        <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
           <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
               <ClipboardCheck className="w-4 h-4 text-white/70" />
@@ -109,7 +109,7 @@ export default function AssignmentsManagement() {
           </OrgCardContent>
         </OrgCard>
         
-        <OrgCard className="bg-orange-500/65 border-orange-400/50">
+        <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
           <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-white">Active</span>
@@ -118,7 +118,7 @@ export default function AssignmentsManagement() {
           </OrgCardContent>
         </OrgCard>
         
-        <OrgCard className="bg-orange-500/65 border-orange-400/50">
+        <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
           <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-white">Completed</span>
@@ -127,7 +127,7 @@ export default function AssignmentsManagement() {
           </OrgCardContent>
         </OrgCard>
         
-        <OrgCard className="bg-orange-500/65 border-orange-400/50">
+        <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
           <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-white">Avg Completion</span>
@@ -138,7 +138,7 @@ export default function AssignmentsManagement() {
       </div>
 
       {/* Search and Filters */}
-      <OrgCard className="bg-orange-500/65 border-orange-400/50">
+      <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
         <OrgCardHeader>
           <div className="flex items-center gap-4">
             <div className="relative flex-1">
@@ -162,7 +162,7 @@ export default function AssignmentsManagement() {
       <div className="space-y-4">
         {filteredAssignments.length > 0 ? (
           filteredAssignments.map((assignment) => (
-            <OrgCard key={assignment.id} className="bg-orange-500/65 border-orange-400/50">
+            <OrgCard key={assignment.id} className="bg-brand-accent/65 border-brand-accent/50">
               <OrgCardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <div className="space-y-1">
@@ -189,7 +189,7 @@ export default function AssignmentsManagement() {
             </OrgCard>
           ))
         ) : (
-          <OrgCard className="bg-orange-500/65 border-orange-400/50">
+          <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
             <OrgCardContent className="p-8 text-center">
               <ClipboardCheck className="h-12 w-12 mx-auto text-white/70 mb-4" />
               <h3 className="text-lg font-semibold mb-2 text-white">No assignments found</h3>

@@ -19,6 +19,16 @@ const ACCENT_PRESETS = [
   { name: 'Amber Gold', value: '45 93% 47%', hex: '#d97706' },
 ];
 
+// Dark mode optimized presets (darker, more saturated)
+const DARK_MODE_ACCENT_PRESETS = [
+  { name: 'FPK Purple', value: '280 80% 45%', hex: '#8b3fd9' },
+  { name: 'Ocean Blue', value: '210 90% 45%', hex: '#1e6fd6' },
+  { name: 'Forest Green', value: '142 70% 30%', hex: '#178a3a' },
+  { name: 'Sunset Orange', value: '25 90% 48%', hex: '#e85d0c' },
+  { name: 'Rose Pink', value: '330 75% 50%', hex: '#df1b7a' },
+  { name: 'Amber Gold', value: '45 88% 42%', hex: '#c97006' },
+];
+
 export default function OrgBrandingSettings() {
   const { currentOrg } = useOrgContext();
   const { data: branding, isLoading } = useOrgBranding(currentOrg?.organization_id || null);
@@ -30,6 +40,10 @@ export default function OrgBrandingSettings() {
   const [bannerFile, setBannerFile] = useState<File | null>(null);
   const [customAccent, setCustomAccent] = useState(branding?.theme_accent || '');
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
+  
+  // NEW: Dark mode accent color state
+  const [customDarkAccent, setCustomDarkAccent] = useState(branding?.theme_dark_mode_accent || '');
+  const [selectedDarkPreset, setSelectedDarkPreset] = useState<string | null>(null);
   
   const logoInputRef = useRef<HTMLInputElement>(null);
   const bannerInputRef = useRef<HTMLInputElement>(null);
@@ -96,6 +110,7 @@ export default function OrgBrandingSettings() {
           logo_url: logoUrl,
           banner_url: bannerUrl,
           theme_accent: selectedPreset || customAccent || branding?.theme_accent,
+          theme_dark_mode_accent: selectedDarkPreset || customDarkAccent || branding?.theme_dark_mode_accent,
         }
       });
 
@@ -137,7 +152,7 @@ export default function OrgBrandingSettings() {
         {/* Settings Panel */}
         <div className="space-y-6">
           {/* Logo Upload */}
-          <OrgCard className="bg-orange-500/65 border-orange-400/50">
+          <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
             <OrgCardHeader>
               <OrgCardTitle className="text-white">Logo</OrgCardTitle>
               <OrgCardDescription className="text-white/80">
@@ -190,7 +205,7 @@ export default function OrgBrandingSettings() {
           </OrgCard>
 
           {/* Banner Upload */}
-          <OrgCard className="bg-orange-500/65 border-orange-400/50">
+          <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
             <OrgCardHeader>
               <OrgCardTitle className="text-white">Banner (Optional)</OrgCardTitle>
               <OrgCardDescription className="text-white/80">
@@ -241,7 +256,7 @@ export default function OrgBrandingSettings() {
           </OrgCard>
 
           {/* Theme Accent */}
-          <OrgCard className="bg-orange-500/65 border-orange-400/50">
+          <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
             <OrgCardHeader>
               <OrgCardTitle className="text-white">Accent Color</OrgCardTitle>
               <OrgCardDescription className="text-white/80">
@@ -298,6 +313,64 @@ export default function OrgBrandingSettings() {
             </OrgCardContent>
           </OrgCard>
 
+          {/* NEW: Dark Mode Accent Color */}
+          <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
+            <OrgCardHeader>
+              <OrgCardTitle className="text-white">Dark Mode Accent Color</OrgCardTitle>
+              <OrgCardDescription className="text-white/80">
+                Choose a darker, more saturated color optimized for dark backgrounds
+              </OrgCardDescription>
+            </OrgCardHeader>
+            <OrgCardContent className="space-y-4">
+              {/* Dark Mode Preset Colors */}
+              <div>
+                <Label className="text-sm font-medium text-white">Dark Mode Presets</Label>
+                <div className="grid grid-cols-3 gap-2 mt-2">
+                  {DARK_MODE_ACCENT_PRESETS.map((preset) => (
+                    <button
+                      key={preset.name}
+                      onClick={() => {
+                        setSelectedDarkPreset(preset.value);
+                        setCustomDarkAccent('');
+                      }}
+                      className={`p-3 rounded-lg border border-white/30 text-left hover:bg-white/20 transition-colors ${
+                        selectedDarkPreset === preset.value ? 'ring-2 ring-white' : ''
+                      }`}
+                    >
+                      <div
+                        className="w-full h-6 rounded mb-2"
+                        style={{ backgroundColor: preset.hex }}
+                      />
+                      <div className="text-xs font-medium text-white">{preset.name}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="border-t border-white/30 my-4" />
+
+              {/* Custom Dark Mode Color */}
+              <div>
+                <Label htmlFor="custom-dark-accent" className="text-sm font-medium text-white">
+                  Custom Dark Mode Color (HSL format)
+                </Label>
+                <Input
+                  id="custom-dark-accent"
+                  placeholder="e.g. 280 80% 45%"
+                  value={customDarkAccent}
+                  onChange={(e) => {
+                    setCustomDarkAccent(e.target.value);
+                    setSelectedDarkPreset(null);
+                  }}
+                  className="mt-2 bg-white/20 border-white/30 text-white placeholder:text-white/70"
+                />
+                <p className="text-xs text-white/70 mt-1">
+                  Leave empty to auto-generate from light mode color
+                </p>
+              </div>
+            </OrgCardContent>
+          </OrgCard>
+
           {/* Save Button */}
           <Button 
             onClick={handleSave}
@@ -311,7 +384,7 @@ export default function OrgBrandingSettings() {
 
         {/* Preview Panel */}
         <div className="space-y-6">
-          <OrgCard className="bg-orange-500/65 border-orange-400/50">
+          <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
             <OrgCardHeader>
               <OrgCardTitle className="flex items-center gap-2 text-white">
                 <Eye className="w-5 h-5" />

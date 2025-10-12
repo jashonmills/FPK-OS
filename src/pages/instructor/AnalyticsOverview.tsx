@@ -84,7 +84,7 @@ export default function AnalyticsOverview() {
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <OrgCard className="bg-orange-500/65 border-orange-400/50">
+        <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
           <OrgCardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -96,7 +96,7 @@ export default function AnalyticsOverview() {
           </OrgCardContent>
         </OrgCard>
 
-        <OrgCard className="bg-orange-500/65 border-orange-400/50">
+        <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
           <OrgCardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -117,7 +117,7 @@ export default function AnalyticsOverview() {
           </OrgCardContent>
         </OrgCard>
 
-        <OrgCard className="bg-orange-500/65 border-orange-400/50">
+        <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
           <OrgCardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -138,7 +138,7 @@ export default function AnalyticsOverview() {
           </OrgCardContent>
         </OrgCard>
 
-        <OrgCard className="bg-orange-500/65 border-orange-400/50">
+        <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
           <OrgCardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -163,7 +163,7 @@ export default function AnalyticsOverview() {
         {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Progress Trend */}
-          <OrgCard className="bg-orange-500/65 border-orange-400/50">
+          <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
             <OrgCardHeader>
               <OrgCardTitle className="text-white">Learning Progress Trend</OrgCardTitle>
               <OrgCardDescription className="text-white/80">
@@ -208,7 +208,7 @@ export default function AnalyticsOverview() {
         </OrgCard>
 
           {/* Engagement Metrics */}
-          <OrgCard className="bg-orange-500/65 border-orange-400/50">
+          <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
             <OrgCardHeader>
               <OrgCardTitle className="text-white">Student Engagement</OrgCardTitle>
               <OrgCardDescription className="text-white/80">
@@ -261,7 +261,7 @@ export default function AnalyticsOverview() {
       </div>
 
         {/* Course Performance */}
-        <OrgCard className="bg-orange-500/65 border-orange-400/50">
+        <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
           <OrgCardHeader>
             <OrgCardTitle className="flex items-center gap-2 text-white">
               <BookOpen className="w-5 h-5" />
@@ -294,7 +294,7 @@ export default function AnalyticsOverview() {
       </OrgCard>
 
         {/* Quick Actions */}
-        <OrgCard className="bg-orange-500/65 border-orange-400/50">
+        <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
           <OrgCardHeader>
             <OrgCardTitle className="text-white">Analytics Actions</OrgCardTitle>
             <OrgCardDescription className="text-white/80">

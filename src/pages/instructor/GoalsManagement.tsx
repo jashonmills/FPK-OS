@@ -213,7 +213,7 @@ export default function GoalsManagement() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <OrgCard className="bg-orange-500/65 border-orange-400/50">
+        <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
           <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
               <Flag className="w-4 h-4 text-white/70" />
@@ -223,7 +223,7 @@ export default function GoalsManagement() {
           </OrgCardContent>
         </OrgCard>
         
-        <OrgCard className="bg-orange-500/65 border-orange-400/50">
+        <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
           <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
               <Target className="w-4 h-4 text-white/70" />
@@ -233,7 +233,7 @@ export default function GoalsManagement() {
           </OrgCardContent>
         </OrgCard>
         
-        <OrgCard className="bg-orange-500/65 border-orange-400/50">
+        <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
           <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-white/70" />
@@ -243,7 +243,7 @@ export default function GoalsManagement() {
           </OrgCardContent>
         </OrgCard>
         
-        <OrgCard className="bg-orange-500/65 border-orange-400/50">
+        <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
           <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-white">Avg Progress</span>
@@ -256,7 +256,7 @@ export default function GoalsManagement() {
       </div>
 
       {/* Search and Filters */}
-      <OrgCard className="bg-orange-500/65 border-orange-400/50">
+      <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
         <OrgCardHeader>
           <div className="flex items-center gap-4">
             <div className="relative flex-1">
@@ -289,7 +289,7 @@ export default function GoalsManagement() {
             const progressPercentage = goal.progress_percentage || 0;
             
             return (
-              <OrgCard key={goal.id} className="bg-orange-500/65 border-orange-400/50">
+              <OrgCard key={goal.id} className="bg-brand-accent/65 border-brand-accent/50">
                 <OrgCardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className="space-y-2">

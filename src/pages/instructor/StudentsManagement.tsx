@@ -46,7 +46,7 @@ export default function StudentsManagement() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <OrgCard className="bg-orange-500/65 border-orange-400/50">
+        <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
           <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
               <Users className="w-4 h-4 text-white/70" />
@@ -58,7 +58,7 @@ export default function StudentsManagement() {
           </OrgCardContent>
         </OrgCard>
         
-        <OrgCard className="bg-orange-500/65 border-orange-400/50">
+        <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
           <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-white">Active This Week</span>
@@ -72,7 +72,7 @@ export default function StudentsManagement() {
           </OrgCardContent>
         </OrgCard>
         
-        <OrgCard className="bg-orange-500/65 border-orange-400/50">
+        <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
           <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-white">Average Progress</span>
@@ -81,7 +81,7 @@ export default function StudentsManagement() {
           </OrgCardContent>
         </OrgCard>
         
-        <OrgCard className="bg-orange-500/65 border-orange-400/50">
+        <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
           <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-white">Completion Rate</span>
@@ -92,7 +92,7 @@ export default function StudentsManagement() {
       </div>
 
       {/* Search and Filters */}
-      <OrgCard className="bg-orange-500/65 border-orange-400/50">
+      <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
         <OrgCardHeader>
           <div className="flex items-center gap-4">
             <div className="relative flex-1">
@@ -108,7 +108,7 @@ export default function StudentsManagement() {
       </OrgCard>
 
       {/* Students List */}
-      <OrgCard className="bg-orange-500/65 border-orange-400/50">
+      <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
         <OrgCardHeader>
           <OrgCardTitle className="text-white">Student Roster</OrgCardTitle>
           <OrgCardDescription className="text-white/80">
