@@ -408,6 +408,21 @@ const OPTIMAL_LEARNING_STATE_COURSE = {
   status: 'published'
 };
 
+const VIDEO_PRODUCTION_COURSE = {
+  id: 'introduction-video-production',
+  title: 'Introduction to Video Production',
+  description: 'Learn the fundamentals of video production from start to finish in this introductory lesson.',
+  thumbnail_url: 'https://i.vimeocdn.com/video/1596743275-b4263b12c58916c739173b84e4510b423985312d41872956a59ed7a551989569-d_1920x1080',
+  difficulty_level: 'beginner',
+  duration_minutes: 20,
+  instructor_name: 'FPK University',
+  featured: false,
+  is_free: true,
+  price: 0,
+  tags: ['Video Production', 'Media', 'Creative Skills'],
+  status: 'published'
+};
+
   // Combine global and organization courses - ensuring handwriting course is prioritized
   const allAvailableCourses = [
     EL_HANDWRITING_COURSE, // New EL Handwriting course
@@ -415,6 +430,7 @@ const OPTIMAL_LEARNING_STATE_COURSE = {
     EL_SPELLING_READING_COURSE, // Add the primary EL Spelling & Reading course
     OPTIMAL_LEARNING_STATE_COURSE, // Add the new Learning State course
     ELT_EMPOWERING_LEARNING_TECHNIQUES_COURSE, // Add the new ELT course
+    VIDEO_PRODUCTION_COURSE, // Add the new Video Production course
     ...courses,
     ...(orgCourses?.assignedCourses || []),
     ...(orgCourses?.organizationOwnedCourses || []),

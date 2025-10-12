@@ -180,6 +180,7 @@ const OptimalLearningStatePage = lazy(() => import("./pages/courses/OptimalLearn
 const LogicCriticalThinkingCoursePage = lazy(() => import("./pages/courses/LogicCriticalThinkingCoursePage"));
 const MoneyManagementCoursePage = lazy(() => import("./pages/courses/MoneyManagementCoursePage"));
 const InteractiveELTCoursePage = lazy(() => import("./pages/courses/InteractiveELTCoursePage"));
+const VideoProductionCoursePage = lazy(() => import("./pages/courses/VideoProductionCoursePage"));
 
 // Standalone AI Study Coach Chat
 const StandaloneAIStudyCoachChat = lazy(() => import("./components/StandaloneAIStudyCoachChat"));
@@ -680,6 +681,12 @@ const App: React.FC = () => {
           <Route path="/courses/elt-empowering-learning-techniques/:lessonId" element={
             <RouteProtector>
               <LazyRoute><InteractiveELTCoursePage /></LazyRoute>
+            </RouteProtector>
+          } />
+          
+          <Route path="/courses/introduction-video-production" element={
+            <RouteProtector>
+              <LazyRoute><VideoProductionCoursePage /></LazyRoute>
             </RouteProtector>
           } />
           

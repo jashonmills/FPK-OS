@@ -19,7 +19,8 @@ export const LEGACY_COURSE_SLUGS = [
   'neurodiversity-strengths-based-approach',
   'interactive-science',
   'geometry',
-  'money-management-teens'
+  'money-management-teens',
+  'introduction-video-production'
 ] as const;
 
 export type LegacyCourseSlug = typeof LEGACY_COURSE_SLUGS[number];
