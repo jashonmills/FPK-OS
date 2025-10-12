@@ -12,6 +12,9 @@ export interface PlatformCourse {
   instructor_name?: string;
   featured?: boolean;
   tags?: string[];
+  slug?: string;
+  framework_type?: string;
+  content_version?: string;
 }
 
 export function usePlatformCourses() {
