@@ -389,13 +389,16 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
       {/* Show Socratic Session Panel or Chat Interface */}
       {socraticMode ? (
         <>
-          {showSessionPanel && !session && !isPromoting && (
+          {!session && !isPromoting && (
             <div className="px-2 sm:px-4">
               <SocraticSessionPanel
                 onStartSession={handleStartSocraticSession}
                 onCancel={() => {
                   setShowSessionPanel(false);
-                  setSocraticMode(false);
+                  // Only allow switching back to Free Chat if it's explicitly allowed
+                  if (isFreeChatAllowed) {
+                    setSocraticMode(false);
+                  }
                 }}
               />
             </div>
