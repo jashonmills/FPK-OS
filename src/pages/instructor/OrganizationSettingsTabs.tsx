@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { OrgCard, OrgCardContent, OrgCardDescription, OrgCardHeader, OrgCardTitle } from '@/components/organizations/OrgCard';
-import { Button } from '@/components/ui/button';
+import { OrgButton as Button } from '@/components/org/OrgButton';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
