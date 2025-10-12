@@ -380,7 +380,7 @@ const MyCourses = () => {
 
 const EL_SPELLING_READING_COURSE = {
   id: 'el-spelling-reading',
-  title: 'EL Spelling & Reading',
+  title: 'EL Spelling',
   description: 'Master spelling and reading through visual memory techniques and optimal learning states. A comprehensive program designed for visual learners.',
   instructor_name: 'FPK University',
   duration_minutes: 120,
