@@ -1,0 +1,91 @@
+{
+  "courseTitle": "Introduction to Science",
+  "courseSlug": "interactive-science",
+  "description": "Get to grips with the basics of biology, chemistry, and physics. Learn the scientific method and explore the building blocks of life and matter.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "The Scientific Method",
+      "description": "Learn the fundamental steps of scientific inquiry and how to apply them",
+      "unit": "Unit 1: The Scientific Method",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 2,
+      "title": "The Importance of Science",
+      "description": "Discover how science shapes our understanding of the world",
+      "unit": "Unit 1: The Scientific Method",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 3,
+      "title": "Cell Structure and Function",
+      "description": "Explore the basic building blocks of all living organisms",
+      "unit": "Unit 2: Biology",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 4,
+      "title": "Genetics and DNA",
+      "description": "Understand heredity and the molecular basis of life",
+      "unit": "Unit 2: Biology",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 5,
+      "title": "Atoms and Molecules",
+      "description": "Learn about the fundamental particles that make up matter",
+      "unit": "Unit 3: Chemistry",
+      "unitColor": "bg-red-100 text-red-700"
+    },
+    {
+      "id": 6,
+      "title": "The Periodic Table",
+      "description": "Master the organization of chemical elements",
+      "unit": "Unit 3: Chemistry",
+      "unitColor": "bg-red-100 text-red-700"
+    },
+    {
+      "id": 7,
+      "title": "Forces and Motion",
+      "description": "Discover the principles that govern how objects move",
+      "unit": "Unit 4: Physics",
+      "unitColor": "bg-yellow-100 text-yellow-700"
+    },
+    {
+      "id": 8,
+      "title": "Energy and Work",
+      "description": "Understand different forms of energy and how work is done",
+      "unit": "Unit 4: Physics",
+      "unitColor": "bg-yellow-100 text-yellow-700"
+    },
+    {
+      "id": 9,
+      "title": "Review and Summary",
+      "description": "Consolidate your learning with comprehensive review",
+      "unit": "Unit 5: Conclusion",
+      "unitColor": "bg-gray-100 text-gray-700"
+    },
+    {
+      "id": 10,
+      "title": "Further Exploration",
+      "description": "Explore advanced topics and real-world applications",
+      "unit": "Unit 5: Conclusion",
+      "unitColor": "bg-gray-100 text-gray-700"
+    },
+    {
+      "id": 11,
+      "title": "Short-Answer Questions",
+      "description": "Test your knowledge with focused practice questions",
+      "unit": "Unit 6: Study Guide",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 12,
+      "title": "Complete Study Guide",
+      "description": "Comprehensive guide for mastering all course concepts",
+      "unit": "Unit 6: Study Guide",
+      "unitColor": "bg-purple-100 text-purple-700"
+    }
+  ]
+}

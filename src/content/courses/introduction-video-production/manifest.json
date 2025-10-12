@@ -1,0 +1,16 @@
+{
+  "courseTitle": "Meditation with David Scullion",
+  "courseSlug": "introduction-video-production",
+  "description": "Learn the fundamentals of video production from start to finish in this introductory lesson.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Introduction to Video Production",
+      "description": "Learn the fundamentals of video production in this comprehensive video lesson",
+      "unit": "Main Course",
+      "unitColor": "bg-blue-100 text-blue-700",
+      "contentType": "video",
+      "videoUrl": "https://player.vimeo.com/video/798011937"
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "courseTitle": "EL Reading",
+  "courseSlug": "empowering-learning-reading",
+  "description": "Discover a new perspective on reading that empowers learners through optimal learning states, proper positioning, and creative engagement. Build confidence and a lifelong love for reading.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Introduction",
+      "description": "A new perspective on learning to read",
+      "unit": "Welcome to the Programme",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 2,
+      "title": "The Optimal Learning State",
+      "description": "Calm your nervous system for effective reading",
+      "unit": "The Learning Process",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 3,
+      "title": "The Reading Technique",
+      "description": "Proper positioning and emotional state for reading",
+      "unit": "The Learning Process",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 4,
+      "title": "Conclusion",
+      "description": "Celebrating your reading journey and next steps",
+      "unit": "Final Tips for Success",
+      "unitColor": "bg-yellow-100 text-yellow-700"
+    },
+    {
+      "id": 5,
+      "title": "The Power of Intentionality",
+      "description": "Understanding the neuroscience behind focused practice",
+      "unit": "Deep Dive: Extended Learning",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 6,
+      "title": "The Science of Reading",
+      "description": "How nervous system states affect learning",
+      "unit": "Deep Dive: Extended Learning",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 7,
+      "title": "The Power of Storytelling",
+      "description": "Cognitive scaffolding and creative engagement",
+      "unit": "Deep Dive: Extended Learning",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 8,
+      "title": "Beyond Reading",
+      "description": "Building lifelong habits and mindfulness",
+      "unit": "Deep Dive: Extended Learning",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 9,
+      "title": "Mini Quiz Questions",
+      "description": "Test your understanding with focused questions",
+      "unit": "Study Guide & Review",
+      "unitColor": "bg-gray-100 text-gray-700"
+    },
+    {
+      "id": 10,
+      "title": "Final Knowledge Test",
+      "description": "Comprehensive assessment of core principles",
+      "unit": "Study Guide & Review",
+      "unitColor": "bg-gray-100 text-gray-700"
+    }
+  ]
+}

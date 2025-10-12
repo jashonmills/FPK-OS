@@ -1,0 +1,91 @@
+{
+  "courseTitle": "EL Spelling & Reading",
+  "courseSlug": "el-spelling-reading",
+  "description": "Master spelling through visual memory techniques and optimal learning states. A comprehensive program designed for visual learners to overcome spelling challenges.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Introduction",
+      "description": "Welcome to the programme with Allen O'Donoghue",
+      "unit": "Welcome to the Programme",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 2,
+      "title": "The Optimal Learning State",
+      "description": "Learn to achieve the calm state needed for effective learning",
+      "unit": "The Learning Process",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 3,
+      "title": "Empowering Learning - Nouns",
+      "description": "Foundation concepts for visual spelling with nouns",
+      "unit": "The Learning Process",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 4,
+      "title": "The Spelling Technique - Step by Step",
+      "description": "Master the complete visual spelling method",
+      "unit": "The Learning Process",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 5,
+      "title": "Final Tips",
+      "description": "Essential tips for success with the technique",
+      "unit": "Final Tips for Success",
+      "unitColor": "bg-yellow-100 text-yellow-700"
+    },
+    {
+      "id": 6,
+      "title": "The Power of the Optimal Learning State",
+      "description": "Understanding the mind-body connection in learning",
+      "unit": "The Mind-Body Connection",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 7,
+      "title": "The Power of Visualising",
+      "description": "Harness your visual memory for spelling success",
+      "unit": "The Visual Memory System",
+      "unitColor": "bg-indigo-100 text-indigo-700"
+    },
+    {
+      "id": 8,
+      "title": "The Swan & The Whiteboard",
+      "description": "Advanced techniques for optimal visual learning",
+      "unit": "Advanced Techniques",
+      "unitColor": "bg-red-100 text-red-700"
+    },
+    {
+      "id": 9,
+      "title": "The Final Word",
+      "description": "Celebrating your success and next steps",
+      "unit": "Celebrating Success",
+      "unitColor": "bg-orange-100 text-orange-700"
+    },
+    {
+      "id": 10,
+      "title": "Quiz - Short Answer Questions",
+      "description": "Test your understanding with focused questions",
+      "unit": "Study Guide & Review",
+      "unitColor": "bg-gray-100 text-gray-700"
+    },
+    {
+      "id": 11,
+      "title": "Essay Format Questions",
+      "description": "Explore concepts through detailed reflection",
+      "unit": "Study Guide & Review",
+      "unitColor": "bg-gray-100 text-gray-700"
+    },
+    {
+      "id": 12,
+      "title": "Glossary of Key Terms",
+      "description": "Reference guide for all important concepts",
+      "unit": "Study Guide & Review",
+      "unitColor": "bg-gray-100 text-gray-700"
+    }
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "courseTitle": "ELT: Empowering Learning Techniques",
+  "courseSlug": "elt-empowering-learning-techniques",
+  "description": "Master evidence-based learning strategies specifically designed for neurodiverse minds. Transform how you learn, study, and succeed in any academic environment.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Understanding Neurodiversity and Your Unique Brain",
+      "description": "Discover how your brain works differently and why that's your greatest asset",
+      "unit": "Core Modules",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 2,
+      "title": "Self-Assessment & Learning Discovery",
+      "description": "Complete interactive assessments to understand your unique learning profile",
+      "unit": "Core Modules",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 3,
+      "title": "Mastering Executive Functioning Skills",
+      "description": "Build organizational systems that work with your brain, not against it",
+      "unit": "Core Modules",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 4,
+      "title": "Interactive Learning Tools & Templates",
+      "description": "Master practical worksheets and planners for effective learning",
+      "unit": "Core Modules",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 5,
+      "title": "Effective Study and Information Retention Techniques",
+      "description": "Learn evidence-based methods tailored for neurodiverse learners",
+      "unit": "Core Modules",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 6,
+      "title": "Turning Weaknesses into Strengths & Self-Advocacy",
+      "description": "Transform challenges into competitive advantages and advocate for your needs",
+      "unit": "Core Modules",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 7,
+      "title": "Real-World Application and Lifelong Learning",
+      "description": "Apply your new skills across all areas of life and continue growing",
+      "unit": "Core Modules",
+      "unitColor": "bg-yellow-100 text-yellow-700"
+    },
+    {
+      "id": 8,
+      "title": "Case Studies & Success Stories",
+      "description": "Explore real-world examples and success stories from neurodiverse learners",
+      "unit": "Advanced Modules",
+      "unitColor": "bg-indigo-100 text-indigo-700"
+    },
+    {
+      "id": 9,
+      "title": "Advanced Executive Functioning Mastery",
+      "description": "Master advanced organizational systems and executive functioning strategies",
+      "unit": "Advanced Modules",
+      "unitColor": "bg-indigo-100 text-indigo-700"
+    },
+    {
+      "id": 10,
+      "title": "Advanced Study Techniques",
+      "description": "Explore sophisticated study methods and memory enhancement techniques",
+      "unit": "Advanced Modules",
+      "unitColor": "bg-red-100 text-red-700"
+    },
+    {
+      "id": 11,
+      "title": "Expanded Interactive Worksheets",
+      "description": "Access comprehensive worksheets and practical tools for all learning scenarios",
+      "unit": "Advanced Modules",
+      "unitColor": "bg-red-100 text-red-700"
+    },
+    {
+      "id": 12,
+      "title": "Enhanced Assessment Suite",
+      "description": "Complete comprehensive assessments to track your learning progress",
+      "unit": "Assessment & Resources",
+      "unitColor": "bg-orange-100 text-orange-700"
+    },
+    {
+      "id": 13,
+      "title": "Instructor Resources & Teaching Methods",
+      "description": "Comprehensive resources for educators working with neurodiverse learners",
+      "unit": "Assessment & Resources",
+      "unitColor": "bg-orange-100 text-orange-700"
+    },
+    {
+      "id": 14,
+      "title": "Instructor Dashboard & Analytics",
+      "description": "Advanced tools for tracking student progress and optimizing instruction",
+      "unit": "Assessment & Resources",
+      "unitColor": "bg-gray-100 text-gray-700"
+    }
+  ]
+}
