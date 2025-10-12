@@ -4,7 +4,7 @@ import { useOrgContext } from '@/components/organizations/OrgContext';
 import { useOrgGoals, type OrgGoal } from '@/hooks/useOrgGoals';
 import { useOrgStudents } from '@/hooks/useOrgStudents';
 import { OrgCard, OrgCardContent, OrgCardDescription, OrgCardHeader, OrgCardTitle } from '@/components/organizations/OrgCard';
-import { Button } from '@/components/ui/button';
+import { OrgButton as Button } from '@/components/org/OrgButton';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
