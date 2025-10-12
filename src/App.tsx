@@ -679,6 +679,17 @@ const App: React.FC = () => {
           <Route path="/choose-plan" element={<LazyRoute><ChoosePlan /></LazyRoute>} />
           
           {/* Native Course Player Routes - Must be last to avoid conflicts */}
+          {/* Redirect legacy v2 course URLs to Universal Player */}
+          <Route path="/courses/el-handwriting" element={<Navigate to="/courses/player/el-handwriting" replace />} />
+          <Route path="/courses/el-spelling-reading" element={<Navigate to="/courses/player/el-spelling-reading" replace />} />
+          <Route path="/courses/empowering-learning-reading" element={<Navigate to="/courses/player/empowering-learning-reading" replace />} />
+          <Route path="/courses/empowering-learning-numeracy" element={<Navigate to="/courses/player/empowering-learning-numeracy" replace />} />
+          <Route path="/courses/empowering-learning-handwriting" element={<Navigate to="/courses/player/empowering-learning-handwriting" replace />} />
+          <Route path="/courses/optimal-learning-state" element={<Navigate to="/courses/player/optimal-learning-state" replace />} />
+          <Route path="/courses/elt-empowering-learning-techniques" element={<Navigate to="/courses/player/elt-empowering-learning-techniques" replace />} />
+          <Route path="/courses/money-management-teens" element={<Navigate to="/courses/player/money-management-teens" replace />} />
+          <Route path="/courses/introduction-video-production" element={<Navigate to="/courses/player/introduction-video-production" replace />} />
+          
           <Route path="/courses/:slug" element={
             <RouteProtector>
               <LazyRoute><NativeCoursePlayer /></LazyRoute>
