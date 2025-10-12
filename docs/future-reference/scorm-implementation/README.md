@@ -1,6 +1,18 @@
-# SCORM Packages
+# SCORM Reference Implementation
 
-This directory contains SCORM 1.2 packages for trackable learning games.
+> **⚠️ IMPORTANT: This is reference material only**  
+> This directory contains a SCORM 1.2 implementation that was researched but **not deployed** in the FPK University platform.  
+> 
+> **Current Architecture:** Games use unauthenticated iframe embedding (no tracking).  
+> **Future Architecture:** Unified Auth & Direct Database Writes (see `docs/DECISION_LOG_GAME_TRACKING.md`).  
+> 
+> This SCORM implementation is preserved for reference purposes and potential future LMS export features.
+
+---
+
+# SCORM 1.2 Package Structure (Reference)
+
+This directory contains a complete SCORM 1.2 package structure for trackable learning games.
 
 ## Structure
 
