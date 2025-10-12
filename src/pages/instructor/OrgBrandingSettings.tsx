@@ -142,8 +142,8 @@ export default function OrgBrandingSettings() {
   return (
     <div className="container max-w-4xl mx-auto py-8 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-white drop-shadow-lg">Organization Branding</h1>
-        <p className="text-white/80 mt-2 drop-shadow">
+        <h1 className="text-3xl font-bold tracking-tight text-foreground drop-shadow-lg">Organization Branding</h1>
+        <p className="text-muted-foreground mt-2 drop-shadow">
           Customize your organization's appearance with logos and theme colors
         </p>
       </div>
@@ -152,10 +152,10 @@ export default function OrgBrandingSettings() {
         {/* Settings Panel */}
         <div className="space-y-6">
           {/* Logo Upload */}
-          <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
+          <OrgCard className="bg-card border-border">
             <OrgCardHeader>
-              <OrgCardTitle className="text-white">Logo</OrgCardTitle>
-              <OrgCardDescription className="text-white/80">
+              <OrgCardTitle className="text-foreground">Logo</OrgCardTitle>
+              <OrgCardDescription className="text-muted-foreground">
                 Upload a square logo (recommended 64x64px or larger, max 2MB)
               </OrgCardDescription>
             </OrgCardHeader>
@@ -195,7 +195,7 @@ export default function OrgBrandingSettings() {
                     variant="ghost"
                     size="sm"
                     onClick={() => setLogoFile(null)}
-                    className="text-white hover:bg-white/20"
+                    className="text-foreground hover:bg-white/20"
                   >
                     <X className="w-4 h-4" />
                   </Button>
@@ -205,10 +205,10 @@ export default function OrgBrandingSettings() {
           </OrgCard>
 
           {/* Banner Upload */}
-          <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
+          <OrgCard className="bg-card border-border">
             <OrgCardHeader>
-              <OrgCardTitle className="text-white">Banner (Optional)</OrgCardTitle>
-              <OrgCardDescription className="text-white/80">
+              <OrgCardTitle className="text-foreground">Banner (Optional)</OrgCardTitle>
+              <OrgCardDescription className="text-muted-foreground">
                 Upload a wide banner image (recommended 1200x300px, max 2MB)
               </OrgCardDescription>
             </OrgCardHeader>
@@ -226,7 +226,7 @@ export default function OrgBrandingSettings() {
                 <Button
                   variant="outline"
                   onClick={() => bannerInputRef.current?.click()}
-                  className="flex-1 border-white/30 text-white hover:bg-white/20"
+                  className="flex-1 border-white/30 text-foreground hover:bg-white/20"
                 >
                   <Upload className="w-4 h-4 mr-2" />
                   {bannerFile ? 'Change Banner' : 'Upload Banner'}
@@ -246,7 +246,7 @@ export default function OrgBrandingSettings() {
                     variant="ghost"
                     size="sm"
                     onClick={() => setBannerFile(null)}
-                    className="text-white hover:bg-white/20"
+                    className="text-foreground hover:bg-white/20"
                   >
                     <X className="w-4 h-4" />
                   </Button>
@@ -256,17 +256,17 @@ export default function OrgBrandingSettings() {
           </OrgCard>
 
           {/* Theme Accent */}
-          <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
+          <OrgCard className="bg-card border-border">
             <OrgCardHeader>
-              <OrgCardTitle className="text-white">Accent Color</OrgCardTitle>
-              <OrgCardDescription className="text-white/80">
+              <OrgCardTitle className="text-foreground">Accent Color</OrgCardTitle>
+              <OrgCardDescription className="text-muted-foreground">
                 Choose a color that represents your organization
               </OrgCardDescription>
             </OrgCardHeader>
             <OrgCardContent className="space-y-4">
               {/* Preset Colors */}
               <div>
-                <Label className="text-sm font-medium text-white">Presets</Label>
+                <Label className="text-sm font-medium text-foreground">Presets</Label>
                 <div className="grid grid-cols-3 gap-2 mt-2">
                   {ACCENT_PRESETS.map((preset) => (
                     <button
@@ -283,7 +283,7 @@ export default function OrgBrandingSettings() {
                         className="w-full h-6 rounded mb-2"
                         style={{ backgroundColor: preset.hex }}
                       />
-                      <div className="text-xs font-medium text-white">{preset.name}</div>
+                      <div className="text-xs font-medium text-foreground">{preset.name}</div>
                     </button>
                   ))}
                 </div>
@@ -293,7 +293,7 @@ export default function OrgBrandingSettings() {
 
               {/* Custom Color */}
               <div>
-                <Label htmlFor="custom-accent" className="text-sm font-medium text-white">
+                <Label htmlFor="custom-accent" className="text-sm font-medium text-foreground">
                   Custom Color (HSL format)
                 </Label>
                 <Input
@@ -304,9 +304,9 @@ export default function OrgBrandingSettings() {
                     setCustomAccent(e.target.value);
                     setSelectedPreset(null);
                   }}
-                  className="mt-2 bg-white/20 border-white/30 text-white placeholder:text-white/70"
+                  className="mt-2 bg-white/20 border-white/30 text-foreground placeholder:text-muted-foreground"
                 />
-                <p className="text-xs text-white/70 mt-1">
+                <p className="text-xs text-muted-foreground mt-1">
                   Use HSL format without "hsl()" wrapper. Example: 280 100% 70%
                 </p>
               </div>
@@ -314,17 +314,17 @@ export default function OrgBrandingSettings() {
           </OrgCard>
 
           {/* NEW: Dark Mode Accent Color */}
-          <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
+          <OrgCard className="bg-card border-border">
             <OrgCardHeader>
-              <OrgCardTitle className="text-white">Dark Mode Accent Color</OrgCardTitle>
-              <OrgCardDescription className="text-white/80">
+              <OrgCardTitle className="text-foreground">Dark Mode Accent Color</OrgCardTitle>
+              <OrgCardDescription className="text-muted-foreground">
                 Choose a darker, more saturated color optimized for dark backgrounds
               </OrgCardDescription>
             </OrgCardHeader>
             <OrgCardContent className="space-y-4">
               {/* Dark Mode Preset Colors */}
               <div>
-                <Label className="text-sm font-medium text-white">Dark Mode Presets</Label>
+                <Label className="text-sm font-medium text-foreground">Dark Mode Presets</Label>
                 <div className="grid grid-cols-3 gap-2 mt-2">
                   {DARK_MODE_ACCENT_PRESETS.map((preset) => (
                     <button
@@ -341,7 +341,7 @@ export default function OrgBrandingSettings() {
                         className="w-full h-6 rounded mb-2"
                         style={{ backgroundColor: preset.hex }}
                       />
-                      <div className="text-xs font-medium text-white">{preset.name}</div>
+                      <div className="text-xs font-medium text-foreground">{preset.name}</div>
                     </button>
                   ))}
                 </div>
@@ -351,7 +351,7 @@ export default function OrgBrandingSettings() {
 
               {/* Custom Dark Mode Color */}
               <div>
-                <Label htmlFor="custom-dark-accent" className="text-sm font-medium text-white">
+                <Label htmlFor="custom-dark-accent" className="text-sm font-medium text-foreground">
                   Custom Dark Mode Color (HSL format)
                 </Label>
                 <Input
@@ -362,9 +362,9 @@ export default function OrgBrandingSettings() {
                     setCustomDarkAccent(e.target.value);
                     setSelectedDarkPreset(null);
                   }}
-                  className="mt-2 bg-white/20 border-white/30 text-white placeholder:text-white/70"
+                  className="mt-2 bg-white/20 border-white/30 text-foreground placeholder:text-muted-foreground"
                 />
-                <p className="text-xs text-white/70 mt-1">
+                <p className="text-xs text-muted-foreground mt-1">
                   Leave empty to auto-generate from light mode color
                 </p>
               </div>
@@ -375,7 +375,7 @@ export default function OrgBrandingSettings() {
           <Button 
             onClick={handleSave}
             disabled={updateBranding.isPending || uploadFile.isPending}
-            className="w-full bg-white/20 hover:bg-white/30 text-white border-white/30"
+            className="w-full bg-white/20 hover:bg-white/30 text-foreground border-white/30"
             size="lg"
           >
             {(updateBranding.isPending || uploadFile.isPending) ? 'Saving...' : 'Save Changes'}
@@ -384,13 +384,13 @@ export default function OrgBrandingSettings() {
 
         {/* Preview Panel */}
         <div className="space-y-6">
-          <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
+          <OrgCard className="bg-card border-border">
             <OrgCardHeader>
-              <OrgCardTitle className="flex items-center gap-2 text-white">
+              <OrgCardTitle className="flex items-center gap-2 text-foreground">
                 <Eye className="w-5 h-5" />
                 Live Preview
               </OrgCardTitle>
-              <OrgCardDescription className="text-white/80">
+              <OrgCardDescription className="text-muted-foreground">
                 See how your branding will look in the application
               </OrgCardDescription>
             </OrgCardHeader>
@@ -405,7 +405,7 @@ export default function OrgBrandingSettings() {
                       className="w-8 h-8 object-contain rounded-lg"
                     />
                   </div>
-                  <span className="font-semibold text-lg text-white">{displayName}</span>
+                  <span className="font-semibold text-lg text-foreground">{displayName}</span>
                 </div>
                 
                 {/* Org Badge Preview */}
@@ -418,11 +418,11 @@ export default function OrgBrandingSettings() {
                     />
                   ) : (
                     <div className="w-5 h-5 bg-white/20 rounded flex items-center justify-center">
-                      <Palette className="w-3 h-3 text-white/70" />
+                      <Palette className="w-3 h-3 text-muted-foreground" />
                     </div>
                   )}
-                  <span className="text-sm font-medium text-white">{displayName}</span>
-                  <Badge variant="secondary" className="text-xs h-4 px-2 bg-white/20 text-white border-white/30">
+                  <span className="text-sm font-medium text-foreground">{displayName}</span>
+                  <Badge variant="secondary" className="text-xs h-4 px-2 bg-white/20 text-foreground border-white/30">
                     Org mode
                   </Badge>
                 </div>
@@ -430,7 +430,7 @@ export default function OrgBrandingSettings() {
 
               {/* Accent Color Preview */}
               <div className="border border-white/30 rounded-lg p-4 bg-white/10">
-                <h4 className="font-medium mb-3 text-white">Accent Color Usage</h4>
+                <h4 className="font-medium mb-3 text-foreground">Accent Color Usage</h4>
                 <div className="space-y-3">
                   <Button 
                     style={{ 
@@ -445,7 +445,7 @@ export default function OrgBrandingSettings() {
                     className="w-full h-8 rounded border border-white/30"
                     style={{ backgroundColor: `hsl(${currentAccent} / 0.1)` }}
                   >
-                    <div className="flex items-center justify-center h-full text-sm text-white">
+                    <div className="flex items-center justify-center h-full text-sm text-foreground">
                       Accent Background
                     </div>
                   </div>
@@ -454,7 +454,7 @@ export default function OrgBrandingSettings() {
                       className="w-4 h-4 rounded-full"
                       style={{ backgroundColor: `hsl(${currentAccent})` }}
                     />
-                    <span className="text-sm text-white">Accent Indicators</span>
+                    <span className="text-sm text-foreground">Accent Indicators</span>
                   </div>
                 </div>
               </div>
@@ -468,7 +468,7 @@ export default function OrgBrandingSettings() {
                     className="w-full h-24 object-cover"
                   />
                   <div className="p-3 bg-white/20">
-                    <p className="text-sm text-white/80">
+                    <p className="text-sm text-muted-foreground">
                       Banner will appear subtly behind page titles
                     </p>
                   </div>

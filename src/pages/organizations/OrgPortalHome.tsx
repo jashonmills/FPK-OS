@@ -111,7 +111,7 @@ export default function OrgPortalHome() {
     return (
       <div className="container mx-auto px-6 py-8 space-y-6">
         {/* Welcome Card */}
-        <Card className="bg-brand-accent border-brand-accent/50">
+        <Card className="bg-brand-accent border-border">
           <CardHeader>
             <div className="flex items-center gap-4">
               {branding?.logo_url && (
@@ -126,7 +126,7 @@ export default function OrgPortalHome() {
         </Card>
 
         {/* XP & Level Card */}
-        <Card className="bg-brand-accent border-brand-accent/50">
+        <Card className="bg-brand-accent border-border">
           <CardHeader>
             <CardTitle className="text-brand-accent-foreground flex items-center gap-2">
               <Star className="h-5 w-5" />
@@ -163,7 +163,7 @@ export default function OrgPortalHome() {
 
         {/* Achievements & Badges */}
         {userStats?.recent_badges && userStats.recent_badges.length > 0 && (
-          <Card className="bg-brand-accent border-brand-accent/50">
+          <Card className="bg-brand-accent border-border">
             <CardHeader>
               <CardTitle className="text-brand-accent-foreground flex items-center gap-2">
                 <Trophy className="h-5 w-5" />
@@ -193,7 +193,7 @@ export default function OrgPortalHome() {
 
         {/* Course Progress Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="bg-brand-accent border-brand-accent/50">
+          <Card className="bg-brand-accent border-border">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-brand-accent-foreground/80">My Courses</CardTitle>
             </CardHeader>
@@ -203,7 +203,7 @@ export default function OrgPortalHome() {
             </CardContent>
           </Card>
 
-          <Card className="bg-brand-accent border-brand-accent/50">
+          <Card className="bg-brand-accent border-border">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-brand-accent-foreground/80">Completed</CardTitle>
             </CardHeader>
@@ -213,7 +213,7 @@ export default function OrgPortalHome() {
             </CardContent>
           </Card>
 
-          <Card className="bg-brand-accent border-brand-accent/50">
+          <Card className="bg-brand-accent border-border">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-brand-accent-foreground/80">My Goals</CardTitle>
             </CardHeader>
@@ -223,7 +223,7 @@ export default function OrgPortalHome() {
             </CardContent>
           </Card>
 
-          <Card className="bg-brand-accent border-brand-accent/50">
+          <Card className="bg-brand-accent border-border">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-brand-accent-foreground/80">Progress</CardTitle>
             </CardHeader>
@@ -235,14 +235,14 @@ export default function OrgPortalHome() {
         </div>
 
         {/* Quick Actions */}
-        <Card className="bg-brand-accent border-brand-accent/50">
+        <Card className="bg-brand-accent border-border">
           <CardHeader>
             <CardTitle className="text-brand-accent-foreground">Quick Actions</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-4">
               <Button 
-                className="flex items-center space-x-2 bg-white/20 hover:bg-white/30 text-white border-white/30"
+                className="flex items-center space-x-2 bg-brand-accent-foreground/10 hover:bg-brand-accent-foreground/20 text-brand-accent-foreground border-brand-accent-foreground/20"
                 onClick={() => navigate(`/org/${currentOrg?.organization_id}/courses`)}
               >
                 <BookOpen className="h-4 w-4" />
@@ -250,7 +250,7 @@ export default function OrgPortalHome() {
               </Button>
               <Button 
                 variant="outline" 
-                className="flex items-center space-x-2 border-border text-foreground hover:bg-accent"
+                className="flex items-center space-x-2 border-brand-accent-foreground/20 text-brand-accent-foreground hover:bg-brand-accent-foreground/10"
                 onClick={() => navigate(`/org/${currentOrg?.organization_id}/goals-notes`)}
               >
                 <Target className="h-4 w-4" />
@@ -346,7 +346,7 @@ export default function OrgPortalHome() {
           const cta = getCTALink();
           
           return (
-            <Card key={index} className="bg-brand-accent border-brand-accent/50">
+            <Card key={index} className="bg-brand-accent border-border">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-brand-accent-foreground/80">{stat.label}</CardTitle>
                 <stat.icon className="h-4 w-4 text-brand-accent-foreground/70" />
@@ -370,7 +370,7 @@ export default function OrgPortalHome() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Progress Overview */}
         <Collapsible defaultOpen={false}>
-          <Card className="bg-brand-accent border-brand-accent/50">
+          <Card className="bg-brand-accent border-border">
             <CollapsibleTrigger className="w-full group">
               <CardHeader className="cursor-pointer hover:bg-background/5 transition-colors">
                 <CardTitle className="flex items-center justify-between text-brand-accent-foreground">
@@ -456,7 +456,7 @@ export default function OrgPortalHome() {
 
         {/* Recent Activity */}
         <Collapsible defaultOpen={false}>
-          <Card className="bg-brand-accent border-brand-accent/50">
+          <Card className="bg-brand-accent border-border">
             <CollapsibleTrigger className="w-full group">
               <CardHeader className="cursor-pointer hover:bg-background/5 transition-colors">
                 <CardTitle className="flex items-center justify-between text-brand-accent-foreground">
@@ -510,7 +510,7 @@ export default function OrgPortalHome() {
       {!isStudent && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Progress Trend */}
-          <Card className="bg-brand-accent border-brand-accent/50">
+          <Card className="bg-brand-accent border-border">
             <CardHeader>
               <CardTitle className="text-brand-accent-foreground">Learning Progress Trend</CardTitle>
               <CardDescription className="text-brand-accent-foreground/80">
@@ -555,7 +555,7 @@ export default function OrgPortalHome() {
           </Card>
 
           {/* Engagement Metrics */}
-          <Card className="bg-brand-accent border-brand-accent/50">
+          <Card className="bg-brand-accent border-border">
             <CardHeader>
               <CardTitle className="text-brand-accent-foreground">Student Engagement</CardTitle>
               <CardDescription className="text-brand-accent-foreground/80">
@@ -581,14 +581,14 @@ export default function OrgPortalHome() {
                 
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-white">Course Completion</span>
-                    <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
+                    <span className="text-sm text-brand-accent-foreground">Course Completion</span>
+                    <Badge variant="secondary" className="bg-brand-accent-foreground/10 text-brand-accent-foreground border-brand-accent-foreground/20">
                       {analytics?.completionRate || 0}%
                     </Badge>
                   </div>
-                  <div className="w-full bg-white/20 rounded-full h-2">
+                  <div className="w-full bg-brand-accent-foreground/20 rounded-full h-2">
                     <div 
-                      className="bg-green-400 h-2 rounded-full"
+                      className="bg-green-500 dark:bg-green-400 h-2 rounded-full"
                       style={{ width: `${analytics?.completionRate || 0}%` }}
                     />
                   </div>
@@ -596,12 +596,12 @@ export default function OrgPortalHome() {
                 
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-white">Assignment Submission</span>
-                    <Badge variant="outline" className="bg-white/20 text-white border-white/30">0%</Badge>
+                    <span className="text-sm text-brand-accent-foreground">Assignment Submission</span>
+                    <Badge variant="outline" className="bg-brand-accent-foreground/10 text-brand-accent-foreground border-brand-accent-foreground/20">0%</Badge>
                   </div>
-                  <div className="w-full bg-white/20 rounded-full h-2">
+                  <div className="w-full bg-brand-accent-foreground/20 rounded-full h-2">
                     <div 
-                      className="bg-blue-400 h-2 rounded-full"
+                      className="bg-blue-500 dark:bg-blue-400 h-2 rounded-full"
                       style={{ width: '0%' }}
                     />
                   </div>
@@ -613,7 +613,7 @@ export default function OrgPortalHome() {
       )}
 
       {/* Quick Actions */}
-      <Card className="bg-brand-accent border-brand-accent/50">
+      <Card className="bg-brand-accent border-border">
         <CardHeader>
           <CardTitle className="text-brand-accent-foreground">Quick Actions</CardTitle>
           <CardDescription className="text-brand-accent-foreground/80">

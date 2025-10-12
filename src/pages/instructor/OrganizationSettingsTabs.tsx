@@ -120,7 +120,7 @@ export default function OrganizationSettingsTabs() {
       <div className="container max-w-6xl mx-auto py-8">
         <OrgCard>
           <OrgCardContent className="p-8 text-center">
-            <p className="text-white/80">No organization selected</p>
+            <p className="text-muted-foreground">No organization selected</p>
           </OrgCardContent>
         </OrgCard>
       </div>
@@ -226,14 +226,14 @@ export default function OrganizationSettingsTabs() {
   return (
     <div className="container max-w-6xl mx-auto py-8 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-white drop-shadow-lg">Organization Settings</h1>
-        <p className="text-white/80 mt-2 drop-shadow">
+        <h1 className="text-3xl font-bold tracking-tight text-foreground drop-shadow-lg">Organization Settings</h1>
+        <p className="text-muted-foreground mt-2 drop-shadow">
           Manage your organization's configuration, branding, and member invitations
         </p>
       </div>
 
       <Tabs defaultValue="general" className="space-y-6">
-        <TabsList className="bg-brand-accent/65 border border-brand-accent/50 text-white">
+        <TabsList className="bg-card border border-border text-foreground">
           <TabsTrigger value="general" className="flex items-center gap-2">
             <Settings className="h-4 w-4" />
             General
@@ -258,58 +258,58 @@ export default function OrganizationSettingsTabs() {
 
         {/* General Settings Tab */}
         <TabsContent value="general" className="space-y-6">
-          <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
+          <OrgCard className="bg-card border-border">
             <OrgCardHeader>
-              <OrgCardTitle className="text-white">Organization Overview</OrgCardTitle>
-              <OrgCardDescription className="text-white/80">
+              <OrgCardTitle className="text-foreground">Organization Overview</OrgCardTitle>
+              <OrgCardDescription className="text-muted-foreground">
                 Basic information about your organization
               </OrgCardDescription>
             </OrgCardHeader>
             <OrgCardContent className="space-y-4">
               <div>
-                <Label htmlFor="org-name" className="text-white">Organization Name</Label>
+                <Label htmlFor="org-name" className="text-foreground">Organization Name</Label>
                 <Input 
                   id="org-name" 
                   value={displayName} 
                   disabled
-                  className="mt-2 bg-white/20 border-white/30 text-white"
+                  className="mt-2 bg-white/20 border-white/30 text-foreground"
                 />
               </div>
               <div>
-                <Label className="text-white">Plan</Label>
+                <Label className="text-foreground">Plan</Label>
                 <div className="mt-2">
-                  <Badge className="bg-white/20 text-white border-white/30">
+                  <Badge className="bg-white/20 text-foreground border-white/30">
                     {currentOrg.organizations.subscription_tier || 'Free'}
                   </Badge>
                 </div>
               </div>
               <div>
-                <Label htmlFor="description" className="text-white">Description</Label>
+                <Label htmlFor="description" className="text-foreground">Description</Label>
                 <Textarea
                   id="description"
                   placeholder="Organization description..."
-                  className="mt-2 bg-white/20 border-white/30 text-white placeholder:text-white/50"
+                  className="mt-2 bg-white/20 border-white/30 text-foreground placeholder:text-white/50"
                   rows={3}
                 />
               </div>
             </OrgCardContent>
           </OrgCard>
 
-          <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
+          <OrgCard className="bg-card border-border">
             <OrgCardHeader>
-              <OrgCardTitle className="text-white">Organization Settings</OrgCardTitle>
-              <OrgCardDescription className="text-white/80">
+              <OrgCardTitle className="text-foreground">Organization Settings</OrgCardTitle>
+              <OrgCardDescription className="text-muted-foreground">
                 Configure organization features and capabilities
               </OrgCardDescription>
             </OrgCardHeader>
             <OrgCardContent className="space-y-3">
-              <Button variant="outline" className="w-full justify-start bg-white/10 border-white/30 text-white hover:bg-white/20">
+              <Button variant="outline" className="w-full justify-start bg-white/10 border-white/30 text-foreground hover:bg-white/20">
                 Public Organization
               </Button>
-              <Button variant="outline" className="w-full justify-start bg-white/10 border-white/30 text-white hover:bg-white/20">
+              <Button variant="outline" className="w-full justify-start bg-white/10 border-white/30 text-foreground hover:bg-white/20">
                 Auto-enrollment
               </Button>
-              <Button variant="outline" className="w-full justify-start bg-white/10 border-white/30 text-white hover:bg-white/20">
+              <Button variant="outline" className="w-full justify-start bg-white/10 border-white/30 text-foreground hover:bg-white/20">
                 Progress Tracking
               </Button>
             </OrgCardContent>
@@ -338,10 +338,10 @@ export default function OrganizationSettingsTabs() {
             {/* Branding Settings */}
             <div className="space-y-6">
               {/* Logo Upload */}
-              <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
+              <OrgCard className="bg-card border-border">
                 <OrgCardHeader>
-                  <OrgCardTitle className="text-white">Logo</OrgCardTitle>
-                  <OrgCardDescription className="text-white/80">
+                  <OrgCardTitle className="text-foreground">Logo</OrgCardTitle>
+                  <OrgCardDescription className="text-muted-foreground">
                     Upload a square logo (recommended 64x64px or larger, max 2MB)
                   </OrgCardDescription>
                 </OrgCardHeader>
@@ -381,7 +381,7 @@ export default function OrganizationSettingsTabs() {
                         variant="ghost"
                         size="sm"
                         onClick={() => setLogoFile(null)}
-                        className="text-white hover:bg-white/20"
+                        className="text-foreground hover:bg-white/20"
                       >
                         <X className="w-4 w-4" />
                       </Button>
@@ -391,10 +391,10 @@ export default function OrganizationSettingsTabs() {
               </OrgCard>
 
               {/* Banner Upload */}
-              <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
+              <OrgCard className="bg-card border-border">
                 <OrgCardHeader>
-                  <OrgCardTitle className="text-white">Banner (Optional)</OrgCardTitle>
-                  <OrgCardDescription className="text-white/80">
+                  <OrgCardTitle className="text-foreground">Banner (Optional)</OrgCardTitle>
+                  <OrgCardDescription className="text-muted-foreground">
                     Upload a wide banner image (recommended 1200x300px, max 2MB)
                   </OrgCardDescription>
                 </OrgCardHeader>
@@ -432,7 +432,7 @@ export default function OrganizationSettingsTabs() {
                         variant="ghost"
                         size="sm"
                         onClick={() => setBannerFile(null)}
-                        className="text-white hover:bg-white/20"
+                        className="text-foreground hover:bg-white/20"
                       >
                         <X className="w-4 h-4" />
                       </Button>
@@ -442,16 +442,16 @@ export default function OrganizationSettingsTabs() {
               </OrgCard>
 
               {/* Theme Accent */}
-              <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
+              <OrgCard className="bg-card border-border">
                 <OrgCardHeader>
-                  <OrgCardTitle className="text-white">Accent Color</OrgCardTitle>
-                  <OrgCardDescription className="text-white/80">
+                  <OrgCardTitle className="text-foreground">Accent Color</OrgCardTitle>
+                  <OrgCardDescription className="text-muted-foreground">
                     Choose a color that represents your organization
                   </OrgCardDescription>
                 </OrgCardHeader>
                 <OrgCardContent className="space-y-4">
                   <div>
-                    <Label className="text-sm font-medium text-white">Presets</Label>
+                    <Label className="text-sm font-medium text-foreground">Presets</Label>
                     <div className="grid grid-cols-3 gap-2 mt-2">
                       {ACCENT_PRESETS.map((preset) => (
                         <button
@@ -468,7 +468,7 @@ export default function OrganizationSettingsTabs() {
                             className="w-full h-6 rounded mb-2"
                             style={{ backgroundColor: preset.hex }}
                           />
-                          <div className="text-xs font-medium text-white">{preset.name}</div>
+                          <div className="text-xs font-medium text-foreground">{preset.name}</div>
                         </button>
                       ))}
                     </div>
@@ -477,7 +477,7 @@ export default function OrganizationSettingsTabs() {
                   <div className="border-t border-white/30 my-4" />
 
                   <div>
-                    <Label htmlFor="custom-accent" className="text-sm font-medium text-white">
+                    <Label htmlFor="custom-accent" className="text-sm font-medium text-foreground">
                       Custom Color (HSL format)
                     </Label>
                     <Input
@@ -488,7 +488,7 @@ export default function OrganizationSettingsTabs() {
                         setCustomAccent(e.target.value);
                         setSelectedPreset(null);
                       }}
-                      className="mt-2 bg-white/20 border-white/30 text-white placeholder:text-white/70"
+                      className="mt-2 bg-white/20 border-white/30 text-foreground placeholder:text-muted-foreground"
                     />
                   </div>
                 </OrgCardContent>
@@ -497,7 +497,7 @@ export default function OrganizationSettingsTabs() {
               <Button 
                 onClick={handleSaveBranding}
                 disabled={updateBranding.isPending || uploadFile.isPending}
-                className="w-full bg-white/20 hover:bg-white/30 text-white border-white/30"
+                className="w-full bg-white/20 hover:bg-white/30 text-foreground border-white/30"
                 size="lg"
               >
                 {(updateBranding.isPending || uploadFile.isPending) ? 'Saving...' : 'Save Branding'}
@@ -506,13 +506,13 @@ export default function OrganizationSettingsTabs() {
 
             {/* Preview Panel */}
             <div>
-              <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
+              <OrgCard className="bg-card border-border">
                 <OrgCardHeader>
-                  <OrgCardTitle className="flex items-center gap-2 text-white">
+                  <OrgCardTitle className="flex items-center gap-2 text-foreground">
                     <Eye className="w-5 h-5" />
                     Live Preview
                   </OrgCardTitle>
-                  <OrgCardDescription className="text-white/80">
+                  <OrgCardDescription className="text-muted-foreground">
                     See how your branding will look in the application
                   </OrgCardDescription>
                 </OrgCardHeader>
@@ -526,7 +526,7 @@ export default function OrganizationSettingsTabs() {
                           className="w-8 h-8 object-contain rounded-lg"
                         />
                       </div>
-                      <span className="font-semibold text-lg text-white">{displayName}</span>
+                      <span className="font-semibold text-lg text-foreground">{displayName}</span>
                     </div>
                     
                     <div className="flex items-center gap-2 px-3 py-1.5 bg-white/20 rounded-full border border-white/30 w-fit">
@@ -538,18 +538,18 @@ export default function OrganizationSettingsTabs() {
                         />
                       ) : (
                         <div className="w-5 h-5 bg-white/20 rounded flex items-center justify-center">
-                          <Palette className="w-3 h-3 text-white/70" />
+                          <Palette className="w-3 h-3 text-muted-foreground" />
                         </div>
                       )}
-                      <span className="text-sm font-medium text-white">{displayName}</span>
-                      <Badge variant="secondary" className="text-xs h-4 px-2 bg-white/20 text-white border-white/30">
+                      <span className="text-sm font-medium text-foreground">{displayName}</span>
+                      <Badge variant="secondary" className="text-xs h-4 px-2 bg-white/20 text-foreground border-white/30">
                         Org mode
                       </Badge>
                     </div>
                   </div>
 
                   <div className="border border-white/30 rounded-lg p-4 bg-white/10">
-                    <h4 className="font-medium mb-3 text-white">Accent Color Usage</h4>
+                    <h4 className="font-medium mb-3 text-foreground">Accent Color Usage</h4>
                     <div className="space-y-3">
                       <Button 
                         style={{ 
@@ -564,7 +564,7 @@ export default function OrganizationSettingsTabs() {
                         className="w-full h-8 rounded border border-white/30"
                         style={{ backgroundColor: `hsl(${currentAccent} / 0.1)` }}
                       >
-                        <div className="flex items-center justify-center h-full text-sm text-white">
+                        <div className="flex items-center justify-center h-full text-sm text-foreground">
                           Accent Background
                         </div>
                       </div>
@@ -579,7 +579,7 @@ export default function OrganizationSettingsTabs() {
                         className="w-full h-24 object-cover"
                       />
                       <div className="p-3 bg-white/20">
-                        <p className="text-sm text-white/80">
+                        <p className="text-sm text-muted-foreground">
                           Banner will appear subtly behind page titles
                         </p>
                       </div>
@@ -598,13 +598,13 @@ export default function OrganizationSettingsTabs() {
             
             {/* Contextual Alert */}
             <Alert className="bg-blue-500/20 border-blue-400/50">
-              <Info className="h-4 w-4 text-white" />
-              <AlertTitle className="text-white">Staff Invitations Only</AlertTitle>
-              <AlertDescription className="text-white/80">
+              <Info className="h-4 w-4 text-foreground" />
+              <AlertTitle className="text-foreground">Staff Invitations Only</AlertTitle>
+              <AlertDescription className="text-muted-foreground">
                 Looking to add students? Use the{' '}
                 <button
                   onClick={() => navigate(`/org/${currentOrg?.organization_id}/students`)}
-                  className="underline font-medium hover:text-white"
+                  className="underline font-medium hover:text-foreground"
                 >
                   Students tab
                 </button>
@@ -613,19 +613,19 @@ export default function OrganizationSettingsTabs() {
             </Alert>
 
             {/* Email Invites */}
-            <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
+            <OrgCard className="bg-card border-border">
               <OrgCardHeader>
-                <OrgCardTitle className="flex items-center gap-2 text-white">
+                <OrgCardTitle className="flex items-center gap-2 text-foreground">
                   <Mail className="h-5 w-5" />
                   Invite by Email
                 </OrgCardTitle>
-                <OrgCardDescription className="text-white/80">
+                <OrgCardDescription className="text-muted-foreground">
                   Send personalized invitations directly to email addresses
                 </OrgCardDescription>
               </OrgCardHeader>
               <OrgCardContent className="space-y-4">
                 <div>
-                  <Label className="text-white">Email addresses</Label>
+                  <Label className="text-foreground">Email addresses</Label>
                   {emails.map((email, index) => (
                     <div key={index} className="flex gap-2 mt-2">
                       <Input
@@ -633,14 +633,14 @@ export default function OrganizationSettingsTabs() {
                         placeholder="colleague@example.com"
                         value={email}
                         onChange={(e) => handleEmailChange(index, e.target.value)}
-                        className="flex-1 bg-white/20 border-white/30 text-white placeholder:text-white/50"
+                        className="flex-1 bg-white/20 border-white/30 text-foreground placeholder:text-white/50"
                       />
                       {emails.length > 1 && (
                         <Button
                           variant="outline"
                           size="icon"
                           onClick={() => handleRemoveEmail(index)}
-                          className="bg-white/10 border-white/30 text-white hover:bg-white/20"
+                          className="bg-white/10 border-white/30 text-foreground hover:bg-white/20"
                         >
                           <X className="h-4 w-4" />
                         </Button>
@@ -650,7 +650,7 @@ export default function OrganizationSettingsTabs() {
                   <Button
                     variant="outline"
                     onClick={handleAddEmail}
-                    className="w-full mt-2 bg-white/10 border-white/30 text-white hover:bg-white/20"
+                    className="w-full mt-2 bg-white/10 border-white/30 text-foreground hover:bg-white/20"
                     size="sm"
                   >
                     <Plus className="h-4 w-4 mr-2" />
@@ -660,13 +660,13 @@ export default function OrganizationSettingsTabs() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="role" className="text-white">Role</Label>
+                    <Label htmlFor="role" className="text-foreground">Role</Label>
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <div className="flex items-center gap-2 mt-1">
                             <Select value={selectedRole} onValueChange={setSelectedRole}>
-                              <SelectTrigger className="bg-white/20 border-white/30 text-white">
+                              <SelectTrigger className="bg-white/20 border-white/30 text-foreground">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
@@ -676,7 +676,7 @@ export default function OrganizationSettingsTabs() {
                                 <SelectItem value="viewer">Viewer</SelectItem>
                               </SelectContent>
                             </Select>
-                            <Info className="h-4 w-4 text-white/70" />
+                            <Info className="h-4 w-4 text-muted-foreground" />
                           </div>
                         </TooltipTrigger>
                         <TooltipContent>
@@ -687,9 +687,9 @@ export default function OrganizationSettingsTabs() {
                   </div>
 
                   <div>
-                    <Label htmlFor="expires" className="text-white">Expires in</Label>
+                    <Label htmlFor="expires" className="text-foreground">Expires in</Label>
                     <Select value={expiresIn} onValueChange={setExpiresIn}>
-                      <SelectTrigger className="mt-1 bg-white/20 border-white/30 text-white">
+                      <SelectTrigger className="mt-1 bg-white/20 border-white/30 text-foreground">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -706,7 +706,7 @@ export default function OrganizationSettingsTabs() {
                 <Button
                   onClick={handleSendInvites}
                   disabled={emailInviteMutation.isPending}
-                  className="w-full bg-white/20 hover:bg-white/30 text-white border-white/30"
+                  className="w-full bg-white/20 hover:bg-white/30 text-foreground border-white/30"
                 >
                   {emailInviteMutation.isPending ? 'Sending...' : 'Send Invitations'}
                 </Button>
@@ -714,25 +714,25 @@ export default function OrganizationSettingsTabs() {
             </OrgCard>
 
             {/* Manual Add Staff */}
-            <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
+            <OrgCard className="bg-card border-border">
               <OrgCardHeader>
-                <OrgCardTitle className="flex items-center gap-2 text-white">
+                <OrgCardTitle className="flex items-center gap-2 text-foreground">
                   <UserPlus className="h-5 w-5" />
                   Add Staff Manually
                 </OrgCardTitle>
-                <OrgCardDescription className="text-white/80">
+                <OrgCardDescription className="text-muted-foreground">
                   Directly add instructors, aides, or viewers without sending an invite
                 </OrgCardDescription>
               </OrgCardHeader>
               <OrgCardContent>
                 <Button
                   onClick={() => setManualAddDialogOpen(true)}
-                  className="w-full bg-white/20 hover:bg-white/30 text-white border-white/30"
+                  className="w-full bg-white/20 hover:bg-white/30 text-foreground border-white/30"
                 >
                   <UserPlus className="h-4 w-4 mr-2" />
                   Add Staff Member
                 </Button>
-                <p className="text-xs text-white/70 mt-3">
+                <p className="text-xs text-muted-foreground mt-3">
                   Staff members will receive a welcome email with account setup instructions.
                 </p>
               </OrgCardContent>
@@ -757,15 +757,15 @@ export default function OrganizationSettingsTabs() {
 
         {/* Members Tab */}
         <TabsContent value="members" className="space-y-6">
-          <OrgCard className="bg-brand-accent/65 border-brand-accent/50">
+          <OrgCard className="bg-card border-border">
             <OrgCardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <OrgCardTitle className="flex items-center gap-2 text-white">
+                  <OrgCardTitle className="flex items-center gap-2 text-foreground">
                     <Users className="h-5 w-5" />
                     Organization Members
                   </OrgCardTitle>
-                  <OrgCardDescription className="text-white/80">
+                  <OrgCardDescription className="text-muted-foreground">
                     View and manage all members in your organization
                   </OrgCardDescription>
                 </div>
@@ -825,8 +825,8 @@ export default function OrganizationSettingsTabs() {
             <OrgCardContent>
               {membersLoading ? (
                 <div className="text-center py-8">
-                  <RefreshCw className="h-8 w-8 text-white/70 mx-auto mb-4 animate-spin" />
-                  <p className="text-white/80">Loading members...</p>
+                  <RefreshCw className="h-8 w-8 text-muted-foreground mx-auto mb-4 animate-spin" />
+                  <p className="text-muted-foreground">Loading members...</p>
                 </div>
               ) : members && members.length > 0 ? (
                 <div className={
@@ -853,8 +853,8 @@ export default function OrganizationSettingsTabs() {
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <Users className="h-12 w-12 text-white/70 mx-auto mb-4" />
-                  <p className="text-white/80">
+                  <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">
                     No members found. Invite members to get started.
                   </p>
                 </div>
