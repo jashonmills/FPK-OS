@@ -232,7 +232,7 @@ export default function OrganizationSettingsTabs() {
       </div>
 
       <Tabs defaultValue="general" className="space-y-6">
-        <TabsList className="bg-orange-500/65 border border-orange-400/50">
+        <TabsList className="bg-orange-500/65 border border-orange-400/50 text-white">
           <TabsTrigger value="general" className="flex items-center gap-2">
             <Settings className="h-4 w-4" />
             General
