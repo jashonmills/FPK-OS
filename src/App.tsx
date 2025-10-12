@@ -258,7 +258,7 @@ const App: React.FC = () => {
       
       <Suspense fallback={<PageLoader />}>
         <Routes>
-          <Route path="/" element={<LazyRoute><Index /></LazyRoute>} />
+          <Route index path="/" element={<LazyRoute><Index /></LazyRoute>} />
           <Route path="/courses" element={<LazyRoute><CoursesPage /></LazyRoute>} />
           <Route path="/login" element={<LazyRoute><Login /></LazyRoute>} />
           

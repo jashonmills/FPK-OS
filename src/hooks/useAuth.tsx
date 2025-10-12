@@ -37,20 +37,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     );
 
-    // Get initial session
+    // Get initial session with timeout to prevent infinite loading
     console.log('useAuth: Getting initial session...');
+    const sessionTimeout = setTimeout(() => {
+      console.warn('useAuth: Session fetch timed out, setting loading to false');
+      setLoading(false);
+    }, 5000); // 5 second timeout
+    
     supabase.auth.getSession().then(({ data: { session }, error }) => {
+      clearTimeout(sessionTimeout);
       console.log('useAuth: Initial session result', { hasSession: !!session, error });
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
     }).catch((err) => {
+      clearTimeout(sessionTimeout);
       console.error('useAuth: Error getting initial session:', err);
       setLoading(false);
     });
 
     return () => {
       console.log('useAuth: Cleaning up auth listeners');
+      clearTimeout(sessionTimeout);
       subscription.unsubscribe();
     };
   }, []);

@@ -60,7 +60,13 @@ export const RouteProtector: React.FC<RouteProtectorProps> = ({ children }) => {
     }
   }, [identity, isLoading, location.pathname]);
 
-  // Show loading spinner while identity is being determined
+  // Prevent loading screen for public routes
+  if ((isLoading || checkingSubscription) && !isProtectedRoute(location.pathname)) {
+    // For non-protected routes, don't show loading screen - let them through
+    return <>{children}</>;
+  }
+
+  // Show loading spinner while identity is being determined (only for protected routes)
   if (isLoading || checkingSubscription) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary via-primary-variant to-accent flex items-center justify-center">
