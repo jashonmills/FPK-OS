@@ -12,6 +12,15 @@ export interface Course {
   thumbnail_url: string | null;
   created_at: string | null;
   updated_at: string | null;
+  // Project Phoenix: Essential routing fields
+  slug?: string | null;
+  framework_type?: string | null;
+  content_version?: string | null;
+  content_component?: string | null;
+  status?: string | null;
+  instructor_name?: string | null;
+  duration_minutes?: number | null;
+  difficulty_level?: string | null;
 }
 
 export interface EnrollmentProgress {
@@ -69,7 +78,15 @@ export function useEnrolledCourses() {
               asset_path,
               thumbnail_url,
               created_at,
-              updated_at
+              updated_at,
+              slug,
+              framework_type,
+              content_version,
+              content_component,
+              status,
+              instructor_name,
+              duration_minutes,
+              difficulty_level
             )
           `)
           .eq('user_id', user.id);

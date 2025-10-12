@@ -642,12 +642,30 @@ const VIDEO_PRODUCTION_COURSE = {
 
     // Phase 3: Unified course routing with v2 Universal Player priority
     const getCourseRoute = () => {
+      // Debug logging for routing decisions
+      if (course.id.includes('el-') || course.id.includes('empowering-learning')) {
+        console.log('[MyCourses] Routing decision for:', {
+          id: course.id,
+          title: course.title,
+          slug: course.slug,
+          framework_type: course.framework_type,
+          content_version: course.content_version,
+          hasFramework: !!course.framework_type,
+          hasVersion: !!course.content_version,
+          willUseUniversalPlayer: course.framework_type === 'sequential' && course.content_version === 'v2'
+        });
+      }
+      
       // PRIMARY RULE: If a course is sequential and v2, ALWAYS use the universal player
       if (course.framework_type === 'sequential' && course.content_version === 'v2') {
-        return `/courses/player/${course.slug || course.id}`;
+        const route = `/courses/player/${course.slug || course.id}`;
+        console.log('[MyCourses] ✓ Using Universal Player route:', route);
+        return route;
       }
       
       // FALLBACK: Legacy routing for non-v2 courses (kept for backward compatibility)
+      console.warn('[MyCourses] ⚠️ Falling back to legacy routing for:', course.id);
+      
       if (isOptimalLearningState) {
         return '/courses/optimal-learning-state';
       }
