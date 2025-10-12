@@ -6,14 +6,12 @@
 import React, { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
-
 interface MobilePageLayoutProps {
   children: ReactNode;
   className?: string;
   variant?: 'default' | 'compact' | 'full-width';
   padding?: 'default' | 'compact' | 'large';
 }
-
 export const MobilePageLayout: React.FC<MobilePageLayoutProps> = ({
   children,
   className,
@@ -21,7 +19,6 @@ export const MobilePageLayout: React.FC<MobilePageLayoutProps> = ({
   padding = 'default'
 }) => {
   const isMobile = useIsMobile();
-
   const getVariantClasses = () => {
     switch (variant) {
       case 'compact':
@@ -32,7 +29,6 @@ export const MobilePageLayout: React.FC<MobilePageLayoutProps> = ({
         return 'mobile-page-container';
     }
   };
-
   const getPaddingClasses = () => {
     switch (padding) {
       case 'compact':
@@ -43,47 +39,32 @@ export const MobilePageLayout: React.FC<MobilePageLayoutProps> = ({
         return 'mobile-section-spacing';
     }
   };
-
-  return (
-    <div className={cn(getVariantClasses(), className)}>
+  return <div className={cn(getVariantClasses(), className)}>
       <div className={getPaddingClasses()}>
         {children}
       </div>
-    </div>
-  );
+    </div>;
 };
-
 interface MobileCardLayoutProps {
   children: ReactNode;
   className?: string;
   interactive?: boolean;
 }
-
 export const MobileCardLayout: React.FC<MobileCardLayoutProps> = ({
   children,
   className,
   interactive = false
 }) => {
-  return (
-    <div
-      className={cn(
-        'mobile-card mobile-card-padding mobile-safe-text',
-        interactive && 'mobile-card-interactive',
-        className
-      )}
-    >
+  return <div className={cn('mobile-card mobile-card-padding mobile-safe-text', interactive && 'mobile-card-interactive', className)}>
       {children}
-    </div>
-  );
+    </div>;
 };
-
 interface MobileButtonGroupProps {
   children: ReactNode;
   className?: string;
   stacked?: boolean;
   fullWidth?: boolean;
 }
-
 export const MobileButtonGroup: React.FC<MobileButtonGroupProps> = ({
   children,
   className,
@@ -92,54 +73,34 @@ export const MobileButtonGroup: React.FC<MobileButtonGroupProps> = ({
 }) => {
   const isMobile = useIsMobile();
   const shouldStack = stacked || isMobile;
-
-  return (
-    <div
-      className={cn(
-        'flex gap-2',
-        shouldStack ? 'flex-col' : 'flex-col sm:flex-row sm:gap-3',
-        fullWidth && 'w-full',
-        '[&>*]:flex-1',
-        className
-      )}
-    >
+  return <div className={cn('flex gap-2', shouldStack ? 'flex-col' : 'flex-col sm:flex-row sm:gap-3', fullWidth && 'w-full', '[&>*]:flex-1', className)}>
       {children}
-    </div>
-  );
+    </div>;
 };
-
 interface MobileSectionHeaderProps {
   title: string;
   subtitle?: string;
   actions?: ReactNode;
   className?: string;
 }
-
 export const MobileSectionHeader: React.FC<MobileSectionHeaderProps> = ({
   title,
   subtitle,
   actions,
   className
 }) => {
-  return (
-    <div className={cn('mobile-stack', className)}>
+  return <div className={cn('mobile-stack', className)}>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="mobile-stack">
           <h1 className="mobile-heading-xl mobile-safe-text">{title}</h1>
-          {subtitle && (
-            <p className="mobile-text-base text-muted-foreground mobile-safe-text">
+          {subtitle && <p className="mobile-text-base mobile-safe-text text-slate-950 font-medium">
               {subtitle}
-            </p>
-          )}
+            </p>}
         </div>
-        {actions && (
-          <div className="flex flex-col gap-2 sm:flex-row sm:flex-shrink-0">
+        {actions && <div className="flex flex-col gap-2 sm:flex-row sm:flex-shrink-0">
             {actions}
-          </div>
-        )}
+          </div>}
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default MobilePageLayout;
