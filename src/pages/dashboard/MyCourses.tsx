@@ -411,7 +411,7 @@ const OPTIMAL_LEARNING_STATE_COURSE = {
 
 const VIDEO_PRODUCTION_COURSE = {
   id: 'introduction-video-production',
-  title: 'Introduction to Video Production',
+  title: 'Meditation with David Scullion',
   description: 'Learn the fundamentals of video production from start to finish in this introductory lesson.',
   thumbnail_url: 'https://i.vimeocdn.com/video/1596743275-b4263b12c58916c739173b84e4510b423985312d41872956a59ed7a551989569-d_1920x1080',
   difficulty_level: 'beginner',
