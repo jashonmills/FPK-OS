@@ -257,24 +257,27 @@ export const SequentialCourseShell: React.FC<SequentialCourseShellProps> = ({ co
               </div>
 
               {/* Additional Resources Section */}
-              <AdditionalResourcesSection title="Additional Course Resources">
-                <CourseOverviewAccordion
-                  whyMasterContent={{
-                    title: "Why Learn This?",
-                    description: courseData.description
-                  }}
-                  whatYouMasterContent={{
-                    title: "What You'll Master",
-                    objectives: manifest.lessons.map(lesson => ({
-                      title: lesson.title,
-                      description: lesson.description || ''
-                    }))
-                  }}
-                />
-              </AdditionalResourcesSection>
+              <div className="relative z-20 mb-12">
+                <AdditionalResourcesSection title="Additional Course Resources">
+                  <CourseOverviewAccordion
+                    whyMasterContent={{
+                      title: "Why Learn This?",
+                      description: courseData.description
+                    }}
+                    whatYouMasterContent={{
+                      title: "What You'll Master",
+                      objectives: manifest.lessons.map(lesson => ({
+                        title: lesson.title,
+                        description: lesson.description || ''
+                      }))
+                    }}
+                  />
+                </AdditionalResourcesSection>
+              </div>
 
               {/* Lesson Grid - Progressive Disclosure */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+              <div className="relative z-10">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
                 {manifest.lessons.map((lesson) => {
                   const isCompleted = completedLessons.includes(lesson.id);
                   const isAccessible = isLessonAccessible(lesson.id);
@@ -284,11 +287,14 @@ export const SequentialCourseShell: React.FC<SequentialCourseShellProps> = ({ co
                   return (
                     <Card 
                       key={lesson.id}
-                      className={`relative transition-all duration-200 cursor-pointer hover:shadow-xl ${
-                        !isAccessible ? 'opacity-50 cursor-not-allowed bg-white/90 backdrop-blur-sm border-white/50 shadow-lg' : 
-                        isCompleted ? 'bg-white/95 backdrop-blur-sm border-white/50 shadow-lg border-primary/50' : 
-                        isActive ? 'bg-white/90 backdrop-blur-sm border-white/50 shadow-lg' :
-                        'bg-white/70 backdrop-blur-sm border-white/40 shadow-md'
+                      className={`relative transition-all duration-300 cursor-pointer ${
+                        !isAccessible 
+                          ? 'opacity-60 cursor-not-allowed bg-white/50 backdrop-blur-md border-white/40 shadow-md' 
+                          : isCompleted 
+                            ? 'bg-white/95 backdrop-blur-lg border-2 border-primary/60 shadow-2xl hover:shadow-3xl transform hover:scale-105' 
+                            : isActive 
+                              ? 'bg-white/90 backdrop-blur-lg border-2 border-white/70 shadow-xl hover:shadow-2xl transform hover:scale-102'
+                              : 'bg-white/70 backdrop-blur-md border-white/50 shadow-lg hover:shadow-xl'
                       }`}
                       onClick={() => {
                         if (isAccessible) {
@@ -339,6 +345,7 @@ export const SequentialCourseShell: React.FC<SequentialCourseShellProps> = ({ co
                     </Card>
                   );
                 })}
+                </div>
               </div>
             </div>
           </div>
@@ -449,36 +456,52 @@ export const SequentialCourseShell: React.FC<SequentialCourseShellProps> = ({ co
                 hasNext={hasNext}
                 totalLessons={manifest.lessons.length}
               >
-                {/* Data-Driven Content Rendering */}
-                {currentLessonData.contentType === 'video' && currentLessonData.video && (
+                {/* Data-Driven Content Rendering with Fallbacks */}
+                {currentLessonData.contentType === 'video' && currentLessonData.video ? (
                   <StandardVideoPlayer
                     video={currentLessonData.video}
                     courseId={courseData.id}
                     lessonId={currentLesson}
                   />
-                )}
+                ) : currentLessonData.contentType === 'video' ? (
+                  <div className="text-center p-8 bg-yellow-50 rounded-lg">
+                    <p className="text-muted-foreground">Video content is being prepared...</p>
+                  </div>
+                ) : null}
                 
-                {currentLessonData.contentType === 'text' && currentLessonData.sections && (
+                {currentLessonData.contentType === 'text' && currentLessonData.sections ? (
                   <StandardTextRenderer
                     sections={currentLessonData.sections}
                     showCard={false}
                   />
-                )}
+                ) : currentLessonData.contentType === 'text' ? (
+                  <div className="text-center p-8 bg-yellow-50 rounded-lg">
+                    <p className="text-muted-foreground">Lesson content is being prepared...</p>
+                  </div>
+                ) : null}
 
                 {currentLessonData.contentType === 'video+text' && (
                   <>
-                    {currentLessonData.video && (
+                    {currentLessonData.video ? (
                       <StandardVideoPlayer
                         video={currentLessonData.video}
                         courseId={courseData.id}
                         lessonId={currentLesson}
                       />
+                    ) : (
+                      <div className="text-center p-8 bg-yellow-50 rounded-lg mb-4">
+                        <p className="text-muted-foreground">Video content is being prepared...</p>
+                      </div>
                     )}
-                    {currentLessonData.sections && (
+                    {currentLessonData.sections ? (
                       <StandardTextRenderer
                         sections={currentLessonData.sections}
                         showCard={false}
                       />
+                    ) : (
+                      <div className="text-center p-8 bg-yellow-50 rounded-lg">
+                        <p className="text-muted-foreground">Text content is being prepared...</p>
+                      </div>
                     )}
                   </>
                 )}

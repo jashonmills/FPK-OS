@@ -1,12 +1,35 @@
 {
-  "courseTitle": "EL Numeracy",
+  "courseId": "empowering-learning-numeracy",
   "courseSlug": "empowering-learning-numeracy",
+  "contentVersion": "v2",
+  "title": "Empowering Learning: Numeracy",
   "description": "Master mathematics through visual memory techniques and number triangles. Learn addition, subtraction, multiplication and division using proven visual learning methods.",
   "lessons": [
     {
       "id": 1,
       "title": "Introduction",
       "description": "A new perspective on learning mathematics",
+      "contentType": "video+text",
+      "video": {
+        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/numeracy/Module%201%20-%20Introduction.mp4",
+        "title": "Module 1 - Introduction"
+      },
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Welcome to Empowering Learning: Numeracy",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Welcome to this transformative journey into mathematical thinking. This course will help you understand mathematics not as a series of abstract rules, but as visual patterns and relationships that make sense."
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "Mathematics is fundamentally about patterns and relationships. By learning to see these patterns visually, you'll develop a deeper, more intuitive understanding of numbers."
+        }
+      ],
       "unit": "Welcome to the Programme",
       "unitColor": "bg-blue-100 text-blue-700"
     },
@@ -14,6 +37,33 @@
       "id": 2,
       "title": "The Optimal Learning State",
       "description": "Calm your nervous system for effective learning",
+      "contentType": "video+text",
+      "video": {
+        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/numeracy/Module%202%20-%20Optimal%20Learning%20State.mp4",
+        "title": "Module 2 - The Optimal Learning State"
+      },
+      "sections": [
+        {
+          "type": "heading",
+          "content": "The Optimal Learning State",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Before we dive into mathematics, we need to prepare our minds and bodies for learning. The optimal learning state is a calm, focused state where your brain is ready to absorb new information."
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "Key Techniques:",
+          "items": [
+            "Deep breathing exercises",
+            "Body relaxation methods",
+            "Mental focus preparation",
+            "Creating a distraction-free environment"
+          ]
+        }
+      ],
       "unit": "The Learning Process",
       "unitColor": "bg-green-100 text-green-700"
     },
@@ -21,6 +71,27 @@
       "id": 3,
       "title": "Why Numbers Are Shaped The Way They Are",
       "description": "Understanding number symbols and their visual meaning",
+      "contentType": "video+text",
+      "video": {
+        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/numeracy/Module%203%20-%20Number%20Shapes.mp4",
+        "title": "Module 3 - Why Numbers Are Shaped The Way They Are"
+      },
+      "sections": [
+        {
+          "type": "heading",
+          "content": "The Visual Logic of Numbers",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Have you ever wondered why the number 8 looks the way it does? Or why 0 is a circle? Each number's shape has meaning and purpose. Understanding this visual logic helps you remember and work with numbers more effectively."
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "Numbers are not arbitrary symbols—they carry visual meaning that reflects their mathematical properties. Learning to see these patterns unlocks intuitive understanding."
+        }
+      ],
       "unit": "The Learning Process",
       "unitColor": "bg-green-100 text-green-700"
     },
@@ -28,6 +99,27 @@
       "id": 4,
       "title": "The Number Triangle Technique",
       "description": "Visual method for understanding mathematical operations",
+      "contentType": "video+text",
+      "video": {
+        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/numeracy/Module%204%20-%20Number%20Triangle.mp4",
+        "title": "Module 4 - The Number Triangle Technique"
+      },
+      "sections": [
+        {
+          "type": "heading",
+          "content": "The Number Triangle Technique",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The Number Triangle is a powerful visual tool that helps you understand the relationships between numbers in addition, subtraction, multiplication, and division. It transforms abstract operations into visual patterns you can see and understand."
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "By visualizing mathematical relationships as triangles, you create a mental map that makes calculations intuitive rather than memorized. This technique works because your visual brain is incredibly powerful at recognizing and recalling patterns."
+        }
+      ],
       "unit": "The Learning Process",
       "unitColor": "bg-green-100 text-green-700"
     },
@@ -35,6 +127,33 @@
       "id": 5,
       "title": "Conclusion",
       "description": "Celebrating your mathematical journey and next steps",
+      "contentType": "video+text",
+      "video": {
+        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/numeracy/Module%205%20-%20Conclusion.mp4",
+        "title": "Module 5 - Conclusion"
+      },
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Your Mathematical Journey Continues",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Congratulations on completing the core Empowering Learning: Numeracy course! You've learned powerful visual techniques that will serve you for life. Mathematics is no longer about memorizing rules—it's about seeing patterns and relationships."
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "Next Steps:",
+          "items": [
+            "Continue practicing the Number Triangle technique daily",
+            "Apply visual thinking to other mathematical concepts",
+            "Explore the Deep Dive lessons for advanced insights",
+            "Share your newfound confidence with others"
+          ]
+        }
+      ],
       "unit": "Final Tips for Success",
       "unitColor": "bg-yellow-100 text-yellow-700"
     },
@@ -42,6 +161,28 @@
       "id": 6,
       "title": "The Power of Intentionality",
       "description": "Understanding focused practice in mathematics",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Deep Dive: The Power of Intentionality",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Intentionality in mathematics means approaching each problem with focused awareness. It's not about speed—it's about understanding. When you practice with intention, you build neural pathways that make mathematical thinking automatic."
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "Think of learning mathematics like learning a musical instrument. A pianist doesn't just hit random keys—they practice each movement deliberately, building muscle memory. Mathematical thinking works the same way. Each intentional practice session strengthens your mental muscles."
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "The key takeaway: Quality of practice matters more than quantity. Ten minutes of focused, intentional practice beats an hour of distracted work every time."
+        }
+      ],
       "unit": "Deep Dive: Extended Learning",
       "unitColor": "bg-purple-100 text-purple-700"
     },
@@ -49,6 +190,27 @@
       "id": 7,
       "title": "The Science of Learning",
       "description": "How nervous system states affect mathematical thinking",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Deep Dive: The Science of Learning",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Your nervous system state directly impacts your ability to learn mathematics. When stressed, your brain enters a defensive mode that makes abstract thinking difficult. When calm and focused, your prefrontal cortex—the reasoning center—functions optimally."
+        },
+        {
+          "type": "paragraph",
+          "content": "The techniques you learned for achieving the optimal learning state aren't just about feeling good—they're about optimizing your brain's chemistry for learning. Reducing cortisol and increasing dopamine creates the perfect environment for mathematical understanding."
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "Your brain is a powerful learning machine, but it needs the right conditions. Managing your state is as important as the content you're learning."
+        }
+      ],
       "unit": "Deep Dive: Extended Learning",
       "unitColor": "bg-purple-100 text-purple-700"
     },
@@ -56,6 +218,27 @@
       "id": 8,
       "title": "The History of Numbers",
       "description": "Historical context of numerical systems",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Deep Dive: The History of Numbers",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Numbers haven't always looked the way they do today. Ancient civilizations used different symbols and systems—from Egyptian hieroglyphs to Roman numerals to the Arabic numerals we use now."
+        },
+        {
+          "type": "paragraph",
+          "content": "Understanding this history helps you appreciate that mathematics is a human creation, evolved over thousands of years to represent abstract concepts in useful ways. The system we use today—the base-10 Hindu-Arabic system—became dominant because it's efficient and visual."
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "Every mathematical system was created by humans to solve real problems. The Number Triangle technique you learned connects to ancient mathematical traditions of using visual representations to understand abstract relationships."
+        }
+      ],
       "unit": "Deep Dive: Extended Learning",
       "unitColor": "bg-purple-100 text-purple-700"
     },
@@ -63,6 +246,27 @@
       "id": 9,
       "title": "The Number Triangle Technique",
       "description": "Advanced applications of visual mathematics",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Deep Dive: Advanced Number Triangle Applications",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The Number Triangle isn't just for basic arithmetic—it's a framework that extends to advanced mathematical concepts. Ratios, proportions, algebraic equations, even calculus relationships can be visualized using triangle thinking."
+        },
+        {
+          "type": "paragraph",
+          "content": "When you see three related quantities in any mathematical context, ask yourself: Can I arrange these in a triangle? Often, the answer is yes, and suddenly a complex problem becomes visual and intuitive."
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "Advanced Application: In algebra, equations like 'distance = speed × time' form perfect triangles. Cover one variable and you instantly know how to calculate it from the other two. This visual shortcut works across all levels of mathematics."
+        }
+      ],
       "unit": "Deep Dive: Extended Learning",
       "unitColor": "bg-purple-100 text-purple-700"
     },
@@ -70,6 +274,27 @@
       "id": 10,
       "title": "Beyond Numeracy",
       "description": "Building lifelong mathematical thinking habits",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Deep Dive: Beyond Numeracy",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The visual thinking skills you've developed transcend mathematics. Pattern recognition, relationship mapping, visual organization—these are universal cognitive tools that enhance every area of learning and life."
+        },
+        {
+          "type": "paragraph",
+          "content": "As you move forward, look for opportunities to apply these principles beyond numbers. Scientific concepts, historical events, even personal relationships often involve patterns and connections that can be visualized and understood more deeply."
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "You've not just learned mathematics—you've learned how to learn. This meta-skill is the most valuable takeaway from this course."
+        }
+      ],
       "unit": "Deep Dive: Extended Learning",
       "unitColor": "bg-purple-100 text-purple-700"
     },
@@ -77,6 +302,30 @@
       "id": 11,
       "title": "Mini Quiz Questions",
       "description": "Test your understanding with focused questions",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Mini Quiz: Test Your Understanding",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Complete these questions to reinforce your learning and identify areas for further practice."
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "Quiz Topics:",
+          "items": [
+            "The optimal learning state and its importance",
+            "Visual meaning of number shapes",
+            "Number Triangle technique applications",
+            "Intentional practice principles",
+            "Historical context of numerical systems"
+          ]
+        }
+      ],
       "unit": "Study Guide & Review",
       "unitColor": "bg-gray-100 text-gray-700"
     },
@@ -84,6 +333,31 @@
       "id": 12,
       "title": "Final Knowledge Test",
       "description": "Comprehensive assessment of mathematical principles",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Final Knowledge Test",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "This comprehensive assessment covers all core concepts from the course. Take your time and demonstrate your mastery of visual mathematical thinking."
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "Assessment Areas:",
+          "items": [
+            "Optimal learning state techniques",
+            "Visual number representation",
+            "Number Triangle methodology",
+            "Intentional practice and focus",
+            "Application of visual thinking to real-world problems",
+            "Historical and scientific understanding of numeracy"
+          ]
+        }
+      ],
       "unit": "Study Guide & Review",
       "unitColor": "bg-gray-100 text-gray-700"
     }

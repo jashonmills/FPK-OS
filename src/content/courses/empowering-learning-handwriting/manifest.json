@@ -1,0 +1,179 @@
+{
+  "courseId": "empowering-learning-handwriting",
+  "courseSlug": "empowering-learning-handwriting",
+  "contentVersion": "v2",
+  "title": "Empowering Learning: Handwriting",
+  "description": "Master handwriting through proven emulation techniques and consistent practice. Develop confident, legible writing through systematic observation and focused practice.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Introduction",
+      "description": "Welcome to the Handwriting Programme",
+      "contentType": "video+text",
+      "video": {
+        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/handwriting/Module%201%20-%20Introduction.mp4",
+        "title": "Module 1 - Introduction"
+      },
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Hello and welcome to the Empowering Learning for Handwriting programme",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "This is the last programme, for now, in the Empowering Learning series. I hope you've found it useful so far and I hope you and your children are proud of yourselves for the work that you've done."
+        },
+        {
+          "type": "paragraph",
+          "content": "In this module, what we're going to do is look at how you can help your child improve their handwriting. This one can be a slow process, but it's absolutely worth it. So if you stick with it and practise for a few minutes every single day, your child is going to see significant improvement in the long-term in their handwriting."
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "Handwriting improvement is a journey that requires patience and consistent practice. The techniques you'll learn here are based on proven methods that help children develop confident, legible writing through systematic observation and emulation."
+        },
+        {
+          "type": "paragraph",
+          "content": "Okay, jump on into the next module."
+        }
+      ],
+      "unit": "Foundation",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 2,
+      "title": "The Optimal Learning State",
+      "description": "Preparing mind and body for handwriting practice",
+      "contentType": "video+text",
+      "video": {
+        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/handwriting/Module%202%20-%20Optimal%20Learning%20State.mp4",
+        "title": "Module 2 - The Optimal Learning State"
+      },
+      "sections": [
+        {
+          "type": "heading",
+          "content": "The Optimal Learning State",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Okay, I know I know I know I've said it too many times you probably wanna give me a slap at this stage but the very first thing we have to do is get our children into the best optimal learning state."
+        },
+        {
+          "type": "paragraph",
+          "content": "So go back to the learning state course, grab the techniques that have worked for your children and the ones that have worked for you. Get yourselves all grounded, and that's going to help you get into the learning state."
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "Key Techniques to Use:",
+          "items": [
+            "Tree grounding technique",
+            "Deep breathing exercises",
+            "Body relaxation methods",
+            "Mental focus preparation"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": "Then come back and jump in to module 3."
+        }
+      ],
+      "unit": "Foundation",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 3,
+      "title": "The Technique",
+      "description": "Learn the core handwriting emulation technique",
+      "contentType": "video+text",
+      "video": {
+        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/handwriting/Module%203%20-%20The%20Technique.mp4",
+        "title": "Module 3 - The Technique"
+      },
+      "sections": [
+        {
+          "type": "heading",
+          "content": "The Technique",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "First, get your child to pick handwriting that they would like to emulate. That might be yours, it might be a sibling's, it might be another person that they know, it might be some handwriting that they've seen on the internet but get them to pick one that they would like."
+        },
+        {
+          "type": "paragraph",
+          "content": "Then put up on a screen at eye level, not looking down cause we don't want to bring them into that negative emotional state. Then get them to write by looking directly at the handwriting, not down at the page they are writing on."
+        },
+        {
+          "type": "paragraph",
+          "content": "Ideally if you can, you'll have them writing up like on a whiteboard or a chalkboard, but if not get them to just keep looking at the handwriting and write. It will be really messy and all over the place. You can have a good laugh together because that's what it should do at the very start."
+        },
+        {
+          "type": "paragraph",
+          "content": "Let them do it for a few minutes every day and what you'll slowly start to notice is that their writing starts to look like what they want it to. It is a slow process, so there's no time pressure on this."
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "The Four Steps of the Technique:",
+          "items": [
+            "Pick handwriting that they would like to emulate",
+            "Put up on a screen at eye level",
+            "Look directly at the handwriting, not down at the page",
+            "Practice for a few minutes every day"
+          ]
+        }
+      ],
+      "unit": "Core Technique",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 4,
+      "title": "Conclusion",
+      "description": "Wrap up and next steps",
+      "contentType": "video+text",
+      "video": {
+        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/handwriting/Module%204%20-%20Conclusion.mp4",
+        "title": "Module 4 - Conclusion"
+      },
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Conclusion",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Welcome to the end of the Empowering Learning for Handwriting module. I hope you've found it useful. I can't wait to receive all those letters from all those young people out there. Hopefully they say nice things to me."
+        },
+        {
+          "type": "paragraph",
+          "content": "Parents, well done, you've done a fantastic job supporting your children to work through this whole process and we hope you've found it useful."
+        },
+        {
+          "type": "paragraph",
+          "content": "Why not go check out more of our courses because you've built the foundation already, so your child can start to scaffold and you'll see massive improvement in their development in whatever areas they want to develop in and maybe you want to encourage them in."
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "Next Steps:",
+          "items": [
+            "Continue daily handwriting practice",
+            "Explore other courses to support your child's development",
+            "Apply the emulation technique to other learning areas",
+            "Share your success stories with others"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": "So, thanks so much for your attention, thanks so much for joining in and thanks so much for coming onto the platform and from me and the rest of the FPK Team, we'll see you very soon."
+        }
+      ],
+      "unit": "Completion",
+      "unitColor": "bg-green-100 text-green-700"
+    }
+  ]
+}
