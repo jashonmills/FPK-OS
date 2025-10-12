@@ -250,7 +250,7 @@ export default function OrgPortalHome() {
               </Button>
               <Button 
                 variant="outline" 
-                className="flex items-center space-x-2 border-brand-accent-foreground/20 text-brand-accent-foreground hover:bg-brand-accent-foreground/10"
+                className="flex items-center space-x-2 bg-transparent border-brand-accent-foreground/20 text-brand-accent-foreground hover:bg-brand-accent-foreground/10"
                 onClick={() => navigate(`/org/${currentOrg?.organization_id}/goals-notes`)}
               >
                 <Target className="h-4 w-4" />
