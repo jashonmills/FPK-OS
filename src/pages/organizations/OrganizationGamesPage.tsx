@@ -93,9 +93,9 @@ export default function OrganizationGamesPage() {
       <div className="space-y-2">
         <div className="flex items-center gap-3">
           <Gamepad2 className="h-8 w-8 text-primary" />
-          <h1 className="text-4xl font-bold text-foreground">Educational Games</h1>
+          <h1 className="text-4xl font-bold text-slate-50">Educational Games</h1>
         </div>
-        <p className="text-lg text-muted-foreground">
+        <p className="text-lg text-slate-950 font-semibold">
           Engage with interactive educational games that make learning fun and effective.
         </p>
       </div>
