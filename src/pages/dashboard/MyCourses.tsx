@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { BookOpen, Clock, User, Search, Filter, HelpCircle, Plus, Loader2, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { useCourses } from '@/hooks/useCourses';
+import { Separator } from '@/components/ui/separator';
 import { useEnrollmentProgress } from '@/hooks/useEnrollmentProgress';
 import { useAutoEnrollPreloadedCourses } from '@/hooks/useAutoEnrollPreloadedCourses';
 import { useCourseEnrollment } from '@/hooks/useCourseEnrollment';
@@ -492,6 +493,30 @@ const VIDEO_PRODUCTION_COURSE = {
     !enrolledNativeCourseIds.includes(course.id)
   );
 
+  // The 5 EL course IDs to group at the top
+  const EL_COURSE_IDS = [
+    'el-handwriting',
+    'el-spelling-reading',
+    'empowering-learning-reading',
+    'empowering-learning-numeracy',
+    'optimal-learning-state'
+  ];
+
+  // Helper function to separate EL courses from other courses
+  const separateELCourses = (courseList: typeof courses) => {
+    const filtered = courseList.filter(course => {
+      const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           course.description?.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesDifficulty = difficultyFilter === 'all' || course.difficulty_level === difficultyFilter;
+      return matchesSearch && matchesDifficulty;
+    });
+
+    const elCourses = filtered.filter(course => EL_COURSE_IDS.includes(course.id));
+    const otherCourses = filtered.filter(course => !EL_COURSE_IDS.includes(course.id));
+
+    return { elCourses, otherCourses };
+  };
+
   const filteredCourses = (courseList: typeof courses) => {
     return courseList.filter(course => {
       const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -830,85 +855,162 @@ const VIDEO_PRODUCTION_COURSE = {
           )}
           
           {/* Enrolled Courses Section */}
-          {(filteredCourses(enrolledCourses).length > 0 || filteredNativeCourses(enrolledNativeCourses).length > 0) ? (
-            <div className="space-y-4">
-              {studentAssignments.length > 0 && (
-                <h3 className="text-lg font-semibold text-white">My Other Courses</h3>
-              )}
-              {/* All Courses */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
-                {/* Native Courses */}
-                {filteredNativeCourses(enrolledNativeCourses).map((course) => {
-                  const enrollment = nativeEnrollments.find(e => e.course_id === course.id);
-                  return (
-                    <NativeCourseCard 
-                      key={course.id} 
-                      course={course} 
-                      enrollment={enrollment}
-                    />
-                  );
-                })}
+          {(() => {
+            const { elCourses, otherCourses } = separateELCourses(enrolledCourses);
+            const filteredNative = filteredNativeCourses(enrolledNativeCourses);
+            const hasAnyCourses = elCourses.length > 0 || otherCourses.length > 0 || filteredNative.length > 0;
+
+            if (!hasAnyCourses) {
+              return studentAssignments.length === 0 ? (
+                <div className="text-center py-12">
+                  <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    {searchTerm ? 'No courses match your search' : 'No enrolled courses yet'}
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    {searchTerm 
+                      ? 'Try adjusting your search terms or filters'
+                      : 'Discover and enroll in courses to start your learning journey.'
+                    }
+                  </p>
+                  {!searchTerm && (
+                    <Button onClick={switchToAvailableTab}>
+                      Browse Available Courses
+                    </Button>
+                  )}
+                </div>
+              ) : null;
+            }
+
+            return (
+              <div className="space-y-6">
+                {studentAssignments.length > 0 && (
+                  <h3 className="text-lg font-semibold text-white">My Other Courses</h3>
+                )}
                 
-                {/* Regular Courses */}
-                {filteredCourses(enrolledCourses).map((course) => (
-                  <CourseCard key={course.id} course={course} isEnrolled={true} />
-                ))}
+                {/* EL Courses Section */}
+                {elCourses.length > 0 && (
+                  <div className="space-y-4">
+                    <h3 className="text-xl font-bold text-white bg-white/10 backdrop-blur-sm rounded-lg px-4 py-3 border border-white/20">
+                      🎓 Empowering Learning Collection
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
+                      {elCourses.map((course) => (
+                        <CourseCard key={course.id} course={course} isEnrolled={true} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Divider between EL courses and other courses */}
+                {elCourses.length > 0 && (otherCourses.length > 0 || filteredNative.length > 0) && (
+                  <div className="flex items-center gap-4 py-4">
+                    <Separator className="flex-1 bg-white/30" />
+                    <span className="text-white/80 font-semibold text-sm uppercase tracking-wider">
+                      Other Courses
+                    </span>
+                    <Separator className="flex-1 bg-white/30" />
+                  </div>
+                )}
+
+                {/* Other Courses Section */}
+                {(otherCourses.length > 0 || filteredNative.length > 0) && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
+                    {/* Native Courses */}
+                    {filteredNative.map((course) => {
+                      const enrollment = nativeEnrollments.find(e => e.course_id === course.id);
+                      return (
+                        <NativeCourseCard 
+                          key={course.id} 
+                          course={course} 
+                          enrollment={enrollment}
+                        />
+                      );
+                    })}
+                    
+                    {/* Regular Other Courses */}
+                    {otherCourses.map((course) => (
+                      <CourseCard key={course.id} course={course} isEnrolled={true} />
+                    ))}
+                  </div>
+                )}
               </div>
-            </div>
-          ) : studentAssignments.length === 0 ? (
-            <div className="text-center py-12">
-              <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                {searchTerm ? 'No courses match your search' : 'No enrolled courses yet'}
-              </h3>
-              <p className="text-gray-600 mb-4">
-                {searchTerm 
-                  ? 'Try adjusting your search terms or filters'
-                  : 'Discover and enroll in courses to start your learning journey.'
-                }
-              </p>
-              {!searchTerm && (
-                <Button onClick={switchToAvailableTab}>
-                  Browse Available Courses
-                </Button>
-              )}
-            </div>
-          ) : null}
+            );
+          })()}
         </TabsContent>
 
         <TabsContent value="available" className="space-y-6">
-          {(filteredCourses(availableCourses).length > 0 || filteredNativeCourses(availableNativeCourses).length > 0) ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
-              {/* Available Native Courses */}
-              {filteredNativeCourses(availableNativeCourses).map((course) => (
-                <NativeCourseCard 
-                  key={course.id} 
-                  course={course}
-                  onEnroll={() => handleNativeCourseEnroll(course.id)}
-                  isEnrolling={enrollingCourseIds.has(course.id)}
-                />
-              ))}
-              
-              {/* Available Regular Courses */}
-              {filteredCourses(availableCourses)
-                .map((course) => (
-                  <CourseCard key={course.id} course={course} isEnrolled={false} />
-                ))}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                {searchTerm ? 'No courses match your search' : 'No available courses'}
-              </h3>
-              <p className="text-gray-600">
-                {searchTerm 
-                  ? 'Try adjusting your search terms or filters'
-                  : 'New courses will appear here when they become available.'
-                }
-              </p>
-            </div>
-          )}
+          {(() => {
+            const { elCourses, otherCourses } = separateELCourses(availableCourses);
+            const filteredNative = filteredNativeCourses(availableNativeCourses);
+            const hasAnyCourses = elCourses.length > 0 || otherCourses.length > 0 || filteredNative.length > 0;
+
+            if (!hasAnyCourses) {
+              return (
+                <div className="text-center py-12">
+                  <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    {searchTerm ? 'No courses match your search' : 'No available courses'}
+                  </h3>
+                  <p className="text-gray-600">
+                    {searchTerm 
+                      ? 'Try adjusting your search terms or filters'
+                      : 'New courses will appear here when they become available.'
+                    }
+                  </p>
+                </div>
+              );
+            }
+
+            return (
+              <div className="space-y-6">
+                {/* EL Courses Section */}
+                {elCourses.length > 0 && (
+                  <div className="space-y-4">
+                    <h3 className="text-xl font-bold text-white bg-white/10 backdrop-blur-sm rounded-lg px-4 py-3 border border-white/20">
+                      🎓 Empowering Learning Collection
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
+                      {elCourses.map((course) => (
+                        <CourseCard key={course.id} course={course} isEnrolled={false} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Divider between EL courses and other courses */}
+                {elCourses.length > 0 && (otherCourses.length > 0 || filteredNative.length > 0) && (
+                  <div className="flex items-center gap-4 py-4">
+                    <Separator className="flex-1 bg-white/30" />
+                    <span className="text-white/80 font-semibold text-sm uppercase tracking-wider">
+                      Other Courses
+                    </span>
+                    <Separator className="flex-1 bg-white/30" />
+                  </div>
+                )}
+
+                {/* Other Courses Section */}
+                {(otherCourses.length > 0 || filteredNative.length > 0) && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
+                    {/* Available Native Courses */}
+                    {filteredNative.map((course) => (
+                      <NativeCourseCard 
+                        key={course.id} 
+                        course={course}
+                        onEnroll={() => handleNativeCourseEnroll(course.id)}
+                        isEnrolling={enrollingCourseIds.has(course.id)}
+                      />
+                    ))}
+                    
+                    {/* Available Regular Other Courses */}
+                    {otherCourses.map((course) => (
+                      <CourseCard key={course.id} course={course} isEnrolled={false} />
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
         </TabsContent>
       </Tabs>
     </div>
