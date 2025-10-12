@@ -600,18 +600,6 @@ const App: React.FC = () => {
             </RouteProtector>
           } />
           
-          <Route path="/courses/empowering-learning-spelling" element={
-            <RouteProtector>
-              <LazyRoute><EmpoweringLearningSpellingCoursePage /></LazyRoute>
-            </RouteProtector>
-          } />
-          
-          <Route path="/courses/empowering-learning-spelling/:lessonId" element={
-            <RouteProtector>
-              <LazyRoute><EmpoweringLearningSpellingCoursePage /></LazyRoute>
-            </RouteProtector>
-          } />
-          
           <Route path="/courses/optimal-learning-state" element={
             <RouteProtector>
               <LazyRoute><OptimalLearningStatePage /></LazyRoute>

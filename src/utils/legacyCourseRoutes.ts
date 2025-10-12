@@ -3,7 +3,6 @@
  * These courses have dedicated route pages and should not use NativeCoursePlayer
  */
 export const LEGACY_COURSE_SLUGS = [
-  'empowering-learning-spelling',
   'empowering-learning-handwriting',
   'empowering-learning-numeracy', 
   'empowering-learning-reading',
@@ -29,7 +28,6 @@ export type LegacyCourseSlug = typeof LEGACY_COURSE_SLUGS[number];
  * UUID to slug mapping for legacy courses where slug is not in courses table
  */
 export const UUID_TO_SLUG_MAP: Record<string, LegacyCourseSlug> = {
-  '06efda03-9f0b-4c00-a064-eb65ada9fbae': 'empowering-learning-spelling',
   'learning-state-beta': 'optimal-learning-state',
   // Add other UUIDs as needed
 };
