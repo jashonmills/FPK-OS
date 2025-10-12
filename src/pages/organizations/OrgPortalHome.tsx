@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { DetailedAnalyticsModal } from '@/components/organizations/DetailedAnalyticsModal';
 import { Loader2 } from 'lucide-react';
 import { 
@@ -13,7 +14,8 @@ import {
   Target, 
   TrendingUp, 
   Calendar,
-  Award
+  Award,
+  ChevronDown
 } from 'lucide-react';
 import { useOrgContext } from '@/components/organizations/OrgContext';
 import { useStudentOrgStatistics } from '@/hooks/useStudentOrgStatistics';
@@ -367,123 +369,141 @@ export default function OrgPortalHome() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Progress Overview */}
-        <Card className="bg-orange-500/65 border-orange-400/50">
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2 text-white">
-              <TrendingUp className="h-5 w-5 text-white/70" />
-              <span>{isStudent ? 'My Progress' : 'Progress Overview'}</span>
-            </CardTitle>
-            <CardDescription className="text-white/80">
-              {isStudent 
-                ? 'Your personal learning progress in this organization'
-                : 'Current completion rates across all courses'
-              }
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {isStudent ? (
-              studentStats?.myProgress ? (
-                <div className="space-y-3">
-                  <div className="flex justify-between text-sm text-white/80">
-                    <span>Overall Progress</span>
-                    <span>{studentStats.myProgress}%</span>
+        <Collapsible defaultOpen={false}>
+          <Card className="bg-orange-500/65 border-orange-400/50">
+            <CollapsibleTrigger className="w-full group">
+              <CardHeader className="cursor-pointer hover:bg-white/5 transition-colors">
+                <CardTitle className="flex items-center justify-between text-white">
+                  <div className="flex items-center space-x-2">
+                    <TrendingUp className="h-5 w-5 text-white/70" />
+                    <span>{isStudent ? 'My Progress' : 'Progress Overview'}</span>
                   </div>
-                  <Progress value={studentStats.myProgress} className="h-2" />
-                  <div className="grid grid-cols-2 gap-4 text-center">
-                    <div>
-                      <div className="text-2xl font-bold text-white">{studentStats.myEnrollments}</div>
-                      <div className="text-xs text-white/80">Enrolled</div>
+                  <ChevronDown className="h-5 w-5 text-white/70 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                </CardTitle>
+                <CardDescription className="text-white/80 text-left">
+                  {isStudent 
+                    ? 'Your personal learning progress in this organization'
+                    : 'Current completion rates across all courses'
+                  }
+                </CardDescription>
+              </CardHeader>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <CardContent className="space-y-4">
+                {isStudent ? (
+                  studentStats?.myProgress ? (
+                    <div className="space-y-3">
+                      <div className="flex justify-between text-sm text-white/80">
+                        <span>Overall Progress</span>
+                        <span>{studentStats.myProgress}%</span>
+                      </div>
+                      <Progress value={studentStats.myProgress} className="h-2" />
+                      <div className="grid grid-cols-2 gap-4 text-center">
+                        <div>
+                          <div className="text-2xl font-bold text-white">{studentStats.myEnrollments}</div>
+                          <div className="text-xs text-white/80">Enrolled</div>
+                        </div>
+                        <div>
+                          <div className="text-2xl font-bold text-white">{studentStats.completedCourses}</div>
+                          <div className="text-xs text-white/80">Completed</div>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <div className="text-2xl font-bold text-white">{studentStats.completedCourses}</div>
-                      <div className="text-xs text-white/80">Completed</div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <TrendingUp className="h-8 w-8 mx-auto text-white/70 mb-2" />
+                      <p className="text-sm text-white/80">No courses enrolled yet</p>
                     </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <TrendingUp className="h-8 w-8 mx-auto text-white/70 mb-2" />
-                  <p className="text-sm text-white/80">No courses enrolled yet</p>
-                </div>
-              )
-            ) : (
-              analytics && (analytics.completionRate > 0 || analytics.averageProgress > 0) ? (
-                <div className="space-y-3">
-                  <div className="flex justify-between text-sm text-white/80">
-                    <span>Completion Rate</span>
-                    <span>{analytics.completionRate}%</span>
-                  </div>
-                  <Progress value={analytics.completionRate} className="h-2" />
-                  <div className="grid grid-cols-2 gap-4 text-center mt-4">
-                    <div>
-                      <div className="text-2xl font-bold text-white">{analytics.averageProgress}%</div>
-                      <div className="text-xs text-white/80">Average Progress</div>
+                  )
+                ) : (
+                  analytics && (analytics.completionRate > 0 || analytics.averageProgress > 0) ? (
+                    <div className="space-y-3">
+                      <div className="flex justify-between text-sm text-white/80">
+                        <span>Completion Rate</span>
+                        <span>{analytics.completionRate}%</span>
+                      </div>
+                      <Progress value={analytics.completionRate} className="h-2" />
+                      <div className="grid grid-cols-2 gap-4 text-center mt-4">
+                        <div>
+                          <div className="text-2xl font-bold text-white">{analytics.averageProgress}%</div>
+                          <div className="text-xs text-white/80">Average Progress</div>
+                        </div>
+                        <div>
+                          <div className="text-2xl font-bold text-white">{analytics.totalLearningHours}h</div>
+                          <div className="text-xs text-white/80">Learning Hours</div>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <div className="text-2xl font-bold text-white">{analytics.totalLearningHours}h</div>
-                      <div className="text-xs text-white/80">Learning Hours</div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <TrendingUp className="h-8 w-8 mx-auto text-white/70 mb-2" />
+                      <p className="text-sm text-white/80 mb-3">No progress data available yet</p>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="text-white border-white/30 hover:bg-white/20"
+                        onClick={() => navigate(`/org/${currentOrg?.organization_id}/courses`)}
+                      >
+                        Assign First Course
+                      </Button>
                     </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <TrendingUp className="h-8 w-8 mx-auto text-white/70 mb-2" />
-                  <p className="text-sm text-white/80 mb-3">No progress data available yet</p>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    className="text-white border-white/30 hover:bg-white/20"
-                    onClick={() => navigate(`/org/${currentOrg?.organization_id}/courses`)}
-                  >
-                    Assign First Course
-                  </Button>
-                </div>
-              )
-            )}
-          </CardContent>
-        </Card>
+                  )
+                )}
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
 
         {/* Recent Activity */}
-        <Card className="bg-orange-500/65 border-orange-400/50">
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2 text-white">
-              <Calendar className="h-5 w-5 text-white/70" />
-              <span>Recent Activity</span>
-            </CardTitle>
-            <CardDescription className="text-white/80">
-              {isStudent 
-                ? 'Your recent learning activity'
-                : 'Latest updates from your organization'
-              }
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-           <div className="space-y-4">
-              {recentActivity.length > 0 ? (
-                recentActivity.map((activity, index) => (
-                  <div key={index} className="flex items-start space-x-3">
-                    <div className="w-2 h-2 bg-white/70 rounded-full mt-2" />
-                     <div className="flex-1 space-y-1">
-                       <p className="text-sm font-medium leading-none text-white">
-                         {activity.event}
-                       </p>
-                       <p className="text-sm text-white/80">
-                         {new Date(activity.created_at).toLocaleString()}
-                       </p>
-                     </div>
+        <Collapsible defaultOpen={false}>
+          <Card className="bg-orange-500/65 border-orange-400/50">
+            <CollapsibleTrigger className="w-full group">
+              <CardHeader className="cursor-pointer hover:bg-white/5 transition-colors">
+                <CardTitle className="flex items-center justify-between text-white">
+                  <div className="flex items-center space-x-2">
+                    <Calendar className="h-5 w-5 text-white/70" />
+                    <span>Recent Activity</span>
                   </div>
-                ))
-              ) : (
-                 <div className="text-center py-8">
-                   <Calendar className="h-8 w-8 mx-auto text-white/70 mb-2" />
-                   <p className="text-sm text-white/80">
-                     {isStudent ? 'No recent activity' : 'No recent activity'}
-                   </p>
-                 </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+                  <ChevronDown className="h-5 w-5 text-white/70 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                </CardTitle>
+                <CardDescription className="text-white/80 text-left">
+                  {isStudent 
+                    ? 'Your recent learning activity'
+                    : 'Latest updates from your organization'
+                  }
+                </CardDescription>
+              </CardHeader>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <CardContent>
+                <div className="space-y-4">
+                  {recentActivity.length > 0 ? (
+                    recentActivity.map((activity, index) => (
+                      <div key={index} className="flex items-start space-x-3">
+                        <div className="w-2 h-2 bg-white/70 rounded-full mt-2" />
+                        <div className="flex-1 space-y-1">
+                          <p className="text-sm font-medium leading-none text-white">
+                            {activity.event}
+                          </p>
+                          <p className="text-sm text-white/80">
+                            {new Date(activity.created_at).toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8">
+                      <Calendar className="h-8 w-8 mx-auto text-white/70 mb-2" />
+                      <p className="text-sm text-white/80">
+                        {isStudent ? 'No recent activity' : 'No recent activity'}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
       </div>
 
       {/* Analytics Section - Only show for admin/instructors */}
