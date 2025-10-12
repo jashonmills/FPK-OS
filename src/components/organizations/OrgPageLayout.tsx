@@ -14,7 +14,7 @@ export function OrgPageLayout({ children }: OrgPageLayoutProps) {
         <div className="min-h-screen bg-gray-50">
           <OrgHeader />
           <main className="flex-1 overflow-x-hidden w-full">
-            <div className="w-full max-w-full px-4 py-8 overflow-x-hidden">
+            <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
               {children}
             </div>
           </main>
