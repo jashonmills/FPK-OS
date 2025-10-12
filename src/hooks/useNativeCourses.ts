@@ -93,7 +93,8 @@ export function useNativeCourses(options?: { organizationId?: string }) {
         throw error;
       }
 
-      return data as NativeCourse[];
+      // Return empty array if no courses found (graceful handling)
+      return (data || []) as NativeCourse[];
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
@@ -120,6 +121,12 @@ export function useNativeCourse(identifier: string) {
       }
       
       const { data, error } = await query.single();
+
+      // Handle PGRST116 error (0 rows) gracefully - course not found
+      if (error && error.code === 'PGRST116') {
+        console.warn(`No published native course found for identifier: ${identifier}. Returning null.`);
+        return null;
+      }
 
       if (error) {
         console.error('Error fetching native course:', error);
