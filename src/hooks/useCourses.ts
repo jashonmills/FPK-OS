@@ -60,8 +60,8 @@ export function useCourses(options?: {
         let filteredData = data as Course[];
 
         // Apply client-side filtering for featured and limit
-        if (options?.featured !== undefined) {
-          filteredData = filteredData.filter(c => c.featured === options.featured);
+        if (options?.featured === true) {
+          filteredData = filteredData.filter(c => c.featured === true);
           console.log('[useCourses] After featured filter:', filteredData.length);
         }
 
@@ -81,8 +81,8 @@ export function useCourses(options?: {
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (options?.featured !== undefined) {
-        query = query.eq('featured', options.featured);
+      if (options?.featured === true) {
+        query = query.eq('featured', true);
       }
 
       if (options?.status) {

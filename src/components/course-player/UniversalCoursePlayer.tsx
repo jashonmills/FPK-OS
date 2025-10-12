@@ -24,7 +24,6 @@ export const UniversalCoursePlayer: React.FC = () => {
   
   // Fetch course data from database
   const { courses, isLoading, error } = useCourses({ 
-    featured: false, 
     status: 'published',
     limit: 1000 // Get all to find by slug
   });
