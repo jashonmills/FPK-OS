@@ -159,7 +159,7 @@ const additionalCourses = [
 
 const EMPOWERING_LEARNING_READING_COURSE = {
   id: 'empowering-learning-reading',
-  title: 'Empowering Learning for Reading',
+  title: 'EL Reading',
   description: 'Master reading through visual memory techniques and optimal learning states. A comprehensive program designed for visual learners to overcome reading challenges.',
   instructor_name: 'FPK University',
   duration_minutes: 120,
