@@ -194,6 +194,7 @@ const Forbidden = lazy(() => import("./pages/system/Forbidden"));
 
 // Homepage related pages
 const Games = lazy(() => import("./pages/Games"));
+const FullScreenGamePage = lazy(() => import("./pages/FullScreenGamePage"));
 const Contact = lazy(() => import("./pages/Contact"));
 const CoursesPage = lazy(() => import("./pages/CoursesPage"));
 
@@ -768,6 +769,7 @@ const App: React.FC = () => {
             </RouteProtector>
           } />
           <Route path="/games" element={<LazyRoute><Games /></LazyRoute>} />
+          <Route path="/play-game" element={<LazyRoute><FullScreenGamePage /></LazyRoute>} />
           <Route path="/contact" element={<LazyRoute><Contact /></LazyRoute>} />
           <Route path="/courses" element={<LazyRoute><CoursesPage /></LazyRoute>} />
           

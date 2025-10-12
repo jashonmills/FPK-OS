@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Gamepad2 } from 'lucide-react';
 import { GameViewerModal } from '@/components/organizations/GameViewerModal';
 import { GameCard } from '@/components/organizations/GameCard';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 interface Game {
   title: string;
@@ -109,9 +111,18 @@ const gamesList: Game[] = [
 
 export default function OrganizationGamesPage() {
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
+  const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   const handlePlayGame = (game: Game) => {
-    setSelectedGame(game);
+    if (isMobile) {
+      // On mobile, navigate to full-screen page
+      const url = `/play-game?url=${encodeURIComponent(game.url)}&title=${encodeURIComponent(game.title)}`;
+      navigate(url);
+    } else {
+      // On desktop, show modal
+      setSelectedGame(game);
+    }
   };
 
   const handleCloseModal = () => {
