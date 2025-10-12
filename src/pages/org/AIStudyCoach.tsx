@@ -73,12 +73,14 @@ export default function AIStudyCoach() {
       const fetchOrgSettings = async () => {
         const { data } = await supabase
           .from('organizations')
-          .select('is_ai_free_chat_enabled')
+          .select('*')
           .eq('id', currentOrg.organization_id)
           .maybeSingle();
         
         if (data) {
-          setIsFreeChatAllowed(data.is_ai_free_chat_enabled ?? true);
+          // Use type assertion to access the new column
+          const orgData = data as any;
+          setIsFreeChatAllowed(orgData.is_ai_free_chat_enabled ?? true);
         }
       };
       fetchOrgSettings();

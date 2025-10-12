@@ -23,7 +23,7 @@ export function AILearningCoachSettings({ orgId }: AILearningCoachSettingsProps)
       try {
         const { data, error } = await supabase
           .from('organizations')
-          .select('is_ai_free_chat_enabled')
+          .select('*')
           .eq('id', orgId)
           .maybeSingle();
 
@@ -33,7 +33,9 @@ export function AILearningCoachSettings({ orgId }: AILearningCoachSettingsProps)
         }
 
         if (data) {
-          setIsFreeChatEnabled(data.is_ai_free_chat_enabled ?? true);
+          // Use type assertion to access the new column
+          const orgData = data as any;
+          setIsFreeChatEnabled(orgData.is_ai_free_chat_enabled ?? true);
         }
       } catch (error) {
         console.error('Exception fetching AI settings:', error);
@@ -50,12 +52,13 @@ export function AILearningCoachSettings({ orgId }: AILearningCoachSettingsProps)
     setIsFreeChatEnabled(newValue); // Optimistic UI update
 
     try {
+      // Use type assertion for the update
       const { error } = await supabase
         .from('organizations')
         .update({ 
           is_ai_free_chat_enabled: newValue,
           ai_settings_updated_at: new Date().toISOString()
-        })
+        } as any)
         .eq('id', orgId);
 
       if (error) {
