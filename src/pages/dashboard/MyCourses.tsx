@@ -395,7 +395,7 @@ const EL_SPELLING_READING_COURSE = {
 
 const OPTIMAL_LEARNING_STATE_COURSE = {
   id: 'optimal-learning-state',
-  title: 'Optimal Learning State Course',
+  title: 'EL Optimal Learning State',
   description: 'Master the optimal learning state through calming techniques and brain integration methods. Learn essential techniques to achieve the most effective learning state.',
   instructor_name: 'FPK University',
   duration_minutes: 180,
