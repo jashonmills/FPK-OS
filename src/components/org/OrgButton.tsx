@@ -17,7 +17,7 @@ export const OrgButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         variant={variant}
         className={cn(
-          isDarkVariant && "[&]:text-white [&]:hover:text-white",
+          isDarkVariant && "[&]:!text-white [&_*]:!text-white hover:[&]:!text-white hover:[&_*]:!text-white",
           className
         )}
         {...props}
