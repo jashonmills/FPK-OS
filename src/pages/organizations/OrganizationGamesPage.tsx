@@ -4,7 +4,6 @@ import { Gamepad2 } from 'lucide-react';
 import { GameViewerModal } from '@/components/organizations/GameViewerModal';
 import { GameCard } from '@/components/organizations/GameCard';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { OrgPageBanner } from '@/components/organizations/OrgPageBanner';
 interface Game {
   title: string;
   url: string;
@@ -90,9 +89,6 @@ export default function OrganizationGamesPage() {
     setSelectedGame(null);
   };
   return <div className="container mx-auto p-6 space-y-8 max-w-7xl">
-      {/* Organization Banner */}
-      <OrgPageBanner />
-      
       {/* Header */}
       <div className="space-y-2">
         <div className="flex items-center gap-3">

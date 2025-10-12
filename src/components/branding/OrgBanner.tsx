@@ -55,27 +55,40 @@ export function OrgBanner({
   }
 
   return (
-    <div className={cn('relative w-full max-w-7xl mx-auto overflow-hidden', className)}>
-      {/* Background image container */}
-      <div 
-        className="absolute inset-0"
-        style={{ 
-          backgroundImage: branding?.banner_url ? `url(${branding.banner_url})` : 'none',
-          backgroundPosition: 'center center',
-          backgroundSize: 'cover',
-          backgroundRepeat: 'no-repeat'
-        }}
-      />
+    <div 
+      className={cn(
+        'grid w-full max-w-7xl mx-auto overflow-hidden rounded-lg',
+        'min-h-[300px]',
+        className
+      )}
+      style={{ 
+        gridTemplateAreas: '"stack"',
+        placeItems: 'center'
+      }}
+    >
+      {/* Background image - using img tag for better control */}
+      {branding?.banner_url && (
+        <img 
+          src={branding.banner_url}
+          alt=""
+          className="w-full h-full object-cover object-center"
+          style={{ gridArea: 'stack' }}
+        />
+      )}
       
       {/* Semi-transparent overlay for text readability */}
       {overlay && branding?.banner_url && (
         <div 
-          className="absolute inset-0 bg-gradient-to-r from-black/40 via-black/20 to-black/40"
+          className="w-full h-full bg-gradient-to-r from-black/40 via-black/20 to-black/40"
+          style={{ gridArea: 'stack' }}
         />
       )}
       
-      {/* Content container with proper z-index */}
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-full px-4 sm:px-6 md:px-8 py-4">
+      {/* Content container - completely independent from background */}
+      <div 
+        className="w-full flex flex-col items-center justify-center px-4 sm:px-6 md:px-8 py-8 sm:py-12 md:py-16 text-center"
+        style={{ gridArea: 'stack', zIndex: 10 }}
+      >
         {children}
       </div>
     </div>
