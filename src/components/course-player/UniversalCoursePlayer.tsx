@@ -41,6 +41,16 @@ export const UniversalCoursePlayer: React.FC = () => {
       console.log('[UniversalCoursePlayer] Missing data:', { hasCourses: !!courses, courseSlug });
       return null;
     }
+    
+    // Debug: Log all course slugs
+    console.log('[UniversalCoursePlayer] Available courses:', courses.map(c => ({ 
+      id: c.id, 
+      title: c.title, 
+      slug: c.slug,
+      framework: c.framework_type,
+      version: c.content_version
+    })));
+    
     const found = courses.find(c => c.slug === courseSlug);
     console.log('[UniversalCoursePlayer] Course lookup:', { 
       courseSlug, 
