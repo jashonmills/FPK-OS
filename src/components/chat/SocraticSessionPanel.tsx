@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
 import { Target, BookOpen, X } from 'lucide-react';
+import VoiceInputButton from '@/components/notes/VoiceInputButton';
 
 interface SocraticSessionPanelProps {
   onStartSession: (topic: string, objective: string) => void;
@@ -38,25 +39,37 @@ export function SocraticSessionPanel({ onStartSession, onCancel }: SocraticSessi
             <BookOpen className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             Topic
           </label>
-          <Input
-            placeholder="e.g., Fractions, Photosynthesis"
-            value={topic}
-            onChange={(e) => setTopic(e.target.value)}
-            className="bg-background text-sm"
-            style={{ fontSize: '16px' }}
-          />
+          <div className="flex gap-2">
+            <Input
+              placeholder="e.g., Fractions, Photosynthesis"
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              className="bg-background text-sm flex-1"
+              style={{ fontSize: '16px' }}
+            />
+            <VoiceInputButton
+              onTranscription={(text) => setTopic(text)}
+              placeholder="topic"
+            />
+          </div>
         </div>
 
         <div className="space-y-1.5 sm:space-y-2">
           <label className="text-xs sm:text-sm font-medium">Learning Objective</label>
-          <Textarea
-            placeholder="What do you want to learn? e.g., 'Compare fractions with unlike denominators'"
-            value={objective}
-            onChange={(e) => setObjective(e.target.value)}
-            rows={3}
-            className="bg-background resize-none text-sm"
-            style={{ fontSize: '16px' }}
-          />
+          <div className="space-y-2">
+            <Textarea
+              placeholder="What do you want to learn? e.g., 'Compare fractions with unlike denominators'"
+              value={objective}
+              onChange={(e) => setObjective(e.target.value)}
+              rows={3}
+              className="bg-background resize-none text-sm"
+              style={{ fontSize: '16px' }}
+            />
+            <VoiceInputButton
+              onTranscription={(text) => setObjective(text)}
+              placeholder="learning objective"
+            />
+          </div>
         </div>
 
         <div className="bg-muted/50 p-2.5 sm:p-4 rounded-lg space-y-1.5 sm:space-y-2">

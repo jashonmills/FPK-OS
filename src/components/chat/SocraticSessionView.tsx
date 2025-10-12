@@ -3,8 +3,10 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Send, Target, TrendingUp, Loader2, CheckCircle } from 'lucide-react';
+import { Send, Target, TrendingUp, Loader2, CheckCircle, Volume2, VolumeX } from 'lucide-react';
 import type { SocraticSession, SocraticTurn } from '@/hooks/useSocraticSession';
+import VoiceInputButton from '@/components/notes/VoiceInputButton';
+import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 
 interface SocraticSessionViewProps {
   session: SocraticSession;
@@ -23,8 +25,12 @@ export function SocraticSessionView({
 }: SocraticSessionViewProps) {
   const [input, setInput] = useState('');
   const [isInputFocused, setIsInputFocused] = useState(false);
+  const [ttsEnabled, setTtsEnabled] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
   const isSubmittingRef = useRef(false);
+  const lastCoachTurnRef = useRef<string | null>(null);
+  
+  const { speak, stop, isSpeaking } = useTextToSpeech();
 
   useEffect(() => {
     if (!isInputFocused) {
@@ -32,15 +38,39 @@ export function SocraticSessionView({
     }
   }, [turns, isInputFocused]);
 
+  // Auto-speak coach responses if TTS is enabled
+  useEffect(() => {
+    if (ttsEnabled && turns.length > 0) {
+      const lastTurn = turns[turns.length - 1];
+      if (lastTurn.role === 'coach' && lastTurn.content !== lastCoachTurnRef.current) {
+        lastCoachTurnRef.current = lastTurn.content;
+        speak(lastTurn.content, { interrupt: true, hasInteracted: true });
+      }
+    }
+  }, [turns, ttsEnabled, speak]);
+
   const handleSend = () => {
     if (input.trim() && !loading && !isSubmittingRef.current) {
       isSubmittingRef.current = true;
+      // Stop any currently playing speech
+      stop();
       onSendResponse(input.trim());
       setInput('');
       setTimeout(() => {
         isSubmittingRef.current = false;
       }, 500);
     }
+  };
+
+  const handleVoiceInput = (transcription: string) => {
+    setInput(transcription);
+  };
+
+  const toggleTTS = () => {
+    if (isSpeaking) {
+      stop();
+    }
+    setTtsEnabled(!ttsEnabled);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -169,37 +199,68 @@ export function SocraticSessionView({
               <Button onClick={onEndSession} className="min-h-[44px]">Start New Session</Button>
             </div>
           ) : (
-            <div className="flex gap-2">
-              <Textarea
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyPress}
-                onFocus={() => {
-                  setIsInputFocused(true);
-                }}
-                onBlur={() => {
-                  setIsInputFocused(false);
-                }}
-                placeholder="Type your response..."
-                className="resize-none text-sm"
-                rows={3}
-                disabled={loading}
-                style={{ 
-                  fontSize: '16px' // Prevent zoom on iOS
-                }}
-              />
-              <Button
-                onClick={handleSend}
-                disabled={!input.trim() || loading}
-                size="icon"
-                className="shrink-0 h-auto min-h-[44px] min-w-[44px]"
-              >
-                {loading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Send className="h-4 w-4" />
-                )}
-              </Button>
+            <div className="space-y-2">
+              {/* Voice Controls Row */}
+              <div className="flex items-center justify-between">
+                <VoiceInputButton
+                  onTranscription={handleVoiceInput}
+                  placeholder="response"
+                  disabled={loading}
+                />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={toggleTTS}
+                  className="gap-2"
+                  title={ttsEnabled ? "Disable voice responses" : "Enable voice responses"}
+                >
+                  {ttsEnabled ? (
+                    <>
+                      <Volume2 className="h-4 w-4" />
+                      <span className="text-xs hidden sm:inline">Voice On</span>
+                    </>
+                  ) : (
+                    <>
+                      <VolumeX className="h-4 w-4" />
+                      <span className="text-xs hidden sm:inline">Voice Off</span>
+                    </>
+                  )}
+                </Button>
+              </div>
+              
+              {/* Text Input Row */}
+              <div className="flex gap-2">
+                <Textarea
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={handleKeyPress}
+                  onFocus={() => {
+                    setIsInputFocused(true);
+                  }}
+                  onBlur={() => {
+                    setIsInputFocused(false);
+                  }}
+                  placeholder="Type your response..."
+                  className="resize-none text-sm"
+                  rows={3}
+                  disabled={loading}
+                  style={{ 
+                    fontSize: '16px' // Prevent zoom on iOS
+                  }}
+                />
+                <Button
+                  onClick={handleSend}
+                  disabled={!input.trim() || loading}
+                  size="icon"
+                  className="shrink-0 h-auto min-h-[44px] min-w-[44px]"
+                >
+                  {loading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Send className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
             </div>
           )}
         </div>
