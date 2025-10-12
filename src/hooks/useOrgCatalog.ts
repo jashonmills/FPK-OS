@@ -55,7 +55,7 @@ function mapPlatformCoursesToCards(courses: PlatformCourse[]): CourseCard[] {
       discoverable: course.discoverable || false,
       source_table: 'courses',
       badges,
-      route: `/course/${course.id}`,
+      route: course.slug ? `/courses/player/${course.slug}` : `/course/${course.id}`, // Use Universal Player route
       slug: course.slug
     };
   });
@@ -176,17 +176,15 @@ export function useOrgCatalog() {
           const uuidCourseIds = courseIdArray.filter(id => uuidRegex.test(id));
           
           // Try platform courses first (all course IDs)
-          const { data: platformData, error: platformError } = await supabase
-            .from('courses')
-            .select('*')
-            .in('id', courseIdArray)
-            .eq('status', 'published')
-            .order('title', { ascending: true });
+          console.log('[useOrgCatalog] Fetching platform courses with RPC...');
+          const { data: platformData, error: platformError } = await supabase.rpc('get_published_courses');
 
           if (platformError) {
             console.error('Error fetching assigned platform courses:', platformError);
           } else {
-            platformCourses = platformData || [];
+            // Filter to only courses in our assignment/enrollment list
+            platformCourses = (platformData || []).filter(course => courseIdArray.includes(course.id));
+            console.log('[useOrgCatalog] Filtered to', platformCourses.length, 'assigned courses');
           }
 
           // Try org courses only with UUID format IDs
@@ -216,12 +214,8 @@ export function useOrgCatalog() {
         };
       } else {
         // For instructors/owners, fetch all courses
-        const { data: platformCourses, error: platformError } = await supabase
-          .from('courses')
-          .select('*')
-          .eq('course_visibility', 'global')
-          .eq('status', 'published')
-          .order('title', { ascending: true });
+        console.log('[useOrgCatalog] Fetching all platform courses with RPC...');
+        const { data: platformCourses, error: platformError } = await supabase.rpc('get_published_courses');
 
         if (platformError) {
           console.error('Error fetching platform courses:', platformError);

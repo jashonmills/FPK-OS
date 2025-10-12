@@ -42,32 +42,40 @@ export function useCourses(options?: {
   const queryClient = useQueryClient();
 
   const { data: courses = [], isLoading, error, refetch } = useQuery({
-    queryKey: ['courses', options],
+    queryKey: ['courses-v2', options], // v2 to force cache invalidation
     queryFn: async () => {
+      console.log('[useCourses] Query options:', options);
+      
       // Use RPC function for published courses to bypass RLS issues
       if (options?.status === 'published' && !options?.organizationId) {
+        console.log('[useCourses] Using RPC get_published_courses');
         const { data, error } = await supabase.rpc('get_published_courses');
         
         if (error) {
-          console.error('Error fetching published courses:', error);
+          console.error('[useCourses] RPC error:', error);
           throw error;
         }
 
+        console.log('[useCourses] RPC returned', data?.length, 'courses');
         let filteredData = data as Course[];
 
         // Apply client-side filtering for featured and limit
         if (options?.featured !== undefined) {
           filteredData = filteredData.filter(c => c.featured === options.featured);
+          console.log('[useCourses] After featured filter:', filteredData.length);
         }
 
         if (options?.limit) {
           filteredData = filteredData.slice(0, options.limit);
+          console.log('[useCourses] After limit filter:', filteredData.length);
         }
 
+        console.log('[useCourses] Returning courses:', filteredData.map(c => c.slug));
         return filteredData;
       }
 
       // Fallback to direct query for other cases
+      console.log('[useCourses] Using direct table query (fallback)');
       let query = supabase
         .from('courses')
         .select('*')
@@ -97,9 +105,10 @@ export function useCourses(options?: {
         throw error;
       }
 
+      console.log('[useCourses] Direct query returned', data?.length, 'courses');
       return data as Course[];
     },
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 0, // Disable caching to force fresh fetch
   });
 
   const createCourseMutation = useMutation({
@@ -205,20 +214,30 @@ export function useCourses(options?: {
 
 export function useCourse(slugOrId: string) {
   const { data: course, isLoading, error, refetch } = useQuery({
-    queryKey: ['course', slugOrId],
+    queryKey: ['course-v2', slugOrId], // v2 to force cache invalidation
     queryFn: async () => {
       if (!slugOrId) return null;
 
+      console.log('[useCourse] Fetching course:', slugOrId);
+      
       // Try RPC function first (for slug lookups)
       const { data: rpcData, error: rpcError } = await supabase.rpc('get_published_course_by_slug', {
         p_slug: slugOrId
       });
 
+      console.log('[useCourse] RPC result:', { 
+        foundCourses: rpcData?.length, 
+        hasError: !!rpcError,
+        error: rpcError 
+      });
+
       if (!rpcError && rpcData && rpcData.length > 0) {
+        console.log('[useCourse] Returning course from RPC:', rpcData[0].slug);
         return rpcData[0] as Course;
       }
 
       // Fallback to direct query for ID lookups or if RPC fails
+      console.log('[useCourse] Fallback to direct query');
       const { data, error } = await supabase
         .from('courses')
         .select('*')
@@ -226,14 +245,15 @@ export function useCourse(slugOrId: string) {
         .maybeSingle();
 
       if (error) {
-        console.error('Error fetching course:', error);
+        console.error('[useCourse] Direct query error:', error);
         throw error;
       }
 
+      console.log('[useCourse] Direct query result:', data ? data.slug : 'null');
       return data as Course | null;
     },
     enabled: !!slugOrId,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 0, // Disable caching to force fresh fetch
   });
 
   return {
