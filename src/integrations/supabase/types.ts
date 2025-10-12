@@ -5739,6 +5739,8 @@ export type Database = {
       }
       organizations: {
         Row: {
+          ai_settings_updated_at: string | null
+          ai_settings_updated_by: string | null
           banner_url: string | null
           brand_accent: string | null
           brand_primary: string | null
@@ -5749,6 +5751,7 @@ export type Database = {
           id: string
           instructor_limit: number | null
           instructors_used: number | null
+          is_ai_free_chat_enabled: boolean
           is_suspended: boolean
           logo_url: string | null
           name: string
@@ -5768,6 +5771,8 @@ export type Database = {
           updated_by: string | null
         }
         Insert: {
+          ai_settings_updated_at?: string | null
+          ai_settings_updated_by?: string | null
           banner_url?: string | null
           brand_accent?: string | null
           brand_primary?: string | null
@@ -5778,6 +5783,7 @@ export type Database = {
           id?: string
           instructor_limit?: number | null
           instructors_used?: number | null
+          is_ai_free_chat_enabled?: boolean
           is_suspended?: boolean
           logo_url?: string | null
           name: string
@@ -5797,6 +5803,8 @@ export type Database = {
           updated_by?: string | null
         }
         Update: {
+          ai_settings_updated_at?: string | null
+          ai_settings_updated_by?: string | null
           banner_url?: string | null
           brand_accent?: string | null
           brand_primary?: string | null
@@ -5807,6 +5815,7 @@ export type Database = {
           id?: string
           instructor_limit?: number | null
           instructors_used?: number | null
+          is_ai_free_chat_enabled?: boolean
           is_suspended?: boolean
           logo_url?: string | null
           name?: string
@@ -6025,6 +6034,10 @@ export type Database = {
       profiles: {
         Row: {
           access_scope: string | null
+          ai_autoplay_voice: boolean
+          ai_hint_aggressiveness: number
+          ai_interaction_style: string
+          ai_voice_enabled: boolean
           app_reminders: Json | null
           avatar_url: string | null
           beta_access: boolean | null
@@ -6037,12 +6050,19 @@ export type Database = {
           current_streak: number | null
           date_format: string | null
           department: string | null
+          display_font_size: string
+          display_high_contrast: boolean
           display_name: string | null
+          display_reduce_motion: boolean
+          display_theme: string
           dual_language_enabled: boolean | null
           email: string | null
           email_notifications: Json | null
           font_family: string | null
           full_name: string | null
+          gamification_focus_mode: boolean
+          gamification_leaderboard_enabled: boolean
+          gamification_xp_notify: boolean
           id: string
           job_title: string | null
           last_activity_date: string | null
@@ -6066,6 +6086,10 @@ export type Database = {
         }
         Insert: {
           access_scope?: string | null
+          ai_autoplay_voice?: boolean
+          ai_hint_aggressiveness?: number
+          ai_interaction_style?: string
+          ai_voice_enabled?: boolean
           app_reminders?: Json | null
           avatar_url?: string | null
           beta_access?: boolean | null
@@ -6078,12 +6102,19 @@ export type Database = {
           current_streak?: number | null
           date_format?: string | null
           department?: string | null
+          display_font_size?: string
+          display_high_contrast?: boolean
           display_name?: string | null
+          display_reduce_motion?: boolean
+          display_theme?: string
           dual_language_enabled?: boolean | null
           email?: string | null
           email_notifications?: Json | null
           font_family?: string | null
           full_name?: string | null
+          gamification_focus_mode?: boolean
+          gamification_leaderboard_enabled?: boolean
+          gamification_xp_notify?: boolean
           id: string
           job_title?: string | null
           last_activity_date?: string | null
@@ -6107,6 +6138,10 @@ export type Database = {
         }
         Update: {
           access_scope?: string | null
+          ai_autoplay_voice?: boolean
+          ai_hint_aggressiveness?: number
+          ai_interaction_style?: string
+          ai_voice_enabled?: boolean
           app_reminders?: Json | null
           avatar_url?: string | null
           beta_access?: boolean | null
@@ -6119,12 +6154,19 @@ export type Database = {
           current_streak?: number | null
           date_format?: string | null
           department?: string | null
+          display_font_size?: string
+          display_high_contrast?: boolean
           display_name?: string | null
+          display_reduce_motion?: boolean
+          display_theme?: string
           dual_language_enabled?: boolean | null
           email?: string | null
           email_notifications?: Json | null
           font_family?: string | null
           full_name?: string | null
+          gamification_focus_mode?: boolean
+          gamification_leaderboard_enabled?: boolean
+          gamification_xp_notify?: boolean
           id?: string
           job_title?: string | null
           last_activity_date?: string | null
