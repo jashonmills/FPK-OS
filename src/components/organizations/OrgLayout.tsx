@@ -63,32 +63,39 @@ function OrgLayoutContent() {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="relative min-h-screen">
       {/* Fixed background layer */}
-      <div 
-        className="fixed inset-0 bg-cover bg-center bg-no-repeat -z-10"
-        style={{
-          backgroundImage: `url(${getBackgroundImage()})`
-        }}
-      />
+      <div className="fixed inset-0 z-0">
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: `url(${getBackgroundImage()})`
+          }}
+        />
+        {/* Dark mode overlay */}
+        <div className="absolute inset-0 bg-black dark-mode-overlay" />
+      </div>
       
-      {/* Background overlay */}
-      <div className="fixed inset-0 bg-gradient-to-br from-purple-900/20 via-purple-800/10 to-purple-900/30 pointer-events-none -z-10" />
+      {/* Background gradient overlay */}
+      <div className="fixed inset-0 bg-gradient-to-br from-purple-900/20 via-purple-800/10 to-purple-900/30 pointer-events-none z-0" />
       
-      {/* Fixed Header */}
-      <OrgHeader />
-      
-      {/* Fixed Navigation */}
-      <OrgNavigation />
-      
-      {/* Main content area - responsive margins with transition */}
-      <main className={`pt-16 min-h-screen transition-all duration-300 ${isCollapsed ? 'md:ml-16' : 'md:ml-64'}`}>
-        <div className="p-4 md:p-6 w-full max-w-full">
-          <OrgWelcomeBanner />
-          <OrgPageBanner />
-          <Outlet />
-        </div>
-      </main>
+      {/* Main content with higher z-index */}
+      <div className="relative z-10">
+        {/* Fixed Header */}
+        <OrgHeader />
+        
+        {/* Fixed Navigation */}
+        <OrgNavigation />
+        
+        {/* Main content area - responsive margins with transition */}
+        <main className={`pt-16 min-h-screen transition-all duration-300 ${isCollapsed ? 'md:ml-16' : 'md:ml-64'}`}>
+          <div className="p-4 md:p-6 w-full max-w-full">
+            <OrgWelcomeBanner />
+            <OrgPageBanner />
+            <Outlet />
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
