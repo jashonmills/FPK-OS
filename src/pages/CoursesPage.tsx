@@ -78,8 +78,8 @@ const courses: Course[] = [
     route: '/courses/empowering-learning-spelling'
   },
   {
-    id: 'empowering-learning-reading',
-    title: 'Empowering Learning for Reading',
+      id: 'empowering-learning-reading',
+      title: 'EL Reading',
     description: 'Master reading through visual memory techniques and optimal learning states.',
     summary: 'A comprehensive program designed for visual learners to overcome reading challenges using proven memory techniques and optimal learning states.',
     duration: '~2 Hours',
@@ -96,8 +96,8 @@ const courses: Course[] = [
     route: '/courses/empowering-learning-reading'
   },
   {
-    id: 'empowering-learning-numeracy',
-    title: 'Empowering Learning for Numeracy',
+      id: 'empowering-learning-numeracy',
+      title: 'EL Numeracy',
     description: 'Master mathematics through visual memory techniques and number triangles.',
     summary: 'Learn addition, subtraction, multiplication and division using number triangles and visual learning methods. A comprehensive program designed to make mathematics easier and more enjoyable.',
     duration: '~2 Hours',
