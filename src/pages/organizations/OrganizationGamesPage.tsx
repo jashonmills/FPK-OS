@@ -76,8 +76,9 @@ export default function OrganizationGamesPage() {
   const isMobile = useIsMobile();
   const handlePlayGame = (game: Game) => {
     if (isMobile) {
-      // On mobile, navigate to full-screen page
-      const url = `/play-game?url=${encodeURIComponent(game.url)}&title=${encodeURIComponent(game.title)}`;
+      // On mobile, navigate to full-screen page with back URL
+      const currentPath = window.location.pathname;
+      const url = `/play-game?url=${encodeURIComponent(game.url)}&title=${encodeURIComponent(game.title)}&backUrl=${encodeURIComponent(currentPath)}`;
       navigate(url);
     } else {
       // On desktop, show modal

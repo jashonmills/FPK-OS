@@ -8,6 +8,7 @@ export default function FullScreenGamePage() {
   
   const gameUrl = searchParams.get('url');
   const gameTitle = searchParams.get('title');
+  const backUrl = searchParams.get('backUrl') || '/games';
 
   if (!gameUrl || !gameTitle) {
     return (
@@ -30,7 +31,7 @@ export default function FullScreenGamePage() {
         <Button 
           variant="outline" 
           size="icon"
-          onClick={() => navigate('/games')}
+          onClick={() => navigate(backUrl)}
           aria-label="Back to games"
         >
           <ArrowLeft className="h-4 w-4" />
