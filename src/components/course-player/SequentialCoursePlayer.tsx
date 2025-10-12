@@ -6,6 +6,8 @@
  * - Simple state management
  * - Standard TTS integration
  * - Progress tracking
+ * 
+ * Supports both v1 (component-based) and v2 (data-driven) content systems
  */
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
@@ -25,6 +27,9 @@ import { StandardLessonAudioButtons } from '@/components/course/StandardLessonAu
 import { AdditionalResourcesSection } from '@/components/course/resources/AdditionalResourcesSection';
 import { CourseOverviewAccordion } from '@/components/course/resources/CourseOverviewAccordion';
 import { CourseLesson } from '@/types/course';
+import { LessonContentRenderer } from './LessonContentRenderer';
+import { CourseContentManifest, LessonContentData } from '@/types/lessonContent';
+import { loadCourseContent, getLessonContent } from '@/utils/courseContentLoader';
 
 interface SequentialCoursePlayerProps {
   courseId: string;
@@ -34,6 +39,8 @@ interface SequentialCoursePlayerProps {
   backgroundImage?: string;
   estimatedHours?: number;
   difficultyLevel?: string;
+  contentVersion?: 'v1' | 'v2'; // Determines rendering system
+  courseSlug?: string; // Required for v2 content loading
 }
 
 export const SequentialCoursePlayer: React.FC<SequentialCoursePlayerProps> = ({
@@ -43,13 +50,31 @@ export const SequentialCoursePlayer: React.FC<SequentialCoursePlayerProps> = ({
   lessons,
   backgroundImage,
   estimatedHours = 4,
-  difficultyLevel = 'Beginner'
+  difficultyLevel = 'Beginner',
+  contentVersion = 'v1',
+  courseSlug
 }) => {
   const { goToCourses, goToDashboard } = useContextAwareNavigation();
   const { navigateToLesson, navigateToOverview } = useCourseNavigation(courseId);
   const { lessonId } = useParams();
   const [currentLesson, setCurrentLesson] = useState<number | null>(null);
   const [completedLessons, setCompletedLessons] = useState<number[]>([]);
+  const [courseContent, setCourseContent] = useState<CourseContentManifest | null>(null);
+  const [isLoadingContent, setIsLoadingContent] = useState(false);
+
+  // Load v2 content if applicable
+  useEffect(() => {
+    const loadContent = async () => {
+      if (contentVersion === 'v2' && courseSlug) {
+        setIsLoadingContent(true);
+        const content = await loadCourseContent(courseSlug);
+        setCourseContent(content);
+        setIsLoadingContent(false);
+        console.log(`📚 [v2] Loaded content for ${courseSlug}:`, content);
+      }
+    };
+    loadContent();
+  }, [contentVersion, courseSlug]);
 
   // Load completed lessons from localStorage on mount
   useEffect(() => {
@@ -306,7 +331,14 @@ export const SequentialCoursePlayer: React.FC<SequentialCoursePlayerProps> = ({
 
   const hasNext = currentLesson < lessons.length;
   const hasPrev = currentLesson > 1;
-  const LessonComponent = currentLessonData.component;
+
+  // V2: Get lesson content from JSON manifest
+  const lessonContentData = contentVersion === 'v2' && courseContent 
+    ? getLessonContent(courseContent, currentLesson) 
+    : null;
+
+  // V1: Get component reference
+  const LessonComponent = contentVersion === 'v1' ? currentLessonData.component : null;
 
   return (
     <VoiceSettingsProvider>
@@ -372,14 +404,46 @@ export const SequentialCoursePlayer: React.FC<SequentialCoursePlayerProps> = ({
               </Button>
             </div>
 
-            <LessonComponent 
-              onComplete={() => handleLessonComplete(currentLesson)}
-              onNext={hasNext ? handleNextLesson : undefined}
-              hasNext={hasNext}
-              lessonId={currentLesson}
-              lessonTitle={currentLessonData.title}
-              totalLessons={lessons.length}
-            />
+            {/* V2: Data-driven rendering */}
+            {contentVersion === 'v2' && lessonContentData ? (
+              <LessonContentRenderer
+                courseId={courseId}
+                lessonData={lessonContentData}
+                onComplete={() => handleLessonComplete(currentLesson)}
+                onNext={hasNext ? handleNextLesson : undefined}
+                hasNext={hasNext}
+                lessonId={currentLesson}
+                lessonTitle={currentLessonData.title}
+                totalLessons={lessons.length}
+              />
+            ) : contentVersion === 'v2' && isLoadingContent ? (
+              <Card>
+                <CardContent className="p-8 text-center">
+                  <p className="text-muted-foreground">Loading lesson content...</p>
+                </CardContent>
+              </Card>
+            ) : contentVersion === 'v2' ? (
+              <Card>
+                <CardContent className="p-8 text-center">
+                  <h2 className="text-2xl font-bold mb-4">Content Not Available</h2>
+                  <p className="text-muted-foreground">
+                    Could not load content for this lesson.
+                  </p>
+                </CardContent>
+              </Card>
+            ) : null}
+
+            {/* V1: Component-based rendering (legacy) */}
+            {contentVersion === 'v1' && LessonComponent ? (
+              <LessonComponent 
+                onComplete={() => handleLessonComplete(currentLesson)}
+                onNext={hasNext ? handleNextLesson : undefined}
+                hasNext={hasNext}
+                lessonId={currentLesson}
+                lessonTitle={currentLessonData.title}
+                totalLessons={lessons.length}
+              />
+            ) : null}
           </div>
         </div>
       </InteractiveCourseWrapper>

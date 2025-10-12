@@ -1391,6 +1391,7 @@ export type Database = {
         Row: {
           asset_path: string | null
           content_component: string | null
+          content_version: string | null
           course_visibility: string | null
           created_at: string | null
           created_by: string | null
@@ -1418,6 +1419,7 @@ export type Database = {
         Insert: {
           asset_path?: string | null
           content_component?: string | null
+          content_version?: string | null
           course_visibility?: string | null
           created_at?: string | null
           created_by?: string | null
@@ -1445,6 +1447,7 @@ export type Database = {
         Update: {
           asset_path?: string | null
           content_component?: string | null
+          content_version?: string | null
           course_visibility?: string | null
           created_at?: string | null
           created_by?: string | null

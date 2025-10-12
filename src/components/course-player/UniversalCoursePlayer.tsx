@@ -157,6 +157,8 @@ export const UniversalCoursePlayer: React.FC = () => {
           backgroundImage={courseData.thumbnail_url || undefined}
           estimatedHours={courseData.duration_minutes ? Math.ceil(courseData.duration_minutes / 60) : 4}
           difficultyLevel={(courseData as any).difficulty || 'Beginner'}
+          contentVersion={(courseData as any).content_version || 'v1'}
+          courseSlug={courseSlug}
         />
       );
     }
