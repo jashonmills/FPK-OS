@@ -23,6 +23,10 @@ export interface Course {
   course_visibility?: 'global' | 'organization_only' | 'private';
   enrollments_count?: number;
   completion_rate?: number;
+  // Project Phoenix: Essential fields for routing and rendering
+  framework_type?: string;
+  content_version?: string;
+  content_component?: string;
 }
 
 // Type for creating a new course (without id, created_at, updated_at)

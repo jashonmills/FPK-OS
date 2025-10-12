@@ -20,6 +20,8 @@ export const UniversalCoursePlayer: React.FC = () => {
   const { courseSlug } = useParams<{ courseSlug: string }>();
   const { goToCourses } = useContextAwareNavigation();
   
+  console.log('[UniversalCoursePlayer] Initializing with slug:', courseSlug);
+  
   // Fetch course data from database
   const { courses, isLoading, error } = useCourses({ 
     featured: false, 
@@ -27,10 +29,28 @@ export const UniversalCoursePlayer: React.FC = () => {
     limit: 1000 // Get all to find by slug
   });
 
+  console.log('[UniversalCoursePlayer] Hook state:', { 
+    coursesCount: courses?.length, 
+    isLoading, 
+    hasError: !!error 
+  });
+
   // Find the specific course by slug
   const courseData = React.useMemo(() => {
-    if (!courses || !courseSlug) return null;
-    return courses.find(c => c.slug === courseSlug);
+    if (!courses || !courseSlug) {
+      console.log('[UniversalCoursePlayer] Missing data:', { hasCourses: !!courses, courseSlug });
+      return null;
+    }
+    const found = courses.find(c => c.slug === courseSlug);
+    console.log('[UniversalCoursePlayer] Course lookup:', { 
+      courseSlug, 
+      found: !!found,
+      foundId: found?.id,
+      foundTitle: found?.title,
+      framework: found?.framework_type,
+      version: found?.content_version
+    });
+    return found;
   }, [courses, courseSlug]);
 
   // Loading state

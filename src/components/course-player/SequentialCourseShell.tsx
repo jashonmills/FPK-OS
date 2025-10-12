@@ -53,15 +53,31 @@ export const SequentialCourseShell: React.FC<SequentialCourseShellProps> = ({ co
   // Load course manifest
   useEffect(() => {
     const loadManifest = async () => {
+      console.log('[SequentialCourseShell] Loading manifest for:', courseData.slug);
       setLoading(true);
-      const content = await loadCourseContent(courseData.slug);
-      if (content) {
-        setManifest(content);
+      try {
+        const content = await loadCourseContent(courseData.slug);
+        console.log('[SequentialCourseShell] Manifest loaded:', { 
+          hasContent: !!content, 
+          lessonsCount: content?.lessons?.length 
+        });
+        if (content) {
+          setManifest(content);
+        } else {
+          console.error('[SequentialCourseShell] No content returned for:', courseData.slug);
+        }
+      } catch (error) {
+        console.error('[SequentialCourseShell] Error loading manifest:', error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
-    loadManifest();
+    if (courseData?.slug) {
+      loadManifest();
+    } else {
+      console.warn('[SequentialCourseShell] Missing courseData.slug');
+    }
   }, [courseData.slug]);
 
   // Load completed lessons from localStorage
