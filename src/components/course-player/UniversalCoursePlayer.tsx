@@ -1,19 +1,16 @@
 /**
- * Universal Course Player
+ * Universal Course Player - Simplified Router
  * 
- * The main entry point for rendering any course in the system.
- * Fetches course data from the database and routes to the appropriate player
- * based on the course's framework_type.
+ * The single entry point for all courses.
+ * Fetches course data from database and routes to the appropriate shell.
  * 
- * This is the foundation of Project Phoenix - a single, unified course rendering system.
+ * Project Phoenix: "Flow Factory" - A forced reset to perfection.
  */
 
 import React from 'react';
-import { useParams, Navigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useCourses } from '@/hooks/useCourses';
-import { SequentialCoursePlayer } from './SequentialCoursePlayer';
 import { SequentialCourseShell } from './SequentialCourseShell';
-import { getCourseLessons, hasCourseComponents } from './courseComponentRegistry';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, Loader2 } from 'lucide-react';
@@ -88,21 +85,17 @@ export const UniversalCoursePlayer: React.FC = () => {
     );
   }
 
-  // Check if course has framework_type set
-  if (!(courseData as any).framework_type) {
-    console.warn(`Course ${courseSlug} is missing framework_type in database`);
-    
+  // Validate framework_type
+  const frameworkType = (courseData as any).framework_type;
+  if (!frameworkType) {
     return (
       <div className="container mx-auto px-4 py-8">
         <Card>
           <CardContent className="p-8 text-center space-y-4">
             <AlertCircle className="w-12 h-12 mx-auto text-yellow-500" />
-            <h2 className="text-2xl font-bold">Course Configuration Error</h2>
+            <h2 className="text-2xl font-bold">Configuration Error</h2>
             <p className="text-muted-foreground">
-              This course is not properly configured. The framework type is missing.
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Course ID: {courseSlug}
+              This course is missing framework configuration.
             </p>
             <Button onClick={() => goToCourses()}>
               Back to Courses
@@ -113,79 +106,25 @@ export const UniversalCoursePlayer: React.FC = () => {
     );
   }
 
-  const contentComponent = (courseData as any).content_component || courseSlug;
-
-  // Route to appropriate player based on framework_type
-  switch ((courseData as any).framework_type) {
-    case 'sequential': {
-      const contentVersion = (courseData as any).content_version || 'v1';
-      
-      // v2 courses use the new SequentialCourseShell for 100% UI consistency
-      if (contentVersion === 'v2') {
-        return (
-          <SequentialCourseShell
-            courseData={{
-              id: courseData.id,
-              title: courseData.title,
-              description: courseData.description || '',
-              slug: courseSlug || '',
-              background_image: courseData.thumbnail_url || undefined,
-              estimated_hours: courseData.duration_minutes ? Math.ceil(courseData.duration_minutes / 60) : undefined,
-              difficulty_level: (courseData as any).difficulty || 'Beginner',
-              content_version: contentVersion
-            }}
-          />
-        );
-      }
-      
-      // v1 courses still use the old player (legacy support)
-      const lessons = getCourseLessons(contentComponent);
-      
-      if (!lessons) {
-        console.warn(`Course ${courseSlug} is marked as sequential but has no lesson components registered`);
-        
-        return (
-          <div className="container mx-auto px-4 py-8">
-            <Card>
-              <CardContent className="p-8 text-center space-y-4">
-                <AlertCircle className="w-12 h-12 mx-auto text-yellow-500" />
-                <h2 className="text-2xl font-bold">Course Not Migrated</h2>
-                <p className="text-muted-foreground">
-                  This course has not been migrated to the new course player system yet.
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Course: {courseData.title} ({courseSlug})
-                  <br />
-                  Framework: {(courseData as any).framework_type}
-                  <br />
-                  Content Component: {contentComponent}
-                </p>
-                <Button onClick={() => goToCourses()}>
-                  Back to Courses
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-        );
-      }
-
+  // Route to appropriate shell based on framework_type
+  switch (frameworkType) {
+    case 'sequential':
       return (
-        <SequentialCoursePlayer
-          courseId={courseSlug}
-          courseTitle={courseData.title}
-          courseDescription={courseData.description || ''}
-          lessons={lessons}
-          backgroundImage={courseData.thumbnail_url || undefined}
-          estimatedHours={courseData.duration_minutes ? Math.ceil(courseData.duration_minutes / 60) : 4}
-          difficultyLevel={(courseData as any).difficulty || 'Beginner'}
-          contentVersion={contentVersion}
-          courseSlug={courseSlug}
+        <SequentialCourseShell
+          courseData={{
+            id: courseData.id,
+            title: courseData.title,
+            description: courseData.description || '',
+            slug: courseSlug || '',
+            background_image: courseData.thumbnail_url || undefined,
+            estimated_hours: courseData.duration_minutes ? Math.ceil(courseData.duration_minutes / 60) : undefined,
+            difficulty_level: (courseData as any).difficulty || 'Beginner',
+            content_version: (courseData as any).content_version
+          }}
         />
       );
-    }
 
-    case 'micro-learning': {
-      // TODO: Implement MicroLearningCoursePlayer
+    case 'micro-learning':
       return (
         <div className="container mx-auto px-4 py-8">
           <Card>
@@ -193,10 +132,7 @@ export const UniversalCoursePlayer: React.FC = () => {
               <AlertCircle className="w-12 h-12 mx-auto text-blue-500" />
               <h2 className="text-2xl font-bold">Micro-Learning Framework</h2>
               <p className="text-muted-foreground">
-                The Micro-Learning player will be implemented in the next phase of Project Phoenix.
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Course: {courseData.title}
+                Coming in the next phase of Project Phoenix.
               </p>
               <Button onClick={() => goToCourses()}>
                 Back to Courses
@@ -205,10 +141,8 @@ export const UniversalCoursePlayer: React.FC = () => {
           </Card>
         </div>
       );
-    }
 
-    case 'single-embed': {
-      // TODO: Implement SingleEmbedPlayer
+    case 'single-embed':
       return (
         <div className="container mx-auto px-4 py-8">
           <Card>
@@ -216,10 +150,7 @@ export const UniversalCoursePlayer: React.FC = () => {
               <AlertCircle className="w-12 h-12 mx-auto text-blue-500" />
               <h2 className="text-2xl font-bold">Single-Embed Framework</h2>
               <p className="text-muted-foreground">
-                The Single-Embed player will be implemented in the next phase of Project Phoenix.
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Course: {courseData.title}
+                Coming in the next phase of Project Phoenix.
               </p>
               <Button onClick={() => goToCourses()}>
                 Back to Courses
@@ -228,17 +159,16 @@ export const UniversalCoursePlayer: React.FC = () => {
           </Card>
         </div>
       );
-    }
 
-    default: {
+    default:
       return (
         <div className="container mx-auto px-4 py-8">
           <Card>
             <CardContent className="p-8 text-center space-y-4">
               <AlertCircle className="w-12 h-12 mx-auto text-destructive" />
-              <h2 className="text-2xl font-bold">Unknown Framework Type</h2>
+              <h2 className="text-2xl font-bold">Unknown Framework</h2>
               <p className="text-muted-foreground">
-                This course has an unknown framework type: {(courseData as any).framework_type}
+                Framework type "{frameworkType}" is not supported.
               </p>
               <Button onClick={() => goToCourses()}>
                 Back to Courses
@@ -247,6 +177,5 @@ export const UniversalCoursePlayer: React.FC = () => {
           </Card>
         </div>
       );
-    }
   }
 };

@@ -166,24 +166,17 @@ const NativeCoursePlayer = lazy(() => import("./components/native-courses/Native
 // Universal Course Player - Project Phoenix
 const UniversalCoursePlayer = lazy(() => import("./components/course-player/UniversalCoursePlayer").then(m => ({ default: m.UniversalCoursePlayer })));
 
-// Interactive Course Pages
+// Interactive Course Pages (Micro-Learning Framework)
 const InteractiveLinearEquationsCoursePage = lazy(() => import("./pages/courses/InteractiveLinearEquationsCoursePage"));
 const InteractiveTrigonometryCoursePage = lazy(() => import("./pages/courses/InteractiveTrigonometryCoursePage"));
 const InteractiveAlgebraCoursePage = lazy(() => import("./pages/courses/InteractiveAlgebraCoursePage"));
 const InteractiveEconomicsCoursePage = lazy(() => import("./pages/courses/InteractiveEconomicsCoursePage"));
 const InteractiveNeurodiversityCoursePage = lazy(() => import("./pages/courses/InteractiveNeurodiversityCoursePage"));
-const InteractiveScienceCoursePage = lazy(() => import("./pages/courses/InteractiveScienceCoursePage"));
 const GeometryCoursePage = lazy(() => import("./pages/courses/GeometryCoursePage"));
-const EmpoweringLearningSpellingCoursePage = lazy(() => import("./pages/courses/EmpoweringLearningSpellingCoursePage"));
-const EmpoweringLearningReadingCoursePage = lazy(() => import("./pages/courses/EmpoweringLearningReadingCoursePage"));
-const EmpoweringLearningNumeracyCoursePage = lazy(() => import("./pages/courses/EmpoweringLearningNumeracyCoursePage"));
-const EmpoweringLearningHandwritingCoursePage = lazy(() => import("./pages/courses/EmpoweringLearningHandwritingCoursePage"));
-const ELHandwritingCoursePage = lazy(() => import("./pages/courses/ELHandwritingCoursePage"));
-const OptimalLearningStatePage = lazy(() => import("./pages/courses/OptimalLearningStatePage"));
 const LogicCriticalThinkingCoursePage = lazy(() => import("./pages/courses/LogicCriticalThinkingCoursePage"));
-const MoneyManagementCoursePage = lazy(() => import("./pages/courses/MoneyManagementCoursePage"));
-const InteractiveELTCoursePage = lazy(() => import("./pages/courses/InteractiveELTCoursePage"));
-const VideoProductionCoursePage = lazy(() => import("./pages/courses/VideoProductionCoursePage"));
+
+// NOTE: All sequential courses now use UniversalCoursePlayer via /courses/player/:slug
+// Legacy course page components have been deleted as part of Project Phoenix
 
 // Standalone AI Study Coach Chat
 const StandaloneAIStudyCoachChat = lazy(() => import("./components/StandaloneAIStudyCoachChat"));
@@ -553,16 +546,6 @@ const App: React.FC = () => {
               <LazyRoute><InteractiveNeurodiversityCoursePage /></LazyRoute>
             </RouteProtector>
           } />
-          <Route path="/courses/interactive-science" element={
-            <RouteProtector>
-              <LazyRoute><InteractiveScienceCoursePage /></LazyRoute>
-            </RouteProtector>
-          } />
-          <Route path="/courses/interactive-science/:lessonId" element={
-            <RouteProtector>
-              <LazyRoute><InteractiveScienceCoursePage /></LazyRoute>
-            </RouteProtector>
-          } />
           <Route path="/courses/geometry" element={
             <RouteProtector>
               <LazyRoute><GeometryCoursePage /></LazyRoute>
@@ -571,16 +554,6 @@ const App: React.FC = () => {
           <Route path="/courses/geometry/:lessonId" element={
             <RouteProtector>
               <LazyRoute><GeometryCoursePage /></LazyRoute>
-            </RouteProtector>
-          } />
-          <Route path="/courses/money-management-teens" element={
-            <RouteProtector>
-              <LazyRoute><MoneyManagementCoursePage /></LazyRoute>
-            </RouteProtector>
-          } />
-          <Route path="/courses/money-management-teens/:lessonId" element={
-            <RouteProtector>
-              <LazyRoute><MoneyManagementCoursePage /></LazyRoute>
             </RouteProtector>
           } />
           <Route path="/courses/interactive-linear-equations" element={
@@ -604,94 +577,27 @@ const App: React.FC = () => {
             </RouteProtector>
           } />
           
-          <Route path="/courses/el-spelling-reading" element={
-            <RouteProtector>
-              <LazyRoute><EmpoweringLearningSpellingCoursePage /></LazyRoute>
-            </RouteProtector>
-          } />
-          <Route path="/courses/el-spelling-reading/:lessonId" element={
-            <RouteProtector>
-              <LazyRoute><EmpoweringLearningSpellingCoursePage /></LazyRoute>
-            </RouteProtector>
-          } />
-          
-          <Route path="/courses/optimal-learning-state" element={
-            <RouteProtector>
-              <LazyRoute><OptimalLearningStatePage /></LazyRoute>
-            </RouteProtector>
-          } />
-          
-          <Route path="/courses/optimal-learning-state/:lessonId" element={
-            <RouteProtector>
-              <LazyRoute><OptimalLearningStatePage /></LazyRoute>
-            </RouteProtector>
-          } />
-          
-          <Route path="/courses/empowering-learning-reading" element={
-            <RouteProtector>
-              <LazyRoute><EmpoweringLearningReadingCoursePage /></LazyRoute>
-            </RouteProtector>
-          } />
-          
-          <Route path="/courses/empowering-learning-reading/:lessonId" element={
-            <RouteProtector>
-              <LazyRoute><EmpoweringLearningReadingCoursePage /></LazyRoute>
-            </RouteProtector>
-          } />
-          
-          <Route path="/courses/empowering-learning-numeracy" element={
-            <RouteProtector>
-              <LazyRoute><EmpoweringLearningNumeracyCoursePage /></LazyRoute>
-            </RouteProtector>
-          } />
-          
-          <Route path="/courses/empowering-learning-numeracy/:lessonId" element={
-            <RouteProtector>
-              <LazyRoute><EmpoweringLearningNumeracyCoursePage /></LazyRoute>
-            </RouteProtector>
-          } />
-          
-          <Route path="/courses/empowering-learning-handwriting" element={
-            <RouteProtector>
-              <LazyRoute><EmpoweringLearningHandwritingCoursePage /></LazyRoute>
-            </RouteProtector>
-          } />
-          
-          <Route path="/courses/empowering-learning-handwriting/:lessonId" element={
-            <RouteProtector>
-              <LazyRoute><EmpoweringLearningHandwritingCoursePage /></LazyRoute>
-            </RouteProtector>
-          } />
-          
-          <Route path="/courses/el-handwriting" element={
-            <RouteProtector>
-              <LazyRoute><ELHandwritingCoursePage /></LazyRoute>
-            </RouteProtector>
-          } />
-          
-          <Route path="/courses/el-handwriting/:lessonId" element={
-            <RouteProtector>
-              <LazyRoute><ELHandwritingCoursePage /></LazyRoute>
-            </RouteProtector>
-          } />
-          
-          <Route path="/courses/elt-empowering-learning-techniques" element={
-            <RouteProtector>
-              <LazyRoute><InteractiveELTCoursePage /></LazyRoute>
-            </RouteProtector>
-          } />
-          
-          <Route path="/courses/elt-empowering-learning-techniques/:lessonId" element={
-            <RouteProtector>
-              <LazyRoute><InteractiveELTCoursePage /></LazyRoute>
-            </RouteProtector>
-          } />
-          
-          <Route path="/courses/introduction-video-production" element={
-            <RouteProtector>
-              <LazyRoute><VideoProductionCoursePage /></LazyRoute>
-            </RouteProtector>
-          } />
+          {/* ====================================================================
+              PROJECT PHOENIX: All Sequential Courses Now Use Universal Player
+              ==================================================================== 
+              
+              The following 9 sequential courses are now served via:
+              /courses/player/:slug
+              
+              Courses migrated to v2:
+              1. el-handwriting
+              2. optimal-learning-state
+              3. el-spelling-reading
+              4. empowering-learning-reading
+              5. empowering-learning-numeracy
+              6. elt-empowering-learning-techniques
+              7. introduction-to-science
+              8. money-management-teens
+              9. introduction-video-production
+              
+              All legacy course page components and routes have been removed.
+              The SequentialCourseShell is now the single source of truth.
+          ================================================================== */}
           
           {/* Organization Hub & Management Routes - Authenticated */}
           <Route path="/org/hub" element={

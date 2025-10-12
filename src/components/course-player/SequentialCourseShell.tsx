@@ -115,7 +115,7 @@ export const SequentialCourseShell: React.FC<SequentialCourseShellProps> = ({ co
     if (manifest && currentLesson !== null && currentLesson < manifest.lessons.length) {
       const nextLesson = currentLesson + 1;
       setCurrentLesson(nextLesson);
-      navigate(`/courses/${courseData.slug}/${nextLesson}`);
+      navigate(`/courses/player/${courseData.slug}/${nextLesson}`);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [currentLesson, manifest, navigate, courseData.slug]);
@@ -124,19 +124,19 @@ export const SequentialCourseShell: React.FC<SequentialCourseShellProps> = ({ co
     if (currentLesson !== null && currentLesson > 1) {
       const prevLesson = currentLesson - 1;
       setCurrentLesson(prevLesson);
-      navigate(`/courses/${courseData.slug}/${prevLesson}`);
+      navigate(`/courses/player/${courseData.slug}/${prevLesson}`);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [currentLesson, navigate, courseData.slug]);
 
   const handleLessonSelect = useCallback((lessonId: number) => {
     setCurrentLesson(lessonId);
-    navigate(`/courses/${courseData.slug}/${lessonId}`);
+    navigate(`/courses/player/${courseData.slug}/${lessonId}`);
   }, [navigate, courseData.slug]);
 
   const handleBackToCourseOverview = useCallback(() => {
     setCurrentLesson(null);
-    navigate(`/courses/${courseData.slug}`);
+    navigate(`/courses/player/${courseData.slug}`);
   }, [navigate, courseData.slug]);
 
   const isLessonAccessible = useCallback((lessonId: number) => {
