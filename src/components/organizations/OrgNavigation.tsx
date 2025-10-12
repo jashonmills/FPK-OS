@@ -17,7 +17,8 @@ import {
   Clipboard,
   ExternalLink,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Gamepad2
 } from 'lucide-react';
 import { useOrgContext } from './OrgContext';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -89,6 +90,11 @@ export function OrgNavigation() {
       href: `/org/${currentOrg.organization_id}/ai-coach`,
       label: currentOrg.role === 'student' ? 'AI Learning Coach' : 'AI Org Assistant',
       icon: Brain,
+    },
+    {
+      href: `/org/${currentOrg.organization_id}/games`,
+      label: 'Games',
+      icon: Gamepad2,
     },
     {
       href: `/org/${currentOrg.organization_id}/website`,
