@@ -154,7 +154,7 @@ export default function StudentSettings() {
   return (
     <div className="container mx-auto py-8 px-4 max-w-4xl">
       <Card className="border-0 shadow-lg">
-        <CardHeader className="bg-gradient-to-r from-purple-600/10 to-orange-600/10">
+        <CardHeader className="bg-brand-accent/10 border-b border-brand-accent/20">
           <CardTitle className="text-2xl flex items-center gap-2">
             <Settings className="h-6 w-6" />
             Student Settings
@@ -304,7 +304,7 @@ export default function StudentSettings() {
                   </div>
                 </div>
 
-                <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                <div className="p-4 bg-brand-accent/10 border border-brand-accent/20 rounded-lg backdrop-blur-sm">
                   <p className="text-sm text-muted-foreground">
                     <strong>Security tip:</strong> Choose a PIN that you can remember but others can't easily guess. Never share your PIN with anyone.
                   </p>
