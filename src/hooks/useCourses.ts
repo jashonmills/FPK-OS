@@ -44,6 +44,30 @@ export function useCourses(options?: {
   const { data: courses = [], isLoading, error, refetch } = useQuery({
     queryKey: ['courses', options],
     queryFn: async () => {
+      // Use RPC function for published courses to bypass RLS issues
+      if (options?.status === 'published' && !options?.organizationId) {
+        const { data, error } = await supabase.rpc('get_published_courses');
+        
+        if (error) {
+          console.error('Error fetching published courses:', error);
+          throw error;
+        }
+
+        let filteredData = data as Course[];
+
+        // Apply client-side filtering for featured and limit
+        if (options?.featured !== undefined) {
+          filteredData = filteredData.filter(c => c.featured === options.featured);
+        }
+
+        if (options?.limit) {
+          filteredData = filteredData.slice(0, options.limit);
+        }
+
+        return filteredData;
+      }
+
+      // Fallback to direct query for other cases
       let query = supabase
         .from('courses')
         .select('*')
@@ -185,18 +209,28 @@ export function useCourse(slugOrId: string) {
     queryFn: async () => {
       if (!slugOrId) return null;
 
+      // Try RPC function first (for slug lookups)
+      const { data: rpcData, error: rpcError } = await supabase.rpc('get_published_course_by_slug', {
+        p_slug: slugOrId
+      });
+
+      if (!rpcError && rpcData && rpcData.length > 0) {
+        return rpcData[0] as Course;
+      }
+
+      // Fallback to direct query for ID lookups or if RPC fails
       const { data, error } = await supabase
         .from('courses')
         .select('*')
         .or(`id.eq.${slugOrId},slug.eq.${slugOrId}`)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error('Error fetching course:', error);
         throw error;
       }
 
-      return data as Course;
+      return data as Course | null;
     },
     enabled: !!slugOrId,
     staleTime: 1000 * 60 * 5,

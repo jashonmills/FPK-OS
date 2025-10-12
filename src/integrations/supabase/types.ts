@@ -9784,6 +9784,68 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      get_published_course_by_slug: {
+        Args: { p_slug: string }
+        Returns: {
+          asset_path: string | null
+          content_component: string | null
+          content_version: string | null
+          course_visibility: string | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          difficulty_level: string | null
+          discoverable: boolean | null
+          duration_minutes: number | null
+          featured: boolean | null
+          framework_type: string | null
+          id: string
+          instructor_name: string | null
+          is_free: boolean | null
+          org_id: string | null
+          organization_id: string | null
+          price: number | null
+          published_at: string | null
+          slug: string | null
+          source: string | null
+          status: string | null
+          tags: string[] | null
+          thumbnail_url: string | null
+          title: string
+          updated_at: string | null
+        }[]
+      }
+      get_published_courses: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          asset_path: string | null
+          content_component: string | null
+          content_version: string | null
+          course_visibility: string | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          difficulty_level: string | null
+          discoverable: boolean | null
+          duration_minutes: number | null
+          featured: boolean | null
+          framework_type: string | null
+          id: string
+          instructor_name: string | null
+          is_free: boolean | null
+          org_id: string | null
+          organization_id: string | null
+          price: number | null
+          published_at: string | null
+          slug: string | null
+          source: string | null
+          status: string | null
+          tags: string[] | null
+          thumbnail_url: string | null
+          title: string
+          updated_at: string | null
+        }[]
+      }
       get_student_analytics: {
         Args:
           | { p_org_id: string; p_student_id: string }
