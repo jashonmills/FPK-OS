@@ -21,7 +21,6 @@ import { buildSimplePrompt, PromptType, SimplePromptContext } from './simple-pro
 import type { ChatRequest } from './types.ts';
 import { handleSocraticSession, type SocraticRequest } from './socratic-handler.ts';
 import { fetchOrgData } from './org-data-fetcher.ts';
-import { getInteractionStyleInstruction, getHintTimingInstruction } from './interaction-styles.ts';
 
 // AI Study Coach v8.1 - Enhanced Socratic Method with Lovable AI (Fixed duplicate declarations)
 const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
@@ -97,10 +96,7 @@ serve(async (req) => {
       topic,
       objective,
       orgId,
-      studentResponse,
-      // User preferences
-      interactionStyle,
-      hintAggressiveness
+      studentResponse
     } = requestBody;
 
     const requestParseTime = performance.now() - requestParseStart;
@@ -160,20 +156,8 @@ serve(async (req) => {
       });
 
       try {
-        // Helper function to call Gemini for Socratic prompts with user preferences
+        // Helper function to call Gemini for Socratic prompts
         const geminiCall = async (prompt: string): Promise<string> => {
-          // Build enhanced system prompt with user's interaction style preferences
-          const toneInstruction = getInteractionStyleInstruction(interactionStyle || 'encouraging_friendly');
-          const hintInstruction = getHintTimingInstruction(hintAggressiveness ?? 1);
-          
-          const enhancedSystemPrompt = `${SOCRATIC_STRUCTURED_PROMPT}
-
-${toneInstruction}
-
-${hintInstruction}
-
-Apply these tone and timing preferences naturally throughout your interaction with the student.`;
-
           const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
             method: 'POST',
             headers: {
@@ -183,7 +167,7 @@ Apply these tone and timing preferences naturally throughout your interaction wi
             body: JSON.stringify({
               model: GEMINI_MODEL,
               messages: [
-                { role: 'system', content: enhancedSystemPrompt },
+                { role: 'system', content: SOCRATIC_STRUCTURED_PROMPT },
                 { role: 'user', content: prompt }
               ],
               max_tokens: MAX_TOKENS

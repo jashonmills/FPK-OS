@@ -139,7 +139,7 @@ const LanguageSwitcher = () => {
           <span className="hidden sm:inline">{currentLanguage.native}</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-64 bg-card border shadow-lg">
+      <DropdownMenuContent align="end" className="w-64 bg-white border shadow-lg">
         <div className="px-3 py-2">
           <h4 className="font-medium text-sm">{tString('language.primaryLanguage', 'Primary Language')}</h4>
         </div>
@@ -147,12 +147,12 @@ const LanguageSwitcher = () => {
           <DropdownMenuItem
             key={language.code}
             onClick={() => handleLanguageChange(language.code)}
-            className="cursor-pointer hover:bg-muted"
+            className="cursor-pointer hover:bg-gray-100"
           >
             <div className="flex items-center justify-between w-full">
               <div className="flex flex-col">
                 <span className="font-medium">{language.native}</span>
-                <span className="text-xs text-muted-foreground">{language.name}</span>
+                <span className="text-xs text-gray-500">{language.name}</span>
               </div>
               {i18n.language === language.code && (
                 <Check className="h-4 w-4 text-green-600" />
@@ -169,7 +169,7 @@ const LanguageSwitcher = () => {
               <Label htmlFor="dual-language-switcher" className="text-sm font-medium">
                 {tString('language.dualLanguageMode', 'Dual Language Mode')}
               </Label>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-gray-500">
                 {tString('language.dualLanguageDescription', 'Show English alongside your language')}
               </p>
             </div>

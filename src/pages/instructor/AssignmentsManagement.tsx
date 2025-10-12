@@ -89,8 +89,8 @@ export default function AssignmentsManagement() {
     <div className="container max-w-6xl mx-auto py-8 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground drop-shadow-lg">Assignments</h1>
-          <p className="text-muted-foreground mt-2 drop-shadow">
+          <h1 className="text-3xl font-bold tracking-tight text-white drop-shadow-lg">Assignments</h1>
+          <p className="text-white/80 mt-2 drop-shadow">
             Create and manage assignments for your students
           </p>
         </div>
@@ -99,58 +99,58 @@ export default function AssignmentsManagement() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <OrgCard className="bg-card border-border">
+        <OrgCard className="bg-orange-500/65 border-orange-400/50">
           <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
-              <ClipboardCheck className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm font-medium text-foreground">Total Assignments</span>
+              <ClipboardCheck className="w-4 h-4 text-white/70" />
+              <span className="text-sm font-medium text-white">Total Assignments</span>
             </div>
-            <div className="text-2xl font-bold mt-2 text-foreground">{filteredAssignments.length}</div>
+            <div className="text-2xl font-bold mt-2 text-white">{filteredAssignments.length}</div>
           </OrgCardContent>
         </OrgCard>
         
-        <OrgCard className="bg-card border-border">
+        <OrgCard className="bg-orange-500/65 border-orange-400/50">
           <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-foreground">Active</span>
+              <span className="text-sm font-medium text-white">Active</span>
             </div>
             <div className="text-2xl font-bold mt-2 text-blue-300">{filteredAssignments.length}</div>
           </OrgCardContent>
         </OrgCard>
         
-        <OrgCard className="bg-card border-border">
+        <OrgCard className="bg-orange-500/65 border-orange-400/50">
           <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-foreground">Completed</span>
+              <span className="text-sm font-medium text-white">Completed</span>
             </div>
             <div className="text-2xl font-bold mt-2 text-green-300">0</div>
           </OrgCardContent>
         </OrgCard>
         
-        <OrgCard className="bg-card border-border">
+        <OrgCard className="bg-orange-500/65 border-orange-400/50">
           <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-foreground">Avg Completion</span>
+              <span className="text-sm font-medium text-white">Avg Completion</span>
             </div>
-            <div className="text-2xl font-bold mt-2 text-foreground">0%</div>
+            <div className="text-2xl font-bold mt-2 text-white">0%</div>
           </OrgCardContent>
         </OrgCard>
       </div>
 
       {/* Search and Filters */}
-      <OrgCard className="bg-card border-border">
+      <OrgCard className="bg-orange-500/65 border-orange-400/50">
         <OrgCardHeader>
           <div className="flex items-center gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/70" />
               <Input 
               placeholder="Search assignments..." 
-              className="pl-10 bg-white/20 border-white/30 text-foreground placeholder:text-muted-foreground"
+              className="pl-10 bg-white/20 border-white/30 text-white placeholder:text-white/70"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-            <Button variant="outline" className="border-white/30 text-foreground hover:bg-white/20">
+            <Button variant="outline" className="border-white/30 text-white hover:bg-white/20">
               <Filter className="w-4 h-4 mr-2" />
               Filters
             </Button>
@@ -162,26 +162,26 @@ export default function AssignmentsManagement() {
       <div className="space-y-4">
         {filteredAssignments.length > 0 ? (
           filteredAssignments.map((assignment) => (
-            <OrgCard key={assignment.id} className="bg-card border-border">
+            <OrgCard key={assignment.id} className="bg-orange-500/65 border-orange-400/50">
               <OrgCardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <div className="space-y-1">
-                    <OrgCardTitle className="text-lg text-foreground">{assignment.title}</OrgCardTitle>
-                    <div className="text-sm text-muted-foreground">
+                    <OrgCardTitle className="text-lg text-white">{assignment.title}</OrgCardTitle>
+                    <div className="text-sm text-white/70">
                       Type: {assignment.type} • Created: {new Date(assignment.created_at).toLocaleDateString()}
                     </div>
                   </div>
-                  <Badge variant="secondary" className="bg-white/20 text-foreground border-white/30">
+                  <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
                     {assignment.type}
                   </Badge>
                 </div>
               </OrgCardHeader>
               <OrgCardContent>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" className="border-white/30 text-foreground hover:bg-white/20">
+                  <Button variant="outline" size="sm" className="border-white/30 text-white hover:bg-white/20">
                     View Details
                   </Button>
-                  <Button size="sm" className="bg-white/20 hover:bg-white/30 text-foreground border-white/30">
+                  <Button size="sm" className="bg-white/20 hover:bg-white/30 text-white border-white/30">
                     Edit
                   </Button>
                 </div>
@@ -189,11 +189,11 @@ export default function AssignmentsManagement() {
             </OrgCard>
           ))
         ) : (
-          <OrgCard className="bg-card border-border">
+          <OrgCard className="bg-orange-500/65 border-orange-400/50">
             <OrgCardContent className="p-8 text-center">
-              <ClipboardCheck className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2 text-foreground">No assignments found</h3>
-              <p className="text-muted-foreground mb-4">
+              <ClipboardCheck className="h-12 w-12 mx-auto text-white/70 mb-4" />
+              <h3 className="text-lg font-semibold mb-2 text-white">No assignments found</h3>
+              <p className="text-white/80 mb-4">
                 {searchQuery ? 'Try adjusting your search terms.' : 'Create your first assignment to get started.'}
               </p>
               <CreateAssignmentDialog />

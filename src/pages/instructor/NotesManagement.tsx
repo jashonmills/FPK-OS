@@ -29,7 +29,7 @@ export default function NotesManagement() {
       <div className="container max-w-6xl mx-auto py-8">
         <OrgCard>
           <OrgCardContent className="p-8 text-center">
-            <p className="text-muted-foreground">No organization selected</p>
+            <p className="text-purple-200">No organization selected</p>
           </OrgCardContent>
         </OrgCard>
       </div>
@@ -70,40 +70,40 @@ export default function NotesManagement() {
 
       {/* Stats Cards */}
       <div className="mobile-analytics-grid">
-        <OrgCard className="bg-card border-border">
+        <OrgCard className="bg-orange-500/65 border-orange-400/50">
           <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
-              <Notebook className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm font-medium text-foreground">Total Notes</span>
+              <Notebook className="w-4 h-4 text-white/70" />
+              <span className="text-sm font-medium text-white">Total Notes</span>
             </div>
-            <div className="text-2xl font-bold mt-2 text-foreground">{notes.length}</div>
+            <div className="text-2xl font-bold mt-2 text-white">{notes.length}</div>
           </OrgCardContent>
         </OrgCard>
         
-        <OrgCard className="bg-card border-border">
+        <OrgCard className="bg-orange-500/65 border-orange-400/50">
           <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
-              <Users className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm font-medium text-foreground">Shared Notes</span>
+              <Users className="w-4 h-4 text-white/70" />
+              <span className="text-sm font-medium text-white">Shared Notes</span>
             </div>
             <div className="text-2xl font-bold mt-2 text-blue-300">{notes.filter(n => n.visibility_scope === 'org-public').length}</div>
           </OrgCardContent>
         </OrgCard>
         
-        <OrgCard className="bg-card border-border">
+        <OrgCard className="bg-orange-500/65 border-orange-400/50">
           <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
-              <FileText className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm font-medium text-foreground">Private Notes</span>
+              <FileText className="w-4 h-4 text-white/70" />
+              <span className="text-sm font-medium text-white">Private Notes</span>
             </div>
-            <div className="text-2xl font-bold mt-2 text-foreground">{notes.filter(n => n.visibility_scope === 'student-only').length}</div>
+            <div className="text-2xl font-bold mt-2 text-white">{notes.filter(n => n.visibility_scope === 'student-only').length}</div>
           </OrgCardContent>
         </OrgCard>
         
-        <OrgCard className="bg-card border-border">
+        <OrgCard className="bg-orange-500/65 border-orange-400/50">
           <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-foreground">This Week</span>
+              <span className="text-sm font-medium text-white">This Week</span>
             </div>
             <div className="text-2xl font-bold mt-2 text-green-300">{notes.filter(n => {
               const createdAt = new Date(n.created_at);
@@ -116,14 +116,14 @@ export default function NotesManagement() {
       </div>
 
       {/* Search and Filters */}
-      <OrgCard className="bg-card border-border">
+      <OrgCard className="bg-orange-500/65 border-orange-400/50">
         <OrgCardHeader>
           <div className="flex items-center gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/70" />
               <Input 
               placeholder="Search notes..." 
-              className="pl-10 bg-white/20 border-white/30 text-foreground placeholder:text-muted-foreground"
+              className="pl-10 bg-white/20 border-white/30 text-white placeholder:text-white/70"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -138,16 +138,16 @@ export default function NotesManagement() {
 
       {/* Folders Section */}
       {folders.length > 0 && (
-        <OrgCard className="bg-card border-border">
+        <OrgCard className="bg-orange-500/65 border-orange-400/50">
           <OrgCardHeader>
-            <OrgCardTitle className="text-foreground flex items-center gap-2">
+            <OrgCardTitle className="text-white flex items-center gap-2">
               <span>📁 Folders ({folders.length})</span>
             </OrgCardTitle>
           </OrgCardHeader>
           <OrgCardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
               {folders.map((folder) => (
-                <div key={folder.id} className="flex items-center gap-2 p-2 bg-white/20 rounded text-sm text-foreground">
+                <div key={folder.id} className="flex items-center gap-2 p-2 bg-white/20 rounded text-sm text-white">
                   <span>📁</span>
                   <span className="truncate">{folder.name}</span>
                 </div>
@@ -160,15 +160,15 @@ export default function NotesManagement() {
       {/* Notes Grid */}
       <div className="mobile-grid">
         {notes.map((note) => (
-          <OrgCard key={note.id} className="flex flex-col bg-card border-border">
+          <OrgCard key={note.id} className="flex flex-col bg-orange-500/65 border-orange-400/50">
             <OrgCardHeader className="pb-3">
               <div className="space-y-2">
-                <OrgCardTitle className="text-lg line-clamp-2 text-foreground">{note.title}</OrgCardTitle>
+                <OrgCardTitle className="text-lg line-clamp-2 text-white">{note.title}</OrgCardTitle>
                 <div className="flex flex-wrap gap-2">
-                  <Badge variant={getCategoryColor(note.category) as any} className="bg-white/20 text-foreground border-white/30">
+                  <Badge variant={getCategoryColor(note.category) as any} className="bg-white/20 text-white border-white/30">
                     {note.category ? note.category.replace('-', ' ') : 'general'}
                   </Badge>
-                  <Badge variant={getVisibilityColor(note.visibility_scope) as any} className="bg-white/20 text-foreground border-white/30">
+                  <Badge variant={getVisibilityColor(note.visibility_scope) as any} className="bg-white/20 text-white border-white/30">
                     {note.visibility_scope === 'org-public' ? 'shared' : 'private'}
                   </Badge>
                 </div>
@@ -176,37 +176,37 @@ export default function NotesManagement() {
             </OrgCardHeader>
             
             <OrgCardContent className="flex-1 flex flex-col">
-              <OrgCardDescription className="line-clamp-3 mb-4 text-muted-foreground">
+              <OrgCardDescription className="line-clamp-3 mb-4 text-white/80">
                 {note.content}
               </OrgCardDescription>
               
               <div className="flex flex-wrap gap-1 mb-4">
               {note.tags?.map((tag) => (
-                <Badge key={tag} variant="outline" className="text-xs bg-white/20 text-foreground border-white/30">
+                <Badge key={tag} variant="outline" className="text-xs bg-white/20 text-white border-white/30">
                   #{tag}
                 </Badge>
               ))}
               </div>
               
               <div className="mt-auto space-y-3">
-                <div className="text-xs text-muted-foreground">
+                <div className="text-xs text-white/80">
                   Created: {new Date(note.created_at).toLocaleDateString()}
                   <br />
                   Updated: {new Date(note.updated_at).toLocaleDateString()}
                 </div>
                 
                 {note.visibility_scope === 'org-public' && (
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-1 text-xs text-white/80">
                     <Users className="w-3 h-3" />
                     Shared with organization
                   </div>
                 )}
                 
                 <div className="flex flex-col gap-2 sm:flex-row">
-                  <Button variant="outline" size="sm" className="flex-1 border-white/30 text-foreground hover:bg-white/20 mobile-safe-text">
+                  <Button variant="outline" size="sm" className="flex-1 border-white/30 text-white hover:bg-white/20 mobile-safe-text">
                     Edit
                   </Button>
-                  <Button size="sm" className="flex-1 bg-white/20 hover:bg-white/30 text-foreground border-white/30 mobile-safe-text">
+                  <Button size="sm" className="flex-1 bg-white/20 hover:bg-white/30 text-white border-white/30 mobile-safe-text">
                     View
                   </Button>
                 </div>
@@ -218,11 +218,11 @@ export default function NotesManagement() {
 
       {/* Empty state */}
       {notes.length === 0 && !isLoading && (
-        <OrgCard className="bg-card border-border">
+        <OrgCard className="bg-orange-500/65 border-orange-400/50">
           <OrgCardContent className="text-center py-12">
-            <Notebook className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2 text-foreground">No Notes Created</h3>
-            <p className="text-muted-foreground mb-4">
+            <Notebook className="h-12 w-12 mx-auto text-white/70 mb-4" />
+            <h3 className="text-lg font-semibold mb-2 text-white">No Notes Created</h3>
+            <p className="text-white/80 mb-4">
               Create instructional notes to organize your teaching materials.
             </p>
             <CreateNoteDialog organizationId={currentOrg?.organization_id} />

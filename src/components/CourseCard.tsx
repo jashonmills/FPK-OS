@@ -34,7 +34,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
   const courseImage = getCourseImage(course.id, course.title);
 
   return (
-    <Card className="bg-card border-0 shadow-lg hover:shadow-xl transition-shadow">
+    <Card className="fpk-card border-0 shadow-lg hover:shadow-xl transition-shadow">
       <div className="aspect-video w-full overflow-hidden rounded-t-lg">
         <div 
           className="w-full h-full bg-cover bg-center"
@@ -46,11 +46,11 @@ const CourseCard: React.FC<CourseCardProps> = ({
       <CardHeader className="pb-4">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary/10 rounded-lg">
-              <BookOpen className="h-6 w-6 text-primary" />
+            <div className="p-2 bg-purple-100 rounded-lg">
+              <BookOpen className="h-6 w-6 text-purple-600" />
             </div>
             <div>
-              <CardTitle className="text-xl text-card-foreground">{course.title}</CardTitle>
+              <CardTitle className="text-xl text-gray-900">{course.title}</CardTitle>
               <div className="flex items-center gap-2 mt-1">
                 {course.featured && (
                   <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100">
@@ -59,7 +59,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
                   </Badge>
                 )}
                 {isBetaCourse && (
-                  <Badge className="bg-primary text-primary-foreground">
+                  <Badge className="fpk-gradient text-white">
                     Beta
                   </Badge>
                 )}
@@ -77,7 +77,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
       
       <CardContent className="pt-0">
         {course.description && (
-          <p className="text-muted-foreground mb-4 leading-relaxed">
+          <p className="text-gray-600 mb-4 leading-relaxed">
             {course.description}
           </p>
         )}
@@ -86,11 +86,11 @@ const CourseCard: React.FC<CourseCardProps> = ({
         {isBetaCourse && completionPercentage > 0 && (
           <div className="mb-4 space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Progress</span>
+              <span className="text-gray-600">Progress</span>
               <span className="font-medium">{completionPercentage}%</span>
             </div>
             <Progress value={completionPercentage} className="h-2" />
-            <div className="flex items-center gap-4 text-xs text-muted-foreground">
+            <div className="flex items-center gap-4 text-xs text-gray-500">
               <span>{completedModules} modules completed</span>
               {completionPercentage > 0 && (
                 <span className="flex items-center gap-1">
@@ -103,7 +103,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
         )}
         
         <div className="flex items-center justify-between">
-          <div className="text-sm text-muted-foreground flex items-center gap-1">
+          <div className="text-sm text-gray-500 flex items-center gap-1">
             {isBetaCourse ? (
               completionPercentage > 0 ? (
                 isCompleted ? (
@@ -129,7 +129,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
           </div>
           <Button 
             onClick={onButtonClick}
-            className={isBetaCourse ? "bg-primary text-primary-foreground hover:bg-primary/90" : ""}
+            className={isBetaCourse ? "fpk-gradient text-white" : ""}
           >
             {isCompleted ? "Review" : buttonLabel}
           </Button>

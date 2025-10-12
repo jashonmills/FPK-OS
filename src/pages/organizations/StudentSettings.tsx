@@ -11,7 +11,6 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import EnhancedAvatarUpload from '@/components/settings/EnhancedAvatarUpload';
-import StudentLearningPreferences from '@/components/settings/StudentLearningPreferences';
 
 export default function StudentSettings() {
   const [searchParams] = useSearchParams();
@@ -31,14 +30,14 @@ export default function StudentSettings() {
   const [avatarUrl, setAvatarUrl] = useState('');
   const [isSavingProfile, setIsSavingProfile] = useState(false);
 
-  // Fetch student profile data with linked_user_id
+  // Fetch student profile data
   const { data: studentRecord, isLoading } = useQuery({
     queryKey: ['org-student-profile', studentId],
     queryFn: async () => {
       if (!studentId) return null;
       const { data, error } = await supabase
         .from('org_students')
-        .select('full_name, org_id, avatar_url, date_of_birth, linked_user_id, organizations(name)')
+        .select('full_name, org_id, avatar_url, date_of_birth, organizations(name)')
         .eq('id', studentId)
         .single();
       
@@ -154,7 +153,7 @@ export default function StudentSettings() {
   return (
     <div className="container mx-auto py-8 px-4 max-w-4xl">
       <Card className="border-0 shadow-lg">
-        <CardHeader className="bg-brand-accent/10 border-b border-brand-accent/20">
+        <CardHeader className="bg-gradient-to-r from-purple-600/10 to-orange-600/10">
           <CardTitle className="text-2xl flex items-center gap-2">
             <Settings className="h-6 w-6" />
             Student Settings
@@ -251,7 +250,14 @@ export default function StudentSettings() {
             </TabsContent>
 
             <TabsContent value="preferences" className="space-y-6">
-              <StudentLearningPreferences userId={studentRecord?.linked_user_id || null} />
+              <div className="space-y-4">
+                <div className="p-4 bg-muted rounded-lg">
+                  <h3 className="font-medium mb-2">Learning Preferences</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Learning preferences and notification settings are coming soon. You'll be able to customize your learning experience here.
+                  </p>
+                </div>
+              </div>
             </TabsContent>
 
             <TabsContent value="security" className="space-y-6">
@@ -304,7 +310,7 @@ export default function StudentSettings() {
                   </div>
                 </div>
 
-                <div className="p-4 bg-brand-accent/10 border border-brand-accent/20 rounded-lg backdrop-blur-sm">
+                <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
                   <p className="text-sm text-muted-foreground">
                     <strong>Security tip:</strong> Choose a PIN that you can remember but others can't easily guess. Never share your PIN with anyone.
                   </p>

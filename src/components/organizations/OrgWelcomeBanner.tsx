@@ -29,7 +29,7 @@ export function OrgWelcomeBanner() {
   const displayName = sanitizeOrgName(currentOrg.organizations.name);
 
   return (
-    <Card className="bg-brand-accent border-brand-accent/20 mb-4 sm:mb-6">
+    <Card className="bg-orange-500/65 border-orange-400/50 mb-4 sm:mb-6">
       <CardContent className={isMobile ? "p-4" : "p-6"}>
         {isMobile ? (
           // Mobile Layout: Logo at top, content stacked
@@ -37,17 +37,17 @@ export function OrgWelcomeBanner() {
             {/* Logo and role badge at top */}
             <div className="flex items-center justify-between">
               <OrgLogo size="md" />
-              <Badge variant="secondary" className="text-xs bg-brand-accent-foreground/10 text-brand-accent-foreground border-brand-accent-foreground/20 px-2 py-1">
+              <Badge variant="secondary" className="text-xs bg-white/20 text-white border-white/30 px-2 py-1">
                 {currentOrg.role.charAt(0).toUpperCase() + currentOrg.role.slice(1)}
               </Badge>
             </div>
             
             {/* Content below */}
             <div className="space-y-2">
-              <h1 className="text-lg sm:text-xl font-bold text-brand-accent-foreground leading-tight break-words">
+              <h1 className="text-lg sm:text-xl font-bold text-white leading-tight break-words">
                 Welcome to {displayName}
               </h1>
-              <p className="text-brand-accent-foreground/80 text-sm leading-relaxed">
+              <p className="text-white/80 text-sm leading-relaxed">
                 {currentOrg.organizations.plan.charAt(0).toUpperCase() + currentOrg.organizations.plan.slice(1)} Plan Organization
               </p>
             </div>
@@ -58,15 +58,15 @@ export function OrgWelcomeBanner() {
             <div className="flex items-center gap-4">
               <OrgLogo size="lg" />
               <div>
-                <h1 className="text-2xl font-bold text-brand-accent-foreground break-words">
+                <h1 className="text-2xl font-bold text-white break-words">
                   Welcome to {displayName}
                 </h1>
-                <p className="text-brand-accent-foreground/80 mt-1">
+                <p className="text-white/80 mt-1">
                   {currentOrg.organizations.plan.charAt(0).toUpperCase() + currentOrg.organizations.plan.slice(1)} Plan Organization
                 </p>
               </div>
             </div>
-            <Badge variant="secondary" className="text-sm bg-brand-accent-foreground/10 text-brand-accent-foreground border-brand-accent-foreground/20">
+            <Badge variant="secondary" className="text-sm bg-white/20 text-white border-white/30">
               {currentOrg.role.charAt(0).toUpperCase() + currentOrg.role.slice(1)}
             </Badge>
           </div>

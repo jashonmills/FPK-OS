@@ -28,7 +28,7 @@ export default function GoalsManagement() {
       <div className="container max-w-6xl mx-auto py-8">
         <OrgCard>
           <OrgCardContent className="p-8 text-center">
-            <p className="text-muted-foreground">No organization selected</p>
+            <p className="text-purple-200">No organization selected</p>
           </OrgCardContent>
         </OrgCard>
       </div>
@@ -113,8 +113,8 @@ export default function GoalsManagement() {
     <div className="container max-w-6xl mx-auto py-8 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Goals</h1>
-          <p className="text-muted-foreground mt-2">
+          <h1 className="text-3xl font-bold tracking-tight text-white drop-shadow-lg">Goals</h1>
+          <p className="text-white/80 mt-2 drop-shadow">
             Set and track organizational learning goals for your students
           </p>
         </div>
@@ -213,42 +213,42 @@ export default function GoalsManagement() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <OrgCard className="bg-card border-border">
+        <OrgCard className="bg-orange-500/65 border-orange-400/50">
           <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
-              <Flag className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm font-medium text-foreground">Total Goals</span>
+              <Flag className="w-4 h-4 text-white/70" />
+              <span className="text-sm font-medium text-white">Total Goals</span>
             </div>
-            <div className="text-2xl font-bold mt-2 text-foreground">{goals.length}</div>
+            <div className="text-2xl font-bold mt-2 text-white">{goals.length}</div>
           </OrgCardContent>
         </OrgCard>
         
-        <OrgCard className="bg-card border-border">
+        <OrgCard className="bg-orange-500/65 border-orange-400/50">
           <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
-              <Target className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm font-medium text-foreground">Active Goals</span>
+              <Target className="w-4 h-4 text-white/70" />
+              <span className="text-sm font-medium text-white">Active Goals</span>
             </div>
-            <div className="text-2xl font-bold mt-2 text-blue-600 dark:text-blue-400">{goals.filter(g => g.status === 'active').length}</div>
+            <div className="text-2xl font-bold mt-2 text-blue-300">{goals.filter(g => g.status === 'active').length}</div>
           </OrgCardContent>
         </OrgCard>
         
-        <OrgCard className="bg-card border-border">
+        <OrgCard className="bg-orange-500/65 border-orange-400/50">
           <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm font-medium text-foreground">Achieved</span>
+              <TrendingUp className="w-4 h-4 text-white/70" />
+              <span className="text-sm font-medium text-white">Achieved</span>
             </div>
-            <div className="text-2xl font-bold mt-2 text-green-600 dark:text-green-400">{goals.filter(g => g.status === 'completed').length}</div>
+            <div className="text-2xl font-bold mt-2 text-green-300">{goals.filter(g => g.status === 'completed').length}</div>
           </OrgCardContent>
         </OrgCard>
         
-        <OrgCard className="bg-card border-border">
+        <OrgCard className="bg-orange-500/65 border-orange-400/50">
           <OrgCardContent className="p-6">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-foreground">Avg Progress</span>
+              <span className="text-sm font-medium text-white">Avg Progress</span>
             </div>
-            <div className="text-2xl font-bold mt-2 text-foreground">
+            <div className="text-2xl font-bold mt-2 text-white">
               {goals.length > 0 ? Math.round(goals.reduce((sum, goal) => sum + (goal.progress_percentage || 0), 0) / goals.length) : 0}%
             </div>
           </OrgCardContent>
@@ -256,14 +256,14 @@ export default function GoalsManagement() {
       </div>
 
       {/* Search and Filters */}
-      <OrgCard className="bg-card border-border">
+      <OrgCard className="bg-orange-500/65 border-orange-400/50">
         <OrgCardHeader>
           <div className="flex items-center gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/70" />
               <Input 
                 placeholder="Search goals..." 
-                className="pl-10 bg-background border-input text-foreground placeholder:text-muted-foreground"
+                className="pl-10 bg-white/20 border-white/30 text-white placeholder:text-white/70"
               />
             </div>
             <Button variant="outline">
@@ -277,11 +277,11 @@ export default function GoalsManagement() {
       {/* Goals List */}
       <div className="space-y-4">
         {goals.length === 0 ? (
-          <OrgCard className="bg-card border-border">
+          <OrgCard className="bg-purple-600/80 border-purple-500/50">
             <OrgCardContent className="p-8 text-center">
-              <Target className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-foreground mb-2">No Goals Set</h3>
-              <p className="text-muted-foreground">Create organizational goals to track progress and performance metrics.</p>
+              <Target className="h-12 w-12 text-purple-200 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-white mb-2">No Goals Set</h3>
+              <p className="text-purple-200">Create organizational goals to track progress and performance metrics.</p>
             </OrgCardContent>
           </OrgCard>
         ) : (
@@ -289,12 +289,12 @@ export default function GoalsManagement() {
             const progressPercentage = goal.progress_percentage || 0;
             
             return (
-              <OrgCard key={goal.id} className="bg-card border-border">
+              <OrgCard key={goal.id} className="bg-orange-500/65 border-orange-400/50">
                 <OrgCardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className="space-y-2">
-                      <OrgCardTitle className="text-foreground text-lg">{goal.title}</OrgCardTitle>
-                      <OrgCardDescription className="text-muted-foreground">
+                      <OrgCardTitle className="text-white text-lg">{goal.title}</OrgCardTitle>
+                      <OrgCardDescription className="text-orange-100">
                         {goal.description}
                       </OrgCardDescription>
                       <div className="flex gap-2">
@@ -305,10 +305,10 @@ export default function GoalsManagement() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-2xl font-bold text-foreground">
+                      <div className="text-2xl font-bold text-white">
                         {progressPercentage}%
                       </div>
-                      <div className="text-xs text-muted-foreground">Progress</div>
+                      <div className="text-xs text-orange-200">Progress</div>
                     </div>
                   </div>
                 </OrgCardHeader>
@@ -316,17 +316,17 @@ export default function GoalsManagement() {
                   <div className="space-y-3">
                     <div>
                       <div className="flex justify-between text-sm mb-1">
-                        <span className="text-muted-foreground">Current Progress</span>
-                        <span className="text-foreground font-medium">{progressPercentage}%</span>
+                        <span className="text-orange-200">Current Progress</span>
+                        <span className="text-white font-medium">{progressPercentage}%</span>
                       </div>
-                      <div className="w-full bg-muted rounded-full h-2">
+                      <div className="w-full bg-orange-800/40 rounded-full h-2">
                         <div 
-                          className="bg-primary h-2 rounded-full transition-all"
+                          className="bg-gradient-to-r from-orange-300 to-orange-100 h-2 rounded-full transition-all"
                           style={{ width: `${progressPercentage}%` }}
                         />
                       </div>
                     </div>
-                    <div className="flex justify-between text-xs text-muted-foreground">
+                    <div className="flex justify-between text-xs text-orange-200">
                       <span>Target Date: {new Date(goal.target_date).toLocaleDateString()}</span>
                       <span>Status: {goal.status}</span>
                     </div>

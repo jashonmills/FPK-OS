@@ -23,12 +23,12 @@ const GlobalChatWidget = ({ onOpenChange }: GlobalChatWidgetProps) => {
   const trigger = (
     <Button
       size="icon"
-      className="h-14 w-14 rounded-full bg-primary hover:bg-primary/90 shadow-lg relative pointer-events-auto"
+      className="h-14 w-14 rounded-full bg-purple-600 hover:bg-purple-700 shadow-lg relative pointer-events-auto"
     >
-      <MessageCircle className="h-6 w-6 text-primary-foreground" />
+      <MessageCircle className="h-6 w-6 text-white" />
       {hasUnreadMessages && (
         <div className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center">
-          <div className="h-2 w-2 bg-background rounded-full" />
+          <div className="h-2 w-2 bg-white rounded-full" />
         </div>
       )}
     </Button>

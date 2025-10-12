@@ -23,10 +23,11 @@ export function OrgBanner({
 
   if (isPersonalMode || !currentOrg) {
     return (
-      <div className={cn('relative bg-gradient-to-r from-primary/10 to-accent/10 dark:from-primary/20 dark:to-accent/20', className)}>
+      <div className={cn('relative bg-gradient-to-r from-primary/10 to-accent/10', className)}>
         {overlay && (
           <div 
-            className="absolute inset-0 bg-background/60 dark:bg-background/40"
+            className="absolute inset-0"
+            style={{ backgroundColor: `hsl(var(--background) / ${overlayOpacity})` }}
           />
         )}
         <div className="relative z-10">
@@ -36,13 +37,14 @@ export function OrgBanner({
     );
   }
 
-  // If no banner URL, show brand-colored background
+  // If no banner URL, show transparent background
   if (!branding?.banner_url) {
     return (
-      <div className={cn('relative bg-gradient-to-r from-brand-accent/10 to-brand-accent/20 dark:from-brand-accent/20 dark:to-brand-accent/30', className)}>
+      <div className={cn('relative', className)}>
         {overlay && (
           <div 
-            className="absolute inset-0 bg-background/60 dark:bg-background/40"
+            className="absolute inset-0"
+            style={{ backgroundColor: `hsl(var(--background) / ${overlayOpacity})` }}
           />
         )}
         <div className="relative z-10">
@@ -77,7 +79,7 @@ export function OrgBanner({
       {/* Semi-transparent overlay for text readability */}
       {overlay && branding?.banner_url && (
         <div 
-          className="w-full h-full bg-gradient-to-r from-black/40 via-black/20 to-black/40 dark:from-black/60 dark:via-black/40 dark:to-black/60"
+          className="w-full h-full bg-gradient-to-r from-black/40 via-black/20 to-black/40"
           style={{ gridArea: 'stack' }}
         />
       )}

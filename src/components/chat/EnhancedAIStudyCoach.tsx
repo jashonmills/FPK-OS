@@ -9,7 +9,6 @@ import { useSocraticSession } from '@/hooks/useSocraticSession';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { useOptionalOrgContext } from '@/components/organizations/OrgContext';
-import { useQuery } from '@tanstack/react-query';
 
 interface EnhancedAIStudyCoachProps {
   userId?: string;
@@ -34,26 +33,6 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
   const [orgSettings, setOrgSettings] = useState<any>(null);
   const [currentMessages, setCurrentMessages] = useState<any[]>([]);
   const currentOrg = useOptionalOrgContext()?.currentOrg || null;
-  
-  // Fetch user's AI interaction style preference
-  const { data: userPreferences } = useQuery({
-    queryKey: ['user-ai-preferences', userId],
-    queryFn: async () => {
-      if (!userId) return null;
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('ai_interaction_style, ai_hint_aggressiveness')
-        .eq('id', userId)
-        .single();
-      
-      if (error) {
-        console.error('Error fetching user preferences:', error);
-        return null;
-      }
-      return data;
-    },
-    enabled: !!userId
-  });
   
   // Personal mode uses the tri-modal system, org mode uses the legacy system
   const isPersonalMode = chatMode === 'personal' && !orgId;
@@ -99,9 +78,7 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
             socraticIntent: 'start',
             socraticTopic: topic,
             socraticObjective: objective,
-            contextData: { orgId },
-            interactionStyle: userPreferences?.ai_interaction_style || 'encouraging_friendly',
-            hintAggressiveness: userPreferences?.ai_hint_aggressiveness || 1
+            contextData: { orgId }
           }
         });
 
@@ -147,9 +124,7 @@ export function EnhancedAIStudyCoach(props: EnhancedAIStudyCoachProps) {
           socraticMode: true,
           socraticIntent: 'respond',
           socraticSessionId: session.id,
-          contextData: { orgId },
-          interactionStyle: userPreferences?.ai_interaction_style || 'encouraging_friendly',
-          hintAggressiveness: userPreferences?.ai_hint_aggressiveness || 1
+          contextData: { orgId }
         }
       });
 

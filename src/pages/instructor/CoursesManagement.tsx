@@ -15,10 +15,10 @@ import { CourseCard as CourseCardType } from "@/types/course-card";
 /**
  * ORGANIZATION UI STANDARD:
  * All cards and tiles in organization pages should use the transparent orange styling:
- * - Background: bg-card 
- * - Border: border-border
- * - Text: text-foreground for primary text, text-muted-foreground for secondary, text-muted-foreground for muted
- * - Buttons: bg-white/20 text-foreground border-white/30 hover:bg-white/30
+ * - Background: bg-orange-500/65 
+ * - Border: border-orange-400/50
+ * - Text: text-white for primary text, text-white/80 for secondary, text-white/70 for muted
+ * - Buttons: bg-white/20 text-white border-white/30 hover:bg-white/30
  * - This ensures consistency across all organization pages (Analytics, Courses, Invite, etc.)
  */
 
@@ -170,16 +170,16 @@ export default function CoursesManagementNew() {
   };
 
   const renderCourseCard = (course: CourseCardType, showAssignButton = false) => (
-    <Card key={course.id} className="h-full flex flex-col hover:shadow-md transition-shadow bg-card border-border">
+    <Card key={course.id} className="h-full flex flex-col hover:shadow-md transition-shadow bg-orange-500/65 border-orange-400/50">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
-          <CardTitle className="text-lg line-clamp-2 text-foreground">{course.title}</CardTitle>
+          <CardTitle className="text-lg line-clamp-2 text-white">{course.title}</CardTitle>
           <div className="flex gap-1 flex-shrink-0">
             {course.badges.map((badge, index) => (
               <Badge 
                 key={index}
                 variant={badge.variant as any}
-                className="text-xs bg-white/20 text-foreground border-white/30"
+                className="text-xs bg-white/20 text-white border-white/30"
               >
                 {badge.label}
               </Badge>
@@ -187,14 +187,14 @@ export default function CoursesManagementNew() {
           </div>
         </div>
         {course.description && (
-          <p className="text-sm text-muted-foreground line-clamp-3 mt-2">
+          <p className="text-sm text-white/80 line-clamp-3 mt-2">
             {course.description}
           </p>
         )}
       </CardHeader>
       
       <CardContent className="flex-grow pb-3">
-        <div className="flex items-center gap-4 text-xs text-muted-foreground mb-4">
+        <div className="flex items-center gap-4 text-xs text-white/70 mb-4">
           <div className="flex items-center gap-1">
             <BookOpen className="w-3 h-3" />
             <span>{course.difficulty_level || 'All levels'}</span>
@@ -219,7 +219,7 @@ export default function CoursesManagementNew() {
               size="sm" 
               onClick={() => handleAssignCourse(course)}
               disabled={assigningCourses.has(course.id) || isCourseAssigned(course.id)}
-              className="bg-white/20 text-foreground border-white/30 hover:bg-white/30"
+              className="bg-white/20 text-white border-white/30 hover:bg-white/30"
             >
               {assigningCourses.has(course.id) ? (
                 <>
@@ -234,12 +234,12 @@ export default function CoursesManagementNew() {
             </Button>
           ) : (
             <>
-              <Button size="sm" variant="outline" className="bg-white/10 text-foreground border-white/30 hover:bg-white/20">Edit</Button>
-              <Button size="sm" variant="outline" className="bg-white/10 text-foreground border-white/30 hover:bg-white/20">View</Button>
+              <Button size="sm" variant="outline" className="bg-white/10 text-white border-white/30 hover:bg-white/20">Edit</Button>
+              <Button size="sm" variant="outline" className="bg-white/10 text-white border-white/30 hover:bg-white/20">View</Button>
             </>
           )}
         </div>
-        <div className="text-xs text-muted-foreground">
+        <div className="text-xs text-white/70">
           Instructor: {course.instructor_name || 'FPK University'}
         </div>
       </CardContent>
@@ -318,7 +318,7 @@ export default function CoursesManagementNew() {
 
   return (
     <PageShell>
-      <div className="p-6 bg-card border border-border rounded-lg">
+      <div className="p-6 bg-orange-500/65 border border-orange-400/50 rounded-lg">
         <header className="flex items-center justify-between">
           <h1 className="text-xl font-semibold">Courses</h1>
           <div className="flex gap-2">
@@ -353,46 +353,46 @@ export default function CoursesManagementNew() {
 
         {/* Statistics Cards */}
         <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card className="bg-card border-border">
+          <Card className="bg-orange-500/65 border-orange-400/50">
             <CardContent className="p-4">
               <div className="flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-foreground" />
+                <BookOpen className="w-5 h-5 text-white" />
                 <div>
-                  <p className="text-sm font-medium text-foreground">Total Courses</p>
-                  <p className="text-2xl font-semibold text-foreground">{totalCourses}</p>
+                  <p className="text-sm font-medium text-white">Total Courses</p>
+                  <p className="text-2xl font-semibold text-white">{totalCourses}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
-          <Card className="bg-card border-border">
+          <Card className="bg-orange-500/65 border-orange-400/50">
             <CardContent className="p-4">
               <div className="flex items-center gap-2">
-                <Star className="w-5 h-5 text-foreground" />
+                <Star className="w-5 h-5 text-white" />
                 <div>
-                  <p className="text-sm font-medium text-foreground">Platform Courses</p>
-                  <p className="text-2xl font-semibold text-foreground">{platformCourses.length}</p>
+                  <p className="text-sm font-medium text-white">Platform Courses</p>
+                  <p className="text-2xl font-semibold text-white">{platformCourses.length}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
-          <Card className="bg-card border-border">
+          <Card className="bg-orange-500/65 border-orange-400/50">
             <CardContent className="p-4">
               <div className="flex items-center gap-2">
-                <Plus className="w-5 h-5 text-foreground" />
+                <Plus className="w-5 h-5 text-white" />
                 <div>
-                  <p className="text-sm font-medium text-foreground">Organization Courses</p>
-                  <p className="text-2xl font-semibold text-foreground">{orgCourses.length}</p>
+                  <p className="text-sm font-medium text-white">Organization Courses</p>
+                  <p className="text-2xl font-semibold text-white">{orgCourses.length}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
-          <Card className="bg-card border-border">
+          <Card className="bg-orange-500/65 border-orange-400/50">
             <CardContent className="p-4">
               <div className="flex items-center gap-2">
-                <Users className="w-5 h-5 text-foreground" />
+                <Users className="w-5 h-5 text-white" />
                 <div>
-                  <p className="text-sm font-medium text-foreground">Published</p>
-                  <p className="text-2xl font-semibold text-foreground">{publishedCourses}</p>
+                  <p className="text-sm font-medium text-white">Published</p>
+                  <p className="text-2xl font-semibold text-white">{publishedCourses}</p>
                 </div>
               </div>
             </CardContent>
@@ -467,13 +467,13 @@ export default function CoursesManagementNew() {
                   
                   {/* Add course card */}
                   <Card 
-                    className="h-56 grid place-items-center border-2 border-dashed bg-card border-border hover:border-brand-accent transition-colors cursor-pointer"
+                    className="h-56 grid place-items-center border-2 border-dashed bg-orange-500/65 border-orange-400/50 hover:border-orange-300 transition-colors cursor-pointer"
                     onClick={() => setShowCreateWizard(true)}
                   >
                     <div className="text-center">
-                      <Plus className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-                      <p className="font-medium text-foreground">Create Course</p>
-                      <p className="text-sm text-muted-foreground">Start building your course</p>
+                      <Plus className="w-8 h-8 mx-auto mb-2 text-white/70" />
+                      <p className="font-medium text-white">Create Course</p>
+                      <p className="text-sm text-white/70">Start building your course</p>
                     </div>
                   </Card>
                 </div>
@@ -500,7 +500,7 @@ export default function CoursesManagementNew() {
                   {/* Add course button for list view */}
                   <Button 
                     variant="outline" 
-                    className="w-full h-16 border-2 border-dashed bg-card border-border hover:border-brand-accent text-foreground hover:bg-brand-accent/75"
+                    className="w-full h-16 border-2 border-dashed bg-orange-500/65 border-orange-400/50 hover:border-orange-300 text-white hover:bg-orange-500/75"
                     onClick={() => setShowCreateWizard(true)}
                   >
                     <Plus className="w-4 h-4 mr-2" />

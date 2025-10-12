@@ -30,27 +30,19 @@ const DashboardLayout: React.FC = () => {
           <OrgProvider>
             <OrgThemeProvider>
               <SidebarProvider>
-                <div className="relative min-h-screen flex w-full overflow-x-hidden">
-                  {/* Background image layer */}
-                  <div className="fixed inset-0 z-0">
-                    <div 
-                      className="absolute inset-0"
-                      style={{
-                        backgroundImage: 'url(https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/home-page/home-page-background.png)',
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
-                        backgroundRepeat: 'no-repeat',
-                        backgroundAttachment: 'fixed'
-                      }}
-                    />
-                    {/* Dark mode overlay */}
-                    <div className="absolute inset-0 bg-black dark-mode-overlay" />
-                  </div>
-
-                  {/* Main content with higher z-index */}
+                <div 
+                  className="min-h-screen flex w-full overflow-x-hidden"
+                  style={{
+                    backgroundImage: 'url(https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/home-page/home-page-background.png)',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
+                    backgroundAttachment: 'fixed'
+                  }}
+                >
                   <AppSidebar />
                   <div className={cn(
-                    "relative z-10 flex-1 flex flex-col min-w-0 overflow-x-hidden transition-all duration-300 viewport-constrain",
+                    "flex-1 flex flex-col min-w-0 overflow-x-hidden transition-all duration-300 viewport-constrain",
                     isMobile && isChatOpen && "brightness-50 pointer-events-none"
                   )}>
                     <GlobalHeader />

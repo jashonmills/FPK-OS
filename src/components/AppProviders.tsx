@@ -7,7 +7,6 @@ import { AuthProvider } from '@/hooks/useAuth';
 import { ConsentProvider } from '@/hooks/useConsent';
 import { GamificationProvider } from '@/contexts/GamificationContext';
 import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
-import { UserPreferencesProvider } from '@/contexts/UserPreferencesContext';
 import AccessibilityProvider from '@/components/AccessibilityProvider';
 import i18n from '@/i18n';
 import { logger } from '@/utils/logger';
@@ -54,23 +53,21 @@ export const AppProviders: React.FC<AppProvidersProps> = ({ children }) => {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <UserPreferencesProvider>
-          <ConsentProvider>
-            <GamificationProvider>
-              <VoiceSettingsProvider>
-                <AccessibilityProvider>
-                  <TooltipProvider>
-                    <I18nextProvider i18n={i18n}>
-                      <BrowserRouter>
-                        {children}
-                      </BrowserRouter>
-                    </I18nextProvider>
-                  </TooltipProvider>
-                </AccessibilityProvider>
-              </VoiceSettingsProvider>
-            </GamificationProvider>
-          </ConsentProvider>
-        </UserPreferencesProvider>
+        <ConsentProvider>
+          <GamificationProvider>
+            <VoiceSettingsProvider>
+              <AccessibilityProvider>
+                <TooltipProvider>
+                  <I18nextProvider i18n={i18n}>
+                    <BrowserRouter>
+                      {children}
+                    </BrowserRouter>
+                  </I18nextProvider>
+                </TooltipProvider>
+              </AccessibilityProvider>
+            </VoiceSettingsProvider>
+          </GamificationProvider>
+        </ConsentProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

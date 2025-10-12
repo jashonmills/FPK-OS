@@ -7,20 +7,6 @@ interface EnhancedOrgThemeProviderProps {
   children: React.ReactNode;
 }
 
-/**
- * EnhancedOrgThemeProvider - Layered Theming System
- * 
- * This component implements a two-layer theming architecture:
- * 1. User Theme Layer: Light/Dark mode (controlled by user preference)
- * 2. Brand Layer: Organization's brand colors (controlled by org admin)
- * 
- * The system dynamically injects TWO brand colors into CSS variables:
- * - --brand-accent (for light mode)
- * - --brand-accent (for dark mode, overridden in .dark selector)
- * 
- * This allows the brand color to adapt to the user's theme preference
- * while maintaining the organization's visual identity.
- */
 export function EnhancedOrgThemeProvider({ children }: EnhancedOrgThemeProviderProps) {
   const { currentOrg, isPersonalMode } = useOrgContext();
   const { data: branding } = useOrgBranding(currentOrg?.organization_id || null);
@@ -28,82 +14,57 @@ export function EnhancedOrgThemeProvider({ children }: EnhancedOrgThemeProviderP
   useEffect(() => {
     const root = document.documentElement;
 
-    // RESET: If in personal mode or no branding, remove all custom brand colors
     if (isPersonalMode || !branding?.theme_accent) {
-      root.style.removeProperty('--brand-accent');
-      root.style.removeProperty('--brand-accent-foreground');
-      root.style.removeProperty('--sidebar');
-      root.style.removeProperty('--sidebar-foreground');
-      console.log('🎨 Theme Reset: Using default FPK colors');
+      // Reset to default theme
+      root.style.removeProperty('--accent');
+      root.style.removeProperty('--accent-foreground');
+      root.style.removeProperty('--org-tile-bg');
+      root.style.removeProperty('--org-tile-border');
+      root.style.removeProperty('--org-tile-text');
+      console.log('🎨 EnhancedOrgThemeProvider: Reset to default theme');
       return;
     }
 
-    // FEATURE TEMPORARILY DISABLED: Dark Mode Theming
-    console.log('🎨 Applying Organization Brand Color (Light Mode Only):', {
-      lightModeColor: branding.theme_accent
+    console.log('🎨 EnhancedOrgThemeProvider: Applying theme', branding.theme_accent);
+
+    // Apply organization theme using existing theme_accent (already in HSL format)
+    root.style.setProperty('--accent', branding.theme_accent);
+    
+    // Calculate contrast color with improved threshold for better readability
+    // Using more conservative threshold: colors need to be VERY light before we use dark text
+    const accent = tinycolor(`hsl(${branding.theme_accent})`);
+    const luminance = accent.getLuminance();
+    
+    // Luminance threshold: 0.6 means only very light colors get dark text
+    // This ensures purple/dark colors always get white text for readability
+    const shouldUseDarkText = luminance > 0.6;
+    const contrast = shouldUseDarkText ? '#0f172a' : '#ffffff';
+    const contrastHsl = tinycolor(contrast).toHsl();
+    
+    root.style.setProperty('--accent-foreground', `${Math.round(contrastHsl.h)} ${Math.round(contrastHsl.s * 100)}% ${Math.round(contrastHsl.l * 100)}%`);
+
+    // Set organization tile colors using space-separated RGB format for CSS variables
+    root.style.setProperty('--org-tile-bg', branding.theme_accent);
+    root.style.setProperty('--org-tile-border', branding.theme_accent);
+    root.style.setProperty('--org-tile-text', contrast === '#ffffff' ? '255 255 255' : '15 23 42');
+
+    console.log('🎨 EnhancedOrgThemeProvider: Set CSS variables', {
+      '--org-tile-bg': branding.theme_accent,
+      '--org-tile-border': branding.theme_accent,
+      '--org-tile-text': contrast === '#ffffff' ? '255 255 255' : '15 23 42',
+      luminance: luminance.toFixed(3),
+      usingWhiteText: contrast === '#ffffff'
     });
-
-    // ============================================
-    // LIGHT MODE BRAND COLOR
-    // ============================================
-    const lightModeAccent = branding.theme_accent;
-    root.style.setProperty('--brand-accent', lightModeAccent);
-
-    // Calculate contrast color for light mode
-    const lightAccent = tinycolor(`hsl(${lightModeAccent})`);
-    const lightLuminance = lightAccent.getLuminance();
-    const lightContrast = lightLuminance > 0.6 ? '#0f172a' : '#ffffff';
-    const lightContrastHsl = tinycolor(lightContrast).toHsl();
-    
-    root.style.setProperty(
-      '--brand-accent-foreground', 
-      `${Math.round(lightContrastHsl.h)} ${Math.round(lightContrastHsl.s * 100)}% ${Math.round(lightContrastHsl.l * 100)}%`
-    );
-
-    // FEATURE TEMPORARILY DISABLED: Dark Mode Brand Color Logic
-    // The following dark mode theming code is commented out until feature is re-enabled
-    
-    // ============================================
-    // DARK MODE BRAND COLOR (DISABLED)
-    // ============================================
-    // let darkModeAccent: string;
-    // if (branding.theme_dark_mode_accent) {
-    //   darkModeAccent = branding.theme_dark_mode_accent;
-    //   console.log('🎨 Using admin-defined dark mode color:', darkModeAccent);
-    // } else {
-    //   const baseColor = tinycolor(`hsl(${lightModeAccent})`);
-    //   const darkOptimized = baseColor.darken(15).saturate(10);
-    //   const darkHsl = darkOptimized.toHsl();
-    //   darkModeAccent = `${Math.round(darkHsl.h)} ${Math.round(darkHsl.s * 100)}% ${Math.round(darkHsl.l * 100)}%`;
-    // }
-    
-    // Remove any existing dark mode style injection
-    const styleId = 'org-dark-mode-theme';
-    const existingStyle = document.getElementById(styleId);
-    if (existingStyle) {
-      existingStyle.remove();
-    }
-
-    // ============================================
-    // SIDEBAR COLOR (uses brand accent)
-    // ============================================
-    root.style.setProperty('--sidebar', lightModeAccent);
-    root.style.setProperty('--sidebar-foreground', `${Math.round(lightContrastHsl.h)} ${Math.round(lightContrastHsl.s * 100)}% ${Math.round(lightContrastHsl.l * 100)}%`);
-
-    console.log('✅ Layered Theme Applied Successfully');
 
     // Cleanup on unmount
     return () => {
-      root.style.removeProperty('--brand-accent');
-      root.style.removeProperty('--brand-accent-foreground');
-      root.style.removeProperty('--sidebar');
-      root.style.removeProperty('--sidebar-foreground');
-      
-      const el = document.getElementById(styleId);
-      if (el) el.remove();
+      root.style.removeProperty('--accent');
+      root.style.removeProperty('--accent-foreground');
+      root.style.removeProperty('--org-tile-bg');
+      root.style.removeProperty('--org-tile-border');
+      root.style.removeProperty('--org-tile-text');
     };
   }, [branding?.theme_accent, isPersonalMode]);
 
   return <>{children}</>;
 }
-

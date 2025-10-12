@@ -11,65 +11,57 @@
 
 @layer base {
   :root {
-    /* ============================================
-       LIGHT MODE (DEFAULT) COLOR PALETTE
-       ============================================ */
-    
-    /* Base Colors */
-    --background: 0 0% 100%;           /* Pure white page background */
-    --foreground: 222.2 84% 4.9%;      /* Near-black text */
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
 
-    /* Card & Panel Colors */
-    --card: 0 0% 100%;                 /* White cards */
-    --card-foreground: 222.2 84% 4.9%; /* Dark text on cards */
+    --card: 33 50% 96%;
+    --card-foreground: 222.2 84% 4.9%;
 
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    /* Primary Action Colors */
-    --primary: 222.2 47.4% 11.2%;      /* Dark blue-gray */
-    --primary-foreground: 210 40% 98%; /* White text */
+    --primary: 280 65% 25%;  /* Darker purple for better contrast */
+    --primary-variant: 280 65% 20%;  /* Even darker for gradient steps */
+    --primary-foreground: 210 40% 98%;
 
-    /* Secondary/Muted Colors */
-    --secondary: 210 40% 96.1%;        /* Very light gray */
-    --secondary-foreground: 222.2 47.4% 11.2%; /* Dark text */
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
 
-    --muted: 210 40% 96.1%;            /* Light gray backgrounds */
-    --muted-foreground: 215.4 16.3% 46.9%; /* Medium gray text */
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
 
-    /* Border & Input Colors */
-    --border: 214.3 31.8% 91.4%;       /* Light gray borders */
-    --input: 214.3 31.8% 91.4%;        /* Light gray input borders */
+    --accent: 280 50% 30%;  /* Darker accent for better contrast */
+    --accent-foreground: 210 40% 98%;
 
-    /* Brand Accent (Dynamically Injected by Organization) */
-    --brand-accent: 259 73% 58%;       /* Default purple (will be overridden) */
-    --brand-accent-foreground: 210 40% 98%; /* White text on brand color */
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
 
-    /* Sidebar (Uses Brand Accent) */
-    --sidebar: 259 73% 58%;
-    --sidebar-foreground: 210 40% 98%;
-
-    /* Destructive/Error Colors */
-    --destructive: 0 84.2% 60.2%;      /* Red */
-    --destructive-foreground: 210 40% 98%; /* White text */
-
-    /* Success Colors */
     --success: 142.1 76.2% 36.3%;
     --success-foreground: 210 40% 98%;
 
-    /* Warning Colors */
     --warning: 47.9 95.8% 53.1%;
     --warning-foreground: 222.2 84% 4.9%;
 
-    /* Accent/Highlight Colors */
-    --accent: 280 50% 30%;
-    --accent-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 280 65% 35%;
 
-    /* Ring (Focus Outline) */
-    --ring: 222.2 84% 4.9%;
-
-    /* Radius */
     --radius: 1rem;
+
+    --sidebar-background: 280 65% 35%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 38 95% 48%;
+    --sidebar-primary-foreground: 280 65% 35%;
+    --sidebar-accent: 280 70% 40%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 280 70% 30%;
+    --sidebar-ring: 38 95% 48%;
+
+    /* FPK University Custom Variables */
+    --fpk-primary: 280 65% 25%;  /* Darker for better contrast */
+    --fpk-secondary: 38 95% 48%;
+    --fpk-card: 33 50% 96%;
+    --fpk-gradient: linear-gradient(135deg, #7F1D9C 0%, #F59E0B 100%);
 
     /* Enhanced UI Polish Variables */
     --learning-success: 120 60% 50%;
@@ -88,68 +80,65 @@
 
     /* FPK Homepage Colors */
     --fpk-orange: 18 100% 54%;
-    --fpk-primary: 280 65% 25%;
-    --fpk-secondary: 38 95% 48%;
-    --fpk-card: 33 50% 96%;
-    --fpk-gradient: linear-gradient(135deg, #7F1D9C 0%, #F59E0B 100%);
+    
+    /* Organization Theme Colors */
+    --org-bg-orange: 25 85% 53%;
+    --org-tile-bg: var(--org-bg-orange);
+    --org-tile-border: var(--org-bg-orange);
+    --org-tile-text: 0 0% 20%;
+
+    /* Enhanced Branding Variables */
+    --brand-accent: var(--accent);
+    --brand-accent-600: var(--accent);
+    --brand-accent-700: var(--accent);
+    --brand-contrast: var(--accent-foreground);
+    --brand-surface: rgba(255,255,255,0.60);
+    --brand-ring: var(--ring);
+    --brand-radius: var(--radius);
   }
 
-  /* ============================================
-     DARK MODE COLOR PALETTE
-     ============================================ */
   .dark {
-    /* Base Colors */
-    --background: 222.2 84% 4.9%;      /* Near-black page background */
-    --foreground: 210 40% 98%;         /* White text */
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
 
-    /* Card & Panel Colors */
-    --card: 222.2 84% 6.9%;            /* Slightly lighter than background */
-    --card-foreground: 210 40% 98%;    /* White text on cards */
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
 
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    /* Primary Action Colors */
-    --primary: 210 40% 98%;            /* White/light */
-    --primary-foreground: 222.2 47.4% 11.2%; /* Dark text */
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
 
-    /* Secondary/Muted Colors */
-    --secondary: 217.2 32.6% 17.5%;    /* Dark gray */
-    --secondary-foreground: 210 40% 98%; /* White text */
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 217.2 32.6% 17.5%;        /* Dark gray backgrounds */
-    --muted-foreground: 215 20.2% 65.1%; /* Light gray text */
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
 
-    /* Border & Input Colors */
-    --border: 217.2 32.6% 17.5%;       /* Dark gray borders */
-    --input: 217.2 32.6% 17.5%;        /* Dark gray input borders */
-
-    /* Brand Accent (Dynamically Injected - Dark Mode Optimized Version) */
-    --brand-accent: 259 73% 45%;       /* Default darker purple (will be overridden) */
-    --brand-accent-foreground: 210 40% 98%; /* White text */
-
-    /* Sidebar (Uses Brand Accent) */
-    --sidebar: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-
-    /* Destructive/Error Colors */
-    --destructive: 0 62.8% 30.6%;      /* Darker red for dark mode */
-    --destructive-foreground: 210 40% 98%; /* White text */
-
-    /* Success Colors */
-    --success: 142.1 70.5% 45.3%;
-    --success-foreground: 210 40% 98%;
-
-    /* Warning Colors */
-    --warning: 47.9 95.8% 53.1%;
-    --warning-foreground: 222.2 84% 4.9%;
-
-    /* Accent/Highlight Colors */
     --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 210 40% 98%;
 
-    /* Ring (Focus Outline) */
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --success: 142.1 70.5% 45.3%;
+    --success-foreground: 210 40% 98%;
+
+    --warning: 47.9 95.8% 53.1%;
+    --warning-foreground: 222.2 84% 4.9%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
 
@@ -274,37 +263,6 @@
   html.focus-mode {
     --card: 239 246 255;
     --card-foreground: 30 58 138;
-  }
-
-  /* Dark Mode Background Image Overlay */
-  .dark-mode-overlay {
-    opacity: 0;
-    transition: opacity 0.3s ease-in-out;
-    pointer-events: none;
-  }
-
-  .dark .dark-mode-overlay {
-    opacity: 0.6;
-  }
-
-  /* User Preferences Font Sizes */
-  html.font-size-small {
-    font-size: 14px;
-  }
-
-  html.font-size-medium {
-    font-size: 16px;
-  }
-
-  html.font-size-large {
-    font-size: 18px;
-  }
-
-  /* Reduce Motion Preference */
-  html.reduce-motion * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
   }
 }
 
@@ -709,41 +667,3 @@
     padding: 0 !important;
   }
 }
-
-/* User Preference Styles */
-.font-size-small {
-  font-size: 14px;
-}
-
-.font-size-medium {
-  font-size: 16px;
-}
-
-.font-size-large {
-  font-size: 18px;
-}
-
-.high-contrast {
-  --background: 0 0% 100%;
-  --foreground: 0 0% 0%;
-  --border: 0 0% 20%;
-  --primary: 280 100% 20%;
-  --accent: 280 100% 25%;
-}
-
-.dark.high-contrast {
-  --background: 0 0% 0%;
-  --foreground: 0 0% 100%;
-  --border: 0 0% 80%;
-  --primary: 280 100% 70%;
-  --accent: 280 100% 75%;
-}
-
-.reduce-motion *,
-.reduce-motion *::before,
-.reduce-motion *::after {
-  animation-duration: 0.01ms !important;
-  animation-iteration-count: 1 !important;
-  transition-duration: 0.01ms !important;
-}
-
