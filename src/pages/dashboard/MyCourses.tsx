@@ -533,21 +533,23 @@ const VIDEO_PRODUCTION_COURSE = {
 
   const CourseCard = ({ course, isEnrolled = false }: { course: any; isEnrolled?: boolean }) => {
     const progress = isEnrolled ? getCourseProgress(course.id) : null;
-    const isOptimalLearningState = course.id === 'optimal-learning-state' || course.slug === 'optimal-learning-state' || course.id === 'learning-state-beta';
+    const isOptimalLearningState = course.id === 'optimal-learning-state' || course.slug === 'optimal-learning-state' || course.id === 'learning-state-beta' || course.id === 'empowering-learning-state';
     const isEmpoweringLearningSpelling = course.id === 'el-spelling-reading' || course.slug === 'el-spelling-reading';
-    const isEmpoweringLearningReading = course.id === 'empowering-learning-reading';
-    const isEmpoweringLearningNumeracy = course.id === 'empowering-learning-numeracy';
-    const isEmpoweringLearningHandwriting = course.id === 'empowering-learning-handwriting';
-    const isInteractiveLinearEquations = course.id === 'interactive-linear-equations';
-    const isInteractiveTrigonometry = course.id === 'interactive-trigonometry';
-    const isInteractiveAlgebra = course.id === 'interactive-algebra';
-    const isIntroductionModernEconomics = course.id === 'introduction-modern-economics';
-    const isLogicCriticalThinking = course.id === 'logic-critical-thinking';
-    const isNeurodiversityStrengths = course.id === 'neurodiversity-strengths-based-approach';
-    const isIntroductionToScience = course.id === 'interactive-science';
-    const isGeometryFundamentals = course.id === 'geometry';
-    const isELTEmpoweringLearning = course.id === 'elt-empowering-learning-techniques';
+    const isEmpoweringLearningReading = course.id === 'empowering-learning-reading' || course.slug === 'empowering-learning-reading';
+    const isEmpoweringLearningNumeracy = course.id === 'empowering-learning-numeracy' || course.slug === 'empowering-learning-numeracy';
+    const isEmpoweringLearningHandwriting = course.id === 'empowering-learning-handwriting' || course.slug === 'empowering-learning-handwriting';
+    const isInteractiveLinearEquations = course.id === 'interactive-linear-equations' || course.slug === 'interactive-linear-equations';
+    const isInteractiveTrigonometry = course.id === 'interactive-trigonometry' || course.slug === 'interactive-trigonometry';
+    const isInteractiveAlgebra = course.id === 'interactive-algebra' || course.slug === 'interactive-algebra';
+    const isIntroductionModernEconomics = course.id === 'introduction-modern-economics' || course.slug === 'introduction-modern-economics';
+    const isLogicCriticalThinking = course.id === 'logic-critical-thinking' || course.slug === 'logic-critical-thinking';
+    const isNeurodiversityStrengths = course.id === 'neurodiversity-strengths-based-approach' || course.slug === 'neurodiversity-strengths-based-approach';
+    const isIntroductionToScience = course.id === 'interactive-science' || course.slug === 'interactive-science';
+    const isGeometryFundamentals = course.id === 'geometry' || course.slug === 'geometry';
+    const isELTEmpoweringLearning = course.id === 'elt-empowering-learning-techniques' || course.slug === 'elt-empowering-learning-techniques';
     const isVideoProduction = course.id === 'introduction-video-production' || course.slug === 'introduction-video-production';
+    const isELHandwriting = course.id === 'el-handwriting' || course.slug === 'el-handwriting';
+    const isMoneyManagement = course.id === 'money-management-teens' || course.slug === 'money-management-teens';
 
     // Handle enrollment for hardcoded courses
     const handleEnrollment = async () => {
@@ -637,7 +639,7 @@ const VIDEO_PRODUCTION_COURSE = {
         return '/courses/geometry';
       }
       
-      if (course.id === 'money-management-teens') {
+      if (course.id === 'money-management-teens' || isMoneyManagement) {
         return '/courses/money-management-teens';
       }
       
@@ -645,7 +647,7 @@ const VIDEO_PRODUCTION_COURSE = {
         return '/courses/elt-empowering-learning-techniques';
       }
       
-      if (course.id === 'el-handwriting') {
+      if (course.id === 'el-handwriting' || isELHandwriting) {
         return '/courses/el-handwriting';
       }
       
