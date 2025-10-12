@@ -30,7 +30,8 @@ export default function FullScreenGamePage() {
         <Button 
           variant="outline" 
           size="icon"
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/games')}
+          aria-label="Back to games"
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
