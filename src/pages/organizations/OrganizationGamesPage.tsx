@@ -88,14 +88,14 @@ export default function OrganizationGamesPage() {
   const handleCloseModal = () => {
     setSelectedGame(null);
   };
-  return <div className="container mx-auto p-6 space-y-8">
+  return <div className="container mx-auto p-6 space-y-8 max-w-7xl">
       {/* Header */}
       <div className="space-y-2">
         <div className="flex items-center gap-3">
           <Gamepad2 className="h-8 w-8 text-primary" />
-          <h1 className="text-4xl font-bold">Educational Games</h1>
+          <h1 className="text-4xl font-bold text-foreground">Educational Games</h1>
         </div>
-        <p className="text-slate-50 text-2xl font-semibold">
+        <p className="text-muted-foreground text-2xl font-semibold">
           Engage with interactive educational games that make learning fun and effective.
         </p>
       </div>

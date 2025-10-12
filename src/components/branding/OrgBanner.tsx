@@ -55,28 +55,30 @@ export function OrgBanner({
   }
 
   return (
-    <div 
-      className={cn(
-        'relative bg-center bg-no-repeat bg-cover',
-        className
-      )}
-      style={{ 
-        backgroundImage: branding?.banner_url ? `url(${branding.banner_url})` : 'none',
-        backgroundPosition: 'center',
-        backgroundSize: 'cover',
-        backgroundColor: 'transparent'
-      }}
-    >
-      {overlay && branding?.banner_url && (
+    <div className="relative overflow-hidden">
+      {/* Outer container with max-width constraint */}
+      <div className={cn('relative w-full max-w-7xl mx-auto', className)}>
+        {/* Background image container - fixed aspect ratio */}
         <div 
-          className="absolute inset-0"
+          className="absolute inset-0 bg-center bg-no-repeat"
           style={{ 
-            backgroundColor: `hsl(var(--background) / ${overlayOpacity})`
+            backgroundImage: branding?.banner_url ? `url(${branding.banner_url})` : 'none',
+            backgroundPosition: 'center center',
+            backgroundSize: 'cover'
           }}
         />
-      )}
-      <div className="relative z-10">
-        {children}
+        
+        {/* Semi-transparent overlay for text readability */}
+        {overlay && branding?.banner_url && (
+          <div 
+            className="absolute inset-0 bg-gradient-to-r from-black/40 via-black/20 to-black/40"
+          />
+        )}
+        
+        {/* Content container with proper z-index */}
+        <div className="relative z-10 flex items-center justify-center h-full px-4 sm:px-6 md:px-8">
+          {children}
+        </div>
       </div>
     </div>
   );
