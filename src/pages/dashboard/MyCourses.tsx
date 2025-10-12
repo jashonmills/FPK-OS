@@ -265,7 +265,7 @@ const EMPOWERING_LEARNING_HANDWRITING_COURSE = {
 
 const EL_HANDWRITING_COURSE = {
   id: 'el-handwriting',
-  title: 'EL Handwriting',
+  title: 'Advanced Handwriting',
   description: 'Master handwriting through visual emulation techniques and optimal learning states. Includes deep dive modules exploring the neuroscience behind handwriting development.',
   instructor_name: 'FPK University',
   duration_minutes: 240,
