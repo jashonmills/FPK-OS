@@ -75,7 +75,7 @@ export function OrgBanner({
       )}
       
       {/* Content container with proper z-index */}
-      <div className="relative z-10 flex items-center justify-center h-full px-4 sm:px-6 md:px-8">
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-full px-4 sm:px-6 md:px-8 py-4">
         {children}
       </div>
     </div>
