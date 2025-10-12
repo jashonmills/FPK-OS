@@ -64,7 +64,12 @@ export function OrgSwitcher() {
           <ChevronDown className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-[250px]">
+      <DropdownMenuContent 
+        align="start" 
+        className="w-[250px] z-[100]"
+        sideOffset={8}
+        collisionPadding={8}
+      >
         <DropdownMenuLabel>Switch Context</DropdownMenuLabel>
         <DropdownMenuSeparator />
         

@@ -72,13 +72,13 @@ const OrgHeader = () => {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-16 items-center justify-between px-2 sm:px-4 gap-2">
-        {/* Left side - Back button, brand and org switcher */}
-        <div className="flex items-center gap-1 sm:gap-3 min-w-0 flex-1">
+        {/* Left side - Back button and brand */}
+        <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0">
           <Button 
             variant="ghost" 
             size={isMobile ? "icon" : "sm"}
             onClick={() => navigate('/dashboard/organizations')}
-            className="hover:text-primary flex-shrink-0"
+            className="hover:text-primary"
             title="All Organizations"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -94,13 +94,15 @@ const OrgHeader = () => {
             </div>
             <span className="font-semibold text-lg">Organizations</span>
           </div>
-          <div className="min-w-0 flex-shrink">
-            <OrgSwitcher />
-          </div>
         </div>
 
-        {/* Search Bar - Hidden on mobile */}
-        <div className="flex-1 max-w-md mx-4 hidden lg:block">
+        {/* Center - Organization Switcher */}
+        <div className="flex-1 flex justify-center max-w-md mx-2">
+          <OrgSwitcher />
+        </div>
+
+        {/* Search Bar - Hidden on mobile and tablet */}
+        <div className="max-w-md mx-4 hidden xl:block">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -134,7 +136,14 @@ const OrgHeader = () => {
                 <span className="hidden md:block font-medium truncate max-w-[120px]">{getDisplayName()}</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuContent 
+              align="end" 
+              className="w-56 z-[100]"
+              sideOffset={8}
+              alignOffset={0}
+              collisionPadding={8}
+              onCloseAutoFocus={(e) => e.preventDefault()}
+            >
               <DropdownMenuLabel>
                 My Account
               </DropdownMenuLabel>
