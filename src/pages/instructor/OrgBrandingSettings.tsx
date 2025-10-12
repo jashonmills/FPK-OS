@@ -19,15 +19,17 @@ const ACCENT_PRESETS = [
   { name: 'Amber Gold', value: '45 93% 47%', hex: '#d97706' },
 ];
 
-// Dark mode optimized presets (darker, more saturated)
-const DARK_MODE_ACCENT_PRESETS = [
+
+// FEATURE TEMPORARILY DISABLED: Dark mode optimized presets
+/* const DARK_MODE_ACCENT_PRESETS = [
   { name: 'FPK Purple', value: '280 80% 45%', hex: '#8b3fd9' },
   { name: 'Ocean Blue', value: '210 90% 45%', hex: '#1e6fd6' },
   { name: 'Forest Green', value: '142 70% 30%', hex: '#178a3a' },
   { name: 'Sunset Orange', value: '25 90% 48%', hex: '#e85d0c' },
   { name: 'Rose Pink', value: '330 75% 50%', hex: '#df1b7a' },
   { name: 'Amber Gold', value: '45 88% 42%', hex: '#c97006' },
-];
+]; */
+
 
 export default function OrgBrandingSettings() {
   const { currentOrg } = useOrgContext();
@@ -41,9 +43,9 @@ export default function OrgBrandingSettings() {
   const [customAccent, setCustomAccent] = useState(branding?.theme_accent || '');
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
   
-  // NEW: Dark mode accent color state
-  const [customDarkAccent, setCustomDarkAccent] = useState(branding?.theme_dark_mode_accent || '');
-  const [selectedDarkPreset, setSelectedDarkPreset] = useState<string | null>(null);
+  // FEATURE TEMPORARILY DISABLED: Dark mode accent color state
+  // const [customDarkAccent, setCustomDarkAccent] = useState(branding?.theme_dark_mode_accent || '');
+  // const [selectedDarkPreset, setSelectedDarkPreset] = useState<string | null>(null);
   
   const logoInputRef = useRef<HTMLInputElement>(null);
   const bannerInputRef = useRef<HTMLInputElement>(null);
@@ -103,14 +105,14 @@ export default function OrgBrandingSettings() {
         bannerUrl = result.publicUrl;
       }
 
-      // Update branding
+      // Update branding (dark mode field temporarily disabled)
       await updateBranding.mutateAsync({
         orgId: currentOrg.organization_id,
         branding: {
           logo_url: logoUrl,
           banner_url: bannerUrl,
           theme_accent: selectedPreset || customAccent || branding?.theme_accent,
-          theme_dark_mode_accent: selectedDarkPreset || customDarkAccent || branding?.theme_dark_mode_accent,
+          // theme_dark_mode_accent: selectedDarkPreset || customDarkAccent || branding?.theme_dark_mode_accent,
         }
       });
 
@@ -313,8 +315,8 @@ export default function OrgBrandingSettings() {
             </OrgCardContent>
           </OrgCard>
 
-          {/* NEW: Dark Mode Accent Color */}
-          <OrgCard className="bg-card border-border">
+          {/* FEATURE TEMPORARILY DISABLED: Dark Mode Accent Color UI */}
+          {/* <OrgCard className="bg-card border-border">
             <OrgCardHeader>
               <OrgCardTitle className="text-foreground">Dark Mode Accent Color</OrgCardTitle>
               <OrgCardDescription className="text-muted-foreground">
@@ -322,7 +324,6 @@ export default function OrgBrandingSettings() {
               </OrgCardDescription>
             </OrgCardHeader>
             <OrgCardContent className="space-y-4">
-              {/* Dark Mode Preset Colors */}
               <div>
                 <Label className="text-sm font-medium text-foreground">Dark Mode Presets</Label>
                 <div className="grid grid-cols-3 gap-2 mt-2">
@@ -349,7 +350,6 @@ export default function OrgBrandingSettings() {
 
               <div className="border-t border-white/30 my-4" />
 
-              {/* Custom Dark Mode Color */}
               <div>
                 <Label htmlFor="custom-dark-accent" className="text-sm font-medium text-foreground">
                   Custom Dark Mode Color (HSL format)
@@ -369,7 +369,7 @@ export default function OrgBrandingSettings() {
                 </p>
               </div>
             </OrgCardContent>
-          </OrgCard>
+          </OrgCard> */}
 
           {/* Save Button */}
           <Button 

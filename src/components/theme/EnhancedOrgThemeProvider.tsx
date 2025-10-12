@@ -38,9 +38,9 @@ export function EnhancedOrgThemeProvider({ children }: EnhancedOrgThemeProviderP
       return;
     }
 
-    console.log('🎨 Applying Layered Theme System:', {
-      lightModeColor: branding.theme_accent,
-      darkModeColor: branding.theme_dark_mode_accent || 'auto-generated'
+    // FEATURE TEMPORARILY DISABLED: Dark Mode Theming
+    console.log('🎨 Applying Organization Brand Color (Light Mode Only):', {
+      lightModeColor: branding.theme_accent
     });
 
     // ============================================
@@ -60,52 +60,29 @@ export function EnhancedOrgThemeProvider({ children }: EnhancedOrgThemeProviderP
       `${Math.round(lightContrastHsl.h)} ${Math.round(lightContrastHsl.s * 100)}% ${Math.round(lightContrastHsl.l * 100)}%`
     );
 
-    // ============================================
-    // DARK MODE BRAND COLOR
-    // ============================================
-    let darkModeAccent: string;
-
-    if (branding.theme_dark_mode_accent) {
-      // Admin has set a custom dark mode color
-      darkModeAccent = branding.theme_dark_mode_accent;
-      console.log('🎨 Using admin-defined dark mode color:', darkModeAccent);
-    } else {
-      // Auto-generate a dark-mode-optimized version
-      const baseColor = tinycolor(`hsl(${lightModeAccent})`);
-      const darkOptimized = baseColor
-        .darken(15)        // Make it darker
-        .saturate(10);     // Slightly more saturated
-      
-      const darkHsl = darkOptimized.toHsl();
-      darkModeAccent = `${Math.round(darkHsl.h)} ${Math.round(darkHsl.s * 100)}% ${Math.round(darkHsl.l * 100)}%`;
-      console.log('🎨 Auto-generated dark mode color:', darkModeAccent);
-    }
-
-    // Inject dark mode color by creating a <style> tag
-    // This allows us to target the .dark selector
-    const styleId = 'org-dark-mode-theme';
-    let styleEl = document.getElementById(styleId) as HTMLStyleElement;
+    // FEATURE TEMPORARILY DISABLED: Dark Mode Brand Color Logic
+    // The following dark mode theming code is commented out until feature is re-enabled
     
-    if (!styleEl) {
-      styleEl = document.createElement('style');
-      styleEl.id = styleId;
-      document.head.appendChild(styleEl);
+    // ============================================
+    // DARK MODE BRAND COLOR (DISABLED)
+    // ============================================
+    // let darkModeAccent: string;
+    // if (branding.theme_dark_mode_accent) {
+    //   darkModeAccent = branding.theme_dark_mode_accent;
+    //   console.log('🎨 Using admin-defined dark mode color:', darkModeAccent);
+    // } else {
+    //   const baseColor = tinycolor(`hsl(${lightModeAccent})`);
+    //   const darkOptimized = baseColor.darken(15).saturate(10);
+    //   const darkHsl = darkOptimized.toHsl();
+    //   darkModeAccent = `${Math.round(darkHsl.h)} ${Math.round(darkHsl.s * 100)}% ${Math.round(darkHsl.l * 100)}%`;
+    // }
+    
+    // Remove any existing dark mode style injection
+    const styleId = 'org-dark-mode-theme';
+    const existingStyle = document.getElementById(styleId);
+    if (existingStyle) {
+      existingStyle.remove();
     }
-
-    // Calculate contrast color for dark mode
-    const darkAccent = tinycolor(`hsl(${darkModeAccent})`);
-    const darkLuminance = darkAccent.getLuminance();
-    const darkContrast = darkLuminance > 0.6 ? '#0f172a' : '#ffffff';
-    const darkContrastHsl = tinycolor(darkContrast).toHsl();
-
-    styleEl.textContent = `
-      .dark {
-        --brand-accent: ${darkModeAccent};
-        --brand-accent-foreground: ${Math.round(darkContrastHsl.h)} ${Math.round(darkContrastHsl.s * 100)}% ${Math.round(darkContrastHsl.l * 100)}%;
-        --sidebar: ${darkModeAccent};
-        --sidebar-foreground: ${Math.round(darkContrastHsl.h)} ${Math.round(darkContrastHsl.s * 100)}% ${Math.round(darkContrastHsl.l * 100)}%;
-      }
-    `;
 
     // ============================================
     // SIDEBAR COLOR (uses brand accent)
@@ -125,7 +102,7 @@ export function EnhancedOrgThemeProvider({ children }: EnhancedOrgThemeProviderP
       const el = document.getElementById(styleId);
       if (el) el.remove();
     };
-  }, [branding?.theme_accent, branding?.theme_dark_mode_accent, isPersonalMode]);
+  }, [branding?.theme_accent, isPersonalMode]);
 
   return <>{children}</>;
 }

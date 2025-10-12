@@ -67,20 +67,24 @@ export function UserPreferencesProvider({ children }: { children: React.ReactNod
 
     const root = document.documentElement;
 
-    // Apply theme
-    if (preferences.display_theme === 'dark') {
-      root.classList.add('dark');
-    } else if (preferences.display_theme === 'light') {
-      root.classList.remove('dark');
-    } else {
-      // System theme
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      if (prefersDark) {
-        root.classList.add('dark');
-      } else {
-        root.classList.remove('dark');
-      }
-    }
+    // FEATURE TEMPORARILY DISABLED: Dark Mode Application
+    // Force light mode for all users until feature is re-enabled
+    root.classList.remove('dark');
+    
+    // Original theme application logic (commented out):
+    // if (preferences.display_theme === 'dark') {
+    //   root.classList.add('dark');
+    // } else if (preferences.display_theme === 'light') {
+    //   root.classList.remove('dark');
+    // } else {
+    //   // System theme
+    //   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    //   if (prefersDark) {
+    //     root.classList.add('dark');
+    //   } else {
+    //     root.classList.remove('dark');
+    //   }
+    // }
 
     // Apply font size
     root.classList.remove('font-size-small', 'font-size-medium', 'font-size-large');

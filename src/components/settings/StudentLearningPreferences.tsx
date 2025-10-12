@@ -89,11 +89,12 @@ export default function StudentLearningPreferences({ userId }: StudentLearningPr
     { value: 'inquisitive_socratic', label: 'Inquisitive & Socratic', description: 'Guides through questions' }
   ];
 
-  const themes = [
-    { value: 'system', label: 'System', description: 'Follow device settings' },
-    { value: 'light', label: 'Light', description: 'Bright mode' },
-    { value: 'dark', label: 'Dark', description: 'Easy on the eyes' }
-  ];
+  // FEATURE TEMPORARILY DISABLED: Dark Mode & Theme Selection
+  // const themes = [
+  //   { value: 'system', label: 'System', description: 'Follow device settings' },
+  //   { value: 'light', label: 'Light', description: 'Bright mode' },
+  //   { value: 'dark', label: 'Dark', description: 'Easy on the eyes' }
+  // ];
 
   const fontSizes = [
     { value: 'small', label: 'Small', description: 'Compact text' },
@@ -214,8 +215,8 @@ export default function StudentLearningPreferences({ userId }: StudentLearningPr
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Theme */}
-          <div className="space-y-3">
+          {/* FEATURE TEMPORARILY DISABLED: Theme Selection UI */}
+          {/* <div className="space-y-3">
             <Label className="text-base font-medium">Theme</Label>
             <div className="grid grid-cols-3 gap-3">
               {themes.map((theme) => (
@@ -236,7 +237,7 @@ export default function StudentLearningPreferences({ userId }: StudentLearningPr
                 </div>
               ))}
             </div>
-          </div>
+          </div> */}
 
           {/* Font Size */}
           <div className="space-y-3">
