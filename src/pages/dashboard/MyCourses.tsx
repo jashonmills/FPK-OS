@@ -640,14 +640,14 @@ const VIDEO_PRODUCTION_COURSE = {
     // Get color theme based on course
     // NOTE: Removed color theme system in favor of AI-generated images
 
-    // Fixed course route logic
+    // Phase 3: Unified course routing with v2 Universal Player priority
     const getCourseRoute = () => {
-      // Check if course has been migrated to new Universal Player
-      if (course.framework_type === 'sequential' && course.content_component) {
+      // PRIMARY RULE: If a course is sequential and v2, ALWAYS use the universal player
+      if (course.framework_type === 'sequential' && course.content_version === 'v2') {
         return `/courses/player/${course.slug || course.id}`;
       }
       
-      // Legacy routing for non-migrated courses
+      // FALLBACK: Legacy routing for non-v2 courses (kept for backward compatibility)
       if (isOptimalLearningState) {
         return '/courses/optimal-learning-state';
       }
