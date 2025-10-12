@@ -285,23 +285,29 @@ export const SequentialCourseShell: React.FC<SequentialCourseShellProps> = ({ co
                     (lesson.id === 1 || completedLessons.includes(lesson.id - 1));
 
                   return (
-                    <Card 
-                      key={lesson.id}
-                      className={`relative transition-all duration-300 cursor-pointer ${
-                        !isAccessible 
-                          ? 'opacity-60 cursor-not-allowed bg-white/50 backdrop-blur-md border-white/40 shadow-md' 
-                          : isCompleted 
-                            ? 'bg-white/95 backdrop-blur-lg border-2 border-primary/60 shadow-2xl hover:shadow-3xl transform hover:scale-105' 
-                            : isActive 
-                              ? 'bg-white/90 backdrop-blur-lg border-2 border-white/70 shadow-xl hover:shadow-2xl transform hover:scale-102'
-                              : 'bg-white/70 backdrop-blur-md border-white/50 shadow-lg hover:shadow-xl'
-                      }`}
-                      onClick={() => {
-                        if (isAccessible) {
-                          handleLessonSelect(lesson.id);
-                        }
-                      }}
-                    >
+            <Card 
+              key={lesson.id}
+              className={`relative transition-all duration-300 cursor-pointer
+                ${!isAccessible 
+                  ? 'opacity-60 cursor-not-allowed' 
+                  : isCompleted 
+                    ? 'border-2 border-primary/60 shadow-2xl hover:shadow-3xl transform hover:scale-105' 
+                    : isActive 
+                      ? 'border-2 border-white/70 shadow-xl hover:shadow-2xl transform hover:scale-102'
+                      : 'shadow-lg hover:shadow-xl'
+                }
+                bg-white/50 backdrop-blur-md border-white/40
+              `}
+              style={{
+                backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(12px)',
+              }}
+              onClick={() => {
+                if (isAccessible) {
+                  handleLessonSelect(lesson.id);
+                }
+              }}
+            >
                       <CardHeader className="pb-3">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-3">
@@ -358,6 +364,32 @@ export const SequentialCourseShell: React.FC<SequentialCourseShellProps> = ({ co
   // LESSON STATE
   // ========================================
   const currentLessonData = getLessonContent(manifest, currentLesson);
+  
+  // Debug logging to diagnose rendering issues
+  console.log("=== SEQUENTIAL SHELL DEBUG ===");
+  console.log("Course Data:", {
+    id: courseData.id,
+    title: courseData.title,
+    slug: courseData.slug,
+    background_image: courseData.background_image,
+    has_background: !!courseData.background_image
+  });
+  console.log("Manifest:", {
+    hasManifest: !!manifest,
+    lessonsCount: manifest?.lessons?.length,
+    contentVersion: manifest?.contentVersion
+  });
+  console.log("Current Lesson:", currentLesson);
+  console.log("Current Lesson Data:", {
+    id: currentLessonData?.id,
+    title: currentLessonData?.title,
+    contentType: currentLessonData?.contentType,
+    hasVideo: !!currentLessonData?.video,
+    videoUrl: currentLessonData?.video?.url,
+    hasSections: !!currentLessonData?.sections,
+    sectionsCount: currentLessonData?.sections?.length
+  });
+  console.log("=== END DEBUG ===");
   
   if (!currentLessonData) {
     return (
