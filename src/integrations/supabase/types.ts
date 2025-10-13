@@ -9724,6 +9724,26 @@ export type Database = {
           enrollments: number
         }[]
       }
+      get_coach_learning_time: {
+        Args: { p_user_id: string }
+        Returns: number
+      }
+      get_coach_mastery_score: {
+        Args: { p_user_id: string }
+        Returns: number
+      }
+      get_coach_mode_ratio: {
+        Args: { p_user_id: string }
+        Returns: Json
+      }
+      get_coach_streak: {
+        Args: { p_user_id: string }
+        Returns: number
+      }
+      get_coach_topics: {
+        Args: { p_user_id: string }
+        Returns: string[]
+      }
       get_completion_breakdown: {
         Args: Record<PropertyKey, never>
         Returns: {

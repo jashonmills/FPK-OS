@@ -188,6 +188,7 @@ const StandaloneAICoachPortal = lazy(() => import("./pages/portal/StandaloneAICo
 // AI Study Coach Portal - Phase 2: Access Control
 const CoachPortalLanding = lazy(() => import("./pages/coach/CoachPortalLanding"));
 const CoachLayout = lazy(() => import("./components/coach/CoachLayout").then(m => ({ default: m.CoachLayout })));
+const CoachProPortal = lazy(() => import("./pages/coach/CoachProPortal"));
 const RequireAICoachRole = lazy(() => import("./components/guards/RequireAICoachRole").then(m => ({ default: m.RequireAICoachRole })));
 
 // Legal pages
@@ -350,6 +351,8 @@ const App: React.FC = () => {
               </RouteProtector>
             }
           >
+            <Route path="pro" element={<LazyRoute><CoachProPortal /></LazyRoute>} />
+            
             <Route path="history" element={
               <LazyRoute>
                 <div className="max-w-4xl mx-auto p-8">
