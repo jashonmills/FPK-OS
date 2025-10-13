@@ -1,9 +1,8 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Send, Brain, User, Bot, Mic, MicOff, Volume2, VolumeX, Play, History, MessageCircle, Trash2 } from 'lucide-react';
+import { Send, Bot, User, Mic, MicOff, Volume2, VolumeX, Trash2, MessageCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
@@ -15,18 +14,14 @@ import { cn } from '@/lib/utils';
 import { useWidgetChatStorage } from '@/hooks/useWidgetChatStorage';
 import { useConversationState, ChatMessage as ConversationMessage } from '@/hooks/useConversationState';
 import { v4 as uuidv4 } from 'uuid';
-import VoiceInputButton from '@/components/notes/VoiceInputButton';
 import { useCleanup } from '@/utils/cleanupManager';
 import { logger } from '@/utils/logger';
+import { useSocraticSession } from '@/hooks/useSocraticSession';
+import { SocraticModeToggle } from '@/components/chat/SocraticModeToggle';
+import { SocraticSessionPanel } from '@/components/chat/SocraticSessionPanel';
+import { calculateAverageScore } from '@/lib/socratic/orchestrator';
 
-interface ChatMessage {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: string;
-}
-
-// Helper to prevent hanging requests with cleanup manager
+// Helper to prevent hanging requests
 const withTimeout = <T,>(promise: Promise<T>, cleanup: any, ms = 18000, timeoutMessage = 'AI response timed out'): Promise<T> => {
   return new Promise((resolve, reject) => {
     const timerId = cleanup.setTimeout(() => reject(new Error(timeoutMessage)), ms);
@@ -44,7 +39,6 @@ const StandaloneAIStudyCoachChat: React.FC = () => {
   const cleanup = useCleanup('StandaloneAIStudyCoachChat');
   const { user } = useAuth();
   const { toast } = useToast();
-  // Use anonymous ID for non-authenticated users
   const anonymousId = useState(() => `anonymous_${Date.now()}`)[0];
   const { messages, addMessage, clearAllMessages } = useWidgetChatStorage(user?.id || anonymousId);
   const [isLoading, setIsLoading] = useState(false);
@@ -53,24 +47,36 @@ const StandaloneAIStudyCoachChat: React.FC = () => {
   const [threadId, setThreadId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [lastSpokenMessageId, setLastSpokenMessageId] = useState<string | null>(null);
-  const [hasPlayedIntro, setHasPlayedIntro] = useState(false);
   const [autoPlayEnabled, setAutoPlayEnabled] = useState(() => 
     safeLocalStorage.getItem<string>('aistudycoach_voice_autoplay', {
       fallbackValue: 'false',
       logErrors: false
     }) === 'true'
   );
+  const [showSocraticPanel, setShowSocraticPanel] = useState(false);
   
   const { speak, stop, isSpeaking } = useTextToSpeech();
-  const { settings, toggle } = useVoiceSettings();
+  const { settings } = useVoiceSettings();
   const voiceInput = useEnhancedVoiceInput();
-  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [isInputFocused, setIsInputFocused] = useState(false);
 
-  // Auto scroll when messages change (but not when input is focused)
+  // Socratic session management
+  const {
+    session: socraticSession,
+    turns: socraticTurns,
+    loading: socraticLoading,
+    startSession: startSocraticSession,
+    addTurn,
+    updateSession,
+    completeSession
+  } = useSocraticSession(user?.id);
+
+  const { state: conversationState, analyzeConversation, updateState } = useConversationState();
+
+  // Auto scroll when messages change
   useEffect(() => {
-    if (messages.length > 0 && !isInputFocused) {
+    if ((messages.length > 0 || socraticTurns.length > 0) && !isInputFocused) {
       cleanup.setTimeout(() => {
         messagesEndRef.current?.scrollIntoView({ 
           behavior: 'smooth',
@@ -79,35 +85,153 @@ const StandaloneAIStudyCoachChat: React.FC = () => {
         });
       }, 100);
     }
-  }, [messages, cleanup, isInputFocused]);
+  }, [messages, socraticTurns, cleanup, isInputFocused]);
 
   // Add welcome message if no messages exist
   useEffect(() => {
-    if (messages.length === 0) {
+    if (messages.length === 0 && !socraticSession) {
       const welcomeMessage = {
         role: 'assistant' as const,
-        content: `Hello! I'm your AI Learning Coach in demo mode. I can help you with:
+        content: `Hello! I'm your AI Learning Coach. I can help you with:
 
 🌐 **General Knowledge** - Any subject, research, or educational topics
 📖 **Study Techniques** - Learning strategies and academic methods  
+🎯 **Structured Learning** - Guided Socratic sessions with scoring
 💡 **Learning Guidance** - Study tips and educational advice
-🔍 **How-To Guides** - General learning and study methods
 
-Note: This is a demo version with limited features. For full personalized features with your study data, please log in to the main platform.
+${user ? 'Toggle to Structured Mode to start a guided learning session!' : 'Please log in for full Structured Learning features.'}
 
 What would you like to learn about today?`
       };
       
       addMessage(welcomeMessage);
     }
-  }, [messages.length, addMessage]);
+  }, [messages.length, addMessage, socraticSession, user]);
 
-  // Enhanced prompt type detection using conversation state analysis
-  const { state: conversationState, analyzeConversation, updateState } = useConversationState();
+  const handleStartSocraticSession = async (topic: string, objective: string) => {
+    if (!user) {
+      toast({
+        title: 'Login Required',
+        description: 'Please log in to use Structured Learning Sessions',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    setShowSocraticPanel(false);
+    setIsLoading(true);
+
+    try {
+      const newSessionId = await startSocraticSession(topic, objective);
+      if (newSessionId) {
+        toast({
+          title: 'Session Started',
+          description: 'Your structured learning session has begun!'
+        });
+      }
+    } catch (error) {
+      logger.error('Error starting Socratic session', 'SOCRATIC', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to start learning session',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleToggleSocraticMode = () => {
+    if (!user) {
+      toast({
+        title: 'Login Required',
+        description: 'Please log in to use Structured Learning Sessions',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    if (socraticSession && socraticSession.state !== 'COMPLETED') {
+      // Complete active session
+      completeSession();
+    } else {
+      // Show panel to start new session
+      setShowSocraticPanel(true);
+    }
+  };
 
   const sendMessage = async (messageText: string) => {
     if (!messageText.trim() || isLoading) return;
 
+    // Handle Socratic session responses
+    if (socraticSession && socraticSession.state !== 'COMPLETED') {
+      setInput('');
+      setIsLoading(true);
+
+      try {
+        // Add student's turn to UI
+        addTurn({
+          role: 'student',
+          content: messageText.trim()
+        });
+
+        // Send to edge function for evaluation
+        const { data, error } = await withTimeout(
+          supabase.functions.invoke('ai-study-chat', {
+            body: {
+              intent: 'respond',
+              userId: user?.id,
+              sessionId: socraticSession.id,
+              studentResponse: messageText.trim()
+            }
+          }),
+          cleanup,
+          18000
+        );
+
+        if (error) throw error;
+
+        // Add coach's response
+        if (data.coachMessage) {
+          addTurn({
+            role: 'coach',
+            content: data.coachMessage,
+            score: data.score,
+            misconception: data.misconception
+          });
+        }
+
+        // Update session state
+        if (data.state) {
+          updateSession({
+            state: data.state,
+            score_history: data.scoreHistory || socraticSession.score_history,
+            nudge_count: data.nudgeCount || socraticSession.nudge_count
+          });
+        }
+
+        // Check if session is complete
+        if (data.isComplete) {
+          const avgScore = calculateAverageScore(data.scoreHistory || []);
+          toast({
+            title: 'Session Complete!',
+            description: `Great work! Average score: ${avgScore.toFixed(1)}/3`
+          });
+        }
+      } catch (error: any) {
+        logger.error('Error in Socratic turn', 'SOCRATIC', error);
+        toast({
+          title: 'Error',
+          description: error.message || 'Failed to process response',
+          variant: 'destructive'
+        });
+      } finally {
+        setIsLoading(false);
+      }
+      return;
+    }
+
+    // Regular free chat message
     const userMessage = {
       role: 'user' as const,
       content: messageText.trim()
@@ -125,11 +249,10 @@ What would you like to learn about today?`
         timestamp: msg.timestamp
       }));
       
-      // Analyze conversation to determine proper context and prompt type
+      // Analyze conversation
       const analyzedState = analyzeConversation(conversationHistory, messageText);
       updateState(analyzedState);
       
-      // Build contextData from conversation state
       const contextData = {
         quizTopic: analyzedState.currentTopic,
         teachingHistory: analyzedState.teachingMethods.join(', '),
@@ -138,14 +261,12 @@ What would you like to learn about today?`
         inRefresherMode: analyzedState.inRefresherMode
       };
 
-      // Build lightweight client history (last 6 messages)
       const clientHistory = messages.slice(-6).map(m => ({
         role: m.role,
         content: m.content,
         timestamp: m.timestamp
       }));
       
-      // Call AI function with enhanced context using OpenAI Assistant
       const { data, error } = await withTimeout(
         supabase.functions.invoke('ai-study-chat', {
           body: {
@@ -165,11 +286,8 @@ What would you like to learn about today?`
         18000
       );
       
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
 
-      // Store thread ID for conversation continuity
       if (data?.threadId) {
         setThreadId(data.threadId);
       }
@@ -185,7 +303,6 @@ What would you like to learn about today?`
 
       addMessage(aiResponse);
 
-      // Update conversation state based on AI response
       if (data.metadata?.promptType) {
         updateState({ 
           promptType: data.metadata.promptType,
@@ -194,54 +311,36 @@ What would you like to learn about today?`
       }
 
     } catch (error) {
-      logger.error('Chat error details', 'CHAT', {
-        error: error instanceof Error ? error.message : error,
-        messageText: messageText.substring(0, 50) + '...',
-        timestamp: new Date().toISOString(),
-        conversationState: conversationState
-      });
+      logger.error('Chat error', 'CHAT', error);
       
       const fallbackResponse = {
         role: 'assistant' as const,
-        content: generateFallbackResponse(messageText)
+        content: `I'm experiencing a connection issue. Here are some study tips while we reconnect:
+
+🎯 **Study Techniques:**
+- Use active recall: test yourself without looking at answers
+- Practice spaced repetition: review at increasing intervals
+- Break topics into smaller chunks
+
+📚 **Learning Methods:**
+- Pomodoro Method: 25-min sessions with 5-min breaks
+- Feynman Technique: Explain concepts in simple terms
+- Active engagement through questions and discussions
+
+What would you like to focus on?`
       };
 
       addMessage(fallbackResponse);
       
-      // Show more specific error message
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      const isValidationError = errorMessage.includes('promptType') || errorMessage.includes('required');
-      
       toast({
-        title: isValidationError ? "Configuration Issue" : "Connection Issue",
-        description: isValidationError ? "Please refresh and try again" : "Using offline mode",
-        variant: isValidationError ? "destructive" : "default",
+        title: "Connection Issue",
+        description: "Using offline mode",
+        variant: "default",
         duration: 3000
       });
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const generateFallbackResponse = (userMsg: string): string => {
-    return `I'm experiencing a connection issue, but I can still help with "${userMsg}":
-
-🎯 **Study Recommendations:**
-- Try active recall: test yourself without looking at answers
-- Use spaced repetition: review material at increasing intervals
-- Break complex topics into smaller, manageable chunks
-
-📚 **Study Techniques:**
-- **Pomodoro Method**: 25-min focused sessions with 5-min breaks
-- **Feynman Technique**: Explain concepts in simple terms
-- **Active Learning**: Engage with material through questions and discussions
-
-💡 **Next Steps:**
-- Create flashcards for key concepts
-- Practice with quiz sessions when available
-- Set up a regular study schedule
-
-What specific topic would you like to focus on?`;
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -259,21 +358,35 @@ What specific topic would you like to focus on?`;
   const handleVoiceInput = (transcription: string) => {
     if (transcription.trim()) {
       setInput(transcription);
-      // Auto-send voice input
       cleanup.setTimeout(() => sendMessage(transcription), 100);
     }
   };
 
-  const handleTTSToggle = () => {
-    if (isSpeaking) {
-      stop();
-    } else {
-      // Find the last AI message and speak it
-      const lastAIMessage = messages.filter(m => m.role === 'assistant').pop();
-      if (lastAIMessage) {
-        speak(lastAIMessage.content);
-        setLastSpokenMessageId(lastAIMessage.id);
+  const handleClearChat = () => {
+    if (messages.length === 0 && socraticTurns.length === 0) return;
+    
+    if (window.confirm('Are you sure you want to clear all messages?')) {
+      clearAllMessages();
+      if (socraticSession) {
+        completeSession();
       }
+      stop();
+      setLastSpokenMessageId(null);
+      updateState({
+        promptType: 'initiate_session',
+        isInQuiz: false,
+        inRefresherMode: false,
+        lastAIQuestion: null,
+        currentTopic: null,
+        incorrectAnswersCount: 0,
+        teachingMethods: []
+      });
+      
+      toast({
+        title: "Chat cleared",
+        description: "Starting fresh conversation",
+        duration: 2000
+      });
     }
   };
 
@@ -282,61 +395,49 @@ What specific topic would you like to focus on?`;
     setAutoPlayEnabled(newAutoPlay);
     safeLocalStorage.setItem('aistudycoach_voice_autoplay', newAutoPlay.toString());
     
-    // Shorter, less intrusive toast
     toast({
       title: newAutoPlay ? "Auto-play on" : "Auto-play off",
       duration: 1500
     });
   };
 
-  const handleClearChat = () => {
-    clearAllMessages();
-    stop(); // Stop any current speech
-    setLastSpokenMessageId(null);
-    // Reset conversation state
-    updateState({
-      promptType: 'initiate_session',
-      isInQuiz: false,
-      inRefresherMode: false,
-      lastAIQuestion: null,
-      currentTopic: null,
-      incorrectAnswersCount: 0,
-      teachingMethods: []
-    });
-    
-    toast({
-      title: "Chat cleared",
-      description: "Starting fresh conversation",
-      duration: 2000
-    });
-  };
+  // Merge messages for display
+  const displayMessages = socraticSession 
+    ? socraticTurns.map(turn => ({
+        id: turn.id,
+        role: turn.role === 'coach' ? 'assistant' : turn.role,
+        content: turn.content,
+        timestamp: turn.created_at,
+        score: turn.score,
+        misconception: turn.misconception
+      }))
+    : messages;
 
-  // Auto-play AI responses if enabled
+  // Auto-play AI responses
   useEffect(() => {
     if (!autoPlayEnabled || !settings.enabled) return;
     
-    const lastMessage = messages[messages.length - 1];
+    const lastMessage = displayMessages[displayMessages.length - 1];
     if (lastMessage && 
         lastMessage.role === 'assistant' && 
         lastMessage.id !== lastSpokenMessageId &&
         !isLoading) {
       
-      // Small delay to ensure message is rendered
       cleanup.setTimeout(() => {
         speak(lastMessage.content);
         setLastSpokenMessageId(lastMessage.id);
       }, 500);
     }
-  }, [messages, autoPlayEnabled, settings.enabled, lastSpokenMessageId, isLoading, speak]);
+  }, [displayMessages, autoPlayEnabled, settings.enabled, lastSpokenMessageId, isLoading, speak]);
 
   return (
     <div className="h-screen flex flex-col bg-background">
       {/* Demo Badge */}
       <div className="flex-shrink-0 bg-primary/10 border-b border-border p-2 flex items-center justify-between">
         <span className="text-sm text-muted-foreground">
-          🤖 AI Study Coach Demo - No login required
+          🤖 AI Study Coach {user ? '- Authenticated' : '- Demo Mode'}
         </span>
-        {messages.length >= 1 && (
+        {displayMessages.length >= 1 && (
           <Button
             variant="ghost"
             size="sm"
@@ -349,190 +450,175 @@ What specific topic would you like to focus on?`;
         )}
       </div>
       
-      {/* Main Content Container - Single scrollable area for messages only */}
+      {/* Main Content */}
       <div className="flex-1 overflow-y-auto p-4 max-w-4xl mx-auto w-full scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
-        {/* Messages Area */}
         <div className="space-y-4">
-          {messages.length === 0 ? (
+          {/* Socratic Session Panel */}
+          {showSocraticPanel && (
+            <div className="mb-4">
+              <SocraticSessionPanel
+                onStartSession={handleStartSocraticSession}
+                onCancel={() => setShowSocraticPanel(false)}
+              />
+            </div>
+          )}
+
+          {/* Session Info */}
+          {socraticSession && socraticSession.state !== 'COMPLETED' && (
+            <div className="bg-primary/10 p-4 rounded-lg border border-primary/20">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-semibold">{socraticSession.topic}</p>
+                  <p className="text-sm text-muted-foreground">{socraticSession.objective}</p>
+                </div>
+                <Badge variant="secondary">
+                  Avg: {calculateAverageScore(socraticSession.score_history).toFixed(1)}/3
+                </Badge>
+              </div>
+            </div>
+          )}
+
+          {/* Empty State */}
+          {displayMessages.length === 0 && !showSocraticPanel && (
             <div className="flex items-center justify-center h-full">
               <div className="text-center text-muted-foreground">
                 <MessageCircle className="w-12 h-12 mx-auto mb-4 opacity-50" />
                 <p className="text-lg font-medium mb-2">AI Study Coach</p>
-                <p className="text-sm">Start a conversation to get personalized learning assistance</p>
-                <p className="text-xs mt-2 opacity-75">This is a demo version - try asking study-related questions!</p>
+                <p className="text-sm">Start a conversation or toggle to Structured Mode!</p>
               </div>
             </div>
-          ) : (
-            <>
-              {messages.map((msg) => (
-                <div
-                  key={msg.id}
-                  className={cn(
-                    "flex gap-3 p-4 rounded-lg max-w-[85%]",
-                    msg.role === 'user'
-                      ? "ml-auto bg-primary text-primary-foreground"
-                      : "mr-auto bg-muted"
-                  )}
-                >
-                  <div className="flex-shrink-0">
-                    {msg.role === 'user' ? (
-                      <User className="w-6 h-6" />
-                    ) : (
-                      <Bot className="w-6 h-6 text-purple-600" />
-                    )}
-                  </div>
-                  <div className="flex-1 space-y-2">
-                    <div className="prose prose-sm dark:prose-invert max-w-none">
-                      <div className="whitespace-pre-wrap break-words">
-                        {msg.content}
-                      </div>
-                    </div>
-                    {msg.role === 'assistant' && settings.enabled && (
-                      <div className="flex items-center gap-2 mt-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            if (isSpeaking && lastSpokenMessageId === msg.id) {
-                              stop();
-                            } else {
-                              speak(msg.content);
-                              setLastSpokenMessageId(msg.id);
-                            }
-                          }}
-                          disabled={!settings.enabled}
-                          className="h-6 px-2 text-xs"
-                        >
-                          {isSpeaking && lastSpokenMessageId === msg.id ? (
-                            <VolumeX className="w-3 h-3" />
-                          ) : (
-                            <Volume2 className="w-3 h-3" />
-                          )}
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-              {isLoading && (
-                <div className="flex gap-3 p-4 rounded-lg max-w-[85%] mr-auto bg-muted">
-                  <div className="flex-shrink-0">
-                    <Bot className="w-6 h-6 text-purple-600" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <div className="flex space-x-1">
-                        <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                        <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                        <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                      </div>
-                      <span className="text-sm">AI is thinking...</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-              <div ref={messagesEndRef} />
-            </>
           )}
+
+          {/* Messages */}
+          {displayMessages.map((msg: any) => (
+            <div
+              key={msg.id}
+              className={cn(
+                "flex gap-3 p-4 rounded-lg max-w-[85%]",
+                msg.role === 'user'
+                  ? "ml-auto bg-primary text-primary-foreground"
+                  : "mr-auto bg-muted"
+              )}
+            >
+              <div className="flex-shrink-0">
+                {msg.role === 'user' ? (
+                  <User className="w-6 h-6" />
+                ) : (
+                  <Bot className="w-6 h-6 text-purple-600" />
+                )}
+              </div>
+              <div className="flex-1 space-y-2">
+                <div className="prose prose-sm dark:prose-invert max-w-none">
+                  <div className="whitespace-pre-wrap break-words">
+                    {msg.content}
+                  </div>
+                </div>
+                {msg.role === 'assistant' && settings.enabled && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      if (isSpeaking && lastSpokenMessageId === msg.id) {
+                        stop();
+                      } else {
+                        speak(msg.content);
+                        setLastSpokenMessageId(msg.id);
+                      }
+                    }}
+                    className="h-6 px-2 text-xs"
+                  >
+                    {isSpeaking && lastSpokenMessageId === msg.id ? (
+                      <VolumeX className="w-3 h-3" />
+                    ) : (
+                      <Volume2 className="w-3 h-3" />
+                    )}
+                  </Button>
+                )}
+                {/* Socratic Score */}
+                {msg.score !== undefined && (
+                  <div className="text-xs text-muted-foreground mt-2">
+                    <Badge variant={msg.score >= 3 ? 'default' : msg.score >= 2 ? 'secondary' : 'outline'}>
+                      Score: {msg.score}/3
+                    </Badge>
+                    {msg.misconception && (
+                      <span className="ml-2 text-amber-500">
+                        • {msg.misconception}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+
+          {/* Loading */}
+          {(isLoading || socraticLoading) && (
+            <div className="flex gap-3 p-4 rounded-lg max-w-[85%] mr-auto bg-muted">
+              <Bot className="w-6 h-6 text-purple-600 flex-shrink-0" />
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <div className="flex space-x-1">
+                  <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                  <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                  <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                </div>
+                <span className="text-sm">{socraticSession ? 'Evaluating...' : 'Thinking...'}</span>
+              </div>
+            </div>
+          )}
+          <div ref={messagesEndRef} />
         </div>
       </div>
 
-      {/* Fixed Bottom Controls Container */}
-      <div className="flex-shrink-0 p-4 max-w-4xl mx-auto w-full" style={{ 
-        position: 'sticky',
-        bottom: 0,
-        backgroundColor: 'hsl(var(--background))',
-        zIndex: 10
-      }}>
-        {/* Voice Controls Row */}
-        {settings.enabled && (
-          <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg mb-4">
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleTTSToggle}
-                  disabled={!settings.enabled}
-                >
-                  {isSpeaking ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-                  {isSpeaking ? 'Stop' : 'Read'}
-                </Button>
-                <Button
-                  variant={autoPlayEnabled ? "default" : "outline"}
-                  size="sm"
-                  onClick={handleAutoPlayToggle}
-                  disabled={!settings.enabled}
-                >
-                  <Play className="w-4 h-4 mr-1" />
-                  Auto-play
-                </Button>
-                {messages.length >= 1 && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleClearChat}
-                    className="text-muted-foreground hover:text-foreground"
-                  >
-                    <Trash2 className="w-4 h-4 mr-1" />
-                    Clear
-                  </Button>
-                )}
-              </div>
-              {isSpeaking && (
-                <div className="text-sm text-muted-foreground flex items-center gap-1">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  Speaking...
-                </div>
-              )}
+      {/* Fixed Bottom Controls */}
+      <div className="flex-shrink-0 p-4 max-w-4xl mx-auto w-full bg-background border-t">
+        {/* Mode Toggle & Voice Controls */}
+        <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+          <SocraticModeToggle
+            enabled={!!socraticSession && socraticSession.state !== 'COMPLETED'}
+            onToggle={handleToggleSocraticMode}
+            sessionActive={!!socraticSession}
+            averageScore={socraticSession ? calculateAverageScore(socraticSession.score_history) : undefined}
+            disabled={isLoading || socraticLoading}
+          />
+          
+          {settings.enabled && (
+            <div className="flex items-center gap-2">
+              <Button
+                variant={autoPlayEnabled ? "default" : "outline"}
+                size="sm"
+                onClick={handleAutoPlayToggle}
+              >
+                <Volume2 className="w-4 h-4 mr-1" />
+                Auto-play
+              </Button>
+              <Button
+                variant={voiceInput.isRecording ? "default" : "outline"}
+                size="sm"
+                onClick={() => voiceInput.isRecording ? voiceInput.stopRecording() : voiceInput.startRecording(handleVoiceInput)}
+              >
+                {voiceInput.isRecording ? <Mic className="w-4 h-4" /> : <MicOff className="w-4 h-4" />}
+              </Button>
             </div>
-            {voiceInput.isRecording && (
-              <div className="text-sm text-muted-foreground flex items-center gap-1">
-                <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                Recording...
-              </div>
-            )}
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Input Form */}
-        <form onSubmit={handleSubmit} className="flex gap-2 items-end">
-          <div className="flex-1 relative">
-            <Input
-              ref={inputRef}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyPress={handleKeyPress}
-              onFocus={(e) => {
-                // Prevent viewport jump and disable auto-scroll
-                setIsInputFocused(true);
-                e.preventDefault();
-              }}
-              onBlur={() => {
-                setIsInputFocused(false);
-              }}
-              placeholder="Ask me anything about learning..."
-              disabled={isLoading}
-              className="min-h-[44px] pr-12"
-              style={{ 
-                fontSize: '16px' // Prevent zoom on iOS
-              }}
-            />
-            {settings.enabled && (
-              <div className="absolute right-2 top-1/2 -translate-y-1/2">
-                <VoiceInputButton
-                  onTranscription={handleVoiceInput}
-                  placeholder="voice input"
-                  disabled={isLoading}
-                />
-              </div>
-            )}
-          </div>
+        <form onSubmit={handleSubmit} className="flex gap-2">
+          <Input
+            ref={inputRef}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyPress={handleKeyPress}
+            onFocus={() => setIsInputFocused(true)}
+            onBlur={() => setIsInputFocused(false)}
+            placeholder={socraticSession ? "Type your answer..." : "Ask me anything..."}
+            disabled={isLoading || socraticLoading}
+            className="flex-1"
+          />
           <Button 
             type="submit" 
+            disabled={!input.trim() || isLoading || socraticLoading}
             size="icon"
-            disabled={!input.trim() || isLoading}
-            className="flex-shrink-0"
           >
             <Send className="w-4 h-4" />
           </Button>
