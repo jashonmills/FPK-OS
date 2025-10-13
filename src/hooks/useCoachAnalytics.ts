@@ -31,13 +31,13 @@ export function useCoachAnalytics() {
       try {
         setLoading(true);
 
-        // Call all analytics functions in parallel
+        // Call all analytics functions in parallel - ONLY coach_portal data
         const [masteryResult, timeResult, topicsResult, streakResult, ratioResult] = await Promise.all([
-          supabase.rpc('get_coach_mastery_score', { p_user_id: user.id }),
-          supabase.rpc('get_coach_learning_time', { p_user_id: user.id }),
-          supabase.rpc('get_coach_topics', { p_user_id: user.id }),
-          supabase.rpc('get_coach_streak', { p_user_id: user.id }),
-          supabase.rpc('get_coach_mode_ratio', { p_user_id: user.id })
+          supabase.rpc('get_coach_mastery_score', { p_user_id: user.id, p_source: 'coach_portal' }),
+          supabase.rpc('get_coach_learning_time', { p_user_id: user.id, p_source: 'coach_portal' }),
+          supabase.rpc('get_coach_topics', { p_user_id: user.id, p_source: 'coach_portal' }),
+          supabase.rpc('get_coach_streak', { p_user_id: user.id, p_source: 'coach_portal' }),
+          supabase.rpc('get_coach_mode_ratio', { p_user_id: user.id, p_source: 'coach_portal' })
         ]);
 
         if (masteryResult.error) throw masteryResult.error;

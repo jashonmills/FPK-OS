@@ -97,7 +97,10 @@ export async function handleSocraticSession(
       throw new Error('Topic and objective required to start session');
     }
 
-    // Create session
+    // Accept source from request body (defaults to 'fpk_university' for backward compatibility)
+    const source = body.source || 'fpk_university';
+
+    // Create session with source tracking
     const { data: session, error } = await supabase
       .from('socratic_sessions')
       .insert({
@@ -105,7 +108,8 @@ export async function handleSocraticSession(
         org_id: orgId || null,
         topic,
         objective,
-        state: 'ASK'
+        state: 'ASK',
+        source  // CRITICAL: Track data source for isolation
       })
       .select()
       .single();

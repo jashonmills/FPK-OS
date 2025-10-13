@@ -35,6 +35,7 @@ export function useSocraticSession(userId?: string, orgId?: string) {
           .from('socratic_sessions')
           .select('*')
           .eq('id', sessionId)
+          .eq('source', 'coach_portal')  // CRITICAL: Only load coach portal sessions
           .single(),
         supabase
           .from('socratic_turns')
@@ -82,7 +83,8 @@ export function useSocraticSession(userId?: string, orgId?: string) {
           userId,
           orgId: orgId || null,
           topic,
-          objective
+          objective,
+          source: 'coach_portal'  // CRITICAL: Mark as coach portal data
         }
       });
 

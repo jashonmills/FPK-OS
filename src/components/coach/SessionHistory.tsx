@@ -36,18 +36,20 @@ export function SessionHistory({ onSelectSession, onNewSession, selectedSessionI
     async function loadSessions() {
       setLoading(true);
       try {
-        // Fetch both Socratic and free chat sessions
+        // Fetch both Socratic and free chat sessions - ONLY from coach_portal
         const [socraticResult, freeResult] = await Promise.all([
           supabase
             .from('socratic_sessions')
             .select('id, topic, objective, created_at, state, score_history')
             .eq('user_id', user.id)
+            .eq('source', 'coach_portal')
             .order('created_at', { ascending: false })
             .limit(20),
           supabase
             .from('coach_sessions')
             .select('id, session_title, created_at')
             .eq('user_id', user.id)
+            .eq('source', 'coach_portal')
             .order('created_at', { ascending: false })
             .limit(20)
         ]);

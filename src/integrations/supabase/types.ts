@@ -121,6 +121,7 @@ export type Database = {
           id: string
           metadata: Json | null
           session_id: string | null
+          source: string | null
           transaction_type: string
           user_id: string
         }
@@ -132,6 +133,7 @@ export type Database = {
           id?: string
           metadata?: Json | null
           session_id?: string | null
+          source?: string | null
           transaction_type: string
           user_id: string
         }
@@ -143,6 +145,7 @@ export type Database = {
           id?: string
           metadata?: Json | null
           session_id?: string | null
+          source?: string | null
           transaction_type?: string
           user_id?: string
         }
@@ -743,6 +746,7 @@ export type Database = {
           id: string
           session_data: Json | null
           session_title: string | null
+          source: string | null
           updated_at: string
           user_id: string
         }
@@ -751,6 +755,7 @@ export type Database = {
           id?: string
           session_data?: Json | null
           session_title?: string | null
+          source?: string | null
           updated_at?: string
           user_id: string
         }
@@ -759,6 +764,7 @@ export type Database = {
           id?: string
           session_data?: Json | null
           session_title?: string | null
+          source?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -7861,6 +7867,7 @@ export type Database = {
           org_id: string | null
           rubric: Json
           score_history: number[]
+          source: string | null
           started_at: string
           state: string
           topic: string
@@ -7877,6 +7884,7 @@ export type Database = {
           org_id?: string | null
           rubric?: Json
           score_history?: number[]
+          source?: string | null
           started_at?: string
           state?: string
           topic: string
@@ -7893,6 +7901,7 @@ export type Database = {
           org_id?: string | null
           rubric?: Json
           score_history?: number[]
+          source?: string | null
           started_at?: string
           state?: string
           topic?: string
@@ -7911,6 +7920,7 @@ export type Database = {
           role: string
           score: number | null
           session_id: string
+          source: string | null
           tag: string | null
         }
         Insert: {
@@ -7922,6 +7932,7 @@ export type Database = {
           role: string
           score?: number | null
           session_id: string
+          source?: string | null
           tag?: string | null
         }
         Update: {
@@ -7933,6 +7944,7 @@ export type Database = {
           role?: string
           score?: number | null
           session_id?: string
+          source?: string | null
           tag?: string | null
         }
         Relationships: [
@@ -9787,23 +9799,23 @@ export type Database = {
         }[]
       }
       get_coach_learning_time: {
-        Args: { p_user_id: string }
+        Args: { p_source?: string; p_user_id: string } | { p_user_id: string }
         Returns: number
       }
       get_coach_mastery_score: {
-        Args: { p_user_id: string }
+        Args: { p_source?: string; p_user_id: string } | { p_user_id: string }
         Returns: number
       }
       get_coach_mode_ratio: {
-        Args: { p_user_id: string }
+        Args: { p_source?: string; p_user_id: string } | { p_user_id: string }
         Returns: Json
       }
       get_coach_streak: {
-        Args: { p_user_id: string }
+        Args: { p_source?: string; p_user_id: string } | { p_user_id: string }
         Returns: number
       }
       get_coach_topics: {
-        Args: { p_user_id: string }
+        Args: { p_source?: string; p_user_id: string } | { p_user_id: string }
         Returns: string[]
       }
       get_completion_breakdown: {
