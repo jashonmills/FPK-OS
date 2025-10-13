@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { useSubscription } from '@/hooks/useSubscription';
 import { FpkUniversityAddon } from '@/components/coach/FpkUniversityAddon';
+import { ResendConfirmationButton } from '@/components/coach/ResendConfirmationButton';
 import {
   Collapsible,
   CollapsibleContent,
@@ -45,6 +46,9 @@ const CoachPortalLanding: React.FC = () => {
   const [expandedFeature, setExpandedFeature] = useState<number | null>(null);
   const [selectedTier, setSelectedTier] = useState<'basic' | 'pro' | 'pro_plus' | null>(null);
   const [addFpkUniversity, setAddFpkUniversity] = useState(false);
+  const [needsSubscription, setNeedsSubscription] = useState(false);
+  const [justSignedUp, setJustSignedUp] = useState(false);
+  const pricingRef = useRef<HTMLDivElement>(null);
 
   const locationMessage = (location.state as any)?.message;
 
@@ -80,6 +84,24 @@ const CoachPortalLanding: React.FC = () => {
     checkAccess();
   }, [user, navigate]);
 
+  // Handle email confirmation callback
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('confirmed') === 'true') {
+      toast({
+        title: '✅ Email confirmed!',
+        description: 'Choose a subscription plan below to get started with AI Coach.',
+      });
+      setNeedsSubscription(true);
+      setTimeout(() => {
+        pricingRef.current?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }, 500);
+    }
+  }, [location.search, toast]);
+
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -104,23 +126,33 @@ const CoachPortalLanding: React.FC = () => {
           .maybeSingle();
 
         if (!roleData) {
+          // User exists but needs subscription
+          setNeedsSubscription(true);
           toast({
-            title: 'Access Required',
-            description: 'Your account does not have AI Coach access. Please request access.',
+            title: 'Welcome!',
+            description: 'Choose a subscription plan below to access the AI Coach Portal.',
             variant: 'default',
           });
+          
+          // Scroll to pricing section
+          setTimeout(() => {
+            pricingRef.current?.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'start' 
+            });
+          }, 500);
           return;
         }
 
+        // User has access
         toast({
           title: 'Welcome back!',
           description: 'Redirecting to your AI Coach portal...',
         });
-
         navigate('/portal/ai-study-coach');
       } else {
         // Signup
-        const redirectUrl = `${window.location.origin}/coach`;
+        const redirectUrl = `${window.location.origin}/coach?confirmed=true`;
         const { error } = await supabase.auth.signUp({
           email,
           password,
@@ -131,18 +163,44 @@ const CoachPortalLanding: React.FC = () => {
 
         if (error) throw error;
 
+        setJustSignedUp(true);
         toast({
           title: 'Account created!',
-          description: 'Please check your email to verify your account. Once verified, contact support to request AI Coach access.',
+          description: 'Please check your email to verify your account, then return here to choose your subscription.',
         });
 
-        setEmail('');
+        // Keep user on page, scroll to pricing
         setPassword('');
-        setIsLogin(true);
+        setNeedsSubscription(true);
+        
+        setTimeout(() => {
+          pricingRef.current?.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start' 
+          });
+        }, 1000);
       }
     } catch (error: any) {
       console.error('Auth error:', error);
-      setError(error.message || 'An error occurred during authentication');
+      
+      let userFriendlyMessage = error.message;
+      
+      if (error.message.includes('Invalid login credentials')) {
+        userFriendlyMessage = 'Incorrect email or password. Please try again.';
+      } else if (error.message.includes('User already registered')) {
+        userFriendlyMessage = 'An account with this email already exists. Try signing in instead.';
+        setIsLogin(true); // Switch to login form
+      } else if (error.message.includes('Email not confirmed')) {
+        userFriendlyMessage = 'Please check your email and click the confirmation link before signing in.';
+        setJustSignedUp(true);
+      }
+      
+      setError(userFriendlyMessage);
+      toast({
+        title: 'Authentication Error',
+        description: userFriendlyMessage,
+        variant: 'destructive'
+      });
     } finally {
       setIsLoading(false);
     }
@@ -392,7 +450,19 @@ const CoachPortalLanding: React.FC = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="password" className="text-white">Password</Label>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="password" className="text-white">Password</Label>
+                      {isLogin && (
+                        <Button
+                          type="button"
+                          variant="link"
+                          onClick={() => navigate('/reset-password')}
+                          className="text-white/80 hover:text-white p-0 h-auto text-xs"
+                        >
+                          Forgot password?
+                        </Button>
+                      )}
+                    </div>
                     <Input
                       id="password"
                       type="password"
@@ -422,28 +492,27 @@ const CoachPortalLanding: React.FC = () => {
                   </Button>
                 </form>
 
-                <div className="mt-6 text-center text-sm">
+                <div className="mt-6 text-center text-sm space-y-2">
                   <button
                     onClick={() => {
                       setIsLogin(!isLogin);
                       setError(null);
+                      setJustSignedUp(false);
                     }}
-                    className="text-white hover:text-white/80 hover:underline transition-colors"
+                    className="text-white hover:text-white/80 hover:underline transition-colors block w-full"
                     disabled={isLoading}
                   >
                     {isLogin
                       ? "Don't have an account? Sign up"
                       : 'Already have an account? Sign in'}
                   </button>
-                </div>
 
-                {!isLogin && (
-                  <div className="mt-4 p-3 bg-white/10 rounded-lg border border-white/20">
-                    <p className="text-xs text-white/80 text-center">
-                      After signup, you'll need to request AI Coach access. Contact support or check your email for instructions.
-                    </p>
-                  </div>
-                )}
+                  {justSignedUp && email && (
+                    <div className="pt-2">
+                      <ResendConfirmationButton email={email} />
+                    </div>
+                  )}
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -451,7 +520,18 @@ const CoachPortalLanding: React.FC = () => {
         </div>
 
         {/* Subscription Tiers Section */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
+        <div 
+          ref={pricingRef}
+          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20 scroll-mt-20"
+        >
+          {needsSubscription && (
+            <div className="mb-8 p-4 bg-white/10 backdrop-blur-lg border-2 border-white/40 rounded-lg text-center">
+              <p className="text-white text-lg font-semibold">
+                👋 Welcome! Choose your plan below to get started with AI Coach Portal
+              </p>
+            </div>
+          )}
+          
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4 drop-shadow-lg">
               Choose Your Plan
@@ -471,7 +551,11 @@ const CoachPortalLanding: React.FC = () => {
                     ? 'border-white/40 ring-2 ring-white/30 shadow-2xl scale-105' 
                     : 'border-white/20 hover:border-white/30'
                 } ${
-                  selectedTier === tier.tier 
+                  needsSubscription
+                    ? 'ring-2 ring-primary/50 animate-pulse-slow'
+                    : ''
+                } ${
+                  selectedTier === tier.tier
                     ? 'ring-2 ring-primary border-primary' 
                     : ''
                 }`}
