@@ -159,7 +159,51 @@
       "contentType": "text",
       "unit": "Main Course",
       "unitColor": "bg-blue-100 text-blue-700",
-      "estimatedMinutes": 16
+      "estimatedMinutes": 16,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Atoms and Molecules",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Everything around you is made of matter—from the chair you're sitting on to the air you breathe. But what is matter made of? The answer lies in atoms, the building blocks of all substances."
+        },
+        {
+          "type": "heading",
+          "content": "What is an Atom?",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "An **atom** is the smallest unit of an element that retains the properties of that element. Atoms are incredibly tiny—millions of them could fit on the head of a pin."
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**Atomic Structure**: Atoms consist of three main particles: **Protons** (positively charged, found in the nucleus), **Neutrons** (no charge, also in the nucleus), and **Electrons** (negatively charged, orbit the nucleus in electron shells)."
+        },
+        {
+          "type": "heading",
+          "content": "Molecules: Atoms Working Together",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "When atoms bond together, they form **molecules**. A molecule can be made of atoms from the same element (like O₂, oxygen gas) or different elements (like H₂O, water)."
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "**Chemical Bonds**: Atoms bond by sharing or transferring electrons. **Covalent bonds** involve sharing electrons (like in water), while **ionic bonds** involve transferring electrons (like in salt, NaCl)."
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "**Think About It**: Why do you think atoms bond together? The answer lies in stability—atoms bond to achieve a more stable electron configuration, often completing their outer electron shell."
+        }
+      ]
     },
     {
       "id": 5,
@@ -168,7 +212,52 @@
       "contentType": "text",
       "unit": "Main Course",
       "unitColor": "bg-blue-100 text-blue-700",
-      "estimatedMinutes": 14
+      "estimatedMinutes": 14,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "The Periodic Table",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "The periodic table is one of the most important tools in chemistry. It organizes all known elements in a way that reveals patterns and relationships between them."
+        },
+        {
+          "type": "heading",
+          "content": "How the Periodic Table is Organized",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**By Atomic Number**: Elements are arranged by their atomic number (number of protons). Hydrogen (1) is first, Helium (2) is second, and so on."
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "**Periods and Groups**: **Periods** are horizontal rows. **Groups** (or families) are vertical columns. Elements in the same group share similar chemical properties."
+        },
+        {
+          "type": "heading",
+          "content": "Important Element Groups",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Alkali Metals (Group 1)**: Very reactive metals like sodium and potassium",
+            "**Noble Gases (Group 18)**: Unreactive gases like helium and neon with full outer electron shells",
+            "**Halogens (Group 17)**: Highly reactive non-metals like chlorine and fluorine",
+            "**Transition Metals**: The large block in the middle, including iron, copper, and gold"
+          ]
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "**Deeper Dive**: The periodic table was created by Dmitri Mendeleev in 1869. He arranged elements by atomic mass and noticed that properties repeated periodically. He even predicted the existence and properties of elements not yet discovered—and he was right!"
+        }
+      ]
     },
     {
       "id": 6,
@@ -177,7 +266,57 @@
       "contentType": "text",
       "unit": "Main Course",
       "unitColor": "bg-blue-100 text-blue-700",
-      "estimatedMinutes": 15
+      "estimatedMinutes": 15,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Forces and Motion",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Physics is the study of how things move and why. At the heart of this are **Newton's Laws of Motion**, three fundamental principles that describe how forces affect the motion of objects."
+        },
+        {
+          "type": "heading",
+          "content": "Newton's First Law: Inertia",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**Law**: An object at rest stays at rest, and an object in motion stays in motion at constant velocity, unless acted upon by an external force. This is called **inertia**—the tendency of objects to resist changes in their motion."
+        },
+        {
+          "type": "paragraph",
+          "content": "**Example**: When a car brakes suddenly, you lurch forward because your body wants to keep moving at the same speed (inertia)."
+        },
+        {
+          "type": "heading",
+          "content": "Newton's Second Law: F = ma",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "**Law**: Force equals mass times acceleration (F = ma). This means the acceleration of an object depends on the force applied and the object's mass. More force = more acceleration. More mass = less acceleration (for the same force)."
+        },
+        {
+          "type": "heading",
+          "content": "Newton's Third Law: Action-Reaction",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "warning",
+          "content": "**Law**: For every action, there is an equal and opposite reaction. When you push on a wall, the wall pushes back on you with equal force. This is why you can walk—you push backward on the ground, and the ground pushes you forward."
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "**Think About It**: When a rocket launches, it expels gas downward (action). The reaction is the rocket being pushed upward. The more gas expelled and the faster it's expelled, the greater the upward force."
+        }
+      ]
     },
     {
       "id": 7,
@@ -186,7 +325,51 @@
       "contentType": "text",
       "unit": "Main Course",
       "unitColor": "bg-blue-100 text-blue-700",
-      "estimatedMinutes": 15
+      "estimatedMinutes": 15,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Energy and Work",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Energy is the ability to do work. But what exactly is 'work' in physics? Work happens when a force causes an object to move in the direction of the force. Energy and work are intimately connected."
+        },
+        {
+          "type": "heading",
+          "content": "Forms of Energy",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Kinetic Energy**: Energy of motion. A moving car, a flying ball, and flowing water all have kinetic energy",
+            "**Potential Energy**: Stored energy based on position or condition. A book on a shelf has gravitational potential energy. A stretched rubber band has elastic potential energy",
+            "**Thermal Energy**: Energy from the movement of particles. The faster particles move, the hotter the object",
+            "**Chemical Energy**: Energy stored in chemical bonds, released during reactions (like burning wood or digesting food)"
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Law of Conservation of Energy",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "**Key Principle**: Energy cannot be created or destroyed, only transformed from one form to another. The total amount of energy in a closed system remains constant."
+        },
+        {
+          "type": "paragraph",
+          "content": "**Example**: When you drop a ball, its potential energy (from being held up high) converts to kinetic energy (as it falls). When it hits the ground, that kinetic energy converts to sound, heat, and deformation of the ball and ground."
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "**Real-World Connection**: Think about a power plant. Chemical energy in coal or gas is converted to thermal energy (heat), which produces steam. The steam drives turbines (kinetic energy), which generate electrical energy. At each step, energy is transformed but never lost—just changed from one form to another."
+        }
+      ]
     },
     {
       "id": 8,
@@ -195,7 +378,61 @@
       "contentType": "text",
       "unit": "Main Course",
       "unitColor": "bg-blue-100 text-blue-700",
-      "estimatedMinutes": 17
+      "estimatedMinutes": 17,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Genetics and DNA",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Genetics is the study of heredity—how traits are passed from parents to offspring. At the molecular level, this process is controlled by DNA, the molecule that carries genetic information."
+        },
+        {
+          "type": "heading",
+          "content": "What is DNA?",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**DNA (Deoxyribonucleic Acid)** is a double helix molecule found in the nucleus of cells. It contains the instructions for building and maintaining an organism. DNA is made of four chemical bases: Adenine (A), Thymine (T), Guanine (G), and Cytosine (C)."
+        },
+        {
+          "type": "paragraph",
+          "content": "The sequence of these bases encodes genetic information. Think of it like a language with a four-letter alphabet."
+        },
+        {
+          "type": "heading",
+          "content": "Genes and Chromosomes",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "**Gene**: A segment of DNA that codes for a specific protein or trait. Humans have about 20,000-25,000 genes."
+        },
+        {
+          "type": "callout",
+          "style": "warning",
+          "content": "**Chromosome**: DNA is packaged into structures called chromosomes. Humans have 46 chromosomes (23 pairs) in most cells. You inherit one set of 23 from each parent."
+        },
+        {
+          "type": "heading",
+          "content": "How Traits Are Inherited",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "**Dominant and Recessive Alleles**: Genes come in different versions called alleles. Dominant alleles mask recessive alleles. For example, brown eyes (dominant) mask blue eyes (recessive). You need two recessive alleles to have blue eyes."
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "**Gregor Mendel**: Often called the father of genetics, Mendel discovered the basic principles of heredity by studying pea plants in the 1860s. His work laid the foundation for modern genetics, even though DNA wasn't discovered until nearly 100 years later!"
+        }
+      ]
     },
     {
       "id": 9,
@@ -204,7 +441,50 @@
       "contentType": "text",
       "unit": "Assessment",
       "unitColor": "bg-green-100 text-green-700",
-      "estimatedMinutes": 10
+      "estimatedMinutes": 10,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Course Review and Summary",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Congratulations on completing the core lessons! Let's review the key concepts you've mastered throughout this course."
+        },
+        {
+          "type": "heading",
+          "content": "Key Concepts Covered",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "**The Scientific Method**: Observation, hypothesis, experiment, analysis, conclusion",
+            "**The Importance of Science**: How science shapes modern society and impacts daily life",
+            "**Cell Structure**: Prokaryotic vs eukaryotic cells, key organelles and their functions",
+            "**Atoms and Molecules**: Building blocks of matter, chemical bonds",
+            "**The Periodic Table**: Organization of elements, periods and groups",
+            "**Forces and Motion**: Newton's three laws, inertia, force and acceleration",
+            "**Energy and Work**: Forms of energy, conservation of energy principle",
+            "**Genetics and DNA**: Structure of DNA, genes, chromosomes, and heredity"
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Connecting the Concepts",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Science is interconnected. The scientific method helps us understand atoms, which make up cells, which use energy to function, and pass genetic information to new generations. Everything in science builds upon fundamental principles."
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "**Reflection**: Which concept was most interesting to you? How might you apply scientific thinking to your everyday life?"
+        }
+      ]
     },
     {
       "id": 10,
@@ -213,7 +493,78 @@
       "contentType": "text",
       "unit": "Assessment",
       "unitColor": "bg-green-100 text-green-700",
-      "estimatedMinutes": 20
+      "estimatedMinutes": 20,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Practice Assessment Questions",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Test your understanding of the course material with these short-answer questions. Take your time and think through each answer carefully."
+        },
+        {
+          "type": "heading",
+          "content": "The Scientific Method",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**Question 1**: Describe the five steps of the scientific method in order. Give an example of how you might use this method to answer a question from everyday life."
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "**Question 2**: Why is it important that a hypothesis be falsifiable? What makes a good hypothesis?"
+        },
+        {
+          "type": "heading",
+          "content": "Cell Biology",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "warning",
+          "content": "**Question 3**: Compare prokaryotic and eukaryotic cells. What are the main differences? Give an example of each type."
+        },
+        {
+          "type": "callout",
+          "style": "error",
+          "content": "**Question 4**: Explain why mitochondria are called the 'powerhouses' of the cell. What is the theory of endosymbiosis?"
+        },
+        {
+          "type": "heading",
+          "content": "Chemistry and Physics",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**Question 5**: Describe the structure of an atom. What are the three main subatomic particles and where are they located?"
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "**Question 6**: Explain Newton's Second Law (F = ma) in your own words. How does mass affect acceleration?"
+        },
+        {
+          "type": "heading",
+          "content": "Genetics",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "warning",
+          "content": "**Question 7**: What is the difference between dominant and recessive alleles? If both your parents have brown eyes (dominant) but you have blue eyes (recessive), what does that tell you about your parents' alleles?"
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "**Remember**: These questions are designed to help you think critically and apply what you've learned. There's no single 'right' way to answer them—focus on demonstrating your understanding of the concepts."
+        }
+      ]
     },
     {
       "id": 11,
@@ -222,7 +573,91 @@
       "contentType": "text",
       "unit": "Resources",
       "unitColor": "bg-purple-100 text-purple-700",
-      "estimatedMinutes": 15
+      "estimatedMinutes": 15,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Comprehensive Study Guide",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "This study guide provides a structured overview of all major topics covered in the course, organized by theme and lesson. Use it for review or as a quick reference."
+        },
+        {
+          "type": "heading",
+          "content": "Scientific Inquiry",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**Key Terms**: Scientific method, hypothesis, falsifiable, observation, experiment, analysis, conclusion, control group, variable"
+        },
+        {
+          "type": "list",
+          "items": [
+            "The five steps of the scientific method and how they build on each other",
+            "Why science is essential to modern society and technological advancement",
+            "How to design a controlled experiment with independent and dependent variables"
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Biology Essentials",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "**Key Terms**: Cell, prokaryotic, eukaryotic, organelle, nucleus, mitochondria, cell membrane, cytoplasm, endosymbiosis, DNA, gene, chromosome, allele, dominant, recessive"
+        },
+        {
+          "type": "list",
+          "items": [
+            "Differences between prokaryotic and eukaryotic cells",
+            "Functions of major organelles (nucleus, mitochondria, cell membrane)",
+            "Structure of DNA and how genetic information is stored",
+            "How traits are inherited through dominant and recessive alleles"
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Chemistry Foundations",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "warning",
+          "content": "**Key Terms**: Atom, proton, neutron, electron, molecule, element, compound, periodic table, atomic number, chemical bond, covalent, ionic"
+        },
+        {
+          "type": "list",
+          "items": [
+            "Structure of atoms and how they bond to form molecules",
+            "Organization of the periodic table by atomic number, periods, and groups",
+            "Common element families and their properties"
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Physics Principles",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "error",
+          "content": "**Key Terms**: Force, motion, inertia, acceleration, Newton's Laws, kinetic energy, potential energy, conservation of energy, work"
+        },
+        {
+          "type": "list",
+          "items": [
+            "Newton's three laws of motion and real-world applications",
+            "Different forms of energy (kinetic, potential, thermal, chemical)",
+            "The law of conservation of energy—energy transforms but is never lost"
+          ]
+        }
+      ]
     },
     {
       "id": 12,
@@ -231,7 +666,67 @@
       "contentType": "text",
       "unit": "Resources",
       "unitColor": "bg-purple-100 text-purple-700",
-      "estimatedMinutes": 10
+      "estimatedMinutes": 10,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Further Exploration and Next Steps",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Ready to dive deeper into science? This lesson provides resources and suggestions for continuing your scientific journey beyond this introductory course."
+        },
+        {
+          "type": "heading",
+          "content": "Advanced Topics to Explore",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Quantum Physics**: Explore the strange world of subatomic particles and wave-particle duality",
+            "**Organic Chemistry**: Study carbon-based molecules, the foundation of life",
+            "**Evolutionary Biology**: Understand how species change over time through natural selection",
+            "**Astrophysics**: Learn about stars, galaxies, black holes, and the origins of the universe",
+            "**Neuroscience**: Discover how the brain works and controls behavior"
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Recommended Resources",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "**Online Learning**: Khan Academy, Coursera, and MIT OpenCourseWare offer free science courses at all levels. NASA and National Geographic provide excellent educational materials and visuals."
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**Books**: 'A Short History of Nearly Everything' by Bill Bryson, 'The Selfish Gene' by Richard Dawkins, 'Cosmos' by Carl Sagan. These make complex science accessible and engaging."
+        },
+        {
+          "type": "callout",
+          "style": "warning",
+          "content": "**Hands-On Science**: Join a science club, participate in science fairs, visit museums, or conduct home experiments. Active engagement deepens understanding."
+        },
+        {
+          "type": "heading",
+          "content": "Keep Thinking Scientifically",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The scientific method isn't just for laboratories—it's a way of thinking that helps you solve problems, make decisions, and understand the world. Ask questions, seek evidence, test ideas, and never stop learning."
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "**Final Thought**: Science is always evolving. What we know today may be refined or expanded tomorrow. Stay curious, embrace uncertainty, and remember that asking 'why' is the beginning of all scientific discovery."
+        }
+      ]
     }
   ]
 }

@@ -1,105 +1,973 @@
 {
-  "courseTitle": "ELT: Empowering Learning Techniques",
+  "courseId": "elt-empowering-learning-techniques",
   "courseSlug": "elt-empowering-learning-techniques",
+  "contentVersion": "v2",
+  "title": "ELT: Empowering Learning Techniques",
   "description": "Master evidence-based learning strategies specifically designed for neurodiverse minds. Transform how you learn, study, and succeed in any academic environment.",
   "lessons": [
     {
       "id": 1,
       "title": "Understanding Neurodiversity and Your Unique Brain",
       "description": "Discover how your brain works differently and why that's your greatest asset",
+      "contentType": "text",
       "unit": "Core Modules",
-      "unitColor": "bg-blue-100 text-blue-700"
+      "unitColor": "bg-blue-100 text-blue-700",
+      "estimatedMinutes": 25,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Understanding Neurodiversity and Your Unique Brain",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Welcome to the first module of our course! Here, we will embark on a journey of self-discovery, exploring the concept of neurodiversity and what it means for you as a learner. Our goal is to empower you with knowledge and self-awareness, laying the foundation for academic and personal success."
+        },
+        {
+          "type": "heading",
+          "content": "What is Neurodiversity?",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Neurodiversity is the idea that differences in brain function and behavioral traits are a natural part of human variation. It's a shift away from the outdated view that there is one 'normal' or 'right' way for a brain to work. Instead, neurodiversity recognizes that conditions like ADHD, autism, dyslexia, and others are not deficits, but simply variations in the human brain."
+        },
+        {
+          "type": "paragraph",
+          "content": "Think of it like this: just as we have a diversity of ethnicities, cultures, and languages, we also have a diversity of minds. Each neurotype comes with its own unique set of strengths and challenges."
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**Example**: Someone with dyslexia might struggle with reading but excel at visual-spatial reasoning and creative problem-solving. An individual with ADHD might have difficulty with focus but possess incredible energy and the ability to think outside the box."
+        },
+        {
+          "type": "quote",
+          "content": "Neurodiversity is the idea that neurological differences like autism and ADHD are the result of normal, natural variation in the human genome. - John Elder Robison"
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "**Activity**: Reflect on a time when you felt your brain worked differently from others. How did this difference manifest? Was it a challenge, a strength, or both? Write down your thoughts in a journal. This will be the start of your personal learning profile."
+        },
+        {
+          "type": "heading",
+          "content": "Self-Discovery: Identifying Your Learning Profile",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Understanding your own learning profile is a critical step toward becoming an effective self-learner. This involves recognizing your specific neurodivergent traits, your preferred learning styles, and your individual strengths and areas for growth."
+        },
+        {
+          "type": "heading",
+          "content": "Common Neurodivergent Profiles",
+          "level": 3
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**ADHD (Attention-Deficit/Hyperactivity Disorder)**: Characterized by patterns of inattention, hyperactivity, and impulsivity. Strengths can include creativity, high energy, and the ability to hyperfocus on tasks of interest."
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "**Autism Spectrum Disorder (ASD)**: Affects social interaction, communication, and behavior. Strengths can include deep focus, attention to detail, and strong logical reasoning skills."
+        },
+        {
+          "type": "callout",
+          "style": "warning",
+          "content": "**Dyslexia**: A learning disorder that involves difficulty reading due to problems identifying speech sounds. Strengths can include strong visual-thinking skills, creativity, and excellent problem-solving abilities."
+        },
+        {
+          "type": "callout",
+          "style": "error",
+          "content": "**Executive Functioning Disorder**: Involves challenges with working memory, flexible thinking, and self-control. By identifying these challenges, you can implement targeted strategies to improve in these areas."
+        },
+        {
+          "type": "heading",
+          "content": "Discovering Your Learning Style",
+          "level": 3
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Visual Learners**: Prefer to learn through images, diagrams, and visual aids",
+            "**Auditory Learners**: Learn best through listening, such as lectures and discussions",
+            "**Kinesthetic Learners**: Learn by doing, through hands-on activities and physical engagement"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": "Most people are a combination of these styles, but identifying your dominant preference can help you choose the most effective study strategies."
+        }
+      ]
     },
     {
       "id": 2,
       "title": "Self-Assessment & Learning Discovery",
       "description": "Complete interactive assessments to understand your unique learning profile",
+      "contentType": "text",
       "unit": "Core Modules",
-      "unitColor": "bg-blue-100 text-blue-700"
+      "unitColor": "bg-blue-100 text-blue-700",
+      "estimatedMinutes": 20,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Self-Assessment & Learning Discovery",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "In this lesson, you'll complete a series of assessments to better understand your unique learning profile, cognitive strengths, and areas where you may need additional support or strategies."
+        },
+        {
+          "type": "heading",
+          "content": "The Neurodiverse Brain in Action",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "To truly empower yourself as a learner, it's helpful to have a basic understanding of how your brain works. This section provides a simplified overview of key brain functions related to learning and how they can differ in neurodivergent individuals."
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**Attention**: The ability to focus on specific information while ignoring distractions. For some neurodivergent individuals, this can be a challenge, while for others, it can manifest as an intense ability to hyperfocus."
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "**Memory**: The process of encoding, storing, and retrieving information. Working memory, which is the ability to hold and manipulate information for a short period, can be a particular area of difficulty for some."
+        },
+        {
+          "type": "callout",
+          "style": "warning",
+          "content": "**Executive Functions**: The 'management system' of the brain, responsible for planning, organization, time management, and self-control. These skills are often impacted by neurodivergence."
+        },
+        {
+          "type": "heading",
+          "content": "Metacognition: Thinking About Your Thinking",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Metacognition is the ability to reflect on your own thought processes. It's about understanding how you learn best, what strategies work for you, and how to adapt your approach when you encounter challenges. Developing metacognitive skills is a cornerstone of becoming an empowered self-learner."
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "**Reflection Activity**: At the end of a study session, take five minutes to reflect on your learning. Ask yourself: What did I understand well? What was confusing? What strategy did I use, and was it effective? What could I do differently next time?"
+        }
+      ]
     },
     {
       "id": 3,
       "title": "Mastering Executive Functioning Skills",
       "description": "Build organizational systems that work with your brain, not against it",
+      "contentType": "text",
       "unit": "Core Modules",
-      "unitColor": "bg-green-100 text-green-700"
+      "unitColor": "bg-green-100 text-green-700",
+      "estimatedMinutes": 30,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Mastering Executive Functioning Skills",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Executive functions are the command-and-control center of the brain, responsible for a wide range of skills that are essential for learning and daily life. For many neurodiverse individuals, these skills can be a significant area of challenge. This module is dedicated to providing you with practical strategies to master your executive functions and take control of your learning."
+        },
+        {
+          "type": "heading",
+          "content": "Planning and Organization",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Effective planning and organization are the cornerstones of academic success. They allow you to manage your workload, meet deadlines, and reduce stress."
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**Breaking Down Large Tasks**: One of the biggest hurdles to starting a large project is feeling overwhelmed. The solution is to break it down into smaller, more manageable steps. This not only makes the task less daunting but also provides a clear roadmap for completion."
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "**Real-World Application**: Imagine you have a research paper due in a month. Instead of seeing it as one massive task, break it down: 1) Choose a topic, 2) Conduct preliminary research, 3) Create an outline, 4) Write the first draft, 5) Revise and edit, 6) Finalize the bibliography."
+        },
+        {
+          "type": "heading",
+          "content": "Effective Use of Planners and Digital Tools",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "A planner, whether physical or digital, is your best friend for staying organized. It helps you keep track of deadlines, appointments, and tasks."
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Physical Planners**: Use a planner with daily, weekly, and monthly views. Color-code your entries to distinguish between different subjects or priorities",
+            "**Digital Tools**: Apps like Trello, Asana, or Google Calendar can be incredibly powerful. You can set reminders, create recurring tasks, and share your calendar with others"
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Time Management and Prioritization",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "**The Pomodoro Technique**: This popular method involves working in focused 25-minute intervals, separated by short breaks. It helps combat procrastination, improve focus, and prevent burnout. Set a timer for 25 minutes and work on a single task without interruption. When the timer goes off, take a 5-minute break. After four Pomodoros, take a longer break of 15-30 minutes."
+        },
+        {
+          "type": "callout",
+          "style": "warning",
+          "content": "**The Eisenhower Matrix**: Prioritize tasks based on urgency and importance. Four quadrants: 1) Urgent and Important: Do it now, 2) Important but Not Urgent: Schedule it, 3) Urgent but Not Important: Delegate it, 4) Not Urgent and Not Important: Eliminate it."
+        },
+        {
+          "type": "heading",
+          "content": "Working Memory and Focus Strategies",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Working memory is the ability to hold and manipulate information in your mind for a short period. It's crucial for following instructions, solving multi-step problems, and reading comprehension."
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Chunking**: Break down information into smaller, more manageable chunks",
+            "**Visualization**: Create a mental picture of the information you're trying to remember",
+            "**Active Recall**: Actively test yourself on the material to strengthen neural pathways",
+            "**Environmental Control**: Minimize distractions in your environment",
+            "**Mindfulness**: Practice mindfulness exercises to train your attention"
+          ]
+        }
+      ]
     },
     {
       "id": 4,
       "title": "Interactive Learning Tools & Templates",
       "description": "Master practical worksheets and planners for effective learning",
+      "contentType": "text",
       "unit": "Core Modules",
-      "unitColor": "bg-green-100 text-green-700"
+      "unitColor": "bg-green-100 text-green-700",
+      "estimatedMinutes": 25,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Interactive Learning Tools & Templates",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "This lesson provides you with a comprehensive set of practical tools, templates, and worksheets designed specifically for neurodiverse learners. These resources will help you implement the strategies you've learned and create systems that work for your unique brain."
+        },
+        {
+          "type": "heading",
+          "content": "Executive Functioning Planners",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**Daily Planner Template**: Use this template to plan your day with time blocks, priority tasks, and reflection prompts. Include sections for morning routine, focused work blocks, breaks, and evening reflection."
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "**Weekly Task Breakdown**: Organize your week by breaking down larger tasks into daily actions. Use the Eisenhower Matrix to prioritize what needs immediate attention versus what can be scheduled for later."
+        },
+        {
+          "type": "heading",
+          "content": "Note-Taking Guides",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Different note-taking methods work for different learning styles and subjects. Experiment with these templates to find what works best for you."
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Cornell Notes Template**: Three-section format with main notes, cues/questions, and summary areas",
+            "**Mind Map Planning Sheet**: Visual organization around central concepts with branching connections",
+            "**Sketchnoting Guide**: Combine drawings, symbols, and text for visual learners"
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Self-Reflection Prompts",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "**Weekly Learning Reflection**: Use structured prompts to reflect on your learning progress. What strategies worked well? What challenges did you face? How can you adjust your approach for next week? What support do you need?"
+        },
+        {
+          "type": "heading",
+          "content": "Goal Setting Worksheets",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Set SMART goals (Specific, Measurable, Achievable, Relevant, Time-bound) to give your learning direction and purpose. Break down long-term goals into manageable milestones."
+        }
+      ]
     },
     {
       "id": 5,
       "title": "Effective Study and Information Retention Techniques",
       "description": "Learn evidence-based methods tailored for neurodiverse learners",
+      "contentType": "text",
       "unit": "Core Modules",
-      "unitColor": "bg-purple-100 text-purple-700"
+      "unitColor": "bg-purple-100 text-purple-700",
+      "estimatedMinutes": 35,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Effective Study and Information Retention Techniques",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "In this module, we delve into practical study techniques that are particularly effective for neurodiverse learners. The goal is to move beyond passive learning and equip you with active strategies to not only understand but also retain information for any subject."
+        },
+        {
+          "type": "heading",
+          "content": "Active Learning and Engagement",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Passive learning, such as simply re-reading notes or highlighting text, is often ineffective for long-term retention. Active learning strategies require you to engage with the material in a meaningful way, leading to deeper understanding and better recall."
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**Active Recall**: Instead of just re-reading, actively test yourself. After reading a section, close your book and try to recall the main points. Use flashcards, practice questions, or explain the concept aloud to yourself."
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "**Spaced Repetition**: Review information at increasing intervals over time. This method leverages how our brains forget and remember, strengthening memory traces with each review. Many digital flashcard apps (like Anki) are built on this principle."
+        },
+        {
+          "type": "callout",
+          "style": "warning",
+          "content": "**Elaborative Interrogation**: Ask 'why' and 'how' questions about the material. Connect new information to what you already know. This deepens understanding and creates more retrieval paths in your memory."
+        },
+        {
+          "type": "heading",
+          "content": "Note-Taking and Information Processing",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Note-taking is more than just transcribing information; it's an active process of processing and organizing what you learn. Traditional linear note-taking might not suit everyone, especially neurodiverse learners."
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Cornell Notes**: Three-section method encouraging active processing and review",
+            "**Mind Mapping**: Visual method for seeing big picture and connections",
+            "**Visual Notes (Sketchnoting)**: Combining drawings, symbols, and text"
+          ]
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "**Technology Support**: Apps like OneNote, Evernote, or Notion allow you to combine text, images, audio, and handwritten notes. Speech-to-text software can be invaluable for those who find typing or writing challenging."
+        },
+        {
+          "type": "heading",
+          "content": "Reading Comprehension and Critical Thinking",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Reading comprehension can be a significant challenge for some neurodiverse learners, particularly those with dyslexia or attention differences. Developing critical thinking skills is essential for academic success."
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Previewing**: Skim for headings, subheadings, and summaries before reading",
+            "**Active Reading**: Ask questions, make predictions, and connect ideas as you read",
+            "**Text-to-Speech**: Convert written text into spoken words for auditory processing",
+            "**Chunking Text**: Break down long paragraphs into manageable chunks"
+          ]
+        }
+      ]
     },
     {
       "id": 6,
       "title": "Turning Weaknesses into Strengths & Self-Advocacy",
       "description": "Transform challenges into competitive advantages and advocate for your needs",
+      "contentType": "text",
       "unit": "Core Modules",
-      "unitColor": "bg-purple-100 text-purple-700"
+      "unitColor": "bg-purple-100 text-purple-700",
+      "estimatedMinutes": 25,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Turning Weaknesses into Strengths & Self-Advocacy",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "This lesson focuses on reframing challenges as opportunities and developing the confidence to advocate for your learning needs. Every challenge you face as a neurodiverse learner can also be a source of unique strength."
+        },
+        {
+          "type": "heading",
+          "content": "Reframing Challenges as Strengths",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "**ADHD**: While focus can be challenging, the ability to hyperfocus and think creatively are incredible assets. Use timers and structured breaks to harness your hyperfocus productively."
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**Dyslexia**: Strong visual-spatial skills and creative problem-solving abilities often accompany dyslexia. Leverage visual learning tools and embrace your unique perspective."
+        },
+        {
+          "type": "callout",
+          "style": "warning",
+          "content": "**Autism**: Attention to detail and logical thinking are powerful strengths. Create structured routines and clear expectations to maximize your potential."
+        },
+        {
+          "type": "heading",
+          "content": "Self-Advocacy Skills",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Self-advocacy means understanding your needs and communicating them effectively to teachers, professors, and support services. It's a critical skill for academic success and beyond."
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Know Your Rights**: Understand accommodations available to you under disability laws",
+            "**Communicate Clearly**: Practice explaining your learning needs in concrete terms",
+            "**Request Support Proactively**: Don't wait until you're struggling to ask for help",
+            "**Document Everything**: Keep records of accommodations and communications",
+            "**Build Your Support Network**: Connect with disability services, counselors, and mentors"
+          ]
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "**Practice Activity**: Write a brief explanation of your learning needs that you could share with an instructor. Focus on specific accommodations that help you succeed, such as extended time on tests, quiet testing environments, or permission to record lectures."
+        }
+      ]
     },
     {
       "id": 7,
       "title": "Real-World Application and Lifelong Learning",
       "description": "Apply your new skills across all areas of life and continue growing",
+      "contentType": "text",
       "unit": "Core Modules",
-      "unitColor": "bg-yellow-100 text-yellow-700"
+      "unitColor": "bg-yellow-100 text-yellow-700",
+      "estimatedMinutes": 20,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Real-World Application and Lifelong Learning",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "The strategies and techniques you've learned in this course aren't just for academic settings—they're life skills that will serve you in your career, relationships, and personal growth."
+        },
+        {
+          "type": "heading",
+          "content": "Applying Learning Strategies Beyond the Classroom",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Workplace Success**: Use executive functioning strategies for project management and time management",
+            "**Personal Development**: Apply active learning techniques to new hobbies and skills",
+            "**Relationship Building**: Use metacognitive skills to understand and communicate your needs",
+            "**Health and Wellness**: Implement organizational systems for managing appointments and medications"
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Building a Lifelong Learning Mindset",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Lifelong learning means staying curious, adaptable, and open to growth throughout your life. For neurodiverse individuals, this mindset is particularly powerful."
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "**Growth Mindset**: Embrace challenges as opportunities to grow. Remember that your abilities can be developed through dedication and hard work."
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "**Reflection**: Think about a skill or area of knowledge you'd like to develop in the next year. What strategies from this course can you apply? What accommodations or support might you need?"
+        },
+        {
+          "type": "heading",
+          "content": "Creating Your Personalized Learning Plan",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Use everything you've learned to create a sustainable, personalized learning system that works with your unique brain. Review your learning profile, favorite strategies, and support resources. Set realistic goals and build in regular reflection time."
+        }
+      ]
     },
     {
       "id": 8,
       "title": "Case Studies & Success Stories",
       "description": "Explore real-world examples and success stories from neurodiverse learners",
+      "contentType": "text",
       "unit": "Advanced Modules",
-      "unitColor": "bg-indigo-100 text-indigo-700"
+      "unitColor": "bg-indigo-100 text-indigo-700",
+      "estimatedMinutes": 30,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Case Studies & Success Stories",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Learning from others who have successfully navigated similar challenges can be incredibly inspiring and instructive. This lesson presents real-world case studies of neurodiverse learners who transformed their educational experiences."
+        },
+        {
+          "type": "heading",
+          "content": "Case Study 1: Alex - The Hyperfocused Engineer (ADHD)",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**Background**: Alex, a university engineering student with ADHD, struggled with time management and initiating tasks. Despite his passion for problem-solving, he often found himself procrastinating and then hyperfocusing to the point of exhaustion."
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "**Strategies Applied**: Alex adopted the Pomodoro Technique for studying, breaking work into 25-minute focused bursts. He used a digital calendar to block out study times and set reminders. For note-taking, he experimented with mind mapping for conceptual subjects, which allowed him to visually connect complex ideas."
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "**Outcomes**: Alex's grades improved significantly. He learned to harness his hyperfocus productively while also taking necessary breaks. He became confident in advocating for his needs with professors."
+        },
+        {
+          "type": "heading",
+          "content": "Case Study 2: Maya - The Visual Storyteller (Dyslexia)",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**Background**: Maya, studying English Literature, has dyslexia. Reading was slow and exhausting, making it difficult to keep up with assigned texts."
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "**Strategies Applied**: Maya embraced text-to-speech software to listen to readings, allowing her to process information auditorily. She used visual notes (sketchnoting) during lectures, drawing symbols and diagrams to represent key themes. She worked with her school's learning support specialist to secure accommodations."
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "**Outcomes**: Maya not only succeeded academically but developed a unique voice in her writing. Understanding her dyslexia as a different way of processing information boosted her confidence. She began to see her strong visual-spatial reasoning as a direct benefit."
+        },
+        {
+          "type": "heading",
+          "content": "Case Study 3: Ben - The Detail-Oriented Scientist (Autism)",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Ben's attention to detail and systematic thinking made him excel in biology, but he struggled with group projects and unstructured assignments. By creating detailed schedules, using visual checklists, and communicating his needs to group members, Ben learned to leverage his strengths while managing challenges. He now mentors other neurodiverse students."
+        }
+      ]
     },
     {
       "id": 9,
       "title": "Advanced Executive Functioning Mastery",
       "description": "Master advanced organizational systems and executive functioning strategies",
+      "contentType": "text",
       "unit": "Advanced Modules",
-      "unitColor": "bg-indigo-100 text-indigo-700"
+      "unitColor": "bg-indigo-100 text-indigo-700",
+      "estimatedMinutes": 25,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Advanced Executive Functioning Mastery",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Building on the foundational executive functioning skills, this lesson introduces advanced techniques for managing complex projects, multiple responsibilities, and long-term goals."
+        },
+        {
+          "type": "heading",
+          "content": "Advanced Planning Techniques",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Project Mapping**: Break down semester-long projects into weekly milestones",
+            "**Backward Planning**: Start with deadlines and work backward to create timelines",
+            "**Buffer Time**: Build in extra time for unexpected challenges or hyperfocus sessions",
+            "**Energy Management**: Plan demanding tasks during your peak focus times"
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Managing Multiple Priorities",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "**The 1-3-5 Rule**: Each day, plan to accomplish 1 big thing, 3 medium things, and 5 small things. This keeps your workload manageable while ensuring progress on important goals."
+        },
+        {
+          "type": "callout",
+          "style": "warning",
+          "content": "**Context Switching**: Minimize the cognitive load of switching between tasks by batching similar activities together. For example, check emails only at designated times rather than constantly throughout the day."
+        },
+        {
+          "type": "heading",
+          "content": "Advanced Focus Strategies",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Learn to identify and eliminate productivity killers, create distraction-free zones, use website blockers during focus time, and develop pre-focus rituals that signal your brain it's time to work."
+        }
+      ]
     },
     {
       "id": 10,
       "title": "Advanced Study Techniques",
       "description": "Explore sophisticated study methods and memory enhancement techniques",
+      "contentType": "text",
       "unit": "Advanced Modules",
-      "unitColor": "bg-red-100 text-red-700"
+      "unitColor": "bg-red-100 text-red-700",
+      "estimatedMinutes": 30,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Advanced Study Techniques",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "This lesson introduces advanced learning strategies that go beyond basic study skills, helping you master complex material and retain information long-term."
+        },
+        {
+          "type": "heading",
+          "content": "The Feynman Technique",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "Named after physicist Richard Feynman, this technique helps you understand concepts deeply: 1) Choose a concept, 2) Teach it to a child (use simple language), 3) Identify gaps in your understanding, 4) Review and simplify further."
+        },
+        {
+          "type": "heading",
+          "content": "Memory Palaces and Mnemonic Devices",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Memory palaces (method of loci) involve mentally placing information in familiar locations. Walk through your house and 'place' facts in different rooms. Mnemonic devices like acronyms, rhymes, and visual associations can make abstract information concrete and memorable."
+        },
+        {
+          "type": "heading",
+          "content": "Interleaving and Varied Practice",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "Instead of studying one topic at a time (blocked practice), mix different topics and problem types (interleaved practice). This makes learning more challenging but significantly improves long-term retention and transfer of knowledge."
+        },
+        {
+          "type": "heading",
+          "content": "Metacognitive Monitoring",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Advanced metacognition involves constantly monitoring your understanding and adjusting your strategies. Use practice tests to identify weak areas, teach concepts to others to solidify understanding, and regularly review and update your learning strategies based on what works."
+        }
+      ]
     },
     {
       "id": 11,
       "title": "Expanded Interactive Worksheets",
       "description": "Access comprehensive worksheets and practical tools for all learning scenarios",
+      "contentType": "text",
       "unit": "Advanced Modules",
-      "unitColor": "bg-red-100 text-red-700"
+      "unitColor": "bg-red-100 text-red-700",
+      "estimatedMinutes": 20,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Expanded Interactive Worksheets",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "This comprehensive collection of worksheets and templates covers every aspect of your learning journey, from daily planning to long-term goal setting."
+        },
+        {
+          "type": "heading",
+          "content": "Advanced Planning Templates",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Semester Project Planner**: Map out long-term projects with milestones and checkpoints",
+            "**Energy Tracker**: Monitor your energy levels to identify optimal study times",
+            "**Focus Session Log**: Track your productivity patterns and adjust strategies",
+            "**Accommodation Request Template**: Structured format for requesting academic support"
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Specialized Note-Taking Systems",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**Subject-Specific Templates**: Customized note-taking formats for STEM subjects, literature analysis, historical events, and language learning. Each template is designed to capture the unique structure of that subject matter."
+        },
+        {
+          "type": "heading",
+          "content": "Assessment and Progress Tracking",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Use comprehensive self-assessment tools to track your progress over time. Monthly check-ins help you see patterns, celebrate growth, and adjust strategies as needed."
+        }
+      ]
     },
     {
       "id": 12,
       "title": "Enhanced Assessment Suite",
       "description": "Complete comprehensive assessments to track your learning progress",
+      "contentType": "text",
       "unit": "Assessment & Resources",
-      "unitColor": "bg-orange-100 text-orange-700"
+      "unitColor": "bg-orange-100 text-orange-700",
+      "estimatedMinutes": 25,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Enhanced Assessment Suite",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "This lesson provides a comprehensive suite of assessment tools to help you understand your learning profile, track your progress, and identify areas for growth."
+        },
+        {
+          "type": "heading",
+          "content": "Learning Style Inventory",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "Complete a detailed learning style assessment to understand your preferences for visual, auditory, and kinesthetic learning. This helps you choose the most effective study strategies for your neurotype."
+        },
+        {
+          "type": "heading",
+          "content": "Executive Functioning Self-Assessment",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Evaluate your current executive functioning skills across multiple domains: planning, organization, time management, working memory, and emotional regulation. Identify your strongest areas and those where you need additional strategies or support."
+        },
+        {
+          "type": "heading",
+          "content": "Module Knowledge Checks",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Understanding Neurodiversity Quiz**: Test your knowledge of neurodiversity concepts",
+            "**Executive Functioning Quiz**: Assess your understanding of organizational strategies",
+            "**Study Techniques Quiz**: Evaluate your grasp of effective learning methods",
+            "**Self-Advocacy Quiz**: Check your ability to communicate and advocate for needs"
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Progress Tracking Tools",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "Use monthly self-assessment check-ins to track your growth over time. Compare your current skills and confidence levels to where you started. Celebrate your progress and identify new goals."
+        }
+      ]
     },
     {
       "id": 13,
       "title": "Instructor Resources & Teaching Methods",
       "description": "Comprehensive resources for educators working with neurodiverse learners",
+      "contentType": "text",
       "unit": "Assessment & Resources",
-      "unitColor": "bg-orange-100 text-orange-700"
+      "unitColor": "bg-orange-100 text-orange-700",
+      "estimatedMinutes": 35,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Instructor Resources & Teaching Methods",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "This comprehensive guide provides educators with evidence-based strategies and practical tools for supporting neurodiverse learners in any educational setting."
+        },
+        {
+          "type": "heading",
+          "content": "Universal Design for Learning (UDL) Principles",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**Multiple Means of Representation**: Present information in various formats (visual, auditory, text) to accommodate different learning styles and processing needs."
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "**Multiple Means of Action and Expression**: Allow students to demonstrate knowledge in different ways—written assignments, oral presentations, projects, or creative works."
+        },
+        {
+          "type": "callout",
+          "style": "warning",
+          "content": "**Multiple Means of Engagement**: Provide choices in learning activities and topics to increase motivation and engagement for students with diverse interests and strengths."
+        },
+        {
+          "type": "heading",
+          "content": "Creating a Neuro-Affirming Environment",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Use strengths-based language**: Focus on abilities rather than deficits",
+            "**Normalize accommodations**: Make them available to all students without stigma",
+            "**Provide structure and predictability**: Clear schedules and expectations reduce anxiety",
+            "**Allow for sensory needs**: Flexible seating, movement breaks, fidget tools",
+            "**Build relationships**: Take time to understand each student's unique profile"
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Facilitation Tips",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Break complex information into manageable chunks. Use visual aids and hands-on activities. Allow processing time after questions. Provide both verbal and written instructions. Create opportunities for movement and breaks. Use positive reinforcement and celebrate small wins."
+        },
+        {
+          "type": "heading",
+          "content": "Module-by-Module Teaching Guide",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "Each module includes: key discussion points, activity instructions, anticipated student questions, differentiation strategies, and assessment suggestions. The guide helps instructors adapt content for different age groups and learning contexts."
+        }
+      ]
     },
     {
       "id": 14,
       "title": "Instructor Dashboard & Analytics",
       "description": "Advanced tools for tracking student progress and optimizing instruction",
+      "contentType": "text",
       "unit": "Assessment & Resources",
-      "unitColor": "bg-gray-100 text-gray-700"
+      "unitColor": "bg-gray-100 text-gray-700",
+      "estimatedMinutes": 20,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Instructor Dashboard & Analytics",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "This lesson introduces instructors to powerful analytics tools for monitoring student engagement, identifying struggling learners, and measuring the effectiveness of interventions."
+        },
+        {
+          "type": "heading",
+          "content": "Student Progress Tracking",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Lesson Completion Rates**: Monitor which students have completed each module",
+            "**Time Spent Analysis**: Identify students who may be struggling with certain concepts",
+            "**Assessment Performance**: Track quiz scores and self-assessment results",
+            "**Engagement Metrics**: See which students are actively participating"
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Identifying At-Risk Students",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "warning",
+          "content": "Early intervention is crucial. The dashboard flags students who haven't logged in recently, are falling behind on assignments, or showing signs of struggle. This allows instructors to reach out proactively with support."
+        },
+        {
+          "type": "heading",
+          "content": "Class-Wide Analytics",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "View aggregate data to understand class trends. Which lessons are most challenging? Where do students excel? Use this data to adjust pacing, provide additional resources, or modify instruction."
+        },
+        {
+          "type": "heading",
+          "content": "Measuring Success and Growth",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "Compare pre and post-course assessments to measure learning gains. Track confidence levels, strategy use, and self-advocacy skills over time. Celebrate growth with students and use data to demonstrate program effectiveness."
+        }
+      ]
     }
   ]
 }
