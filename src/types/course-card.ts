@@ -52,5 +52,6 @@ export interface CourseCardBadge {
 
 export interface OrgCatalogResponse {
   platform: CourseCard[];
+  draft?: CourseCard[];
   org: CourseCard[];
 }

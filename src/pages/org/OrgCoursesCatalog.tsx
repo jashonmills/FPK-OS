@@ -30,7 +30,9 @@ import {
   Target,
   Clock,
   CheckCircle,
-  UserPlus
+  UserPlus,
+  ChevronDown,
+  Sparkles
 } from 'lucide-react';
 import PageShell from '@/components/dashboard/PageShell';
 import { CourseCreationWizard } from '@/components/course-builder/CourseCreationWizard';
@@ -46,6 +48,7 @@ import { BulkEnrollButton } from '@/components/org/BulkEnrollButton';
 import { convertEnhancedCourseToCard } from '@/utils/courseConversion';
 import { cn } from '@/lib/utils';
 import type { CourseCard } from '@/types/course-card';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 type ViewType = 'grid' | 'list' | 'compact';
 
@@ -90,7 +93,8 @@ export default function OrgCoursesCatalog() {
   const { 
     catalog, 
     isLoading, 
-    platformCourses, 
+    platformCourses,
+    draftCourses,
     orgCourses,
     error 
   } = useOrgCatalog();
@@ -459,6 +463,11 @@ export default function OrgCoursesCatalog() {
     course.description?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const filteredDraftCourses = draftCourses.filter(course =>
+    course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    course.description?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const filteredOrgCourses = orgCourses.filter(course =>
     course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     course.description?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -482,13 +491,16 @@ export default function OrgCoursesCatalog() {
         progressPercentage: totalCourses > 0 ? Math.round((completedAssignments / totalCourses) * 100) : 0
       };
     } else {
-      const totalCourses = platformCourses.length + orgCourses.length;
+      const totalCourses = platformCourses.length + draftCourses.length + orgCourses.length;
+      const activeCourses = platformCourses.length + orgCourses.length;
       const publishedCourses = [...platformCourses, ...orgCourses].filter(
         course => course.status === 'published'
       ).length;
       
       return {
         totalCourses,
+        activeCourses,
+        comingSoonCount: draftCourses.length,
         platformCoursesCount: platformCourses.length,
         orgCoursesCount: orgCourses.length,
         publishedCourses
@@ -721,10 +733,21 @@ export default function OrgCoursesCatalog() {
                 <Card className="bg-orange-500/65 border-orange-400/50">
                   <CardContent className="p-3 md:p-4">
                     <div className="flex items-center gap-2">
-                      <Star className="w-4 h-4 md:w-5 md:h-5 text-white flex-shrink-0" />
+                      <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-white flex-shrink-0" />
                       <div className="min-w-0">
-                        <p className="text-xs md:text-sm font-medium text-white truncate">Platform</p>
-                        <p className="text-lg md:text-2xl font-semibold text-white">{statistics.platformCoursesCount}</p>
+                        <p className="text-xs md:text-sm font-medium text-white truncate">Available Now</p>
+                        <p className="text-lg md:text-2xl font-semibold text-white">{statistics.activeCourses}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-orange-500/65 border-orange-400/50">
+                  <CardContent className="p-3 md:p-4">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-amber-300 flex-shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-xs md:text-sm font-medium text-white truncate">Coming Soon</p>
+                        <p className="text-lg md:text-2xl font-semibold text-white">{statistics.comingSoonCount}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -736,17 +759,6 @@ export default function OrgCoursesCatalog() {
                       <div className="min-w-0">
                         <p className="text-xs md:text-sm font-medium text-white truncate">Organization</p>
                         <p className="text-lg md:text-2xl font-semibold text-white">{statistics.orgCoursesCount}</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card className="bg-orange-500/65 border-orange-400/50">
-                  <CardContent className="p-3 md:p-4">
-                    <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4 md:w-5 md:h-5 text-white flex-shrink-0" />
-                      <div className="min-w-0">
-                        <p className="text-xs md:text-sm font-medium text-white truncate">Published</p>
-                        <p className="text-lg md:text-2xl font-semibold text-white">{statistics.publishedCourses}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -862,6 +874,11 @@ export default function OrgCoursesCatalog() {
                   <Star className="h-5 w-5 text-primary" />
                   <h2 className="text-xl font-semibold">Platform Courses</h2>
                   <Badge variant="secondary">{filteredPlatformCourses.length}</Badge>
+                  {filteredDraftCourses.length > 0 && (
+                    <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300">
+                      +{filteredDraftCourses.length} Coming Soon
+                    </Badge>
+                  )}
                   {bulkMode && selectedCourseIds.length > 0 && (
                     <Badge variant="default" className="ml-auto">
                       {selectedCourseIds.length} selected
@@ -894,6 +911,45 @@ export default function OrgCoursesCatalog() {
                   </div>
                 )}
               </div>
+
+              {/* Coming Soon - Collapsible Section */}
+              {filteredDraftCourses.length > 0 && (
+                <div className="mt-6">
+                  <Collapsible defaultOpen={false}>
+                    <CollapsibleTrigger className="flex items-center justify-between w-full group">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="h-5 w-5 text-amber-500" />
+                        <h3 className="text-lg font-semibold">Coming Soon</h3>
+                        <Badge variant="outline" className="bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300">
+                          {filteredDraftCourses.length}
+                        </Badge>
+                        <Badge variant="secondary" className="text-xs">
+                          In Development
+                        </Badge>
+                      </div>
+                      <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
+                    </CollapsibleTrigger>
+                    
+                    <CollapsibleContent className="mt-4">
+                      <div className={cn(
+                        getResponsiveGridClasses(viewType),
+                        "bg-amber-400/10 backdrop-blur-sm border border-amber-300/30 rounded-lg p-4"
+                      )}>
+                        {filteredDraftCourses.map((course) => (
+                          <EnhancedCourseCard
+                            key={course.id}
+                            course={toCourseCardModel(course)}
+                            actions={createCourseActions(false)}
+                            viewType={viewType}
+                            selectionMode={false}
+                            isSelected={false}
+                          />
+                        ))}
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
+                </div>
+              )}
 
               {/* Divider */}
               <Separator />

@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { assertOrg } from '@/lib/org/context';
 import type { CourseCard, OrgCatalogResponse, CourseCardBadge } from '@/types/course-card';
+import { NEW_COURSE_IDS } from '@/utils/newCourseIds';
 
 interface PlatformCourse {
   id: string;
@@ -213,13 +214,27 @@ export function useOrgCatalog() {
           org: mapOrgCoursesToCards(orgCourses, orgId)
         };
       } else {
-        // For instructors/owners, fetch all courses
+        // For instructors/owners, fetch all courses (published + draft new courses)
         console.log('[useOrgCatalog] Fetching all platform courses with RPC...');
         const { data: platformCourses, error: platformError } = await supabase.rpc('get_published_courses');
 
         if (platformError) {
           console.error('Error fetching platform courses:', platformError);
           throw platformError;
+        }
+
+        // Fetch draft courses (coming soon)
+        console.log('[useOrgCatalog] Fetching draft courses...');
+        const { data: draftCourses, error: draftError } = await supabase
+          .from('courses')
+          .select('*')
+          .eq('status', 'draft')
+          .eq('course_visibility', 'global')
+          .in('id', Array.from(NEW_COURSE_IDS))
+          .order('title', { ascending: true });
+
+        if (draftError) {
+          console.error('Error fetching draft courses:', draftError);
         }
 
         const { data: orgCourses, error: orgError } = await supabase
@@ -235,10 +250,12 @@ export function useOrgCatalog() {
         }
 
         console.log('useOrgCatalog - Platform courses:', platformCourses?.length || 0);
+        console.log('useOrgCatalog - Draft courses:', draftCourses?.length || 0);
         console.log('useOrgCatalog - Org courses:', orgCourses?.length || 0);
 
         return {
           platform: mapPlatformCoursesToCards(platformCourses || []),
+          draft: mapPlatformCoursesToCards(draftCourses || []),
           org: mapOrgCoursesToCards(orgCourses || [], orgId)
         };
       }
@@ -254,6 +271,7 @@ export function useOrgCatalog() {
     error,
     refetch,
     platformCourses: data?.platform || [],
+    draftCourses: data?.draft || [],
     orgCourses: data?.org || [],
   };
 }
