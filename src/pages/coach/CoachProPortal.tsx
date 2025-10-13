@@ -3,7 +3,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Navigate } from 'react-router-dom';
 import { SessionHistory } from '@/components/coach/SessionHistory';
 import { HeaderAnalytics } from '@/components/coach/HeaderAnalytics';
-import { AnalyticsDashboardModal } from '@/components/coach/AnalyticsDashboardModal';
+import { AnalyticsDashboardModal } from '@/components/coach/analytics/AnalyticsDashboardModal';
 import { PomodoroTimer } from '@/components/coach/PomodoroTimer';
 import StandaloneAIStudyCoachChat from '@/components/StandaloneAIStudyCoachChat';
 import { CreditBalanceDisplay } from '@/components/coach/CreditBalanceDisplay';

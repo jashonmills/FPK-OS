@@ -9798,9 +9798,21 @@ export type Database = {
           enrollments: number
         }[]
       }
+      get_coach_activity_heatmap: {
+        Args: { p_date_range?: string; p_user_id: string }
+        Returns: Json
+      }
+      get_coach_dashboard_kpis: {
+        Args: { p_date_range?: string; p_user_id: string }
+        Returns: Json
+      }
       get_coach_learning_time: {
         Args: { p_source?: string; p_user_id: string } | { p_user_id: string }
         Returns: number
+      }
+      get_coach_mastery_over_time: {
+        Args: { p_date_range?: string; p_user_id: string }
+        Returns: Json
       }
       get_coach_mastery_score: {
         Args: { p_source?: string; p_user_id: string } | { p_user_id: string }
@@ -9813,6 +9825,18 @@ export type Database = {
       get_coach_streak: {
         Args: { p_source?: string; p_user_id: string } | { p_user_id: string }
         Returns: number
+      }
+      get_coach_time_by_day: {
+        Args: { p_date_range?: string; p_user_id: string }
+        Returns: Json
+      }
+      get_coach_time_by_hour: {
+        Args: { p_date_range?: string; p_user_id: string }
+        Returns: Json
+      }
+      get_coach_topic_breakdown: {
+        Args: { p_date_range?: string; p_user_id: string }
+        Returns: Json
       }
       get_coach_topics: {
         Args: { p_source?: string; p_user_id: string } | { p_user_id: string }
