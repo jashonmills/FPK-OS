@@ -11,6 +11,8 @@ export const V2_SEQUENTIAL_COURSE_SLUGS = [
   'empowering-learning-numeracy',
   'empowering-learning-reading',
   'optimal-learning-state',
+  'interactive-science',
+  'elt-empowering-learning-techniques',
 ] as const;
 
 export type V2SequentialCourseSlug = typeof V2_SEQUENTIAL_COURSE_SLUGS[number];
