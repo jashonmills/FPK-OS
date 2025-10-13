@@ -7,8 +7,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Brain, CheckCircle2, Sparkles, Target, MessageSquare } from 'lucide-react';
+import { Brain, CheckCircle2, Sparkles, Target, MessageSquare, X, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Badge } from '@/components/ui/badge';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import portalBackground from '@/assets/portal-background.png';
 
 /**
@@ -33,6 +39,7 @@ const CoachPortalLanding: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasAccess, setHasAccess] = useState<boolean | null>(null);
+  const [expandedFeature, setExpandedFeature] = useState<number | null>(null);
 
   const locationMessage = (location.state as any)?.message;
 
@@ -140,22 +147,73 @@ const CoachPortalLanding: React.FC = () => {
     {
       icon: Brain,
       title: 'AI-Powered Learning',
-      description: 'Advanced AI that adapts to your learning style and pace'
+      description: 'Advanced AI that adapts to your learning style and pace, providing personalized recommendations and insights tailored to your unique needs.'
     },
     {
       icon: MessageSquare,
       title: 'Socratic Dialogue',
-      description: 'Learn through guided questions and exploration'
+      description: 'Learn through guided questions and exploration. Our AI coach uses the Socratic method to deepen understanding and critical thinking.'
     },
     {
       icon: Target,
       title: 'Personalized Guidance',
-      description: 'Tailored coaching based on your goals and progress'
+      description: 'Tailored coaching based on your goals and progress. Track your journey and receive custom strategies to accelerate your learning.'
     },
     {
       icon: Sparkles,
       title: 'Continuous Support',
-      description: '24/7 access to your personal AI study coach'
+      description: '24/7 access to your personal AI study coach. Get help whenever you need it, whether you\'re studying late at night or early in the morning.'
+    }
+  ];
+
+  const subscriptionTiers = [
+    {
+      name: 'Basic',
+      tier: 'basic',
+      price: '$29',
+      period: 'month',
+      badge: 'Starter',
+      features: [
+        '50 AI chat messages/month',
+        '30 minutes voice processing',
+        'Basic progress tracking',
+        'Email support',
+        'Study session analytics'
+      ]
+    },
+    {
+      name: 'Pro',
+      tier: 'pro',
+      price: '$49',
+      period: 'month',
+      badge: 'Most Popular',
+      popular: true,
+      features: [
+        '200 AI chat messages/month',
+        '120 minutes voice processing',
+        'Advanced analytics dashboard',
+        'Priority support',
+        'Custom study schedules',
+        'Document processing',
+        'Flashcard generation'
+      ]
+    },
+    {
+      name: 'Pro+',
+      tier: 'pro_plus',
+      price: '$79',
+      period: 'month',
+      badge: 'Premium',
+      features: [
+        'Unlimited AI interactions',
+        'Unlimited voice processing',
+        'Full analytics suite',
+        'Dedicated support',
+        'White-label options',
+        'API access',
+        'Early feature access',
+        'Advanced integrations'
+      ]
     }
   ];
 
@@ -187,13 +245,13 @@ const CoachPortalLanding: React.FC = () => {
           </div>
         </div>
 
-        {/* Main Content */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Left: Features & Description */}
-            <div className="space-y-8">
+        {/* Hero Section - Two Column Layout */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-16">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+            {/* Left Column: Value Proposition & Features */}
+            <div className="space-y-6">
               <div>
-                <h2 className="text-3xl sm:text-4xl font-bold mb-4 text-white drop-shadow-lg">
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 text-white drop-shadow-lg">
                   Unlock Your Learning Potential
                 </h2>
                 <p className="text-lg text-white/90 drop-shadow-md">
@@ -201,30 +259,54 @@ const CoachPortalLanding: React.FC = () => {
                 </p>
               </div>
 
-              <div className="grid gap-4">
+              {/* 2x2 Feature Grid - Interactive Tiles */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {features.map((feature, index) => {
                   const IconComponent = feature.icon;
+                  const isExpanded = expandedFeature === index;
+                  
                   return (
-                    <div key={index} className="flex items-start gap-4 p-4 rounded-lg bg-black/40 border border-white/20 hover:border-white/40 hover:bg-black/50 transition-all backdrop-blur-sm">
-                      <div className="flex-shrink-0 p-2 bg-white/10 rounded-lg">
-                        <IconComponent className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold mb-1 text-white">{feature.title}</h3>
-                        <p className="text-sm text-white/80">{feature.description}</p>
-                      </div>
-                    </div>
+                    <Collapsible
+                      key={index}
+                      open={isExpanded}
+                      onOpenChange={(open) => setExpandedFeature(open ? index : null)}
+                    >
+                      <Card className="bg-white/10 backdrop-blur-lg border border-white/20 hover:border-white/40 transition-all group overflow-hidden">
+                        <CollapsibleTrigger asChild>
+                          <button className="w-full p-4 text-left cursor-pointer">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <div className="flex-shrink-0 p-2 bg-white/10 rounded-lg group-hover:bg-white/20 transition-colors">
+                                  <IconComponent className="w-5 h-5 text-white" />
+                                </div>
+                                <h3 className="font-semibold text-white text-sm">{feature.title}</h3>
+                              </div>
+                              {isExpanded && (
+                                <X className="w-4 h-4 text-white/60 flex-shrink-0" />
+                              )}
+                            </div>
+                          </button>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                          <div className="px-4 pb-4 pt-2">
+                            <p className="text-sm text-white/80 leading-relaxed">
+                              {feature.description}
+                            </p>
+                          </div>
+                        </CollapsibleContent>
+                      </Card>
+                    </Collapsible>
                   );
                 })}
               </div>
             </div>
 
-            {/* Right: Auth Form */}
-            <div>
-              <Card className="shadow-2xl bg-white/95 backdrop-blur-md border-white/20">
+            {/* Right Column: Auth Form with Glassmorphic Style */}
+            <div className="lg:sticky lg:top-8">
+              <Card className="shadow-2xl bg-white/10 backdrop-blur-lg border border-white/20">
               <CardHeader>
-                <CardTitle>{isLogin ? 'Sign In' : 'Create Account'}</CardTitle>
-                <CardDescription>
+                <CardTitle className="text-white text-xl">{isLogin ? 'Sign In' : 'Create Account'}</CardTitle>
+                <CardDescription className="text-white/80">
                   {isLogin 
                     ? 'Access your AI Study Coach portal'
                     : 'Get started with AI-powered learning'}
@@ -254,7 +336,7 @@ const CoachPortalLanding: React.FC = () => {
 
                 <form onSubmit={handleAuth} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email" className="text-white">Email</Label>
                     <Input
                       id="email"
                       type="email"
@@ -263,11 +345,12 @@ const CoachPortalLanding: React.FC = () => {
                       onChange={(e) => setEmail(e.target.value)}
                       required
                       disabled={isLoading}
+                      className="bg-white/20 border-white/30 text-white placeholder:text-white/60"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
+                    <Label htmlFor="password" className="text-white">Password</Label>
                     <Input
                       id="password"
                       type="password"
@@ -277,6 +360,7 @@ const CoachPortalLanding: React.FC = () => {
                       required
                       disabled={isLoading}
                       minLength={6}
+                      className="bg-white/20 border-white/30 text-white placeholder:text-white/60"
                     />
                   </div>
 
@@ -302,7 +386,7 @@ const CoachPortalLanding: React.FC = () => {
                       setIsLogin(!isLogin);
                       setError(null);
                     }}
-                    className="text-primary hover:underline"
+                    className="text-white hover:text-white/80 hover:underline transition-colors"
                     disabled={isLoading}
                   >
                     {isLogin
@@ -312,8 +396,8 @@ const CoachPortalLanding: React.FC = () => {
                 </div>
 
                 {!isLogin && (
-                  <div className="mt-4 p-3 bg-muted rounded-lg">
-                    <p className="text-xs text-muted-foreground text-center">
+                  <div className="mt-4 p-3 bg-white/10 rounded-lg border border-white/20">
+                    <p className="text-xs text-white/80 text-center">
                       After signup, you'll need to request AI Coach access. Contact support or check your email for instructions.
                     </p>
                   </div>
@@ -321,9 +405,77 @@ const CoachPortalLanding: React.FC = () => {
               </CardContent>
             </Card>
           </div>
+          </div>
+        </div>
+
+        {/* Subscription Tiers Section */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4 drop-shadow-lg">
+              Choose Your Plan
+            </h2>
+            <p className="text-lg text-white/90 drop-shadow-md max-w-2xl mx-auto">
+              Select the perfect plan to unlock your full learning potential with our AI-powered study coach.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
+            {subscriptionTiers.map((tier) => (
+              <Card 
+                key={tier.tier}
+                className={`relative bg-white/10 backdrop-blur-lg border transition-all ${
+                  tier.popular 
+                    ? 'border-white/40 ring-2 ring-white/30 shadow-2xl scale-105' 
+                    : 'border-white/20 hover:border-white/30'
+                }`}
+              >
+                {tier.popular && (
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                    <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0 px-4 py-1">
+                      {tier.badge}
+                    </Badge>
+                  </div>
+                )}
+                
+                <CardHeader className="text-center pb-8 pt-8">
+                  {!tier.popular && (
+                    <Badge variant="outline" className="mb-2 mx-auto bg-white/10 text-white border-white/30">
+                      {tier.badge}
+                    </Badge>
+                  )}
+                  <CardTitle className="text-2xl font-bold text-white">{tier.name}</CardTitle>
+                  <div className="mt-4">
+                    <span className="text-4xl font-bold text-white">{tier.price}</span>
+                    <span className="text-white/70 ml-2">/{tier.period}</span>
+                  </div>
+                </CardHeader>
+
+                <CardContent className="space-y-4">
+                  <ul className="space-y-3">
+                    {tier.features.map((feature, idx) => (
+                      <li key={idx} className="flex items-start gap-3">
+                        <Check className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
+                        <span className="text-white/90 text-sm">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <Button 
+                    className={`w-full mt-6 ${
+                      tier.popular
+                        ? 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600'
+                        : 'bg-white/20 hover:bg-white/30 text-white'
+                    }`}
+                    size="lg"
+                  >
+                    Get Started
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
       </div>
-    </div>
     </div>
   );
 };
