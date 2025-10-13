@@ -254,7 +254,12 @@ export default function OrgCoursesCatalog() {
         courseActions.preview(courseId);
       },
       
-      onStart: courseActions.assign,
+      onStart: (courseId: string) => {
+        // Instructors/Owners navigate to course just like students
+        const course = [...platformCourses, ...orgCourses, ...draftCourses].find(c => c.id === courseId);
+        console.log('🎓 Instructor/Owner Start Course:', { courseId, slug: course?.slug });
+        goToCourse(courseId, course?.slug);
+      },
 
       ...(isOrgCourse && {
         onEdit: courseActions.edit,
