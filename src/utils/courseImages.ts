@@ -13,11 +13,8 @@ import empoweringNumeracyBg from '@/assets/empowering-numeracy-bg.jpg';
 import empoweringReadingBg from '@/assets/empowering-reading-bg.jpg';
 import empoweringSpellingBg from '@/assets/empowering-spelling-new-bg.jpg';
 import learningStateBg from '@/assets/learning-state-course-bg.jpg';
-
-// Supabase-hosted backgrounds
-const SUPABASE_STORAGE_URL = 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-images';
-const eltBackground = `${SUPABASE_STORAGE_URL}/backgrounds/elt.png`;
-const scienceCourseBg = `${SUPABASE_STORAGE_URL}/backgrounds/intro-science.png`;
+import eltBackground from '@/assets/elt-background-generated.jpg';
+import scienceCourseBg from '@/assets/science-background-generated.jpg';
 
 /**
  * Single source of truth for course images
