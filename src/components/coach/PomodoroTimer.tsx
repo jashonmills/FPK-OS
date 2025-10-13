@@ -9,7 +9,7 @@ import {
 import { Play, Pause, RotateCcw, Clock, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
+import { trackDailyActivity } from '@/utils/analyticsTracking';
 
 const DURATIONS = [
   { label: '15 min', minutes: 15 },
@@ -103,51 +103,10 @@ export function PomodoroTimer() {
   };
 
   const trackFocusedTime = async (minutes: number) => {
-    if (!user?.id) return;
+    if (!user?.id || minutes <= 0) return;
 
     try {
-      const today = new Date().toISOString().split('T')[0];
-      
-      // Check if entry exists for today
-      const { data: existing, error: fetchError } = await supabase
-        .from('daily_user_stats')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('stat_date', today)
-        .single();
-
-      if (fetchError && fetchError.code !== 'PGRST116') {
-        console.error('Error fetching daily stats:', fetchError);
-        return;
-      }
-
-      if (existing) {
-        // Update existing record
-        const { error: updateError } = await supabase
-          .from('daily_user_stats')
-          .update({
-            focused_study_minutes: (existing.focused_study_minutes || 0) + minutes,
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', existing.id);
-
-        if (updateError) {
-          console.error('Error updating focused time:', updateError);
-        }
-      } else {
-        // Create new record
-        const { error: insertError } = await supabase
-          .from('daily_user_stats')
-          .insert({
-            user_id: user.id,
-            stat_date: today,
-            focused_study_minutes: minutes,
-          });
-
-        if (insertError) {
-          console.error('Error inserting focused time:', insertError);
-        }
-      }
+      await trackDailyActivity('study', minutes, user.id);
     } catch (error) {
       console.error('Error tracking focused time:', error);
     }
