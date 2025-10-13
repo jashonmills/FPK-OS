@@ -14,7 +14,7 @@ import { ThemeProvider } from '@/contexts/ThemeContext';
 import { ThemeToggle } from '@/components/coach/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Menu, User, BarChart2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Menu, User, BarChart2, Brain } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 
@@ -96,33 +96,46 @@ export default function CoachProPortal() {
             <MobileAnalyticsCarousel />
           </div>
         ) : (
-          /* Desktop Header */
-          <div className="flex-shrink-0 bg-primary/10 border-b border-border p-3 flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <h1 className="text-lg font-semibold whitespace-nowrap">AI Study Coach Pro</h1>
-            </div>
+          /* Desktop: Unified Header */
+          <div className="flex-shrink-0 bg-primary/10 border-b border-border">
+            <div className="flex items-center justify-between gap-2 px-4 py-3">
+              {/* Left Zone: Logo & Title */}
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 bg-primary/20 rounded-lg flex-shrink-0">
+                    <Brain className="h-5 w-5 text-primary" />
+                  </div>
+                  <h1 className="text-base font-bold whitespace-nowrap">AI Study Coach</h1>
+                </div>
+              </div>
 
-            {/* Center: Header Analytics & Timer */}
-            <div className="hidden lg:flex flex-1 justify-center items-center gap-6">
-              <HeaderAnalytics />
-              <div className="h-8 w-px bg-border" />
-              <PomodoroTimer />
-            </div>
+              {/* Center Zone: Inline Analytics */}
+              <div className="hidden xl:flex flex-1 justify-center items-center px-4">
+                <HeaderAnalytics />
+              </div>
 
-            {/* Right: Actions */}
-            <div className="flex items-center gap-3">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setAnalyticsOpen(true)}
-                className="gap-2"
-              >
-                <BarChart2 className="h-4 w-4" />
-                <span className="hidden sm:inline">Analytics</span>
-              </Button>
-              <ThemeToggle />
-              <CreditBalanceDisplay />
-              <p className="hidden md:block text-sm text-muted-foreground">Welcome, {user.email?.split('@')[0]}</p>
+              {/* Right Zone: Tools & Actions */}
+              <div className="flex items-center gap-2 flex-wrap justify-end">
+                <div className="hidden lg:block">
+                  <PomodoroTimer />
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setAnalyticsOpen(true)}
+                  className="gap-2"
+                >
+                  <BarChart2 className="h-4 w-4" />
+                  <span className="hidden md:inline">Analytics</span>
+                </Button>
+                <ThemeToggle />
+                <CreditBalanceDisplay />
+                <div className="hidden lg:flex items-center gap-2 pl-2 border-l">
+                  <p className="text-sm text-muted-foreground">
+                    Welcome, {user.email?.split('@')[0]}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -177,36 +190,36 @@ export default function CoachProPortal() {
             {/* Left Sidebar - Session History */}
             <div
               className={cn(
-                "flex-shrink-0 transition-all duration-300 relative",
+                "flex-shrink-0 transition-all duration-300",
                 sidebarCollapsed ? "w-0" : "w-80"
               )}
             >
-              <SessionHistory
-                onSelectSession={handleSelectSession}
-                onNewSession={handleNewSession}
-                selectedSessionId={selectedSessionId}
-              />
-              
-              {/* Collapse/Expand Toggle Button */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className={cn(
-                  "absolute -right-4 top-4 z-30 flex h-8 w-8 rounded-full shadow-lg border bg-background",
-                  "hover:bg-accent transition-all duration-300"
-                )}
-                onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-              >
-                {sidebarCollapsed ? (
-                  <ChevronRight className="h-4 w-4" />
-                ) : (
-                  <ChevronLeft className="h-4 w-4" />
-                )}
-              </Button>
+              {!sidebarCollapsed && (
+                <SessionHistory
+                  onSelectSession={handleSelectSession}
+                  onNewSession={handleNewSession}
+                  selectedSessionId={selectedSessionId}
+                  isCollapsed={sidebarCollapsed}
+                  onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+                />
+              )}
             </div>
 
             {/* Center - Main Workspace */}
-            <div className="flex-1 flex flex-col overflow-hidden">
+            <div className="flex-1 flex flex-col overflow-hidden relative">
+              {/* Expand button when collapsed */}
+              {sidebarCollapsed && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute left-4 top-4 z-10 shadow-lg border bg-background"
+                  onClick={() => setSidebarCollapsed(false)}
+                  title="Expand sidebar"
+                >
+                  <Menu className="h-4 w-4" />
+                </Button>
+              )}
+              
               <div className="flex-1 overflow-hidden">
                 <StandaloneAIStudyCoachChat key={selectedSessionId || 'new'} />
               </div>
