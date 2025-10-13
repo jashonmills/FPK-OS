@@ -701,6 +701,33 @@ export type Database = {
         }
         Relationships: []
       }
+      coach_sessions: {
+        Row: {
+          created_at: string
+          id: string
+          session_data: Json | null
+          session_title: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          session_data?: Json | null
+          session_title?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          session_data?: Json | null
+          session_title?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       compliance_assessments: {
         Row: {
           action_items: Json | null

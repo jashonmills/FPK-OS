@@ -185,6 +185,11 @@ const StandaloneAIStudyCoachChat = lazy(() => import("./components/StandaloneAIS
 // AI Study Coach Portal - Phase 1: Isolated Clone
 const StandaloneAICoachPortal = lazy(() => import("./pages/portal/StandaloneAICoachPortal"));
 
+// AI Study Coach Portal - Phase 2: Access Control
+const CoachPortalLanding = lazy(() => import("./pages/coach/CoachPortalLanding"));
+const CoachLayout = lazy(() => import("./components/coach/CoachLayout").then(m => ({ default: m.CoachLayout })));
+const RequireAICoachRole = lazy(() => import("./components/guards/RequireAICoachRole").then(m => ({ default: m.RequireAICoachRole })));
+
 // Legal pages
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
@@ -310,12 +315,59 @@ const App: React.FC = () => {
             </LazyRoute>
           } />
 
-          {/* AI Study Coach Portal - Phase 1: Hidden Skunkworks Version */}
-          <Route path="/portal/ai-study-coach" element={
+          {/* AI Study Coach Portal - Phase 2: Public Landing Page */}
+          <Route path="/coach" element={
             <LazyRoute>
-              <StandaloneAICoachPortal />
+              <CoachPortalLanding />
             </LazyRoute>
           } />
+
+          {/* AI Study Coach Portal - Phase 2: Protected Routes */}
+          <Route 
+            path="/portal" 
+            element={
+              <RouteProtector>
+                <LazyRoute>
+                  <RequireAICoachRole>
+                    <CoachLayout />
+                  </RequireAICoachRole>
+                </LazyRoute>
+              </RouteProtector>
+            }
+          >
+            <Route path="ai-study-coach" element={<LazyRoute><StandaloneAICoachPortal /></LazyRoute>} />
+          </Route>
+          
+          <Route 
+            path="/coach" 
+            element={
+              <RouteProtector>
+                <LazyRoute>
+                  <RequireAICoachRole>
+                    <CoachLayout />
+                  </RequireAICoachRole>
+                </LazyRoute>
+              </RouteProtector>
+            }
+          >
+            <Route path="history" element={
+              <LazyRoute>
+                <div className="max-w-4xl mx-auto p-8">
+                  <h2 className="text-2xl font-bold mb-4">Chat History</h2>
+                  <p className="text-muted-foreground">Your coaching session history will appear here.</p>
+                </div>
+              </LazyRoute>
+            } />
+            
+            <Route path="settings" element={
+              <LazyRoute>
+                <div className="max-w-4xl mx-auto p-8">
+                  <h2 className="text-2xl font-bold mb-4">Settings</h2>
+                  <p className="text-muted-foreground">Your AI Coach settings will appear here.</p>
+                </div>
+              </LazyRoute>
+            } />
+          </Route>
 
           {/* Parent IEP Access Route - Separate from org structure */}
           <Route path="/iep/parent/:code" element={<LazyRoute><ParentIEPAccess /></LazyRoute>} />
