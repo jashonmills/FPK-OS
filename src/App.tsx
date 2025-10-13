@@ -182,6 +182,9 @@ const LogicCriticalThinkingCoursePage = lazy(() => import("./pages/courses/Logic
 // Standalone AI Study Coach Chat
 const StandaloneAIStudyCoachChat = lazy(() => import("./components/StandaloneAIStudyCoachChat"));
 
+// AI Study Coach Portal - Phase 1: Isolated Clone
+const StandaloneAICoachPortal = lazy(() => import("./pages/portal/StandaloneAICoachPortal"));
+
 // Legal pages
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
@@ -304,6 +307,13 @@ const App: React.FC = () => {
           <Route path="/ai-study-coach/chat-only" element={
             <LazyRoute>
               <StandaloneAIStudyCoachChat />
+            </LazyRoute>
+          } />
+
+          {/* AI Study Coach Portal - Phase 1: Hidden Skunkworks Version */}
+          <Route path="/portal/ai-study-coach" element={
+            <LazyRoute>
+              <StandaloneAICoachPortal />
             </LazyRoute>
           } />
 
