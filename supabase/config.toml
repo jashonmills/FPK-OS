@@ -32,7 +32,9 @@ enable_confirmations = true
 enable_signup = true
 double_confirm_email = false
 enable_confirmations = true
-# DO NOT add any send_email hook here - use SMTP only
+
+[functions.get-credit-balance]
+verify_jwt = false
 
 [functions.send-invitation-email]
 verify_jwt = false

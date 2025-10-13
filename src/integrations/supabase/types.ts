@@ -112,6 +112,42 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_credit_transactions: {
+        Row: {
+          amount: number
+          balance_after: number
+          balance_before: number
+          created_at: string
+          id: string
+          metadata: Json | null
+          session_id: string | null
+          transaction_type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          balance_after: number
+          balance_before: number
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          session_id?: string | null
+          transaction_type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          balance_after?: number
+          balance_before?: number
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          session_id?: string | null
+          transaction_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       ai_inbox: {
         Row: {
           confidence: number
@@ -6077,6 +6113,7 @@ export type Database = {
         Row: {
           access_scope: string | null
           ai_autoplay_voice: boolean
+          ai_credits: number
           ai_hint_aggressiveness: number
           ai_interaction_style: string
           ai_voice_enabled: boolean
@@ -6129,6 +6166,7 @@ export type Database = {
         Insert: {
           access_scope?: string | null
           ai_autoplay_voice?: boolean
+          ai_credits?: number
           ai_hint_aggressiveness?: number
           ai_interaction_style?: string
           ai_voice_enabled?: boolean
@@ -6181,6 +6219,7 @@ export type Database = {
         Update: {
           access_scope?: string | null
           ai_autoplay_voice?: boolean
+          ai_credits?: number
           ai_hint_aggressiveness?: number
           ai_interaction_style?: string
           ai_voice_enabled?: boolean
@@ -9569,6 +9608,15 @@ export type Database = {
           success: boolean
         }[]
       }
+      add_ai_credits: {
+        Args: {
+          p_amount: number
+          p_metadata?: Json
+          p_transaction_type: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
       auth_is_admin: {
         Args: Record<PropertyKey, never>
         Returns: boolean
@@ -9659,6 +9707,16 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      deduct_ai_credits: {
+        Args: {
+          p_amount: number
+          p_metadata?: Json
+          p_session_id?: string
+          p_transaction_type: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
       detect_security_incident: {
         Args: {
           p_affected_systems?: Json
@@ -9705,6 +9763,10 @@ export type Database = {
       get_admin_analytics: {
         Args: Record<PropertyKey, never>
         Returns: Json
+      }
+      get_ai_credits: {
+        Args: { p_user_id: string }
+        Returns: number
       }
       get_analytics_by_role: {
         Args: { p_org_id?: string; p_scope?: string; p_time_range?: unknown }
@@ -9944,6 +10006,10 @@ export type Database = {
       }
       is_admin: {
         Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      is_admin_or_coach_user: {
+        Args: { check_user_id: string }
         Returns: boolean
       }
       is_org_member: {

@@ -101,6 +101,86 @@ serve(async (req) => {
 
     const requestParseTime = performance.now() - requestParseStart;
 
+    // PHASE 2: CREDIT SYSTEM - Check and deduct credits before processing
+    // Determine if this is a Socratic session (costs 2 credits) or free chat (costs 1 credit)
+    const isSocraticMessage = !!(socraticMode || intent || isStructuredMode);
+    const creditCost = isSocraticMessage ? 2 : 1;
+
+    console.log('💳 Credit check:', {
+      userId,
+      isSocratic: isSocraticMessage,
+      creditCost,
+      intent,
+      socraticMode
+    });
+
+    // Admin bypass check - create Supabase client
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
+    const { data: isAdminUser, error: adminCheckError } = await supabase
+      .rpc('is_admin_or_coach_user', { check_user_id: userId });
+
+    if (adminCheckError) {
+      console.error('❌ Admin check error:', adminCheckError);
+    }
+
+    // If not admin, enforce credit system
+    if (!isAdminUser) {
+      console.log('🔒 Enforcing credit system for non-admin user');
+      
+      // Check and deduct credits atomically
+      const { data: deductionResult, error: deductionError } = await supabase
+        .rpc('deduct_ai_credits', {
+          p_user_id: userId,
+          p_amount: creditCost,
+          p_transaction_type: isSocraticMessage ? 'socratic_session' : 'free_chat',
+          p_session_id: sessionId,
+          p_metadata: { message_preview: message.substring(0, 50) }
+        });
+
+      if (deductionError) {
+        console.error('❌ Credit deduction error:', deductionError);
+        return new Response(
+          JSON.stringify({ 
+            error: 'Credit system error',
+            message: 'Unable to process credit transaction. Please try again.'
+          }),
+          { 
+            status: 500, 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          }
+        );
+      }
+
+      // Check if deduction was successful
+      if (!deductionResult.success) {
+        console.log('⚠️ Insufficient credits:', deductionResult);
+        return new Response(
+          JSON.stringify({
+            error: 'insufficient_credits',
+            message: 'You do not have enough AI credits to send this message.',
+            current_balance: deductionResult.current_balance,
+            required: deductionResult.required,
+            cost_per_message: {
+              free_chat: 1,
+              socratic: 2
+            }
+          }),
+          { 
+            status: 402, // Payment Required
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          }
+        );
+      }
+
+      console.log('✅ Credits deducted successfully:', deductionResult);
+    } else {
+      console.log('⭐ Admin/Coach user - bypassing credit check');
+    }
+
     // SERVER-SIDE ENFORCEMENT: Check if student is allowed to use Free Chat
     // This prevents students from bypassing UI restrictions via direct API calls
     if (chatMode !== 'org_admin' && chatMode !== 'socratic' && !socraticMode && !intent) {

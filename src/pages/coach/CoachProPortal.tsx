@@ -4,6 +4,7 @@ import { Navigate } from 'react-router-dom';
 import { SessionHistory } from '@/components/coach/SessionHistory';
 import { CoachAnalyticsDashboard } from '@/components/coach/CoachAnalyticsDashboard';
 import StandaloneAIStudyCoachChat from '@/components/StandaloneAIStudyCoachChat';
+import { CreditBalanceDisplay } from '@/components/coach/CreditBalanceDisplay';
 import { Button } from '@/components/ui/button';
 import { Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -52,10 +53,11 @@ export default function CoachProPortal() {
           >
             {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
-          <h1 className="text-xl font-bold">AI Study Coach Pro</h1>
+          <h1 className="text-lg font-semibold">AI Study Coach Pro</h1>
         </div>
-        <div className="text-sm text-muted-foreground">
-          Welcome, {user.email?.split('@')[0]}
+        <div className="flex items-center gap-3">
+          <CreditBalanceDisplay />
+          <p className="text-sm text-muted-foreground">Welcome, {user.email?.split('@')[0]}</p>
         </div>
       </div>
 

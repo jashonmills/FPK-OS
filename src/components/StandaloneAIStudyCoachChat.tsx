@@ -286,7 +286,35 @@ What would you like to learn about today?`
         18000
       );
       
-      if (error) throw error;
+      if (error) {
+        // Check for insufficient credits error
+        if (error.message?.includes('insufficient_credits') || error.message?.includes('402')) {
+          const errorData = data as any;
+          toast({
+            title: "Insufficient Credits",
+            description: (
+              <div className="space-y-2">
+                <p>You need more AI credits to send this message.</p>
+                <p className="text-sm">
+                  Current balance: {errorData?.current_balance || 0} credits<br />
+                  Required: {errorData?.required || 1} credits
+                </p>
+                <Button 
+                  size="sm" 
+                  onClick={() => window.location.href = '/choose-plan'}
+                  className="mt-2 w-full"
+                >
+                  Get More Credits
+                </Button>
+              </div>
+            ),
+            variant: "destructive",
+            duration: 10000
+          });
+          return;
+        }
+        throw error;
+      }
 
       if (data?.threadId) {
         setThreadId(data.threadId);

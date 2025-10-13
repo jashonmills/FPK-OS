@@ -182,14 +182,11 @@ const LogicCriticalThinkingCoursePage = lazy(() => import("./pages/courses/Logic
 // Standalone AI Study Coach Chat
 const StandaloneAIStudyCoachChat = lazy(() => import("./components/StandaloneAIStudyCoachChat"));
 
-// AI Study Coach Portal - Phase 1: Isolated Clone
-const StandaloneAICoachPortal = lazy(() => import("./pages/portal/StandaloneAICoachPortal"));
-
-// AI Study Coach Portal - Phase 2: Access Control
+// AI Study Coach Portal - Unified with Credit System
 const CoachPortalLanding = lazy(() => import("./pages/coach/CoachPortalLanding"));
 const CoachLayout = lazy(() => import("./components/coach/CoachLayout").then(m => ({ default: m.CoachLayout })));
 const CoachProPortal = lazy(() => import("./pages/coach/CoachProPortal"));
-const RequireAICoachRole = lazy(() => import("./components/guards/RequireAICoachRole").then(m => ({ default: m.RequireAICoachRole })));
+const RequireCoachAccess = lazy(() => import("./components/guards/RequireCoachAccess").then(m => ({ default: m.RequireCoachAccess })));
 
 // Legal pages
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
@@ -309,12 +306,7 @@ const App: React.FC = () => {
           <Route path="/:orgSlug/admin-portal" element={<LazyRoute><AdminPortalBridge /></LazyRoute>} />
           <Route path="/:orgSlug" element={<LazyRoute><OrgPortalLanding /></LazyRoute>} />
 
-          {/* Standalone AI Study Coach Chat Route - Public Access */}
-          <Route path="/ai-study-coach/chat-only" element={
-            <LazyRoute>
-              <StandaloneAIStudyCoachChat />
-            </LazyRoute>
-          } />
+          {/* DELETED: Old standalone AI Study Coach route - now using unified portal */}
 
           {/* AI Study Coach Portal - Phase 2: Public Landing Page */}
           <Route path="/coach" element={
@@ -323,30 +315,18 @@ const App: React.FC = () => {
             </LazyRoute>
           } />
 
-          {/* AI Study Coach Portal - Phase 2: Protected Routes */}
-          <Route 
-            path="/portal" 
-            element={
-              <RouteProtector>
-                <LazyRoute>
-                  <RequireAICoachRole>
-                    <CoachLayout />
-                  </RequireAICoachRole>
-                </LazyRoute>
-              </RouteProtector>
-            }
-          >
-            <Route path="ai-study-coach" element={<LazyRoute><StandaloneAICoachPortal /></LazyRoute>} />
-          </Route>
+          {/* Redirect old portal route to new unified route */}
+          <Route path="/portal/ai-study-coach" element={<Navigate to="/coach/pro" replace />} />
           
+          {/* AI Study Coach Portal - Unified Credit-Based System */}
           <Route 
             path="/coach" 
             element={
               <RouteProtector>
                 <LazyRoute>
-                  <RequireAICoachRole>
+                  <RequireCoachAccess>
                     <CoachLayout />
-                  </RequireAICoachRole>
+                  </RequireCoachAccess>
                 </LazyRoute>
               </RouteProtector>
             }
