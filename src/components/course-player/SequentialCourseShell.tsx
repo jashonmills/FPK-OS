@@ -197,12 +197,13 @@ export const SequentialCourseShell: React.FC<SequentialCourseShellProps> = ({ co
           totalLessons={manifest.lessons.length}
         >
           <div 
-            className="min-h-screen bg-gradient-to-br from-background to-muted/20"
+            className="min-h-screen"
             style={{
               backgroundImage: `url(${backgroundImage})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
-              backgroundAttachment: 'fixed'
+              backgroundAttachment: 'fixed',
+              backgroundColor: '#1a1a2e'
             }}
           >
             <div className="absolute inset-0 bg-black/30 backdrop-blur-[1px]" />
@@ -308,11 +309,11 @@ export const SequentialCourseShell: React.FC<SequentialCourseShellProps> = ({ co
                       ? 'border-2 border-white/70 shadow-xl hover:shadow-2xl transform hover:scale-102'
                       : 'shadow-lg hover:shadow-xl'
                 }
-                bg-white/50 backdrop-blur-md border-white/40
+                bg-white/80 backdrop-blur-lg border-white/50
               `}
               style={{
-                backdropFilter: 'blur(12px)',
-                WebkitBackdropFilter: 'blur(12px)',
+                backdropFilter: 'blur(16px)',
+                WebkitBackdropFilter: 'blur(16px)',
               }}
               onClick={() => {
                 if (isAccessible) {
@@ -433,12 +434,13 @@ export const SequentialCourseShell: React.FC<SequentialCourseShellProps> = ({ co
         totalLessons={manifest.lessons.length}
       >
         <div 
-          className="min-h-screen bg-gradient-to-br from-background to-muted/20"
+          className="min-h-screen"
           style={{
             backgroundImage: `url(${backgroundImage})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            backgroundAttachment: 'fixed'
+            backgroundAttachment: 'fixed',
+            backgroundColor: '#1a1a2e'
           }}
         >
           {/* Background overlay */}
