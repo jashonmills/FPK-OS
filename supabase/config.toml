@@ -138,3 +138,6 @@ verify_jwt = false
 
 [functions.handle-user-deletion]
 verify_jwt = true
+
+[functions.generate-course-backgrounds]
+verify_jwt = false
