@@ -5,6 +5,7 @@ import { SessionHistory } from '@/components/coach/SessionHistory';
 import { HeaderAnalytics } from '@/components/coach/HeaderAnalytics';
 import { MobileAnalyticsCarousel } from '@/components/coach/MobileAnalyticsCarousel';
 import { MobileNavigationDrawer } from '@/components/coach/MobileNavigationDrawer';
+import { MobileBottomNav } from '@/components/coach/MobileBottomNav';
 import { FloatingPomodoroWidget } from '@/components/coach/FloatingPomodoroWidget';
 import { AnalyticsDashboardModal } from '@/components/coach/analytics/AnalyticsDashboardModal';
 import { PomodoroTimer } from '@/components/coach/PomodoroTimer';
@@ -13,7 +14,6 @@ import { CreditBalanceDisplay } from '@/components/coach/CreditBalanceDisplay';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { ThemeToggle } from '@/components/coach/ThemeToggle';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Menu, User, BarChart2, Brain } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
@@ -25,14 +25,12 @@ export default function CoachProPortal() {
   const isMobile = useIsMobile();
   const [selectedSessionId, setSelectedSessionId] = useState<string | undefined>();
   const [sessionType, setSessionType] = useState<'socratic' | 'free' | undefined>();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     const saved = localStorage.getItem(SIDEBAR_COLLAPSED_KEY);
     return saved === 'true';
   });
   const [analyticsOpen, setAnalyticsOpen] = useState(false);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
-  const [mobileView, setMobileView] = useState<'chat' | 'history' | 'settings'>('chat');
   const [mobileTab, setMobileTab] = useState<'chat' | 'sessions'>('chat');
 
   // Persist sidebar collapsed state
@@ -96,44 +94,55 @@ export default function CoachProPortal() {
             <MobileAnalyticsCarousel />
           </div>
         ) : (
-          /* Desktop: Unified Header */
-          <div className="flex-shrink-0 bg-primary/10 border-b border-border">
-            <div className="flex items-center justify-between gap-2 px-4 py-3">
-              {/* Left Zone: Logo & Title */}
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="flex items-center gap-2">
-                  <div className="p-1.5 bg-primary/20 rounded-lg flex-shrink-0">
+          /* Desktop: Two-Tier Header */
+          <div className="flex-shrink-0">
+            {/* Main Header Bar */}
+            <div className="bg-primary/10 border-b border-border">
+              <div className="flex items-center justify-between gap-4 px-4 py-3">
+                {/* Left: Logo & Title */}
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <div className="p-1.5 bg-primary/20 rounded-lg">
                     <Brain className="h-5 w-5 text-primary" />
                   </div>
                   <h1 className="text-base font-bold whitespace-nowrap">AI Study Coach</h1>
                 </div>
-              </div>
 
-              {/* Center Zone: Inline Analytics */}
-              <div className="hidden xl:flex flex-1 justify-center items-center px-4">
-                <HeaderAnalytics />
-              </div>
-
-              {/* Right Zone: Tools & Actions */}
-              <div className="flex items-center gap-2 flex-wrap justify-end">
-                <div className="hidden lg:block">
-                  <PomodoroTimer />
+                {/* Right: User Info */}
+                <div className="flex items-center gap-3 flex-shrink-0">
+                  <ThemeToggle />
+                  <CreditBalanceDisplay />
+                  <div className="flex items-center gap-2 pl-3 border-l border-border">
+                    <User className="h-4 w-4 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground whitespace-nowrap">
+                      {user.email?.split('@')[0]}
+                    </p>
+                  </div>
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setAnalyticsOpen(true)}
-                  className="gap-2"
-                >
-                  <BarChart2 className="h-4 w-4" />
-                  <span className="hidden md:inline">Analytics</span>
-                </Button>
-                <ThemeToggle />
-                <CreditBalanceDisplay />
-                <div className="hidden lg:flex items-center gap-2 pl-2 border-l">
-                  <p className="text-sm text-muted-foreground">
-                    Welcome, {user.email?.split('@')[0]}
-                  </p>
+              </div>
+            </div>
+
+            {/* Sub-Header Bar: Analytics & Tools */}
+            <div className="bg-background/95 backdrop-blur-sm border-b border-border">
+              <div className="flex items-center justify-between gap-4 px-4 py-2">
+                {/* Left: Analytics Carousel (scrollable) */}
+                <div className="flex-1 min-w-0 overflow-hidden">
+                  <HeaderAnalytics />
+                </div>
+
+                {/* Right: Tools */}
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <div className="hidden lg:block">
+                    <PomodoroTimer />
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setAnalyticsOpen(true)}
+                    className="gap-2"
+                  >
+                    <BarChart2 className="h-4 w-4" />
+                    <span className="hidden md:inline">Analytics</span>
+                  </Button>
                 </div>
               </div>
             </div>
@@ -145,8 +154,8 @@ export default function CoachProPortal() {
           open={mobileDrawerOpen}
           onOpenChange={setMobileDrawerOpen}
           onAnalyticsClick={() => setAnalyticsOpen(true)}
-          currentView={mobileView}
-          onViewChange={setMobileView}
+          currentView="chat"
+          onViewChange={() => {}}
         />
 
         {/* Analytics Modal */}
@@ -157,32 +166,23 @@ export default function CoachProPortal() {
 
         {/* Main Layout */}
         {isMobile ? (
-          /* Mobile: Tab-Based Interface */
-          <div className="flex-1 overflow-hidden">
-            <Tabs value={mobileTab} onValueChange={(v) => setMobileTab(v as 'chat' | 'sessions')} className="h-full flex flex-col">
-              <TabsList className="w-full grid grid-cols-2 rounded-none border-b">
-                <TabsTrigger value="chat" className="rounded-none">Chat</TabsTrigger>
-                <TabsTrigger value="sessions" className="rounded-none">Sessions</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="chat" className="flex-1 overflow-hidden mt-0">
-                <StandaloneAIStudyCoachChat key={selectedSessionId || 'new'} />
-              </TabsContent>
-              
-              <TabsContent value="sessions" className="flex-1 overflow-hidden mt-0">
-                <SessionHistory
-                  onSelectSession={(sessionId, type) => {
-                    handleSelectSession(sessionId, type);
-                    setMobileTab('chat');
-                  }}
-                  onNewSession={() => {
-                    handleNewSession();
-                    setMobileTab('chat');
-                  }}
-                  selectedSessionId={selectedSessionId}
-                />
-              </TabsContent>
-            </Tabs>
+          /* Mobile: Simple View with Bottom Nav */
+          <div className="flex-1 overflow-hidden pb-16">
+            {mobileTab === 'chat' ? (
+              <StandaloneAIStudyCoachChat key={selectedSessionId || 'new'} />
+            ) : (
+              <SessionHistory
+                onSelectSession={(sessionId, type) => {
+                  handleSelectSession(sessionId, type);
+                  setMobileTab('chat');
+                }}
+                onNewSession={() => {
+                  handleNewSession();
+                  setMobileTab('chat');
+                }}
+                selectedSessionId={selectedSessionId}
+              />
+            )}
           </div>
         ) : (
           /* Desktop: Two-Column Layout */
@@ -225,6 +225,16 @@ export default function CoachProPortal() {
               </div>
             </div>
           </div>
+        )}
+
+        {/* Mobile Bottom Navigation */}
+        {isMobile && (
+          <MobileBottomNav
+            activeTab={mobileTab}
+            onTabChange={setMobileTab}
+            onNewSession={handleNewSession}
+            onAnalyticsClick={() => setAnalyticsOpen(true)}
+          />
         )}
       </div>
     </ThemeProvider>
