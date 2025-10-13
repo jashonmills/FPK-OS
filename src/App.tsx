@@ -318,7 +318,21 @@ const App: React.FC = () => {
           {/* Redirect old portal route to new unified route */}
           <Route path="/portal/ai-study-coach" element={<Navigate to="/coach/pro" replace />} />
           
-          {/* AI Study Coach Portal - Unified Credit-Based System */}
+          {/* AI Study Coach Pro Portal - Standalone (No CoachLayout wrapper) */}
+          <Route 
+            path="/coach/pro" 
+            element={
+              <RouteProtector>
+                <LazyRoute>
+                  <RequireCoachAccess>
+                    <CoachProPortal />
+                  </RequireCoachAccess>
+                </LazyRoute>
+              </RouteProtector>
+            }
+          />
+          
+          {/* AI Study Coach Portal - Other Routes with CoachLayout */}
           <Route 
             path="/coach" 
             element={
@@ -331,8 +345,6 @@ const App: React.FC = () => {
               </RouteProtector>
             }
           >
-            <Route path="pro" element={<LazyRoute><CoachProPortal /></LazyRoute>} />
-            
             <Route path="history" element={
               <LazyRoute>
                 <div className="max-w-4xl mx-auto p-8">
