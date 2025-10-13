@@ -45,7 +45,12 @@ export function useSubscription() {
     refetchInterval: 1000 * 60 * 5, // 5 minutes
   });
 
-  const createCheckout = async (tier: 'basic' | 'pro' | 'pro_plus' | 'credit_pack', interval: 'monthly' | 'annual', couponCode?: string) => {
+  const createCheckout = async (
+    tier: 'basic' | 'pro' | 'pro_plus' | 'credit_pack', 
+    interval: 'monthly' | 'annual', 
+    couponCode?: string,
+    addFpkUniversity?: boolean
+  ) => {
     if (!user || !session) {
       throw new Error('User not authenticated');
     }
@@ -54,7 +59,7 @@ export function useSubscription() {
     const isTopUp = tier === 'credit_pack';
 
     const { data, error } = await supabase.functions.invoke('create-checkout', {
-      body: { tier, interval, couponCode, isTopUp },
+      body: { tier, interval, couponCode, isTopUp, addFpkUniversity },
       headers: {
         Authorization: `Bearer ${session.access_token}`,
       },

@@ -10,6 +10,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Brain, CheckCircle2, Sparkles, Target, MessageSquare, X, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
+import { useSubscription } from '@/hooks/useSubscription';
+import { FpkUniversityAddon } from '@/components/coach/FpkUniversityAddon';
 import {
   Collapsible,
   CollapsibleContent,
@@ -32,6 +34,7 @@ const CoachPortalLanding: React.FC = () => {
   const location = useLocation();
   const { user, session } = useAuth();
   const { toast } = useToast();
+  const { createCheckout } = useSubscription();
 
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
@@ -40,6 +43,8 @@ const CoachPortalLanding: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [hasAccess, setHasAccess] = useState<boolean | null>(null);
   const [expandedFeature, setExpandedFeature] = useState<number | null>(null);
+  const [selectedTier, setSelectedTier] = useState<'basic' | 'pro' | 'pro_plus' | null>(null);
+  const [addFpkUniversity, setAddFpkUniversity] = useState(false);
 
   const locationMessage = (location.state as any)?.message;
 
@@ -220,6 +225,27 @@ const CoachPortalLanding: React.FC = () => {
       ]
     }
   ];
+
+  const handleSubscribe = async (tier: 'basic' | 'pro' | 'pro_plus') => {
+    try {
+      setIsLoading(true);
+      setSelectedTier(tier);
+      await createCheckout(tier, 'monthly', undefined, addFpkUniversity);
+      toast({
+        title: 'Redirecting to checkout...',
+        description: 'Please complete your subscription in the new window.',
+      });
+    } catch (error: any) {
+      console.error('Checkout error:', error);
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to start checkout. Please try again.',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen relative">
@@ -427,10 +453,15 @@ const CoachPortalLanding: React.FC = () => {
             {subscriptionTiers.map((tier) => (
               <Card 
                 key={tier.tier}
-                className={`relative bg-white/10 backdrop-blur-lg border transition-all ${
+                onClick={() => setSelectedTier(tier.tier as 'basic' | 'pro' | 'pro_plus')}
+                className={`relative bg-white/10 backdrop-blur-lg border transition-all cursor-pointer ${
                   tier.popular 
                     ? 'border-white/40 ring-2 ring-white/30 shadow-2xl scale-105' 
                     : 'border-white/20 hover:border-white/30'
+                } ${
+                  selectedTier === tier.tier 
+                    ? 'ring-2 ring-primary border-primary' 
+                    : ''
                 }`}
               >
                 {tier.popular && (
@@ -465,6 +496,11 @@ const CoachPortalLanding: React.FC = () => {
                   </ul>
 
                   <Button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleSubscribe(tier.tier as 'basic' | 'pro' | 'pro_plus');
+                    }}
+                    disabled={isLoading}
                     className={`w-full mt-6 ${
                       tier.popular
                         ? 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600'
@@ -472,11 +508,29 @@ const CoachPortalLanding: React.FC = () => {
                     }`}
                     size="lg"
                   >
-                    Get Started
+                    {isLoading ? 'Processing...' : 'Get Started'}
                   </Button>
                 </CardContent>
               </Card>
             ))}
+          </div>
+
+          {/* FPK University Add-On Section */}
+          <div className="mt-16">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold text-white mb-2 drop-shadow-lg">
+                Supercharge Your Learning
+              </h2>
+              <p className="text-lg text-white/90 drop-shadow-md max-w-2xl mx-auto">
+                Get the complete FPK University experience with your AI Study Coach subscription
+              </p>
+            </div>
+            
+            <FpkUniversityAddon
+              selectedTier={selectedTier}
+              isChecked={addFpkUniversity}
+              onToggle={setAddFpkUniversity}
+            />
           </div>
 
           {/* Credit Pack Top-up Options */}

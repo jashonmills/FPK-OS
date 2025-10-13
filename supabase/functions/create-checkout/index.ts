@@ -54,8 +54,8 @@ serve(async (req) => {
     if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id, email: user.email });
 
-    const { tier, interval, couponCode, isTopUp = false } = await req.json();
-    logStep("Request data", { tier, interval, couponCode, isTopUp });
+    const { tier, interval, couponCode, isTopUp = false, addFpkUniversity = false } = await req.json();
+    logStep("Request data", { tier, interval, couponCode, isTopUp, addFpkUniversity });
 
     // Determine if this is a credit pack purchase or subscription
     let priceId: string;
@@ -177,15 +177,32 @@ serve(async (req) => {
       }
     }
 
+    // Build line items array
+    const lineItems: any[] = [
+      {
+        price: priceId,
+        quantity: 1,
+      },
+    ];
+
+    // Add FPK University add-on if requested (not for Pro+ or credit packs)
+    if (addFpkUniversity && !isTopUp && tier !== 'pro_plus') {
+      const addonPriceId = tier === 'basic' 
+        ? 'price_1SHv3mAKVCfeyoX0f7qSunro'
+        : 'price_1SHusOAKVCfeyoX0VMr56H0Y';
+      
+      lineItems.push({
+        price: addonPriceId,
+        quantity: 1,
+      });
+      
+      logStep("Adding FPK University add-on", { tier, addonPriceId });
+    }
+
     // Create checkout session with Stripe Price ID
     const sessionConfig: any = {
       customer: customerId,
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
-      ],
+      line_items: lineItems,
       mode: mode,
       success_url: isTopUp 
         ? `${req.headers.get("origin")}/coach/pro?credits_added=true`
@@ -194,7 +211,8 @@ serve(async (req) => {
       metadata: {
         user_id: user.id,
         tier: tier || 'credit_pack',
-        interval: interval || 'one_time'
+        interval: interval || 'one_time',
+        add_fpk_university: addFpkUniversity ? 'true' : 'false'
       },
       allow_promotion_codes: true, // Enable promo code entry
     };

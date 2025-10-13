@@ -20,6 +20,10 @@ export const AI_COACH_PRO_PLUS_ANNUAL = "price_1SHrxiAKVCfeyoX0GnSJSKC6";
 // One-time credit pack (500 credits)
 export const AI_CREDIT_PACK = "price_1SHrvRAKVCfeyoX08HYb7fnO";
 
+// FPK University Access Add-Ons
+export const FPK_UNIVERSITY_ADDON_BASIC = "price_1SHv3mAKVCfeyoX0f7qSunro";
+export const FPK_UNIVERSITY_ADDON_PRO = "price_1SHusOAKVCfeyoX0VMr56H0Y";
+
 /**
  * Tier to Price mapping with credit information
  * Used by create-checkout edge function
@@ -54,6 +58,24 @@ export const TIER_TO_PRICE_MAP = {
     credits: 500,
     name: 'AI Credit Pack',
     display_price: '$5'
+  }
+} as const;
+
+/**
+ * Add-on price mapping
+ */
+export const ADDON_PRICE_MAP = {
+  fpk_university_basic: {
+    monthly: FPK_UNIVERSITY_ADDON_BASIC,
+    price: '$4.99',
+    name: 'FPK University Access (Basic Add-On)',
+    base_tier: 'basic'
+  },
+  fpk_university_pro: {
+    monthly: FPK_UNIVERSITY_ADDON_PRO,
+    price: '$2.99',
+    name: 'FPK University Access (Pro Add-On)',
+    base_tier: 'pro'
   }
 } as const;
 

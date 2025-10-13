@@ -9094,6 +9094,33 @@ export type Database = {
         }
         Relationships: []
       }
+      user_permissions: {
+        Row: {
+          granted_at: string | null
+          granted_by: string | null
+          id: string
+          metadata: Json | null
+          permission: Database["public"]["Enums"]["app_permission"]
+          user_id: string
+        }
+        Insert: {
+          granted_at?: string | null
+          granted_by?: string | null
+          id?: string
+          metadata?: Json | null
+          permission: Database["public"]["Enums"]["app_permission"]
+          user_id: string
+        }
+        Update: {
+          granted_at?: string | null
+          granted_by?: string | null
+          id?: string
+          metadata?: Json | null
+          permission?: Database["public"]["Enums"]["app_permission"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_progress: {
         Row: {
           best_streak: number
@@ -10025,6 +10052,13 @@ export type Database = {
         Args: { check_user_id?: string }
         Returns: string
       }
+      has_permission: {
+        Args: {
+          _permission: Database["public"]["Enums"]["app_permission"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -10238,6 +10272,7 @@ export type Database = {
       }
     }
     Enums: {
+      app_permission: "fpk_university_access" | "ai_coach_access"
       app_role: "admin" | "instructor" | "learner" | "ai_coach_user"
       completion_status_2004:
         | "not attempted"
@@ -10402,6 +10437,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_permission: ["fpk_university_access", "ai_coach_access"],
       app_role: ["admin", "instructor", "learner", "ai_coach_user"],
       completion_status_2004: [
         "not attempted",

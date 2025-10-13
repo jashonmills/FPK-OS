@@ -93,6 +93,7 @@ async function handleCheckoutCompleted(
   const userId = session.metadata?.user_id;
   const tier = session.metadata?.tier;
   const interval = session.metadata?.interval;
+  const addFpkUniversity = session.metadata?.add_fpk_university === 'true';
 
   if (!userId) {
     logStep("No user_id in metadata, skipping");
@@ -209,6 +210,61 @@ async function handleCheckoutCompleted(
     } else {
       logStep("Subscriber record updated", { userId });
     }
+
+    // Check if FPK University add-on was purchased
+    if (addFpkUniversity && tier !== 'pro_plus') {
+      const lineItems = await stripe.checkout.sessions.listLineItems(session.id);
+      const hasBasicAddon = lineItems.data.some(item => 
+        item.price?.id === 'price_1SHv3mAKVCfeyoX0f7qSunro'
+      );
+      const hasProAddon = lineItems.data.some(item => 
+        item.price?.id === 'price_1SHusOAKVCfeyoX0VMr56H0Y'
+      );
+      
+      if (hasBasicAddon || hasProAddon) {
+        const { error: permError } = await supabase
+          .from('user_permissions')
+          .insert({
+            user_id: userId,
+            permission: 'fpk_university_access',
+            granted_by: 'add_on',
+            metadata: {
+              stripe_session_id: session.id,
+              base_tier: tier,
+              add_on_type: hasBasicAddon ? 'basic' : 'pro'
+            }
+          })
+          .select();
+        
+        if (permError && !permError.message.includes('duplicate')) {
+          logStep("Error granting FPK University permission", { error: permError });
+        } else {
+          logStep("FPK University access granted via add-on", { userId, tier });
+        }
+      }
+    }
+
+    // Auto-grant FPK University for Pro+ tier
+    if (tier === 'pro_plus') {
+      const { error: permError } = await supabase
+        .from('user_permissions')
+        .insert({
+          user_id: userId,
+          permission: 'fpk_university_access',
+          granted_by: 'subscription',
+          metadata: {
+            tier: 'pro_plus',
+            reason: 'included_with_tier'
+          }
+        })
+        .select();
+      
+      if (permError && !permError.message.includes('duplicate')) {
+        logStep("Error auto-granting FPK University for Pro+", { error: permError });
+      } else {
+        logStep("FPK University access auto-granted for Pro+", { userId });
+      }
+    }
   }
 }
 
@@ -305,6 +361,19 @@ async function handleSubscriptionDeleted(
     logStep("Error updating subscriber", { error: subError });
   } else {
     logStep("Subscriber marked as canceled", { userId });
+  }
+
+  // Revoke FPK University access if granted via subscription
+  const priceId = subscription.items.data[0]?.price?.id;
+  if (priceId) {
+    await supabase
+      .from('user_permissions')
+      .delete()
+      .eq('user_id', userId)
+      .eq('permission', 'fpk_university_access')
+      .eq('granted_by', 'subscription');
+    
+    logStep("FPK University access revoked (if subscription-granted)", { userId });
   }
 
   // Note: We don't revoke credits - they keep what they have until they run out

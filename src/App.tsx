@@ -187,6 +187,8 @@ const CoachPortalLanding = lazy(() => import("./pages/coach/CoachPortalLanding")
 const CoachLayout = lazy(() => import("./components/coach/CoachLayout").then(m => ({ default: m.CoachLayout })));
 const CoachProPortal = lazy(() => import("./pages/coach/CoachProPortal"));
 const RequireCoachAccess = lazy(() => import("./components/guards/RequireCoachAccess").then(m => ({ default: m.RequireCoachAccess })));
+const AddonsSettings = lazy(() => import("./pages/coach/AddonsSettings"));
+const RequireFpkUniversityAccess = lazy(() => import("./components/guards/RequireFpkUniversityAccess").then(m => ({ default: m.RequireFpkUniversityAccess })));
 
 // Legal pages
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
@@ -362,6 +364,12 @@ const App: React.FC = () => {
                 </div>
               </LazyRoute>
             } />
+            
+            <Route path="settings/addons" element={
+              <LazyRoute>
+                <AddonsSettings />
+              </LazyRoute>
+            } />
           </Route>
 
           {/* Parent IEP Access Route - Separate from org structure */}
@@ -380,25 +388,109 @@ const App: React.FC = () => {
               <LazyRoute><PersonalDashboardLayout /></LazyRoute>
             </RouteProtector>
           }>
-            <Route path="learner" element={<LazyRoute><LearnerHome /></LazyRoute>} />
-            <Route path="learner/library" element={<LazyRoute><Library /></LazyRoute>} />
-            <Route path="learner/courses" element={<LazyRoute><MyCourses /></LazyRoute>} />
-            <Route path="learner/goals" element={<LazyRoute><Goals /></LazyRoute>} />
-            <Route path="learner/notes" element={<LazyRoute><Notes /></LazyRoute>} />
-            <Route path="learner/gamification" element={<LazyRoute><Gamification /></LazyRoute>} />
+            <Route path="learner" element={
+              <LazyRoute>
+                <RequireFpkUniversityAccess>
+                  <LearnerHome />
+                </RequireFpkUniversityAccess>
+              </LazyRoute>
+            } />
+            <Route path="learner/library" element={
+              <LazyRoute>
+                <RequireFpkUniversityAccess>
+                  <Library />
+                </RequireFpkUniversityAccess>
+              </LazyRoute>
+            } />
+            <Route path="learner/courses" element={
+              <LazyRoute>
+                <RequireFpkUniversityAccess>
+                  <MyCourses />
+                </RequireFpkUniversityAccess>
+              </LazyRoute>
+            } />
+            <Route path="learner/goals" element={
+              <LazyRoute>
+                <RequireFpkUniversityAccess>
+                  <Goals />
+                </RequireFpkUniversityAccess>
+              </LazyRoute>
+            } />
+            <Route path="learner/notes" element={
+              <LazyRoute>
+                <RequireFpkUniversityAccess>
+                  <Notes />
+                </RequireFpkUniversityAccess>
+              </LazyRoute>
+            } />
+            <Route path="learner/gamification" element={
+              <LazyRoute>
+                <RequireFpkUniversityAccess>
+                  <Gamification />
+                </RequireFpkUniversityAccess>
+              </LazyRoute>
+            } />
             <Route path="learner/settings" element={<LazyRoute><Settings /></LazyRoute>} />
-            <Route path="learner/analytics" element={<LazyRoute><LearningAnalytics /></LazyRoute>} />
+            <Route path="learner/analytics" element={
+              <LazyRoute>
+                <RequireFpkUniversityAccess>
+                  <LearningAnalytics />
+                </RequireFpkUniversityAccess>
+              </LazyRoute>
+            } />
             <Route path="learner/analytics-debug" element={<LazyRoute><AnalyticsDebug /></LazyRoute>} />
             <Route path="learner/ai-coach" element={<LazyRoute><AIStudyCoach /></LazyRoute>} />
-            <Route path="learner/flashcards" element={<LazyRoute><FlashcardManagerPage /></LazyRoute>} />
-            <Route path="learner/live-hub" element={<LazyRoute><LiveLearningHub /></LazyRoute>} />
-            <Route path="learner/assignments" element={<LazyRoute><AssignmentsDashboard /></LazyRoute>} />
-            <Route path="learner/course/:courseId" element={<LazyRoute><DynamicCourse /></LazyRoute>} />
-            <Route path="learner/learning-state/:courseId" element={<LazyRoute><LearningStateCourse /></LazyRoute>} />
-            <Route path="learner/learning-state-embed/:moduleId" element={<LazyRoute><LearningStateEmbed /></LazyRoute>} />
+            <Route path="learner/flashcards" element={
+              <LazyRoute>
+                <RequireFpkUniversityAccess>
+                  <FlashcardManagerPage />
+                </RequireFpkUniversityAccess>
+              </LazyRoute>
+            } />
+            <Route path="learner/live-hub" element={
+              <LazyRoute>
+                <RequireFpkUniversityAccess>
+                  <LiveLearningHub />
+                </RequireFpkUniversityAccess>
+              </LazyRoute>
+            } />
+            <Route path="learner/assignments" element={
+              <LazyRoute>
+                <RequireFpkUniversityAccess>
+                  <AssignmentsDashboard />
+                </RequireFpkUniversityAccess>
+              </LazyRoute>
+            } />
+            <Route path="learner/course/:courseId" element={
+              <LazyRoute>
+                <RequireFpkUniversityAccess>
+                  <DynamicCourse />
+                </RequireFpkUniversityAccess>
+              </LazyRoute>
+            } />
+            <Route path="learner/learning-state/:courseId" element={
+              <LazyRoute>
+                <RequireFpkUniversityAccess>
+                  <LearningStateCourse />
+                </RequireFpkUniversityAccess>
+              </LazyRoute>
+            } />
+            <Route path="learner/learning-state-embed/:moduleId" element={
+              <LazyRoute>
+                <RequireFpkUniversityAccess>
+                  <LearningStateEmbed />
+                </RequireFpkUniversityAccess>
+              </LazyRoute>
+            } />
             
             {/* Study Session Routes */}
-            <Route path="learner/study/:mode" element={<LazyRoute><StudySessionRouter /></LazyRoute>} />
+            <Route path="learner/study/:mode" element={
+              <LazyRoute>
+                <RequireFpkUniversityAccess>
+                  <StudySessionRouter />
+                </RequireFpkUniversityAccess>
+              </LazyRoute>
+            } />
             
             {/* Instructor Routes */}
             <Route path="instructor" element={<LazyRoute><InstructorDashboard /></LazyRoute>} />
