@@ -14,16 +14,25 @@ import { CreditBalanceDisplay } from '@/components/coach/CreditBalanceDisplay';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { ThemeToggle } from '@/components/coach/ThemeToggle';
 import { Button } from '@/components/ui/button';
-import { Menu, User, BarChart2, Brain } from 'lucide-react';
+import { Menu, User, BarChart2, Brain, LogOut } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { useChatSessionManager } from '@/hooks/useChatSessionManager';
 import { useWidgetChatStorage } from '@/hooks/useWidgetChatStorage';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import portalBackground from '@/assets/portal-background.png';
 
 const SIDEBAR_COLLAPSED_KEY = 'coach-sidebar-collapsed';
 
 export default function CoachProPortal() {
-  const { user, loading } = useAuth();
+  const { user, loading, signOut } = useAuth();
   const isMobile = useIsMobile();
   const [selectedSessionId, setSelectedSessionId] = useState<string | undefined>();
   const [sessionType, setSessionType] = useState<'socratic' | 'free' | undefined>();
@@ -85,12 +94,31 @@ export default function CoachProPortal() {
     setSessionType(undefined);
   };
 
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('Sign out error:', error);
+    }
+  };
+
   return (
     <ThemeProvider>
-      <div className="h-screen flex flex-col bg-background transition-colors duration-300">
+      <div className="h-screen flex flex-col relative">
+        {/* Full-screen background image */}
+        <div 
+          className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: `url(${portalBackground})` }}
+        />
+        
+        {/* Overlay for better contrast */}
+        <div className="fixed inset-0 z-0 bg-black/40" />
+        
+        {/* Content wrapper */}
+        <div className="relative z-10 h-screen flex flex-col transition-colors duration-300">
         {/* Mobile Header */}
         {isMobile ? (
-          <div className="flex-shrink-0 bg-primary/10 border-b border-border">
+          <div className="flex-shrink-0 bg-black/30 backdrop-blur-md border-b border-white/20">
             <div className="p-3 flex items-center justify-between">
               <Button
                 variant="ghost"
@@ -101,15 +129,27 @@ export default function CoachProPortal() {
               </Button>
               
               <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center">
-                  <span className="text-sm font-bold text-primary">AI</span>
+                <div className="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-sm">
+                  <span className="text-sm font-bold text-white">AI</span>
                 </div>
-                <h1 className="text-base font-semibold">Study Coach</h1>
+                <h1 className="text-base font-semibold text-white">Study Coach</h1>
               </div>
               
-              <Button variant="ghost" size="icon">
-                <User className="h-5 w-5" />
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="text-white hover:bg-white/10">
+                    <User className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuLabel>{user?.email?.split('@')[0]}</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut} className="text-red-600">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
             
             {/* Mobile Analytics Carousel */}
@@ -119,32 +159,44 @@ export default function CoachProPortal() {
           /* Desktop: Two-Tier Header */
           <div className="flex-shrink-0">
             {/* Main Header Bar */}
-            <div className="bg-primary/10 border-b border-border">
+            <div className="bg-black/30 backdrop-blur-md border-b border-white/20">
               <div className="flex items-center justify-between gap-4 px-4 py-3">
                 {/* Left: Logo & Title */}
                 <div className="flex items-center gap-2 flex-shrink-0">
-                  <div className="p-1.5 bg-primary/20 rounded-lg">
-                    <Brain className="h-5 w-5 text-primary" />
+                  <div className="p-1.5 bg-white/10 rounded-lg backdrop-blur-sm">
+                    <Brain className="h-5 w-5 text-white" />
                   </div>
-                  <h1 className="text-base font-bold whitespace-nowrap">AI Study Coach</h1>
+                  <h1 className="text-base font-bold whitespace-nowrap text-white">AI Study Coach</h1>
                 </div>
 
                 {/* Right: User Info */}
                 <div className="flex items-center gap-3 flex-shrink-0">
                   <ThemeToggle />
                   <CreditBalanceDisplay />
-                  <div className="flex items-center gap-2 pl-3 border-l border-border">
-                    <User className="h-4 w-4 text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground whitespace-nowrap">
-                      {user.email?.split('@')[0]}
-                    </p>
-                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" className="gap-2 pl-3 border-l border-white/20 text-white hover:bg-white/10">
+                        <User className="h-4 w-4" />
+                        <p className="text-sm whitespace-nowrap">
+                          {user.email?.split('@')[0]}
+                        </p>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                      <DropdownMenuLabel>{user?.email}</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={handleSignOut} className="text-red-600">
+                        <LogOut className="mr-2 h-4 w-4" />
+                        Sign Out
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
             </div>
 
             {/* Sub-Header Bar: Analytics & Tools */}
-            <div className="bg-background/95 backdrop-blur-sm border-b border-border">
+            <div className="bg-black/20 backdrop-blur-md border-b border-white/10">
               <div className="flex items-center justify-between gap-4 px-4 py-2">
                 {/* Left: Analytics Carousel (scrollable) */}
                 <div className="flex-1 min-w-0 overflow-hidden">
@@ -246,6 +298,7 @@ export default function CoachProPortal() {
             onAnalyticsClick={() => setAnalyticsOpen(true)}
           />
         )}
+        </div>
       </div>
     </ThemeProvider>
   );

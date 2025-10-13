@@ -29,14 +29,13 @@ export function MobileNavigationDrawer({
   currentView,
   onViewChange,
 }: MobileNavigationDrawerProps) {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
     try {
-      await supabase.auth.signOut();
+      await signOut();
       toast.success('Signed out successfully');
-      navigate('/coach');
     } catch (error) {
       toast.error('Failed to sign out');
     }
