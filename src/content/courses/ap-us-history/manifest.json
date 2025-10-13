@@ -1,0 +1,122 @@
+{
+  "courseId": "ap-us-history",
+  "courseSlug": "ap-us-history",
+  "contentVersion": "v2",
+  "framework": "sequential",
+  "courseTitle": "AP U.S. History",
+  "description": "A comprehensive, college-level survey of American history from 1491 to the present. Aligned with the AP curriculum, this course emphasizes historical thinking skills and prepares students for the AP exam.",
+  "backgroundImage": "https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=2070&auto=format&fit=crop",
+  "estimatedHours": 18,
+  "difficultyLevel": "advanced",
+  "category": "Social Studies",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Period 1: 1491–1607",
+      "description": "Societies of the Americas, the Columbian Exchange, and early European colonization",
+      "contentType": "video+text",
+      "videoUrl": "https://player.vimeo.com/video/902092468",
+      "audioUrl": "",
+      "textContent": "### Introduction\nThis period covers the Americas before European contact and the initial wave of exploration and conquest that followed Columbus's arrival in 1492. We will examine the diverse societies of Native Americans and the profound, often devastating, impact of the Columbian Exchange.\n\n### Key Concepts\n*   **Native American Societies:** Before 1492, the Americas were home to millions of people in societies ranging from nomadic hunter-gatherers to large, settled agricultural empires like the Aztec and Inca. Different environments led to vastly different cultures, from the maize-based societies of the Southwest to the fishing and foraging communities of the Northwest.\n*   **The Columbian Exchange:** The transatlantic exchange of plants, animals, diseases, technologies, and ideas between the Old World (Europe, Africa) and the New World (the Americas). European diseases like smallpox decimated Native American populations, while American crops like maize and potatoes revolutionized European diets and fueled population growth in Europe.\n*   **Spanish Colonization:** Spain established a vast empire in the New World based on extracting wealth (gold and silver) and exploiting native labor through the encomienda system. A rigid caste system developed based on racial hierarchy, with Peninsulares (native Spaniards) at the top and enslaved Africans and Native Americans at the bottom.",
+      "estimatedMinutes": 90,
+      "unit": "AP Period 1",
+      "unitColor": "bg-amber-100 text-amber-700"
+    },
+    {
+      "id": 2,
+      "title": "Period 2: 1607–1754",
+      "description": "The founding of English, French, and Dutch colonies and the development of distinct colonial societies",
+      "contentType": "video+text",
+      "videoUrl": "https://player.vimeo.com/video/902092468",
+      "audioUrl": "",
+      "textContent": "### Introduction\nThis period focuses on the establishment and growth of European colonies in North America. We will compare the different goals and characteristics of the Spanish, French, Dutch, and English colonies, with a focus on the development of the British thirteen colonies.\n\n### Key Concepts\n*   **Regional Differences in British Colonies:**\n    *   **New England:** Settled by Puritans seeking religious freedom (for themselves). Based on small towns, family farms, and a mixed economy of agriculture and commerce. Characterized by a strong sense of community and religious governance.\n    *   **Middle Colonies:** The most diverse region, with a mix of religions (Quakers, Lutherans), ethnicities (English, German, Dutch), and economic activities. Focused on cereal crops like wheat.\n    *   **Southern Colonies:** Developed a plantation-based economy centered on cash crops like tobacco (in the Chesapeake) and rice/indigo (in the Carolinas), relying heavily on the labor of indentured servants and, increasingly, enslaved Africans.\n*   **The Atlantic Slave Trade:** The forced migration of millions of Africans to the Americas to provide labor for plantations. This brutal system became central to the economy of the Southern colonies and created a society defined by a strict racial hierarchy.\n*   **Salutary Neglect:** An unofficial British policy of loosely enforcing trade regulations (like the Navigation Acts) on the colonies. This allowed the colonies to develop a degree of economic and political autonomy, including their own representative assemblies.",
+      "estimatedMinutes": 100,
+      "unit": "AP Period 2",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 3,
+      "title": "Period 3: 1754–1800",
+      "description": "The American Revolution, the creation of the Constitution, and the founding of the new republic",
+      "contentType": "video+text",
+      "videoUrl": "https://player.vimeo.com/video/902092468",
+      "audioUrl": "",
+      "textContent": "### Introduction\nThis pivotal period sees the colonies unite to fight for independence, win a revolutionary war, and then struggle to create a stable and effective government for their new nation.\n\n### Key Concepts\n*   **The French and Indian War (1754-1763):** A war between Britain and France that left Britain with huge debts. To pay these debts, Britain ended its policy of salutary neglect and began imposing new taxes on the colonies (e.g., Stamp Act, Townshend Acts), sparking colonial resistance.\n*   **The American Revolution:** Caused by disputes over taxation without representation, British military measures, and Enlightenment ideals of liberty and self-government. The colonists, inspired by thinkers like John Locke and Thomas Paine, declared independence in 1776 and, with crucial help from France, won the war.\n*   **The Constitution:** After the failure of the weak Articles of Confederation, the U.S. Constitution was created through a series of compromises (e.g., the Great Compromise, the 3/5 Compromise), establishing a federal system with checks and balances. The addition of the Bill of Rights protected individual liberties.\n*   **Washington & Adams:** The first two presidencies established key precedents (like the cabinet and two-term limit) but also saw the rise of political factions (Hamilton's Federalists and Jefferson's Democratic-Republicans) and debates over the power of the federal government.",
+      "estimatedMinutes": 120,
+      "unit": "AP Period 3",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 4,
+      "title": "Period 4: 1800–1848",
+      "description": "The growth of democracy, westward expansion, and the Market Revolution",
+      "contentType": "video+text",
+      "videoUrl": "https://player.vimeo.com/video/902092468",
+      "audioUrl": "",
+      "textContent": "### Introduction\nThe nation grew dramatically in size and population during this era. The 'Age of Jackson' saw an expansion of democracy for white men, while the Market Revolution transformed the economy and society. Westward expansion raised contentious questions about the future of slavery.\n\n### Key Concepts\n*   **Jeffersonian & Jacksonian Democracy:** The period saw a shift towards greater political participation for white males and the growth of a more populist style of politics. The power of the presidency grew under Andrew Jackson, who championed the 'common man' while also enforcing controversial policies like the Indian Removal Act.\n*   **The Second Great Awakening:** A religious revival that inspired numerous social reform movements, including abolitionism, temperance, and women's rights (e.g., the Seneca Falls Convention of 1848).\n*   **The Market Revolution:** New technologies like the cotton gin, canals (Erie Canal), steamboats, and railroads linked the country together, creating a national market. This led to a shift from subsistence farming to producing goods for sale, but also increased sectional economic differences between the industrial North and the agricultural South.\n*   **Manifest Destiny:** The belief in America's divine right to expand westward to the Pacific Ocean. This ideology drove the Louisiana Purchase, the annexation of Texas, and the Mexican-American War, which continually forced the issue of whether new territories would permit slavery (e.g., the Missouri Compromise).",
+      "estimatedMinutes": 110,
+      "unit": "AP Period 4",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 5,
+      "title": "Period 5: 1844–1877",
+      "description": "The causes, course, and consequences of the Civil War and the failures of Reconstruction",
+      "contentType": "video+text",
+      "videoUrl": "https://player.vimeo.com/video/902092468",
+      "audioUrl": "",
+      "textContent": "### Introduction\nThis period is dominated by the nation's greatest crisis. Escalating tensions over slavery led to the Civil War, a brutal conflict that preserved the Union and ended slavery but was followed by a difficult and ultimately unsuccessful effort to rebuild the South and protect the rights of newly freed African Americans.\n\n### Key Concepts\n*   **Causes of the Civil War:** Sectional disagreements over slavery's expansion into new territories (e.g., Compromise of 1850, Kansas-Nebraska Act), states' rights, and economic differences led to the secession of Southern states following the election of Abraham Lincoln in 1860.\n*   **The Civil War (1861-1865):** A Union victory was achieved through advantages in industrial capacity, population, and effective leadership. Key turning points included the Battle of Gettysburg and the Vicksburg Campaign. Lincoln's Emancipation Proclamation reframed the war as a fight against slavery and helped prevent foreign intervention.\n*   **Reconstruction (1865-1877):** The period after the war. The 13th, 14th, and 15th Amendments were passed to abolish slavery, grant citizenship and equal protection, and provide voting rights for African American men. However, Southern resistance (e.g., Black Codes, KKK), political compromises (Compromise of 1877), and waning Northern resolve led to the failure of Reconstruction to secure long-term civil rights for African Americans.",
+      "estimatedMinutes": 130,
+      "unit": "AP Period 5",
+      "unitColor": "bg-red-100 text-red-700"
+    },
+    {
+      "id": 6,
+      "title": "Period 6: 1865–1898",
+      "description": "The Gilded Age, industrialization, urbanization, and the 'New South'",
+      "contentType": "video+text",
+      "videoUrl": "https://player.vimeo.com/video/902092468",
+      "audioUrl": "",
+      "textContent": "### Introduction\nThis era, known as the 'Gilded Age,' was a time of rapid industrialization, massive immigration, and the growth of cities. While great fortunes were made by industrial titans ('robber barons'), this period was also marked by political corruption, labor strife, and growing inequality.\n\n### Key Concepts\n*   **Industrialization & Big Business:** The rise of big business (trusts and monopolies) in industries like steel (Carnegie), oil (Rockefeller), and railroads (Vanderbilt), fueled by new technologies and a laissez-faire government approach.\n*   **Urbanization and Immigration:** Millions of 'New Immigrants' from Southern and Eastern Europe flocked to cities to work in factories, leading to overcrowded and unsanitary urban conditions. This sparked debates over assimilation and nativism.\n*   **The 'New South':** Despite efforts to industrialize, the South remained largely agricultural and economically impoverished. Systems of racial segregation (Jim Crow laws) were implemented, and the Supreme Court case Plessy v. Ferguson (1896) upheld the doctrine of 'separate but equal.'\n*   **The West:** The final settlement of the West was completed, driven by mining, ranching, and farming (aided by the Homestead Act). This led to further conflicts with Native Americans, the destruction of the buffalo herds, and policies aimed at forced assimilation (e.g., the Dawes Act).",
+      "estimatedMinutes": 120,
+      "unit": "AP Period 6",
+      "unitColor": "bg-orange-100 text-orange-700"
+    },
+    {
+      "id": 7,
+      "title": "Period 7: 1890–1945",
+      "description": "The Progressive Era, World War I, the Great Depression, and World War II",
+      "contentType": "video+text",
+      "videoUrl": "https://player.vimeo.com/video/902092468",
+      "audioUrl": "",
+      "textContent": "### Introduction\nIn this period, the United States became a global power. Domestically, the Progressive movement sought to address the problems of the Gilded Age. The nation was then plunged into two world wars and the worst economic crisis in its history.\n\n### Key Concepts\n*   **The Progressive Era (1890-1920):** Reformers (like Theodore Roosevelt and Woodrow Wilson) sought to use government power to regulate business (trust-busting), protect consumers (e.g., Pure Food and Drug Act), and expand democracy (e.g., women's suffrage via the 19th Amendment).\n*   **Imperialism and World War I:** The U.S. became a world power after the Spanish-American War. It initially remained neutral in WWI but entered in 1917, playing a key role in the Allied victory. The war was followed by a period of isolationism and social tension (the 'Red Scare').\n*   **The Great Depression and the New Deal:** The stock market crash of 1929 triggered a worldwide depression. Franklin D. Roosevelt's 'New Deal' programs dramatically expanded the size and role of the federal government in an effort to provide relief, recovery, and reform (e.g., Social Security, FDIC).\n*   **World War II:** The U.S. entered WWII after the attack on Pearl Harbor in 1941. The war effort on the home front ended the Great Depression and led to new opportunities for women and minorities. The war established the U.S. as the world's leading military and economic power and ushered in the atomic age.",
+      "estimatedMinutes": 140,
+      "unit": "AP Period 7",
+      "unitColor": "bg-pink-100 text-pink-700"
+    },
+    {
+      "id": 8,
+      "title": "Period 8: 1945–1980",
+      "description": "The Cold War, the Civil Rights Movement, and the social upheavals of the 1960s",
+      "contentType": "video+text",
+      "videoUrl": "https://player.vimeo.com/video/902092468",
+      "audioUrl": "",
+      "textContent": "### Introduction\nAfter WWII, the U.S. entered a decades-long ideological conflict with the Soviet Union known as the Cold War. At home, the post-war era saw economic prosperity, the rise of suburbia, and a powerful movement for African American civil rights that challenged the nation to live up to its founding ideals.\n\n### Key Concepts\n*   **The Cold War:** A global struggle against communism, characterized by a nuclear arms race, proxy wars (Korea, Vietnam), and a domestic 'Red Scare' (McCarthyism). The U.S. policy was 'containment,' as articulated in the Truman Doctrine.\n*   **The Civil Rights Movement:** Through non-violent protest (marches, sit-ins) and legal challenges, activists like Martin Luther King Jr. fought to dismantle segregation. Landmark achievements included the Brown v. Board of Education decision (1954), the Civil Rights Act of 1964, and the Voting Rights Act of 1965.\n*   **The Great Society and the 1960s:** President Lyndon Johnson's 'Great Society' programs (e.g., Medicare, Medicaid) expanded the social safety net. The decade was also marked by the Vietnam War, a youth counter-culture, and other social movements (feminist, environmental, Chicano).\n*   **1970s Stagnation:** The decade was marked by economic problems ('stagflation' - high inflation and high unemployment), an energy crisis, the Watergate scandal which led to Nixon's resignation, and a decline in public trust in government.",
+      "estimatedMinutes": 120,
+      "unit": "AP Period 8",
+      "unitColor": "bg-indigo-100 text-indigo-700"
+    },
+    {
+      "id": 9,
+      "title": "Period 9: 1980–Present & Exam Prep",
+      "description": "The rise of modern conservatism, the end of the Cold War, and contemporary challenges",
+      "contentType": "text",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "### Introduction\nThis final period covers the resurgence of conservatism, the end of the Cold War, and the challenges of the 21st century, including terrorism and economic globalization. This lesson also focuses on preparing for the AP exam.\n\n### Key Concepts (1980-Present)\n*   **The Reagan Revolution:** The rise of a new conservative movement focused on tax cuts (supply-side economics), deregulation, and a strong national defense to confront the Soviet Union ('peace through strength').\n*   **The End of the Cold War:** The collapse of the Soviet Union in 1991 left the U.S. as the world's sole superpower, leading to new foreign policy challenges in the Middle East (Gulf War) and elsewhere.\n*   **The 21st Century:** The era has been defined by the 9/11 attacks and the subsequent War on Terror, the rise of the internet and digital technology, growing concerns about climate change, debates over immigration, and increasing political polarization.\n\n### AP Exam Preparation\n*   **Multiple-Choice Questions (MCQs):** Focus on analyzing short primary or secondary source stimuli. Practice identifying the source's point of view, purpose, and historical context.\n*   **Short-Answer Questions (SAQs):** Require you to briefly answer a multi-part question, often comparing and contrasting or showing cause and effect. Use the ACE method: Answer the prompt, Cite specific evidence, Explain the connection.\n*   **Document-Based Question (DBQ):** The core of the exam. You must write a cohesive essay that answers a prompt using a set of 7 provided documents, incorporating outside historical knowledge. You must use at least 6 documents and provide context, a thesis, and outside evidence.\n*   **Long Essay Question (LEQ):** You will choose one of three prompts and write an essay using only your own historical knowledge. Focus on developing a clear thesis and supporting it with specific historical evidence.\n\n### Final Project: Practice DBQ\nTo prepare, you will be given a sample DBQ prompt and a set of documents. Your task is to write a full DBQ essay, complete with a thesis statement, contextualization, and analysis of the documents, to be submitted for review.",
+      "estimatedMinutes": 130,
+      "unit": "AP Period 9",
+      "unitColor": "bg-teal-100 text-teal-700"
+    }
+  ]
+}
