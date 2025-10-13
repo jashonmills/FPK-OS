@@ -199,7 +199,7 @@ export const SequentialCourseShell: React.FC<SequentialCourseShellProps> = ({ co
           <div 
             className="min-h-screen relative"
             style={{
-              backgroundImage: `url('${backgroundImage}')`,
+              backgroundImage: `url(${backgroundImage})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               backgroundAttachment: 'fixed',
@@ -436,7 +436,7 @@ export const SequentialCourseShell: React.FC<SequentialCourseShellProps> = ({ co
         <div 
           className="min-h-screen relative"
           style={{
-            backgroundImage: `url('${backgroundImage}')`,
+            backgroundImage: `url(${backgroundImage})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundAttachment: 'fixed',
