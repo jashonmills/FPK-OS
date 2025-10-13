@@ -97,30 +97,31 @@ const ORG_PLANS: Record<'basic' | 'standard' | 'premium' | 'beta', PlanType> = {
 const PLANS: Record<'basic' | 'pro' | 'pro_plus', PlanType> = {
   basic: {
     name: 'AI Coach Basic',
-    badge: '500 Credits/Month',
-    monthly: 4.99,
-    annual: 49,
+    badge: '1,700 Credits/Month',
+    monthly: 29,
+    annual: 290,
     features: [
-      '500 AI Credits per month',
-      '1 credit per Free Chat turn',
-      '2 credits per Socratic turn',
-      'Chat history (last 24 hours)',
-      'Basic "Learning Snapshot"',
-      'Email support',
+      '1,700 AI Credits per month',
+      'Approx. 15 mins of daily use',
+      '2 credits per Free Chat turn',
+      '3 credits per Socratic turn',
+      'Full Chat History',
+      'Basic Analytics',
       '7-day free trial'
     ]
   },
   pro: {
     name: 'AI Coach Pro',
-    badge: '2,500 Credits/Month',
-    monthly: 19,
-    annual: 199,
+    badge: '3,500 Credits/Month',
+    monthly: 49,
+    annual: 490,
     popular: true,
     features: [
-      '2,500 AI Credits per month',
-      '1 credit per Free Chat turn',
-      '2 credits per Socratic turn',
-      'Full searchable chat history',
+      '3,500 AI Credits per month',
+      'Approx. 30 mins of daily use',
+      '2 credits per Free Chat turn',
+      '3 credits per Socratic turn',
+      'Full Chat History',
       'Advanced Analytics Dashboard',
       'Priority support',
       '7-day free trial'
@@ -128,15 +129,17 @@ const PLANS: Record<'basic' | 'pro' | 'pro_plus', PlanType> = {
   },
   pro_plus: {
     name: 'AI Coach Pro+',
-    badge: '5,000 Credits/Month',
-    monthly: 29,
-    annual: 299,
+    badge: '7,000 Credits/Month',
+    monthly: 99,
+    annual: 990,
     features: [
-      '5,000 AI Credits per month',
-      '1 credit per Free Chat turn',
-      '2 credits per Socratic turn',
-      'Full searchable chat history',
+      '7,000 AI Credits per month',
+      'Approx. 60 mins of daily use',
+      '2 credits per Free Chat turn',
+      '3 credits per Socratic turn',
+      'Full Chat History',
       'Advanced Analytics Dashboard',
+      'Custom Study Plans (Coming Soon)',
       'Dedicated support',
       '7-day free trial'
     ]
@@ -429,49 +432,90 @@ export function SubscriptionPlans() {
         })}
       </div>
 
-      {/* Credit Pack Top-up Option */}
+      {/* Credit Pack Top-up Options */}
       {planType === 'individual' && (
-        <div className="max-w-2xl mx-auto">
-          <Card className="bg-gradient-to-br from-purple-50 to-blue-50 border-2 border-purple-200">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-purple-600" />
-                Need More Credits?
-              </CardTitle>
-              <CardDescription>
-                Top up your account anytime with an extra credit pack
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-2xl font-bold text-purple-900">500 AI Credits</p>
-                  <p className="text-sm text-muted-foreground">One-time purchase</p>
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-6">
+            <h3 className="text-2xl font-bold mb-2">Need More Credits?</h3>
+            <p className="text-muted-foreground">Top up your account anytime with extra credit packs</p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* 500 Credit Pack */}
+            <Card className="bg-gradient-to-br from-purple-50 to-blue-50 border-2 border-purple-200">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-purple-600" />
+                  500 AI Credits
+                </CardTitle>
+                <CardDescription>
+                  One-time purchase
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center">
+                  <p className="text-4xl font-bold text-purple-900">{formatPrice(10)}</p>
+                  <p className="text-sm text-muted-foreground mt-2">Perfect for occasional top-ups</p>
                 </div>
-                <div className="text-right">
-                  <p className="text-3xl font-bold">{formatPrice(5)}</p>
+              </CardContent>
+              <CardFooter>
+                <Button 
+                  className="w-full bg-purple-600 hover:bg-purple-700" 
+                  onClick={() => !IS_BETA_MODE && handleSubscribe('credit_pack' as any)}
+                  disabled={IS_BETA_MODE || loading === 'credit_pack'}
+                >
+                  {IS_BETA_MODE ? (
+                    'Beta Access Only'
+                  ) : loading === 'credit_pack' ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    'Buy Now'
+                  )}
+                </Button>
+              </CardFooter>
+            </Card>
+
+            {/* 1000 Credit Pack */}
+            <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 relative">
+              <Badge className="absolute -top-2 -right-2 bg-blue-600 text-white">Better Value</Badge>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-blue-600" />
+                  1,000 AI Credits
+                </CardTitle>
+                <CardDescription>
+                  One-time purchase
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center">
+                  <p className="text-4xl font-bold text-blue-900">{formatPrice(18)}</p>
+                  <p className="text-sm text-muted-foreground mt-2">Save 10% with the larger pack</p>
                 </div>
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button 
-                className="w-full bg-purple-600 hover:bg-purple-700" 
-                onClick={() => !IS_BETA_MODE && handleSubscribe('credit_pack' as any)}
-                disabled={IS_BETA_MODE || loading === 'credit_pack'}
-              >
-                {IS_BETA_MODE ? (
-                  'Beta Access Only'
-                ) : loading === 'credit_pack' ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Processing...
-                  </>
-                ) : (
-                  'Buy Credits'
-                )}
-              </Button>
-            </CardFooter>
-          </Card>
+              </CardContent>
+              <CardFooter>
+                <Button 
+                  className="w-full bg-blue-600 hover:bg-blue-700" 
+                  onClick={() => !IS_BETA_MODE && handleSubscribe('credit_pack_large' as any)}
+                  disabled={IS_BETA_MODE || loading === 'credit_pack_large'}
+                >
+                  {IS_BETA_MODE ? (
+                    'Beta Access Only'
+                  ) : loading === 'credit_pack_large' ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    'Buy Now'
+                  )}
+                </Button>
+              </CardFooter>
+            </Card>
+          </div>
         </div>
       )}
 

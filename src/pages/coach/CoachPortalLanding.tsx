@@ -170,31 +170,32 @@ const CoachPortalLanding: React.FC = () => {
     {
       name: 'AI Coach Basic',
       tier: 'basic',
-      price: '$4.99',
+      price: '$29',
       period: 'month',
-      badge: '500 Credits/Month',
+      badge: 'Daily Learner',
       features: [
-        '500 AI Credits per month',
-        '1 credit per Free Chat turn',
-        '2 credits per Socratic turn',
-        'Chat history (24 hours)',
-        'Basic "Learning Snapshot"',
-        'Email support',
+        '1,700 AI Credits per month',
+        'Approx. 15 mins of daily use',
+        '2 credits per Free Chat turn',
+        '3 credits per Socratic turn',
+        'Full Chat History',
+        'Basic Analytics',
         '7-day free trial'
       ]
     },
     {
       name: 'AI Coach Pro',
       tier: 'pro',
-      price: '$19',
+      price: '$49',
       period: 'month',
       badge: 'Most Popular',
       popular: true,
       features: [
-        '2,500 AI Credits per month',
-        '1 credit per Free Chat turn',
-        '2 credits per Socratic turn',
-        'Full searchable chat history',
+        '3,500 AI Credits per month',
+        'Approx. 30 mins of daily use',
+        '2 credits per Free Chat turn',
+        '3 credits per Socratic turn',
+        'Full Chat History',
         'Advanced Analytics Dashboard',
         'Priority support',
         '7-day free trial'
@@ -203,15 +204,17 @@ const CoachPortalLanding: React.FC = () => {
     {
       name: 'AI Coach Pro+',
       tier: 'pro_plus',
-      price: '$29',
+      price: '$99',
       period: 'month',
-      badge: 'Premium',
+      badge: 'Power User',
       features: [
-        '5,000 AI Credits per month',
-        '1 credit per Free Chat turn',
-        '2 credits per Socratic turn',
-        'Full searchable chat history',
+        '7,000 AI Credits per month',
+        'Approx. 60 mins of daily use',
+        '2 credits per Free Chat turn',
+        '3 credits per Socratic turn',
+        'Full Chat History',
         'Advanced Analytics Dashboard',
+        'Custom Study Plans (Coming Soon)',
         'Dedicated support',
         '7-day free trial'
       ]
@@ -476,36 +479,67 @@ const CoachPortalLanding: React.FC = () => {
             ))}
           </div>
 
-          {/* Credit Pack Top-up Option */}
-          <div className="mt-12 max-w-2xl mx-auto">
-            <Card className="relative bg-gradient-to-br from-purple-900/30 to-blue-900/30 backdrop-blur-lg border-2 border-purple-400/40">
-              <CardHeader className="text-center">
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <Sparkles className="h-6 w-6 text-purple-400" />
-                  <CardTitle className="text-2xl font-bold text-white">Need More Credits?</CardTitle>
-                </div>
-                <CardDescription className="text-white/80 text-base">
-                  Top up your account anytime with an extra credit pack
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between mb-6">
-                  <div>
-                    <p className="text-3xl font-bold text-white">500 AI Credits</p>
-                    <p className="text-sm text-white/70">One-time purchase</p>
+          {/* Credit Pack Top-up Options */}
+          <div className="mt-12 max-w-5xl mx-auto">
+            <div className="text-center mb-8">
+              <h3 className="text-3xl font-bold text-white mb-2 drop-shadow-lg">Need More Credits?</h3>
+              <p className="text-white/80 drop-shadow-md">Top up your account anytime with extra credit packs</p>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* 500 Credit Pack */}
+              <Card className="relative bg-gradient-to-br from-purple-900/30 to-blue-900/30 backdrop-blur-lg border-2 border-purple-400/40">
+                <CardHeader className="text-center">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <Sparkles className="h-5 w-5 text-purple-400" />
+                    <CardTitle className="text-xl font-bold text-white">500 AI Credits</CardTitle>
                   </div>
-                  <div className="text-right">
-                    <p className="text-4xl font-bold text-white">$5.00</p>
+                  <CardDescription className="text-white/70">
+                    One-time purchase
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center mb-6">
+                    <p className="text-5xl font-bold text-white">$10</p>
+                    <p className="text-sm text-white/60 mt-2">Perfect for occasional top-ups</p>
                   </div>
+                  <Button 
+                    className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+                    size="lg"
+                  >
+                    Buy Now
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* 1000 Credit Pack */}
+              <Card className="relative bg-gradient-to-br from-blue-900/30 to-indigo-900/30 backdrop-blur-lg border-2 border-blue-400/40">
+                <div className="absolute -top-3 -right-3">
+                  <Badge className="bg-blue-500 text-white px-3 py-1 text-sm">Better Value</Badge>
                 </div>
-                <Button 
-                  className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
-                  size="lg"
-                >
-                  Buy Credits
-                </Button>
-              </CardContent>
-            </Card>
+                <CardHeader className="text-center">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <Sparkles className="h-5 w-5 text-blue-400" />
+                    <CardTitle className="text-xl font-bold text-white">1,000 AI Credits</CardTitle>
+                  </div>
+                  <CardDescription className="text-white/70">
+                    One-time purchase
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center mb-6">
+                    <p className="text-5xl font-bold text-white">$18</p>
+                    <p className="text-sm text-white/60 mt-2">Save 10% with the larger pack</p>
+                  </div>
+                  <Button 
+                    className="w-full bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white"
+                    size="lg"
+                  >
+                    Buy Now
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </div>
