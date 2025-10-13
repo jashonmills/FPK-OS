@@ -36,6 +36,9 @@ enable_confirmations = true
 [functions.get-credit-balance]
 verify_jwt = false
 
+[functions.refresh-monthly-credits]
+verify_jwt = false
+
 [functions.send-invitation-email]
 verify_jwt = false
 

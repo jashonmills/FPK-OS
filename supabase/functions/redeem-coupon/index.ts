@@ -81,6 +81,23 @@ serve(async (req) => {
       const expiresAt = new Date();
       expiresAt.setMonth(expiresAt.getMonth() + couponData.duration_months);
 
+      // Grant ai_coach_user role for portal access
+      const { error: roleError } = await supabaseClient
+        .from('user_roles')
+        .insert({
+          user_id: user.id,
+          role: 'ai_coach_user'
+        })
+        .select()
+        .single();
+
+      // Ignore duplicate key errors (user already has role)
+      if (roleError && !roleError.message.includes('duplicate')) {
+        logStep("Error granting ai_coach_user role", roleError);
+      } else {
+        logStep("Granted ai_coach_user role", { userId: user.id });
+      }
+
       // Create redemption record
       const { error: redemptionError } = await supabaseClient
         .from('coupon_redemptions')
@@ -106,6 +123,29 @@ serve(async (req) => {
 
       if (subscriberError) throw subscriberError;
 
+      // Grant initial credits (from coupon metadata or default)
+      const initialCredits = parseInt(couponData.metadata?.initial_credits || '500', 10);
+      const { data: creditResult, error: creditError } = await supabaseClient
+        .rpc('add_ai_credits', {
+          p_user_id: user.id,
+          p_amount: initialCredits,
+          p_transaction_type: 'coupon_redemption',
+          p_metadata: {
+            coupon_code: couponData.code,
+            coupon_id: couponData.id
+          }
+        });
+
+      if (creditError) {
+        logStep("Error granting initial credits", creditError);
+      } else {
+        logStep("Granted initial credits", { 
+          userId: user.id, 
+          credits: initialCredits,
+          newBalance: creditResult?.balance_after 
+        });
+      }
+
       // Update coupon usage count
       const { error: updateError } = await supabaseClient
         .from('coupon_codes')
@@ -117,7 +157,8 @@ serve(async (req) => {
       logStep("Coupon redeemed successfully", { 
         tier: couponData.subscription_tier, 
         duration: couponData.duration_months,
-        expiresAt: expiresAt.toISOString()
+        expiresAt: expiresAt.toISOString(),
+        creditsGranted: initialCredits
       });
 
       return new Response(JSON.stringify({
@@ -125,7 +166,9 @@ serve(async (req) => {
         message: `Coupon redeemed! You now have ${couponData.duration_months} months of free ${couponData.subscription_tier} access.`,
         subscription_tier: couponData.subscription_tier,
         expires_at: expiresAt.toISOString(),
-        duration_months: couponData.duration_months
+        duration_months: couponData.duration_months,
+        credits_granted: initialCredits,
+        redirect_to: '/coach/pro'
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,

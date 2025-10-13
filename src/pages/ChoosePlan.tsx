@@ -22,31 +22,70 @@ interface PlanType {
 }
 const PLANS: Record<string, PlanType> = {
   calm: {
-    name: 'FPK Calm',
-    monthly: 0,
-    annual: 0,
-    features: ['1 seat included', 'Basic AI chat (10 messages/month)', 'Essential learning tools', 'Basic progress tracking', 'Community support']
+    name: 'AI Coach Basic',
+    monthly: 4.99,
+    annual: 49.00,
+    features: [
+      '500 AI Credits/month',
+      '1 credit per free chat message',
+      '2 credits per Socratic session message', 
+      'Access to AI Study Coach portal',
+      'Session history',
+      'Basic analytics',
+      'Email support',
+      '7-day free trial'
+    ]
   },
   me: {
-    name: 'FPK Me',
-    monthly: 16.49,
-    annual: 179.88,
-    // Updated to annual total
-    features: ['1 seat included', '150 AI chat messages/month', '90 minutes voice processing/month', '75 knowledge queries/month', '15 document processing/month', '300 flashcard generations/month', '75 AI insights/month', '200MB knowledge storage', 'Personal progress tracking', 'Email support']
+    name: 'AI Coach Pro',
+    monthly: 19.00,
+    annual: 199.00,
+    features: [
+      '2,500 AI Credits/month',
+      '1 credit per free chat message',
+      '2 credits per Socratic session message',
+      'Credit rollover (up to 1,000)',
+      'Full AI Study Coach portal',
+      'Advanced session analytics',
+      'Flashcard generation',
+      'Study insights',
+      'Priority support',
+      '7-day free trial'
+    ]
   },
   us: {
-    name: 'FPK Us',
-    monthly: 26.39,
-    annual: 287.88,
-    // Updated to annual total
-    features: ['🏠 3 family member seats', '500 AI chat messages/month (shared)', '300 minutes voice processing/month (shared)', '250 knowledge queries/month (shared)', '50 document processing/month (shared)', '1,000 flashcard generations/month (shared)', '200 AI insights/month (shared)', '1GB knowledge storage (shared)', 'Family progress dashboard', 'Individual member tracking', 'Priority support']
+    name: 'AI Coach Pro+',
+    monthly: 29.00,
+    annual: 299.00,
+    features: [
+      '5,000 AI Credits/month',
+      '1 credit per free chat message',
+      '2 credits per Socratic session message',
+      'Credit rollover (up to 2,500)',
+      'Everything in Pro',
+      'Extended session analytics',
+      'Custom study plans',
+      'Advanced insights',
+      'Premium support',
+      '7-day free trial'
+    ]
   },
   universal: {
-    name: 'FPK Universal',
+    name: 'AI Coach Enterprise',
     monthly: 54.99,
     annual: 599.88,
-    // Updated to annual total
-    features: ['1 seat included', '🚀 Unlimited AI interactions', '🚀 Unlimited voice processing', '🚀 Unlimited knowledge queries', '🚀 Unlimited document processing', '🚀 Unlimited flashcard generation', '🚀 Unlimited AI insights', '5GB knowledge storage', 'Advanced analytics dashboard', 'Advanced course creation tools', 'White-label options', 'API access (coming soon)', 'Dedicated support', 'Early access to new features']
+    features: [
+      '🚀 Unlimited AI Credits',
+      'All message types included',
+      'No credit deductions',
+      'Everything in Pro+',
+      'Advanced analytics dashboard',
+      'API access (coming soon)',
+      'White-label options',
+      'Dedicated support',
+      'Early access to features',
+      '7-day free trial'
+    ]
   }
 };
 export default function ChoosePlan() {
@@ -150,7 +189,7 @@ export default function ChoosePlan() {
             <PageHelpTrigger onOpen={handleManualVideoOpen} label="How this page works" />
           </div>
           <p className="text-xl text-white/80 max-w-2xl mx-auto">
-            Select the perfect plan to unlock your learning potential and access our premium features.
+            AI Study Coach uses a credit-based system. Free chat messages cost 1 credit, Socratic sessions cost 2 credits per message.
           </p>
           
           {IS_BETA_MODE && (
@@ -162,6 +201,15 @@ export default function ChoosePlan() {
               </p>
             </div>
           )}
+          
+          <div className="mt-6 p-4 bg-white/5 rounded-lg border border-white/10 max-w-2xl mx-auto">
+            <h3 className="text-lg font-semibold text-white mb-2">💡 How Credits Work</h3>
+            <div className="text-sm text-white/70 space-y-1">
+              <p><strong className="text-white">Free Chat:</strong> 1 credit per message</p>
+              <p><strong className="text-white">Socratic Mode:</strong> 2 credits per message (guided learning)</p>
+              <p><strong className="text-white">Pro+ & Enterprise:</strong> Unused credits rollover to next month</p>
+            </div>
+          </div>
         </div>
 
         {/* Free Access with Coupon */}

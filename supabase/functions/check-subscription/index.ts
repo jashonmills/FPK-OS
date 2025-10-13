@@ -44,6 +44,39 @@ serve(async (req) => {
     if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id, email: user.email });
 
+    // CRITICAL: Check if user is admin (bypass all checks)
+    const { data: isAdmin, error: adminCheckError } = await supabaseClient
+      .rpc('is_admin_or_coach_user', { check_user_id: user.id });
+
+    if (adminCheckError) {
+      console.error('Admin check error:', adminCheckError);
+    }
+
+    if (isAdmin) {
+      logStep("Admin access granted - bypassing all checks", { userId: user.id });
+      
+      await supabaseClient.from("subscribers").upsert({
+        user_id: user.id,
+        email: user.email,
+        subscribed: true,
+        subscription_tier: 'universal',
+        subscription_status: 'active',
+        subscription_end: null,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'user_id' });
+
+      return new Response(JSON.stringify({
+        subscribed: true,
+        subscription_tier: 'universal',
+        subscription_status: 'active',
+        source: 'admin_override',
+        ai_credits: 999999
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
+
     // Check for active coupon redemptions first
     const { data: activeRedemptions } = await supabaseClient
       .from('coupon_redemptions')
@@ -126,6 +159,8 @@ serve(async (req) => {
     let currentPeriodEnd = null;
     let cancelAtPeriodEnd = false;
 
+    let monthlyCredits = 0;
+
     if (hasActiveSub) {
       const subscription = subscriptions.data[0];
       subscriptionId = subscription.id;
@@ -141,24 +176,42 @@ serve(async (req) => {
         status: subscriptionStatus 
       });
       
-      // Determine subscription tier from price
+      // Retrieve price with product metadata to get credit allotment
       const priceId = subscription.items.data[0].price.id;
-      const price = await stripe.prices.retrieve(priceId);
+      const price = await stripe.prices.retrieve(priceId, { expand: ['product'] });
       const amount = price.unit_amount || 0;
       const interval = price.recurring?.interval;
       
-      // Determine tier based on price and interval
-      if (interval === 'month') {
-        if (amount <= 1499) subscriptionTier = "basic";
-        else if (amount <= 3999) subscriptionTier = "pro";
-        else subscriptionTier = "premium";
-      } else if (interval === 'year') {
-        if (amount <= 1499 * 12 * 0.9) subscriptionTier = "basic";
-        else if (amount <= 3999 * 12 * 0.85) subscriptionTier = "pro";
-        else subscriptionTier = "premium";
+      // Extract monthly_credits from product metadata
+      const product = price.product as Stripe.Product;
+      monthlyCredits = parseInt(product.metadata?.monthly_credits || '0', 10);
+      
+      // Determine tier based on price and interval (or metadata)
+      const tierFromMetadata = product.metadata?.tier;
+      if (tierFromMetadata) {
+        subscriptionTier = tierFromMetadata;
+      } else {
+        // Fallback to price-based tier determination
+        if (interval === 'month') {
+          if (amount <= 499) subscriptionTier = "basic";
+          else if (amount <= 1900) subscriptionTier = "pro";
+          else if (amount <= 2900) subscriptionTier = "pro_plus";
+          else subscriptionTier = "universal";
+        } else if (interval === 'year') {
+          if (amount <= 4900) subscriptionTier = "basic";
+          else if (amount <= 19900) subscriptionTier = "pro";
+          else if (amount <= 29900) subscriptionTier = "pro_plus";
+          else subscriptionTier = "universal";
+        }
       }
       
-      logStep("Determined subscription tier", { priceId, amount, interval, subscriptionTier });
+      logStep("Determined subscription tier and credits", { 
+        priceId, 
+        amount, 
+        interval, 
+        subscriptionTier,
+        monthlyCredits 
+      });
     } else {
       logStep("No active subscription found");
     }
@@ -191,7 +244,8 @@ serve(async (req) => {
       subscription_end: subscriptionEnd,
       cancel_at_period_end: cancelAtPeriodEnd,
       current_period_start: currentPeriodStart,
-      current_period_end: currentPeriodEnd
+      current_period_end: currentPeriodEnd,
+      monthly_credits: monthlyCredits
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
