@@ -126,47 +126,18 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log(`Creating staff member: ${firstName} ${lastName} (${email}) as ${role}`);
 
-    // Check if user already exists in auth
-    const { data: existingAuthUsers } = await supabase.auth.admin.listUsers();
-    const existingAuthUser = existingAuthUsers?.users?.find(u => u.email?.toLowerCase() === email.toLowerCase());
-
+    // Try to create user first, handle "already exists" gracefully
     let newUserId: string;
     let isNewUser = false;
 
-    if (existingAuthUser) {
-      // User already has an auth account
-      newUserId = existingAuthUser.id;
-      console.log(`Found existing auth user: ${newUserId}`);
-
-      // Check if already a member of this org
-      const { data: existingMember } = await supabase
-        .from('org_members')
-        .select('id, status')
-        .eq('org_id', orgId)
-        .eq('user_id', newUserId)
-        .single();
-
-      if (existingMember) {
-        if (existingMember.status === 'active') {
-          return new Response(
-            JSON.stringify({ 
-              success: false, 
-              code: 'ALREADY_MEMBER',
-              error: "This user is already a member of the organization" 
-            }),
-            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-          );
-        }
-      }
-    } else {
-      // Create new auth user with temporary password
-      isNewUser = true;
+    try {
+      // Attempt to create new user
       const tempPassword = crypto.randomUUID();
       
       const { data: newAuthUser, error: createUserError } = await supabase.auth.admin.createUser({
         email: email.toLowerCase(),
         password: tempPassword,
-        email_confirm: false, // Require email confirmation
+        email_confirm: false,
         user_metadata: {
           full_name: `${firstName} ${lastName}`,
           first_name: firstName,
@@ -174,28 +145,84 @@ const handler = async (req: Request): Promise<Response> => {
         }
       });
 
-      if (createUserError || !newAuthUser.user) {
-        console.error("Error creating auth user:", createUserError);
-        return new Response(
-          JSON.stringify({ error: "Failed to create user account", details: createUserError?.message }),
-          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+      if (createUserError) {
+        // Check if user already exists
+        if (createUserError.message?.includes('already been registered') || 
+            createUserError.code === 'email_exists') {
+          console.log(`User ${email} already exists in auth, fetching their ID`);
+          
+          // Fetch existing user by email
+          const { data: { users }, error: fetchError } = await supabase.auth.admin.listUsers();
+          const existingUser = users?.find(u => u.email?.toLowerCase() === email.toLowerCase());
+          
+          if (!existingUser) {
+            throw new Error(`User ${email} exists but could not be fetched`);
+          }
+          
+          newUserId = existingUser.id;
+          isNewUser = false;
+          console.log(`Found existing user: ${newUserId}`);
+        } else {
+          // Different error - throw it
+          throw createUserError;
+        }
+      } else {
+        // Successfully created new user
+        newUserId = newAuthUser!.user.id;
+        isNewUser = true;
+        console.log(`Created new auth user: ${newUserId}`);
+
+        // Create profile for new user
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            id: newUserId,
+            full_name: `${firstName} ${lastName}`,
+            display_name: firstName,
+          });
+
+        if (profileError) {
+          console.error("Error creating profile:", profileError);
+        }
       }
+    } catch (authError: any) {
+      console.error("Error handling user auth:", authError);
+      return new Response(
+        JSON.stringify({ 
+          error: "Failed to process user account", 
+          details: authError?.message 
+        }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
-      newUserId = newAuthUser.user.id;
-      console.log(`Created new auth user: ${newUserId}`);
+    // Check if already a member of this org
+    const { data: existingMember } = await supabase
+      .from('org_members')
+      .select('id, status, role')
+      .eq('org_id', orgId)
+      .eq('user_id', newUserId)
+      .single();
 
-      // Create profile
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-          id: newUserId,
-          full_name: `${firstName} ${lastName}`,
-          display_name: firstName,
-        });
-
-      if (profileError) {
-        console.error("Error creating profile:", profileError);
+    if (existingMember) {
+      if (existingMember.status === 'active') {
+        return new Response(
+          JSON.stringify({ 
+            success: false,
+            code: 'ALREADY_MEMBER',
+            error: `${firstName} ${lastName} is already an active ${existingMember.role} in this organization`,
+            existingRole: existingMember.role
+          }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      } else {
+        // Reactivate if previously removed/paused
+        await supabase
+          .from('org_members')
+          .update({ status: 'active', role: role })
+          .eq('id', existingMember.id);
+        
+        console.log(`Reactivated existing member with new role: ${role}`);
       }
     }
 
