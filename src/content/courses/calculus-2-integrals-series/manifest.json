@@ -1,0 +1,74 @@
+{
+  "courseId": "calculus-2-integrals-series",
+  "courseSlug": "calculus-2-integrals-series",
+  "contentVersion": "v2",
+  "framework": "micro-learning",
+  "courseTitle": "Calculus II: Integrals & Series",
+  "description": "Master the second semester of calculus. This course covers advanced integration techniques, applications like finding volumes, and the fascinating world of infinite series.",
+  "backgroundImage": "https://images.unsplash.com/photo-1596495577886-d9256f435934?q=80&w=2070&auto=format&fit=crop",
+  "estimatedHours": 12,
+  "difficultyLevel": "advanced",
+  "category": "Mathematics",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Advanced Integration Techniques",
+      "description": "Integration by parts, trigonometric integrals, substitution, and partial fractions",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 45,
+      "unit": "Unit 1: Integration",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 2,
+      "title": "Applications of Integration",
+      "description": "Volumes of revolution, arc length, surface area, and work",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 50,
+      "unit": "Unit 2: Applications",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 3,
+      "title": "Introduction to Differential Equations",
+      "description": "Separable equations, slope fields, and exponential growth/decay",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 40,
+      "unit": "Unit 3: Differential Equations",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 4,
+      "title": "Sequences and Series",
+      "description": "Convergence tests, geometric and arithmetic series, and Taylor polynomials",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 55,
+      "unit": "Unit 4: Series",
+      "unitColor": "bg-orange-100 text-orange-700"
+    },
+    {
+      "id": 5,
+      "title": "Power Series and Taylor Series",
+      "description": "Power series representation, Taylor and Maclaurin series, and convergence",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 50,
+      "unit": "Unit 5: Power Series",
+      "unitColor": "bg-pink-100 text-pink-700"
+    }
+  ]
+}
