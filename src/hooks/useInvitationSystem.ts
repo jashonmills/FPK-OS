@@ -26,7 +26,7 @@ export function useEmailInvitation() {
     mutationFn: async ({ orgId, email, role = 'student' }: {
       orgId: string;
       email: string;
-      role?: 'owner' | 'instructor' | 'student' | 'instructor_aide' | 'viewer';
+      role?: 'owner' | 'admin' | 'instructor' | 'student' | 'instructor_aide' | 'viewer';
     }) => {
       // Call new token-based edge function
       const { data, error } = await supabase.functions.invoke('generate-org-invite', {
