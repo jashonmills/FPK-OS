@@ -197,16 +197,16 @@ export const SequentialCourseShell: React.FC<SequentialCourseShellProps> = ({ co
           totalLessons={manifest.lessons.length}
         >
           <div 
-            className="min-h-screen"
+            className="min-h-screen relative"
             style={{
-              backgroundImage: `url(${backgroundImage})`,
+              backgroundImage: `url('${backgroundImage}')`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               backgroundAttachment: 'fixed',
-              backgroundColor: '#1a1a2e'
+              backgroundRepeat: 'no-repeat'
             }}
           >
-            <div className="absolute inset-0 bg-black/30 backdrop-blur-[1px]" />
+            <div className="absolute inset-0 bg-black/10 backdrop-blur-[0.5px]" />
             
             <CourseHeader courseTitle={courseData.title} />
           
@@ -434,17 +434,17 @@ export const SequentialCourseShell: React.FC<SequentialCourseShellProps> = ({ co
         totalLessons={manifest.lessons.length}
       >
         <div 
-          className="min-h-screen"
+          className="min-h-screen relative"
           style={{
-            backgroundImage: `url(${backgroundImage})`,
+            backgroundImage: `url('${backgroundImage}')`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundAttachment: 'fixed',
-            backgroundColor: '#1a1a2e'
+            backgroundRepeat: 'no-repeat'
           }}
         >
           {/* Background overlay */}
-          <div className="absolute inset-0 bg-black/30 backdrop-blur-[1px]" />
+          <div className="absolute inset-0 bg-black/10 backdrop-blur-[0.5px]" />
           
           <CourseHeader courseTitle={courseData.title} />
           
