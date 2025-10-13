@@ -168,51 +168,52 @@ const CoachPortalLanding: React.FC = () => {
 
   const subscriptionTiers = [
     {
-      name: 'Basic',
+      name: 'AI Coach Basic',
       tier: 'basic',
-      price: '$29',
+      price: '$4.99',
       period: 'month',
-      badge: 'Starter',
+      badge: '500 Credits/Month',
       features: [
-        '50 AI chat messages/month',
-        '30 minutes voice processing',
-        'Basic progress tracking',
+        '500 AI Credits per month',
+        '1 credit per Free Chat turn',
+        '2 credits per Socratic turn',
+        'Chat history (24 hours)',
+        'Basic "Learning Snapshot"',
         'Email support',
-        'Study session analytics'
+        '7-day free trial'
       ]
     },
     {
-      name: 'Pro',
+      name: 'AI Coach Pro',
       tier: 'pro',
-      price: '$49',
+      price: '$19',
       period: 'month',
       badge: 'Most Popular',
       popular: true,
       features: [
-        '200 AI chat messages/month',
-        '120 minutes voice processing',
-        'Advanced analytics dashboard',
+        '2,500 AI Credits per month',
+        '1 credit per Free Chat turn',
+        '2 credits per Socratic turn',
+        'Full searchable chat history',
+        'Advanced Analytics Dashboard',
         'Priority support',
-        'Custom study schedules',
-        'Document processing',
-        'Flashcard generation'
+        '7-day free trial'
       ]
     },
     {
-      name: 'Pro+',
+      name: 'AI Coach Pro+',
       tier: 'pro_plus',
-      price: '$79',
+      price: '$29',
       period: 'month',
       badge: 'Premium',
       features: [
-        'Unlimited AI interactions',
-        'Unlimited voice processing',
-        'Full analytics suite',
+        '5,000 AI Credits per month',
+        '1 credit per Free Chat turn',
+        '2 credits per Socratic turn',
+        'Full searchable chat history',
+        'Advanced Analytics Dashboard',
         'Dedicated support',
-        'White-label options',
-        'API access',
-        'Early feature access',
-        'Advanced integrations'
+        '7-day free trial'
       ]
     }
   ];
@@ -473,6 +474,38 @@ const CoachPortalLanding: React.FC = () => {
                 </CardContent>
               </Card>
             ))}
+          </div>
+
+          {/* Credit Pack Top-up Option */}
+          <div className="mt-12 max-w-2xl mx-auto">
+            <Card className="relative bg-gradient-to-br from-purple-900/30 to-blue-900/30 backdrop-blur-lg border-2 border-purple-400/40">
+              <CardHeader className="text-center">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <Sparkles className="h-6 w-6 text-purple-400" />
+                  <CardTitle className="text-2xl font-bold text-white">Need More Credits?</CardTitle>
+                </div>
+                <CardDescription className="text-white/80 text-base">
+                  Top up your account anytime with an extra credit pack
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <p className="text-3xl font-bold text-white">500 AI Credits</p>
+                    <p className="text-sm text-white/70">One-time purchase</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-4xl font-bold text-white">$5.00</p>
+                  </div>
+                </div>
+                <Button 
+                  className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+                  size="lg"
+                >
+                  Buy Credits
+                </Button>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>

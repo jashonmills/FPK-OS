@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Check, Loader2, DollarSign, Euro } from 'lucide-react';
+import { Check, Loader2, DollarSign, Euro, Sparkles } from 'lucide-react';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useOrganizations } from '@/hooks/useOrganizations';
 import { useToast } from '@/hooks/use-toast';
@@ -94,82 +94,51 @@ const ORG_PLANS: Record<'basic' | 'standard' | 'premium' | 'beta', PlanType> = {
   }
 };
 
-const PLANS: Record<'calm' | 'me' | 'us' | 'universal', PlanType> = {
-  calm: {
-    name: 'FPK Calm',
-    badge: 'Free',
-    monthly: 0,
-    annual: 0,
+const PLANS: Record<'basic' | 'pro' | 'pro_plus', PlanType> = {
+  basic: {
+    name: 'AI Coach Basic',
+    badge: '500 Credits/Month',
+    monthly: 4.99,
+    annual: 49,
     features: [
-      '1 seat included',
-      '5 AI chat messages/month',
-      '2 minutes voice processing/month',
-      '3 knowledge queries/month',
-      '1 document processing/month',
-      '25 flashcard generations/month',
-      '5 AI insights/month',
-      '10MB storage',
-      'Community support'
+      '500 AI Credits per month',
+      '1 credit per Free Chat turn',
+      '2 credits per Socratic turn',
+      'Chat history (last 24 hours)',
+      'Basic "Learning Snapshot"',
+      'Email support',
+      '7-day free trial'
     ]
   },
-  me: {
-    name: 'FPK Me',
-    badge: 'Individual',
-    monthly: 16.49,
-    annual: 179.88, // Updated to annual total
-    features: [
-      '1 seat included',
-      '150 AI chat messages/month',
-      '90 minutes voice processing/month',
-      '75 knowledge queries/month',
-      '15 document processing/month',
-      '300 flashcard generations/month',
-      '75 AI insights/month',
-      '200MB knowledge storage',
-      'Personal progress tracking',
-      'Email support'
-    ]
-  },
-  us: {
-    name: 'FPK Us',
-    badge: 'Family',
-    monthly: 26.39,
-    annual: 287.88, // Updated to annual total
+  pro: {
+    name: 'AI Coach Pro',
+    badge: '2,500 Credits/Month',
+    monthly: 19,
+    annual: 199,
     popular: true,
     features: [
-      '🏠 3 family member seats',
-      '500 AI chat messages/month (shared)',
-      '300 minutes voice processing/month (shared)',
-      '250 knowledge queries/month (shared)',
-      '50 document processing/month (shared)',
-      '1,000 flashcard generations/month (shared)',
-      '200 AI insights/month (shared)',
-      '1GB knowledge storage (shared)',
-      'Family progress dashboard',
-      'Individual member tracking',
-      'Priority support'
+      '2,500 AI Credits per month',
+      '1 credit per Free Chat turn',
+      '2 credits per Socratic turn',
+      'Full searchable chat history',
+      'Advanced Analytics Dashboard',
+      'Priority support',
+      '7-day free trial'
     ]
   },
-  universal: {
-    name: 'FPK Universal',
-    badge: 'Premium',
-    monthly: 54.99,
-    annual: 599.88, // Updated to annual total
+  pro_plus: {
+    name: 'AI Coach Pro+',
+    badge: '5,000 Credits/Month',
+    monthly: 29,
+    annual: 299,
     features: [
-      '1 seat included',
-      '🚀 Unlimited AI interactions',
-      '🚀 Unlimited voice processing',
-      '🚀 Unlimited knowledge queries',
-      '🚀 Unlimited document processing',
-      '🚀 Unlimited flashcard generation',
-      '🚀 Unlimited AI insights',
-      '5GB knowledge storage',
-      'Advanced analytics dashboard',
-      'Advanced course creation tools',
-      'White-label options',
-      'API access (coming soon)',
+      '5,000 AI Credits per month',
+      '1 credit per Free Chat turn',
+      '2 credits per Socratic turn',
+      'Full searchable chat history',
+      'Advanced Analytics Dashboard',
       'Dedicated support',
-      'Early access to new features'
+      '7-day free trial'
     ]
   }
 };
@@ -325,7 +294,7 @@ export function SubscriptionPlans() {
       </div>
 
       {/* Pricing Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         {Object.entries(planType === 'organization' ? ORG_PLANS : PLANS).map(([key, plan]) => {
           const tier = key as any;
           const price = isAnnual ? plan.annual : plan.monthly;
@@ -460,13 +429,59 @@ export function SubscriptionPlans() {
         })}
       </div>
 
+      {/* Credit Pack Top-up Option */}
+      {planType === 'individual' && (
+        <div className="max-w-2xl mx-auto">
+          <Card className="bg-gradient-to-br from-purple-50 to-blue-50 border-2 border-purple-200">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-purple-600" />
+                Need More Credits?
+              </CardTitle>
+              <CardDescription>
+                Top up your account anytime with an extra credit pack
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-2xl font-bold text-purple-900">500 AI Credits</p>
+                  <p className="text-sm text-muted-foreground">One-time purchase</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-3xl font-bold">{formatPrice(5)}</p>
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button 
+                className="w-full bg-purple-600 hover:bg-purple-700" 
+                onClick={() => !IS_BETA_MODE && handleSubscribe('credit_pack' as any)}
+                disabled={IS_BETA_MODE || loading === 'credit_pack'}
+              >
+                {IS_BETA_MODE ? (
+                  'Beta Access Only'
+                ) : loading === 'credit_pack' ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  'Buy Credits'
+                )}
+              </Button>
+            </CardFooter>
+          </Card>
+        </div>
+      )}
+
       {/* Free Trial Coupons Info */}
-      <div className="text-center text-sm text-muted-foreground">
+      <div className="text-center text-sm text-muted-foreground mt-8">
         <p>Try these coupon codes for free access:</p>
         <div className="flex justify-center gap-4 mt-2">
+          <Badge variant="outline">COACHVIP2025</Badge>
           <Badge variant="outline">BETA2025</Badge>
           <Badge variant="outline">FREEMONTH</Badge>
-          <Badge variant="outline">WELCOME</Badge>
         </div>
       </div>
     </div>
