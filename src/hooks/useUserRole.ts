@@ -6,7 +6,7 @@ import { useAuth } from '@/hooks/useAuth';
 export function useUserRole() {
   const { user } = useAuth();
 
-  const { data: roles = [], isLoading, error } = useQuery({
+  const { data: roles = [], isLoading, error, refetch } = useQuery({
     queryKey: ['user-roles', user?.id],
     queryFn: async () => {
       if (!user) return [];
@@ -24,7 +24,8 @@ export function useUserRole() {
       return data.map(r => r.role);
     },
     enabled: !!user,
-    staleTime: 1000 * 60 * 10, // 10 minutes
+    staleTime: 1000 * 60, // 1 minute (reduced from 10)
+    refetchOnMount: true, // Always refetch on component mount
   });
 
   const isAdmin = roles.includes('admin');
@@ -37,6 +38,7 @@ export function useUserRole() {
     isInstructor,
     isLearner,
     isLoading,
-    error
+    error,
+    refetch, // Expose refetch for manual cache invalidation
   };
 }

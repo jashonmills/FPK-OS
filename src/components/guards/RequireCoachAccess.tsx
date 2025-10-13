@@ -44,7 +44,7 @@ export function RequireCoachAccess({
       try {
         // Check 1: Admin bypass
         if (isAdmin) {
-          logger.info('Admin access granted', 'AUTH');
+          logger.info('✅ Admin access granted', 'AUTH', { userId: user.id, roles });
           setHasAccess(true);
           return;
         }
@@ -52,20 +52,27 @@ export function RequireCoachAccess({
         // Check 2: ai_coach_user role
         const hasCoachRole = roles.includes('ai_coach_user');
         if (hasCoachRole) {
-          logger.info('Coach role access granted', 'AUTH');
+          logger.info('✅ Coach role access granted', 'AUTH', { userId: user.id, roles });
           setHasAccess(true);
           return;
         }
 
         // Check 3: Active subscription
         if (subscription?.subscribed) {
-          logger.info('Subscription access granted', 'AUTH');
+          logger.info('✅ Subscription access granted', 'AUTH', { 
+            userId: user.id, 
+            roles 
+          });
           setHasAccess(true);
           return;
         }
 
         // No access
-        logger.warn('Access denied - no subscription or role', 'AUTH');
+        logger.warn('❌ Access denied - no subscription or role', 'AUTH', { 
+          userId: user.id, 
+          roles,
+          hasSubscription: !!subscription?.subscribed 
+        });
         setHasAccess(false);
 
       } catch (error) {
