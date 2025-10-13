@@ -2,13 +2,14 @@ import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Navigate } from 'react-router-dom';
 import { SessionHistory } from '@/components/coach/SessionHistory';
-import { CoachAnalyticsDashboard } from '@/components/coach/CoachAnalyticsDashboard';
+import { HeaderAnalytics } from '@/components/coach/HeaderAnalytics';
+import { AnalyticsDashboardModal } from '@/components/coach/AnalyticsDashboardModal';
 import StandaloneAIStudyCoachChat from '@/components/StandaloneAIStudyCoachChat';
 import { CreditBalanceDisplay } from '@/components/coach/CreditBalanceDisplay';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { ThemeToggle } from '@/components/coach/ThemeToggle';
 import { Button } from '@/components/ui/button';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, BarChart2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function CoachProPortal() {
@@ -16,6 +17,7 @@ export default function CoachProPortal() {
   const [selectedSessionId, setSelectedSessionId] = useState<string | undefined>();
   const [sessionType, setSessionType] = useState<'socratic' | 'free' | undefined>();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [analyticsOpen, setAnalyticsOpen] = useState(false);
 
   if (loading) {
     return (
@@ -46,7 +48,7 @@ export default function CoachProPortal() {
     <ThemeProvider>
       <div className="h-screen flex flex-col bg-background transition-colors duration-300">
         {/* Header */}
-        <div className="flex-shrink-0 bg-primary/10 border-b border-border p-3 flex items-center justify-between">
+        <div className="flex-shrink-0 bg-primary/10 border-b border-border p-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Button
               variant="ghost"
@@ -56,14 +58,33 @@ export default function CoachProPortal() {
             >
               {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
-            <h1 className="text-lg font-semibold">AI Study Coach Pro</h1>
+            <h1 className="text-lg font-semibold whitespace-nowrap">AI Study Coach Pro</h1>
           </div>
+
+          {/* Center: Header Analytics */}
+          <div className="hidden lg:flex flex-1 justify-center">
+            <HeaderAnalytics />
+          </div>
+
+          {/* Right: Actions */}
           <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setAnalyticsOpen(true)}
+              className="gap-2"
+            >
+              <BarChart2 className="h-4 w-4" />
+              <span className="hidden sm:inline">Analytics</span>
+            </Button>
             <ThemeToggle />
             <CreditBalanceDisplay />
-            <p className="text-sm text-muted-foreground">Welcome, {user.email?.split('@')[0]}</p>
+            <p className="hidden md:block text-sm text-muted-foreground">Welcome, {user.email?.split('@')[0]}</p>
           </div>
         </div>
+
+        {/* Analytics Modal */}
+        <AnalyticsDashboardModal open={analyticsOpen} onOpenChange={setAnalyticsOpen} />
 
         {/* Main Layout */}
         <div className="flex-1 flex overflow-hidden">
@@ -92,12 +113,7 @@ export default function CoachProPortal() {
 
           {/* Center - Main Workspace */}
           <div className="flex-1 flex flex-col overflow-hidden">
-            {/* Analytics Dashboard */}
-            <div className="flex-shrink-0 p-6 overflow-y-auto">
-              <CoachAnalyticsDashboard />
-            </div>
-
-            {/* Chat Interface */}
+            {/* Chat Interface - Now takes full height */}
             <div className="flex-1 overflow-hidden">
               <StandaloneAIStudyCoachChat key={selectedSessionId || 'new'} />
             </div>
