@@ -151,17 +151,16 @@ const handler = async (req: Request): Promise<Response> => {
             createUserError.code === 'email_exists') {
           console.log(`User ${email} already exists in auth, fetching their ID`);
           
-          // Fetch existing user by email using admin.getUserByEmail
-          const { data: existingUserData, error: fetchError } = await supabase.auth.admin.getUserByEmail(
-            email.toLowerCase()
-          );
+          // Use database function to lookup user ID by email
+          const { data: userId, error: fetchError } = await supabase
+            .rpc('get_user_id_by_email', { user_email: email.toLowerCase() });
           
-          if (fetchError || !existingUserData.user) {
+          if (fetchError || !userId) {
             console.error('Error fetching user by email:', fetchError);
             throw new Error(`User ${email} exists but could not be fetched: ${fetchError?.message || 'Unknown error'}`);
           }
           
-          newUserId = existingUserData.user.id;
+          newUserId = userId;
           isNewUser = false;
           console.log(`Found existing user: ${newUserId}`);
         } else {

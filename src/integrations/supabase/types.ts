@@ -9868,6 +9868,10 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: Json
       }
+      get_user_id_by_email: {
+        Args: { user_email: string }
+        Returns: string
+      }
       get_user_role: {
         Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["app_role"]
