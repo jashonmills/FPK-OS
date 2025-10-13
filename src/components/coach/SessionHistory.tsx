@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Plus, MessageSquare, Target, Clock, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Plus, MessageSquare, Target, Clock, ChevronRight } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { formatDistanceToNow } from 'date-fns';
@@ -23,16 +23,12 @@ interface SessionHistoryProps {
   onSelectSession: (sessionId: string, type: 'socratic' | 'free') => void;
   onNewSession: () => void;
   selectedSessionId?: string;
-  isCollapsed?: boolean;
-  onToggleCollapse?: () => void;
 }
 
 export function SessionHistory({ 
   onSelectSession, 
   onNewSession, 
-  selectedSessionId, 
-  isCollapsed = false,
-  onToggleCollapse 
+  selectedSessionId
 }: SessionHistoryProps) {
   const { user } = useAuth();
   const [sessions, setSessions] = useState<Session[]>([]);
@@ -100,25 +96,14 @@ export function SessionHistory({
   return (
     <div className="h-full flex flex-col bg-background border-r">
       {/* Header */}
-      <div className="p-4 border-b flex items-center justify-between gap-2">
+      <div className="p-4 border-b">
         <Button 
           onClick={onNewSession}
-          className="flex-1"
+          className="w-full"
         >
           <Plus className="h-4 w-4 mr-2" />
           New Session
         </Button>
-        {onToggleCollapse && (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onToggleCollapse}
-            className="flex-shrink-0"
-            title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-        )}
       </div>
 
       {/* Session List */}

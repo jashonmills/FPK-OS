@@ -199,30 +199,17 @@ export default function CoachProPortal() {
                   onSelectSession={handleSelectSession}
                   onNewSession={handleNewSession}
                   selectedSessionId={selectedSessionId}
-                  isCollapsed={sidebarCollapsed}
-                  onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
                 />
               )}
             </div>
 
             {/* Center - Main Workspace */}
-            <div className="flex-1 flex flex-col overflow-hidden relative">
-              {/* Expand button when collapsed */}
-              {sidebarCollapsed && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute left-4 top-4 z-10 shadow-lg border bg-background"
-                  onClick={() => setSidebarCollapsed(false)}
-                  title="Expand sidebar"
-                >
-                  <Menu className="h-4 w-4" />
-                </Button>
-              )}
-              
-              <div className="flex-1 overflow-hidden">
-                <StandaloneAIStudyCoachChat key={selectedSessionId || 'new'} />
-              </div>
+            <div className="flex-1 flex flex-col overflow-hidden">
+              <StandaloneAIStudyCoachChat 
+                key={selectedSessionId || 'new'} 
+                sidebarCollapsed={sidebarCollapsed}
+                onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)}
+              />
             </div>
           </div>
         )}

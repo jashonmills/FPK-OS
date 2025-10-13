@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Send, Bot, User, Mic, MicOff, Volume2, VolumeX, Trash2, MessageCircle } from 'lucide-react';
+import { Send, Bot, User, Mic, MicOff, Volume2, VolumeX, Trash2, MessageCircle, Menu, PanelLeftClose } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
@@ -35,7 +35,15 @@ const withTimeout = <T,>(promise: Promise<T>, cleanup: any, ms = 18000, timeoutM
   });
 };
 
-const StandaloneAIStudyCoachChat: React.FC = () => {
+interface StandaloneAIStudyCoachChatProps {
+  sidebarCollapsed?: boolean;
+  onToggleSidebar?: () => void;
+}
+
+const StandaloneAIStudyCoachChat: React.FC<StandaloneAIStudyCoachChatProps> = ({ 
+  sidebarCollapsed = false, 
+  onToggleSidebar 
+}) => {
   const cleanup = useCleanup('StandaloneAIStudyCoachChat');
   const { user } = useAuth();
   const { toast } = useToast();
@@ -460,11 +468,29 @@ What would you like to focus on?`
 
   return (
     <div className="h-full flex flex-col bg-background">
-      {/* Demo Badge */}
+      {/* Title Bar */}
       <div className="flex-shrink-0 bg-primary/10 border-b border-border p-2 flex items-center justify-between">
-        <span className="text-sm text-muted-foreground">
-          🤖 AI Study Coach {user ? '- Authenticated' : '- Demo Mode'}
-        </span>
+        <div className="flex items-center gap-2">
+          {/* Sidebar Toggle Button */}
+          {onToggleSidebar && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onToggleSidebar}
+              className="h-7 w-7 flex-shrink-0"
+              title={sidebarCollapsed ? "Show session history" : "Hide session history"}
+            >
+              {sidebarCollapsed ? (
+                <Menu className="h-4 w-4" />
+              ) : (
+                <PanelLeftClose className="h-4 w-4" />
+              )}
+            </Button>
+          )}
+          <span className="text-sm text-muted-foreground">
+            🤖 AI Study Coach {user ? '- Authenticated' : '- Demo Mode'}
+          </span>
+        </div>
         {displayMessages.length >= 1 && (
           <Button
             variant="ghost"
