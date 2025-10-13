@@ -5,7 +5,6 @@ import algebraBg from '@/assets/linear-equations-background.jpg';
 import logicBg from '@/assets/logic-background.jpg';
 import economicsBg from '@/assets/economics-background.jpg';
 import neurodiversityBackground from '@/assets/neurodiversity-background.jpg';
-import scienceCourseBg from '@/assets/science-course-background.jpg';
 import moneyManagementBg from '@/assets/money-management-background.jpg';
 import empoweringHandwritingBg from '@/assets/empowering-handwriting-bg.jpg';
 import elHandwritingBg from '@/assets/el-handwriting-bg.jpg';
@@ -14,7 +13,11 @@ import empoweringNumeracyBg from '@/assets/empowering-numeracy-bg.jpg';
 import empoweringReadingBg from '@/assets/empowering-reading-bg.jpg';
 import empoweringSpellingBg from '@/assets/empowering-spelling-new-bg.jpg';
 import learningStateBg from '@/assets/learning-state-course-bg.jpg';
-import eltBackground from '@/assets/elt-background.jpg';
+
+// Supabase-hosted backgrounds
+const SUPABASE_STORAGE_URL = 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-images';
+const eltBackground = `${SUPABASE_STORAGE_URL}/backgrounds/elt.png`;
+const scienceCourseBg = `${SUPABASE_STORAGE_URL}/backgrounds/intro-science.png`;
 
 /**
  * Single source of truth for course images
