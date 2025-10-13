@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Brain, CheckCircle2, Sparkles, Target, MessageSquare } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import portalBackground from '@/assets/portal-background.png';
 
 /**
  * CoachPortalLanding - Public entry point for AI Coach Portal
@@ -159,57 +160,68 @@ const CoachPortalLanding: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
-      {/* Header */}
-      <div className="border-b border-border bg-card/50 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary/10 rounded-lg">
-              <Brain className="w-8 h-8 text-primary" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold">AI Study Coach Portal</h1>
-              <p className="text-sm text-muted-foreground">Your Personal Learning Companion</p>
+    <div className="min-h-screen relative">
+      {/* Full-screen background image */}
+      <div 
+        className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${portalBackground})` }}
+      />
+      
+      {/* Overlay for better text readability */}
+      <div className="fixed inset-0 z-0 bg-black/40" />
+      
+      {/* Content wrapper */}
+      <div className="relative z-10 min-h-screen">
+        {/* Header */}
+        <div className="border-b border-white/20 bg-black/30 backdrop-blur-md">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-white/10 rounded-lg backdrop-blur-sm">
+                <Brain className="w-8 h-8 text-white" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-white">AI Study Coach Portal</h1>
+                <p className="text-sm text-white/80">Your Personal Learning Companion</p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          {/* Left: Features & Description */}
-          <div className="space-y-8">
+        {/* Main Content */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Left: Features & Description */}
+            <div className="space-y-8">
+              <div>
+                <h2 className="text-3xl sm:text-4xl font-bold mb-4 text-white drop-shadow-lg">
+                  Unlock Your Learning Potential
+                </h2>
+                <p className="text-lg text-white/90 drop-shadow-md">
+                  Experience personalized, AI-powered coaching that helps you master any subject with confidence.
+                </p>
+              </div>
+
+              <div className="grid gap-4">
+                {features.map((feature, index) => {
+                  const IconComponent = feature.icon;
+                  return (
+                    <div key={index} className="flex items-start gap-4 p-4 rounded-lg bg-black/40 border border-white/20 hover:border-white/40 hover:bg-black/50 transition-all backdrop-blur-sm">
+                      <div className="flex-shrink-0 p-2 bg-white/10 rounded-lg">
+                        <IconComponent className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold mb-1 text-white">{feature.title}</h3>
+                        <p className="text-sm text-white/80">{feature.description}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Right: Auth Form */}
             <div>
-              <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-                Unlock Your Learning Potential
-              </h2>
-              <p className="text-lg text-muted-foreground">
-                Experience personalized, AI-powered coaching that helps you master any subject with confidence.
-              </p>
-            </div>
-
-            <div className="grid gap-4">
-              {features.map((feature, index) => {
-                const IconComponent = feature.icon;
-                return (
-                  <div key={index} className="flex items-start gap-4 p-4 rounded-lg bg-card border border-border hover:border-primary/50 transition-colors">
-                    <div className="flex-shrink-0 p-2 bg-primary/10 rounded-lg">
-                      <IconComponent className="w-5 h-5 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold mb-1">{feature.title}</h3>
-                      <p className="text-sm text-muted-foreground">{feature.description}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Right: Auth Form */}
-          <div>
-            <Card className="shadow-lg">
+              <Card className="shadow-2xl bg-white/95 backdrop-blur-md border-white/20">
               <CardHeader>
                 <CardTitle>{isLogin ? 'Sign In' : 'Create Account'}</CardTitle>
                 <CardDescription>
@@ -311,6 +323,7 @@ const CoachPortalLanding: React.FC = () => {
           </div>
         </div>
       </div>
+    </div>
     </div>
   );
 };
