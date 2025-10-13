@@ -84,7 +84,7 @@ const XPBreakdownCard: React.FC<XPBreakdownCardProps> = ({ userId }) => {
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={xpBreakdown}
+                  data={xpBreakdown as any}
                   cx="50%"
                   cy="50%"
                   outerRadius={60}

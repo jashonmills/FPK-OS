@@ -144,7 +144,7 @@ export const DeclarativeChart: React.FC<DeclarativeChartProps> = ({
         return (
           <PieChart {...commonProps}>
             <Pie
-              data={filteredData}
+              data={filteredData as any}
               cx="50%"
               cy="50%"
               outerRadius={80}

@@ -114,7 +114,7 @@ const LibraryReadingAnalytics = () => {
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={categoryData}
+                      data={categoryData as any}
                       cx="50%"
                       cy="50%"
                       outerRadius={80}
