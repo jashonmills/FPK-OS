@@ -75,7 +75,7 @@ const courses: Course[] = [
       'Build confidence in spelling abilities',
       'Apply techniques to any spelling challenge'
     ],
-    route: '/courses/empowering-learning-spelling'
+    route: '/courses/player/empowering-learning-for-spelling'
   },
   {
       id: 'empowering-learning-reading',
