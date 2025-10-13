@@ -146,7 +146,7 @@ export const UniversalCoursePlayer: React.FC = () => {
             title: courseData.title,
             description: courseData.description || '',
             slug: courseSlug || '',
-            background_image: courseData.thumbnail_url || undefined,
+            background_image: (courseData as any).background_image || courseData.thumbnail_url || undefined,
             estimated_hours: courseData.duration_minutes ? Math.ceil(courseData.duration_minutes / 60) : undefined,
             difficulty_level: (courseData as any).difficulty || 'Beginner',
             content_version: (courseData as any).content_version
@@ -180,7 +180,7 @@ export const UniversalCoursePlayer: React.FC = () => {
             title: courseData.title,
             description: courseData.description || '',
             slug: courseSlug || '',
-            background_image: courseData.thumbnail_url || undefined,
+            background_image: (courseData as any).background_image || courseData.thumbnail_url || undefined,
             estimated_hours: courseData.duration_minutes ? Math.ceil(courseData.duration_minutes / 60) : undefined,
             difficulty_level: (courseData as any).difficulty || 'Beginner'
           }}

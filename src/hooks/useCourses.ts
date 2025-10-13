@@ -14,6 +14,7 @@ export interface Course {
   difficulty_level?: string;
   tags?: string[];
   thumbnail_url?: string;
+  background_image?: string;
   price?: number;
   is_free?: boolean;
   featured?: boolean;

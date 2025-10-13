@@ -27,6 +27,7 @@ import { StandardVideoPlayer } from '@/components/course-player/StandardVideoPla
 import { StandardTextRenderer } from '@/components/course-player/StandardTextRenderer';
 import { CourseContentManifest, LessonContentData } from '@/types/lessonContent';
 import { loadCourseContent, getLessonContent } from '@/utils/courseContentLoader';
+import { getCourseImage } from '@/utils/courseImages';
 
 interface SequentialCourseShellProps {
   courseData: {
@@ -49,6 +50,9 @@ export const SequentialCourseShell: React.FC<SequentialCourseShellProps> = ({ co
   const [completedLessons, setCompletedLessons] = useState<number[]>([]);
   const [manifest, setManifest] = useState<CourseContentManifest | null>(null);
   const [loading, setLoading] = useState(true);
+  
+  // Get course background image from utility or use provided one
+  const backgroundImage = courseData.background_image || getCourseImage(courseData.id, courseData.title);
 
   // Load course manifest
   useEffect(() => {
@@ -195,7 +199,7 @@ export const SequentialCourseShell: React.FC<SequentialCourseShellProps> = ({ co
           <div 
             className="min-h-screen bg-gradient-to-br from-background to-muted/20"
             style={{
-              backgroundImage: courseData.background_image ? `url(${courseData.background_image})` : undefined,
+              backgroundImage: `url(${backgroundImage})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               backgroundAttachment: 'fixed'
@@ -431,7 +435,7 @@ export const SequentialCourseShell: React.FC<SequentialCourseShellProps> = ({ co
         <div 
           className="min-h-screen bg-gradient-to-br from-background to-muted/20"
           style={{
-            backgroundImage: courseData.background_image ? `url(${courseData.background_image})` : undefined,
+            backgroundImage: `url(${backgroundImage})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundAttachment: 'fixed'
