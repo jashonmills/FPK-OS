@@ -151,15 +151,17 @@ const handler = async (req: Request): Promise<Response> => {
             createUserError.code === 'email_exists') {
           console.log(`User ${email} already exists in auth, fetching their ID`);
           
-          // Fetch existing user by email
-          const { data: { users }, error: fetchError } = await supabase.auth.admin.listUsers();
-          const existingUser = users?.find(u => u.email?.toLowerCase() === email.toLowerCase());
+          // Fetch existing user by email using admin.getUserByEmail
+          const { data: existingUserData, error: fetchError } = await supabase.auth.admin.getUserByEmail(
+            email.toLowerCase()
+          );
           
-          if (!existingUser) {
-            throw new Error(`User ${email} exists but could not be fetched`);
+          if (fetchError || !existingUserData.user) {
+            console.error('Error fetching user by email:', fetchError);
+            throw new Error(`User ${email} exists but could not be fetched: ${fetchError?.message || 'Unknown error'}`);
           }
           
-          newUserId = existingUser.id;
+          newUserId = existingUserData.user.id;
           isNewUser = false;
           console.log(`Found existing user: ${newUserId}`);
         } else {
