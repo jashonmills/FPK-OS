@@ -1,0 +1,110 @@
+{
+  "courseId": "data-structures-algorithms",
+  "courseSlug": "data-structures-algorithms",
+  "contentVersion": "v2",
+  "framework": "micro-learning",
+  "courseTitle": "Data Structures and Algorithms",
+  "description": "Master essential computer science concepts including arrays, trees, sorting, and algorithm complexity.",
+  "backgroundImage": "/lovable-uploads/data-structures-algorithms-bg.jpg",
+  "estimatedHours": 6,
+  "difficultyLevel": "advanced",
+  "category": "Technology",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Introduction to Algorithms",
+      "description": "Understand algorithmic thinking and Big O notation",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 1: Foundations",
+      "unitColor": "bg-indigo-100 text-indigo-700"
+    },
+    {
+      "id": 2,
+      "title": "Arrays and Linked Lists",
+      "description": "Learn fundamental linear data structures",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 40,
+      "unit": "Unit 2: Linear Structures",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 3,
+      "title": "Stacks and Queues",
+      "description": "Master LIFO and FIFO data structures",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 35,
+      "unit": "Unit 2: Linear Structures",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 4,
+      "title": "Trees and Binary Search Trees",
+      "description": "Explore hierarchical data structures",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 45,
+      "unit": "Unit 3: Tree Structures",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 5,
+      "title": "Hash Tables",
+      "description": "Learn about efficient key-value storage",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 35,
+      "unit": "Unit 4: Advanced Structures",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 6,
+      "title": "Sorting Algorithms",
+      "description": "Study bubble sort, merge sort, and quick sort",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 45,
+      "unit": "Unit 5: Algorithms",
+      "unitColor": "bg-orange-100 text-orange-700"
+    },
+    {
+      "id": 7,
+      "title": "Searching Algorithms",
+      "description": "Master linear and binary search techniques",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 35,
+      "unit": "Unit 5: Algorithms",
+      "unitColor": "bg-orange-100 text-orange-700"
+    },
+    {
+      "id": 8,
+      "title": "Dynamic Programming",
+      "description": "Solve complex problems with optimization",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 45,
+      "unit": "Unit 6: Advanced Topics",
+      "unitColor": "bg-red-100 text-red-700"
+    }
+  ]
+}

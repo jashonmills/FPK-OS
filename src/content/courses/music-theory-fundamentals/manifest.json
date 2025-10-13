@@ -1,0 +1,86 @@
+{
+  "courseId": "music-theory-fundamentals",
+  "courseSlug": "music-theory-fundamentals",
+  "contentVersion": "v2",
+  "framework": "sequential",
+  "courseTitle": "Music Theory Fundamentals",
+  "description": "Understand the building blocks of music including notation, scales, chords, and rhythm.",
+  "backgroundImage": "/lovable-uploads/music-theory-fundamentals-bg.jpg",
+  "estimatedHours": 3,
+  "difficultyLevel": "introductory",
+  "category": "Arts",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Introduction to Music Theory",
+      "description": "Explore the basics of musical sound and notation",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 20,
+      "unit": "Unit 1: Foundations",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 2,
+      "title": "The Staff and Clefs",
+      "description": "Learn to read music notation",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 25,
+      "unit": "Unit 1: Foundations",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 3,
+      "title": "Rhythm and Time Signatures",
+      "description": "Understand beats, measures, and note values",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 2: Rhythm",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 4,
+      "title": "Scales and Key Signatures",
+      "description": "Master major and minor scales",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 3: Melody",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 5,
+      "title": "Intervals",
+      "description": "Learn about the distance between notes",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 25,
+      "unit": "Unit 3: Melody",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 6,
+      "title": "Chords and Harmony",
+      "description": "Build and understand triads and progressions",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 4: Harmony",
+      "unitColor": "bg-orange-100 text-orange-700"
+    }
+  ]
+}

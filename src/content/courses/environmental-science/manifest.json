@@ -1,0 +1,86 @@
+{
+  "courseId": "environmental-science",
+  "courseSlug": "environmental-science",
+  "contentVersion": "v2",
+  "framework": "sequential",
+  "courseTitle": "Environmental Science",
+  "description": "Study ecosystems, biodiversity, climate change, and sustainability to understand our planet's challenges.",
+  "backgroundImage": "/lovable-uploads/environmental-science-bg.jpg",
+  "estimatedHours": 3,
+  "difficultyLevel": "introductory",
+  "category": "Science",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Introduction to Environmental Science",
+      "description": "Explore the scope and importance of environmental science",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 20,
+      "unit": "Unit 1: Foundations",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 2,
+      "title": "Ecosystems and Biodiversity",
+      "description": "Learn about Earth's diverse ecosystems and species",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 2: Living Systems",
+      "unitColor": "bg-emerald-100 text-emerald-700"
+    },
+    {
+      "id": 3,
+      "title": "Population Ecology",
+      "description": "Study how populations grow and interact",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 25,
+      "unit": "Unit 2: Living Systems",
+      "unitColor": "bg-emerald-100 text-emerald-700"
+    },
+    {
+      "id": 4,
+      "title": "Climate Change",
+      "description": "Understand global warming and its impacts",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 3: Environmental Challenges",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 5,
+      "title": "Pollution and Waste",
+      "description": "Explore different types of pollution and waste management",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 25,
+      "unit": "Unit 3: Environmental Challenges",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 6,
+      "title": "Sustainability and Conservation",
+      "description": "Learn about sustainable practices and conservation efforts",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 4: Solutions",
+      "unitColor": "bg-teal-100 text-teal-700"
+    }
+  ]
+}

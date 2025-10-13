@@ -1,0 +1,98 @@
+{
+  "courseId": "french-101",
+  "courseSlug": "french-101",
+  "contentVersion": "v2",
+  "framework": "sequential",
+  "courseTitle": "French 101",
+  "description": "Begin your French language journey with essential vocabulary, grammar, and conversational skills.",
+  "backgroundImage": "/lovable-uploads/french-101-bg.jpg",
+  "estimatedHours": 4,
+  "difficultyLevel": "introductory",
+  "category": "World Languages",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Introduction to French",
+      "description": "Learn the French alphabet and pronunciation",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 25,
+      "unit": "Unit 1: Getting Started",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 2,
+      "title": "Greetings and Introductions",
+      "description": "Master basic French greetings and self-introduction",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 1: Getting Started",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 3,
+      "title": "Numbers and Time",
+      "description": "Learn to count and tell time in French",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 2: Basics",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 4,
+      "title": "Family and Relationships",
+      "description": "Describe family members and relationships",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 2: Basics",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 5,
+      "title": "Present Tense Verbs",
+      "description": "Master regular and common irregular verbs",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 35,
+      "unit": "Unit 3: Grammar",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 6,
+      "title": "Food and Dining",
+      "description": "Learn vocabulary for meals and restaurants",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 4: Daily Life",
+      "unitColor": "bg-orange-100 text-orange-700"
+    },
+    {
+      "id": 7,
+      "title": "Conversational French",
+      "description": "Practice real-world conversations and dialogues",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 4: Daily Life",
+      "unitColor": "bg-orange-100 text-orange-700"
+    }
+  ]
+}

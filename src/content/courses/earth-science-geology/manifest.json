@@ -1,0 +1,86 @@
+{
+  "courseId": "earth-science-geology",
+  "courseSlug": "earth-science-geology",
+  "contentVersion": "v2",
+  "framework": "sequential",
+  "courseTitle": "Earth Science and Geology",
+  "description": "Explore Earth's structure, rocks, minerals, plate tectonics, and geological processes.",
+  "backgroundImage": "/lovable-uploads/earth-science-geology-bg.jpg",
+  "estimatedHours": 3,
+  "difficultyLevel": "intermediate",
+  "category": "Science",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Introduction to Earth Science",
+      "description": "Overview of Earth systems and geology",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 20,
+      "unit": "Unit 1: Foundations",
+      "unitColor": "bg-amber-100 text-amber-700"
+    },
+    {
+      "id": 2,
+      "title": "Rocks and Minerals",
+      "description": "Learn about different types of rocks and minerals",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 2: Earth Materials",
+      "unitColor": "bg-stone-100 text-stone-700"
+    },
+    {
+      "id": 3,
+      "title": "Plate Tectonics",
+      "description": "Understand how Earth's crust moves and changes",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 3: Dynamic Earth",
+      "unitColor": "bg-red-100 text-red-700"
+    },
+    {
+      "id": 4,
+      "title": "Volcanoes and Earthquakes",
+      "description": "Explore volcanic activity and seismic events",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 3: Dynamic Earth",
+      "unitColor": "bg-red-100 text-red-700"
+    },
+    {
+      "id": 5,
+      "title": "Weathering and Erosion",
+      "description": "Learn how Earth's surface changes over time",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 25,
+      "unit": "Unit 4: Surface Processes",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 6,
+      "title": "Earth's History",
+      "description": "Study geological time and Earth's evolution",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 5: Historical Geology",
+      "unitColor": "bg-purple-100 text-purple-700"
+    }
+  ]
+}
