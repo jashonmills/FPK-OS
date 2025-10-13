@@ -131,7 +131,9 @@ export const SequentialCourseShell: React.FC<SequentialCourseShellProps> = ({ co
     if (manifest && currentLesson !== null && currentLesson < manifest.lessons.length) {
       const nextLesson = currentLesson + 1;
       setCurrentLesson(nextLesson);
-      navigate(`/courses/player/${courseData.slug}/${nextLesson}`);
+      // Preserve org query parameter
+      const searchParams = window.location.search;
+      navigate(`/courses/player/${courseData.slug}/${nextLesson}${searchParams}`);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [currentLesson, manifest, navigate, courseData.slug]);
@@ -140,19 +142,25 @@ export const SequentialCourseShell: React.FC<SequentialCourseShellProps> = ({ co
     if (currentLesson !== null && currentLesson > 1) {
       const prevLesson = currentLesson - 1;
       setCurrentLesson(prevLesson);
-      navigate(`/courses/player/${courseData.slug}/${prevLesson}`);
+      // Preserve org query parameter
+      const searchParams = window.location.search;
+      navigate(`/courses/player/${courseData.slug}/${prevLesson}${searchParams}`);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [currentLesson, navigate, courseData.slug]);
 
   const handleLessonSelect = useCallback((lessonId: number) => {
     setCurrentLesson(lessonId);
-    navigate(`/courses/player/${courseData.slug}/${lessonId}`);
+    // Preserve org query parameter
+    const searchParams = window.location.search;
+    navigate(`/courses/player/${courseData.slug}/${lessonId}${searchParams}`);
   }, [navigate, courseData.slug]);
 
   const handleBackToCourseOverview = useCallback(() => {
     setCurrentLesson(null);
-    navigate(`/courses/player/${courseData.slug}`);
+    // Preserve org query parameter
+    const searchParams = window.location.search;
+    navigate(`/courses/player/${courseData.slug}${searchParams}`);
   }, [navigate, courseData.slug]);
 
   const isLessonAccessible = useCallback((lessonId: number) => {
