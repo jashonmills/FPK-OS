@@ -499,6 +499,7 @@ const VIDEO_PRODUCTION_COURSE = {
     'learning-state-beta', // Alias for optimal-learning-state
     'empowering-learning-state', // Another alias for optimal-learning-state
     'el-handwriting',
+    'el-spelling', // V2 Spelling course
     'el-spelling-reading',
     'empowering-learning-spelling', // Alias for el-spelling-reading
     '06efda03-9f0b-4c00-a064-eb65ada9fbae', // Another alias for el-spelling-reading
