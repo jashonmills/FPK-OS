@@ -121,10 +121,10 @@ export default function OrgCoursesCatalog() {
 
         const requiredCourses = [
           { course_id: 'el-handwriting', course_type: 'platform' },
+          { course_id: 'el-spelling', course_type: 'platform' },
           { course_id: 'empowering-learning-numeracy', course_type: 'platform' },
           { course_id: 'empowering-learning-reading', course_type: 'platform' },
-          { course_id: 'empowering-learning-state', course_type: 'platform' },
-          { course_id: '06efda03-9f0b-4c00-a064-eb65ada9fbae', course_type: 'native' }
+          { course_id: 'learning-state-beta', course_type: 'platform' }
         ];
 
         // Enroll in missing courses
