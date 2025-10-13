@@ -506,6 +506,14 @@ const App: React.FC = () => {
             </RouteProtector>
           } />
           
+          {/* V2 Sequential Courses - Redirect legacy routes to Universal Player */}
+          <Route path="/courses/el-handwriting" element={<Navigate to="/courses/player/el-handwriting" replace />} />
+          <Route path="/courses/empowering-learning-handwriting" element={<Navigate to="/courses/player/el-handwriting" replace />} />
+          <Route path="/courses/empowering-learning-reading" element={<Navigate to="/courses/player/empowering-learning-reading" replace />} />
+          <Route path="/courses/empowering-learning-numeracy" element={<Navigate to="/courses/player/empowering-learning-numeracy" replace />} />
+          <Route path="/courses/optimal-learning-state" element={<Navigate to="/courses/player/optimal-learning-state" replace />} />
+          <Route path="/courses/el-spelling" element={<Navigate to="/courses/player/el-spelling" replace />} />
+          
           <Route path="/courses/interactive-linear-equations" element={
             <RouteProtector>
               <LazyRoute><InteractiveLinearEquationsCoursePage /></LazyRoute>

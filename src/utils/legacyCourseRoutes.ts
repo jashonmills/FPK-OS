@@ -1,14 +1,11 @@
 /**
  * Registry of legacy Sequential Learning Framework courses
  * These courses have dedicated route pages and should not use NativeCoursePlayer
+ * 
+ * CRITICAL: V2 courses have been REMOVED from this list.
+ * V2 courses are now in src/utils/v2SequentialCourses.ts
  */
 export const LEGACY_COURSE_SLUGS = [
-  'empowering-learning-handwriting',
-  'empowering-learning-numeracy', 
-  'empowering-learning-reading',
-  'optimal-learning-state',
-  'el-handwriting',
-  'el-spelling-reading',
   'elt-empowering-learning-techniques',
   'interactive-algebra',
   'interactive-trigonometry',
@@ -28,8 +25,7 @@ export type LegacyCourseSlug = typeof LEGACY_COURSE_SLUGS[number];
  * UUID to slug mapping for legacy courses where slug is not in courses table
  */
 export const UUID_TO_SLUG_MAP: Record<string, LegacyCourseSlug> = {
-  'learning-state-beta': 'optimal-learning-state',
-  // Add other UUIDs as needed
+  // Add UUID mappings for legacy courses as needed
 };
 
 /**
