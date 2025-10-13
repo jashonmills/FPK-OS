@@ -459,7 +459,7 @@ What would you like to focus on?`
   }, [displayMessages, autoPlayEnabled, settings.enabled, lastSpokenMessageId, isLoading, speak]);
 
   return (
-    <div className="h-screen flex flex-col bg-background">
+    <div className="h-full flex flex-col bg-background">
       {/* Demo Badge */}
       <div className="flex-shrink-0 bg-primary/10 border-b border-border p-2 flex items-center justify-between">
         <span className="text-sm text-muted-foreground">
