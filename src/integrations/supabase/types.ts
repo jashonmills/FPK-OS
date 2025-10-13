@@ -1390,6 +1390,7 @@ export type Database = {
       courses: {
         Row: {
           asset_path: string | null
+          background_image: string | null
           content_component: string | null
           content_version: string | null
           course_visibility: string | null
@@ -1418,6 +1419,7 @@ export type Database = {
         }
         Insert: {
           asset_path?: string | null
+          background_image?: string | null
           content_component?: string | null
           content_version?: string | null
           course_visibility?: string | null
@@ -1446,6 +1448,7 @@ export type Database = {
         }
         Update: {
           asset_path?: string | null
+          background_image?: string | null
           content_component?: string | null
           content_version?: string | null
           course_visibility?: string | null
@@ -9788,6 +9791,7 @@ export type Database = {
         Args: { p_slug: string }
         Returns: {
           asset_path: string | null
+          background_image: string | null
           content_component: string | null
           content_version: string | null
           course_visibility: string | null
@@ -9819,6 +9823,7 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: {
           asset_path: string | null
+          background_image: string | null
           content_component: string | null
           content_version: string | null
           course_visibility: string | null

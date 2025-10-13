@@ -11,6 +11,7 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useCourses } from '@/hooks/useCourses';
 import { SequentialCourseShell } from './SequentialCourseShell';
+import { SingleContentEmbedShell } from './SingleContentEmbedShell';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, Loader2 } from 'lucide-react';
@@ -173,20 +174,17 @@ export const UniversalCoursePlayer: React.FC = () => {
 
     case 'single-embed':
       return (
-        <div className="container mx-auto px-4 py-8">
-          <Card>
-            <CardContent className="p-8 text-center space-y-4">
-              <AlertCircle className="w-12 h-12 mx-auto text-blue-500" />
-              <h2 className="text-2xl font-bold">Single-Embed Framework</h2>
-              <p className="text-muted-foreground">
-                Coming in the next phase of Project Phoenix.
-              </p>
-              <Button onClick={() => goToCourses()}>
-                Back to Courses
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
+        <SingleContentEmbedShell
+          courseData={{
+            id: courseData.id,
+            title: courseData.title,
+            description: courseData.description || '',
+            slug: courseSlug || '',
+            background_image: courseData.thumbnail_url || undefined,
+            estimated_hours: courseData.duration_minutes ? Math.ceil(courseData.duration_minutes / 60) : undefined,
+            difficulty_level: (courseData as any).difficulty || 'Beginner'
+          }}
+        />
       );
 
     default:
