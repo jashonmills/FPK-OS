@@ -1,91 +1,237 @@
 {
-  "courseTitle": "Introduction to Science",
+  "courseId": "interactive-science",
   "courseSlug": "interactive-science",
-  "description": "Get to grips with the basics of biology, chemistry, and physics. Learn the scientific method and explore the building blocks of life and matter.",
+  "contentVersion": "v2",
+  "title": "Introduction to Science",
+  "description": "Explore the fundamentals of scientific inquiry and the core concepts that shape our understanding of the natural world.",
   "lessons": [
     {
       "id": 1,
       "title": "The Scientific Method",
-      "description": "Learn the fundamental steps of scientific inquiry and how to apply them",
-      "unit": "Unit 1: The Scientific Method",
-      "unitColor": "bg-blue-100 text-blue-700"
+      "description": "Learn the systematic process used to explore observations and answer questions through evidence-based inquiry.",
+      "contentType": "text",
+      "unit": "Main Course",
+      "unitColor": "bg-blue-100 text-blue-700",
+      "estimatedMinutes": 15,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "The Scientific Method",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "The scientific method is a systematic process used to explore observations and answer questions. It's not just for those in the lab; it's a way of thinking that helps us make sound decisions every day. It provides a reliable framework for reaching conclusions based on evidence, not just guesswork."
+        },
+        {
+          "type": "heading",
+          "content": "The Five Steps",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**Observation**: It all kicks off with you noticing something and asking a question about it. For example, you might notice that the plants on your kitchen window grow faster than the ones in a darker corner of the sitting room. Your question is: 'Why is that?'"
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "**Hypothesis**: This is a testable explanation for your observation. It's a bit of an educated guess. For our plant example, a hypothesis could be: 'Plants grow faster with more sunlight.'"
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**Experiment**: This is where you set up a controlled test of your hypothesis. To test the theory about the plants, you'd get two identical plants and give one plenty of sunlight and the other very little, while making sure everything else (water, soil, temperature) is the exact same."
+        },
+        {
+          "type": "callout",
+          "style": "warning",
+          "content": "**Analysis**: You gather and analyse the data from your experiment. You'd measure the growth of both plants over a period of time and compare your results."
+        },
+        {
+          "type": "callout",
+          "style": "error",
+          "content": "**Conclusion**: You use your data to figure out if your hypothesis was correct or not. The conclusion either backs up your hypothesis or sends you back to the drawing board to form a new one."
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "**Deeper Dive: The Art of the Hypothesis** - A good hypothesis is more than just a guess—it's a prediction that can be proven wrong. It must be **falsifiable**. If you hypothesise that 'fairies make plants grow faster,' there's no way to test or disprove that. A falsifiable hypothesis, like 'plants grow faster with more sunlight,' can be tested with an experiment. The best hypotheses are specific and measurable."
+        }
+      ]
     },
     {
       "id": 2,
       "title": "The Importance of Science",
-      "description": "Discover how science shapes our understanding of the world",
-      "unit": "Unit 1: The Scientific Method",
-      "unitColor": "bg-blue-100 text-blue-700"
+      "description": "Discover how science shapes modern society and impacts every aspect of our daily lives.",
+      "contentType": "text",
+      "unit": "Main Course",
+      "unitColor": "bg-blue-100 text-blue-700",
+      "estimatedMinutes": 12,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "The Importance of Science",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Science is the very bedrock of modern society. From the technology in our smartphones to the medicine that keeps us well, scientific discoveries have shaped our world. It's a tool for solving problems, from small, everyday issues to huge global challenges like climate change and disease. Without a scientific approach, we'd be unable to innovate, improve, and protect our quality of life."
+        },
+        {
+          "type": "heading",
+          "content": "Science Impacts Every Aspect of Life",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "**Healthcare & Medicine**: From vaccines to surgical procedures, scientific understanding keeps us healthy and alive."
+        },
+        {
+          "type": "paragraph",
+          "content": "**Communication & Technology**: The internet, smartphones, and satellites all depend on scientific breakthroughs."
+        },
+        {
+          "type": "paragraph",
+          "content": "**Transportation**: Cars, planes, and trains use principles of physics, chemistry, and engineering."
+        },
+        {
+          "type": "paragraph",
+          "content": "**Food & Agriculture**: Scientific methods help us grow more food and preserve it safely."
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "**A Moment for a Think**: Think about something you use every day, like a smartphone or a car. What scientific principles or discoveries made that object possible? Consider the materials, the energy source, and the systems inside it."
+        }
+      ]
     },
     {
       "id": 3,
       "title": "Cell Structure and Function",
-      "description": "Explore the basic building blocks of all living organisms",
-      "unit": "Unit 2: Biology",
-      "unitColor": "bg-green-100 text-green-700"
+      "description": "Explore the building blocks of life and understand how cells work.",
+      "contentType": "text",
+      "unit": "Main Course",
+      "unitColor": "bg-blue-100 text-blue-700",
+      "estimatedMinutes": 18,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Cell Structure and Function",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "A **cell** is the most basic unit of life. There are two main types: prokaryotic and eukaryotic. **Prokaryotic cells** are simple and don't have a nucleus (like bacteria), while **eukaryotic cells** are more complex and have a nucleus along with other specialised parts called organelles (like animal and plant cells)."
+        },
+        {
+          "type": "heading",
+          "content": "Key Organelles and Their Functions",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "**Nucleus**: The control centre, holding the cell's genetic material (DNA)."
+        },
+        {
+          "type": "paragraph",
+          "content": "**Mitochondria**: The cell's powerhouses, generating energy."
+        },
+        {
+          "type": "paragraph",
+          "content": "**Cell Membrane**: The protective outer layer that controls what gets in and out of the cell."
+        },
+        {
+          "type": "paragraph",
+          "content": "**Cytoplasm**: The jelly-like goo that fills the cell and holds the organelles in place."
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "**Deeper Dive: The Power of the Mitochondria** - Mitochondria are fascinating. They have their own small set of DNA, separate from the DNA in the cell's nucleus. This has led scientists to believe that mitochondria were once separate, free-living bacteria that were absorbed by larger cells billions of years ago in a process called **endosymbiosis**. This symbiotic relationship allowed both the host cell and the mitochondria to survive and thrive, a major event in the evolution of complex life."
+        }
+      ]
     },
     {
       "id": 4,
-      "title": "Genetics and DNA",
-      "description": "Understand heredity and the molecular basis of life",
-      "unit": "Unit 2: Biology",
-      "unitColor": "bg-green-100 text-green-700"
+      "title": "Atoms and Molecules",
+      "description": "Understand the fundamental particles that make up all matter.",
+      "contentType": "text",
+      "unit": "Main Course",
+      "unitColor": "bg-blue-100 text-blue-700",
+      "estimatedMinutes": 16
     },
     {
       "id": 5,
-      "title": "Atoms and Molecules",
-      "description": "Learn about the fundamental particles that make up matter",
-      "unit": "Unit 3: Chemistry",
-      "unitColor": "bg-red-100 text-red-700"
+      "title": "The Periodic Table",
+      "description": "Learn how elements are organized and why this organization matters.",
+      "contentType": "text",
+      "unit": "Main Course",
+      "unitColor": "bg-blue-100 text-blue-700",
+      "estimatedMinutes": 14
     },
     {
       "id": 6,
-      "title": "The Periodic Table",
-      "description": "Master the organization of chemical elements",
-      "unit": "Unit 3: Chemistry",
-      "unitColor": "bg-red-100 text-red-700"
+      "title": "Forces and Motion",
+      "description": "Explore the laws that govern how objects move and interact.",
+      "contentType": "text",
+      "unit": "Main Course",
+      "unitColor": "bg-blue-100 text-blue-700",
+      "estimatedMinutes": 15
     },
     {
       "id": 7,
-      "title": "Forces and Motion",
-      "description": "Discover the principles that govern how objects move",
-      "unit": "Unit 4: Physics",
-      "unitColor": "bg-yellow-100 text-yellow-700"
+      "title": "Energy and Work",
+      "description": "Discover the principles of energy transformation and conservation.",
+      "contentType": "text",
+      "unit": "Main Course",
+      "unitColor": "bg-blue-100 text-blue-700",
+      "estimatedMinutes": 15
     },
     {
       "id": 8,
-      "title": "Energy and Work",
-      "description": "Understand different forms of energy and how work is done",
-      "unit": "Unit 4: Physics",
-      "unitColor": "bg-yellow-100 text-yellow-700"
+      "title": "Genetics and DNA",
+      "description": "Learn how genetic information is stored and passed on.",
+      "contentType": "text",
+      "unit": "Main Course",
+      "unitColor": "bg-blue-100 text-blue-700",
+      "estimatedMinutes": 17
     },
     {
       "id": 9,
       "title": "Review and Summary",
-      "description": "Consolidate your learning with comprehensive review",
-      "unit": "Unit 5: Conclusion",
-      "unitColor": "bg-gray-100 text-gray-700"
+      "description": "Consolidate your understanding of key scientific concepts.",
+      "contentType": "text",
+      "unit": "Assessment",
+      "unitColor": "bg-green-100 text-green-700",
+      "estimatedMinutes": 10
     },
     {
       "id": 10,
-      "title": "Further Exploration",
-      "description": "Explore advanced topics and real-world applications",
-      "unit": "Unit 5: Conclusion",
-      "unitColor": "bg-gray-100 text-gray-700"
+      "title": "Short Answer Questions",
+      "description": "Test your knowledge with practice questions.",
+      "contentType": "text",
+      "unit": "Assessment",
+      "unitColor": "bg-green-100 text-green-700",
+      "estimatedMinutes": 20
     },
     {
       "id": 11,
-      "title": "Short-Answer Questions",
-      "description": "Test your knowledge with focused practice questions",
-      "unit": "Unit 6: Study Guide",
-      "unitColor": "bg-purple-100 text-purple-700"
+      "title": "Complete Study Guide",
+      "description": "Access comprehensive review materials for all topics.",
+      "contentType": "text",
+      "unit": "Resources",
+      "unitColor": "bg-purple-100 text-purple-700",
+      "estimatedMinutes": 15
     },
     {
       "id": 12,
-      "title": "Complete Study Guide",
-      "description": "Comprehensive guide for mastering all course concepts",
-      "unit": "Unit 6: Study Guide",
-      "unitColor": "bg-purple-100 text-purple-700"
+      "title": "Further Exploration",
+      "description": "Discover advanced topics and additional learning resources.",
+      "contentType": "text",
+      "unit": "Resources",
+      "unitColor": "bg-purple-100 text-purple-700",
+      "estimatedMinutes": 10
     }
   ]
 }
