@@ -227,6 +227,18 @@ const CoachPortalLanding: React.FC = () => {
   ];
 
   const handleSubscribe = async (tier: 'basic' | 'pro' | 'pro_plus') => {
+    // Check if user is authenticated first
+    if (!user || !session) {
+      toast({
+        title: 'Sign in required',
+        description: 'Please sign in or create an account to subscribe.',
+        variant: 'default'
+      });
+      // Scroll to the login form
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
     try {
       setIsLoading(true);
       setSelectedTier(tier);
