@@ -10,6 +10,7 @@ export const useVoiceRecording = () => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+  const abortControllerRef = useRef<AbortController | null>(null);
   const { toast } = useToast();
 
   const startRecording = useCallback(async () => {
@@ -91,6 +92,12 @@ export const useVoiceRecording = () => {
         setIsProcessing(true);
         setAudioLevel(0);
 
+        // Cancel any existing transcription request
+        if (abortControllerRef.current) {
+          abortControllerRef.current.abort();
+        }
+        abortControllerRef.current = new AbortController();
+
         try {
           // Create blob from recorded chunks
           const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
@@ -101,10 +108,20 @@ export const useVoiceRecording = () => {
             String.fromCharCode(...new Uint8Array(arrayBuffer))
           );
 
-          // Send to Supabase function for transcription
-          const { data, error } = await supabase.functions.invoke('voice-to-text', {
-            body: { audio: base64Audio }
+          // Send to Supabase function with timeout (15 seconds)
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Transcription timeout')), 15000)
+          );
+
+          const transcriptionPromise = supabase.functions.invoke('voice-to-text', {
+            body: { audio: base64Audio },
+            signal: abortControllerRef.current.signal
           });
+
+          const { data, error } = await Promise.race([
+            transcriptionPromise,
+            timeoutPromise
+          ]) as any;
 
           if (error) throw error;
 
@@ -125,16 +142,29 @@ export const useVoiceRecording = () => {
 
           resolve(transcript);
 
-        } catch (error) {
+        } catch (error: any) {
           console.error('Error processing audio:', error);
-          toast({
-            title: "Transcription Error",
-            description: "Could not convert speech to text. Try again.",
-            variant: "destructive"
-          });
+          
+          // Check if it was a timeout or abort
+          if (error.message === 'Transcription timeout') {
+            toast({
+              title: "Transcription Timeout",
+              description: "The recording took too long to process. Try a shorter recording.",
+              variant: "destructive"
+            });
+          } else if (error.name === 'AbortError') {
+            console.log('🚫 Transcription cancelled');
+          } else {
+            toast({
+              title: "Transcription Error",
+              description: "Could not convert speech to text. Try again.",
+              variant: "destructive"
+            });
+          }
           resolve(null);
         } finally {
           setIsProcessing(false);
+          abortControllerRef.current = null;
           cleanup();
         }
       };
@@ -144,6 +174,12 @@ export const useVoiceRecording = () => {
   }, [isRecording, toast]);
 
   const cleanup = useCallback(() => {
+    // Cancel any pending requests
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+
     // Stop all tracks
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop());

@@ -1,128 +1,215 @@
-import { useState, useCallback } from 'react';
-import { safeTextToSpeech } from '@/utils/speechUtils';
+import { useState, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { logger } from '@/utils/logger';
+import { safeTextToSpeech } from '@/utils/speechUtils';
 
 export const useTextToSpeech = () => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const currentAudioRef = useRef<HTMLAudioElement | null>(null);
+  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const lastClickTimeRef = useRef<number>(0);
+  const isSupported = 'speechSynthesis' in window;
 
-  const speak = useCallback(async (text: string, options?: { voice?: string; interrupt?: boolean; hasInteracted?: boolean }) => {
-    if (!text.trim()) return false;
+  // Cleanup function to remove all audio and reset state
+  const cleanup = useCallback(() => {
+    // Stop browser speech synthesis
+    if (window.speechSynthesis.speaking) {
+      window.speechSynthesis.cancel();
+    }
 
-    const interrupt = typeof options === 'object' ? options?.interrupt : true;
-    const voice = typeof options === 'object' ? options?.voice : undefined;
+    // Clear any polling intervals
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current);
+      pollIntervalRef.current = null;
+    }
+
+    // Stop current audio
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause();
+      currentAudioRef.current.src = '';
+      currentAudioRef.current.remove();
+      currentAudioRef.current = null;
+    }
+
+    // Find and stop any orphaned audio elements
+    document.querySelectorAll('audio').forEach(audio => {
+      audio.pause();
+      audio.src = '';
+      audio.remove();
+    });
+  }, []);
+
+  const speak = useCallback(async (
+    text: string,
+    options: { voice?: string; interrupt?: boolean; hasInteracted?: boolean } = {}
+  ): Promise<boolean> => {
+    // Debounce: Ignore rapid clicks within 300ms
+    const now = Date.now();
+    if (now - lastClickTimeRef.current < 300) {
+      logger.info('🚫 TTS click debounced', 'TTS');
+      return false;
+    }
+    lastClickTimeRef.current = now;
+
+    const { interrupt = false } = options;
 
     try {
-      setIsGenerating(true);
-      console.log('Starting Google Cloud TTS for:', text.substring(0, 50) + '...');
-
-      // Stop current speech if interrupt is requested
-      if (interrupt) {
-        safeTextToSpeech.stop();
-        setIsSpeaking(false);
-        // Stop any playing audio
-        const audioElements = document.querySelectorAll('audio[data-tts]');
-        audioElements.forEach(el => {
-          (el as HTMLAudioElement).pause();
-          el.remove();
-        });
+      // Cancel any pending requests
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+        logger.info('🚫 Cancelled previous TTS request', 'TTS');
       }
 
-      // Try Google Cloud TTS first
-      try {
-        const { data, error } = await supabase.functions.invoke('google-text-to-speech', {
-          body: { 
-            text, 
-            voice: voice || 'en-US-Journey-D', // Journey voices are very natural and conversational
-            speakingRate: 1.0,
-            pitch: 0
-          }
-        });
+      // Stop any current speech if interrupt is requested
+      if (interrupt || isSpeaking) {
+        cleanup();
+      }
 
-        if (error) throw error;
-        
-        if (data?.audioContent) {
-          // Convert base64 to audio and play
-          const audio = new Audio(`data:audio/mp3;base64,${data.audioContent}`);
-          audio.setAttribute('data-tts', 'true');
-          
-          audio.onplay = () => {
-            setIsSpeaking(true);
-            setIsGenerating(false);
-          };
-          
-          audio.onended = () => {
-            setIsSpeaking(false);
-            audio.remove();
-          };
-          
-          audio.onerror = () => {
-            console.error('Audio playback error, falling back to browser TTS');
-            setIsSpeaking(false);
-            setIsGenerating(false);
-            // Fallback to browser TTS
-            fallbackToBrowserTTS(text, interrupt);
-          };
-          
-          await audio.play();
-          console.log('Google Cloud TTS playback started');
-          return true;
-        }
-      } catch (googleError) {
-        console.warn('Google Cloud TTS failed, falling back to browser TTS:', googleError);
-        // Fallback to browser TTS
+      // Set states IMMEDIATELY before API call
+      setIsGenerating(true);
+      setIsSpeaking(true);
+
+      // Create new abort controller for this request
+      abortControllerRef.current = new AbortController();
+
+      logger.info('🎵 Attempting TTS using Google Cloud TTS', 'TTS');
+
+      // Try Google Cloud TTS first (most natural voice)
+      const { data, error } = await supabase.functions.invoke('text-to-voice', {
+        body: { text, voice: options.voice || 'alloy' }
+      });
+
+      // Check if request was cancelled
+      if (abortControllerRef.current?.signal.aborted) {
+        logger.info('🚫 TTS request was cancelled', 'TTS');
+        setIsGenerating(false);
+        setIsSpeaking(false);
+        return false;
+      }
+
+      if (error) {
+        logger.error('Google Cloud TTS error, falling back to browser TTS', 'TTS', error);
+        setIsGenerating(false);
         return fallbackToBrowserTTS(text, interrupt);
+      }
+
+      if (!data?.audioContent) {
+        logger.error('No audio content received from Google Cloud TTS', 'TTS');
+        setIsGenerating(false);
+        return fallbackToBrowserTTS(text, interrupt);
+      }
+
+      logger.info('✅ Google Cloud TTS audio received', 'TTS');
+
+      // Clean up any existing audio (single instance management)
+      if (currentAudioRef.current) {
+        currentAudioRef.current.pause();
+        currentAudioRef.current.src = '';
+        currentAudioRef.current.remove();
+        currentAudioRef.current = null;
+      }
+
+      // Create and play audio (single managed instance)
+      const audio = new Audio(`data:audio/mp3;base64,${data.audioContent}`);
+      currentAudioRef.current = audio;
+
+      setIsGenerating(false);
+      // isSpeaking already set to true above
+
+      audio.onended = () => {
+        logger.info('✅ Audio playback completed', 'TTS');
+        setIsSpeaking(false);
+        abortControllerRef.current = null;
+        if (currentAudioRef.current === audio) {
+          currentAudioRef.current = null;
+        }
+      };
+
+      audio.onerror = (e) => {
+        logger.error('Audio playback error', 'TTS', e);
+        setIsSpeaking(false);
+        setIsGenerating(false);
+        abortControllerRef.current = null;
+        if (currentAudioRef.current === audio) {
+          currentAudioRef.current = null;
+        }
+      };
+
+      await audio.play();
+
+      return true;
+    } catch (error: any) {
+      // Don't log if request was cancelled
+      if (error.name === 'AbortError') {
+        logger.info('🚫 TTS request cancelled', 'TTS');
+      } else {
+        logger.error('TTS error', 'TTS', error);
+      }
+      setIsGenerating(false);
+      setIsSpeaking(false);
+      abortControllerRef.current = null;
+      return false;
+    }
+  }, [isSpeaking, cleanup]);
+
+  const fallbackToBrowserTTS = useCallback((text: string, interrupt: boolean) => {
+    try {
+      logger.info('🔄 Falling back to browser TTS', 'TTS');
+      
+      const success = safeTextToSpeech.speak(text, {
+        interrupt,
+        hasInteracted: true,
+        rate: 1,
+        pitch: 1,
+        volume: 1
+      });
+
+      if (success) {
+        setIsSpeaking(true);
+        
+        // Poll for speech completion
+        const checkSpeechEnd = () => {
+          if (!window.speechSynthesis.speaking) {
+            setIsSpeaking(false);
+            if (pollIntervalRef.current) {
+              clearInterval(pollIntervalRef.current);
+              pollIntervalRef.current = null;
+            }
+          }
+        };
+
+        pollIntervalRef.current = setInterval(checkSpeechEnd, 100);
+        
+        logger.info('✅ Browser TTS started', 'TTS');
+        return true;
       }
       
       return false;
     } catch (error) {
-      console.error('Text-to-speech error:', error);
-      setIsGenerating(false);
+      logger.error('Browser TTS error', 'TTS', error);
       setIsSpeaking(false);
       return false;
     }
   }, []);
 
-  const fallbackToBrowserTTS = useCallback((text: string, interrupt: boolean) => {
-    const success = safeTextToSpeech.speak(text, {
-      interrupt,
-      hasInteracted: true,
-      rate: 1,
-      pitch: 1,
-      volume: 1
-    });
-
-    setIsGenerating(false);
-    
-    if (success) {
-      setIsSpeaking(true);
-      
-      const checkSpeechEnd = () => {
-        if (!window.speechSynthesis.speaking) {
-          setIsSpeaking(false);
-        } else {
-          setTimeout(checkSpeechEnd, 100);
-        }
-      };
-      setTimeout(checkSpeechEnd, 100);
-      
-      console.log('Browser speech started');
-      return true;
-    }
-    
-    return false;
-  }, []);
-
   const stop = useCallback(() => {
-    safeTextToSpeech.stop();
+    logger.info('⏹️ Stopping TTS immediately', 'TTS');
+    
+    // Cancel any pending API requests
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+
+    // Use cleanup function
+    cleanup();
+
+    // Reset states IMMEDIATELY
     setIsSpeaking(false);
-    // Stop any playing Google TTS audio
-    const audioElements = document.querySelectorAll('audio[data-tts]');
-    audioElements.forEach(el => {
-      (el as HTMLAudioElement).pause();
-      el.remove();
-    });
-  }, []);
+    setIsGenerating(false);
+  }, [cleanup]);
 
   const stopSpeech = useCallback(() => {
     stop();
@@ -130,10 +217,9 @@ export const useTextToSpeech = () => {
 
   const togglePauseSpeech = useCallback(() => {
     if (isSpeaking) {
-      safeTextToSpeech.stop();
-      setIsSpeaking(false);
+      stop();
     }
-  }, [isSpeaking]);
+  }, [isSpeaking, stop]);
 
   const readAIMessage = useCallback(async (text: string) => {
     return await speak(text, { interrupt: true, hasInteracted: true });
@@ -147,16 +233,16 @@ export const useTextToSpeech = () => {
     readAIMessage,
     isSpeaking,
     isGenerating,
-    isSupported: safeTextToSpeech.isAvailable(),
+    isSupported,
     getVoices: () => {
-      // Return Google Cloud TTS voices (most natural Journey voices)
+      // Return Google Cloud TTS voices
       const googleVoices = [
-        { id: 'en-US-Journey-D', name: 'Journey D (Male, Conversational)', language: 'en-US' },
-        { id: 'en-US-Journey-F', name: 'Journey F (Female, Conversational)', language: 'en-US' },
-        { id: 'en-US-Neural2-A', name: 'Neural2 A (Male, Natural)', language: 'en-US' },
-        { id: 'en-US-Neural2-C', name: 'Neural2 C (Female, Natural)', language: 'en-US' },
-        { id: 'en-US-Neural2-D', name: 'Neural2 D (Male, Warm)', language: 'en-US' },
-        { id: 'en-US-Neural2-E', name: 'Neural2 E (Female, Warm)', language: 'en-US' },
+        { id: 'alloy', name: 'Alloy (Neutral)', language: 'en-US' },
+        { id: 'echo', name: 'Echo (Male)', language: 'en-US' },
+        { id: 'fable', name: 'Fable (British)', language: 'en-US' },
+        { id: 'onyx', name: 'Onyx (Deep Male)', language: 'en-US' },
+        { id: 'nova', name: 'Nova (Female)', language: 'en-US' },
+        { id: 'shimmer', name: 'Shimmer (Warm Female)', language: 'en-US' },
       ];
       
       // Also include browser voices as fallback

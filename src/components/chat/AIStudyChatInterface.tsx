@@ -146,7 +146,7 @@ export const AIStudyChatInterface: React.FC<AIStudyChatInterfaceProps> = ({
     }) === 'true'
   );
   
-  const { speak, stop, isSpeaking } = useTextToSpeech();
+  const { speak, stop, isSpeaking, isGenerating } = useTextToSpeech();
   const { settings, toggle } = useVoiceSettings();
   const voiceInput = useEnhancedVoiceInput();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -454,17 +454,17 @@ What specific aspect would you like to focus on?`;
     }
   };
 
-  const handleTTSToggle = () => {
-    if (isSpeaking) {
+  const handleTTSToggle = useCallback(() => {
+    if (isSpeaking || isGenerating) {
       stop();
     } else {
       const lastAIMessage = messages.filter(m => m.role === 'assistant').pop();
       if (lastAIMessage) {
-        speak(lastAIMessage.content);
+        speak(lastAIMessage.content, { interrupt: true });
         setLastSpokenMessageId(lastAIMessage.id);
       }
     }
-  };
+  }, [isSpeaking, isGenerating, messages, speak, stop]);
 
   const handleAutoPlayToggle = () => {
     const newAutoPlay = !autoPlayEnabled;

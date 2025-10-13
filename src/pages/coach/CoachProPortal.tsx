@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Navigate } from 'react-router-dom';
 import { SessionHistory } from '@/components/coach/SessionHistory';
@@ -17,6 +17,8 @@ import { Button } from '@/components/ui/button';
 import { Menu, User, BarChart2, Brain } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
+import { useChatSessionManager } from '@/hooks/useChatSessionManager';
+import { useWidgetChatStorage } from '@/hooks/useWidgetChatStorage';
 
 const SIDEBAR_COLLAPSED_KEY = 'coach-sidebar-collapsed';
 
@@ -32,6 +34,19 @@ export default function CoachProPortal() {
   const [analyticsOpen, setAnalyticsOpen] = useState(false);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [mobileTab, setMobileTab] = useState<'chat' | 'sessions'>('chat');
+  const [sessionHistoryKey, setSessionHistoryKey] = useState(0);
+  
+  // Get current chat messages for auto-save
+  const anonymousId = useState(() => `anonymous_${Date.now()}`)[0];
+  const { messages } = useWidgetChatStorage(user?.id || anonymousId);
+  
+  // Chat session manager for auto-save
+  const { autoSaveBeforeNewSession } = useChatSessionManager({
+    userId: user?.id,
+    messages,
+    sessionType: 'free',
+    source: 'coach_portal'
+  });
 
   // Persist sidebar collapsed state
   useEffect(() => {
@@ -58,7 +73,14 @@ export default function CoachProPortal() {
     setSessionType(type);
   };
 
-  const handleNewSession = () => {
+  const handleNewSession = async () => {
+    // Auto-save current chat before starting new session
+    if (messages.length > 1) {
+      await autoSaveBeforeNewSession();
+      // Refresh session history to show newly saved chat
+      setSessionHistoryKey(prev => prev + 1);
+    }
+    
     setSelectedSessionId(undefined);
     setSessionType(undefined);
   };
@@ -194,8 +216,9 @@ export default function CoachProPortal() {
                 sidebarCollapsed ? "w-0" : "w-80"
               )}
             >
-              {!sidebarCollapsed && (
+            {!sidebarCollapsed && (
                 <SessionHistory
+                  key={sessionHistoryKey}
                   onSelectSession={handleSelectSession}
                   onNewSession={handleNewSession}
                   selectedSessionId={selectedSessionId}
