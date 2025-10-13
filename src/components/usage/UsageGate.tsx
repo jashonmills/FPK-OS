@@ -111,7 +111,7 @@ export function UsageGate({
           
           <div className="grid gap-2">
             {/* Family Plan Benefits */}
-            {subscription.subscription_tier !== 'us' && subscription.subscription_tier !== 'universal' && (
+            {subscription.subscription_tier !== 'pro' && subscription.subscription_tier !== 'pro_plus' && (
               <div className="flex items-center justify-between p-3 rounded-lg border bg-card">
                 <div className="space-y-1">
                   <div className="font-medium text-sm">FPK Us (Family)</div>
@@ -131,7 +131,7 @@ export function UsageGate({
             )}
 
             {/* Universal Plan Benefits */}
-            {subscription.subscription_tier !== 'universal' && (
+            {subscription.subscription_tier !== 'pro_plus' && (
               <div className="flex items-center justify-between p-3 rounded-lg border bg-card">
                 <div className="space-y-1">
                   <div className="font-medium text-sm">FPK Universal</div>

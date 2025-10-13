@@ -1,6 +1,14 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { 
+  getPriceId, 
+  getCreditPackPriceId, 
+  validatePriceIds,
+  TIER_TO_PRICE_MAP,
+  type SubscriptionTier,
+  type BillingInterval
+} from "../_shared/stripe-config.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -13,24 +21,10 @@ const logStep = (step: string, details?: any) => {
   console.log(`[CREATE-CHECKOUT] ${step}${detailsStr}`);
 };
 
-// Pricing configuration (EUR in cents)
-const PRICING_CONFIG = {
-  me: {
-    monthly: 1649, // €16.49 in cents
-    annual: 17988, // €179.88 in cents (annual total)
-    name: "FPK Me - Individual (1 seat)"
-  },
-  us: {
-    monthly: 2639, // €26.39 in cents
-    annual: 28788, // €287.88 in cents (annual total)
-    name: "FPK Us - Family (3 seats)"
-  },
-  universal: {
-    monthly: 5499, // €54.99 in cents
-    annual: 59988, // €599.88 in cents (annual total)
-    name: "FPK Universal - Premium (1 seat)"
-  }
-};
+// Validate Stripe configuration on startup
+if (!validatePriceIds()) {
+  console.error("⚠️  Stripe Price IDs not configured. Run setup script first!");
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -60,15 +54,33 @@ serve(async (req) => {
     if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id, email: user.email });
 
-    const { tier, interval, couponCode } = await req.json();
-    logStep("Request data", { tier, interval, couponCode });
+    const { tier, interval, couponCode, isTopUp = false } = await req.json();
+    logStep("Request data", { tier, interval, couponCode, isTopUp });
 
-    if (!tier || !interval) {
-      throw new Error("Missing tier or interval");
-    }
+    // Determine if this is a credit pack purchase or subscription
+    let priceId: string;
+    let mode: 'subscription' | 'payment' = 'subscription';
+    let productName: string;
 
-    if (!PRICING_CONFIG[tier as keyof typeof PRICING_CONFIG]) {
-      throw new Error("Invalid subscription tier");
+    if (isTopUp || tier === 'credit_pack') {
+      // One-time credit pack purchase
+      priceId = getCreditPackPriceId();
+      mode = 'payment';
+      productName = TIER_TO_PRICE_MAP.credit_pack.name;
+      logStep("Processing credit pack purchase", { priceId });
+    } else {
+      // Subscription purchase
+      if (!tier || !interval) {
+        throw new Error("Missing tier or interval for subscription");
+      }
+
+      if (!TIER_TO_PRICE_MAP[tier as SubscriptionTier]) {
+        throw new Error(`Invalid subscription tier: ${tier}`);
+      }
+
+      priceId = getPriceId(tier as SubscriptionTier, interval as BillingInterval);
+      productName = TIER_TO_PRICE_MAP[tier as SubscriptionTier].name;
+      logStep("Processing subscription checkout", { tier, interval, priceId });
     }
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
@@ -89,9 +101,7 @@ serve(async (req) => {
       logStep("Created new customer", { customerId });
     }
 
-    // Get pricing
-    const tierConfig = PRICING_CONFIG[tier as keyof typeof PRICING_CONFIG];
-    const unitAmount = interval === 'annual' ? tierConfig.annual : tierConfig.monthly;
+    // Pricing is now handled by Stripe Price IDs - no need to calculate here
     
     // Check for valid coupon code
     let couponId = null;
@@ -167,30 +177,26 @@ serve(async (req) => {
       }
     }
 
+    // Create checkout session with Stripe Price ID
     const sessionConfig: any = {
       customer: customerId,
       line_items: [
         {
-          price_data: {
-            currency: "eur",
-            product_data: { 
-              name: `${tierConfig.name} - ${interval === 'annual' ? 'Annual' : 'Monthly'}`,
-              description: interval === 'annual' ? `Save 10% with annual billing` : undefined
-            },
-            unit_amount: Math.round(unitAmount),
-            recurring: { interval: interval === 'annual' ? 'year' : 'month' },
-          },
+          price: priceId,
           quantity: 1,
         },
       ],
-      mode: "subscription",
-      success_url: `${req.headers.get("origin")}/dashboard/subscription-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${req.headers.get("origin")}/dashboard/subscription`,
+      mode: mode,
+      success_url: isTopUp 
+        ? `${req.headers.get("origin")}/coach/pro?credits_added=true`
+        : `${req.headers.get("origin")}/coach/pro?subscription=success`,
+      cancel_url: `${req.headers.get("origin")}/choose-plan`,
       metadata: {
         user_id: user.id,
-        tier: tier,
-        interval: interval
-      }
+        tier: tier || 'credit_pack',
+        interval: interval || 'one_time'
+      },
+      allow_promotion_codes: true, // Enable promo code entry
     };
 
     if (couponId) {

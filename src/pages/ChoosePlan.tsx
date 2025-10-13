@@ -21,7 +21,7 @@ interface PlanType {
   features: string[];
 }
 const PLANS: Record<string, PlanType> = {
-  calm: {
+  basic: {
     name: 'AI Coach Basic',
     monthly: 4.99,
     annual: 49.00,
@@ -36,7 +36,7 @@ const PLANS: Record<string, PlanType> = {
       '7-day free trial'
     ]
   },
-  me: {
+  pro: {
     name: 'AI Coach Pro',
     monthly: 19.00,
     annual: 199.00,
@@ -44,7 +44,6 @@ const PLANS: Record<string, PlanType> = {
       '2,500 AI Credits/month',
       '1 credit per free chat message',
       '2 credits per Socratic session message',
-      'Credit rollover (up to 1,000)',
       'Full AI Study Coach portal',
       'Advanced session analytics',
       'Flashcard generation',
@@ -53,7 +52,7 @@ const PLANS: Record<string, PlanType> = {
       '7-day free trial'
     ]
   },
-  us: {
+  pro_plus: {
     name: 'AI Coach Pro+',
     monthly: 29.00,
     annual: 299.00,
@@ -61,29 +60,11 @@ const PLANS: Record<string, PlanType> = {
       '5,000 AI Credits/month',
       '1 credit per free chat message',
       '2 credits per Socratic session message',
-      'Credit rollover (up to 2,500)',
       'Everything in Pro',
       'Extended session analytics',
       'Custom study plans',
       'Advanced insights',
       'Premium support',
-      '7-day free trial'
-    ]
-  },
-  universal: {
-    name: 'AI Coach Enterprise',
-    monthly: 54.99,
-    annual: 599.88,
-    features: [
-      '🚀 Unlimited AI Credits',
-      'All message types included',
-      'No credit deductions',
-      'Everything in Pro+',
-      'Advanced analytics dashboard',
-      'API access (coming soon)',
-      'White-label options',
-      'Dedicated support',
-      'Early access to features',
       '7-day free trial'
     ]
   }
@@ -123,7 +104,7 @@ export default function ChoosePlan() {
   const handleManualVideoOpen = () => {
     setShowVideoModal(true);
   };
-  const handleSubscribe = async (tier: 'calm' | 'me' | 'us' | 'universal') => {
+  const handleSubscribe = async (tier: 'basic' | 'pro' | 'pro_plus') => {
     try {
       setLoading(tier);
       const interval = isAnnual ? 'annual' : 'monthly';
@@ -207,7 +188,7 @@ export default function ChoosePlan() {
             <div className="text-sm text-white/70 space-y-1">
               <p><strong className="text-white">Free Chat:</strong> 1 credit per message</p>
               <p><strong className="text-white">Socratic Mode:</strong> 2 credits per message (guided learning)</p>
-              <p><strong className="text-white">Pro+ & Enterprise:</strong> Unused credits rollover to next month</p>
+              <p><strong className="text-white">Monthly Refresh:</strong> Credits reset on your billing anniversary</p>
             </div>
           </div>
         </div>
@@ -291,13 +272,13 @@ export default function ChoosePlan() {
           </div>
         </div>
 
-        <div className="grid md:grid-cols-4 gap-6 mb-8">
+        <div className="grid md:grid-cols-3 gap-6 mb-8">
           {Object.entries(PLANS).map(([key, plan]) => {
-          const tier = key as 'calm' | 'me' | 'us' | 'universal';
+          const tier = key as 'basic' | 'pro' | 'pro_plus';
           const price = isAnnual ? plan.annual : plan.monthly;
           const monthlyEquivalent = isAnnual ? plan.annual / 12 : plan.monthly;
           const savings = getSavingsPercentage();
-          const isPopular = tier === 'us';
+          const isPopular = tier === 'pro';
           return <Card key={tier} className={`relative ${isPopular ? 'ring-2 ring-accent shadow-glow' : ''} bg-white/10 backdrop-blur border-white/20`}>
                 {isPopular && <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                     <Badge className="bg-accent text-white font-semibold px-4 py-1 flex items-center gap-1">
@@ -306,28 +287,24 @@ export default function ChoosePlan() {
                     </Badge>
                   </div>}
                 
-                <CardHeader className="text-center text-white">
+                 <CardHeader className="text-center text-white">
                   <CardTitle className="text-2xl">{plan.name}</CardTitle>
                    <div className="space-y-2">
-                      {tier === 'calm' ? <div className="flex items-center justify-center gap-2">
-                          <span className="text-4xl font-bold">Free</span>
-                        </div> : <>
+                      <div className="flex items-center justify-center gap-2">
+                        <span className="text-4xl font-bold">{formatPrice(monthlyEquivalent)}</span>
+                        <span className="text-white/60">/month</span>
+                      </div>
+                      {isAnnual && <>
                           <div className="flex items-center justify-center gap-2">
-                            <span className="text-4xl font-bold">{formatPrice(monthlyEquivalent)}</span>
-                            <span className="text-white/60">/month</span>
+                            <span className="text-white/60 line-through text-sm">{formatPrice(plan.monthly)}/month</span>
+                            <Badge variant="secondary" className="bg-accent/20 text-accent">
+                              Save 10%
+                            </Badge>
                           </div>
-                          {isAnnual && <>
-                              <div className="flex items-center justify-center gap-2">
-                                <span className="text-white/60 line-through text-sm">{formatPrice(plan.monthly)}/month</span>
-                                <Badge variant="secondary" className="bg-accent/20 text-accent">
-                                  Save 10%
-                                </Badge>
-                              </div>
-                              <div className="text-sm text-white/60">
-                                Billed annually: {formatPrice(price)}
-                              </div>
-                            </>}
-                       </>}
+                          <div className="text-sm text-white/60">
+                            Billed annually: {formatPrice(price)}
+                          </div>
+                        </>}
                    </div>
                 </CardHeader>
                 
@@ -342,10 +319,6 @@ export default function ChoosePlan() {
                   {IS_BETA_MODE ? (
                     <Button disabled className="w-full bg-gray-600 hover:bg-gray-600 text-white border-0" size="lg">
                       Beta Access Only
-                    </Button>
-                  ) : tier === 'calm' ? (
-                    <Button disabled className="w-full bg-green-600 hover:bg-green-600 text-white border-0" size="lg">
-                      Free Forever
                     </Button>
                   ) : (
                     <Button onClick={() => handleSubscribe(tier)} disabled={loading === tier} className={`w-full ${isPopular ? 'bg-accent hover:bg-accent/90' : 'bg-white/20 hover:bg-white/30'} border-0`} size="lg">

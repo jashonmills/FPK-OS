@@ -6,7 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 
 export interface SubscriptionData {
   subscribed: boolean;
-  subscription_tier?: 'calm' | 'me' | 'us' | 'universal' | null;
+  subscription_tier?: 'basic' | 'pro' | 'pro_plus' | null;
   subscription_status?: string;
   subscription_end?: string;
   cancel_at_period_end?: boolean;
@@ -45,18 +45,16 @@ export function useSubscription() {
     refetchInterval: 1000 * 60 * 5, // 5 minutes
   });
 
-  const createCheckout = async (tier: 'calm' | 'me' | 'us' | 'universal', interval: 'monthly' | 'annual', couponCode?: string) => {
+  const createCheckout = async (tier: 'basic' | 'pro' | 'pro_plus' | 'credit_pack', interval: 'monthly' | 'annual', couponCode?: string) => {
     if (!user || !session) {
       throw new Error('User not authenticated');
     }
 
-    // Handle free tier - calm doesn't need checkout
-    if (tier === 'calm') {
-      return { success: true, freeAccess: true, message: 'Free access granted' };
-    }
+    // Determine if this is a top-up purchase
+    const isTopUp = tier === 'credit_pack';
 
     const { data, error } = await supabase.functions.invoke('create-checkout', {
-      body: { tier, interval, couponCode },
+      body: { tier, interval, couponCode, isTopUp },
       headers: {
         Authorization: `Bearer ${session.access_token}`,
       },
@@ -137,11 +135,11 @@ export function useSubscription() {
   };
 
   // Check if user has access to features based on tier
-  const hasFeatureAccess = (requiredTier: 'calm' | 'me' | 'us' | 'universal') => {
+  const hasFeatureAccess = (requiredTier: 'basic' | 'pro' | 'pro_plus') => {
     if (!subscription?.subscribed) return false;
     
-    const tierLevels = { calm: 0, me: 1, us: 2, universal: 3 };
-    const userTierLevel = tierLevels[subscription.subscription_tier || 'calm'];
+    const tierLevels = { basic: 1, pro: 2, pro_plus: 3 };
+    const userTierLevel = tierLevels[subscription.subscription_tier || 'basic'];
     const requiredTierLevel = tierLevels[requiredTier];
     
     return userTierLevel >= requiredTierLevel;

@@ -185,7 +185,7 @@ export function SubscriptionPlans() {
 
   const EUR_RATE = 1; // Prices are already in EUR
 
-  const handleSubscribe = async (tier: 'me' | 'us' | 'universal') => {
+  const handleSubscribe = async (tier: 'basic' | 'pro' | 'pro_plus') => {
     try {
       setLoading(tier);
       const interval = isAnnual ? 'annual' : 'monthly';
@@ -233,14 +233,13 @@ export function SubscriptionPlans() {
     }
   };
 
-  const getDiscountPercentage = (tier: 'calm' | 'me' | 'us' | 'universal') => {
-    if (tier === 'calm') return 0;
-    if (tier === 'me') return 10;
-    if (tier === 'us') return 15;
+  const getDiscountPercentage = (tier: 'basic' | 'pro' | 'pro_plus') => {
+    if (tier === 'basic') return 10;
+    if (tier === 'pro') return 15;
     return 20;
   };
 
-  const getCurrentPlanBadge = (tier: 'calm' | 'me' | 'us' | 'universal') => {
+  const getCurrentPlanBadge = (tier: 'basic' | 'pro' | 'pro_plus') => {
     if (subscription.subscribed && subscription.subscription_tier === tier) {
       return <Badge variant="default" className="ml-2">Current Plan</Badge>;
     }
@@ -402,7 +401,7 @@ export function SubscriptionPlans() {
                       }
                     } else {
                       if (!IS_BETA_MODE && tier !== 'calm') {
-                        handleSubscribe(tier as 'me' | 'us' | 'universal');
+                        handleSubscribe(tier as 'basic' | 'pro' | 'pro_plus');
                       }
                     }
                   }}
