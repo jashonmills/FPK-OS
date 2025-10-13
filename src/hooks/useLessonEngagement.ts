@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { getActiveOrgId } from '@/lib/org/context';
 
 interface EngagementMetrics {
   interactionCount: number;
@@ -102,6 +103,8 @@ export function useLessonEngagement(courseId: string, lessonId: number, lessonTi
     if (!user?.id || savedRef.current) return;
 
     try {
+      const orgId = getActiveOrgId();
+      
       const { error } = await supabase
         .from('interactive_lesson_analytics')
         .upsert({
@@ -113,7 +116,7 @@ export function useLessonEngagement(courseId: string, lessonId: number, lessonTi
           engagement_score: metrics.engagementScore,
           interactions_count: metrics.interactionCount,
           scroll_depth_percentage: metrics.scrollDepth,
-          completion_status: completionStatus,
+          org_id: orgId,
           started_at: new Date(startTimeRef.current).toISOString(),
           completed_at: completionStatus === 'completed' ? new Date().toISOString() : null
         }, {
