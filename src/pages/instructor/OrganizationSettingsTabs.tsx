@@ -59,6 +59,7 @@ const ACCENT_PRESETS = [
 
 const roleDescriptions = {
   owner: 'Full org management (members, courses, settings, subscriptions)',
+  admin: 'Full organization management except subscription changes',
   instructor: 'Create/assign courses, view analytics for their students',
   instructor_aide: 'Assist instructors (no org settings)',
   student: 'Access assigned courses and complete learning activities',
@@ -671,6 +672,7 @@ export default function OrganizationSettingsTabs() {
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="owner">Owner</SelectItem>
+                                <SelectItem value="admin">Admin</SelectItem>
                                 <SelectItem value="instructor">Instructor</SelectItem>
                                 <SelectItem value="instructor_aide">Instructor Aide</SelectItem>
                                 <SelectItem value="viewer">Viewer</SelectItem>
