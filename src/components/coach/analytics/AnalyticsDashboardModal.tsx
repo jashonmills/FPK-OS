@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Lightbulb } from 'lucide-react';
 import { toast } from 'sonner';
 import { KPICards } from './KPICards';
 import { MasteryOverTimeChart } from './MasteryOverTimeChart';
@@ -11,6 +11,7 @@ import { TimeByDayChart } from './TimeByDayChart';
 import { TopicBreakdownChart } from './TopicBreakdownChart';
 import { ActivityHeatmapChart } from './ActivityHeatmapChart';
 import { LearningStyleChart } from './LearningStyleChart';
+import { generateMockAnalyticsData } from '@/utils/mockAnalyticsData';
 
 interface AnalyticsDashboardModalProps {
   open: boolean;
@@ -71,7 +72,11 @@ export function AnalyticsDashboardModal({ open, onOpenChange }: AnalyticsDashboa
     }
   }, [open, dateRange, session]);
 
-  const socraticMinutes = data?.topic_breakdown.reduce((acc: number, topic) => acc + (topic.study_time || 0), 0) ?? 0;
+  // Determine if user has real data or should see mock data
+  const hasRealData = data && data.kpis && data.kpis.total_study_time > 0;
+  const displayData = hasRealData ? data : generateMockAnalyticsData();
+  
+  const socraticMinutes = displayData?.topic_breakdown.reduce((acc: number, topic) => acc + (topic.study_time || 0), 0) ?? 0;
   const freeChatMinutes = 0; // We'll enhance this later with coach_sessions data
 
   return (
@@ -97,28 +102,35 @@ export function AnalyticsDashboardModal({ open, onOpenChange }: AnalyticsDashboa
           <div className="flex items-center justify-center h-[400px]">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
-        ) : data ? (
+        ) : (
           <div className="space-y-6 py-4">
-            <KPICards data={data.kpis} />
+            {!hasRealData && (
+              <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
+                <div className="flex items-center gap-2">
+                  <Lightbulb className="h-5 w-5 text-blue-500" />
+                  <p className="text-sm text-blue-500">
+                    <strong>This is a demo of your future dashboard!</strong> Start a learning session to see your own personal analytics.
+                  </p>
+                </div>
+              </div>
+            )}
+            
+            <KPICards data={displayData.kpis} />
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <MasteryOverTimeChart data={data.mastery_over_time} />
-              <TimeByDayChart data={data.time_by_day} />
+              <MasteryOverTimeChart data={displayData.mastery_over_time} />
+              <TimeByDayChart data={displayData.time_by_day} />
             </div>
 
-            <TopicBreakdownChart data={data.topic_breakdown} />
+            <TopicBreakdownChart data={displayData.topic_breakdown} />
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <ActivityHeatmapChart data={data.activity_heatmap} />
+              <ActivityHeatmapChart data={displayData.activity_heatmap} />
               <LearningStyleChart
                 socraticMinutes={socraticMinutes}
                 freeChatMinutes={freeChatMinutes}
               />
             </div>
-          </div>
-        ) : (
-          <div className="flex items-center justify-center h-[400px] text-muted-foreground">
-            No data available. Start your learning journey to see analytics!
           </div>
         )}
       </DialogContent>
