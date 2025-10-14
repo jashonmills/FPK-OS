@@ -594,9 +594,9 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
     let studentContext = null;
     const shouldFetchContext = detectedIntent === 'query_user_data' || detectedIntent === 'platform_question';
     
-    if (shouldFetchContext && userId) {
+    if (shouldFetchContext && user?.id) {
       console.log('[CONDUCTOR] 📊 Fetching student context for personalized response...');
-      studentContext = await fetchStudentContext(userId, supabaseClient);
+      studentContext = await fetchStudentContext(user.id, supabaseClient);
     }
 
     // 9. Persona Selection based on Intent with Socratic Handoff Logic
