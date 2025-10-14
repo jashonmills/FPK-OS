@@ -169,6 +169,11 @@ serve(async (req) => {
 async function detectAhaMoment(transcript: Array<{ role: string; content: string }>, manualTrigger = false) {
   const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
   
+  if (!OPENAI_API_KEY) {
+    console.error('[PODCAST-PRODUCER] ❌ OPENAI_API_KEY not configured');
+    throw new Error('OPENAI_API_KEY not configured');
+  }
+  
   const conversationText = transcript
     .map(t => `${t.role}: ${t.content}`)
     .join('\n');
@@ -222,7 +227,21 @@ async function detectAhaMoment(transcript: Array<{ role: string; content: string
     }),
   });
 
+  // Check if OpenAI API call was successful
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('[PODCAST-PRODUCER] ❌ OpenAI API Error:', response.status, errorText);
+    throw new Error(`OpenAI API failed: ${response.status} - ${errorText}`);
+  }
+
   const data = await response.json();
+  
+  // Validate response structure
+  if (!data.choices || !data.choices[0] || !data.choices[0].message || !data.choices[0].message.content) {
+    console.error('[PODCAST-PRODUCER] ❌ Invalid OpenAI response structure:', JSON.stringify(data));
+    throw new Error('Invalid response from OpenAI API');
+  }
+  
   const result = JSON.parse(data.choices[0].message.content);
   
   // Enhanced logging
@@ -252,6 +271,11 @@ async function generatePodcastScript(
   ahaMoment: any
 ) {
   const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
+  
+  if (!OPENAI_API_KEY) {
+    console.error('[PODCAST-PRODUCER] ❌ OPENAI_API_KEY not configured');
+    throw new Error('OPENAI_API_KEY not configured');
+  }
   
   const conversationText = transcript
     .map(t => `${t.role}: ${t.content}`)
@@ -296,12 +320,29 @@ async function generatePodcastScript(
     }),
   });
 
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('[PODCAST-PRODUCER] ❌ OpenAI API Error (script generation):', response.status, errorText);
+    throw new Error(`OpenAI script generation failed: ${response.status} - ${errorText}`);
+  }
+
   const data = await response.json();
+  
+  if (!data.choices || !data.choices[0] || !data.choices[0].message || !data.choices[0].message.content) {
+    console.error('[PODCAST-PRODUCER] ❌ Invalid OpenAI response structure:', JSON.stringify(data));
+    throw new Error('Invalid response from OpenAI API');
+  }
+  
   return JSON.parse(data.choices[0].message.content);
 }
 
 async function generateMultiSpeakerAudio(script: any): Promise<ArrayBuffer> {
   const ELEVENLABS_API_KEY = Deno.env.get('ELEVENLABS_API_KEY');
+  
+  if (!ELEVENLABS_API_KEY) {
+    console.error('[PODCAST-PRODUCER] ❌ ELEVENLABS_API_KEY not configured');
+    throw new Error('ELEVENLABS_API_KEY not configured');
+  }
   
   // Voice IDs
   const BETTY_VOICE = '21m00Tcm4TlvDq8ikWAM'; // Betty's voice ID
@@ -356,6 +397,11 @@ async function generateMultiSpeakerAudio(script: any): Promise<ArrayBuffer> {
 async function generateNiteOwlMessage(episode: any) {
   const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
 
+  if (!OPENAI_API_KEY) {
+    console.error('[PODCAST-PRODUCER] ❌ OPENAI_API_KEY not configured');
+    throw new Error('OPENAI_API_KEY not configured');
+  }
+
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -381,7 +427,19 @@ async function generateNiteOwlMessage(episode: any) {
     }),
   });
 
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('[PODCAST-PRODUCER] ❌ OpenAI API Error (Nite Owl message):', response.status, errorText);
+    throw new Error(`OpenAI Nite Owl generation failed: ${response.status} - ${errorText}`);
+  }
+
   const data = await response.json();
+  
+  if (!data.choices || !data.choices[0] || !data.choices[0].message || !data.choices[0].message.content) {
+    console.error('[PODCAST-PRODUCER] ❌ Invalid OpenAI response structure:', JSON.stringify(data));
+    throw new Error('Invalid response from OpenAI API');
+  }
+  
   return {
     persona: 'NITE_OWL',
     content: data.choices[0].message.content,
