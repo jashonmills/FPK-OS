@@ -158,3 +158,6 @@ verify_jwt = false
 
 [functions.generate-welcome-audio]
 verify_jwt = false
+
+[functions.backfill-phoenix-data]
+verify_jwt = true

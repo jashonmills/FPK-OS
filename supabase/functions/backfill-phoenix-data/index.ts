@@ -1,270 +1,262 @@
-import "https://deno.land/x/xhr@0.1.0/mod.ts";
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-serve(async (req) => {
+interface BackfillResult {
+  success: boolean;
+  totalSessionsFound: number;
+  sessionsProcessed: number;
+  messagesBackfilled: number;
+  learningOutcomesExtracted: number;
+  memoriesExtracted: number;
+  isComplete: boolean;
+  nextBatch?: number;
+  errors?: string[];
+  message?: string;
+}
+
+Deno.serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
-    );
-
-    const { user_id } = await req.json();
+    console.log('[BACKFILL] Starting backfill process...');
+    
+    // Get request body
+    const { user_id, batch_number = 1, batch_size = 10 } = await req.json();
     
     if (!user_id) {
-      return new Response(
-        JSON.stringify({ error: 'user_id required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      throw new Error('user_id is required');
     }
 
-    console.log('[BACKFILL] Starting backfill for user:', user_id);
+    console.log(`[BACKFILL] Processing batch ${batch_number} for user ${user_id}`);
 
-    // Step 1: Fetch all historical coach_sessions
-    const { data: sessions, error: sessionsError } = await supabaseClient
+    // Create Supabase client with SERVICE ROLE for full permissions
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
+      }
+    );
+
+    // Step 1: Get total count of sessions to migrate
+    const { count: totalCount, error: countError } = await supabaseAdmin
+      .from('coach_sessions')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user_id)
+      .eq('source', 'coach_portal');
+
+    if (countError) {
+      throw new Error(`Failed to count sessions: ${countError.message}`);
+    }
+
+    console.log(`[BACKFILL] Found ${totalCount} total coach_portal sessions to migrate`);
+
+    // Step 2: Get batch of sessions to process
+    const offset = (batch_number - 1) * batch_size;
+    const { data: sessions, error: fetchError } = await supabaseAdmin
       .from('coach_sessions')
       .select('*')
       .eq('user_id', user_id)
-      .order('created_at', { ascending: true });
+      .eq('source', 'coach_portal')
+      .order('created_at', { ascending: true })
+      .range(offset, offset + batch_size - 1);
 
-    if (sessionsError) {
-      throw sessionsError;
+    if (fetchError) {
+      throw new Error(`Failed to fetch sessions: ${fetchError.message}`);
     }
 
-    console.log('[BACKFILL] Found', sessions?.length || 0, 'historical sessions');
+    console.log(`[BACKFILL] Processing ${sessions?.length || 0} sessions in this batch`);
 
-    let totalMessagesBackfilled = 0;
-    let totalOutcomesExtracted = 0;
-    let totalMemoriesExtracted = 0;
+    let messagesBackfilled = 0;
+    let learningOutcomesExtracted = 0;
+    let memoriesExtracted = 0;
+    const errors: string[] = [];
 
-    // Step 2: Process each session
+    // Step 3: Process each session
     for (const session of sessions || []) {
-      const sessionData = session.session_data as any;
-      const messages = sessionData?.messages || [];
-      
-      if (messages.length === 0) {
-        console.log('[BACKFILL] Skipping empty session:', session.id);
-        continue;
-      }
+      try {
+        console.log(`[BACKFILL] Processing session ${session.id}`);
 
-      console.log('[BACKFILL] Processing session:', session.id, 'with', messages.length, 'messages');
+        // Check if conversation already exists
+        const { data: existingConv } = await supabaseAdmin
+          .from('phoenix_conversations')
+          .select('id')
+          .eq('session_id', session.id)
+          .maybeSingle();
 
-      // Step 2a: Create or get phoenix_conversations record
-      let conversationUuid: string;
-      
-      const { data: existingConv } = await supabaseClient
-        .from('phoenix_conversations')
-        .select('id')
-        .eq('session_id', session.id)
-        .maybeSingle();
-      
-      if (existingConv) {
-        conversationUuid = existingConv.id;
-        console.log('[BACKFILL] Using existing conversation:', conversationUuid);
-      } else {
-        const { data: newConv, error: createError } = await supabaseClient
+        if (existingConv) {
+          console.log(`[BACKFILL] Conversation for session ${session.id} already exists, skipping`);
+          continue;
+        }
+
+        // Create phoenix_conversation
+        const { data: conversation, error: convError } = await supabaseAdmin
           .from('phoenix_conversations')
           .insert({
             user_id: session.user_id,
             session_id: session.id,
-            created_at: session.created_at,
-            metadata: {
-              backfilled: true,
-              originalSource: 'coach_sessions'
-            }
+            session_start: session.created_at,
+            session_end: session.updated_at,
+            turn_count: 0,
+            last_activity: session.updated_at,
           })
-          .select('id')
+          .select()
           .single();
-        
-        if (createError || !newConv) {
-          console.error('[BACKFILL] Failed to create conversation:', createError);
+
+        if (convError) {
+          errors.push(`Failed to create conversation for session ${session.id}: ${convError.message}`);
+          console.error(`[BACKFILL] Error creating conversation:`, convError);
           continue;
         }
-        
-        conversationUuid = newConv.id;
-        console.log('[BACKFILL] Created new conversation:', conversationUuid);
-      }
 
-      // Step 2b: Insert all messages into phoenix_messages
-      for (const msg of messages) {
-        const { error: msgError } = await supabaseClient
-          .from('phoenix_messages')
-          .insert({
-            conversation_id: conversationUuid,
-            persona: msg.role === 'user' ? 'USER' : (msg.persona || 'AL'),
-            content: msg.content,
-            created_at: session.created_at, // Use session timestamp
-            metadata: {
-              backfilled: true,
-              originalSessionId: session.id
+        // Extract messages from session_data
+        const sessionData = session.session_data || { messages: [] };
+        const messages = sessionData.messages || [];
+        
+        console.log(`[BACKFILL] Found ${messages.length} messages in session ${session.id}`);
+
+        // Insert messages
+        for (let i = 0; i < messages.length; i++) {
+          const msg = messages[i];
+          
+          try {
+            const { error: msgError } = await supabaseAdmin
+              .from('phoenix_messages')
+              .insert({
+                conversation_id: conversation.id,
+                role: msg.role === 'user' ? 'user' : 'assistant',
+                content: msg.content || '',
+                persona: msg.persona || (msg.role === 'assistant' ? 'BETTY' : null),
+                intent: msg.intent || null,
+                created_at: msg.timestamp || new Date(session.created_at.getTime() + i * 1000).toISOString(),
+              });
+
+            if (msgError) {
+              errors.push(`Failed to insert message ${i} for session ${session.id}: ${msgError.message}`);
+              console.error(`[BACKFILL] Error inserting message:`, msgError);
+            } else {
+              messagesBackfilled++;
             }
-          });
-        
-        if (msgError) {
-          console.error('[BACKFILL] Error inserting message:', msgError);
-        } else {
-          totalMessagesBackfilled++;
-        }
-      }
-
-      // Step 2c: Extract learning outcomes and memories from conversation
-      if (messages.length >= 4) {
-        console.log('[BACKFILL] Extracting outcomes and memories for session:', session.id);
-        
-        const transcript = messages
-          .map((msg: any) => `${msg.role === 'user' ? 'USER' : msg.persona || 'AL'}: ${msg.content}`)
-          .join('\n\n');
-
-        const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-        if (!LOVABLE_API_KEY) {
-          console.warn('[BACKFILL] No LOVABLE_API_KEY - skipping extraction');
-          continue;
+          } catch (msgErr) {
+            errors.push(`Exception inserting message ${i} for session ${session.id}: ${msgErr.message}`);
+            console.error(`[BACKFILL] Exception:`, msgErr);
+          }
         }
 
-        try {
-          const extractionResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              model: 'google/gemini-2.5-flash',
-              messages: [
-                {
-                  role: 'system',
-                  content: `Extract learning outcomes and memories from this conversation transcript. Focus on what the student learned and key moments worth remembering.`
-                },
-                {
-                  role: 'user',
-                  content: `Analyze this conversation:\n\n${transcript}`
-                }
-              ],
-              tools: [
-                {
-                  type: 'function',
-                  function: {
-                    name: 'extract_data',
-                    description: 'Extract memories and learning outcomes',
-                    parameters: {
-                      type: 'object',
-                      properties: {
-                        memories: {
-                          type: 'array',
-                          items: {
-                            type: 'object',
-                            properties: {
-                              memory_type: { type: 'string', enum: ['commitment', 'confusion', 'breakthrough', 'question', 'preference', 'goal', 'connection'] },
-                              content: { type: 'string' },
-                              relevance_score: { type: 'number' }
-                            }
-                          }
-                        },
-                        learning_outcomes: {
-                          type: 'array',
-                          items: {
-                            type: 'object',
-                            properties: {
-                              topic: { type: 'string' },
-                              outcome_type: { type: 'string', enum: ['concept_learned', 'skill_practiced', 'misconception_corrected', 'question_resolved'] },
-                              mastery_level: { type: 'number' },
-                              evidence: { type: 'string' }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              ],
-              tool_choice: { type: 'function', function: { name: 'extract_data' } }
-            })
-          });
+        // Update conversation turn count
+        await supabaseAdmin
+          .from('phoenix_conversations')
+          .update({ turn_count: messages.length })
+          .eq('id', conversation.id);
 
-          if (extractionResponse.ok) {
-            const extractionData = await extractionResponse.json();
-            const toolCall = extractionData.choices?.[0]?.message?.tool_calls?.[0];
-            
-            if (toolCall) {
-              const extracted = JSON.parse(toolCall.function.arguments);
-              
-              // Store memories
-              for (const memory of extracted.memories || []) {
-                await supabaseClient.from('phoenix_memory_fragments').insert({
+        // Extract learning outcomes if available
+        if (sessionData.learning_outcomes && Array.isArray(sessionData.learning_outcomes)) {
+          for (const outcome of sessionData.learning_outcomes) {
+            try {
+              const { error: outcomeError } = await supabaseAdmin
+                .from('phoenix_learning_outcomes')
+                .insert({
                   user_id: session.user_id,
-                  conversation_id: session.id,
-                  memory_type: memory.memory_type,
-                  content: memory.content,
-                  relevance_score: memory.relevance_score,
-                  created_at: session.created_at,
-                  context: { backfilled: true }
+                  conversation_id: conversation.id,
+                  outcome_text: outcome.text || outcome.outcome_text || '',
+                  topic: outcome.topic || sessionData.topic || 'General',
+                  mastery_level: outcome.mastery_level || 0.5,
+                  evidence: outcome.evidence || null,
                 });
-                totalMemoriesExtracted++;
-              }
 
-              // Store learning outcomes
-              for (const outcome of extracted.learning_outcomes || []) {
-                // Try to match to concept
-                const { data: matchingConcepts } = await supabaseClient
-                  .from('phoenix_learning_concepts')
-                  .select('id')
-                  .ilike('concept_name', `%${outcome.topic}%`)
-                  .limit(1);
-                
-                await supabaseClient.from('phoenix_learning_outcomes').insert({
-                  user_id: session.user_id,
-                  session_id: session.id,
-                  topic: outcome.topic,
-                  outcome_type: outcome.outcome_type,
-                  mastery_level: outcome.mastery_level,
-                  concept_id: matchingConcepts?.[0]?.id || null,
-                  created_at: session.created_at,
-                  metadata: {
-                    evidence: outcome.evidence,
-                    backfilled: true
-                  }
-                });
-                totalOutcomesExtracted++;
+              if (!outcomeError) {
+                learningOutcomesExtracted++;
               }
-              
-              console.log('[BACKFILL] Extracted', extracted.memories?.length || 0, 'memories and', extracted.learning_outcomes?.length || 0, 'outcomes');
+            } catch (outcomeErr) {
+              console.error(`[BACKFILL] Error extracting outcome:`, outcomeErr);
             }
           }
-        } catch (extractError) {
-          console.error('[BACKFILL] Extraction error (non-critical):', extractError);
         }
+
+        // Extract memories if available
+        if (sessionData.memories && Array.isArray(sessionData.memories)) {
+          for (const memory of sessionData.memories) {
+            try {
+              const { error: memError } = await supabaseAdmin
+                .from('phoenix_memory_fragments')
+                .insert({
+                  user_id: session.user_id,
+                  conversation_id: conversation.id,
+                  memory_type: memory.type || 'fact',
+                  content: memory.content || '',
+                  context: memory.context || {},
+                  relevance_score: memory.relevance_score || 0.5,
+                });
+
+              if (!memError) {
+                memoriesExtracted++;
+              }
+            } catch (memErr) {
+              console.error(`[BACKFILL] Error extracting memory:`, memErr);
+            }
+          }
+        }
+
+      } catch (sessionErr) {
+        errors.push(`Failed to process session ${session.id}: ${sessionErr.message}`);
+        console.error(`[BACKFILL] Error processing session:`, sessionErr);
       }
     }
 
-    const summary = {
+    // Calculate progress
+    const sessionsProcessed = batch_number * batch_size;
+    const isComplete = sessionsProcessed >= (totalCount || 0);
+    const nextBatch = isComplete ? undefined : batch_number + 1;
+
+    const result: BackfillResult = {
       success: true,
-      sessionsProcessed: sessions?.length || 0,
-      messagesBackfilled: totalMessagesBackfilled,
-      learningOutcomesExtracted: totalOutcomesExtracted,
-      memoriesExtracted: totalMemoriesExtracted
+      totalSessionsFound: totalCount || 0,
+      sessionsProcessed: Math.min(sessionsProcessed, totalCount || 0),
+      messagesBackfilled,
+      learningOutcomesExtracted,
+      memoriesExtracted,
+      isComplete,
+      nextBatch,
+      errors: errors.length > 0 ? errors : undefined,
+      message: isComplete 
+        ? 'Backfill complete!' 
+        : `Batch ${batch_number} complete. ${totalCount - sessionsProcessed} sessions remaining.`
     };
 
-    console.log('[BACKFILL] Complete:', summary);
+    console.log('[BACKFILL] Result:', result);
 
-    return new Response(
-      JSON.stringify(summary),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify(result), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
 
   } catch (error) {
-    console.error('[BACKFILL] Error:', error);
+    console.error('[BACKFILL] Critical error:', error);
+    
     return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      JSON.stringify({
+        success: false,
+        error: error.message,
+        totalSessionsFound: 0,
+        sessionsProcessed: 0,
+        messagesBackfilled: 0,
+        learningOutcomesExtracted: 0,
+        memoriesExtracted: 0,
+        isComplete: false,
+      }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
     );
   }
 });
