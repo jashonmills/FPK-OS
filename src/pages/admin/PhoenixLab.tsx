@@ -145,10 +145,12 @@ export default function PhoenixLab() {
   const [generatingPodcast, setGeneratingPodcast] = useState(false);
   const [isBackfilling, setIsBackfilling] = useState(false);
   const [showBackfillAlert, setShowBackfillAlert] = useState(true);
+  const [isScrolledUp, setIsScrolledUp] = useState(false);
   const activeAudioElements = React.useRef<Set<HTMLAudioElement>>(new Set());
   const audioLockRef = React.useRef(false);
   const playedMessagesRef = React.useRef<Set<string>>(new Set());
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   
   // Phoenix settings hook for persistent preferences
@@ -164,8 +166,28 @@ export default function PhoenixLab() {
   }, [settings.audioEnabled, settingsLoading]);
 
   // Auto-scroll to bottom when messages change
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  const scrollToBottom = (smooth = true) => {
+    if (scrollAreaRef.current) {
+      const viewport = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (viewport) {
+        viewport.scrollTo({
+          top: viewport.scrollHeight,
+          behavior: smooth ? 'smooth' : 'auto'
+        });
+      }
+    }
+  };
+
+  // Track scroll position to show/hide "Jump to Bottom" button
+  const handleScroll = () => {
+    if (scrollAreaRef.current) {
+      const viewport = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (viewport) {
+        const { scrollHeight, scrollTop, clientHeight } = viewport;
+        const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+        setIsScrolledUp(distanceFromBottom > 200);
+      }
+    }
   };
 
   useEffect(() => {
@@ -213,6 +235,9 @@ export default function PhoenixLab() {
     setMessages(loadedMessages);
     setShowHistoryModal(false);
     
+    // Auto-scroll to bottom after loading
+    setTimeout(() => scrollToBottom(false), 100);
+    
     toast({
       title: "Session Loaded",
       description: `Loaded conversation from ${new Date(session.created_at).toLocaleDateString()}`
@@ -257,6 +282,9 @@ export default function PhoenixLab() {
           
           setMessages(loadedMessages);
           setHasWelcomePlayed(true);
+          
+          // Auto-scroll to bottom after loading
+          setTimeout(() => scrollToBottom(false), 100);
           
           toast({
             title: "Session Restored",
@@ -1498,7 +1526,12 @@ export default function PhoenixLab() {
           </CardHeader>
           <CardContent>
             {/* Messages */}
-            <ScrollArea className="h-[500px] pr-4 mb-4">
+            <div className="relative">
+              <ScrollArea 
+                ref={scrollAreaRef}
+                className="h-[500px] pr-4 mb-4"
+                onScrollCapture={handleScroll}
+              >
               {messages.length === 0 ? (
                 <div className="text-center text-muted-foreground py-12">
                   <TestTube className="w-12 h-12 mx-auto mb-4 opacity-50" />
@@ -1589,7 +1622,20 @@ export default function PhoenixLab() {
                   <div ref={messagesEndRef} />
                 </div>
               )}
-            </ScrollArea>
+              </ScrollArea>
+              
+              {/* Jump to Bottom Button */}
+              {isScrolledUp && messages.length > 0 && (
+                <Button
+                  onClick={() => scrollToBottom(true)}
+                  size="icon"
+                  className="absolute bottom-6 right-6 rounded-full shadow-lg z-10 animate-in fade-in slide-in-from-bottom-2"
+                  title="Jump to bottom"
+                >
+                  <ChevronDown className="h-5 w-5" />
+                </Button>
+              )}
+            </div>
 
             <Separator className="my-4" />
 
