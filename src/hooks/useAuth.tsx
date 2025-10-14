@@ -83,13 +83,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.log('useAuth: Sign out successful');
       logger.auth('User signed out successfully');
       
-      // Redirect to login page
-      window.location.href = '/login';
+      // If on preview domain, redirect to production domain
+      const isPreviewDomain = window.location.hostname.includes('lovableproject.com');
+      if (isPreviewDomain) {
+        window.location.href = 'https://fpkuniversity.com/login';
+      } else {
+        window.location.href = '/login';
+      }
     } catch (error) {
       console.error('useAuth: Sign out failed:', error);
       logger.auth('Sign out failed', error);
       // Still redirect even on error to ensure user is logged out
-      window.location.href = '/login';
+      const isPreviewDomain = window.location.hostname.includes('lovableproject.com');
+      if (isPreviewDomain) {
+        window.location.href = 'https://fpkuniversity.com/login';
+      } else {
+        window.location.href = '/login';
+      }
     }
   };
 
