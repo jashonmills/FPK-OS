@@ -6268,6 +6268,7 @@ export type Database = {
           line_spacing: number | null
           onboarding_completed: boolean | null
           pending_role: string | null
+          phoenix_settings: Json | null
           phone_extension: string | null
           phone_number: string | null
           primary_language: string | null
@@ -6321,6 +6322,7 @@ export type Database = {
           line_spacing?: number | null
           onboarding_completed?: boolean | null
           pending_role?: string | null
+          phoenix_settings?: Json | null
           phone_extension?: string | null
           phone_number?: string | null
           primary_language?: string | null
@@ -6374,6 +6376,7 @@ export type Database = {
           line_spacing?: number | null
           onboarding_completed?: boolean | null
           pending_role?: string | null
+          phoenix_settings?: Json | null
           phone_extension?: string | null
           phone_number?: string | null
           primary_language?: string | null

@@ -12,6 +12,10 @@ import { Loader2, Send, Sparkles, Brain, TestTube, AlertCircle, ArrowLeft, Mic, 
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { useQuery } from '@tanstack/react-query';
+import { usePhoenixSettings } from '@/hooks/usePhoenixSettings';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { useAuth } from '@/hooks/useAuth';
 
 interface Message {
   id: string;
@@ -120,13 +124,13 @@ const PHASE_4_COMPLETED = [
 
 export default function PhoenixLab() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [conversationId] = useState(() => crypto.randomUUID());
   const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState<any>(null);
-  const [audioEnabled, setAudioEnabled] = useState(true);
   const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
   const [hasWelcomePlayed, setHasWelcomePlayed] = useState(false); // CRITICAL: Prevents welcome replay
@@ -139,6 +143,18 @@ export default function PhoenixLab() {
   const playedMessagesRef = React.useRef<Set<string>>(new Set());
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  
+  // Phoenix settings hook for persistent preferences
+  const { settings, isLoading: settingsLoading, toggleWelcomeMessage, toggleAudio } = usePhoenixSettings();
+  
+  // Sync audioEnabled state with settings
+  const [audioEnabled, setAudioEnabled] = useState(settings.audioEnabled);
+  
+  useEffect(() => {
+    if (!settingsLoading) {
+      setAudioEnabled(settings.audioEnabled);
+    }
+  }, [settings.audioEnabled, settingsLoading]);
 
   // Auto-scroll to bottom when messages change
   const scrollToBottom = () => {
@@ -185,15 +201,21 @@ export default function PhoenixLab() {
   useEffect(() => {
     console.log('[PHOENIX] 🔍 useEffect triggered - hasUserStartedChat:', hasUserStartedChat, 'hasWelcomePlayed:', hasWelcomePlayed, 'messages.length:', messages.length);
     
+    // Wait for settings to load before proceeding
+    if (settingsLoading) {
+      console.log('[PHOENIX] ⏳ Waiting for settings to load...');
+      return;
+    }
+    
     // CRITICAL FIX: Only run welcome sequence if user has clicked Start Chat AND it hasn't been played yet
     if (hasUserStartedChat && !hasWelcomePlayed && messages.length === 0) {
-      console.log('[PHOENIX] 🎬 Starting one-time welcome sequence');
+      console.log('[PHOENIX] 🎬 Starting welcome sequence (showWelcome:', settings.showWelcomeMessage, ')');
       initializeConversation();
     } else {
       console.log('[PHOENIX] ⏭️ Skipping welcome - not started, already played, or messages exist');
     }
     initializeSpeechRecognition();
-  }, [hasUserStartedChat]); // Trigger when user starts chat
+  }, [hasUserStartedChat, settingsLoading, settings.showWelcomeMessage]); // Trigger when user starts chat or settings load
 
   // Listen for real-time podcast notifications
   useEffect(() => {
@@ -368,16 +390,51 @@ export default function PhoenixLab() {
       return;
     }
     
+    // Check if user wants to skip welcome message
+    if (!settingsLoading && !settings.showWelcomeMessage) {
+      console.log('[PHOENIX] ⏭️ Skipping welcome sequence per user preference');
+      
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (!authUser) return;
+      
+      // Create conversation record
+      await supabase.from('phoenix_conversations').insert({
+        user_id: authUser.id,
+        session_id: conversationId,
+        metadata: { phase: 2, created_from: 'phoenix_lab', welcome_skipped: true }
+      });
+      
+      // Add a simple, silent welcome message
+      const userName = user?.user_metadata?.full_name || 'there';
+      const simpleWelcome: Message = {
+        id: crypto.randomUUID(),
+        persona: 'AL',
+        content: `Welcome back, ${userName}. What would you like to work on today?`,
+        created_at: new Date().toISOString(),
+        isWelcome: true
+      };
+      
+      setMessages([simpleWelcome]);
+      setHasWelcomePlayed(true);
+      
+      toast({
+        title: "🧪 Phoenix Lab Ready",
+        description: "Let's continue learning!"
+      });
+      
+      return;
+    }
+    
     try {
       console.log('[PHOENIX] 🎬 Initializing conversation with welcome sequence');
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (!authUser) return;
 
       setIsGeneratingAudio(true);
 
       // Create conversation
       await supabase.from('phoenix_conversations').insert({
-        user_id: user.id,
+        user_id: authUser.id,
         session_id: conversationId,
         metadata: { phase: 2, created_from: 'phoenix_lab' }
       });
@@ -971,10 +1028,36 @@ export default function PhoenixLab() {
                 </CardDescription>
               </div>
               <div className="flex items-center gap-2">
+                {/* Settings toggles */}
+                <div className="flex items-center gap-3 mr-2">
+                  <div className="flex items-center gap-2">
+                    <Switch
+                      id="welcome-toggle"
+                      checked={settings.showWelcomeMessage}
+                      onCheckedChange={toggleWelcomeMessage}
+                      disabled={settingsLoading}
+                    />
+                    <Label 
+                      htmlFor="welcome-toggle" 
+                      className="text-sm cursor-pointer"
+                      title="Enable or disable the full welcome message sequence"
+                    >
+                      Welcome Message
+                    </Label>
+                  </div>
+                </div>
+                
+                <Separator orientation="vertical" className="h-8" />
+                
+                {/* Audio toggle */}
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => setAudioEnabled(!audioEnabled)}
+                  onClick={async () => {
+                    const newValue = !audioEnabled;
+                    setAudioEnabled(newValue);
+                    await toggleAudio();
+                  }}
                   className={`${audioEnabled ? 'text-primary' : 'text-muted-foreground'}`}
                   title={audioEnabled ? 'Disable Audio' : 'Enable Audio'}
                 >
