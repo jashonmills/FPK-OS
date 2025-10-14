@@ -292,37 +292,80 @@ serve(async (req) => {
             }
           }
 
-          // Generate TTS Audio using OpenAI
+          // Generate TTS Audio - Try ElevenLabs first, fallback to OpenAI
           let audioUrl = null;
+          let ttsProvider = 'none';
           try {
+            const ELEVENLABS_API_KEY = Deno.env.get('ELEVENLABS_API_KEY');
             const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
-            if (OPENAI_API_KEY && fullText.length > 0) {
+            
+            if (fullText.length > 0) {
               console.log('[CONDUCTOR] Generating TTS audio for completed response...');
               
-              // Choose voice based on persona (OpenAI voices)
-              const voice = selectedPersona === 'BETTY' ? 'nova' : 'onyx';
-              
-              const ttsResponse = await fetch('https://api.openai.com/v1/audio/speech', {
-                method: 'POST',
-                headers: {
-                  'Authorization': `Bearer ${OPENAI_API_KEY}`,
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                  model: 'tts-1',
-                  input: fullText,
-                  voice: voice,
-                  response_format: 'mp3',
-                }),
-              });
+              // Try ElevenLabs first
+              if (ELEVENLABS_API_KEY) {
+                try {
+                  const voiceId = selectedPersona === 'BETTY' ? 'EXAVITQu4vr4xnSDxMaL' : 'N2lVS1w4EtoT3dr4eOWO';
+                  
+                  const elevenLabsResponse = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+                    method: 'POST',
+                    headers: {
+                      'xi-api-key': ELEVENLABS_API_KEY,
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                      text: fullText,
+                      model_id: 'eleven_turbo_v2_5',
+                      voice_settings: {
+                        stability: selectedPersona === 'BETTY' ? 0.6 : 0.7,
+                        similarity_boost: 0.8,
+                        style: selectedPersona === 'BETTY' ? 0.4 : 0.2
+                      }
+                    }),
+                  });
 
-              if (ttsResponse.ok) {
-                const audioBuffer = await ttsResponse.arrayBuffer();
-                const base64Audio = btoa(String.fromCharCode(...new Uint8Array(audioBuffer)));
-                audioUrl = `data:audio/mpeg;base64,${base64Audio}`;
-                console.log('[CONDUCTOR] TTS audio generated successfully');
-              } else {
-                console.error('[CONDUCTOR] TTS generation failed:', await ttsResponse.text());
+                  if (elevenLabsResponse.ok) {
+                    const audioBuffer = await elevenLabsResponse.arrayBuffer();
+                    const base64Audio = btoa(String.fromCharCode(...new Uint8Array(audioBuffer)));
+                    audioUrl = `data:audio/mpeg;base64,${base64Audio}`;
+                    ttsProvider = 'elevenlabs';
+                    console.log('[CONDUCTOR] TTS audio generated successfully via ElevenLabs');
+                  } else {
+                    const errorText = await elevenLabsResponse.text();
+                    console.warn('[CONDUCTOR] ElevenLabs TTS failed, falling back to OpenAI:', errorText);
+                  }
+                } catch (elevenLabsError) {
+                  console.warn('[CONDUCTOR] ElevenLabs error, falling back to OpenAI:', elevenLabsError);
+                }
+              }
+              
+              // Fallback to OpenAI if ElevenLabs failed or wasn't configured
+              if (!audioUrl && OPENAI_API_KEY) {
+                const voice = selectedPersona === 'BETTY' ? 'nova' : 'onyx';
+                
+                const openAIResponse = await fetch('https://api.openai.com/v1/audio/speech', {
+                  method: 'POST',
+                  headers: {
+                    'Authorization': `Bearer ${OPENAI_API_KEY}`,
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    model: 'tts-1',
+                    input: fullText,
+                    voice: voice,
+                    response_format: 'mp3',
+                  }),
+                });
+
+                if (openAIResponse.ok) {
+                  const audioBuffer = await openAIResponse.arrayBuffer();
+                  const base64Audio = btoa(String.fromCharCode(...new Uint8Array(audioBuffer)));
+                  audioUrl = `data:audio/mpeg;base64,${base64Audio}`;
+                  ttsProvider = 'openai';
+                  console.log('[CONDUCTOR] TTS audio generated successfully via OpenAI (fallback)');
+                } else {
+                  console.error('[CONDUCTOR] OpenAI TTS also failed:', await openAIResponse.text());
+                }
               }
             }
           } catch (ttsError) {
@@ -349,7 +392,8 @@ serve(async (req) => {
               detectedSentiment,
               intentConfidence: intentResult.confidence,
               intentReasoning: intentResult.reasoning,
-              hasAudio: audioUrl !== null
+              hasAudio: audioUrl !== null,
+              ttsProvider
             }
           });
 
@@ -364,7 +408,8 @@ serve(async (req) => {
                 audioUrl,
                 metadata: {
                   ...responseMetadata,
-                  hasAudio: audioUrl !== null
+                  hasAudio: audioUrl !== null,
+                  ttsProvider
                 }
               })}\n\n`
             )

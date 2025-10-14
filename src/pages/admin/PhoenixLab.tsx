@@ -129,6 +129,48 @@ export default function PhoenixLab() {
 
   const generateWelcomeAudio = async (text: string, persona: 'AL' | 'BETTY'): Promise<string | null> => {
     try {
+      // Try ElevenLabs first via direct API call
+      const elevenLabsKey = 'sk_0b0b2f5cbcaae44b53f34e62ba2a21502cc4e1e4f1c7bff2'; // Your API key
+      if (elevenLabsKey) {
+        try {
+          const voiceId = persona === 'BETTY' ? 'EXAVITQu4vr4xnSDxMaL' : 'N2lVS1w4EtoT3dr4eOWO';
+          
+          const elevenLabsResponse = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+            method: 'POST',
+            headers: {
+              'xi-api-key': elevenLabsKey,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              text,
+              model_id: 'eleven_turbo_v2_5',
+              voice_settings: {
+                stability: persona === 'BETTY' ? 0.6 : 0.7,
+                similarity_boost: 0.8,
+                style: persona === 'BETTY' ? 0.4 : 0.2
+              }
+            }),
+          });
+
+          if (elevenLabsResponse.ok) {
+            const audioBlob = await elevenLabsResponse.blob();
+            const reader = new FileReader();
+            return new Promise((resolve) => {
+              reader.onloadend = () => {
+                console.log('[PHOENIX] Welcome audio generated via ElevenLabs');
+                resolve(reader.result as string);
+              };
+              reader.readAsDataURL(audioBlob);
+            });
+          } else {
+            console.warn('[PHOENIX] ElevenLabs failed, falling back to OpenAI');
+          }
+        } catch (elevenLabsError) {
+          console.warn('[PHOENIX] ElevenLabs error, falling back to OpenAI:', elevenLabsError);
+        }
+      }
+      
+      // Fallback to OpenAI via text-to-voice edge function
       const { data, error } = await supabase.functions.invoke('text-to-voice', {
         body: { 
           text,
@@ -138,6 +180,7 @@ export default function PhoenixLab() {
       
       if (error) throw error;
       if (data?.audioContent) {
+        console.log('[PHOENIX] Welcome audio generated via OpenAI (fallback)');
         return `data:audio/mpeg;base64,${data.audioContent}`;
       }
       return null;
