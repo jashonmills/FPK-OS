@@ -904,9 +904,9 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
               // Try ElevenLabs first
               if (ELEVENLABS_API_KEY) {
                 try {
-                  // Voice mapping: Betty = Sarah, Al = Callum, Nite Owl = Lily (playful)
+                  // Voice mapping: Betty = custom voice, Al = Callum, Nite Owl = Lily (playful)
                   const voiceId = selectedPersona === 'BETTY' 
-                    ? 'EXAVITQu4vr4xnSDxMaL' 
+                    ? 'uYXf8XasLslADfZ2MB4u' 
                     : selectedPersona === 'NITE_OWL'
                     ? 'pFZP5JQG7iQjIQuC4Bku'
                     : 'N2lVS1w4EtoT3dr4eOWO';

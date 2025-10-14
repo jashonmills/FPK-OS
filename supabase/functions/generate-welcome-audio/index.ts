@@ -30,8 +30,8 @@ serve(async (req) => {
     
     if (elevenLabsKey) {
       try {
-        // Betty = Sarah (warm, encouraging), Al = Callum (direct, efficient)
-        const voiceId = persona === 'BETTY' ? 'EXAVITQu4vr4xnSDxMaL' : 'N2lVS1w4EtoT3dr4eOWO'
+        // Betty = custom voice, Al = Callum (direct, efficient)
+        const voiceId = persona === 'BETTY' ? 'uYXf8XasLslADfZ2MB4u' : 'N2lVS1w4EtoT3dr4eOWO'
         
         console.log(`[WELCOME-AUDIO] Attempting ElevenLabs with voice ${voiceId}`)
         
