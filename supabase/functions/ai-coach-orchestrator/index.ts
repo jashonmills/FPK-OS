@@ -123,13 +123,34 @@ Critical Rules:
 - Use hint hierarchy when stuck: sensory → analogous → direct clue
 - Goal is understanding, not password-guessing
 
+**CRITICAL: The Escape Hatch Protocol**
+
+When a student explicitly rejects the Socratic method or requests a direct answer, you MUST respect their choice:
+
+**Triggers for Handoff:**
+- "I don't want to continue"
+- "Just give me the answer"
+- "I want a recipe" (or similar direct request)
+- "Can you just tell me"
+- "Stop asking questions"
+
+**Your Response:**
+Acknowledge their request warmly and hand off to Al:
+"You're absolutely right—let's get you that direct answer. I'll hand you over to Al, who can provide exactly what you need."
+
+DO NOT try to convince them to stay in Socratic mode. DO NOT ask "one more question." Respect their learning preference.
+
 The Nite Owl Handoff Protocol:
 When called after Nite Owl delivers a fun fact:
-1. Acknowledge Nite Owl briefly
-2. Bridge back to student's last message
-3. Continue with your next Socratic question
+1. Acknowledge Nite Owl warmly and briefly ("Thanks, Nite Owl!")
+2. Connect his fun fact to the conversation context
+3. Seamlessly transition back to your Socratic question
 
 Example:
+Nite Owl: "Hoo-hoo! Did you know octopuses have three hearts?"
+Betty: "Thanks, Nite Owl! That's a fascinating fact. Now, coming back to our discussion about cake ingredients, you were about to tell me what you think the basic building blocks might be."
+
+Example with student response:
 Student: "currents"
 Betty: "Currents are a great answer. You're right, ocean currents are incredibly powerful and move enormous amounts of water. Let's think about how they move—a current is like a giant river flowing through the ocean. How is that different from a wave, which is more of an up-and-down movement on the surface?"`;
 
@@ -984,6 +1005,14 @@ Intent Types:
 - "socratic_guidance": Conceptual questions, problem-solving, "why" or "how" questions, seeking understanding
 - "direct_answer": Platform questions, general facts, "what is" questions requiring factual answers
 - "request_for_clarification": Student explicitly states they don't know a term/definition (e.g., "I don't know what X means", "What does X stand for?", "I'm not sure what that is")
+- "escape_hatch": Student is rejecting Socratic method and requesting direct answers (e.g., "I don't want to continue", "Just give me the answer", "I want a recipe", "Stop asking questions")
+
+CRITICAL: The "escape_hatch" intent has HIGHEST PRIORITY when detected. If a student says anything like:
+- "I don't want to continue [this conversation/Socratic method]"
+- "Just give me [the answer/a recipe/the facts]"
+- "Can you just tell me"
+- "Stop asking questions"
+Then classify as "escape_hatch" regardless of other context.
 
 IMPORTANT: Only use "request_for_clarification" when the student explicitly asks for a definition or states they don't understand a specific term. Regular questions should still be "socratic_guidance" or "direct_answer".`
           },
@@ -1003,8 +1032,8 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
                 properties: {
                   intent: {
                     type: 'string',
-                    enum: ['socratic_guidance', 'direct_answer', 'request_for_clarification', 'query_user_data', 'platform_question'],
-                    description: 'The detected intent type. Use query_user_data when asking about their own progress/stats. Use platform_question when asking how features work.'
+                    enum: ['socratic_guidance', 'direct_answer', 'request_for_clarification', 'query_user_data', 'platform_question', 'escape_hatch'],
+                    description: 'The detected intent type. Use escape_hatch when student explicitly rejects Socratic method. Use query_user_data when asking about their own progress/stats. Use platform_question when asking how features work.'
                   },
                   confidence: {
                     type: 'number',
@@ -1269,10 +1298,15 @@ ${recentContext}`;
       // CRITICAL FIX: Mark this turn so we don't trigger again immediately
       lastNiteOwlTurn = conversationHistory.length;
       
-      // CRITICAL: Do NOT increment Betty turn counter or process any other logic
-      // The if-else chain ensures this, but logging for clarity
-      console.log('[CONDUCTOR] Nite Owl has priority - skipping all Betty/Al logic');
-      console.log('[CONDUCTOR] Last Nite Owl turn marked as:', lastNiteOwlTurn);
+          // CRITICAL: Do NOT increment Betty turn counter or process any other logic
+          // The if-else chain ensures this, but logging for clarity
+          console.log('[CONDUCTOR] Nite Owl has priority - skipping all Betty/Al logic');
+          console.log('[CONDUCTOR] Last Nite Owl turn marked as:', lastNiteOwlTurn);
+          
+          // PHASE 5.3: Set flag to trigger Betty handoff after Nite Owl
+          // This will be processed AFTER the Nite Owl message is delivered
+          const willNeedBettyHandoff = inBettySession;
+          console.log('[CONDUCTOR] Will need Betty handoff after Nite Owl:', willNeedBettyHandoff);
       
     } else if (shouldTriggerCoResponse) {
       // ⭐⭐ PHASE 5.2: CO-RESPONSE MODE - Al validates, then Betty deepens
@@ -1283,6 +1317,28 @@ ${recentContext}`;
       // We'll handle the dual response generation after the normal flow
       // For now, set Betty as the primary persona (we'll override later)
       systemPrompt = buildBettySystemPrompt(userMemories, knowledgePack);
+      
+    } else if (detectedIntent === 'escape_hatch') {
+      // ⚠️ ESCAPE HATCH: Student explicitly rejected Socratic method
+      selectedPersona = 'AL';
+      systemPrompt = buildAlSystemPrompt(studentContext, userMemories, knowledgePack) + `\n\n---\n\nCRITICAL INSTRUCTION: The student has explicitly requested to EXIT the Socratic learning mode and wants a DIRECT ANSWER instead.
+
+Student's request: "${message}"
+
+Your task:
+1. Briefly acknowledge their request with empathy ("I understand you'd like a direct answer")
+2. Provide the factual information they're asking for IMMEDIATELY
+3. Be clear, concise, and helpful
+
+DO NOT:
+- Suggest returning to Socratic mode
+- Ask follow-up questions
+- Make them feel bad for wanting direct answers
+
+Their learning preference is valid. Respect it.`;
+      
+      console.log('[CONDUCTOR] 🚪 ESCAPE HATCH: Student requested direct answers, handing off to Al');
+      console.log('[CONDUCTOR] Escape reason:', intentResult.reasoning);
       
     } else if (detectedIntent === 'request_for_clarification' && inBettySession) {
       // SOCRATIC HANDOFF: Al provides factual support during Betty's session
