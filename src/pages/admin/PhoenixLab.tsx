@@ -739,6 +739,27 @@ export default function PhoenixLab() {
                     isStreaming: true
                   }];
                 });
+              } else if (data.type === 'handoff') {
+                // Nite Owl handoff - add follow-up message from original persona
+                console.log('[PHOENIX] 🔄 Handoff message received from', data.persona);
+                
+                const handoffMessageId = crypto.randomUUID();
+                const handoffMessage: Message = {
+                  id: handoffMessageId,
+                  persona: data.persona,
+                  content: data.content,
+                  created_at: new Date().toISOString(),
+                  audioUrl: data.audioUrl,
+                  isStreaming: false
+                };
+                
+                setMessages(prev => [...prev, handoffMessage]);
+                
+                // Auto-play handoff audio if enabled
+                if (data.audioUrl && audioEnabled) {
+                  console.log('[PHOENIX] Auto-playing handoff audio');
+                  await playAudio(data.audioUrl, handoffMessageId);
+                }
               } else if (data.type === 'done') {
                 console.log('[PHOENIX] Stream done event:', data.metadata);
                 isStreamingActive = false;
