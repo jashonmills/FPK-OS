@@ -20,7 +20,41 @@ interface Message {
   metadata?: any;
   created_at: string;
   audioUrl?: string;
+  isWelcome?: boolean;
 }
+
+const WELCOME_MESSAGES: Omit<Message, 'id' | 'created_at'>[] = [
+  {
+    persona: 'AL',
+    content: "System online. Welcome. I'm Al, your direct support expert.",
+    isWelcome: true
+  },
+  {
+    persona: 'BETTY',
+    content: "And I'm Betty, your Socratic guide! We're both here to help you learn in the best way possible.",
+    isWelcome: true
+  },
+  {
+    persona: 'AL',
+    content: "My approach is to give you clear, efficient answers. If you ask 'what' or 'how-to', I'll provide the facts...",
+    isWelcome: true
+  },
+  {
+    persona: 'BETTY',
+    content: "...and my approach is to help you discover the 'why'. I'll ask questions that challenge you to think critically and build a deeper understanding.",
+    isWelcome: true
+  },
+  {
+    persona: 'AL',
+    content: "So you get the best of both worlds: direct help when you need it...",
+    isWelcome: true
+  },
+  {
+    persona: 'BETTY',
+    content: "...and deep learning when you're ready for it. We're excited to start. What would you like to tackle first?",
+    isWelcome: true
+  }
+];
 
 export default function PhoenixLab() {
   const navigate = useNavigate();
@@ -95,15 +129,35 @@ export default function PhoenixLab() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
+      // Create conversation
       await supabase.from('phoenix_conversations').insert({
         user_id: user.id,
         session_id: conversationId,
-        metadata: { phase: 1, created_from: 'phoenix_lab' }
+        metadata: { phase: 2, created_from: 'phoenix_lab' }
       });
+
+      // Insert welcome messages
+      const welcomeMessagesToInsert = WELCOME_MESSAGES.map(msg => ({
+        conversation_id: conversationId,
+        user_id: user.id,
+        persona: msg.persona,
+        content: msg.content,
+        metadata: { is_welcome: true }
+      }));
+
+      await supabase.from('phoenix_messages').insert(welcomeMessagesToInsert);
+
+      // Load welcome messages into UI
+      const welcomeMessages: Message[] = WELCOME_MESSAGES.map(msg => ({
+        ...msg,
+        id: crypto.randomUUID(),
+        created_at: new Date().toISOString()
+      }));
+      setMessages(welcomeMessages);
 
       toast({
         title: "🧪 Phoenix Lab Initialized",
-        description: `Session ID: ${conversationId.substring(0, 8)}...`
+        description: "Betty and Al are ready to help you learn!"
       });
     } catch (error) {
       console.error('Error initializing conversation:', error);
@@ -127,15 +181,17 @@ export default function PhoenixLab() {
     setMessages(prev => [...prev, tempUserMessage]);
 
     try {
-      // Call the Conductor edge function
+      // Call the Conductor edge function (filter out welcome messages from history)
       const { data, error } = await supabase.functions.invoke('ai-coach-orchestrator', {
         body: {
           message: userMessage,
           conversationId,
-          conversationHistory: messages.map(m => ({
-            persona: m.persona,
-            content: m.content
-          }))
+          conversationHistory: messages
+            .filter(m => !m.isWelcome)
+            .map(m => ({
+              persona: m.persona,
+              content: m.content
+            }))
         }
       });
 
