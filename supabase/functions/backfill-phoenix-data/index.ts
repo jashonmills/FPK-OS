@@ -128,10 +128,24 @@ Deno.serve(async (req) => {
         const messages = sessionData.messages || [];
         
         console.log(`[BACKFILL] Found ${messages.length} messages in session ${session.id}`);
+        
+        // Add detailed logging for first message to verify structure
+        if (messages.length > 0) {
+          console.log(`[BACKFILL] Sample message structure:`, JSON.stringify(messages[0], null, 2));
+        }
 
         // Insert messages
         for (let i = 0; i < messages.length; i++) {
           const msg = messages[i];
+          
+          // CRITICAL FIX: Convert persona to uppercase to match database enum
+          let personaValue = null;
+          if (msg.persona) {
+            personaValue = msg.persona.toUpperCase();
+          } else if (msg.role && msg.role !== 'user') {
+            // Fallback: convert role to uppercase if persona is missing
+            personaValue = msg.role.toUpperCase();
+          }
           
           try {
             const { error: msgError } = await supabaseAdmin
@@ -140,22 +154,34 @@ Deno.serve(async (req) => {
                 conversation_id: conversation.id,
                 role: msg.role === 'user' ? 'user' : 'assistant',
                 content: msg.content || '',
-                persona: msg.persona || (msg.role === 'assistant' ? 'BETTY' : null),
+                persona: personaValue,
                 intent: msg.intent || null,
                 created_at: msg.timestamp || new Date(session.created_at.getTime() + i * 1000).toISOString(),
               });
 
             if (msgError) {
               errors.push(`Failed to insert message ${i} for session ${session.id}: ${msgError.message}`);
-              console.error(`[BACKFILL] Error inserting message:`, msgError);
+              console.error(`[BACKFILL] ❌ Error inserting message ${i}:`, msgError);
+              console.error(`[BACKFILL] ❌ Message data that failed:`, {
+                conversation_id: conversation.id,
+                role: msg.role === 'user' ? 'user' : 'assistant',
+                content_length: msg.content?.length || 0,
+                persona: personaValue,
+                has_timestamp: !!msg.timestamp
+              });
             } else {
               messagesBackfilled++;
+              if (i === 0) {
+                console.log(`[BACKFILL] ✅ Successfully inserted first message for session ${session.id}`);
+              }
             }
           } catch (msgErr) {
             errors.push(`Exception inserting message ${i} for session ${session.id}: ${msgErr.message}`);
-            console.error(`[BACKFILL] Exception:`, msgErr);
+            console.error(`[BACKFILL] ❌ Exception inserting message:`, msgErr);
           }
         }
+        
+        console.log(`[BACKFILL] ✅ Session ${session.id} complete: ${messagesBackfilled} messages backfilled`);
 
         // Update conversation metadata with turn count
         await supabaseAdmin
