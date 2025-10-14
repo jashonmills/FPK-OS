@@ -66,6 +66,8 @@ export default function PhoenixLab() {
   const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState<any>(null);
   const [audioEnabled, setAudioEnabled] = useState(true);
+  const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
+  const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
   const currentAudioRef = React.useRef<HTMLAudioElement | null>(null);
   const { toast } = useToast();
@@ -127,8 +129,29 @@ export default function PhoenixLab() {
     }
   };
 
+  const getCachedAudio = (text: string, persona: 'AL' | 'BETTY'): string | null => {
+    const cacheKey = `phoenix-welcome-${persona}-${btoa(text).substring(0, 20)}`;
+    return localStorage.getItem(cacheKey);
+  };
+
+  const setCachedAudio = (text: string, persona: 'AL' | 'BETTY', audioUrl: string) => {
+    const cacheKey = `phoenix-welcome-${persona}-${btoa(text).substring(0, 20)}`;
+    try {
+      localStorage.setItem(cacheKey, audioUrl);
+    } catch (e) {
+      console.warn('[PHOENIX] Failed to cache audio:', e);
+    }
+  };
+
   const generateWelcomeAudio = async (text: string, persona: 'AL' | 'BETTY'): Promise<string | null> => {
     try {
+      // Check cache first
+      const cached = getCachedAudio(text, persona);
+      if (cached) {
+        console.log(`[PHOENIX] ✅ Using cached audio for ${persona}`);
+        return cached;
+      }
+
       console.log(`[PHOENIX] Generating welcome audio for ${persona}`);
       
       const { data, error } = await supabase.functions.invoke('generate-welcome-audio', {
@@ -142,8 +165,12 @@ export default function PhoenixLab() {
       
       if (data?.audioContent) {
         const provider = data.provider || 'unknown';
+        const audioUrl = `data:audio/mp3;base64,${data.audioContent}`;
         console.log(`[PHOENIX] ✅ Welcome audio generated via ${provider}`);
-        return `data:audio/mp3;base64,${data.audioContent}`;
+        
+        // Cache for next time
+        setCachedAudio(text, persona, audioUrl);
+        return audioUrl;
       }
       
       return null;
@@ -157,6 +184,8 @@ export default function PhoenixLab() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
+
+      setIsGeneratingAudio(true);
 
       // Create conversation
       await supabase.from('phoenix_conversations').insert({
@@ -176,49 +205,55 @@ export default function PhoenixLab() {
 
       await supabase.from('phoenix_messages').insert(welcomeMessagesToInsert);
 
-      // Display welcome messages with staggered delays, typing indicators, and audio
-      for (let i = 0; i < WELCOME_MESSAGES.length; i++) {
-        await new Promise(resolve => setTimeout(resolve, i === 0 ? 500 : 1500));
+      // Generate ALL audio in parallel (much faster!)
+      console.log('[PHOENIX] 🚀 Generating all welcome audio in parallel...');
+      const audioPromises = WELCOME_MESSAGES.map(msg =>
+        generateWelcomeAudio(msg.content, msg.persona as 'AL' | 'BETTY')
+      );
+      const audioUrls = await Promise.all(audioPromises);
+      console.log('[PHOENIX] ✅ All audio generated!');
+
+      setIsGeneratingAudio(false);
+
+      // Create all messages with audio URLs
+      const messagesWithAudio: Message[] = WELCOME_MESSAGES.map((msg, i) => ({
+        ...msg,
+        id: crypto.randomUUID(),
+        created_at: new Date().toISOString(),
+        audioUrl: audioUrls[i] || undefined
+      }));
+
+      // Display messages with typing effect and play audio sequentially
+      for (let i = 0; i < messagesWithAudio.length; i++) {
+        await new Promise(resolve => setTimeout(resolve, i === 0 ? 500 : 800));
         
         // Show typing indicator
         if (i > 0) {
           setMessages(prev => [...prev, {
             id: `typing-${i}`,
-            persona: WELCOME_MESSAGES[i].persona,
+            persona: messagesWithAudio[i].persona,
             content: '',
             created_at: new Date().toISOString(),
             isWelcome: true,
             isTyping: true
           }]);
           
-          await new Promise(resolve => setTimeout(resolve, 800));
+          await new Promise(resolve => setTimeout(resolve, 600));
         }
         
-        // Generate audio for this message
-        const audioUrl = await generateWelcomeAudio(
-          WELCOME_MESSAGES[i].content, 
-          WELCOME_MESSAGES[i].persona as 'AL' | 'BETTY'
-        );
-        
-        // Remove typing indicator and add actual message with audio
-        const messageWithAudio: Message = {
-          ...WELCOME_MESSAGES[i],
-          id: crypto.randomUUID(),
-          created_at: new Date().toISOString(),
-          audioUrl: audioUrl || undefined
-        };
-        
+        // Remove typing indicator and add actual message
         if (i > 0) {
-          setMessages(prev => prev.filter(m => !m.isTyping).concat(messageWithAudio));
+          setMessages(prev => prev.filter(m => !m.isTyping).concat(messagesWithAudio[i]));
         } else {
-          setMessages([messageWithAudio]);
+          setMessages([messagesWithAudio[i]]);
         }
         
-        // Play audio if available and enabled
-        if (audioUrl && audioEnabled) {
-          playAudio(audioUrl);
-          // Wait for audio to finish before next message
-          await new Promise(resolve => setTimeout(resolve, 2500));
+        // Play audio immediately if available and enabled
+        if (audioUrls[i] && audioEnabled) {
+          await playAudioWithHighlight(audioUrls[i], messagesWithAudio[i].id);
+        } else {
+          // If no audio, just wait a bit before next message
+          await new Promise(resolve => setTimeout(resolve, 1500));
         }
       }
 
@@ -228,6 +263,7 @@ export default function PhoenixLab() {
       });
     } catch (error) {
       console.error('Error initializing conversation:', error);
+      setIsGeneratingAudio(false);
     }
   };
 
@@ -378,6 +414,47 @@ export default function PhoenixLab() {
     };
   };
 
+  const playAudioWithHighlight = async (audioUrl: string, messageId: string): Promise<void> => {
+    return new Promise((resolve) => {
+      if (!audioEnabled) {
+        console.log('[PHOENIX] Audio disabled, skipping playback');
+        resolve();
+        return;
+      }
+      
+      // Stop any currently playing audio
+      if (currentAudioRef.current) {
+        currentAudioRef.current.pause();
+        currentAudioRef.current = null;
+      }
+      
+      // Highlight this message
+      setSpeakingMessageId(messageId);
+      
+      const audio = new Audio(audioUrl);
+      currentAudioRef.current = audio;
+      
+      audio.onended = () => {
+        currentAudioRef.current = null;
+        setSpeakingMessageId(null);
+        resolve();
+      };
+      
+      audio.onerror = (err) => {
+        console.error('[PHOENIX] Audio playback error:', err);
+        currentAudioRef.current = null;
+        setSpeakingMessageId(null);
+        resolve();
+      };
+      
+      audio.play().catch(err => {
+        console.error('[PHOENIX] Audio play failed:', err);
+        setSpeakingMessageId(null);
+        resolve();
+      });
+    });
+  };
+
   const resetConversation = () => {
     setMessages([]);
     setInput('');
@@ -481,11 +558,29 @@ export default function PhoenixLab() {
                 </div>
               ) : (
                 <div className="space-y-4">
+                  {isGeneratingAudio && (
+                    <div className="text-center py-4 text-sm text-muted-foreground">
+                      <div className="flex items-center justify-center gap-2">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Generating audio for welcome messages...</span>
+                      </div>
+                    </div>
+                  )}
                   {messages.map((msg) => (
-                    <div key={msg.id} className={`p-4 rounded-lg border-2 ${getPersonaColor(msg.persona)}`}>
+                    <div 
+                      key={msg.id} 
+                      className={`p-4 rounded-lg border-2 transition-all duration-300 ${getPersonaColor(msg.persona)} ${
+                        speakingMessageId === msg.id ? 'ring-4 ring-primary ring-opacity-50 shadow-lg scale-105' : ''
+                      }`}
+                    >
                       <div className="flex items-center gap-2 mb-2 flex-wrap">
                         <span className="text-2xl">{getPersonaIcon(msg.persona)}</span>
                         <Badge variant="outline">{msg.persona}</Badge>
+                        {speakingMessageId === msg.id && (
+                          <Badge variant="default" className="animate-pulse">
+                            🔊 Speaking
+                          </Badge>
+                        )}
                         {msg.intent && (
                           <Badge variant="secondary" className="text-xs">
                             Intent: {msg.intent}
