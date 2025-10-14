@@ -161,3 +161,6 @@ verify_jwt = false
 
 [functions.backfill-phoenix-data]
 verify_jwt = true
+
+[functions.podcast-generator]
+verify_jwt = true
