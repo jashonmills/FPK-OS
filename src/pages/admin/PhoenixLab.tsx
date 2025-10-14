@@ -1039,18 +1039,18 @@ export default function PhoenixLab() {
             </div>
             <Separator />
             <div>
-              <h4 className="font-semibold mb-2">Phase 3 Features</h4>
+              <h4 className="font-semibold mb-2">Phase 4 Features</h4>
               <ul className="text-sm space-y-1">
-                <li>✅ Modular Prompt Architecture</li>
-                <li>✅ Betty (Socratic + AVCQ)</li>
-                <li>✅ Al (Direct Expert)</li>
-                <li>✅ Al Socratic Support</li>
-                <li>✅ 5-Intent Detection</li>
-                <li>✅ Socratic Handoff</li>
-                <li>✅ Streaming UI</li>
-                <li>✅ Voice I/O (STT/TTS)</li>
-                <li>✅ Governor Verification</li>
-                <li>✅ Audio Caching</li>
+                <li>✅ Podcast Generation</li>
+                <li>✅ Aha Moment Detection</li>
+                <li>✅ Multi-Speaker Audio</li>
+                <li>✅ Analytics Dashboard</li>
+                <li>⏳ Context Persistence</li>
+                <li>⏳ Learning Path Mapping</li>
+                <li>⏳ Knowledge Graph</li>
+                <li>⏳ Advanced Metrics</li>
+                <li>⏳ Multi-Session Memory</li>
+                <li>⏳ Adaptive Scaffolding</li>
               </ul>
             </div>
           </CardContent>
