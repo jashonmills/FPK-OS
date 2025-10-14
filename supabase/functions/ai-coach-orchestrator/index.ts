@@ -771,6 +771,7 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
         const decoder = new TextDecoder();
         let fullText = '';
         let chunkCount = 0;
+        let buffer = ''; // Buffer for incomplete JSON
 
         try {
           console.log('[CONDUCTOR] Starting SSE stream...');
@@ -783,11 +784,16 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
             }
 
             const chunk = decoder.decode(value, { stream: true });
-            const lines = chunk.split('\n').filter(line => line.trim() !== '');
+            buffer += chunk;
+            
+            const lines = buffer.split('\n');
+            buffer = lines.pop() || ''; // Keep incomplete line in buffer
 
             for (const line of lines) {
+              if (line.trim() === '' || line.startsWith(':')) continue;
+              
               if (line.startsWith('data: ')) {
-                const data = line.slice(6);
+                const data = line.slice(6).trim();
                 if (data === '[DONE]') continue;
 
                 try {
@@ -812,7 +818,10 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
                     }
                   }
                 } catch (e) {
-                  console.error('[CONDUCTOR] Error parsing SSE chunk:', e);
+                  // Skip malformed JSON silently - likely incomplete chunk
+                  if (!data.includes('[DONE]')) {
+                    console.debug('[CONDUCTOR] Skipping incomplete JSON chunk');
+                  }
                 }
               }
             }
