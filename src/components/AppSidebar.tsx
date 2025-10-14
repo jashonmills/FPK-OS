@@ -37,7 +37,8 @@ import {
   Package,
   FolderOpen,
   Building2,
-  FileText
+  FileText,
+  TestTube
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -210,6 +211,11 @@ export function AppSidebar() {
       title: 'Beta Management',
       url: "/dashboard/admin/beta",
       icon: MessageSquare,
+    },
+    {
+      title: 'Phoenix Lab',
+      url: "/dashboard/admin/phoenix-lab",
+      icon: TestTube,
     },
     {
       title: 'Course Builder',

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -7,7 +8,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Send, Sparkles, Brain, TestTube, AlertCircle } from 'lucide-react';
+import { Loader2, Send, Sparkles, Brain, TestTube, AlertCircle, ArrowLeft } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface Message {
@@ -21,6 +22,7 @@ interface Message {
 }
 
 export default function PhoenixLab() {
+  const navigate = useNavigate();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -129,8 +131,17 @@ export default function PhoenixLab() {
 
   return (
     <div className="container mx-auto p-6 max-w-6xl">
-      {/* Header */}
+      {/* Header with Back Button */}
       <div className="mb-6">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => navigate('/dashboard/admin')}
+          className="mb-4"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back to Admin Dashboard
+        </Button>
         <div className="flex items-center gap-3 mb-2">
           <TestTube className="w-8 h-8 text-purple-600" />
           <h1 className="text-3xl font-bold">Phoenix Lab</h1>
