@@ -68,6 +68,7 @@ export default function PhoenixLab() {
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
+  const [hasWelcomePlayed, setHasWelcomePlayed] = useState(false); // CRITICAL: Prevents welcome replay
   const activeAudioElements = React.useRef<Set<HTMLAudioElement>>(new Set());
   const audioLockRef = React.useRef(false);
   const playedMessagesRef = React.useRef<Set<string>>(new Set());
@@ -81,11 +82,15 @@ export default function PhoenixLab() {
     }
   }, [audioEnabled]);
 
-  // Initialize conversation and speech recognition
+  // Initialize conversation and speech recognition - ONLY ONCE
   useEffect(() => {
-    initializeConversation();
+    // CRITICAL FIX: Only run welcome sequence if it hasn't been played yet
+    if (!hasWelcomePlayed && messages.length === 0) {
+      console.log('[PHOENIX] 🎬 Starting one-time welcome sequence');
+      initializeConversation();
+    }
     initializeSpeechRecognition();
-  }, []);
+  }, []); // Empty deps = run once on mount only
 
   const initializeSpeechRecognition = () => {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
@@ -195,7 +200,14 @@ export default function PhoenixLab() {
   };
 
   const initializeConversation = async () => {
+    // CRITICAL GUARD: Prevent welcome sequence from ever replaying
+    if (hasWelcomePlayed) {
+      console.log('[PHOENIX] ⛔ Welcome already played, skipping initialization');
+      return;
+    }
+    
     try {
+      console.log('[PHOENIX] 🎬 Initializing conversation with welcome sequence');
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
@@ -280,6 +292,10 @@ export default function PhoenixLab() {
           await new Promise(resolve => setTimeout(resolve, 1500));
         }
       }
+
+      // CRITICAL: Mark welcome as played to prevent replay
+      setHasWelcomePlayed(true);
+      console.log('[PHOENIX] ✅ Welcome sequence complete and locked');
 
       toast({
         title: "🧪 Phoenix Lab Initialized",
@@ -601,13 +617,16 @@ export default function PhoenixLab() {
   };
 
   const resetConversation = async () => {
-    console.log('[PHOENIX] Resetting conversation...');
+    console.log('[PHOENIX] 🔄 Resetting conversation...');
     
     // Stop all audio
     stopAllAudio();
     
     // Clear played messages tracking
     playedMessagesRef.current.clear();
+    
+    // CRITICAL: Reset welcome flag to allow replay on reset
+    setHasWelcomePlayed(false);
     
     // Clear state
     setMessages([]);
@@ -617,6 +636,7 @@ export default function PhoenixLab() {
     setIsGeneratingAudio(false);
     
     // Reinitialize conversation with welcome messages
+    // (will now work because hasWelcomePlayed is false)
     await initializeConversation();
     
     toast({
