@@ -10400,6 +10400,10 @@ export type Database = {
           | { p_user_id?: string }
         Returns: Json
       }
+      get_student_knowledge_pack: {
+        Args: { p_user_id: string }
+        Returns: Json
+      }
       get_time_spent_by_day: {
         Args: Record<PropertyKey, never>
         Returns: {

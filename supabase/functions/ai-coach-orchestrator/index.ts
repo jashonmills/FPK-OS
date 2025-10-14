@@ -1,6 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { formatKnowledgePack } from './helpers/formatKnowledgePack.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -215,7 +216,7 @@ Rules:
 const MODULE_SEPARATOR = '\n\n---\n\n';
 
 // Prompt assembly functions
-function buildBettySystemPrompt(memories?: any[]): string {
+function buildBettySystemPrompt(memories?: any[], knowledgePack?: any): string {
   const modules = [
     NO_META_REASONING,
     BETTY_CORE,
@@ -228,6 +229,12 @@ function buildBettySystemPrompt(memories?: any[]): string {
   ];
   
   let prompt = modules.join(MODULE_SEPARATOR);
+  
+  // Inject Student Knowledge Pack if available
+  if (knowledgePack) {
+    const knowledgePackSection = formatKnowledgePack(knowledgePack);
+    prompt += `\n\n${MODULE_SEPARATOR}\n${knowledgePackSection}`;
+  }
   
   // Inject memory context if available (Phase 5: Multi-Session Memory)
   if (memories && memories.length > 0) {
@@ -242,7 +249,7 @@ function buildBettySystemPrompt(memories?: any[]): string {
   return prompt;
 }
 
-function buildNiteOwlSystemPrompt(): string {
+function buildNiteOwlSystemPrompt(knowledgePack?: any): string {
   const modules = [
     NO_META_REASONING,
     NITE_OWL_CORE,
@@ -250,10 +257,29 @@ function buildNiteOwlSystemPrompt(): string {
     LANGUAGE_AND_STYLE,
     SAFETY_AND_ETHICS,
   ];
-  return modules.join(MODULE_SEPARATOR);
+  
+  let prompt = modules.join(MODULE_SEPARATOR);
+  
+  // Inject limited knowledge pack for Nite Owl (just favorite topics and recent achievements)
+  if (knowledgePack) {
+    const favoriteTopics = knowledgePack.ai_coach_insights?.favorite_topics || [];
+    const recentAchievements = knowledgePack.gamification?.recent_achievements || [];
+    
+    if (favoriteTopics.length > 0 || recentAchievements.length > 0) {
+      prompt += '\n\n**STUDENT CONTEXT:**\n';
+      if (favoriteTopics.length > 0) {
+        prompt += `- Favorite topics: ${favoriteTopics.join(', ')}\n`;
+      }
+      if (recentAchievements.length > 0) {
+        prompt += `- Recent achievements: ${recentAchievements.map((a: any) => a.name).join(', ')}\n`;
+      }
+    }
+  }
+  
+  return prompt;
 }
 
-function buildAlSystemPrompt(studentContext?: any, memories?: any[]): string {
+function buildAlSystemPrompt(studentContext?: any, memories?: any[], knowledgePack?: any): string {
   const modules = [
     NO_META_REASONING,
     AL_CORE,
@@ -267,9 +293,15 @@ function buildAlSystemPrompt(studentContext?: any, memories?: any[]): string {
   
   let prompt = modules.join(MODULE_SEPARATOR);
   
-  // Inject student context if available
+  // Inject Student Knowledge Pack if available (PRIORITY: This is more comprehensive than studentContext)
+  if (knowledgePack) {
+    const knowledgePackSection = formatKnowledgePack(knowledgePack);
+    prompt += `\n\n${MODULE_SEPARATOR}\n${knowledgePackSection}`;
+  }
+  
+  // Inject student context if available (legacy support)
   if (studentContext) {
-    prompt += `\n\n${MODULE_SEPARATOR}\n# Current Student Context\n\nYou are speaking to the following student. Use this data to personalize your answers about their progress and learning journey.\n\n${JSON.stringify(studentContext, null, 2)}\n\nWhen discussing their progress, be specific and data-driven. Mention concrete numbers, topics, and patterns.`;
+    prompt += `\n\n${MODULE_SEPARATOR}\n# Additional Context\n\nSupplementary student data:\n\n${JSON.stringify(studentContext, null, 2)}\n\nWhen discussing their progress, be specific and data-driven. Mention concrete numbers, topics, and patterns.`;
     
     // CRITICAL NEW FEATURE: Add continuity awareness if last session exists
     if (studentContext.lastSessionTranscript && studentContext.lastSessionTranscript.length > 0) {
@@ -821,6 +853,25 @@ serve(async (req) => {
 
     console.log('[CONDUCTOR] User authenticated:', user.id);
 
+    // 🧠 FETCH STUDENT KNOWLEDGE PACK
+    console.log('[CONDUCTOR] 🧠 Fetching Student Knowledge Pack for user:', user.id);
+    const { data: knowledgePack, error: kpError } = await supabaseClient
+      .rpc('get_student_knowledge_pack', { p_user_id: user.id });
+    
+    if (kpError) {
+      console.error('[CONDUCTOR] ❌ Error fetching knowledge pack:', kpError);
+      // Continue without knowledge pack rather than failing the entire request
+    } else {
+      console.log('[CONDUCTOR] ✅ Knowledge Pack loaded successfully');
+      console.log('[CONDUCTOR] 📊 Knowledge Pack summary:', {
+        active_courses: knowledgePack?.active_courses?.length || 0,
+        active_goals: knowledgePack?.active_goals?.length || 0,
+        has_instructor_notes: (knowledgePack?.instructor_notes?.length || 0) > 0,
+        is_org_student: knowledgePack?.organization_context?.is_org_student || false,
+        current_streak: knowledgePack?.learning_patterns?.current_streak || 0
+      });
+    }
+
     // 2. Verify admin status
     const { data: roles } = await supabaseClient
       .from('user_roles')
@@ -1107,7 +1158,7 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
       // ⭐ HIGHEST PRIORITY: NITE OWL INTERJECTION
       // When Nite Owl triggers, ONLY process Nite Owl - no Betty, no Al, nothing else
       selectedPersona = 'NITE_OWL';
-      systemPrompt = buildNiteOwlSystemPrompt();
+      systemPrompt = buildNiteOwlSystemPrompt(knowledgePack);
       console.log('[CONDUCTOR] 🦉 Nite Owl interjection - HALTING all other AI processing');
       
       // Reset counter and set new random interjection point
@@ -1127,7 +1178,7 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
       
       // We'll handle the dual response generation after the normal flow
       // For now, set Betty as the primary persona (we'll override later)
-      systemPrompt = buildBettySystemPrompt(userMemories);
+      systemPrompt = buildBettySystemPrompt(userMemories, knowledgePack);
       
     } else if (detectedIntent === 'request_for_clarification' && inBettySession) {
       // SOCRATIC HANDOFF: Al provides factual support during Betty's session
@@ -1137,15 +1188,15 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
       console.log('[CONDUCTOR] 🤝 Socratic Handoff: Al providing factual support in Betty session');
       
     } else if (detectedIntent === 'query_user_data' || detectedIntent === 'platform_question') {
-      // USER DATA QUERY or PLATFORM QUESTION: Al with student context
+      // USER DATA QUERY or PLATFORM QUESTION: Al with student context and knowledge pack
       selectedPersona = 'AL';
-      systemPrompt = buildAlSystemPrompt(studentContext, userMemories);
+      systemPrompt = buildAlSystemPrompt(studentContext, userMemories, knowledgePack);
       console.log('[CONDUCTOR] 📊 Al providing data-driven or platform guidance response');
       
     } else if (detectedIntent === 'socratic_guidance') {
       // BETTY SOCRATIC SESSION: Increment counters
       selectedPersona = 'BETTY';
-      systemPrompt = buildBettySystemPrompt(userMemories);
+      systemPrompt = buildBettySystemPrompt(userMemories, knowledgePack);
       socraticTurnCounter++; // Increment turn counter for next Nite Owl check
       totalBettyTurns++;
       console.log('[CONDUCTOR] Betty continues Socratic dialogue');
@@ -1153,7 +1204,7 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
     } else {
       // DEFAULT: Al for direct answers
       selectedPersona = 'AL';
-      systemPrompt = buildAlSystemPrompt(studentContext, userMemories);
+      systemPrompt = buildAlSystemPrompt(studentContext, userMemories, knowledgePack);
       console.log('[CONDUCTOR] Al provides direct answer');
     }
     
@@ -1264,7 +1315,7 @@ Keep it under 100 words.`;
         body: JSON.stringify({
           model: 'google/gemini-2.5-flash',
           messages: [
-            { role: 'system', content: buildAlSystemPrompt(studentContext, userMemories) },
+            { role: 'system', content: buildAlSystemPrompt(studentContext, userMemories, knowledgePack) },
             ...conversationHistory.slice(-5).map(msg => ({
               role: msg.persona === 'USER' ? 'user' : 'assistant',
               content: msg.content
@@ -1301,7 +1352,7 @@ Keep it under 100 words.`;
         body: JSON.stringify({
           model: 'google/gemini-2.5-flash',
           messages: [
-            { role: 'system', content: buildBettySystemPrompt(userMemories) },
+            { role: 'system', content: buildBettySystemPrompt(userMemories, knowledgePack) },
             ...conversationHistory.slice(-5).map(msg => ({
               role: msg.persona === 'USER' ? 'user' : 'assistant',
               content: msg.content
