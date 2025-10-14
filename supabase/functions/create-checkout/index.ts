@@ -4,7 +4,6 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { 
   getPriceId, 
   getCreditPackPriceId, 
-  validatePriceIds,
   TIER_TO_PRICE_MAP,
   type SubscriptionTier,
   type BillingInterval
@@ -21,10 +20,6 @@ const logStep = (step: string, details?: any) => {
   console.log(`[CREATE-CHECKOUT] ${step}${detailsStr}`);
 };
 
-// Validate Stripe configuration on startup
-if (!validatePriceIds()) {
-  console.error("⚠️  Stripe Price IDs not configured. Run setup script first!");
-}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
