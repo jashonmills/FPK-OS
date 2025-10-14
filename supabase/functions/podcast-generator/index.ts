@@ -100,7 +100,27 @@ serve(async (req) => {
 
     console.log('[PODCAST-PRODUCER] Episode created:', episode.id);
 
-    // Step 6: Trigger Nite Owl presentation
+    // Step 6: Send real-time notification to frontend
+    try {
+      console.log('[PODCAST-PRODUCER] Sending real-time notification...');
+      const notificationChannel = supabase.channel(`podcast_ready_${userId}`);
+      await notificationChannel.send({
+        type: 'broadcast',
+        event: 'podcast_ready',
+        payload: {
+          episodeId: episode.id,
+          topic: ahaMoment.topic,
+          audioUrl: publicUrl,
+          shareToken: episode.share_token
+        }
+      });
+      console.log('[PODCAST-PRODUCER] Real-time notification sent');
+    } catch (notificationError) {
+      console.error('[PODCAST-PRODUCER] Failed to send notification:', notificationError);
+      // Non-blocking - continue even if notification fails
+    }
+
+    // Step 7: Trigger Nite Owl presentation message
     const niteOwlMessage = await generateNiteOwlMessage(episode);
 
     return new Response(

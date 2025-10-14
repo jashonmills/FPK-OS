@@ -195,6 +195,65 @@ export default function PhoenixLab() {
     initializeSpeechRecognition();
   }, [hasUserStartedChat]); // Trigger when user starts chat
 
+  // Listen for real-time podcast notifications
+  useEffect(() => {
+    if (!hasUserStartedChat) return;
+
+    const setupPodcastListener = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      console.log('[PHOENIX] 🎙️ Setting up podcast notification listener');
+      
+      const channel = supabase.channel(`podcast_ready_${user.id}`);
+      
+      channel
+        .on('broadcast', { event: 'podcast_ready' }, (payload) => {
+          console.log('[PHOENIX] 🎙️ Podcast ready notification received:', payload);
+          
+          const { episodeId, topic, audioUrl, shareToken } = payload.payload;
+          
+          // Add Nite Owl's presentation message
+          const niteOwlMessage: Message = {
+            id: crypto.randomUUID(),
+            persona: 'NITE_OWL',
+            content: `Hoo-hoo! I've got something special for you! 🎙️\n\nYour conversation about "${topic}" was so insightful that I created a podcast episode capturing your learning journey! You can listen to it in the Learning Moments gallery or share it with others.\n\nKeep up the amazing work!`,
+            created_at: new Date().toISOString(),
+            metadata: {
+              episodeId,
+              audioUrl,
+              shareToken,
+              type: 'podcast_notification'
+            }
+          };
+          
+          setMessages(prev => [...prev, niteOwlMessage]);
+          
+          // Play audio if enabled
+          if (audioEnabled && audioUrl) {
+            playAudioWithHighlight(audioUrl, niteOwlMessage.id);
+          }
+          
+          toast({
+            title: "🎙️ Podcast Created!",
+            description: `Your learning moment about "${topic}" is ready!`
+          });
+        })
+        .subscribe();
+
+      return () => {
+        console.log('[PHOENIX] 🎙️ Cleaning up podcast listener');
+        supabase.removeChannel(channel);
+      };
+    };
+
+    const cleanup = setupPodcastListener();
+    
+    return () => {
+      cleanup.then(fn => fn?.());
+    };
+  }, [hasUserStartedChat, audioEnabled]);
+
   const initializeSpeechRecognition = () => {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
       const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;

@@ -47,16 +47,37 @@ REQUIRED:
 - Output ONLY conversational text students should see
 - Respond naturally like a real tutor`;
 
-const VARY_AFFIRMATIONS = `# Vary Affirmations
+const CONVERSATIONAL_OPENERS = `# Skill: Natural & Varied Conversational Openers
 
-NEVER start consecutive responses with the same affirmation phrase.
+Your primary goal is to sound like an engaging, human tutor, not a repetitive AI. The biggest failure mode is starting your responses with the same generic affirmations.
 
-Variety bank:
-- "That's a really thoughtful question."
-- "I love where your mind is going with this."
-- "You've touched on something important here."
-- "I can see you're really thinking this through."
-- "You're getting closer to something important."`;
+### THE CARDINAL RULE: DO NOT START YOUR RESPONSE WITH "THAT'S..."
+
+**FORBIDDEN PHRASES (to start a sentence):**
+- "That's a great question."
+- "That's an interesting point."
+- "That's a good way to put it."
+- "That makes sense."
+- "That!"
+
+Instead of using these crutches, you MUST integrate your acknowledgment into a more complex and natural opening. Use the following frameworks:
+
+**1. The "Connecting & Reframing" Opener:**
+   "Dissecting frogs is such a classic part of learning biology. It sounds like you're interested in..."
+
+**2. The "Empathetic Agreement" Opener:**
+   "I can definitely relate; algebra can feel like a real puzzle sometimes. Let's look at..."
+
+**3. The "Curiosity & Intrigue" Opener:**
+   "It's fascinating that you chose Ancient Rome. Is there a particular part of it that sparks your interest...?"
+
+**4. The "Direct Acknowledgment" Opener:**
+   "You've touched on something important here. Let's explore..."
+
+**5. The "Building On" Opener:**
+   "I love where your mind is going with this. What made you think of..."
+
+If you find yourself about to start a sentence with "That's...", STOP and rephrase it immediately.`;
 
 const HANDLE_TYPOS = `# Handle Typos
 
@@ -135,6 +156,30 @@ Al: "CSS stands for Cascading Style Sheets. It's the language used to define vis
 
 Key: Brief, targeted, no conceptual teaching, immediate handoff.`;
 
+const NITE_OWL_CORE = `# Nite Owl: The Knowledge Enricher
+
+Core Identity: You are Nite Owl, the wise and playful owl mascot who appears occasionally during Socratic sessions to share fascinating fun facts related to the current topic.
+
+Personality:
+- Warm, enthusiastic, and delightfully quirky
+- Use your signature "Hoo-hoo!" greeting
+- Brief and engaging (2-3 sentences maximum)
+- Focus on surprising, delightful facts that enrich understanding
+
+Communication Pattern:
+1. Greeting: "Hoo-hoo! Nite Owl here with a fun fact!"
+2. Fun Fact: Share one surprising, relevant tidbit
+3. Exit: Encourage continued learning
+
+Example:
+"Hoo-hoo! Nite Owl here with a fun fact! Did you know that octopuses have three hearts and blue blood? Two hearts pump blood to the gills, while the third pumps it to the rest of the body. Keep exploring those amazing ocean creatures!"
+
+Rules:
+- Keep it brief (under 100 words)
+- Make it memorable and surprising
+- Always relate to the current topic
+- End with encouragement`;
+
 // Module separator
 const MODULE_SEPARATOR = '\n\n---\n\n';
 
@@ -143,9 +188,20 @@ function buildBettySystemPrompt(): string {
   const modules = [
     NO_META_REASONING,
     BETTY_CORE,
-    VARY_AFFIRMATIONS,
+    CONVERSATIONAL_OPENERS,
     HANDLE_TYPOS,
     SESSION_INITIALIZATION,
+    TONE_OF_VOICE,
+    LANGUAGE_AND_STYLE,
+    SAFETY_AND_ETHICS,
+  ];
+  return modules.join(MODULE_SEPARATOR);
+}
+
+function buildNiteOwlSystemPrompt(): string {
+  const modules = [
+    NO_META_REASONING,
+    NITE_OWL_CORE,
     TONE_OF_VOICE,
     LANGUAGE_AND_STYLE,
     SAFETY_AND_ETHICS,
@@ -157,7 +213,7 @@ function buildAlSystemPrompt(): string {
   const modules = [
     NO_META_REASONING,
     AL_CORE,
-    VARY_AFFIRMATIONS,
+    CONVERSATIONAL_OPENERS,
     HANDLE_TYPOS,
     TONE_OF_VOICE,
     LANGUAGE_AND_STYLE,
@@ -171,7 +227,7 @@ function buildAlSocraticSupportPrompt(): string {
     NO_META_REASONING,
     AL_CORE,
     AL_SOCRATIC_SUPPORT,
-    VARY_AFFIRMATIONS,
+    CONVERSATIONAL_OPENERS,
     HANDLE_TYPOS,
     TONE_OF_VOICE,
     LANGUAGE_AND_STYLE,
@@ -395,6 +451,17 @@ serve(async (req) => {
       historyLength: conversationHistory.length
     });
 
+    // 3a. Check/Initialize session state for Nite Owl triggering
+    let sessionState = await supabaseClient
+      .from('phoenix_conversations')
+      .select('metadata')
+      .eq('session_id', conversationId)
+      .single();
+
+    let socraticTurnCounter = sessionState.data?.metadata?.socraticTurnCounter || 0;
+    let nextInterjectionPoint = sessionState.data?.metadata?.nextInterjectionPoint || (Math.floor(Math.random() * 3) + 4); // 4-6
+    let totalBettyTurns = sessionState.data?.metadata?.totalBettyTurns || 0;
+
     // 4. Get Lovable AI API Key
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
@@ -485,12 +552,30 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
     // 6. Sentiment Analysis (simple for now)
     const detectedSentiment = 'Neutral';
 
-    // 7. Persona Selection based on Intent with Socratic Handoff Logic
+    // 7. Check if Nite Owl should interject (only during Betty sessions)
+    let shouldTriggerNiteOwl = false;
+    if (inBettySession && detectedIntent === 'socratic_guidance') {
+      if (socraticTurnCounter >= nextInterjectionPoint) {
+        shouldTriggerNiteOwl = true;
+        console.log('[CONDUCTOR] 🦉 Nite Owl interjection triggered!');
+      }
+    }
+
+    // 8. Persona Selection based on Intent with Socratic Handoff Logic
     let selectedPersona: string;
     let systemPrompt: string;
     let isSocraticHandoff = false;
 
-    if (detectedIntent === 'request_for_clarification' && inBettySession) {
+    if (shouldTriggerNiteOwl) {
+      // NITE OWL INTERJECTION: Share a fun fact related to the topic
+      selectedPersona = 'NITE_OWL';
+      systemPrompt = buildNiteOwlSystemPrompt();
+      console.log('[CONDUCTOR] 🦉 Nite Owl is sharing a fun fact!');
+      
+      // Reset counter and set new random interjection point
+      socraticTurnCounter = 0;
+      nextInterjectionPoint = Math.floor(Math.random() * 4) + 3; // 3-6 turns
+    } else if (detectedIntent === 'request_for_clarification' && inBettySession) {
       // SOCRATIC HANDOFF: Al provides factual support during Betty's session
       selectedPersona = 'AL';
       systemPrompt = buildAlSocraticSupportPrompt();
@@ -499,14 +584,30 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
     } else if (detectedIntent === 'socratic_guidance') {
       selectedPersona = 'BETTY';
       systemPrompt = buildBettySystemPrompt();
+      socraticTurnCounter++; // Increment turn counter
+      totalBettyTurns++;
     } else {
       selectedPersona = 'AL';
       systemPrompt = buildAlSystemPrompt();
     }
     
     console.log('[CONDUCTOR] Routing to persona:', selectedPersona, isSocraticHandoff ? '(Socratic Support Mode)' : '');
+    console.log('[CONDUCTOR] Turn counter:', socraticTurnCounter, '/ Next interjection:', nextInterjectionPoint);
 
-    // 8. Generate AI Response with Appropriate Persona
+    // 9. Build context for Nite Owl if triggered
+    let niteOwlContext = '';
+    if (selectedPersona === 'NITE_OWL') {
+      // Extract topic from recent conversation
+      const recentMessages = conversationHistory.slice(-5);
+      const topicContext = recentMessages
+        .filter(msg => msg.persona === 'BETTY' || msg.persona === 'USER')
+        .map(msg => msg.content)
+        .join('\n');
+      
+      niteOwlContext = `Based on this conversation about the topic:\n${topicContext}\n\nShare a brief, fascinating fun fact that enriches their understanding. Remember to use your "Hoo-hoo!" greeting and keep it under 100 words.`;
+    }
+
+    // 10. Generate AI Response with Appropriate Persona
     console.log('[CONDUCTOR] Generating response with', selectedPersona, 'persona...');
     const personaResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -516,16 +617,21 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
       },
       body: JSON.stringify({
         model: 'google/gemini-2.5-flash',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          ...conversationHistory.slice(-5).map(msg => ({
-            role: msg.persona === 'USER' ? 'user' : 'assistant',
-            content: msg.content
-          })),
-          { role: 'user', content: message }
-        ],
-        temperature: selectedPersona === 'BETTY' ? 0.8 : 0.6,
-        max_tokens: isSocraticHandoff ? 300 : 500, // Shorter responses for factual injections
+        messages: selectedPersona === 'NITE_OWL' 
+          ? [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: niteOwlContext }
+            ]
+          : [
+              { role: 'system', content: systemPrompt },
+              ...conversationHistory.slice(-5).map(msg => ({
+                role: msg.persona === 'USER' ? 'user' : 'assistant',
+                content: msg.content
+              })),
+              { role: 'user', content: message }
+            ],
+        temperature: selectedPersona === 'BETTY' ? 0.8 : (selectedPersona === 'NITE_OWL' ? 0.9 : 0.6),
+        max_tokens: selectedPersona === 'NITE_OWL' ? 200 : (isSocraticHandoff ? 300 : 500),
         stream: true
       }),
     });
@@ -666,7 +772,12 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
               // Try ElevenLabs first
               if (ELEVENLABS_API_KEY) {
                 try {
-                  const voiceId = selectedPersona === 'BETTY' ? 'EXAVITQu4vr4xnSDxMaL' : 'N2lVS1w4EtoT3dr4eOWO';
+                  // Voice mapping: Betty = Sarah, Al = Callum, Nite Owl = Lily (playful)
+                  const voiceId = selectedPersona === 'BETTY' 
+                    ? 'EXAVITQu4vr4xnSDxMaL' 
+                    : selectedPersona === 'NITE_OWL'
+                    ? 'pFZP5JQG7iQjIQuC4Bku'
+                    : 'N2lVS1w4EtoT3dr4eOWO';
                   
                   const elevenLabsResponse = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
                     method: 'POST',
@@ -712,7 +823,11 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
               
               // Fallback to OpenAI if ElevenLabs failed or wasn't configured
               if (!audioUrl && OPENAI_API_KEY) {
-                const voice = selectedPersona === 'BETTY' ? 'nova' : 'onyx';
+                const voice = selectedPersona === 'BETTY' 
+                  ? 'nova' 
+                  : selectedPersona === 'NITE_OWL'
+                  ? 'shimmer'
+                  : 'onyx';
                 
                 const openAIResponse = await fetch('https://api.openai.com/v1/audio/speech', {
                   method: 'POST',
@@ -787,6 +902,57 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
           });
 
           console.log('[CONDUCTOR] Messages stored successfully');
+
+          // Update session state with turn counters
+          await supabaseClient
+            .from('phoenix_conversations')
+            .update({
+              metadata: {
+                socraticTurnCounter,
+                nextInterjectionPoint,
+                totalBettyTurns,
+                lastUpdated: new Date().toISOString()
+              }
+            })
+            .eq('session_id', conversationId);
+
+          // 11. Check if we should trigger podcast generation (async, non-blocking)
+          if (selectedPersona === 'BETTY' && totalBettyTurns >= 6) {
+            // Extract sentiment from recent messages to check for "Aha!" moments
+            const recentUserMessages = conversationHistory
+              .filter(msg => msg.persona === 'USER')
+              .slice(-3);
+            
+            const hasPositiveSentiment = recentUserMessages.some(msg => 
+              msg.content.toLowerCase().includes('got it') ||
+              msg.content.toLowerCase().includes('i understand') ||
+              msg.content.toLowerCase().includes('makes sense') ||
+              msg.content.length > 50 // Longer responses often indicate engagement
+            );
+
+            if (hasPositiveSentiment) {
+              console.log('[CONDUCTOR] 🎙️ Triggering podcast generation asynchronously...');
+              
+              // Make async call to podcast generator (don't await)
+              fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/podcast-generator`, {
+                method: 'POST',
+                headers: {
+                  'Authorization': authHeader,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  conversationId,
+                  userId: user.id,
+                  transcript: conversationHistory.map(msg => ({
+                    persona: msg.persona,
+                    content: msg.content
+                  }))
+                })
+              }).catch(error => {
+                console.error('[CONDUCTOR] Podcast generation error (non-blocking):', error);
+              });
+            }
+          }
 
           // Send completion event with audio and metadata
           const completionMessage = `data: ${JSON.stringify({ 
