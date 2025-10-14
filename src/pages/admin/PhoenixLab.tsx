@@ -8,7 +8,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Send, Sparkles, Brain, TestTube, AlertCircle, ArrowLeft, Mic, Volume2, VolumeX, RotateCcw, History, User, X, ChevronUp, ChevronDown } from 'lucide-react';
+import { Loader2, Send, Sparkles, Brain, TestTube, AlertCircle, ArrowLeft, Mic, Volume2, VolumeX, RotateCcw, History, User, X, ChevronUp, ChevronDown, Podcast } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { useQuery } from '@tanstack/react-query';
@@ -142,6 +142,7 @@ export default function PhoenixLab() {
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [selectedHistorySession, setSelectedHistorySession] = useState<any>(null);
   const [currentPhase, setCurrentPhase] = useState(4); // Start at current phase
+  const [generatingPodcast, setGeneratingPodcast] = useState(false);
   const activeAudioElements = React.useRef<Set<HTMLAudioElement>>(new Set());
   const audioLockRef = React.useRef(false);
   const playedMessagesRef = React.useRef<Set<string>>(new Set());
@@ -897,6 +898,86 @@ export default function PhoenixLab() {
     }
   };
 
+  const manuallyTriggerPodcast = async () => {
+    if (messages.length < 5) {
+      toast({
+        title: "Not Enough Content",
+        description: "Have at least 5 messages before creating a podcast",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setGeneratingPodcast(true);
+    
+    try {
+      console.log('[PHOENIX] 🎙️ Manual podcast trigger initiated');
+      
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (!authUser) {
+        throw new Error('Not authenticated');
+      }
+
+      // Take last 10-20 messages for context
+      const recentMessages = messages.slice(-20).map(msg => ({
+        role: msg.persona === 'USER' ? 'user' : msg.persona.toLowerCase(),
+        content: msg.content
+      }));
+
+      const { data, error } = await supabase.functions.invoke('podcast-generator', {
+        body: {
+          conversationId,
+          sessionId: conversationId,
+          transcript: recentMessages,
+          userId: authUser.id,
+          manualTrigger: true // Flag for bypassing threshold
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.success) {
+        toast({
+          title: "🎙️ Podcast Created!",
+          description: `Topic: ${data.episode.topic}`,
+        });
+        
+        // Add Nite Owl's presentation to chat
+        if (data.niteOwlPresentation) {
+          const niteOwlMsg: Message = {
+            id: crypto.randomUUID(),
+            persona: 'NITE_OWL',
+            content: data.niteOwlPresentation.content,
+            created_at: new Date().toISOString(),
+            metadata: {
+              episodeId: data.episode.id,
+              audioUrl: data.episode.audioUrl,
+              shareToken: data.episode.shareToken,
+              type: 'podcast_notification'
+            }
+          };
+          
+          setMessages(prev => [...prev, niteOwlMsg]);
+        }
+      } else {
+        toast({
+          title: "No Aha! Moment Found",
+          description: data?.analysis?.reasoning || "Try discussing a concept more deeply",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('[PHOENIX] Podcast generation error:', error);
+      toast({
+        title: "Podcast Generation Failed",
+        description: error.message || "An error occurred",
+        variant: "destructive"
+      });
+    } finally {
+      setGeneratingPodcast(false);
+    }
+  };
+
   const stopAllAudio = () => {
     console.log('[PHOENIX] 🛑 FORCE STOPPING all audio - active elements:', activeAudioElements.current.size);
     
@@ -1334,6 +1415,30 @@ export default function PhoenixLab() {
                   title="Reset Conversation"
                 >
                   <RotateCcw className="h-5 w-5" />
+                </Button>
+                
+                <Separator orientation="vertical" className="h-8" />
+                
+                {/* Manual Podcast Trigger */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={manuallyTriggerPodcast}
+                  disabled={messages.length < 5 || generatingPodcast || loading}
+                  className="gap-2"
+                  title="Manually create an Aha! Moment podcast from recent messages"
+                >
+                  {generatingPodcast ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Creating...
+                    </>
+                  ) : (
+                    <>
+                      <Podcast className="h-4 w-4" />
+                      Create Podcast
+                    </>
+                  )}
                 </Button>
               </div>
             </div>

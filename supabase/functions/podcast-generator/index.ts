@@ -20,19 +20,36 @@ serve(async (req) => {
   }
 
   try {
-    const { conversationId, sessionId, transcript, userId }: PodcastRequest = await req.json();
+    const { conversationId, sessionId, transcript, userId, manualTrigger }: PodcastRequest & { manualTrigger?: boolean } = await req.json();
     
-    console.log('[PODCAST-PRODUCER] Analyzing conversation for Aha! moments...');
+    console.log('[PODCAST-PRODUCER] ═══════════════════════════════════════');
+    console.log('[PODCAST-PRODUCER] 🎙️ Starting Podcast Generation Analysis');
+    console.log('[PODCAST-PRODUCER] Conversation ID:', conversationId);
+    console.log('[PODCAST-PRODUCER] Session ID:', sessionId);
+    console.log('[PODCAST-PRODUCER] Transcript length:', transcript.length, 'messages');
+    console.log('[PODCAST-PRODUCER] Manual trigger:', manualTrigger || false);
+    console.log('[PODCAST-PRODUCER] ═══════════════════════════════════════');
     
     // Step 1: Detect if there's an "Aha!" moment
-    const ahaMoment = await detectAhaMoment(transcript);
+    const ahaMoment = await detectAhaMoment(transcript, manualTrigger);
     
-    if (!ahaMoment.detected) {
-      console.log('[PODCAST-PRODUCER] No Aha! moment detected');
+    // Lower threshold: 0.4 confidence (40%) is enough to create a podcast
+    const THRESHOLD = manualTrigger ? 0 : 0.4;
+    
+    if (!ahaMoment.detected || ahaMoment.confidence < THRESHOLD) {
+      console.log('[PODCAST-PRODUCER] ❌ No qualifying Aha! moment detected');
+      console.log('[PODCAST-PRODUCER] Reason:', !ahaMoment.detected ? 'No breakthrough found' : `Confidence ${(ahaMoment.confidence * 100).toFixed(1)}% below threshold ${(THRESHOLD * 100)}%`);
       return new Response(
         JSON.stringify({ 
           success: false, 
-          message: 'No significant learning breakthrough detected' 
+          message: 'No significant learning breakthrough detected',
+          analysis: {
+            detected: ahaMoment.detected,
+            confidence: ahaMoment.confidence,
+            threshold: THRESHOLD,
+            topic: ahaMoment.topic,
+            reasoning: ahaMoment.reasoning
+          }
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -149,12 +166,15 @@ serve(async (req) => {
   }
 });
 
-async function detectAhaMoment(transcript: Array<{ role: string; content: string }>) {
+async function detectAhaMoment(transcript: Array<{ role: string; content: string }>, manualTrigger = false) {
   const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
   
   const conversationText = transcript
     .map(t => `${t.role}: ${t.content}`)
     .join('\n');
+
+  console.log('[PODCAST-PRODUCER] 🔍 Analyzing transcript length:', transcript.length, 'messages');
+  console.log('[PODCAST-PRODUCER] Manual trigger:', manualTrigger);
 
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
@@ -167,14 +187,30 @@ async function detectAhaMoment(transcript: Array<{ role: string; content: string
       messages: [
         {
           role: 'system',
-          content: `You are an expert at identifying significant learning breakthroughs in educational conversations. 
-          Analyze the transcript and determine if there's a clear "Aha!" moment where the student progresses from confusion to understanding.
+          content: `You are an expert at identifying learning breakthroughs in educational conversations. 
+          Your job is to detect "Aha!" moments - instances where a student gains new understanding, makes a connection, or grasps a concept they were previously confused about.
+          
+          IMPORTANT: Be MORE SENSITIVE to breakthroughs. Even small moments of clarity count as "Aha!" moments:
+          - A student understanding a single new concept
+          - Making a connection between two ideas
+          - Realizing why something works the way it does
+          - Having confusion cleared up on any topic
+          - Expressing excitement about newfound knowledge
+          
+          DO NOT require massive revelations. Incremental learning breakthroughs are valuable and should be detected.
+          
+          Analyze the FULL conversation, paying special attention to:
+          - Questions that show confusion followed by understanding
+          - Statements like "Oh I see!", "That makes sense!", "I get it now!"
+          - The student explaining back a concept in their own words
+          - Any shift from uncertainty to confidence
           
           Return JSON with:
-          - detected: boolean (true if significant breakthrough found)
+          - detected: boolean (true if ANY learning breakthrough found - be generous!)
           - topic: string (concise topic of the breakthrough)
-          - type: string (e.g., "conceptual_understanding", "problem_solving", "connection_made")
-          - confidence: number (0-1)
+          - type: string (e.g., "conceptual_understanding", "problem_solving", "connection_made", "clarification")
+          - confidence: number (0-1, where 0.4+ is worth creating a podcast)
+          - reasoning: string (1-2 sentences explaining why this is an Aha moment)
           - excerpt: string (the key exchange showing the breakthrough, max 3 turns)`
         },
         {
@@ -187,7 +223,28 @@ async function detectAhaMoment(transcript: Array<{ role: string; content: string
   });
 
   const data = await response.json();
-  return JSON.parse(data.choices[0].message.content);
+  const result = JSON.parse(data.choices[0].message.content);
+  
+  // Enhanced logging
+  console.log('[PODCAST-PRODUCER] ═══════════════════════════════════════');
+  console.log('[PODCAST-PRODUCER] 📊 Analysis Complete');
+  console.log('[PODCAST-PRODUCER] ═══════════════════════════════════════');
+  console.log('[PODCAST-PRODUCER] Highest confidence Aha! moment found:', (result.confidence * 100).toFixed(1) + '%');
+  console.log('[PODCAST-PRODUCER] Topic:', result.topic || 'None detected');
+  console.log('[PODCAST-PRODUCER] Type:', result.type || 'N/A');
+  console.log('[PODCAST-PRODUCER] Reasoning:', result.reasoning || 'N/A');
+  
+  // Lower threshold from implicit high bar to 0.4 (40%)
+  const THRESHOLD = manualTrigger ? 0 : 0.4;
+  const shouldTrigger = result.detected && result.confidence >= THRESHOLD;
+  
+  console.log('[PODCAST-PRODUCER] Detection threshold:', (THRESHOLD * 100).toFixed(0) + '%');
+  console.log('[PODCAST-PRODUCER] Decision:', shouldTrigger 
+    ? '✅ TRIGGERING podcast generation' 
+    : `❌ NOT triggering (${result.detected ? 'confidence below threshold' : 'no Aha moment detected'})`);
+  console.log('[PODCAST-PRODUCER] ═══════════════════════════════════════');
+  
+  return result;
 }
 
 async function generatePodcastScript(
