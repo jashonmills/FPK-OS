@@ -720,10 +720,29 @@ export default function PhoenixLab() {
                 console.log('[PHOENIX] Stream done event:', data.metadata);
                 isStreamingActive = false;
                 
-                // Remove streaming indicator
+                // CRITICAL FIX: Use the finalText from done event, not accumulated chunks
+                // This ensures text-audio synchronization even if Governor modified the response
+                const finalTextFromServer = data.fullText || fullText;
+                
+                // SANITY CHECK: Detect text-audio desynchronization
+                if (finalTextFromServer !== fullText) {
+                  console.warn('[PHOENIX] ⚠️ TEXT MISMATCH DETECTED!');
+                  console.warn('[PHOENIX] Accumulated from chunks:', fullText.substring(0, 80));
+                  console.warn('[PHOENIX] Final from server:', finalTextFromServer.substring(0, 80));
+                  console.warn('[PHOENIX] Replacing display text with server version for audio sync');
+                } else {
+                  console.log('[PHOENIX] ✅ Text-audio alignment verified');
+                }
+                
+                // Update message with final text (could differ from streamed if Governor modified it)
                 setMessages(prev => prev.map(m => 
                   m.id === aiMessageId 
-                    ? { ...m, isStreaming: false, audioUrl: data.audioUrl }
+                    ? { 
+                        ...m, 
+                        content: finalTextFromServer, // Use server's final text
+                        isStreaming: false, 
+                        audioUrl: data.audioUrl 
+                      }
                     : m
                 ));
                 
@@ -751,6 +770,12 @@ export default function PhoenixLab() {
             m.id === aiMessageId ? { ...m, isStreaming: false } : m
           ));
         }
+        
+        // Auto-save session after successful message exchange
+        // Use setTimeout to avoid blocking the UI
+        setTimeout(() => {
+          saveCurrentSession();
+        }, 2000);
 
       } catch (streamError) {
         console.error('[PHOENIX] Stream reading error:', streamError);
@@ -942,6 +967,11 @@ export default function PhoenixLab() {
   const resetConversation = async () => {
     console.log('[PHOENIX] 🔄 Resetting conversation...');
     
+    // Save current conversation before resetting
+    if (messages.length > 1) {
+      await saveCurrentSession();
+    }
+    
     // Stop all audio
     stopAllAudio();
     
@@ -967,6 +997,62 @@ export default function PhoenixLab() {
       description: "Starting fresh conversation with Betty and Al"
     });
   };
+  
+  // Auto-save conversation to database
+  const saveCurrentSession = async () => {
+    if (!user || messages.length <= 1) return; // Skip if no real conversation
+    
+    try {
+      console.log('[PHOENIX] 💾 Auto-saving session...');
+      
+      // Generate title from first user message
+      const firstUserMsg = messages.find(m => m.persona === 'USER');
+      const sessionTitle = firstUserMsg 
+        ? firstUserMsg.content.substring(0, 50) + (firstUserMsg.content.length > 50 ? '...' : '')
+        : 'Phoenix Lab Session';
+      
+      // Format messages for storage
+      const sessionData = {
+        messages: messages
+          .filter(m => !m.isWelcome && !m.isTyping)
+          .map(m => ({
+            role: m.persona === 'USER' ? 'user' : m.persona.toLowerCase(),
+            content: m.content,
+            timestamp: m.created_at,
+            persona: m.persona.toLowerCase()
+          }))
+      };
+      
+      const { error } = await supabase
+        .from('coach_sessions')
+        .insert({
+          user_id: user.id,
+          session_title: sessionTitle,
+          source: 'coach_portal',
+          session_data: sessionData,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        });
+      
+      if (error) {
+        console.error('[PHOENIX] Error saving session:', error);
+      } else {
+        console.log('[PHOENIX] ✅ Session saved successfully');
+        refetchHistory(); // Refresh the history modal
+      }
+    } catch (error) {
+      console.error('[PHOENIX] Exception saving session:', error);
+    }
+  };
+  
+  // Auto-save on unmount
+  useEffect(() => {
+    return () => {
+      if (messages.length > 1) {
+        saveCurrentSession();
+      }
+    };
+  }, [messages, user]);
 
   const getPersonaIcon = (persona: string) => {
     switch (persona) {
