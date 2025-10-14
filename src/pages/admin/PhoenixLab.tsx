@@ -8,8 +8,10 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Send, Sparkles, Brain, TestTube, AlertCircle, ArrowLeft, Mic, Volume2, VolumeX, RotateCcw } from 'lucide-react';
+import { Loader2, Send, Sparkles, Brain, TestTube, AlertCircle, ArrowLeft, Mic, Volume2, VolumeX, RotateCcw, History, User, X } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { useQuery } from '@tanstack/react-query';
 
 interface Message {
   id: string;
@@ -71,10 +73,36 @@ export default function PhoenixLab() {
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
   const [hasWelcomePlayed, setHasWelcomePlayed] = useState(false); // CRITICAL: Prevents welcome replay
   const [hasUserStartedChat, setHasUserStartedChat] = useState(false); // Start chat trigger
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [selectedHistorySession, setSelectedHistorySession] = useState<any>(null);
   const activeAudioElements = React.useRef<Set<HTMLAudioElement>>(new Set());
   const audioLockRef = React.useRef(false);
   const playedMessagesRef = React.useRef<Set<string>>(new Set());
   const { toast } = useToast();
+
+  // Fetch session history from coach_sessions
+  const { data: sessionHistory } = useQuery({
+    queryKey: ['phoenixSessionHistory'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return [];
+      
+      const { data, error } = await supabase
+        .from('coach_sessions')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('source', 'coach_portal')
+        .order('created_at', { ascending: false })
+        .limit(50);
+      
+      if (error) {
+        console.error('Error fetching session history:', error);
+        return [];
+      }
+      return data || [];
+    },
+    enabled: showHistoryModal, // Only fetch when modal is opened
+  });
 
   // Stop all audio when audio is disabled - use immediate effect
   useEffect(() => {
@@ -986,7 +1014,18 @@ export default function PhoenixLab() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <h4 className="font-semibold mb-2">Session</h4>
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="font-semibold">Session</h4>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowHistoryModal(true)}
+                  className="h-7 w-7 p-0"
+                  title="View Session History"
+                >
+                  <History className="h-4 w-4" />
+                </Button>
+              </div>
               <code className="text-xs bg-muted p-2 rounded block break-all">
                 {conversationId}
               </code>
@@ -1015,6 +1054,142 @@ export default function PhoenixLab() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Session History Modal */}
+      <Dialog open={showHistoryModal} onOpenChange={setShowHistoryModal}>
+        <DialogContent className="max-w-6xl h-[80vh] p-0">
+          <DialogHeader className="p-6 pb-4 border-b">
+            <DialogTitle className="flex items-center gap-2">
+              <History className="h-5 w-5" />
+              Session History
+            </DialogTitle>
+            <DialogDescription>
+              Review past conversations from Phoenix Lab
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="flex h-[calc(80vh-120px)]">
+            {/* Session List - Left Side */}
+            <div className="w-80 border-r">
+              <ScrollArea className="h-full">
+                <div className="p-4 space-y-2">
+                  {!sessionHistory || sessionHistory.length === 0 ? (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <History className="h-12 w-12 mx-auto mb-3 opacity-30" />
+                      <p className="text-sm">No session history yet</p>
+                    </div>
+                  ) : (
+                    sessionHistory.map((session: any) => {
+                      const firstMessage = session.session_data?.messages?.[0]?.content || 'No messages';
+                      const preview = firstMessage.length > 50 
+                        ? firstMessage.substring(0, 50) + '...' 
+                        : firstMessage;
+                      const isSelected = selectedHistorySession?.id === session.id;
+                      
+                      return (
+                        <Card
+                          key={session.id}
+                          className={`cursor-pointer transition-colors hover:bg-accent ${
+                            isSelected ? 'border-primary bg-accent' : ''
+                          }`}
+                          onClick={() => setSelectedHistorySession(session)}
+                        >
+                          <CardContent className="p-3">
+                            <div className="text-xs text-muted-foreground mb-1">
+                              {new Date(session.created_at).toLocaleString('en-US', {
+                                month: 'short',
+                                day: 'numeric',
+                                year: 'numeric',
+                                hour: 'numeric',
+                                minute: '2-digit'
+                              })}
+                            </div>
+                            <div className="text-sm font-medium mb-1">
+                              {session.session_title || 'Untitled Session'}
+                            </div>
+                            <div className="text-xs text-muted-foreground line-clamp-2">
+                              {preview}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    })
+                  )}
+                </div>
+              </ScrollArea>
+            </div>
+
+            {/* Conversation Transcript - Right Side */}
+            <div className="flex-1 flex flex-col">
+              {!selectedHistorySession ? (
+                <div className="flex-1 flex items-center justify-center text-muted-foreground">
+                  <div className="text-center">
+                    <User className="h-16 w-16 mx-auto mb-4 opacity-30" />
+                    <p>Select a session to view the conversation</p>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="p-4 border-b bg-muted/30">
+                    <h3 className="font-semibold">{selectedHistorySession.session_title || 'Untitled Session'}</h3>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(selectedHistorySession.created_at).toLocaleString()}
+                    </p>
+                  </div>
+                  <ScrollArea className="flex-1 p-6">
+                    <div className="space-y-4 max-w-3xl">
+                      {selectedHistorySession.session_data?.messages?.map((msg: any, idx: number) => (
+                        <div
+                          key={idx}
+                          className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                        >
+                          {msg.role !== 'user' && (
+                            <div className="flex-shrink-0">
+                              {msg.persona === 'betty' ? (
+                                <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center text-lg">
+                                  🧑‍🏫
+                                </div>
+                              ) : msg.persona === 'al' ? (
+                                <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center text-lg">
+                                  🎓
+                                </div>
+                              ) : (
+                                <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-lg">
+                                  🤖
+                                </div>
+                              )}
+                            </div>
+                          )}
+                          <Card
+                            className={`max-w-[80%] ${
+                              msg.role === 'user'
+                                ? 'bg-primary text-primary-foreground'
+                                : msg.persona === 'betty'
+                                ? 'bg-purple-50 dark:bg-purple-950 border-purple-200 dark:border-purple-800'
+                                : msg.persona === 'al'
+                                ? 'bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800'
+                                : 'bg-card'
+                            }`}
+                          >
+                            <CardContent className="p-3">
+                              {msg.persona && msg.role !== 'user' && (
+                                <Badge variant="secondary" className="mb-2 text-xs">
+                                  {msg.persona === 'betty' ? 'Betty' : msg.persona === 'al' ? 'Al' : 'Assistant'}
+                                </Badge>
+                              )}
+                              <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                            </CardContent>
+                          </Card>
+                        </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                </>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
