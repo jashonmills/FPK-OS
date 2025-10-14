@@ -152,3 +152,9 @@ verify_jwt = false
 
 [functions.ai-coach-orchestrator]
 verify_jwt = true
+
+[functions.text-to-voice]
+verify_jwt = false
+
+[functions.generate-welcome-audio]
+verify_jwt = false
