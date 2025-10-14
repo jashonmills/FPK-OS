@@ -6040,6 +6040,51 @@ export type Database = {
         }
         Relationships: []
       }
+      phoenix_governor_logs: {
+        Row: {
+          blocked: boolean
+          conversation_id: string
+          created_at: string | null
+          id: string
+          is_on_topic: boolean
+          is_safe: boolean
+          original_response: string
+          persona: string
+          persona_adherence: string
+          reason: string | null
+          severity: string
+          user_message: string
+        }
+        Insert: {
+          blocked?: boolean
+          conversation_id: string
+          created_at?: string | null
+          id?: string
+          is_on_topic: boolean
+          is_safe: boolean
+          original_response: string
+          persona: string
+          persona_adherence: string
+          reason?: string | null
+          severity: string
+          user_message: string
+        }
+        Update: {
+          blocked?: boolean
+          conversation_id?: string
+          created_at?: string | null
+          id?: string
+          is_on_topic?: boolean
+          is_safe?: boolean
+          original_response?: string
+          persona?: string
+          persona_adherence?: string
+          reason?: string | null
+          severity?: string
+          user_message?: string
+        }
+        Relationships: []
+      }
       phoenix_messages: {
         Row: {
           content: string
