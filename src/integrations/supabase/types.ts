@@ -10422,7 +10422,7 @@ export type Database = {
         | "org-public"
       org_subscription_tier: "basic" | "standard" | "premium" | "beta"
       package_status: "uploading" | "parsing" | "ready" | "error" | "archived"
-      persona_type: "USER" | "BETTY" | "AL" | "CONDUCTOR"
+      persona_type: "USER" | "BETTY" | "AL" | "CONDUCTOR" | "NITE_OWL"
       scorm_standard: "SCORM 1.2" | "SCORM 2004"
       subscription_status:
         | "active"
@@ -10601,7 +10601,7 @@ export const Constants = {
       ],
       org_subscription_tier: ["basic", "standard", "premium", "beta"],
       package_status: ["uploading", "parsing", "ready", "error", "archived"],
-      persona_type: ["USER", "BETTY", "AL", "CONDUCTOR"],
+      persona_type: ["USER", "BETTY", "AL", "CONDUCTOR", "NITE_OWL"],
       scorm_standard: ["SCORM 1.2", "SCORM 2004"],
       subscription_status: [
         "active",
