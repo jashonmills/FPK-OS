@@ -143,6 +143,7 @@ export default function PhoenixLab() {
   const [selectedHistorySession, setSelectedHistorySession] = useState<any>(null);
   const [currentPhase, setCurrentPhase] = useState(4); // Start at current phase
   const [generatingPodcast, setGeneratingPodcast] = useState(false);
+  const [isBackfilling, setIsBackfilling] = useState(false);
   const activeAudioElements = React.useRef<Set<HTMLAudioElement>>(new Set());
   const audioLockRef = React.useRef(false);
   const playedMessagesRef = React.useRef<Set<string>>(new Set());
@@ -978,6 +979,45 @@ export default function PhoenixLab() {
     }
   };
 
+  const runBackfill = async () => {
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "You must be logged in",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsBackfilling(true);
+    
+    try {
+      console.log('[PHOENIX] 📊 Starting backfill for user:', user.id);
+      
+      const { data, error } = await supabase.functions.invoke('backfill-phoenix-data', {
+        body: { user_id: user.id }
+      });
+
+      if (error) throw error;
+
+      console.log('[PHOENIX] ✅ Backfill complete:', data);
+      
+      toast({
+        title: "🎉 Data Migration Complete!",
+        description: `Processed ${data.sessionsProcessed} sessions with ${data.messagesBackfilled} messages`,
+      });
+    } catch (error) {
+      console.error('[PHOENIX] Backfill error:', error);
+      toast({
+        title: "Backfill Failed",
+        description: error.message || "An error occurred",
+        variant: "destructive"
+      });
+    } finally {
+      setIsBackfilling(false);
+    }
+  };
+
   const stopAllAudio = () => {
     console.log('[PHOENIX] 🛑 FORCE STOPPING all audio - active elements:', activeAudioElements.current.size);
     
@@ -1645,6 +1685,37 @@ export default function PhoenixLab() {
                   );
                 })}
               </ul>
+            </div>
+            
+            <Separator />
+            
+            {/* Data Migration Tools */}
+            <div>
+              <h4 className="font-semibold mb-3">Data Migration</h4>
+              <div className="space-y-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={runBackfill}
+                  disabled={isBackfilling}
+                  className="w-full text-xs"
+                >
+                  {isBackfilling ? (
+                    <>
+                      <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                      Migrating...
+                    </>
+                  ) : (
+                    <>
+                      <Brain className="mr-2 h-3 w-3" />
+                      Backfill Analytics
+                    </>
+                  )}
+                </Button>
+                <p className="text-xs text-muted-foreground">
+                  Migrates historical data from coach_sessions to phoenix_* tables
+                </p>
+              </div>
             </div>
           </CardContent>
         </Card>
