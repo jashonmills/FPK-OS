@@ -1417,27 +1417,18 @@ export default function PhoenixLab() {
                   <RotateCcw className="h-5 w-5" />
                 </Button>
                 
-                <Separator orientation="vertical" className="h-8" />
-                
-                {/* Manual Podcast Trigger */}
                 <Button
-                  variant="outline"
-                  size="sm"
+                  variant="ghost"
+                  size="icon"
                   onClick={manuallyTriggerPodcast}
                   disabled={messages.length < 5 || generatingPodcast || loading}
-                  className="gap-2"
-                  title="Manually create an Aha! Moment podcast from recent messages"
+                  className="text-muted-foreground hover:text-foreground"
+                  title="Create Aha! Moment podcast from recent messages"
                 >
                   {generatingPodcast ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Creating...
-                    </>
+                    <Loader2 className="h-5 w-5 animate-spin" />
                   ) : (
-                    <>
-                      <Podcast className="h-4 w-4" />
-                      Create Podcast
-                    </>
+                    <Podcast className="h-5 w-5" />
                   )}
                 </Button>
               </div>
