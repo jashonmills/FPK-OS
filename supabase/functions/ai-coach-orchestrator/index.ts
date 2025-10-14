@@ -351,11 +351,11 @@ async function extractAndStoreMemories(
   supabaseClient: any
 ) {
   try {
-    console.log('[MEMORY] Extracting memories from conversation...');
+    console.log('[MEMORY] Extracting memories and learning outcomes from conversation...');
     
     // Only extract if conversation has meaningful content (at least 4 exchanges)
     if (conversationHistory.length < 4) {
-      console.log('[MEMORY] Conversation too short for memory extraction');
+      console.log('[MEMORY] Conversation too short for extraction');
       return;
     }
     
@@ -364,8 +364,8 @@ async function extractAndStoreMemories(
       .map(msg => `${msg.persona}: ${msg.content}`)
       .join('\n\n');
     
-    // Call LLM to extract memories
-    const memoryResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    // Call LLM to extract both memories AND learning outcomes
+    const extractionResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${lovableApiKey}`,
@@ -376,30 +376,36 @@ async function extractAndStoreMemories(
         messages: [
           {
             role: 'system',
-            content: `You are a memory extraction agent for a learning system. Analyze the conversation and identify key memories worth storing for future sessions.
+            content: `You are an extraction agent for a learning system. Analyze conversations and extract:
 
-Memory types:
-- commitment: User promised to practice/study something
-- confusion: User was confused about a specific topic
-- breakthrough: User had an "aha!" moment or grasped a concept
-- question: User asked an unresolved question
-- preference: User expressed a learning preference
-- goal: User stated a learning goal
-- connection: User made an interesting conceptual connection
+1. MEMORIES - Key moments worth referencing in future sessions:
+   - commitment: User promised to practice/study something
+   - confusion: User was confused about a specific topic
+   - breakthrough: User had an "aha!" moment
+   - question: User asked an unresolved question
+   - preference: User expressed a learning preference
+   - goal: User stated a learning goal
+   - connection: User made an interesting conceptual connection
 
-Extract 2-5 memories that would be useful to reference in future conversations. Focus on specific, actionable insights.`
+2. LEARNING OUTCOMES - What the student learned or progressed on:
+   - topic: The main subject discussed (e.g., "Python For Loops", "Photosynthesis")
+   - outcome_type: concept_learned | skill_practiced | misconception_corrected | question_resolved
+   - mastery_level: 0-1 scale of how well they understood it
+   - evidence: Brief description of what shows they learned this
+
+Extract 2-5 memories and 1-3 learning outcomes. Be specific and actionable.`
           },
           {
             role: 'user',
-            content: `Analyze this conversation and extract key memories:\n\n${transcript}`
+            content: `Analyze this conversation and extract memories and learning outcomes:\n\n${transcript}`
           }
         ],
         tools: [
           {
             type: 'function',
             function: {
-              name: 'extract_memories',
-              description: 'Extract key memories from the conversation',
+              name: 'extract_data',
+              description: 'Extract memories and learning outcomes from conversation',
               parameters: {
                 type: 'object',
                 properties: {
@@ -423,33 +429,61 @@ Extract 2-5 memories that would be useful to reference in future conversations. 
                       },
                       required: ['memory_type', 'content', 'relevance_score']
                     }
+                  },
+                  learning_outcomes: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        topic: {
+                          type: 'string',
+                          description: 'The main subject learned (e.g., "Python For Loops")'
+                        },
+                        outcome_type: {
+                          type: 'string',
+                          enum: ['concept_learned', 'skill_practiced', 'misconception_corrected', 'question_resolved']
+                        },
+                        mastery_level: {
+                          type: 'number',
+                          description: 'Understanding level 0-1'
+                        },
+                        evidence: {
+                          type: 'string',
+                          description: 'What shows they learned this'
+                        }
+                      },
+                      required: ['topic', 'outcome_type', 'mastery_level', 'evidence']
+                    }
                   }
                 },
-                required: ['memories'],
+                required: ['memories', 'learning_outcomes'],
                 additionalProperties: false
               }
             }
           }
         ],
-        tool_choice: { type: 'function', function: { name: 'extract_memories' } }
+        tool_choice: { type: 'function', function: { name: 'extract_data' } }
       }),
     });
     
-    if (!memoryResponse.ok) {
-      console.error('[MEMORY] Memory extraction failed:', memoryResponse.status);
+    if (!extractionResponse.ok) {
+      console.error('[MEMORY] Extraction failed:', extractionResponse.status);
       return;
     }
     
-    const memoryData = await memoryResponse.json();
-    const toolCall = memoryData.choices[0]?.message?.tool_calls?.[0];
+    const extractionData = await extractionResponse.json();
+    const toolCall = extractionData.choices[0]?.message?.tool_calls?.[0];
     
     if (!toolCall) {
-      console.log('[MEMORY] No memories extracted');
+      console.log('[MEMORY] No data extracted');
       return;
     }
     
-    const extractedMemories = JSON.parse(toolCall.function.arguments).memories;
-    console.log('[MEMORY] Extracted', extractedMemories.length, 'memories');
+    const extracted = JSON.parse(toolCall.function.arguments);
+    const memories = extracted.memories || [];
+    const outcomes = extracted.learning_outcomes || [];
+    
+    console.log('[MEMORY] Extracted', memories.length, 'memories and', outcomes.length, 'learning outcomes');
     
     // Get conversation UUID
     const { data: convData } = await supabaseClient
@@ -464,7 +498,7 @@ Extract 2-5 memories that would be useful to reference in future conversations. 
     }
     
     // Store memories in database
-    for (const memory of extractedMemories) {
+    for (const memory of memories) {
       await supabaseClient
         .from('phoenix_memory_fragments')
         .insert({
@@ -480,9 +514,36 @@ Extract 2-5 memories that would be useful to reference in future conversations. 
         });
     }
     
-    console.log('[MEMORY] ✅ Memories stored successfully');
+    // Store learning outcomes in database
+    for (const outcome of outcomes) {
+      // Try to match topic to existing concepts in knowledge graph
+      const { data: matchingConcepts } = await supabaseClient
+        .from('phoenix_learning_concepts')
+        .select('id')
+        .ilike('concept_name', `%${outcome.topic}%`)
+        .limit(1);
+      
+      const conceptId = matchingConcepts?.[0]?.id || null;
+      
+      await supabaseClient
+        .from('phoenix_learning_outcomes')
+        .insert({
+          user_id: userId,
+          session_id: conversationId,
+          topic: outcome.topic,
+          outcome_type: outcome.outcome_type,
+          mastery_level: outcome.mastery_level,
+          concept_id: conceptId,
+          metadata: {
+            evidence: outcome.evidence,
+            extractedAt: new Date().toISOString()
+          }
+        });
+    }
+    
+    console.log('[MEMORY] ✅ Stored', memories.length, 'memories and', outcomes.length, 'learning outcomes');
   } catch (error) {
-    console.error('[MEMORY] Error extracting/storing memories:', error);
+    console.error('[MEMORY] Error extracting/storing data:', error);
   }
 }
 
