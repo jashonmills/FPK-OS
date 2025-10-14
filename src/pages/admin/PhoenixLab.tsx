@@ -673,7 +673,14 @@ export default function PhoenixLab() {
         }
       );
 
-      if (!response.ok) throw new Error('Failed to get response');
+      // Remove typing indicator immediately, before any potential errors
+      setMessages(prev => prev.filter(m => m.id !== typingId));
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('[PHOENIX] Response error:', response.status, errorText);
+        throw new Error(`Server error: ${response.status}`);
+      }
 
       if (!response.body) {
         throw new Error('No response body');
@@ -686,9 +693,6 @@ export default function PhoenixLab() {
       let fullText = '';
       let buffer = '';
       let isStreamingActive = false;
-
-      // Remove typing indicator and add initial streaming message
-      setMessages(prev => prev.filter(m => m.id !== typingId));
 
       try {
         while (true) {
@@ -828,15 +832,19 @@ export default function PhoenixLab() {
 
     } catch (error) {
       console.error('Error sending message:', error);
-      // Remove typing indicator on error
-      setMessages(prev => prev.filter(m => m.id !== typingId));
+      // Remove typing indicator and any streaming messages on error
+      setMessages(prev => prev.filter(m => 
+        m.id !== typingId && !m.isTyping && !m.isStreaming
+      ));
       toast({
         title: "Error",
         description: error.message || "Failed to send message",
         variant: "destructive"
       });
     } finally {
+      // Always clear loading state
       setLoading(false);
+      console.log('[PHOENIX] Loading state cleared');
     }
   };
 
