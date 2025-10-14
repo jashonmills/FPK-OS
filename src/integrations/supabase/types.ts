@@ -10416,6 +10416,11 @@ export type Database = {
         | "video_assessment"
         | "general_chat"
         | "unclear"
+        | "socratic_guidance"
+        | "direct_answer"
+        | "request_for_clarification"
+        | "platform_question"
+        | "query_user_data"
       note_visibility_scope:
         | "student-only"
         | "instructor-visible"
@@ -10593,6 +10598,11 @@ export const Constants = {
         "video_assessment",
         "general_chat",
         "unclear",
+        "socratic_guidance",
+        "direct_answer",
+        "request_for_clarification",
+        "platform_question",
+        "query_user_data",
       ],
       note_visibility_scope: [
         "student-only",
