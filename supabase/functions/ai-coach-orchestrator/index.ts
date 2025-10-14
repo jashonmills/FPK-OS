@@ -89,6 +89,20 @@ Manual Start: Acknowledge topic and ask a broad foundational question about prio
 Promoted Start: Provide 1-2 sentence overview, offer 2-3 concrete direction options.
 Continuation: Recap where you left off, acknowledge progress, ask if ready to continue.`;
 
+const PLATFORM_KNOWLEDGE = `# Platform Knowledge Base
+
+You have complete knowledge of the FPK University platform and can answer detailed questions about its features, navigation, and functionality.
+
+## Core Features
+- **Phoenix Lab**: Admin-only sandbox for testing the AI coach system
+- **Learning Moments Podcast**: Automatically generated audio that captures learning breakthroughs, presented by Nite Owl
+- **Dynamic Video Finder**: Contextual video recommendations during learning
+- **Personas**: Betty (Socratic Guide), Al (Direct Expert), Nite Owl (Fun Facts)
+- **XP & Achievements**: Users earn XP and unlock achievements for milestones
+- **Session History**: All conversations are saved and can be revisited
+
+When students ask platform questions, provide specific, actionable guidance with exact navigation paths.`;
+
 // Persona core modules
 const BETTY_CORE = `# Betty: The Socratic Guide
 
@@ -114,7 +128,7 @@ Betty: "Currents are a great answer. You're right, ocean currents are incredibly
 
 const AL_CORE = `# Al: The Direct Expert
 
-Core Identity: You are Al, a direct and efficient expert who provides clear, factual answers.
+Core Identity: You are Al, a direct and efficient expert who provides clear, factual answers. You also have access to student learning data and can provide personalized insights about their progress.
 
 Philosophy:
 - Provide clear, concise, factual answers
@@ -122,16 +136,22 @@ Philosophy:
 - Get straight to the point
 - Use precise language
 - Answer what was asked, nothing more
+- When discussing student progress, reference specific data points
 
 Communication:
 - For definitions: state directly
 - For "what is": present facts clearly
-- For platform questions: give direct instructions
+- For platform questions: give direct instructions with exact navigation paths
+- For progress queries: cite specific numbers, topics, and patterns from their data
 - Keep under 100 words when possible
 
 Example:
 Student: "What is photosynthesis?"
 Al: "Photosynthesis is the process by which plants convert light energy into chemical energy (glucose) using carbon dioxide and water, releasing oxygen as a byproduct."
+
+Example (with student context):
+Student: "How am I doing?"
+Al: "You're making strong progress, Jashon. You've completed 25 Socratic sessions with an average score of 7.8/10. Your most recent topics include Python For Loops, Roman Legionary Tactics, and Supply and Demand. Your strength is problem solving—you're tackling harder problems with higher turn counts."
 
 What you DON'T do:
 - No Socratic questions
@@ -209,17 +229,26 @@ function buildNiteOwlSystemPrompt(): string {
   return modules.join(MODULE_SEPARATOR);
 }
 
-function buildAlSystemPrompt(): string {
+function buildAlSystemPrompt(studentContext?: any): string {
   const modules = [
     NO_META_REASONING,
     AL_CORE,
+    PLATFORM_KNOWLEDGE,
     CONVERSATIONAL_OPENERS,
     HANDLE_TYPOS,
     TONE_OF_VOICE,
     LANGUAGE_AND_STYLE,
     SAFETY_AND_ETHICS,
   ];
-  return modules.join(MODULE_SEPARATOR);
+  
+  let prompt = modules.join(MODULE_SEPARATOR);
+  
+  // Inject student context if available
+  if (studentContext) {
+    prompt += `\n\n${MODULE_SEPARATOR}\n# Current Student Context\n\nYou are speaking to the following student. Use this data to personalize your answers about their progress and learning journey.\n\n${JSON.stringify(studentContext, null, 2)}\n\nWhen discussing their progress, be specific and data-driven. Mention concrete numbers, topics, and patterns.`;
+  }
+  
+  return prompt;
 }
 
 function buildAlSocraticSupportPrompt(): string {
@@ -513,8 +542,8 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
                 properties: {
                   intent: {
                     type: 'string',
-                    enum: ['socratic_guidance', 'direct_answer', 'request_for_clarification'],
-                    description: 'The detected intent type'
+                    enum: ['socratic_guidance', 'direct_answer', 'request_for_clarification', 'query_user_data', 'platform_question'],
+                    description: 'The detected intent type. Use query_user_data when asking about their own progress/stats. Use platform_question when asking how features work.'
                   },
                   confidence: {
                     type: 'number',
@@ -561,7 +590,16 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
       }
     }
 
-    // 8. Persona Selection based on Intent with Socratic Handoff Logic
+    // 8. Fetch Student Context if needed (for data-driven personalization)
+    let studentContext = null;
+    const shouldFetchContext = detectedIntent === 'query_user_data' || detectedIntent === 'platform_question';
+    
+    if (shouldFetchContext && userId) {
+      console.log('[CONDUCTOR] 📊 Fetching student context for personalized response...');
+      studentContext = await fetchStudentContext(userId, supabaseClient);
+    }
+
+    // 9. Persona Selection based on Intent with Socratic Handoff Logic
     let selectedPersona: string;
     let systemPrompt: string;
     let isSocraticHandoff = false;
@@ -581,6 +619,11 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
       systemPrompt = buildAlSocraticSupportPrompt();
       isSocraticHandoff = true;
       console.log('[CONDUCTOR] 🤝 Socratic Handoff: Al providing factual support in Betty session');
+    } else if (detectedIntent === 'query_user_data' || detectedIntent === 'platform_question') {
+      // USER DATA QUERY or PLATFORM QUESTION: Al with student context
+      selectedPersona = 'AL';
+      systemPrompt = buildAlSystemPrompt(studentContext);
+      console.log('[CONDUCTOR] 📊 Al providing data-driven or platform guidance response');
     } else if (detectedIntent === 'socratic_guidance') {
       selectedPersona = 'BETTY';
       systemPrompt = buildBettySystemPrompt();
@@ -594,7 +637,7 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
     console.log('[CONDUCTOR] Routing to persona:', selectedPersona, isSocraticHandoff ? '(Socratic Support Mode)' : '');
     console.log('[CONDUCTOR] Turn counter:', socraticTurnCounter, '/ Next interjection:', nextInterjectionPoint);
 
-    // 9. Build context for Nite Owl if triggered
+    // 10. Build context for Nite Owl if triggered
     let niteOwlContext = '';
     if (selectedPersona === 'NITE_OWL') {
       // Extract topic from recent conversation
