@@ -70,7 +70,17 @@ export default function PhoenixLab() {
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
   const currentAudioRef = React.useRef<HTMLAudioElement | null>(null);
+  const audioQueueRef = React.useRef<string[]>([]);
+  const isPlayingRef = React.useRef(false);
   const { toast } = useToast();
+
+  // Stop all audio when audio is disabled
+  useEffect(() => {
+    if (!audioEnabled) {
+      console.log('[PHOENIX] Audio disabled - stopping all playback');
+      stopAllAudio();
+    }
+  }, [audioEnabled]);
 
   // Initialize conversation and speech recognition
   useEffect(() => {
@@ -378,17 +388,19 @@ export default function PhoenixLab() {
             } else if (data.type === 'done') {
               console.log('[PHOENIX] Stream complete:', data.metadata);
               
-              // Auto-play audio if available
+              // Update message with audioUrl first
               if (data.audioUrl) {
-                console.log('[PHOENIX] Auto-playing TTS audio');
-                playAudio(data.audioUrl);
-                
-                // Update message with audioUrl
                 setMessages(prev => prev.map(m => 
                   m.id === aiMessageId 
                     ? { ...m, audioUrl: data.audioUrl }
                     : m
                 ));
+                
+                // Auto-play audio if enabled (with highlight)
+                if (audioEnabled) {
+                  console.log('[PHOENIX] Auto-playing response audio');
+                  await playAudio(data.audioUrl, aiMessageId);
+                }
               }
             }
           }
@@ -409,49 +421,48 @@ export default function PhoenixLab() {
     }
   };
 
-  const playAudio = (audioUrl: string) => {
+  const stopAllAudio = () => {
+    console.log('[PHOENIX] Stopping all audio playback');
+    
+    // Stop currently playing audio
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause();
+      currentAudioRef.current.currentTime = 0;
+      currentAudioRef.current = null;
+    }
+    
+    // Clear any speaking indicators
+    setSpeakingMessageId(null);
+    
+    // Clear audio queue
+    audioQueueRef.current = [];
+    isPlayingRef.current = false;
+  };
+
+  const playAudio = async (audioUrl: string, messageId?: string) => {
     if (!audioEnabled) {
       console.log('[PHOENIX] Audio disabled, skipping playback');
       return;
     }
     
-    // Stop any currently playing audio
-    if (currentAudioRef.current) {
-      currentAudioRef.current.pause();
-      currentAudioRef.current = null;
-    }
+    // Stop any currently playing audio first
+    stopAllAudio();
     
-    const audio = new Audio(audioUrl);
-    currentAudioRef.current = audio;
-    audio.play().catch(err => console.error('[PHOENIX] Audio playback error:', err));
-    audio.onended = () => {
-      currentAudioRef.current = null;
-    };
-  };
-
-  const playAudioWithHighlight = async (audioUrl: string, messageId: string): Promise<void> => {
-    return new Promise((resolve) => {
-      if (!audioEnabled) {
-        console.log('[PHOENIX] Audio disabled, skipping playback');
-        resolve();
-        return;
-      }
+    return new Promise<void>((resolve) => {
+      isPlayingRef.current = true;
       
-      // Stop any currently playing audio
-      if (currentAudioRef.current) {
-        currentAudioRef.current.pause();
-        currentAudioRef.current = null;
+      if (messageId) {
+        setSpeakingMessageId(messageId);
       }
-      
-      // Highlight this message
-      setSpeakingMessageId(messageId);
       
       const audio = new Audio(audioUrl);
       currentAudioRef.current = audio;
       
       audio.onended = () => {
+        console.log('[PHOENIX] Audio playback completed');
         currentAudioRef.current = null;
         setSpeakingMessageId(null);
+        isPlayingRef.current = false;
         resolve();
       };
       
@@ -459,21 +470,53 @@ export default function PhoenixLab() {
         console.error('[PHOENIX] Audio playback error:', err);
         currentAudioRef.current = null;
         setSpeakingMessageId(null);
+        isPlayingRef.current = false;
         resolve();
       };
       
       audio.play().catch(err => {
         console.error('[PHOENIX] Audio play failed:', err);
         setSpeakingMessageId(null);
+        isPlayingRef.current = false;
         resolve();
       });
     });
   };
 
-  const resetConversation = () => {
+  const playAudioWithHighlight = async (audioUrl: string, messageId: string): Promise<void> => {
+    if (!audioEnabled) {
+      console.log('[PHOENIX] Audio disabled, skipping playback');
+      return;
+    }
+    
+    // Wait for any currently playing audio to finish
+    while (isPlayingRef.current) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    
+    await playAudio(audioUrl, messageId);
+  };
+
+  const resetConversation = async () => {
+    console.log('[PHOENIX] Resetting conversation...');
+    
+    // Stop all audio
+    stopAllAudio();
+    
+    // Clear state
     setMessages([]);
     setInput('');
-    window.location.reload();
+    setLoading(false);
+    setSpeakingMessageId(null);
+    setIsGeneratingAudio(false);
+    
+    // Reinitialize conversation with welcome messages
+    await initializeConversation();
+    
+    toast({
+      title: "Conversation Reset",
+      description: "Starting fresh conversation with Betty and Al"
+    });
   };
 
   const getPersonaIcon = (persona: string) => {
@@ -623,10 +666,11 @@ export default function PhoenixLab() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => playAudio(msg.audioUrl!)}
+                              onClick={() => playAudio(msg.audioUrl!, msg.id)}
                               className="mt-2"
+                              disabled={!audioEnabled}
                             >
-                              <Volume2 className="w-4 w-4 mr-2" />
+                              <Volume2 className="w-4 h-4 mr-2" />
                               Replay Audio
                             </Button>
                           )}
