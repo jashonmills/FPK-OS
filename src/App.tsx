@@ -98,6 +98,7 @@ const CourseManager = lazy(() => import("./pages/admin/CourseManager"));
 const Analytics = lazy(() => import("./pages/admin/Analytics"));
 const ModuleManagerPage = lazy(() => import("./pages/admin/ModuleManagerPage"));
 const LessonManager = lazy(() => import("./components/admin/LessonManager"));
+const PhoenixLab = lazy(() => import("./pages/admin/PhoenixLab"));
 const ThresholdManagement = lazy(() => import("./pages/admin/ThresholdManagement"));
 const BetaManagement = lazy(() => import("./pages/admin/BetaManagement"));
 const OrganizationManagement = lazy(() => import("./pages/admin/OrganizationManagement"));
@@ -523,6 +524,11 @@ const App: React.FC = () => {
             <Route path="admin/beta" element={<LazyRoute><BetaManagement /></LazyRoute>} />
             <Route path="admin/settings" element={<LazyRoute><AdminSettings /></LazyRoute>} />
             <Route path="admin/generate-backgrounds" element={<LazyRoute><GenerateBackgrounds /></LazyRoute>} />
+            <Route path="admin/phoenix-lab" element={
+              <RequireAdmin>
+                <LazyRoute><PhoenixLab /></LazyRoute>
+              </RequireAdmin>
+            } />
             
             {/* Organizations Hub - Fixed missing route */}
             <Route path="organizations" element={<LazyRoute><OrgHub /></LazyRoute>} />

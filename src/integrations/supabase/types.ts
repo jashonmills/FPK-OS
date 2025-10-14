@@ -6013,6 +6013,74 @@ export type Database = {
           },
         ]
       }
+      phoenix_conversations: {
+        Row: {
+          created_at: string
+          id: string
+          metadata: Json | null
+          session_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          session_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          session_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      phoenix_messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          intent: Database["public"]["Enums"]["message_intent"] | null
+          metadata: Json | null
+          persona: Database["public"]["Enums"]["persona_type"]
+          sentiment: string | null
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          intent?: Database["public"]["Enums"]["message_intent"] | null
+          metadata?: Json | null
+          persona: Database["public"]["Enums"]["persona_type"]
+          sentiment?: string | null
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          intent?: Database["public"]["Enums"]["message_intent"] | null
+          metadata?: Json | null
+          persona?: Database["public"]["Enums"]["persona_type"]
+          sentiment?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "phoenix_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "phoenix_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       podcast_episodes: {
         Row: {
           audio_url: string | null
@@ -10295,12 +10363,21 @@ export type Database = {
         | "viewer"
         | "admin"
       member_status: "active" | "paused" | "blocked" | "removed"
+      message_intent:
+        | "socratic_exploration"
+        | "quick_question"
+        | "story_request"
+        | "frustrated_vent"
+        | "video_assessment"
+        | "general_chat"
+        | "unclear"
       note_visibility_scope:
         | "student-only"
         | "instructor-visible"
         | "org-public"
       org_subscription_tier: "basic" | "standard" | "premium" | "beta"
       package_status: "uploading" | "parsing" | "ready" | "error" | "archived"
+      persona_type: "USER" | "BETTY" | "AL" | "CONDUCTOR"
       scorm_standard: "SCORM 1.2" | "SCORM 2004"
       subscription_status:
         | "active"
@@ -10463,6 +10540,15 @@ export const Constants = {
         "admin",
       ],
       member_status: ["active", "paused", "blocked", "removed"],
+      message_intent: [
+        "socratic_exploration",
+        "quick_question",
+        "story_request",
+        "frustrated_vent",
+        "video_assessment",
+        "general_chat",
+        "unclear",
+      ],
       note_visibility_scope: [
         "student-only",
         "instructor-visible",
@@ -10470,6 +10556,7 @@ export const Constants = {
       ],
       org_subscription_tier: ["basic", "standard", "premium", "beta"],
       package_status: ["uploading", "parsing", "ready", "error", "archived"],
+      persona_type: ["USER", "BETTY", "AL", "CONDUCTOR"],
       scorm_standard: ["SCORM 1.2", "SCORM 2004"],
       subscription_status: [
         "active",

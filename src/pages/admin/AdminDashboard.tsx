@@ -2,6 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
 import { Users, BookOpen, BarChart3, Settings, Database, Download, RefreshCw, CheckCircle, AlertTriangle, Building2, GraduationCap } from 'lucide-react';
 import { useQuickStats } from '@/hooks/useQuickStats';
@@ -52,6 +53,14 @@ const AdminDashboard = () => {
       icon: BarChart3,
       path: "/dashboard/admin/analytics",
       color: "text-pink-600"
+    },
+    {
+      title: "Phoenix Lab",
+      description: "Test Project Phoenix AI Engine (Phase 1 Sandbox)",
+      icon: Database,
+      path: "/dashboard/admin/phoenix-lab",
+      color: "text-purple-600",
+      badge: "BETA"
     },
     {
       title: "System Settings",
@@ -121,6 +130,11 @@ const AdminDashboard = () => {
                 <CardTitle className="flex items-center gap-3 text-base sm:text-lg">
                   <IconComponent className={`h-6 w-6 ${section.color} flex-shrink-0`} />
                   <span className="truncate">{section.title}</span>
+                  {section.badge && (
+                    <Badge variant="secondary" className="ml-auto">
+                      {section.badge}
+                    </Badge>
+                  )}
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-4 sm:p-6 pt-0">
