@@ -144,6 +144,7 @@ export default function PhoenixLab() {
   const [currentPhase, setCurrentPhase] = useState(4); // Start at current phase
   const [generatingPodcast, setGeneratingPodcast] = useState(false);
   const [isBackfilling, setIsBackfilling] = useState(false);
+  const [showBackfillAlert, setShowBackfillAlert] = useState(true);
   const activeAudioElements = React.useRef<Set<HTMLAudioElement>>(new Set());
   const audioLockRef = React.useRef(false);
   const playedMessagesRef = React.useRef<Set<string>>(new Set());
@@ -1395,6 +1396,27 @@ export default function PhoenixLab() {
           <strong>Phase 3 Status:</strong> Modular prompts ✓ | 5-intent detection ✓ | Socratic Handoff ✓ | Streaming UI ✓ | Governor verified ✓
         </AlertDescription>
       </Alert>
+
+      {/* Data Migration Alert */}
+      {showBackfillAlert && (
+        <Alert className="mb-6 border-amber-500/50 bg-amber-500/10">
+          <AlertCircle className="h-4 w-4 text-amber-600" />
+          <AlertDescription className="flex items-center justify-between">
+            <div>
+              <strong className="text-amber-900 dark:text-amber-100">Analytics Data Migration Required:</strong>
+              <p className="text-sm mt-1">Historical conversations need to be migrated to phoenix_* tables for analytics to display. Use the "Backfill Analytics" button in the Debug Panel.</p>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowBackfillAlert(false)}
+              className="ml-4"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Main Chat Interface */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
