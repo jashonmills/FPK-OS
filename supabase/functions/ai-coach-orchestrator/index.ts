@@ -403,6 +403,13 @@ serve(async (req) => {
 
     // 5. Intent Detection using LLM with Tool Calling
     console.log('[CONDUCTOR] Analyzing intent with LLM...');
+    
+    // Determine if we're in an active Betty conversation
+    const lastPersona = conversationHistory.length > 0 
+      ? conversationHistory[conversationHistory.length - 1].persona 
+      : null;
+    const inBettySession = lastPersona === 'BETTY';
+    
     const intentResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -414,11 +421,18 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: 'You are the Conductor in an AI tutoring system. Your job is to analyze the user\'s message and determine their intent.'
+            content: `You are the Conductor in an AI tutoring system. Your job is to analyze the user's message and determine their intent.
+
+Intent Types:
+- "socratic_guidance": Conceptual questions, problem-solving, "why" or "how" questions, seeking understanding
+- "direct_answer": Platform questions, general facts, "what is" questions requiring factual answers
+- "request_for_clarification": Student explicitly states they don't know a term/definition (e.g., "I don't know what X means", "What does X stand for?", "I'm not sure what that is")
+
+IMPORTANT: Only use "request_for_clarification" when the student explicitly asks for a definition or states they don't understand a specific term. Regular questions should still be "socratic_guidance" or "direct_answer".`
           },
           {
             role: 'user',
-            content: `Analyze this student message and classify the intent:\n\n"${message}"\n\nClassify as either "socratic_guidance" (for conceptual questions, problem-solving, "why" questions) or "direct_answer" (for platform questions, definitions, "what is" questions).`
+            content: `Analyze this student message and classify the intent:\n\n"${message}"\n\n${inBettySession ? 'Context: This is during an active Socratic learning session with Betty.\n\n' : ''}Classify the intent type.`
           }
         ],
         tools: [
@@ -432,7 +446,7 @@ serve(async (req) => {
                 properties: {
                   intent: {
                     type: 'string',
-                    enum: ['socratic_guidance', 'direct_answer'],
+                    enum: ['socratic_guidance', 'direct_answer', 'request_for_clarification'],
                     description: 'The detected intent type'
                   },
                   confidence: {
@@ -471,15 +485,28 @@ serve(async (req) => {
     // 6. Sentiment Analysis (simple for now)
     const detectedSentiment = 'Neutral';
 
-    // 7. Persona Selection based on Intent
-    const selectedPersona = detectedIntent === 'socratic_guidance' ? 'BETTY' : 'AL';
-    console.log('[CONDUCTOR] Routing to persona:', selectedPersona);
+    // 7. Persona Selection based on Intent with Socratic Handoff Logic
+    let selectedPersona: string;
+    let systemPrompt: string;
+    let isSocraticHandoff = false;
+
+    if (detectedIntent === 'request_for_clarification' && inBettySession) {
+      // SOCRATIC HANDOFF: Al provides factual support during Betty's session
+      selectedPersona = 'AL';
+      systemPrompt = buildAlSocraticSupportPrompt();
+      isSocraticHandoff = true;
+      console.log('[CONDUCTOR] 🤝 Socratic Handoff: Al providing factual support in Betty session');
+    } else if (detectedIntent === 'socratic_guidance') {
+      selectedPersona = 'BETTY';
+      systemPrompt = buildBettySystemPrompt();
+    } else {
+      selectedPersona = 'AL';
+      systemPrompt = buildAlSystemPrompt();
+    }
+    
+    console.log('[CONDUCTOR] Routing to persona:', selectedPersona, isSocraticHandoff ? '(Socratic Support Mode)' : '');
 
     // 8. Generate AI Response with Appropriate Persona
-    const personaPrompt = selectedPersona === 'BETTY' 
-      ? buildBettyPrompt(message, conversationHistory)
-      : buildAlPrompt(message, conversationHistory);
-
     console.log('[CONDUCTOR] Generating response with', selectedPersona, 'persona...');
     const personaResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -490,7 +517,7 @@ serve(async (req) => {
       body: JSON.stringify({
         model: 'google/gemini-2.5-flash',
         messages: [
-          { role: 'system', content: personaPrompt.systemPrompt },
+          { role: 'system', content: systemPrompt },
           ...conversationHistory.slice(-5).map(msg => ({
             role: msg.persona === 'USER' ? 'user' : 'assistant',
             content: msg.content
@@ -498,7 +525,7 @@ serve(async (req) => {
           { role: 'user', content: message }
         ],
         temperature: selectedPersona === 'BETTY' ? 0.8 : 0.6,
-        max_tokens: 500,
+        max_tokens: isSocraticHandoff ? 300 : 500, // Shorter responses for factual injections
         stream: true
       }),
     });
@@ -518,7 +545,8 @@ serve(async (req) => {
       detectedIntent,
       detectedSentiment,
       intentConfidence: intentResult.confidence,
-      intentReasoning: intentResult.reasoning
+      intentReasoning: intentResult.reasoning,
+      isSocraticHandoff
     };
 
     // Return streaming response
@@ -738,6 +766,7 @@ serve(async (req) => {
               ttsProvider,
               governorChecked: true,
               governorBlocked,
+              isSocraticHandoff,
               governorResult: {
                 is_safe: governorResult.is_safe,
                 is_on_topic: governorResult.is_on_topic,
@@ -761,6 +790,7 @@ serve(async (req) => {
                   ttsProvider,
                   governorChecked: true,
                   governorBlocked,
+                  isSocraticHandoff,
                   governorResult: {
                     is_safe: governorResult.is_safe,
                     is_on_topic: governorResult.is_on_topic,
