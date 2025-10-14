@@ -292,6 +292,46 @@ serve(async (req) => {
             }
           }
 
+          // Generate TTS Audio using ElevenLabs
+          let audioUrl = null;
+          try {
+            const ELEVENLABS_API_KEY = Deno.env.get('ELEVENLABS_API_KEY');
+            if (ELEVENLABS_API_KEY && fullText.length > 0) {
+              console.log('[CONDUCTOR] Generating TTS audio for completed response...');
+              
+              // Choose voice based on persona
+              const voiceId = selectedPersona === 'BETTY' ? 'EXAVITQu4vr4xnSDxMaL' : 'N2lVS1w4EtoT3dr4eOWO';
+              
+              const ttsResponse = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+                method: 'POST',
+                headers: {
+                  'xi-api-key': ELEVENLABS_API_KEY,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  text: fullText,
+                  model_id: 'eleven_turbo_v2_5',
+                  voice_settings: {
+                    stability: selectedPersona === 'BETTY' ? 0.6 : 0.7,
+                    similarity_boost: 0.8,
+                    style: selectedPersona === 'BETTY' ? 0.4 : 0.2
+                  }
+                }),
+              });
+
+              if (ttsResponse.ok) {
+                const audioBuffer = await ttsResponse.arrayBuffer();
+                const base64Audio = btoa(String.fromCharCode(...new Uint8Array(audioBuffer)));
+                audioUrl = `data:audio/mpeg;base64,${base64Audio}`;
+                console.log('[CONDUCTOR] TTS audio generated successfully');
+              } else {
+                console.error('[CONDUCTOR] TTS generation failed:', await ttsResponse.text());
+              }
+            }
+          } catch (ttsError) {
+            console.error('[CONDUCTOR] TTS error (non-critical):', ttsError);
+          }
+
           // Store complete message in database
           await supabaseClient.from('phoenix_messages').insert({
             conversation_id: conversationId,
@@ -311,19 +351,24 @@ serve(async (req) => {
               detectedIntent,
               detectedSentiment,
               intentConfidence: intentResult.confidence,
-              intentReasoning: intentResult.reasoning
+              intentReasoning: intentResult.reasoning,
+              hasAudio: audioUrl !== null
             }
           });
 
           console.log('[CONDUCTOR] Messages stored successfully');
 
-          // Send completion event
+          // Send completion event with audio
           controller.enqueue(
             new TextEncoder().encode(
               `data: ${JSON.stringify({ 
                 type: 'done',
                 fullText,
-                metadata: responseMetadata
+                audioUrl,
+                metadata: {
+                  ...responseMetadata,
+                  hasAudio: audioUrl !== null
+                }
               })}\n\n`
             )
           );

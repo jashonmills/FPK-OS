@@ -285,6 +285,19 @@ export default function PhoenixLab() {
               });
             } else if (data.type === 'done') {
               console.log('[PHOENIX] Stream complete:', data.metadata);
+              
+              // Auto-play audio if available
+              if (data.audioUrl) {
+                console.log('[PHOENIX] Auto-playing TTS audio');
+                playAudio(data.audioUrl);
+                
+                // Update message with audioUrl
+                setMessages(prev => prev.map(m => 
+                  m.id === aiMessageId 
+                    ? { ...m, audioUrl: data.audioUrl }
+                    : m
+                ));
+              }
             }
           }
         }
