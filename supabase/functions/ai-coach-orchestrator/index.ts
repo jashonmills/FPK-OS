@@ -555,11 +555,17 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
         const reader = personaResponse.body?.getReader();
         const decoder = new TextDecoder();
         let fullText = '';
+        let chunkCount = 0;
 
         try {
+          console.log('[CONDUCTOR] Starting SSE stream...');
+          
           while (true) {
             const { done, value } = await reader!.read();
-            if (done) break;
+            if (done) {
+              console.log(`[CONDUCTOR] Stream complete. Total chunks sent: ${chunkCount}`);
+              break;
+            }
 
             const chunk = decoder.decode(value, { stream: true });
             const lines = chunk.split('\n').filter(line => line.trim() !== '');
@@ -574,19 +580,24 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
                   const content = parsed.choices?.[0]?.delta?.content;
                   if (content) {
                     fullText += content;
-                    // Send chunk to client
-                    controller.enqueue(
-                      new TextEncoder().encode(
-                        `data: ${JSON.stringify({ 
-                          type: 'chunk', 
-                          content,
-                          persona: selectedPersona 
-                        })}\n\n`
-                      )
-                    );
+                    chunkCount++;
+                    
+                    // Send chunk to client with SSE format
+                    const sseMessage = `data: ${JSON.stringify({ 
+                      type: 'chunk', 
+                      content,
+                      persona: selectedPersona 
+                    })}\n\n`;
+                    
+                    controller.enqueue(new TextEncoder().encode(sseMessage));
+                    
+                    // Log progress every 10 chunks
+                    if (chunkCount % 10 === 0) {
+                      console.log(`[CONDUCTOR] Streamed ${chunkCount} chunks, ${fullText.length} chars`);
+                    }
                   }
                 } catch (e) {
-                  console.error('[CONDUCTOR] Error parsing SSE:', e);
+                  console.error('[CONDUCTOR] Error parsing SSE chunk:', e);
                 }
               }
             }
@@ -777,33 +788,47 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
 
           console.log('[CONDUCTOR] Messages stored successfully');
 
-          // Send completion event with audio
-          controller.enqueue(
-            new TextEncoder().encode(
-              `data: ${JSON.stringify({ 
-                type: 'done',
-                fullText: finalText,
-                audioUrl,
-                metadata: {
-                  ...responseMetadata,
-                  hasAudio: audioUrl !== null,
-                  ttsProvider,
-                  governorChecked: true,
-                  governorBlocked,
-                  isSocraticHandoff,
-                  governorResult: {
-                    is_safe: governorResult.is_safe,
-                    is_on_topic: governorResult.is_on_topic,
-                    persona_adherence: governorResult.persona_adherence
-                  }
-                }
-              })}\n\n`
-            )
-          );
+          // Send completion event with audio and metadata
+          const completionMessage = `data: ${JSON.stringify({ 
+            type: 'done',
+            fullText: finalText,
+            audioUrl,
+            metadata: {
+              ...responseMetadata,
+              hasAudio: audioUrl !== null,
+              ttsProvider,
+              governorChecked: true,
+              governorBlocked,
+              isSocraticHandoff,
+              totalChunks: chunkCount,
+              responseLength: finalText.length,
+              governorResult: {
+                is_safe: governorResult.is_safe,
+                is_on_topic: governorResult.is_on_topic,
+                persona_adherence: governorResult.persona_adherence
+              }
+            }
+          })}\n\n`;
 
+          console.log('[CONDUCTOR] Sending completion event');
+          controller.enqueue(new TextEncoder().encode(completionMessage));
           controller.close();
+          
+          console.log('[CONDUCTOR] Stream closed successfully');
         } catch (error) {
           console.error('[CONDUCTOR] Streaming error:', error);
+          
+          // Send error event to client
+          try {
+            const errorMessage = `data: ${JSON.stringify({ 
+              type: 'error',
+              message: error.message || 'Streaming error occurred'
+            })}\n\n`;
+            controller.enqueue(new TextEncoder().encode(errorMessage));
+          } catch (e) {
+            console.error('[CONDUCTOR] Failed to send error message:', e);
+          }
+          
           controller.error(error);
         }
       }

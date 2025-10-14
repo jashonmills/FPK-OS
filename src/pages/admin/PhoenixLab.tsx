@@ -22,6 +22,7 @@ interface Message {
   audioUrl?: string;
   isWelcome?: boolean;
   isTyping?: boolean;
+  isStreaming?: boolean;
 }
 
 const WELCOME_MESSAGES: Omit<Message, 'id' | 'created_at'>[] = [
@@ -361,83 +362,109 @@ export default function PhoenixLab() {
 
       if (!response.ok) throw new Error('Failed to get response');
 
-      const reader = response.body?.getReader();
+      if (!response.body) {
+        throw new Error('No response body');
+      }
+
+      const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let aiMessageId = crypto.randomUUID();
       let currentPersona: 'BETTY' | 'AL' = 'AL';
       let fullText = '';
-      let buffer = ''; // Buffer for incomplete JSON
+      let buffer = '';
+      let isStreamingActive = false;
 
-      // Remove typing indicator
+      // Remove typing indicator and add initial streaming message
       setMessages(prev => prev.filter(m => m.id !== typingId));
 
-      while (true) {
-        const { done, value } = await reader!.read();
-        if (done) break;
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) {
+            console.log('[PHOENIX] Stream complete');
+            break;
+          }
 
-        const chunk = decoder.decode(value, { stream: true });
-        buffer += chunk;
-        
-        // Split by double newline but keep the buffer for incomplete messages
-        const parts = buffer.split('\n\n');
-        
-        // Keep the last part in buffer (might be incomplete)
-        buffer = parts.pop() || '';
-        
-        for (const part of parts) {
-          const line = part.trim();
-          if (!line || !line.startsWith('data: ')) continue;
+          const chunk = decoder.decode(value, { stream: true });
+          buffer += chunk;
           
-          try {
-            const jsonStr = line.slice(6);
-            const data = JSON.parse(jsonStr);
+          // Process complete lines (SSE format: data: {...}\n\n)
+          let newlineIndex;
+          while ((newlineIndex = buffer.indexOf('\n\n')) !== -1) {
+            const line = buffer.slice(0, newlineIndex).trim();
+            buffer = buffer.slice(newlineIndex + 2);
+            
+            if (!line || !line.startsWith('data: ')) continue;
+            
+            try {
+              const jsonStr = line.slice(6);
+              if (jsonStr === '[DONE]') continue;
+              
+              const data = JSON.parse(jsonStr);
 
-            if (data.type === 'chunk') {
-              fullText += data.content;
-              currentPersona = data.persona;
-              
-              // Update message with streaming content
-              setMessages(prev => {
-                const existing = prev.find(m => m.id === aiMessageId);
-                if (existing) {
-                  return prev.map(m => 
-                    m.id === aiMessageId 
-                      ? { ...m, content: fullText, persona: currentPersona }
-                      : m
-                  );
-                }
-                // Create new message
-                return [...prev, {
-                  id: aiMessageId,
-                  persona: currentPersona,
-                  content: fullText,
-                  created_at: new Date().toISOString()
-                }];
-              });
-            } else if (data.type === 'done') {
-              console.log('[PHOENIX] Stream complete:', data.metadata);
-              
-              // Update message with audioUrl first
-              if (data.audioUrl) {
+              if (data.type === 'chunk') {
+                fullText += data.content;
+                currentPersona = data.persona;
+                isStreamingActive = true;
+                
+                // Update message with streaming content + cursor
+                setMessages(prev => {
+                  const existing = prev.find(m => m.id === aiMessageId);
+                  if (existing) {
+                    return prev.map(m => 
+                      m.id === aiMessageId 
+                        ? { ...m, content: fullText, persona: currentPersona, isStreaming: true }
+                        : m
+                    );
+                  }
+                  // Create new message with streaming indicator
+                  return [...prev, {
+                    id: aiMessageId,
+                    persona: currentPersona,
+                    content: fullText,
+                    created_at: new Date().toISOString(),
+                    isStreaming: true
+                  }];
+                });
+              } else if (data.type === 'done') {
+                console.log('[PHOENIX] Stream done event:', data.metadata);
+                isStreamingActive = false;
+                
+                // Remove streaming indicator
                 setMessages(prev => prev.map(m => 
                   m.id === aiMessageId 
-                    ? { ...m, audioUrl: data.audioUrl }
+                    ? { ...m, isStreaming: false, audioUrl: data.audioUrl }
                     : m
                 ));
                 
-                // Auto-play audio if enabled (with highlight)
-                if (audioEnabled) {
+                // Auto-play audio if enabled
+                if (data.audioUrl && audioEnabled) {
                   console.log('[PHOENIX] Auto-playing response audio');
                   await playAudio(data.audioUrl, aiMessageId);
                 }
               }
+            } catch (parseError) {
+              console.error('[PHOENIX] JSON parse error:', parseError);
+              console.error('[PHOENIX] Failed line:', line.substring(0, 200));
             }
-          } catch (parseError) {
-            console.error('[PHOENIX] JSON parse error:', parseError);
-            console.error('[PHOENIX] Failed to parse:', line.slice(6).substring(0, 200));
-            // Continue processing other messages
           }
         }
+
+        // Handle any remaining buffer content
+        if (buffer.trim()) {
+          console.warn('[PHOENIX] Remaining buffer:', buffer.substring(0, 100));
+        }
+
+        // Ensure streaming indicator is removed
+        if (isStreamingActive) {
+          setMessages(prev => prev.map(m => 
+            m.id === aiMessageId ? { ...m, isStreaming: false } : m
+          ));
+        }
+
+      } catch (streamError) {
+        console.error('[PHOENIX] Stream reading error:', streamError);
+        throw streamError;
       }
 
     } catch (error) {
@@ -766,6 +793,11 @@ export default function PhoenixLab() {
                       <div className="flex items-center gap-2 mb-2 flex-wrap">
                         <span className="text-2xl">{getPersonaIcon(msg.persona)}</span>
                         <Badge variant="outline">{msg.persona}</Badge>
+                        {msg.isStreaming && (
+                          <Badge variant="default" className="animate-pulse bg-gradient-to-r from-blue-500 to-purple-500">
+                            ⚡ Streaming...
+                          </Badge>
+                        )}
                         {speakingMessageId === msg.id && (
                           <Badge variant="default" className="animate-pulse">
                             🔊 Speaking
@@ -798,7 +830,12 @@ export default function PhoenixLab() {
                         </div>
                       ) : (
                         <>
-                          <div className="whitespace-pre-wrap text-sm">{msg.content}</div>
+                          <div className="whitespace-pre-wrap text-sm">
+                            {msg.content}
+                            {msg.isStreaming && (
+                              <span className="inline-block w-2 h-4 ml-1 bg-current animate-pulse" />
+                            )}
+                          </div>
                           {msg.audioUrl && msg.persona !== 'USER' && (
                             <Button
                               variant="ghost"
