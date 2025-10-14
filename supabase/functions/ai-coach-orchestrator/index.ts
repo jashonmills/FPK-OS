@@ -292,30 +292,27 @@ serve(async (req) => {
             }
           }
 
-          // Generate TTS Audio using ElevenLabs
+          // Generate TTS Audio using OpenAI
           let audioUrl = null;
           try {
-            const ELEVENLABS_API_KEY = Deno.env.get('ELEVENLABS_API_KEY');
-            if (ELEVENLABS_API_KEY && fullText.length > 0) {
+            const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
+            if (OPENAI_API_KEY && fullText.length > 0) {
               console.log('[CONDUCTOR] Generating TTS audio for completed response...');
               
-              // Choose voice based on persona
-              const voiceId = selectedPersona === 'BETTY' ? 'EXAVITQu4vr4xnSDxMaL' : 'N2lVS1w4EtoT3dr4eOWO';
+              // Choose voice based on persona (OpenAI voices)
+              const voice = selectedPersona === 'BETTY' ? 'nova' : 'onyx';
               
-              const ttsResponse = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+              const ttsResponse = await fetch('https://api.openai.com/v1/audio/speech', {
                 method: 'POST',
                 headers: {
-                  'xi-api-key': ELEVENLABS_API_KEY,
+                  'Authorization': `Bearer ${OPENAI_API_KEY}`,
                   'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                  text: fullText,
-                  model_id: 'eleven_turbo_v2_5',
-                  voice_settings: {
-                    stability: selectedPersona === 'BETTY' ? 0.6 : 0.7,
-                    similarity_boost: 0.8,
-                    style: selectedPersona === 'BETTY' ? 0.4 : 0.2
-                  }
+                  model: 'tts-1',
+                  input: fullText,
+                  voice: voice,
+                  response_format: 'mp3',
                 }),
               });
 

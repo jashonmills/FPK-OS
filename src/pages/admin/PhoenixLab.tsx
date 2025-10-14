@@ -8,7 +8,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Send, Sparkles, Brain, TestTube, AlertCircle, ArrowLeft, Mic, Volume2 } from 'lucide-react';
+import { Loader2, Send, Sparkles, Brain, TestTube, AlertCircle, ArrowLeft, Mic, Volume2, VolumeX, RotateCcw } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface Message {
@@ -65,7 +65,9 @@ export default function PhoenixLab() {
   const [conversationId] = useState(() => crypto.randomUUID());
   const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState<any>(null);
+  const [audioEnabled, setAudioEnabled] = useState(true);
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
+  const currentAudioRef = React.useRef<HTMLAudioElement | null>(null);
   const { toast } = useToast();
 
   // Initialize conversation and speech recognition
@@ -125,6 +127,26 @@ export default function PhoenixLab() {
     }
   };
 
+  const generateWelcomeAudio = async (text: string, persona: 'AL' | 'BETTY'): Promise<string | null> => {
+    try {
+      const { data, error } = await supabase.functions.invoke('text-to-voice', {
+        body: { 
+          text,
+          voice: persona === 'BETTY' ? 'nova' : 'onyx'
+        }
+      });
+      
+      if (error) throw error;
+      if (data?.audioContent) {
+        return `data:audio/mpeg;base64,${data.audioContent}`;
+      }
+      return null;
+    } catch (error) {
+      console.error('[PHOENIX] Welcome audio generation error:', error);
+      return null;
+    }
+  };
+
   const initializeConversation = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -148,7 +170,7 @@ export default function PhoenixLab() {
 
       await supabase.from('phoenix_messages').insert(welcomeMessagesToInsert);
 
-      // Display welcome messages with staggered delays and typing indicators
+      // Display welcome messages with staggered delays, typing indicators, and audio
       for (let i = 0; i < WELCOME_MESSAGES.length; i++) {
         await new Promise(resolve => setTimeout(resolve, i === 0 ? 500 : 1500));
         
@@ -164,20 +186,33 @@ export default function PhoenixLab() {
           }]);
           
           await new Promise(resolve => setTimeout(resolve, 800));
-          
-          // Remove typing indicator and add actual message
-          setMessages(prev => prev.filter(m => !m.isTyping).concat({
-            ...WELCOME_MESSAGES[i],
-            id: crypto.randomUUID(),
-            created_at: new Date().toISOString()
-          }));
+        }
+        
+        // Generate audio for this message
+        const audioUrl = await generateWelcomeAudio(
+          WELCOME_MESSAGES[i].content, 
+          WELCOME_MESSAGES[i].persona as 'AL' | 'BETTY'
+        );
+        
+        // Remove typing indicator and add actual message with audio
+        const messageWithAudio: Message = {
+          ...WELCOME_MESSAGES[i],
+          id: crypto.randomUUID(),
+          created_at: new Date().toISOString(),
+          audioUrl: audioUrl || undefined
+        };
+        
+        if (i > 0) {
+          setMessages(prev => prev.filter(m => !m.isTyping).concat(messageWithAudio));
         } else {
-          // First message appears immediately
-          setMessages([{
-            ...WELCOME_MESSAGES[0],
-            id: crypto.randomUUID(),
-            created_at: new Date().toISOString()
-          }]);
+          setMessages([messageWithAudio]);
+        }
+        
+        // Play audio if available and enabled
+        if (audioUrl && audioEnabled) {
+          playAudio(audioUrl);
+          // Wait for audio to finish before next message
+          await new Promise(resolve => setTimeout(resolve, 2500));
         }
       }
 
@@ -318,12 +353,29 @@ export default function PhoenixLab() {
   };
 
   const playAudio = (audioUrl: string) => {
-    if (audioRef.current) {
-      audioRef.current.src = audioUrl;
-      audioRef.current.play().catch(err => {
-        console.error('Error playing audio:', err);
-      });
+    if (!audioEnabled) {
+      console.log('[PHOENIX] Audio disabled, skipping playback');
+      return;
     }
+    
+    // Stop any currently playing audio
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause();
+      currentAudioRef.current = null;
+    }
+    
+    const audio = new Audio(audioUrl);
+    currentAudioRef.current = audio;
+    audio.play().catch(err => console.error('[PHOENIX] Audio playback error:', err));
+    audio.onended = () => {
+      currentAudioRef.current = null;
+    };
+  };
+
+  const resetConversation = () => {
+    setMessages([]);
+    setInput('');
+    window.location.reload();
   };
 
   const getPersonaIcon = (persona: string) => {
@@ -381,13 +433,37 @@ export default function PhoenixLab() {
         {/* Chat Area */}
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Brain className="w-5 h-5" />
-              Conversation
-            </CardTitle>
-            <CardDescription>
-              Session: {conversationId.substring(0, 13)}...
-            </CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <Brain className="w-5 h-5" />
+                  Conversation
+                </CardTitle>
+                <CardDescription>
+                  Session: {conversationId.substring(0, 13)}...
+                </CardDescription>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setAudioEnabled(!audioEnabled)}
+                  className={`${audioEnabled ? 'text-primary' : 'text-muted-foreground'}`}
+                  title={audioEnabled ? 'Disable Audio' : 'Enable Audio'}
+                >
+                  {audioEnabled ? <Volume2 className="h-5 w-5" /> : <VolumeX className="h-5 w-5" />}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={resetConversation}
+                  className="text-muted-foreground hover:text-foreground"
+                  title="Reset Conversation"
+                >
+                  <RotateCcw className="h-5 w-5" />
+                </Button>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             {/* Messages */}
