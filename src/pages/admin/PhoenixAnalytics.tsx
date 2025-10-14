@@ -12,6 +12,8 @@ import { GovernorActivityTable } from '@/components/analytics/GovernorActivityTa
 import { LearningVelocityCard } from '@/components/analytics/LearningVelocityCard';
 import { EngagementQualityCard } from '@/components/analytics/EngagementQualityCard';
 import { TopicMasteryTable } from '@/components/analytics/TopicMasteryTable';
+import { LearningPathGraph } from '@/components/phoenix/LearningPathGraph';
+import { RecommendedConcepts } from '@/components/phoenix/RecommendedConcepts';
 
 export default function PhoenixAnalytics() {
   const navigate = useNavigate();
@@ -193,6 +195,21 @@ export default function PhoenixAnalytics() {
 
       {/* Topic Mastery - Full Width */}
       <TopicMasteryTable data={analytics?.topicMastery} />
+
+      {/* Phase 5: Learning Path Mapping */}
+      <div className="col-span-full">
+        <div className="flex items-center gap-2 mb-4">
+          <Brain className="h-6 w-6 text-blue-600" />
+          <h2 className="text-2xl font-bold">Learning Path & Recommendations</h2>
+          <Badge variant="secondary">Knowledge Graph</Badge>
+        </div>
+      </div>
+
+      {/* Recommended Concepts */}
+      <RecommendedConcepts />
+
+      {/* Learning Path Graph */}
+      <LearningPathGraph />
     </div>
   );
 }

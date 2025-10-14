@@ -6013,6 +6013,48 @@ export type Database = {
           },
         ]
       }
+      phoenix_concept_prerequisites: {
+        Row: {
+          concept_id: string
+          created_at: string
+          id: string
+          prerequisite_id: string
+          relationship_type: string
+          strength: number | null
+        }
+        Insert: {
+          concept_id: string
+          created_at?: string
+          id?: string
+          prerequisite_id: string
+          relationship_type: string
+          strength?: number | null
+        }
+        Update: {
+          concept_id?: string
+          created_at?: string
+          id?: string
+          prerequisite_id?: string
+          relationship_type?: string
+          strength?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "phoenix_concept_prerequisites_concept_id_fkey"
+            columns: ["concept_id"]
+            isOneToOne: false
+            referencedRelation: "phoenix_learning_concepts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "phoenix_concept_prerequisites_prerequisite_id_fkey"
+            columns: ["prerequisite_id"]
+            isOneToOne: false
+            referencedRelation: "phoenix_learning_concepts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       phoenix_conversations: {
         Row: {
           created_at: string
@@ -6085,8 +6127,54 @@ export type Database = {
         }
         Relationships: []
       }
+      phoenix_learning_concepts: {
+        Row: {
+          concept_name: string
+          concept_slug: string
+          created_at: string
+          description: string | null
+          difficulty_level: number
+          domain: string
+          estimated_time_hours: number | null
+          id: string
+          is_active: boolean | null
+          metadata: Json | null
+          tags: Json | null
+          updated_at: string
+        }
+        Insert: {
+          concept_name: string
+          concept_slug: string
+          created_at?: string
+          description?: string | null
+          difficulty_level?: number
+          domain: string
+          estimated_time_hours?: number | null
+          id?: string
+          is_active?: boolean | null
+          metadata?: Json | null
+          tags?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          concept_name?: string
+          concept_slug?: string
+          created_at?: string
+          description?: string | null
+          difficulty_level?: number
+          domain?: string
+          estimated_time_hours?: number | null
+          id?: string
+          is_active?: boolean | null
+          metadata?: Json | null
+          tags?: Json | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       phoenix_learning_outcomes: {
         Row: {
+          concept_id: string | null
           conversation_id: string | null
           created_at: string
           description: string | null
@@ -6098,6 +6186,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          concept_id?: string | null
           conversation_id?: string | null
           created_at?: string
           description?: string | null
@@ -6109,6 +6198,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          concept_id?: string | null
           conversation_id?: string | null
           created_at?: string
           description?: string | null
@@ -6120,6 +6210,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "phoenix_learning_outcomes_concept_id_fkey"
+            columns: ["concept_id"]
+            isOneToOne: false
+            referencedRelation: "phoenix_learning_concepts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "phoenix_learning_outcomes_conversation_id_fkey"
             columns: ["conversation_id"]
@@ -10273,6 +10370,18 @@ export type Database = {
           updated_at: string | null
         }[]
       }
+      get_recommended_concepts: {
+        Args: { p_limit?: number; p_user_id: string }
+        Returns: {
+          concept_id: string
+          concept_name: string
+          concept_slug: string
+          difficulty_level: number
+          domain: string
+          reason: string
+          recommendation_score: number
+        }[]
+      }
       get_relevant_memories: {
         Args: { p_days_back?: number; p_limit?: number; p_user_id: string }
         Returns: {
@@ -10305,6 +10414,21 @@ export type Database = {
       get_user_id_by_email: {
         Args: { user_email: string }
         Returns: string
+      }
+      get_user_learning_path: {
+        Args: { p_domain?: string; p_user_id: string }
+        Returns: {
+          concept_id: string
+          concept_name: string
+          concept_slug: string
+          difficulty_level: number
+          domain: string
+          last_interaction: string
+          mastery_level: number
+          prerequisites: Json
+          related_concepts: Json
+          status: string
+        }[]
       }
       get_user_role: {
         Args: Record<PropertyKey, never>
