@@ -958,29 +958,36 @@ serve(async (req) => {
     let lastNiteOwlTurn = sessionState.data?.metadata?.lastNiteOwlTurn || -99;
     let resumptionLockTurns = sessionState.data?.metadata?.resumptionLockTurns || 0;
     
-    // CRITICAL FIX: Detect session resumption (returning after >5 minutes)
+    // ============================================
+    // PART 1: RESUMPTION LOCK - Detect session resumption
+    // ============================================
     const lastUpdated = sessionState.data?.updated_at ? new Date(sessionState.data.updated_at) : null;
     const timeSinceLastUpdate = lastUpdated ? Date.now() - lastUpdated.getTime() : 0;
     const isResuming = lastUpdated && timeSinceLastUpdate > 5 * 60 * 1000; // > 5 minutes
+    
+    // CRITICAL: Detect resumption even on the FIRST new message after gap
     const isResumingThisTurn = isResuming && conversationHistory.length > 0;
     
     if (isResumingThisTurn) {
-      console.log('[CONDUCTOR] 🔄 Session resumption detected (inactive for', Math.round(timeSinceLastUpdate / 60000), 'minutes)');
-      console.log('[CONDUCTOR] 🔄 Setting persistent resumption lock for 5 turns');
+      console.log('[CONDUCTOR] 🔄🔄🔄 SESSION RESUMPTION DETECTED');
+      console.log('[CONDUCTOR] 🔄 User was inactive for', Math.round(timeSinceLastUpdate / 60000), 'minutes');
+      console.log('[CONDUCTOR] 🔄 Activating multi-turn resumption lock (5 turns)');
       
-      // Set persistent lock that will prevent Nite Owl for the next 5 turns
+      // Set persistent lock that BLOCKS Nite Owl for the next 5 turns
       resumptionLockTurns = 5;
       
-      // Reset Nite Owl counter to prevent immediate trigger on resume
+      // Reset ALL Nite Owl state to prevent any possibility of trigger
       socraticTurnCounter = 0;
       nextInterjectionPoint = Math.floor(Math.random() * 4) + 5;
-      lastNiteOwlTurn = conversationHistory.length;
+      lastNiteOwlTurn = conversationHistory.length; // Mark current turn as if Nite Owl just appeared
+      
+      console.log('[CONDUCTOR] ✅ Nite Owl completely disabled for next 5 turns');
     }
     
     // Decrement resumption lock on each turn
     if (resumptionLockTurns > 0) {
       resumptionLockTurns--;
-      console.log('[CONDUCTOR] 🔒 Resumption lock active,', resumptionLockTurns, 'turns remaining');
+      console.log('[CONDUCTOR] 🔒 RESUMPTION LOCK ACTIVE:', resumptionLockTurns, 'turns remaining until Nite Owl can appear');
     }
 
     // 4. Get Lovable AI API Key
@@ -1255,7 +1262,8 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
 
     // HIGHEST PRIORITY: Session Resumption - Generate "Welcome Back" message
     if (isResumingThisTurn) {
-      console.log('[CONDUCTOR] 👋 Generating "Welcome Back" greeting for resumed session');
+      console.log('[CONDUCTOR] 👋👋👋 GENERATING WELCOME BACK MESSAGE');
+      console.log('[CONDUCTOR] Session was inactive for', Math.round(timeSinceLastUpdate / 60000), 'minutes');
       
       // Determine which persona should welcome them back
       const lastAIPersona = conversationHistory
@@ -1265,6 +1273,10 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
       
       selectedPersona = lastAIPersona;
       isWelcomeBack = true;
+      
+      // ============================================
+      // PART 1: RESUMPTION LOCK - Force unique Welcome Back message
+      // ============================================
       
       // Build context-aware welcome back prompt
       const lastUserMessage = conversationHistory
@@ -1276,27 +1288,42 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
         `${m.persona}: ${m.content.substring(0, 100)}...`
       ).join('\n');
       
+      const minutesAway = Math.round(timeSinceLastUpdate / 60000);
+      
       if (selectedPersona === 'BETTY') {
-        systemPrompt = buildBettySystemPrompt(userMemories, knowledgePack) + `\n\n---\n\nCRITICAL INSTRUCTION: The student is RETURNING to this conversation after a break (${Math.round(timeSinceLastUpdate / 60000)} minutes ago). Your task is to:
+        systemPrompt = buildBettySystemPrompt(userMemories, knowledgePack) + `\n\n---\n\n🔄 CRITICAL RESUMPTION INSTRUCTION 🔄
 
-1. Welcome them back warmly with their name: "Welcome back, ${user?.user_metadata?.name || 'there'}!"
-2. Briefly mention the specific topic you were discussing: "${lastUserMessage.substring(0, 100)}"
-3. Ask a specific continuation question based on where you left off - NOT a generic "ready to continue?"
+The student just RETURNED to this conversation after being away for ${minutesAway} minutes. This is a RESUMPTION, not a continuation.
+
+Your MANDATORY response structure:
+1. **Personalized Greeting**: "Welcome back, ${user?.user_metadata?.name || 'there'}! I see you're back after ${minutesAway} minutes."
+2. **Specific Topic Recap**: Mention the EXACT topic you were discussing: "${lastUserMessage.substring(0, 150)}"
+3. **Forward-Looking Question**: Ask a specific, actionable question based on where you left off
 
 Recent conversation context:
 ${recentContext}
 
-CRITICAL: Generate a UNIQUE response. Include the exact timestamp (${Math.round(timeSinceLastUpdate / 60000)} minutes) in your greeting to ensure uniqueness. Make it conversational and specific to the learning topic.`;
+CRITICAL UNIQUENESS REQUIREMENT:
+- Include the exact timestamp (${minutesAway} minutes) in your greeting
+- Reference the specific topic you were exploring
+- DO NOT say "Are you ready to continue?" - ask a specific question instead
+- Make this feel like a natural conversation resumption, not a robot template
+
+Generate a FRESH, UNIQUE welcome back message now.`;
       } else {
-        systemPrompt = buildAlSystemPrompt(studentContext, userMemories, knowledgePack) + `\n\n---\n\nCRITICAL INSTRUCTION: The student is RETURNING to this conversation after a break (${Math.round(timeSinceLastUpdate / 60000)} minutes ago). Welcome them back specifically and mention what you were discussing.
+        systemPrompt = buildAlSystemPrompt(studentContext, userMemories, knowledgePack) + `\n\n---\n\n🔄 CRITICAL RESUMPTION INSTRUCTION 🔄
+
+The student returned after ${minutesAway} minutes. Welcome them back specifically and mention what you were discussing.
 
 Recent context:
 ${recentContext}
 
-Make your greeting unique by including the time elapsed and the specific topic.`;
+Include the time elapsed (${minutesAway} minutes) and the specific topic in your unique greeting.`;
       }
       
-      console.log('[CONDUCTOR] Welcome back message will be generated by', selectedPersona);
+      console.log('[CONDUCTOR] ✅ Welcome back message configured for', selectedPersona);
+      console.log('[CONDUCTOR] ✅ All other logic BYPASSED - Welcome Back has absolute priority');
+      
       
     } else if (shouldTriggerNiteOwl) {
       // ⭐ HIGHEST PRIORITY: NITE OWL INTERJECTION
@@ -2105,22 +2132,51 @@ Keep it under 100 words.`;
             .eq('session_id', conversationId);
 
           // 11. NITE OWL HANDOFF: If we just sent a Nite Owl message, immediately follow up with original persona
+          // ============================================
+          // PART 3: GRACEFUL HANDOFF - Ensure smooth transition after Nite Owl
+          // ============================================
           // CRITICAL: Do NOT trigger handoff if this was a session resumption (isWelcomeBack prevents it)
           if (selectedPersona === 'NITE_OWL' && !isWelcomeBack) {
-            console.log('[CONDUCTOR] 🦉 Nite Owl handoff initiated - calling original persona for re-engagement');
+            console.log('[CONDUCTOR] 🦉🔄 GRACEFUL HANDOFF INITIATED');
+            console.log('[CONDUCTOR] Generating fresh, context-aware follow-up from original persona');
             
             // Determine which persona to hand back to (Betty for socratic, Al for direct)
             const handoffPersona = inBettySession ? 'BETTY' : 'AL';
             const handoffSystemPrompt = handoffPersona === 'BETTY' 
-              ? buildBettySystemPrompt() 
-              : buildAlSystemPrompt(studentContext);
+              ? buildBettySystemPrompt(userMemories, knowledgePack) 
+              : buildAlSystemPrompt(studentContext, userMemories, knowledgePack);
             
             // Add special instruction for handoff
             const handoffInstruction = handoffPersona === 'BETTY'
-              ? `IMPORTANT: Nite Owl just shared a fun fact with the student. Your job is to:\n1. Briefly acknowledge Nite Owl's contribution (e.g., "Thanks, Nite Owl!")\n2. Reference the student's last message before Nite Owl appeared: "${message}"\n3. Continue your Socratic dialogue by asking your next guiding question\n\nThe student's last message was: "${message}"\nNite Owl just said: "${finalText}"\n\nNow smoothly transition back to the learning conversation.`
-              : `IMPORTANT: Nite Owl just shared a fun fact with the student. Briefly acknowledge Nite Owl, then continue answering the student's original question: "${message}"`;
+              ? `🔄 CRITICAL HANDOFF INSTRUCTION 🔄
+
+Nite Owl just shared a fun fact with the student. Your job is to:
+1. Briefly and warmly acknowledge Nite Owl (e.g., "Thanks, Nite Owl! That's fascinating!")
+2. Connect the fun fact to the learning topic if possible
+3. Reference the student's last message BEFORE Nite Owl appeared: "${message}"
+4. Continue your Socratic dialogue with a fresh, specific question
+
+Context:
+- Student's last message: "${message}"
+- Nite Owl just said: "${finalText}"
+- You were having a Socratic discussion about a topic
+
+Generate a seamless transition that:
+- Acknowledges the fun fact
+- Brings focus back to the learning goal
+- Asks a NEW Socratic question (not repeating your last question)
+
+This must feel like a natural conversation flow, not a robotic handoff.`
+              : `🔄 CRITICAL HANDOFF INSTRUCTION 🔄
+
+Nite Owl just shared a fun fact. Briefly acknowledge him, then continue answering the student's original question: "${message}"
+
+Nite Owl's message: "${finalText}"
+
+Keep it brief and focused on answering their original question.`;
             
-            console.log('[CONDUCTOR] 🔄 Generating handoff response from', handoffPersona);
+            console.log('[CONDUCTOR] 🔄 Calling', handoffPersona, 'for graceful transition');
+            
             
             // Make follow-up LLM call for handoff
             const handoffResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
