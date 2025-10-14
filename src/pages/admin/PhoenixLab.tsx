@@ -463,17 +463,32 @@ export default function PhoenixLab() {
       await new Promise(resolve => setTimeout(resolve, 100));
     }
     
-    // Acquire lock
+    // Acquire lock FIRST before doing anything else
     audioLockRef.current = true;
     console.log('[PHOENIX] Audio lock acquired for:', messageId || 'unknown');
     
-    // Stop any currently playing audio
-    stopAllAudio();
+    // Mark as played immediately after acquiring lock to prevent duplicates
+    if (messageId) {
+      playedMessagesRef.current.add(messageId);
+    }
+    
+    // Now stop any currently playing audio (but keep OUR lock)
+    console.log('[PHOENIX] Stopping all audio playback - active elements:', activeAudioElements.current.size);
+    activeAudioElements.current.forEach(audio => {
+      try {
+        audio.pause();
+        audio.currentTime = 0;
+        audio.src = '';
+      } catch (err) {
+        console.error('[PHOENIX] Error stopping audio:', err);
+      }
+    });
+    activeAudioElements.current.clear();
+    setSpeakingMessageId(null);
     
     return new Promise<void>((resolve) => {
       if (messageId) {
         setSpeakingMessageId(messageId);
-        playedMessagesRef.current.add(messageId);
       }
       
       const audio = new Audio(audioUrl);
