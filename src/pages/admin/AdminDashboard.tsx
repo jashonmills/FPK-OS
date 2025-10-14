@@ -6,39 +6,14 @@ import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
 import { Users, BookOpen, BarChart3, Settings, Database, Download, RefreshCw, CheckCircle, AlertTriangle, Building2, GraduationCap, TestTube, TrendingUp } from 'lucide-react';
 import { useQuickStats } from '@/hooks/useQuickStats';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { usePhoenixAnalytics } from '@/hooks/usePhoenixAnalytics';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { data: stats, isLoading, error, refetch } = useQuickStats();
-
-  // Fetch Phoenix Analytics KPIs
-  const { data: phoenixStats, isLoading: phoenixLoading } = useQuery({
-    queryKey: ['phoenixAnalyticsKPIs'],
-    queryFn: async () => {
-      const { data: sessions, error } = await supabase
-        .from('coach_sessions')
-        .select('session_data, created_at')
-        .eq('source', 'coach_portal');
-      
-      if (error) throw error;
-      
-      const totalSessions = sessions?.length || 0;
-      const totalTurns = sessions?.reduce((sum, session) => {
-        const sessionData = session.session_data as any;
-        const messageCount = sessionData?.messages?.length || 0;
-        return sum + messageCount;
-      }, 0) || 0;
-      
-      const avgTurnsPerSession = totalSessions > 0 ? (totalTurns / totalSessions).toFixed(1) : '0';
-      
-      return {
-        totalSessions,
-        avgTurnsPerSession
-      };
-    }
-  });
+  
+  // Fetch Phoenix Analytics
+  const { data: phoenixStats, isLoading: phoenixLoading } = usePhoenixAnalytics();
 
   const adminSections = [
     {

@@ -10068,6 +10068,10 @@ export type Database = {
           completions: number
         }[]
       }
+      get_phoenix_analytics: {
+        Args: { p_user_id?: string }
+        Returns: Json
+      }
       get_public_platform_metrics: {
         Args: Record<PropertyKey, never>
         Returns: Json

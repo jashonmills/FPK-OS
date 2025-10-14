@@ -1,64 +1,39 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, TestTube, TrendingUp, Users, MessageSquare } from 'lucide-react';
+import { ArrowLeft, TestTube, TrendingUp, Users, MessageSquare, BarChart3, PieChart as PieChartIcon, LineChart as LineChartIcon, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 import { PodcastGallery } from '@/components/phoenix/PodcastGallery';
+import { usePhoenixAnalytics } from '@/hooks/usePhoenixAnalytics';
+import { IntentDistributionChart } from '@/components/analytics/IntentDistributionChart';
+import { PersonaUsageChart } from '@/components/analytics/PersonaUsageChart';
+import { EngagementChart } from '@/components/analytics/EngagementChart';
+import { GovernorActivityTable } from '@/components/analytics/GovernorActivityTable';
 
 export default function PhoenixAnalytics() {
   const navigate = useNavigate();
-
-  // Fetch Phoenix Analytics KPIs
-  const { data: phoenixStats, isLoading } = useQuery({
-    queryKey: ['phoenixAnalyticsKPIs'],
-    queryFn: async () => {
-      const { data: conversations, error } = await supabase
-        .from('phoenix_conversations')
-        .select('id, created_at, metadata');
-      
-      if (error) throw error;
-      
-      const totalSessions = conversations?.length || 0;
-      
-      // Get message counts
-      const { data: messages } = await supabase
-        .from('phoenix_messages')
-        .select('conversation_id, persona');
-      
-      const totalInteractions = messages?.length || 0;
-      
-      const avgTurnsPerSession = totalSessions > 0 
-        ? (totalInteractions / totalSessions).toFixed(1) 
-        : '0.0';
-      
-      return {
-        totalSessions,
-        totalInteractions,
-        avgTurnsPerSession,
-      };
-    },
-  });
+  
+  // Fetch all Phoenix Analytics
+  const { data: analytics, isLoading } = usePhoenixAnalytics();
 
   const stats = [
     {
       title: 'Total Sessions',
-      value: phoenixStats?.totalSessions || 0,
+      value: analytics?.totalSessions || 0,
       icon: Users,
       description: 'Phoenix Lab sessions',
       color: 'text-blue-600',
     },
     {
       title: 'Total Interactions',
-      value: phoenixStats?.totalInteractions || 0,
+      value: analytics?.totalInteractions || 0,
       icon: MessageSquare,
       description: 'User-AI exchanges',
       color: 'text-green-600',
     },
     {
       title: 'Avg Turns/Session',
-      value: phoenixStats?.avgTurnsPerSession || '0.0',
+      value: analytics?.avgTurnsPerSession || '0.0',
       icon: TrendingUp,
       description: 'Conversation depth',
       color: 'text-purple-600',
@@ -131,17 +106,70 @@ export default function PhoenixAnalytics() {
         </CardContent>
       </Card>
 
-      {/* Placeholder for Future Charts */}
+      {/* Analytics Visualizations */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Intent Distribution */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <PieChartIcon className="h-5 w-5 text-purple-600" />
+              <CardTitle>User Intent Distribution</CardTitle>
+            </div>
+            <CardDescription>
+              What are users trying to accomplish with our AI?
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <IntentDistributionChart data={analytics?.intentDistribution || []} />
+          </CardContent>
+        </Card>
+
+        {/* Persona Usage */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <BarChart3 className="h-5 w-5 text-blue-600" />
+              <CardTitle>AI Persona Usage</CardTitle>
+            </div>
+            <CardDescription>
+              Which AI personas are being used most frequently?
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <PersonaUsageChart data={analytics?.personaUsage || []} />
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Engagement Over Time */}
       <Card>
         <CardHeader>
-          <CardTitle>Coming Soon</CardTitle>
+          <div className="flex items-center gap-2">
+            <LineChartIcon className="h-5 w-5 text-green-600" />
+            <CardTitle>Engagement Over Time</CardTitle>
+          </div>
           <CardDescription>
-            Additional analytics visualizations and insights will be added here
+            Phoenix Lab session activity over the last 30 days
           </CardDescription>
         </CardHeader>
-        <CardContent className="text-center py-12 text-muted-foreground">
-          <TestTube className="h-16 w-16 mx-auto mb-4 opacity-50" />
-          <p>Session breakdown, conversation quality metrics, and more</p>
+        <CardContent>
+          <EngagementChart data={analytics?.engagementOverTime || []} />
+        </CardContent>
+      </Card>
+
+      {/* Governor Activity Log */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="h-5 w-5 text-yellow-600" />
+            <CardTitle>Governor Activity Log</CardTitle>
+          </div>
+          <CardDescription>
+            AI safety and quality control monitoring - flagged responses
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <GovernorActivityTable data={analytics?.governorActivity || []} />
         </CardContent>
       </Card>
     </div>
