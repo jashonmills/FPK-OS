@@ -5,15 +5,16 @@ import { useToast } from '@/hooks/use-toast';
 
 export interface PhoenixMessage {
   id: string;
-  role: 'user' | 'assistant';
+  persona: 'USER' | 'BETTY' | 'AL' | 'NITE_OWL';
   content: string;
   timestamp: string;
-  persona?: string;
-  audioUrl?: string;
+  intent?: string;
+  sentiment?: string;
 }
 
 export const usePhoenixSession = (userId?: string) => {
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [conversationId, setConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<PhoenixMessage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
@@ -33,41 +34,43 @@ export const usePhoenixSession = (userId?: string) => {
     try {
       setIsLoading(true);
       
-      // Get most recent active session
-      const { data: session, error: sessionError } = await supabase
+      // Get most recent conversation
+      const { data: conversation, error: conversationError } = await supabase
         .from('phoenix_conversations')
         .select('*')
         .eq('user_id', userId)
-        .eq('status', 'active')
-        .order('last_active_at', { ascending: false })
+        .order('updated_at', { ascending: false })
         .limit(1)
         .maybeSingle();
 
-      if (sessionError) throw sessionError;
+      if (conversationError) throw conversationError;
 
-      if (session) {
-        // Load messages for this session
+      if (conversation) {
+        // Load messages for this conversation
         const { data: msgs, error: msgsError } = await supabase
           .from('phoenix_messages')
           .select('*')
-          .eq('conversation_id', session.id)
+          .eq('conversation_id', conversation.id)
           .order('created_at', { ascending: true });
 
         if (msgsError) throw msgsError;
 
-        setSessionId(session.id);
+        setConversationId(conversation.id);
+        setSessionId(conversation.session_id);
         setMessages(msgs?.map(m => ({
           id: m.id,
-          role: m.role as 'user' | 'assistant',
+          persona: m.persona as 'USER' | 'BETTY' | 'AL' | 'NITE_OWL',
           content: m.content,
           timestamp: m.created_at,
-          persona: m.persona,
-          audioUrl: m.audio_url
+          intent: m.intent || undefined,
+          sentiment: m.sentiment || undefined,
         })) || []);
         
-        logger.info('Loaded active Phoenix session', 'PHOENIX_SESSION', { sessionId: session.id, messageCount: msgs?.length });
+        logger.info('Loaded active Phoenix session', 'PHOENIX_SESSION', { 
+          conversationId: conversation.id, 
+          messageCount: msgs?.length 
+        });
       } else {
-        // No active session, will create one when user starts chatting
         logger.info('No active Phoenix session found', 'PHOENIX_SESSION');
       }
     } catch (error) {
@@ -84,41 +87,36 @@ export const usePhoenixSession = (userId?: string) => {
     }
 
     try {
-      // Mark current session as archived if exists
-      if (sessionId) {
-        await supabase
-          .from('phoenix_conversations')
-          .update({ status: 'archived', updated_at: new Date().toISOString() })
-          .eq('id', sessionId);
-      }
+      const newSessionId = crypto.randomUUID();
 
-      // Create new session
+      // Create new conversation
       const { data, error } = await supabase
         .from('phoenix_conversations')
         .insert({
           user_id: userId,
-          session_title: 'New Phoenix Session',
-          status: 'active',
-          session_metadata: {},
-          last_active_at: new Date().toISOString()
+          session_id: newSessionId,
+          metadata: {},
         })
-        .select('id')
+        .select('id, session_id')
         .single();
 
       if (error) throw error;
 
-      setSessionId(data.id);
+      setConversationId(data.id);
+      setSessionId(data.session_id);
       setMessages([]);
       
-      logger.info('Started new Phoenix session', 'PHOENIX_SESSION', { sessionId: data.id });
+      logger.info('Started new Phoenix session', 'PHOENIX_SESSION', { 
+        conversationId: data.id,
+        sessionId: data.session_id 
+      });
       
       toast({
         title: 'New chat started',
-        description: 'Previous chat archived',
         duration: 2000
       });
 
-      return data.id;
+      return data.session_id;
     } catch (error) {
       logger.error('Failed to start new session', 'PHOENIX_SESSION', error);
       toast({
@@ -128,52 +126,68 @@ export const usePhoenixSession = (userId?: string) => {
       });
       return null;
     }
-  }, [userId, sessionId, toast]);
+  }, [userId, toast]);
 
-  const ensureSession = useCallback(async (): Promise<string | null> => {
-    if (sessionId) return sessionId;
+  const ensureSession = useCallback(async (): Promise<{ conversationId: string; sessionId: string } | null> => {
+    if (conversationId && sessionId) {
+      return { conversationId, sessionId };
+    }
     
     // Create initial session if none exists
     if (!userId) return null;
     
     try {
+      const newSessionId = crypto.randomUUID();
+      
       const { data, error } = await supabase
         .from('phoenix_conversations')
         .insert({
           user_id: userId,
-          session_title: 'Phoenix Session',
-          status: 'active',
-          session_metadata: {},
-          last_active_at: new Date().toISOString()
+          session_id: newSessionId,
+          metadata: {},
         })
-        .select('id')
+        .select('id, session_id')
         .single();
 
       if (error) throw error;
 
-      setSessionId(data.id);
-      logger.info('Created initial Phoenix session', 'PHOENIX_SESSION', { sessionId: data.id });
-      return data.id;
+      setConversationId(data.id);
+      setSessionId(data.session_id);
+      logger.info('Created initial Phoenix session', 'PHOENIX_SESSION', { 
+        conversationId: data.id,
+        sessionId: data.session_id 
+      });
+      
+      return { conversationId: data.id, sessionId: data.session_id };
     } catch (error) {
       logger.error('Failed to ensure session', 'PHOENIX_SESSION', error);
       return null;
     }
-  }, [sessionId, userId]);
+  }, [conversationId, sessionId, userId]);
 
   const saveMessage = useCallback(async (message: Omit<PhoenixMessage, 'id' | 'timestamp'>): Promise<PhoenixMessage | null> => {
-    const currentSessionId = await ensureSession();
-    if (!currentSessionId) return null;
+    const session = await ensureSession();
+    if (!session) return null;
 
     try {
+      // Ensure valid intent and sentiment values
+      const validIntent = message.intent && 
+        ['frustrated_vent', 'general_chat', 'quick_question', 'socratic_exploration', 'story_request', 'unclear', 'video_assessment'].includes(message.intent)
+        ? message.intent
+        : 'general_chat';
+      
+      const validSentiment = message.sentiment || 'neutral';
+
       const { data, error } = await supabase
         .from('phoenix_messages')
-        .insert({
-          conversation_id: currentSessionId,
-          role: message.role,
-          content: message.content,
+        .insert([{
+          conversation_id: session.conversationId,
           persona: message.persona,
-          audio_url: message.audioUrl
-        })
+          content: message.content,
+          intent: validIntent as 'frustrated_vent' | 'general_chat' | 'quick_question' | 'socratic_exploration' | 'story_request' | 'unclear' | 'video_assessment',
+          sentiment: validSentiment,
+          metadata: {},
+        }])
         .select('*')
         .single();
 
@@ -181,20 +195,20 @@ export const usePhoenixSession = (userId?: string) => {
 
       const savedMessage: PhoenixMessage = {
         id: data.id,
-        role: data.role as 'user' | 'assistant',
+        persona: data.persona as 'USER' | 'BETTY' | 'AL' | 'NITE_OWL',
         content: data.content,
         timestamp: data.created_at,
-        persona: data.persona,
-        audioUrl: data.audio_url
+        intent: data.intent || undefined,
+        sentiment: data.sentiment || undefined,
       };
 
       setMessages(prev => [...prev, savedMessage]);
 
-      // Update last_active_at
+      // Update conversation updated_at
       await supabase
         .from('phoenix_conversations')
-        .update({ last_active_at: new Date().toISOString() })
-        .eq('id', currentSessionId);
+        .update({ updated_at: new Date().toISOString() })
+        .eq('id', session.conversationId);
 
       return savedMessage;
     } catch (error) {
@@ -203,53 +217,43 @@ export const usePhoenixSession = (userId?: string) => {
     }
   }, [ensureSession]);
 
-  const loadSession = useCallback(async (id: string) => {
+  const loadSession = useCallback(async (targetConversationId: string) => {
     try {
       setIsLoading(true);
 
-      // Mark current session as archived
-      if (sessionId) {
-        await supabase
-          .from('phoenix_conversations')
-          .update({ status: 'archived' })
-          .eq('id', sessionId);
-      }
-
-      // Load selected session
-      const { data: session, error: sessionError } = await supabase
+      // Load selected conversation
+      const { data: conversation, error: conversationError } = await supabase
         .from('phoenix_conversations')
         .select('*')
-        .eq('id', id)
+        .eq('id', targetConversationId)
         .single();
 
-      if (sessionError) throw sessionError;
-
-      // Mark as active
-      await supabase
-        .from('phoenix_conversations')
-        .update({ status: 'active', last_active_at: new Date().toISOString() })
-        .eq('id', id);
+      if (conversationError) throw conversationError;
 
       // Load messages
       const { data: msgs, error: msgsError } = await supabase
         .from('phoenix_messages')
         .select('*')
-        .eq('conversation_id', id)
+        .eq('conversation_id', targetConversationId)
         .order('created_at', { ascending: true });
 
       if (msgsError) throw msgsError;
 
-      setSessionId(id);
+      setConversationId(conversation.id);
+      setSessionId(conversation.session_id);
       setMessages(msgs?.map(m => ({
         id: m.id,
-        role: m.role as 'user' | 'assistant',
+        persona: m.persona as 'USER' | 'BETTY' | 'AL' | 'NITE_OWL',
         content: m.content,
         timestamp: m.created_at,
-        persona: m.persona,
-        audioUrl: m.audio_url
+        intent: m.intent || undefined,
+        sentiment: m.sentiment || undefined,
       })) || []);
 
-      logger.info('Loaded Phoenix session', 'PHOENIX_SESSION', { sessionId: id, messageCount: msgs?.length });
+      logger.info('Loaded Phoenix session', 'PHOENIX_SESSION', { 
+        conversationId: targetConversationId, 
+        messageCount: msgs?.length 
+      });
       
       toast({
         title: 'Chat loaded',
@@ -266,7 +270,7 @@ export const usePhoenixSession = (userId?: string) => {
     } finally {
       setIsLoading(false);
     }
-  }, [sessionId, toast]);
+  }, [toast]);
 
   const addMessageToState = useCallback((message: PhoenixMessage) => {
     setMessages(prev => [...prev, message]);
@@ -274,6 +278,7 @@ export const usePhoenixSession = (userId?: string) => {
 
   return {
     sessionId,
+    conversationId,
     messages,
     isLoading,
     startNewSession,
