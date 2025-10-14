@@ -1593,11 +1593,11 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
               
               console.log('[CONDUCTOR] 📤 Sending handoff message to client');
               controller.enqueue(new TextEncoder().encode(handoffMessage));
+              }
             } else {
               console.error('[CONDUCTOR] ❌ Handoff response failed:', await handoffResponse.text());
             }
           } // End of NITE_OWL handoff
-          } // End of if (conversationUuid)
 
           // 12. Check if we should trigger podcast generation (async, non-blocking)
           if (selectedPersona === 'BETTY' && totalBettyTurns >= 6) {
