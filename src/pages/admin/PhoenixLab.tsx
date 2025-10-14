@@ -8,7 +8,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Send, Sparkles, Brain, TestTube, AlertCircle, ArrowLeft, Mic, Volume2, VolumeX, RotateCcw, History, User, X } from 'lucide-react';
+import { Loader2, Send, Sparkles, Brain, TestTube, AlertCircle, ArrowLeft, Mic, Volume2, VolumeX, RotateCcw, History, User, X, ChevronUp, ChevronDown } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { useQuery } from '@tanstack/react-query';
@@ -60,6 +60,64 @@ const WELCOME_MESSAGES: Omit<Message, 'id' | 'created_at'>[] = [
   }
 ];
 
+// Phase features data
+const PHASE_FEATURES = {
+  1: [
+    'Database Schema',
+    'Conversation Storage',
+    'Message Persistence',
+    'Session Management',
+    'Basic UI Shell',
+    'Auth Integration',
+  ],
+  2: [
+    'Dual Persona System',
+    'Intent Classification',
+    'Sentiment Analysis',
+    'Response Routing',
+    'Basic Prompts',
+    'Context Handling',
+  ],
+  3: [
+    'Modular Prompt Architecture',
+    'Betty (Socratic + AVCQ)',
+    'Al (Direct Expert)',
+    'Al Socratic Support',
+    '5-Intent Detection',
+    'Socratic Handoff',
+    'Streaming UI',
+    'Voice I/O (STT/TTS)',
+    'Governor Verification',
+    'Audio Caching',
+  ],
+  4: [
+    'Podcast Generation',
+    'Aha Moment Detection',
+    'Multi-Speaker Audio',
+    'Analytics Dashboard',
+    'Context Persistence',
+    'Learning Path Mapping',
+    'Knowledge Graph',
+    'Advanced Metrics',
+    'Multi-Session Memory',
+    'Adaptive Scaffolding',
+  ],
+} as const;
+
+const PHASE_COMPLETION_STATUS = {
+  1: 'all', // All features complete
+  2: 'all', // All features complete
+  3: 'all', // All features complete
+  4: 'partial', // Some features complete
+} as const;
+
+const PHASE_4_COMPLETED = [
+  'Podcast Generation',
+  'Aha Moment Detection',
+  'Multi-Speaker Audio',
+  'Analytics Dashboard',
+];
+
 export default function PhoenixLab() {
   const navigate = useNavigate();
   const [messages, setMessages] = useState<Message[]>([]);
@@ -75,6 +133,7 @@ export default function PhoenixLab() {
   const [hasUserStartedChat, setHasUserStartedChat] = useState(false); // Start chat trigger
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [selectedHistorySession, setSelectedHistorySession] = useState<any>(null);
+  const [currentPhase, setCurrentPhase] = useState(4); // Start at current phase
   const activeAudioElements = React.useRef<Set<HTMLAudioElement>>(new Set());
   const audioLockRef = React.useRef(false);
   const playedMessagesRef = React.useRef<Set<string>>(new Set());
@@ -1039,18 +1098,41 @@ export default function PhoenixLab() {
             </div>
             <Separator />
             <div>
-              <h4 className="font-semibold mb-2">Phase 4 Features</h4>
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="font-semibold">Phase {currentPhase} Features</h4>
+                <div className="flex gap-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                    onClick={() => setCurrentPhase(prev => Math.max(1, prev - 1))}
+                    disabled={currentPhase === 1}
+                  >
+                    <ChevronUp className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                    onClick={() => setCurrentPhase(prev => Math.min(4, prev + 1))}
+                    disabled={currentPhase === 4}
+                  >
+                    <ChevronDown className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
               <ul className="text-sm space-y-1">
-                <li>✅ Podcast Generation</li>
-                <li>✅ Aha Moment Detection</li>
-                <li>✅ Multi-Speaker Audio</li>
-                <li>✅ Analytics Dashboard</li>
-                <li>⏳ Context Persistence</li>
-                <li>⏳ Learning Path Mapping</li>
-                <li>⏳ Knowledge Graph</li>
-                <li>⏳ Advanced Metrics</li>
-                <li>⏳ Multi-Session Memory</li>
-                <li>⏳ Adaptive Scaffolding</li>
+                {PHASE_FEATURES[currentPhase as keyof typeof PHASE_FEATURES].map((feature) => {
+                  const isComplete = 
+                    PHASE_COMPLETION_STATUS[currentPhase as keyof typeof PHASE_COMPLETION_STATUS] === 'all' ||
+                    (currentPhase === 4 && PHASE_4_COMPLETED.includes(feature));
+                  
+                  return (
+                    <li key={feature}>
+                      {isComplete ? '✅' : '⏳'} {feature}
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           </CardContent>
