@@ -895,7 +895,7 @@ serve(async (req) => {
     // 3a. Check/Initialize session state for Nite Owl triggering
     let sessionState = await supabaseClient
       .from('phoenix_conversations')
-      .select('metadata')
+      .select('metadata, updated_at')
       .eq('session_id', conversationId)
       .single();
 
@@ -903,6 +903,22 @@ serve(async (req) => {
     // PHASE 5.1: Lowered threshold - 5-8 turns instead of 4-6
     let nextInterjectionPoint = sessionState.data?.metadata?.nextInterjectionPoint || (Math.floor(Math.random() * 4) + 5); // 5-8
     let totalBettyTurns = sessionState.data?.metadata?.totalBettyTurns || 0;
+    let lastNiteOwlTurn = sessionState.data?.metadata?.lastNiteOwlTurn || -99;
+    
+    // CRITICAL FIX: Detect session resumption (returning after >5 minutes)
+    const lastUpdated = sessionState.data?.updated_at ? new Date(sessionState.data.updated_at) : null;
+    const timeSinceLastUpdate = lastUpdated ? Date.now() - lastUpdated.getTime() : 0;
+    const isResuming = lastUpdated && timeSinceLastUpdate > 5 * 60 * 1000; // > 5 minutes
+    
+    if (isResuming && conversationHistory.length > 0) {
+      console.log('[CONDUCTOR] 🔄 Session resumption detected (inactive for', Math.round(timeSinceLastUpdate / 60000), 'minutes)');
+      console.log('[CONDUCTOR] 🔄 Resetting Nite Owl trigger to prevent immediate re-trigger');
+      
+      // Reset Nite Owl counter to prevent immediate trigger on resume
+      socraticTurnCounter = 0;
+      nextInterjectionPoint = Math.floor(Math.random() * 4) + 5;
+      lastNiteOwlTurn = -99;
+    }
 
     // 4. Get Lovable AI API Key
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
@@ -1092,38 +1108,46 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
     let niteOwlTriggerReason = '';
     
     if (inBettySession && detectedIntent === 'socratic_guidance') {
-      // PHASE 5.1: STRUGGLE DETECTION
-      // Check if user is stuck on the same concept for multiple turns
-      const recentUserMessages = conversationHistory
-        .filter(m => m.persona === 'USER')
-        .slice(-4); // Last 4 user messages
+      // CRITICAL FIX: Trigger lock - prevent Nite Owl from triggering twice in a row
+      const currentTurnIndex = conversationHistory.length;
+      const turnsSinceLastNiteOwl = currentTurnIndex - lastNiteOwlTurn;
       
-      if (recentUserMessages.length >= 3) {
-        // Detect short, frustrated responses or repeated similar questions
-        const shortResponses = recentUserMessages.filter(m => m.content.length < 50).length;
-        const hasRepetition = recentUserMessages.some((msg, idx) => {
-          if (idx === 0) return false;
-          const prevMsg = recentUserMessages[idx - 1];
-          // Simple keyword overlap check
-          const words1 = new Set(msg.content.toLowerCase().split(/\s+/));
-          const words2 = new Set(prevMsg.content.toLowerCase().split(/\s+/));
-          const overlap = [...words1].filter(w => words2.has(w) && w.length > 3).length;
-          return overlap >= 3; // At least 3 significant words overlap
-        });
+      if (turnsSinceLastNiteOwl < 3) {
+        console.log('[CONDUCTOR] 🔒 Nite Owl trigger LOCKED - only', turnsSinceLastNiteOwl, 'turns since last appearance');
+      } else {
+        // PHASE 5.1: STRUGGLE DETECTION
+        // Check if user is stuck on the same concept for multiple turns
+        const recentUserMessages = conversationHistory
+          .filter(m => m.persona === 'USER')
+          .slice(-4); // Last 4 user messages
         
-        if (shortResponses >= 2 || hasRepetition) {
-          shouldTriggerNiteOwl = true;
-          niteOwlTriggerReason = 'struggle_detected';
-          console.log('[CONDUCTOR] 🦉 Nite Owl triggered - STRUGGLE DETECTED');
+        if (recentUserMessages.length >= 3) {
+          // Detect short, frustrated responses or repeated similar questions
+          const shortResponses = recentUserMessages.filter(m => m.content.length < 50).length;
+          const hasRepetition = recentUserMessages.some((msg, idx) => {
+            if (idx === 0) return false;
+            const prevMsg = recentUserMessages[idx - 1];
+            // Simple keyword overlap check
+            const words1 = new Set(msg.content.toLowerCase().split(/\s+/));
+            const words2 = new Set(prevMsg.content.toLowerCase().split(/\s+/));
+            const overlap = [...words1].filter(w => words2.has(w) && w.length > 3).length;
+            return overlap >= 3; // At least 3 significant words overlap
+          });
+          
+          if (shortResponses >= 2 || hasRepetition) {
+            shouldTriggerNiteOwl = true;
+            niteOwlTriggerReason = 'struggle_detected';
+            console.log('[CONDUCTOR] 🦉 Nite Owl triggered - STRUGGLE DETECTED');
+          }
         }
-      }
-      
-      // PHASE 5.1: LOWERED RANDOM THRESHOLD
-      // Original: every 8-12 turns. New: every 5-8 turns (more frequent)
-      if (!shouldTriggerNiteOwl && socraticTurnCounter >= nextInterjectionPoint) {
-        shouldTriggerNiteOwl = true;
-        niteOwlTriggerReason = 'random_timer';
-        console.log('[CONDUCTOR] 🦉 Nite Owl interjection triggered - RANDOM TIMER');
+        
+        // PHASE 5.1: LOWERED RANDOM THRESHOLD
+        // Original: every 8-12 turns. New: every 5-8 turns (more frequent)
+        if (!shouldTriggerNiteOwl && socraticTurnCounter >= nextInterjectionPoint) {
+          shouldTriggerNiteOwl = true;
+          niteOwlTriggerReason = 'random_timer';
+          console.log('[CONDUCTOR] 🦉 Nite Owl interjection triggered - RANDOM TIMER');
+        }
       }
     }
 
@@ -1166,9 +1190,13 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
       // PHASE 5.1: Lowered threshold - now 5-8 turns instead of 8-12
       nextInterjectionPoint = Math.floor(Math.random() * 4) + 5; // 5-8 turns
       
+      // CRITICAL FIX: Mark this turn so we don't trigger again immediately
+      lastNiteOwlTurn = conversationHistory.length;
+      
       // CRITICAL: Do NOT increment Betty turn counter or process any other logic
       // The if-else chain ensures this, but logging for clarity
       console.log('[CONDUCTOR] Nite Owl has priority - skipping all Betty/Al logic');
+      console.log('[CONDUCTOR] Last Nite Owl turn marked as:', lastNiteOwlTurn);
       
     } else if (shouldTriggerCoResponse) {
       // ⭐⭐ PHASE 5.2: CO-RESPONSE MODE - Al validates, then Betty deepens
@@ -1804,6 +1832,7 @@ Keep it under 100 words.`;
                   socraticTurnCounter,
                   nextInterjectionPoint,
                   totalBettyTurns,
+                  lastNiteOwlTurn,
                   created_from: 'orchestrator'
                 }
               })
@@ -1902,8 +1931,10 @@ Keep it under 100 words.`;
                 socraticTurnCounter,
                 nextInterjectionPoint,
                 totalBettyTurns,
+                lastNiteOwlTurn,
                 lastUpdated: new Date().toISOString()
-              }
+              },
+              updated_at: new Date().toISOString()
             })
             .eq('session_id', conversationId);
 
