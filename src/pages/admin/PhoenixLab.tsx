@@ -768,9 +768,54 @@ export default function PhoenixLab() {
                   console.log('[PHOENIX] Auto-playing handoff audio');
                   await playAudio(data.audioUrl, handoffMessageId);
                 }
+              } else if (data.type === 'co_response_al') {
+                // PHASE 5.2: Co-Response Part 1 - Al's validation
+                console.log('[PHOENIX] 🤝✨ Co-Response: Al validates (Part 1)');
+                
+                const alMessageId = crypto.randomUUID();
+                const alMessage: Message = {
+                  id: alMessageId,
+                  persona: 'AL',
+                  content: data.content,
+                  created_at: new Date().toISOString(),
+                  isStreaming: false,
+                  metadata: {
+                    isCoResponse: true,
+                    coResponsePart: 1,
+                    answerQuality: data.metadata?.answerQuality
+                  }
+                };
+                
+                setMessages(prev => [...prev, alMessage]);
+                
+              } else if (data.type === 'co_response_betty') {
+                // PHASE 5.2: Co-Response Part 2 - Betty's follow-up
+                console.log('[PHOENIX] 🤝✨ Co-Response: Betty deepens (Part 2)');
+                
+                const bettyMessageId = crypto.randomUUID();
+                const bettyMessage: Message = {
+                  id: bettyMessageId,
+                  persona: 'BETTY',
+                  content: data.content,
+                  created_at: new Date().toISOString(),
+                  isStreaming: false,
+                  metadata: {
+                    isCoResponse: true,
+                    coResponsePart: 2
+                  }
+                };
+                
+                setMessages(prev => [...prev, bettyMessage]);
+                
               } else if (data.type === 'done') {
                 console.log('[PHOENIX] Stream done event:', data.metadata);
                 isStreamingActive = false;
+                
+                // PHASE 5.2: Skip normal processing for co-response (already handled)
+                if (data.isCoResponse) {
+                  console.log('[PHOENIX] ✨ Co-response complete - skipping normal done processing');
+                  continue; // Co-response messages already added, nothing more to do
+                }
                 
                 // CRITICAL FIX: Use the finalText from done event, not accumulated chunks
                 // This ensures text-audio synchronization even if Governor modified the response
@@ -1637,9 +1682,17 @@ export default function PhoenixLab() {
                           >
                             <CardContent className="p-3">
                               {msg.persona && msg.role !== 'user' && (
-                                <Badge variant="secondary" className="mb-2 text-xs">
-                                  {msg.persona === 'betty' ? 'Betty' : msg.persona === 'al' ? 'Al' : 'Assistant'}
-                                </Badge>
+                                <div className="flex items-center gap-2 mb-2">
+                                  <Badge variant="secondary" className="text-xs">
+                                    {msg.persona === 'betty' ? 'Betty' : msg.persona === 'al' ? 'Al' : 'Assistant'}
+                                  </Badge>
+                                  {msg.metadata?.isCoResponse && (
+                                    <Badge variant="outline" className="text-xs flex items-center gap-1">
+                                      <Sparkles className="w-3 h-3" />
+                                      {msg.metadata.coResponsePart === 1 ? 'Validates' : 'Deepens'}
+                                    </Badge>
+                                  )}
+                                </div>
                               )}
                               <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
                             </CardContent>

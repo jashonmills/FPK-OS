@@ -943,6 +943,99 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
     // 6. Sentiment Analysis (simple for now)
     const detectedSentiment = 'Neutral';
 
+    // PHASE 5.2: Answer Quality Evaluation for Co-Response Triggering
+    // Check if user just responded to Betty with a "good but incomplete" answer
+    let shouldTriggerCoResponse = false;
+    let answerQualityScore = 0;
+    
+    if (inBettySession && detectedIntent === 'socratic_guidance') {
+      // Only evaluate if there's a recent Betty question
+      const lastBettyMessage = conversationHistory
+        .slice()
+        .reverse()
+        .find(m => m.persona === 'BETTY');
+      
+      if (lastBettyMessage) {
+        console.log('[CO-RESPONSE] 🔍 Evaluating user answer quality for co-response trigger...');
+        
+        try {
+          const evaluationResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model: 'google/gemini-2.5-flash',
+              messages: [
+                { 
+                  role: 'system', 
+                  content: 'You are evaluating a student\'s response to a Socratic teaching question. Assess whether the answer shows partial understanding but lacks depth or completeness.' 
+                },
+                { 
+                  role: 'user', 
+                  content: `Betty asked: "${lastBettyMessage.content}"\n\nStudent responded: "${message}"\n\nEvaluate this response.` 
+                }
+              ],
+              tools: [
+                {
+                  type: 'function',
+                  function: {
+                    name: 'evaluate_answer',
+                    description: 'Evaluate student answer quality',
+                    parameters: {
+                      type: 'object',
+                      properties: {
+                        correctness: {
+                          type: 'number',
+                          description: 'Score from 0-100 on factual correctness'
+                        },
+                        depth: {
+                          type: 'number',
+                          description: 'Score from 0-100 on conceptual depth and completeness'
+                        },
+                        trigger_co_response: {
+                          type: 'boolean',
+                          description: 'True if answer is partially correct (60-85% correctness) but shallow (depth < 60%). This indicates a "good but incomplete" answer perfect for Al+Betty collaboration.'
+                        },
+                        reasoning: {
+                          type: 'string',
+                          description: 'Brief explanation'
+                        }
+                      },
+                      required: ['correctness', 'depth', 'trigger_co_response', 'reasoning'],
+                      additionalProperties: false
+                    }
+                  }
+                }
+              ],
+              tool_choice: { type: 'function', function: { name: 'evaluate_answer' } }
+            }),
+          });
+
+          if (evaluationResponse.ok) {
+            const evalData = await evaluationResponse.json();
+            const toolCall = evalData.choices[0]?.message?.tool_calls?.[0];
+            
+            if (toolCall) {
+              const evaluation = JSON.parse(toolCall.function.arguments);
+              shouldTriggerCoResponse = evaluation.trigger_co_response;
+              answerQualityScore = evaluation.correctness;
+              
+              console.log('[CO-RESPONSE] Answer quality:', {
+                correctness: evaluation.correctness,
+                depth: evaluation.depth,
+                shouldTrigger: shouldTriggerCoResponse,
+                reasoning: evaluation.reasoning
+              });
+            }
+          }
+        } catch (error) {
+          console.error('[CO-RESPONSE] Evaluation error (non-blocking):', error);
+        }
+      }
+    }
+
     // 7. Check if Nite Owl should interject (only during Betty sessions)
     let shouldTriggerNiteOwl = false;
     let niteOwlTriggerReason = '';
@@ -1008,6 +1101,7 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
     let selectedPersona: string;
     let systemPrompt: string;
     let isSocraticHandoff = false;
+    let isCoResponse = false; // PHASE 5.2: New flag for co-response mode
 
     if (shouldTriggerNiteOwl) {
       // ⭐ HIGHEST PRIORITY: NITE OWL INTERJECTION
@@ -1024,6 +1118,16 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
       // CRITICAL: Do NOT increment Betty turn counter or process any other logic
       // The if-else chain ensures this, but logging for clarity
       console.log('[CONDUCTOR] Nite Owl has priority - skipping all Betty/Al logic');
+      
+    } else if (shouldTriggerCoResponse) {
+      // ⭐⭐ PHASE 5.2: CO-RESPONSE MODE - Al validates, then Betty deepens
+      isCoResponse = true;
+      selectedPersona = 'CO_RESPONSE'; // Special mode flag
+      console.log('[CO-RESPONSE] 🤝✨ Triggering Socratic Sandwich - Al + Betty collaboration');
+      
+      // We'll handle the dual response generation after the normal flow
+      // For now, set Betty as the primary persona (we'll override later)
+      systemPrompt = buildBettySystemPrompt(userMemories);
       
     } else if (detectedIntent === 'request_for_clarification' && inBettySession) {
       // SOCRATIC HANDOFF: Al provides factual support during Betty's session
@@ -1076,6 +1180,242 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
 
     // 10. Generate AI Response with Appropriate Persona
     console.log('[CONDUCTOR] Generating response with', selectedPersona, 'persona...');
+    
+    // PHASE 5.2: Fetch conversation UUID early (needed for co-response and normal modes)
+    let conversationUuid: string | undefined;
+    const { data: convData, error: convError } = await supabaseClient
+      .from('phoenix_conversations')
+      .select('id')
+      .eq('session_id', conversationId)
+      .maybeSingle();
+    
+    if (convError) {
+      console.error('[CONDUCTOR] ❌ Error fetching conversation:', convError);
+    } else if (convData) {
+      conversationUuid = convData.id;
+      console.log('[CONDUCTOR] ✅ Using existing conversation UUID:', conversationUuid);
+    } else {
+      // Create new conversation record
+      const { data: newConv, error: newConvError } = await supabaseClient
+        .from('phoenix_conversations')
+        .insert({
+          session_id: conversationId,
+          user_id: user.id,
+          started_at: new Date().toISOString(),
+          metadata: {
+            socraticTurnCounter,
+            nextInterjectionPoint,
+            totalBettyTurns
+          }
+        })
+        .select('id')
+        .single();
+      
+      if (newConvError) {
+        console.error('[CONDUCTOR] ❌ Error creating conversation:', newConvError);
+      } else {
+        conversationUuid = newConv.id;
+        console.log('[CONDUCTOR] ✅ Created new conversation UUID:', conversationUuid);
+      }
+    }
+    
+    // PHASE 5.2: CO-RESPONSE MODE - Generate TWO responses (Al + Betty)
+    if (isCoResponse) {
+      console.log('[CO-RESPONSE] 🤝 Generating dual response: Al validates + Betty deepens');
+      
+      // Get last Betty question and user's answer for context
+      const lastBettyMessage = conversationHistory
+        .slice()
+        .reverse()
+        .find(m => m.persona === 'BETTY');
+      
+      // Generate Al's validation response
+      const alValidationPrompt = `You are Al, the direct answer expert. A student just answered Betty's Socratic question.
+
+Betty asked: "${lastBettyMessage?.content}"
+Student answered: "${message}"
+
+The student's answer is partially correct (score: ${answerQualityScore}/100) but lacks depth. Your job:
+1. Validate what they got RIGHT (be specific about the factual parts)
+2. Keep it brief and encouraging (2-3 sentences max)
+3. DON'T ask follow-up questions - that's Betty's job
+
+Example: "That's exactly right, ${user?.user_metadata?.full_name || 'there'}! You've correctly identified the key relationship between X and Y. Your explanation of the core concept is solid."`;
+
+      const bettyFollowUpPrompt = `You are Betty, the Socratic teacher. Al just validated a student's partially correct answer.
+
+Betty's original question: "${lastBettyMessage?.content}"
+Student's answer: "${message}"
+Al's validation: [Will be inserted after Al responds]
+
+Now it's your turn. Build on Al's validation to ask a deeper Socratic question that:
+1. Acknowledges their progress ("Building on that perfect description...")
+2. Pushes them to explore the IMPLICATIONS or MECHANISMS of what they just said
+3. Uses real Socratic questioning (not just "tell me more")
+
+Keep it under 100 words.`;
+
+      const alResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'google/gemini-2.5-flash',
+          messages: [
+            { role: 'system', content: buildAlSystemPrompt(studentContext, userMemories) },
+            ...conversationHistory.slice(-5).map(msg => ({
+              role: msg.persona === 'USER' ? 'user' : 'assistant',
+              content: msg.content
+            })),
+            { role: 'user', content: alValidationPrompt }
+          ],
+          temperature: 0.6,
+          max_tokens: 200,
+          stream: false // Non-streaming for Co-Response
+        }),
+      });
+
+      if (!alResponse.ok) {
+        console.error('[CO-RESPONSE] Al validation failed, falling back to normal mode');
+        isCoResponse = false; // Fallback
+      }
+      
+      const alData = await alResponse.json();
+      const alValidationText = alData.choices?.[0]?.message?.content || '';
+      console.log('[CO-RESPONSE] ✅ Al validation generated:', alValidationText.substring(0, 80));
+      
+      // Generate Betty's follow-up with Al's validation as context
+      const bettyFollowUpPromptWithContext = bettyFollowUpPrompt.replace(
+        '[Will be inserted after Al responds]',
+        alValidationText
+      );
+      
+      const bettyResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'google/gemini-2.5-flash',
+          messages: [
+            { role: 'system', content: buildBettySystemPrompt(userMemories) },
+            ...conversationHistory.slice(-5).map(msg => ({
+              role: msg.persona === 'USER' ? 'user' : 'assistant',
+              content: msg.content
+            })),
+            { role: 'assistant', content: alValidationText }, // Al's validation
+            { role: 'user', content: bettyFollowUpPromptWithContext }
+          ],
+          temperature: 0.8,
+          max_tokens: 300,
+          stream: false // Non-streaming for Co-Response
+        }),
+      });
+
+      if (!bettyResponse.ok) {
+        console.error('[CO-RESPONSE] Betty follow-up failed, falling back to normal mode');
+        isCoResponse = false; // Fallback
+      }
+      
+      const bettyData = await bettyResponse.json();
+      const bettyFollowUpText = bettyData.choices?.[0]?.message?.content || '';
+      console.log('[CO-RESPONSE] ✅ Betty follow-up generated:', bettyFollowUpText.substring(0, 80));
+      
+      // Create a special streaming response that sends both messages
+      const coResponseStream = new ReadableStream({
+        async start(controller) {
+          try {
+            // Send Al's validation message
+            const alMessage = `data: ${JSON.stringify({
+              type: 'co_response_al',
+              persona: 'AL',
+              content: alValidationText,
+              metadata: {
+                isCoResponse: true,
+                part: 1,
+                answerQuality: answerQualityScore
+              }
+            })}\n\n`;
+            controller.enqueue(new TextEncoder().encode(alMessage));
+            
+            // Small delay for UX (so they appear sequentially)
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // Send Betty's follow-up message
+            const bettyMessage = `data: ${JSON.stringify({
+              type: 'co_response_betty',
+              persona: 'BETTY',
+              content: bettyFollowUpText,
+              metadata: {
+                isCoResponse: true,
+                part: 2
+              }
+            })}\n\n`;
+            controller.enqueue(new TextEncoder().encode(bettyMessage));
+            
+            // Send completion
+            const doneMessage = `data: ${JSON.stringify({
+              type: 'done',
+              isCoResponse: true,
+              metadata: {
+                conversationId,
+                selectedPersona: 'CO_RESPONSE',
+                detectedIntent,
+                answerQualityScore
+              }
+            })}\n\n`;
+            controller.enqueue(new TextEncoder().encode(doneMessage));
+            
+            console.log('[CO-RESPONSE] ✨ Socratic Sandwich delivered successfully');
+            controller.close();
+            
+            // Store both messages in database
+            if (conversationUuid) {
+              await supabaseClient.from('phoenix_messages').insert([
+                {
+                  conversation_id: conversationUuid,
+                  persona: 'AL',
+                  content: alValidationText,
+                  metadata: {
+                    isCoResponse: true,
+                    part: 1,
+                    answerQuality: answerQualityScore
+                  }
+                },
+                {
+                  conversation_id: conversationUuid,
+                  persona: 'BETTY',
+                  content: bettyFollowUpText,
+                  metadata: {
+                    isCoResponse: true,
+                    part: 2
+                  }
+                }
+              ]);
+              console.log('[CO-RESPONSE] ✅ Both messages stored in database');
+            }
+            
+          } catch (error) {
+            console.error('[CO-RESPONSE] Stream error:', error);
+            controller.error(error);
+          }
+        }
+      });
+      
+      return new Response(coResponseStream, {
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          'Connection': 'keep-alive',
+        },
+      });
+    }
+    
+    // NORMAL MODE: Single persona response with streaming
     const personaResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
