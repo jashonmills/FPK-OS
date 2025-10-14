@@ -105,10 +105,14 @@ Deno.serve(async (req) => {
           .insert({
             user_id: session.user_id,
             session_id: session.id,
-            session_start: session.created_at,
-            session_end: session.updated_at,
-            turn_count: 0,
-            last_activity: session.updated_at,
+            metadata: {
+              session_start: session.created_at,
+              session_end: session.updated_at,
+              turn_count: 0,
+              source: 'backfill'
+            },
+            created_at: session.created_at,
+            updated_at: session.updated_at,
           })
           .select()
           .single();
@@ -153,10 +157,15 @@ Deno.serve(async (req) => {
           }
         }
 
-        // Update conversation turn count
+        // Update conversation metadata with turn count
         await supabaseAdmin
           .from('phoenix_conversations')
-          .update({ turn_count: messages.length })
+          .update({ 
+            metadata: {
+              ...conversation.metadata,
+              turn_count: messages.length
+            }
+          })
           .eq('id', conversation.id);
 
         // Extract learning outcomes if available
