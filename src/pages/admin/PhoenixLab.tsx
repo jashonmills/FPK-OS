@@ -902,8 +902,8 @@ export default function PhoenixLab() {
     console.log('[PHOENIX] 🛑 Audio stop complete');
   };
 
-  const playAudio = async (audioUrl: string, messageId?: string): Promise<void> => {
-    console.log('[PHOENIX] 🔊 playAudio called - messageId:', messageId, 'audioEnabled:', audioEnabled);
+  const playAudio = async (audioUrl: string, messageId?: string, forceReplay = false): Promise<void> => {
+    console.log('[PHOENIX] 🔊 playAudio called - messageId:', messageId, 'audioEnabled:', audioEnabled, 'forceReplay:', forceReplay);
     
     // Check if audio is enabled FIRST
     if (!audioEnabled) {
@@ -911,8 +911,8 @@ export default function PhoenixLab() {
       return;
     }
     
-    // Prevent duplicate plays of the same message
-    if (messageId && playedMessagesRef.current.has(messageId)) {
+    // Prevent duplicate plays of the same message (unless forced for manual replay)
+    if (!forceReplay && messageId && playedMessagesRef.current.has(messageId)) {
       console.log('[PHOENIX] ⏭️ Message already played, skipping:', messageId);
       return;
     }
@@ -1359,7 +1359,7 @@ export default function PhoenixLab() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => playAudio(msg.audioUrl!, msg.id)}
+                              onClick={() => playAudio(msg.audioUrl!, msg.id, true)}
                               className="mt-2"
                               disabled={!audioEnabled}
                             >
