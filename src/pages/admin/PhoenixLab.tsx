@@ -68,10 +68,9 @@ export default function PhoenixLab() {
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
-  const audioRef = React.useRef<HTMLAudioElement | null>(null);
-  const currentAudioRef = React.useRef<HTMLAudioElement | null>(null);
-  const audioQueueRef = React.useRef<string[]>([]);
-  const isPlayingRef = React.useRef(false);
+  const activeAudioElements = React.useRef<Set<HTMLAudioElement>>(new Set());
+  const audioLockRef = React.useRef(false);
+  const playedMessagesRef = React.useRef<Set<string>>(new Set());
   const { toast } = useToast();
 
   // Stop all audio when audio is disabled
@@ -422,78 +421,93 @@ export default function PhoenixLab() {
   };
 
   const stopAllAudio = () => {
-    console.log('[PHOENIX] Stopping all audio playback');
+    console.log('[PHOENIX] Stopping all audio playback - active elements:', activeAudioElements.current.size);
     
-    // Stop currently playing audio
-    if (currentAudioRef.current) {
-      currentAudioRef.current.pause();
-      currentAudioRef.current.currentTime = 0;
-      currentAudioRef.current = null;
-    }
+    // Stop and remove ALL active audio elements
+    activeAudioElements.current.forEach(audio => {
+      try {
+        audio.pause();
+        audio.currentTime = 0;
+        audio.src = ''; // Release resources
+      } catch (err) {
+        console.error('[PHOENIX] Error stopping audio:', err);
+      }
+    });
+    
+    // Clear the set
+    activeAudioElements.current.clear();
     
     // Clear any speaking indicators
     setSpeakingMessageId(null);
     
-    // Clear audio queue
-    audioQueueRef.current = [];
-    isPlayingRef.current = false;
+    // Release lock
+    audioLockRef.current = false;
   };
 
-  const playAudio = async (audioUrl: string, messageId?: string) => {
+  const playAudio = async (audioUrl: string, messageId?: string): Promise<void> => {
+    // Check if audio is enabled
     if (!audioEnabled) {
       console.log('[PHOENIX] Audio disabled, skipping playback');
       return;
     }
     
-    // Stop any currently playing audio first
+    // Prevent duplicate plays of the same message
+    if (messageId && playedMessagesRef.current.has(messageId)) {
+      console.log('[PHOENIX] Message already played, skipping:', messageId);
+      return;
+    }
+    
+    // Wait for lock to be released (prevent concurrent playback)
+    while (audioLockRef.current) {
+      console.log('[PHOENIX] Waiting for audio lock...');
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    
+    // Acquire lock
+    audioLockRef.current = true;
+    console.log('[PHOENIX] Audio lock acquired for:', messageId || 'unknown');
+    
+    // Stop any currently playing audio
     stopAllAudio();
     
     return new Promise<void>((resolve) => {
-      isPlayingRef.current = true;
-      
       if (messageId) {
         setSpeakingMessageId(messageId);
+        playedMessagesRef.current.add(messageId);
       }
       
       const audio = new Audio(audioUrl);
-      currentAudioRef.current = audio;
+      activeAudioElements.current.add(audio);
+      console.log('[PHOENIX] Created new audio element. Total active:', activeAudioElements.current.size);
+      
+      const cleanup = () => {
+        activeAudioElements.current.delete(audio);
+        setSpeakingMessageId(null);
+        audioLockRef.current = false;
+        console.log('[PHOENIX] Audio cleanup complete. Remaining active:', activeAudioElements.current.size);
+      };
       
       audio.onended = () => {
         console.log('[PHOENIX] Audio playback completed');
-        currentAudioRef.current = null;
-        setSpeakingMessageId(null);
-        isPlayingRef.current = false;
+        cleanup();
         resolve();
       };
       
       audio.onerror = (err) => {
         console.error('[PHOENIX] Audio playback error:', err);
-        currentAudioRef.current = null;
-        setSpeakingMessageId(null);
-        isPlayingRef.current = false;
+        cleanup();
         resolve();
       };
       
       audio.play().catch(err => {
         console.error('[PHOENIX] Audio play failed:', err);
-        setSpeakingMessageId(null);
-        isPlayingRef.current = false;
+        cleanup();
         resolve();
       });
     });
   };
 
   const playAudioWithHighlight = async (audioUrl: string, messageId: string): Promise<void> => {
-    if (!audioEnabled) {
-      console.log('[PHOENIX] Audio disabled, skipping playback');
-      return;
-    }
-    
-    // Wait for any currently playing audio to finish
-    while (isPlayingRef.current) {
-      await new Promise(resolve => setTimeout(resolve, 100));
-    }
-    
     await playAudio(audioUrl, messageId);
   };
 
@@ -502,6 +516,9 @@ export default function PhoenixLab() {
     
     // Stop all audio
     stopAllAudio();
+    
+    // Clear played messages tracking
+    playedMessagesRef.current.clear();
     
     // Clear state
     setMessages([]);
@@ -730,8 +747,6 @@ export default function PhoenixLab() {
                 )}
               </Button>
             </div>
-            {/* Hidden audio element for playback */}
-            <audio ref={audioRef} className="hidden" />
           </CardContent>
         </Card>
 
