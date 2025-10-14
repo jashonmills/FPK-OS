@@ -227,7 +227,6 @@ export default function PhoenixLab() {
       // Insert welcome messages
       const welcomeMessagesToInsert = WELCOME_MESSAGES.map(msg => ({
         conversation_id: conversationId,
-        user_id: user.id,
         persona: msg.persona,
         content: msg.content,
         metadata: { is_welcome: true }
