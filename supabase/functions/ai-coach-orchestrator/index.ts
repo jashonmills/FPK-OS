@@ -246,6 +246,11 @@ function buildAlSystemPrompt(studentContext?: any): string {
   // Inject student context if available
   if (studentContext) {
     prompt += `\n\n${MODULE_SEPARATOR}\n# Current Student Context\n\nYou are speaking to the following student. Use this data to personalize your answers about their progress and learning journey.\n\n${JSON.stringify(studentContext, null, 2)}\n\nWhen discussing their progress, be specific and data-driven. Mention concrete numbers, topics, and patterns.`;
+    
+    // CRITICAL NEW FEATURE: Add continuity awareness if last session exists
+    if (studentContext.lastSessionTranscript && studentContext.lastSessionTranscript.length > 0) {
+      prompt += `\n\n${MODULE_SEPARATOR}\n# Continuity Awareness\n\nIMPORTANT: The student's last conversation (from ${studentContext.lastSessionDate || 'recently'}) is provided below. If they ask to "continue", "pick up where we left off", or reference their last session, use this transcript to provide accurate context.\n\nLast Session Transcript:\n${studentContext.lastSessionTranscript.map((msg: any) => `${msg.persona}: ${msg.content}`).join('\n\n')}\n\nWhen they ask to continue, briefly summarize where you left off and ask if they want to continue from there.`;
+    }
   }
   
   return prompt;
@@ -306,6 +311,27 @@ async function fetchStudentContext(userId: string, supabaseClient: any) {
       .order('unlocked_at', { ascending: false })
       .limit(5);
     
+    // CRITICAL NEW FEATURE: Fetch last session transcript for continuity
+    const { data: lastSession } = await supabaseClient
+      .from('coach_sessions')
+      .select('session_data, created_at')
+      .eq('user_id', userId)
+      .eq('source', 'coach_portal')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+    
+    let lastSessionTranscript = null;
+    if (lastSession?.session_data?.messages) {
+      // Extract last 8 messages from previous session
+      const messages = lastSession.session_data.messages.slice(-8);
+      lastSessionTranscript = messages.map((msg: any) => ({
+        persona: msg.role === 'user' ? 'USER' : msg.role.toUpperCase(),
+        content: msg.content,
+        timestamp: msg.timestamp
+      }));
+    }
+    
     // Extract unique topics from sessions
     const recentTopics = sessions
       ? [...new Set(sessions.map(s => s.topic).filter(Boolean))].slice(0, 5)
@@ -332,10 +358,15 @@ async function fetchStudentContext(userId: string, supabaseClient: any) {
       currentStreak: profile?.current_streak || 0,
       lastActivityDate: profile?.last_activity_date || null,
       avgMasteryScore: avgMastery,
-      recentAchievements: achievements?.map(a => a.achievement_name) || []
+      recentAchievements: achievements?.map(a => a.achievement_name) || [],
+      lastSessionTranscript, // NEW: Include recent conversation for continuity
+      lastSessionDate: lastSession?.created_at || null
     };
     
-    console.log('[CONDUCTOR] Student context fetched successfully:', context);
+    console.log('[CONDUCTOR] Student context fetched successfully:', {
+      ...context,
+      hasLastSession: !!lastSessionTranscript
+    });
     return context;
     
   } catch (error) {
@@ -657,8 +688,12 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
     }
 
     // 8. Fetch Student Context if needed (for data-driven personalization)
+    // CRITICAL: Also fetch for first message to detect "pick up where we left off" requests
     let studentContext = null;
-    const shouldFetchContext = detectedIntent === 'query_user_data' || detectedIntent === 'platform_question';
+    const isFirstUserMessage = conversationHistory.filter(m => m.persona === 'USER').length === 0;
+    const shouldFetchContext = detectedIntent === 'query_user_data' || 
+                              detectedIntent === 'platform_question' ||
+                              isFirstUserMessage; // Always fetch on first message for continuity detection
     
     if (shouldFetchContext && user?.id) {
       console.log('[CONDUCTOR] 📊 Fetching student context for personalized response...');

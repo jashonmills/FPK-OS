@@ -166,8 +166,8 @@ export default function PhoenixLab() {
   }, [messages]);
 
   // Fetch session history from coach_sessions
-  const { data: sessionHistory } = useQuery({
-    queryKey: ['phoenixSessionHistory'],
+  const { data: sessionHistory, refetch: refetchHistory } = useQuery({
+    queryKey: ['phoenixSessionHistory', user?.id],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return [];
@@ -186,8 +186,31 @@ export default function PhoenixLab() {
       }
       return data || [];
     },
-    enabled: showHistoryModal, // Only fetch when modal is opened
+    enabled: !!user, // Fetch when user is available
   });
+  
+  // Load a specific session from history
+  const loadSession = (session: any) => {
+    if (!session.session_data || typeof session.session_data !== 'object' || !('messages' in session.session_data)) return;
+    
+    const sessionMessages = (session.session_data as any).messages;
+    if (!Array.isArray(sessionMessages)) return;
+    
+    const loadedMessages: Message[] = sessionMessages.map((msg: any) => ({
+      id: crypto.randomUUID(),
+      persona: msg.role === 'user' ? 'USER' : msg.role.toUpperCase(),
+      content: msg.content,
+      created_at: msg.timestamp || new Date().toISOString(),
+    }));
+    
+    setMessages(loadedMessages);
+    setShowHistoryModal(false);
+    
+    toast({
+      title: "Session Loaded",
+      description: `Loaded conversation from ${new Date(session.created_at).toLocaleDateString()}`
+    });
+  };
 
   // Stop all audio when audio is disabled - use immediate effect
   useEffect(() => {
@@ -196,6 +219,48 @@ export default function PhoenixLab() {
       stopAllAudio();
     }
   }, [audioEnabled]);
+
+  // Load most recent session on mount
+  useEffect(() => {
+    const loadLastSession = async () => {
+      if (!user || settingsLoading || hasWelcomePlayed || messages.length > 0) return;
+      
+      console.log('[PHOENIX] 📂 Checking for recent session to load...');
+      
+      const { data: recentSession } = await supabase
+        .from('coach_sessions')
+        .select('id, session_data, created_at')
+        .eq('user_id', user.id)
+        .eq('source', 'coach_portal')
+        .gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()) // Last 24 hours
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+      
+      if (recentSession?.session_data && typeof recentSession.session_data === 'object' && 'messages' in recentSession.session_data) {
+        const sessionMessages = (recentSession.session_data as any).messages;
+        if (Array.isArray(sessionMessages) && sessionMessages.length > 0) {
+          console.log('[PHOENIX] ✅ Found recent session, loading messages...');
+          const loadedMessages: Message[] = sessionMessages.map((msg: any) => ({
+            id: crypto.randomUUID(),
+            persona: msg.role === 'user' ? 'USER' : msg.role.toUpperCase(),
+            content: msg.content,
+            created_at: msg.timestamp || new Date().toISOString(),
+          }));
+          
+          setMessages(loadedMessages);
+          setHasWelcomePlayed(true);
+          
+          toast({
+            title: "Session Restored",
+            description: "Your last conversation has been loaded"
+          });
+        }
+      }
+    };
+    
+    loadLastSession();
+  }, [user, settingsLoading]);
 
   // Initialize conversation and speech recognition - ONLY ONCE
   useEffect(() => {
@@ -404,18 +469,29 @@ export default function PhoenixLab() {
         metadata: { phase: 2, created_from: 'phoenix_lab', welcome_skipped: true }
       });
       
-      // Add a simple, silent welcome message
+      // Generate audio for welcome back message
       const userName = user?.user_metadata?.full_name || 'there';
+      const welcomeText = `Welcome back, ${userName}. What would you like to work on today?`;
+      
+      console.log('[PHOENIX] 🎵 Generating audio for welcome back message...');
+      const audioUrl = await generateWelcomeAudio(welcomeText, 'AL');
+      
       const simpleWelcome: Message = {
         id: crypto.randomUUID(),
         persona: 'AL',
-        content: `Welcome back, ${userName}. What would you like to work on today?`,
+        content: welcomeText,
         created_at: new Date().toISOString(),
-        isWelcome: true
+        isWelcome: true,
+        audioUrl: audioUrl || undefined
       };
       
       setMessages([simpleWelcome]);
       setHasWelcomePlayed(true);
+      
+      // Play audio if available and enabled
+      if (audioUrl && audioEnabled) {
+        await playAudioWithHighlight(audioUrl, simpleWelcome.id);
+      }
       
       toast({
         title: "🧪 Phoenix Lab Ready",
@@ -1367,11 +1443,21 @@ export default function PhoenixLab() {
                 </div>
               ) : (
                 <>
-                  <div className="p-4 border-b bg-muted/30">
-                    <h3 className="font-semibold">{selectedHistorySession.session_title || 'Untitled Session'}</h3>
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(selectedHistorySession.created_at).toLocaleString()}
-                    </p>
+                  <div className="p-4 border-b bg-muted/30 flex items-center justify-between">
+                    <div>
+                      <h3 className="font-semibold">{selectedHistorySession.session_title || 'Untitled Session'}</h3>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(selectedHistorySession.created_at).toLocaleString()}
+                      </p>
+                    </div>
+                    <Button
+                      onClick={() => loadSession(selectedHistorySession)}
+                      size="sm"
+                      className="gap-2"
+                    >
+                      <RotateCcw className="h-4 w-4" />
+                      Load This Session
+                    </Button>
                   </div>
                   <ScrollArea className="flex-1 p-6">
                     <div className="space-y-4 max-w-3xl">
