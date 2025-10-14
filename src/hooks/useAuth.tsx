@@ -37,28 +37,69 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     );
 
-    // Get initial session with timeout to prevent infinite loading
-    console.log('useAuth: Getting initial session...');
-    const sessionTimeout = setTimeout(() => {
-      console.warn('useAuth: Session fetch timed out, setting loading to false');
-      setLoading(false);
-    }, 5000); // 5 second timeout
-    
-    supabase.auth.getSession().then(({ data: { session }, error }) => {
-      clearTimeout(sessionTimeout);
-      console.log('useAuth: Initial session result', { hasSession: !!session, error });
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    }).catch((err) => {
-      clearTimeout(sessionTimeout);
-      console.error('useAuth: Error getting initial session:', err);
-      setLoading(false);
-    });
+    // Validate session health on mount
+    const validateSessionHealth = async () => {
+      const sessionTimeout = setTimeout(() => {
+        console.warn('useAuth: Session validation timed out, setting loading to false');
+        setLoading(false);
+      }, 8000); // 8 second timeout
+      
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('useAuth: Error getting session:', error);
+          await supabase.auth.signOut({ scope: 'local' });
+          setSession(null);
+          setUser(null);
+          setLoading(false);
+          clearTimeout(sessionTimeout);
+          return;
+        }
+        
+        console.log('useAuth: Initial session result', { hasSession: !!session });
+        
+        // If we have a session, verify it's valid server-side
+        if (session) {
+          try {
+            const { error: testError } = await supabase
+              .from('profiles')
+              .select('id')
+              .limit(1);
+            
+            if (testError && (testError.message.includes('JWT') || testError.message.includes('session'))) {
+              console.warn('useAuth: Session JWT is invalid, clearing session');
+              await supabase.auth.signOut({ scope: 'local' });
+              setSession(null);
+              setUser(null);
+            } else {
+              setSession(session);
+              setUser(session.user);
+            }
+          } catch (validationError) {
+            console.error('useAuth: Session validation failed:', validationError);
+            await supabase.auth.signOut({ scope: 'local' });
+            setSession(null);
+            setUser(null);
+          }
+        } else {
+          setSession(null);
+          setUser(null);
+        }
+      } catch (err) {
+        console.error('useAuth: Error during session validation:', err);
+        setSession(null);
+        setUser(null);
+      } finally {
+        clearTimeout(sessionTimeout);
+        setLoading(false);
+      }
+    };
+
+    validateSessionHealth();
 
     return () => {
       console.log('useAuth: Cleaning up auth listeners');
-      clearTimeout(sessionTimeout);
       subscription.unsubscribe();
     };
   }, []);

@@ -39,16 +39,32 @@ export const RouteProtector: React.FC<RouteProtectorProps> = ({ children }) => {
 
       setCheckingSubscription(true);
       try {
-        const { data } = await supabase
+        const { data, error } = await supabase
           .from('subscribers')
           .select('subscription_status')
           .eq('user_id', identity.userId)
           .eq('subscription_status', 'active')
           .maybeSingle();
 
+        // Check for authentication errors (invalid session)
+        if (error && (error.message.includes('JWT') || error.message.includes('session'))) {
+          console.error('[RouteProtector] Authentication error detected, clearing session');
+          await supabase.auth.signOut({ scope: 'local' });
+          localStorage.clear();
+          window.location.href = '/login';
+          return;
+        }
+
         setHasSubscription(!!data);
-      } catch (error) {
+      } catch (error: any) {
         console.error('[RouteProtector] Error checking subscription:', error);
+        // Check if it's an authentication error
+        if (error?.message?.includes('JWT') || error?.message?.includes('session')) {
+          await supabase.auth.signOut({ scope: 'local' });
+          localStorage.clear();
+          window.location.href = '/login';
+          return;
+        }
         setHasSubscription(false);
       } finally {
         setCheckingSubscription(false);
