@@ -87,20 +87,33 @@ Deno.serve(async (req) => {
       try {
         console.log(`[BACKFILL] Processing session ${session.id}`);
 
-        // Check if conversation already exists
-        const { data: existingConv } = await supabaseAdmin
-          .from('phoenix_conversations')
-          .select('id')
-          .eq('session_id', session.id)
-          .maybeSingle();
+      // Check if conversation already exists and has messages
+      const { data: existingConv } = await supabaseAdmin
+        .from('phoenix_conversations')
+        .select('id')
+        .eq('session_id', session.id)
+        .maybeSingle();
 
-        if (existingConv) {
-          console.log(`[BACKFILL] Conversation for session ${session.id} already exists, skipping`);
+      let conversation = existingConv;
+      
+      // If conversation exists, check if it has messages
+      if (existingConv) {
+        const { count } = await supabaseAdmin
+          .from('phoenix_messages')
+          .select('id', { count: 'exact', head: true })
+          .eq('conversation_id', existingConv.id);
+        
+        if (count && count > 0) {
+          console.log(`[BACKFILL] Conversation ${existingConv.id} already has ${count} messages, skipping`);
           continue;
         }
+        
+        console.log(`[BACKFILL] Conversation exists but has no messages, will populate messages`);
+      }
 
-        // Create phoenix_conversation
-        const { data: conversation, error: convError } = await supabaseAdmin
+      // Create conversation if it doesn't exist
+      if (!conversation) {
+        const { data: newConv, error: convError } = await supabaseAdmin
           .from('phoenix_conversations')
           .insert({
             user_id: session.user_id,
@@ -122,6 +135,9 @@ Deno.serve(async (req) => {
           console.error(`[BACKFILL] Error creating conversation:`, convError);
           continue;
         }
+        
+        conversation = newConv;
+      }
 
         // Extract messages from session_data
         const sessionData = session.session_data || { messages: [] };
