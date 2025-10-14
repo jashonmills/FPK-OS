@@ -84,10 +84,14 @@ export default function PhoenixLab() {
 
   // Initialize conversation and speech recognition - ONLY ONCE
   useEffect(() => {
+    console.log('[PHOENIX] 🔍 useEffect triggered - hasWelcomePlayed:', hasWelcomePlayed, 'messages.length:', messages.length);
+    
     // CRITICAL FIX: Only run welcome sequence if it hasn't been played yet
     if (!hasWelcomePlayed && messages.length === 0) {
       console.log('[PHOENIX] 🎬 Starting one-time welcome sequence');
       initializeConversation();
+    } else {
+      console.log('[PHOENIX] ⏭️ Skipping welcome - already played or messages exist');
     }
     initializeSpeechRecognition();
   }, []); // Empty deps = run once on mount only
@@ -514,6 +518,8 @@ export default function PhoenixLab() {
   };
 
   const playAudio = async (audioUrl: string, messageId?: string): Promise<void> => {
+    console.log('[PHOENIX] 🔊 playAudio called - messageId:', messageId, 'audioEnabled:', audioEnabled);
+    
     // Check if audio is enabled FIRST
     if (!audioEnabled) {
       console.log('[PHOENIX] ⛔ Audio disabled, aborting playback');
@@ -522,7 +528,7 @@ export default function PhoenixLab() {
     
     // Prevent duplicate plays of the same message
     if (messageId && playedMessagesRef.current.has(messageId)) {
-      console.log('[PHOENIX] Message already played, skipping:', messageId);
+      console.log('[PHOENIX] ⏭️ Message already played, skipping:', messageId);
       return;
     }
     
@@ -536,11 +542,10 @@ export default function PhoenixLab() {
       }
       
       if (waitCount++ > 50) { // Max 5 seconds wait
-        console.warn('[PHOENIX] Audio lock timeout, forcing release');
+        console.warn('[PHOENIX] ⏰ Audio lock timeout, forcing release');
         audioLockRef.current = false;
         break;
       }
-      console.log('[PHOENIX] Waiting for audio lock...', waitCount);
       await new Promise(resolve => setTimeout(resolve, 100));
     }
     
@@ -552,15 +557,16 @@ export default function PhoenixLab() {
     
     // Acquire lock FIRST before doing anything else
     audioLockRef.current = true;
-    console.log('[PHOENIX] Audio lock acquired for:', messageId || 'unknown');
+    console.log('[PHOENIX] 🔒 Audio lock acquired for:', messageId || 'unknown');
     
     // Mark as played immediately after acquiring lock to prevent duplicates
     if (messageId) {
       playedMessagesRef.current.add(messageId);
+      console.log('[PHOENIX] ✓ Marked as played:', messageId);
     }
     
     // Stop any currently playing audio WITHOUT releasing our lock
-    console.log('[PHOENIX] Stopping previous audio - active elements:', activeAudioElements.current.size);
+    console.log('[PHOENIX] ⏹️ Stopping previous audio - active elements:', activeAudioElements.current.size);
     activeAudioElements.current.forEach(audio => {
       try {
         audio.pause();
@@ -613,6 +619,7 @@ export default function PhoenixLab() {
   };
 
   const playAudioWithHighlight = async (audioUrl: string, messageId: string): Promise<void> => {
+    console.log('[PHOENIX] 🎵 playAudioWithHighlight called for message:', messageId);
     await playAudio(audioUrl, messageId);
   };
 
