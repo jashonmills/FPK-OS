@@ -1091,18 +1091,49 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
           }
 
           // Store complete message in database
-          // CRITICAL: Get the UUID id from phoenix_conversations table
+          // CRITICAL: Get the UUID id from phoenix_conversations table, or create if doesn't exist
+          let conversationUuid: string | undefined;
+          
           const { data: convData, error: convError } = await supabaseClient
             .from('phoenix_conversations')
             .select('id')
             .eq('session_id', conversationId)
-            .single();
+            .maybeSingle();
           
           if (convError) {
-            console.error('[CONDUCTOR] ❌ Failed to fetch conversation record:', convError);
-          } else {
-            const conversationUuid = convData.id;
+            console.error('[CONDUCTOR] ❌ Error fetching conversation:', convError);
+          } else if (!convData) {
+            // Conversation doesn't exist, create it
+            console.log('[CONDUCTOR] 📝 Creating new conversation record');
+            const { data: newConv, error: createError } = await supabaseClient
+              .from('phoenix_conversations')
+              .insert({
+                user_id: user.id,
+                session_id: conversationId,
+                metadata: { 
+                  phase: 3,
+                  socraticTurnCounter,
+                  nextInterjectionPoint,
+                  totalBettyTurns,
+                  created_from: 'orchestrator'
+                }
+              })
+              .select('id')
+              .single();
             
+            if (createError || !newConv) {
+              console.error('[CONDUCTOR] ❌ Failed to create conversation:', createError);
+            } else {
+              conversationUuid = newConv.id;
+              console.log('[CONDUCTOR] ✅ Conversation created:', conversationUuid);
+            }
+          } else {
+            conversationUuid = convData.id;
+            console.log('[CONDUCTOR] ✅ Found existing conversation:', conversationUuid);
+          }
+          
+          // Insert messages only if we have a valid conversation UUID
+          if (conversationUuid) {
             // Insert user message
             const { error: userMsgError } = await supabaseClient.from('phoenix_messages').insert({
               conversation_id: conversationUuid,
@@ -1147,6 +1178,30 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
               console.error('[CONDUCTOR] ❌ Failed to insert AI message:', aiMsgError);
             } else {
               console.log('[CONDUCTOR] ✅ AI message stored');
+            }
+            
+            // Store Governor log if there were issues
+            if (governorBlocked || governorResult.severity !== 'low') {
+              const { error: govError } = await supabaseClient.from('phoenix_governor_logs').insert({
+                conversation_id: conversationId,
+                persona: selectedPersona,
+                original_text: fullText,
+                modified_text: governorBlocked ? null : finalText,
+                severity: governorResult.severity,
+                reason: governorResult.reason,
+                blocked: governorBlocked,
+                metadata: {
+                  is_safe: governorResult.is_safe,
+                  is_on_topic: governorResult.is_on_topic,
+                  persona_adherence: governorResult.persona_adherence
+                }
+              });
+              
+              if (govError) {
+                console.error('[CONDUCTOR] ❌ Failed to log Governor activity:', govError);
+              } else {
+                console.log('[CONDUCTOR] ✅ Governor activity logged');
+              }
             }
           }
 
@@ -1254,9 +1309,9 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
               }
               
               // Store handoff message in database
-              if (convData?.id) {
+              if (conversationUuid!) {
                 await supabaseClient.from('phoenix_messages').insert({
-                  conversation_id: convData.id,
+                  conversation_id: conversationUuid,
                   persona: handoffPersona,
                   content: handoffText,
                   metadata: {
@@ -1282,6 +1337,7 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
               console.error('[CONDUCTOR] ❌ Handoff response failed:', await handoffResponse.text());
             }
           }
+          } // End of if (conversationUuid)
 
           // 12. Check if we should trigger podcast generation (async, non-blocking)
           if (selectedPersona === 'BETTY' && totalBettyTurns >= 6) {
