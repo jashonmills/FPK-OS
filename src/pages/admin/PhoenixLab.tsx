@@ -99,6 +99,8 @@ const PHASE_FEATURES = {
     'Aha Moment Detection',
     'Multi-Speaker Audio',
     'Analytics Dashboard',
+  ],
+  5: [
     'Context Persistence',
     'Learning Path Mapping',
     'Knowledge Graph',
@@ -112,15 +114,17 @@ const PHASE_COMPLETION_STATUS = {
   1: 'all', // All features complete
   2: 'all', // All features complete
   3: 'all', // All features complete
-  4: 'partial', // Some features complete
+  4: 'all', // Phase 4 complete - Content & Analytics
+  5: 'partial', // Phase 5 in progress - Cognitive Enhancements
 } as const;
 
-const PHASE_4_COMPLETED = [
-  'Podcast Generation',
-  'Aha Moment Detection',
-  'Multi-Speaker Audio',
-  'Analytics Dashboard',
-];
+const PHASE_TITLES = {
+  1: 'Foundation',
+  2: 'Dual Persona',
+  3: 'Advanced AI',
+  4: 'Content & Analytics (Complete)',
+  5: 'Cognitive Enhancements (In Progress)',
+} as const;
 
 export default function PhoenixLab() {
   const navigate = useNavigate();
@@ -1481,8 +1485,8 @@ export default function PhoenixLab() {
                     variant="ghost"
                     size="icon"
                     className="h-6 w-6"
-                    onClick={() => setCurrentPhase(prev => Math.min(4, prev + 1))}
-                    disabled={currentPhase === 4}
+                    onClick={() => setCurrentPhase(prev => Math.min(5, prev + 1))}
+                    disabled={currentPhase === 5}
                   >
                     <ChevronDown className="h-4 w-4" />
                   </Button>
@@ -1491,8 +1495,7 @@ export default function PhoenixLab() {
               <ul className="text-sm space-y-1">
                 {PHASE_FEATURES[currentPhase as keyof typeof PHASE_FEATURES].map((feature) => {
                   const isComplete = 
-                    PHASE_COMPLETION_STATUS[currentPhase as keyof typeof PHASE_COMPLETION_STATUS] === 'all' ||
-                    (currentPhase === 4 && PHASE_4_COMPLETED.includes(feature));
+                    PHASE_COMPLETION_STATUS[currentPhase as keyof typeof PHASE_COMPLETION_STATUS] === 'all';
                   
                   return (
                     <li key={feature}>
