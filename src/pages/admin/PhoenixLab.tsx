@@ -130,14 +130,18 @@ export default function PhoenixLab() {
   };
 
   const getCachedAudio = (text: string, persona: 'AL' | 'BETTY'): string | null => {
-    const cacheKey = `phoenix-welcome-${persona}-${btoa(text).substring(0, 20)}`;
+    // Use a hash of the full text for better uniqueness
+    const textHash = btoa(encodeURIComponent(text)).replace(/[^a-zA-Z0-9]/g, '').substring(0, 32);
+    const cacheKey = `phoenix-welcome-${persona}-${textHash}`;
     return localStorage.getItem(cacheKey);
   };
 
   const setCachedAudio = (text: string, persona: 'AL' | 'BETTY', audioUrl: string) => {
-    const cacheKey = `phoenix-welcome-${persona}-${btoa(text).substring(0, 20)}`;
+    const textHash = btoa(encodeURIComponent(text)).replace(/[^a-zA-Z0-9]/g, '').substring(0, 32);
+    const cacheKey = `phoenix-welcome-${persona}-${textHash}`;
     try {
       localStorage.setItem(cacheKey, audioUrl);
+      console.log(`[PHOENIX] 💾 Cached audio for ${persona}: ${cacheKey}`);
     } catch (e) {
       console.warn('[PHOENIX] Failed to cache audio:', e);
     }
@@ -148,34 +152,35 @@ export default function PhoenixLab() {
       // Check cache first
       const cached = getCachedAudio(text, persona);
       if (cached) {
-        console.log(`[PHOENIX] ✅ Using cached audio for ${persona}`);
+        console.log(`[PHOENIX] ✅ Using cached audio for ${persona}: "${text.substring(0, 30)}..."`);
         return cached;
       }
 
-      console.log(`[PHOENIX] Generating welcome audio for ${persona}`);
+      console.log(`[PHOENIX] 🎵 Generating audio for ${persona}: "${text.substring(0, 40)}..."`);
       
       const { data, error } = await supabase.functions.invoke('generate-welcome-audio', {
         body: { text, persona }
       });
 
       if (error) {
-        console.error('[PHOENIX] Welcome audio error:', error);
+        console.error(`[PHOENIX] ❌ Audio generation failed for ${persona}:`, error);
         return null;
       }
       
       if (data?.audioContent) {
         const provider = data.provider || 'unknown';
         const audioUrl = `data:audio/mp3;base64,${data.audioContent}`;
-        console.log(`[PHOENIX] ✅ Welcome audio generated via ${provider}`);
+        console.log(`[PHOENIX] ✅ Audio ready for ${persona} via ${provider}: "${text.substring(0, 40)}..."`);
         
         // Cache for next time
         setCachedAudio(text, persona, audioUrl);
         return audioUrl;
       }
       
+      console.warn(`[PHOENIX] ⚠️ No audio content returned for ${persona}: "${text.substring(0, 40)}..."`);
       return null;
     } catch (error) {
-      console.error('[PHOENIX] Failed to generate welcome audio:', error);
+      console.error(`[PHOENIX] ❌ Exception generating audio for ${persona}: "${text.substring(0, 40)}..."`, error);
       return null;
     }
   };
@@ -206,12 +211,22 @@ export default function PhoenixLab() {
       await supabase.from('phoenix_messages').insert(welcomeMessagesToInsert);
 
       // Generate ALL audio in parallel (much faster!)
-      console.log('[PHOENIX] 🚀 Generating all welcome audio in parallel...');
-      const audioPromises = WELCOME_MESSAGES.map(msg =>
-        generateWelcomeAudio(msg.content, msg.persona as 'AL' | 'BETTY')
-      );
+      console.log('[PHOENIX] 🚀 Generating all 6 welcome audios in parallel...');
+      const audioPromises = WELCOME_MESSAGES.map((msg, index) => {
+        console.log(`[PHOENIX] Starting audio ${index + 1}/6 for ${msg.persona}`);
+        return generateWelcomeAudio(msg.content, msg.persona as 'AL' | 'BETTY');
+      });
+      
       const audioUrls = await Promise.all(audioPromises);
-      console.log('[PHOENIX] ✅ All audio generated!');
+      
+      // Log results
+      const successCount = audioUrls.filter(url => url !== null).length;
+      console.log(`[PHOENIX] ✅ Audio generation complete: ${successCount}/6 succeeded`);
+      audioUrls.forEach((url, i) => {
+        if (!url) {
+          console.error(`[PHOENIX] ❌ Message ${i + 1} (${WELCOME_MESSAGES[i].persona}) has NO AUDIO`);
+        }
+      });
 
       setIsGeneratingAudio(false);
 
