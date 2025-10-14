@@ -73,11 +73,35 @@ export default function PhoenixLab() {
   const playedMessagesRef = React.useRef<Set<string>>(new Set());
   const { toast } = useToast();
 
-  // Stop all audio when audio is disabled
+  // Stop all audio when audio is disabled - use immediate effect
   useEffect(() => {
     if (!audioEnabled) {
-      console.log('[PHOENIX] Audio disabled - stopping all playback');
-      stopAllAudio();
+      console.log('[PHOENIX] Audio disabled - stopping all playback immediately');
+      // Force stop all audio elements immediately
+      activeAudioElements.current.forEach(audio => {
+        try {
+          audio.pause();
+          audio.currentTime = 0;
+          audio.src = '';
+          audio.remove(); // Remove from DOM as well
+        } catch (err) {
+          console.error('[PHOENIX] Error force-stopping audio:', err);
+        }
+      });
+      activeAudioElements.current.clear();
+      setSpeakingMessageId(null);
+      audioLockRef.current = false;
+      
+      // Also stop any audio elements that might not be tracked
+      document.querySelectorAll('audio').forEach(audio => {
+        try {
+          audio.pause();
+          audio.currentTime = 0;
+          audio.src = '';
+        } catch (err) {
+          console.error('[PHOENIX] Error stopping untracked audio:', err);
+        }
+      });
     }
   }, [audioEnabled]);
 
@@ -347,6 +371,7 @@ export default function PhoenixLab() {
       let aiMessageId = crypto.randomUUID();
       let currentPersona: 'BETTY' | 'AL' = 'AL';
       let fullText = '';
+      let buffer = ''; // Buffer for incomplete JSON
 
       // Remove typing indicator
       setMessages(prev => prev.filter(m => m.id !== typingId));
@@ -356,11 +381,21 @@ export default function PhoenixLab() {
         if (done) break;
 
         const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split('\n\n').filter(line => line.trim() !== '');
-
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const data = JSON.parse(line.slice(6));
+        buffer += chunk;
+        
+        // Split by double newline but keep the buffer for incomplete messages
+        const parts = buffer.split('\n\n');
+        
+        // Keep the last part in buffer (might be incomplete)
+        buffer = parts.pop() || '';
+        
+        for (const part of parts) {
+          const line = part.trim();
+          if (!line || !line.startsWith('data: ')) continue;
+          
+          try {
+            const jsonStr = line.slice(6);
+            const data = JSON.parse(jsonStr);
 
             if (data.type === 'chunk') {
               fullText += data.content;
@@ -402,6 +437,10 @@ export default function PhoenixLab() {
                 }
               }
             }
+          } catch (parseError) {
+            console.error('[PHOENIX] JSON parse error:', parseError);
+            console.error('[PHOENIX] Failed to parse:', line.slice(6).substring(0, 200));
+            // Continue processing other messages
           }
         }
       }
@@ -685,6 +724,11 @@ export default function PhoenixLab() {
                         {msg.sentiment && (
                           <Badge variant="secondary" className="text-xs">
                             Sentiment: {msg.sentiment}
+                          </Badge>
+                        )}
+                        {msg.metadata?.governorChecked && msg.persona !== 'USER' && (
+                          <Badge variant="outline" className="text-xs text-green-600 border-green-600">
+                            ✓ Verified Safe
                           </Badge>
                         )}
                       </div>
