@@ -20,6 +20,32 @@ export interface PhoenixAnalytics {
     blocked: boolean;
     created_at: string;
   }>;
+  // Phase 5: Advanced Metrics
+  learningVelocity?: {
+    topicsPerWeek: number;
+    totalTopics: number;
+    timeSpan: number;
+  };
+  engagementQuality?: {
+    avgTurnsPerSession: number;
+    avgSessionDuration: number;
+    completionRate: number;
+  };
+  personaEffectiveness?: Array<{
+    persona: string;
+    avgTurns: number;
+    engagementScore: number;
+  }>;
+  topicMastery?: Array<{
+    topic: string;
+    masteryLevel: number;
+    outcomesCount: number;
+  }>;
+  contextAwareness?: Array<{
+    contextType: string;
+    confidence: number;
+    lastUpdated: string;
+  }>;
 }
 
 export const usePhoenixAnalytics = () => {

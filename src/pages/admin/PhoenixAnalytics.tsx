@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, TestTube, TrendingUp, Users, MessageSquare, BarChart3, PieChart as PieChartIcon, LineChart as LineChartIcon, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, TestTube, TrendingUp, Users, MessageSquare, BarChart3, PieChart as PieChartIcon, LineChart as LineChartIcon, AlertTriangle, Zap, Brain } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { PodcastGallery } from '@/components/phoenix/PodcastGallery';
@@ -9,6 +9,9 @@ import { IntentDistributionChart } from '@/components/analytics/IntentDistributi
 import { PersonaUsageChart } from '@/components/analytics/PersonaUsageChart';
 import { EngagementChart } from '@/components/analytics/EngagementChart';
 import { GovernorActivityTable } from '@/components/analytics/GovernorActivityTable';
+import { LearningVelocityCard } from '@/components/analytics/LearningVelocityCard';
+import { EngagementQualityCard } from '@/components/analytics/EngagementQualityCard';
+import { TopicMasteryTable } from '@/components/analytics/TopicMasteryTable';
 
 export default function PhoenixAnalytics() {
   const navigate = useNavigate();
@@ -172,6 +175,24 @@ export default function PhoenixAnalytics() {
           <GovernorActivityTable data={analytics?.governorActivity || []} />
         </CardContent>
       </Card>
+
+      {/* Phase 5: Advanced Metrics Section */}
+      <div className="col-span-full">
+        <div className="flex items-center gap-2 mb-4">
+          <Zap className="h-6 w-6 text-purple-600" />
+          <h2 className="text-2xl font-bold">Phase 5: Cognitive Enhancements</h2>
+          <Badge variant="secondary">Advanced Metrics</Badge>
+        </div>
+      </div>
+
+      {/* Advanced Metrics Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <LearningVelocityCard data={analytics?.learningVelocity} />
+        <EngagementQualityCard data={analytics?.engagementQuality} />
+      </div>
+
+      {/* Topic Mastery - Full Width */}
+      <TopicMasteryTable data={analytics?.topicMastery} />
     </div>
   );
 }

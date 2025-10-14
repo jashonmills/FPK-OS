@@ -6085,6 +6085,50 @@ export type Database = {
         }
         Relationships: []
       }
+      phoenix_learning_outcomes: {
+        Row: {
+          conversation_id: string | null
+          created_at: string
+          description: string | null
+          evidence: Json | null
+          id: string
+          mastery_level: number | null
+          outcome_type: string
+          topic: string
+          user_id: string
+        }
+        Insert: {
+          conversation_id?: string | null
+          created_at?: string
+          description?: string | null
+          evidence?: Json | null
+          id?: string
+          mastery_level?: number | null
+          outcome_type: string
+          topic: string
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string | null
+          created_at?: string
+          description?: string | null
+          evidence?: Json | null
+          id?: string
+          mastery_level?: number | null
+          outcome_type?: string
+          topic?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "phoenix_learning_outcomes_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "phoenix_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       phoenix_messages: {
         Row: {
           content: string
@@ -6125,6 +6169,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      phoenix_user_context: {
+        Row: {
+          confidence_score: number | null
+          context_data: Json
+          context_type: string
+          created_at: string
+          extracted_from_sessions: number | null
+          id: string
+          last_observed_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          confidence_score?: number | null
+          context_data?: Json
+          context_type: string
+          created_at?: string
+          extracted_from_sessions?: number | null
+          id?: string
+          last_observed_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          confidence_score?: number | null
+          context_data?: Json
+          context_type?: string
+          created_at?: string
+          extracted_from_sessions?: number | null
+          id?: string
+          last_observed_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       podcast_episodes: {
         Row: {
