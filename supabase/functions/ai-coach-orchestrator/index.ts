@@ -278,6 +278,72 @@ function buildAlPrompt(message: string, history: Array<{ persona: string; conten
   };
 }
 
+// Student Context Fetcher: Retrieves user learning data for personalization
+async function fetchStudentContext(userId: string, supabaseClient: any) {
+  try {
+    console.log('[CONDUCTOR] Fetching student data from database...');
+    
+    // Fetch user profile data
+    const { data: profile } = await supabaseClient
+      .from('profiles')
+      .select('full_name, display_name, total_xp, current_streak, last_activity_date')
+      .eq('id', userId)
+      .single();
+    
+    // Fetch recent Socratic sessions
+    const { data: sessions } = await supabaseClient
+      .from('socratic_sessions')
+      .select('topic, created_at, score_history')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(10);
+    
+    // Fetch achievements
+    const { data: achievements } = await supabaseClient
+      .from('achievements')
+      .select('achievement_name, achievement_type, unlocked_at')
+      .eq('user_id', userId)
+      .order('unlocked_at', { ascending: false })
+      .limit(5);
+    
+    // Extract unique topics from sessions
+    const recentTopics = sessions
+      ? [...new Set(sessions.map(s => s.topic).filter(Boolean))].slice(0, 5)
+      : [];
+    
+    // Calculate average mastery score
+    const avgMastery = sessions && sessions.length > 0
+      ? Math.round(
+          sessions.reduce((sum, s) => {
+            if (s.score_history && s.score_history.length > 0) {
+              const avg = s.score_history.reduce((a, b) => a + b, 0) / s.score_history.length;
+              return sum + avg;
+            }
+            return sum;
+          }, 0) / sessions.filter(s => s.score_history?.length > 0).length
+        )
+      : 0;
+    
+    const context = {
+      userName: profile?.display_name || profile?.full_name || 'Student',
+      totalSessions: sessions?.length || 0,
+      recentTopics,
+      totalXP: profile?.total_xp || 0,
+      currentStreak: profile?.current_streak || 0,
+      lastActivityDate: profile?.last_activity_date || null,
+      avgMasteryScore: avgMastery,
+      recentAchievements: achievements?.map(a => a.achievement_name) || []
+    };
+    
+    console.log('[CONDUCTOR] Student context fetched successfully:', context);
+    return context;
+    
+  } catch (error) {
+    console.error('[CONDUCTOR] Error fetching student context:', error);
+    return null;
+  }
+}
+
 // Governor Module: Quality Control and Safety Layer
 interface GovernorResult {
   passed: boolean;
