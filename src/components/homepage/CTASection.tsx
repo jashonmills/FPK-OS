@@ -1,9 +1,29 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Sparkles } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { useSubscription } from '@/hooks/useSubscription';
 
 const CTASection = () => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { subscription } = useSubscription();
+
+  const handleEnterPortal = () => {
+    // Smart routing based on user state
+    if (!user) {
+      // Not authenticated → go to login
+      navigate('/login');
+    } else if (!subscription?.subscribed) {
+      // Authenticated but no subscription → go to plan selection
+      navigate('/choose-plan');
+    } else {
+      // Authenticated with subscription → go to dashboard
+      navigate('/dashboard/learner');
+    }
+  };
+
   return (
     <section className="py-20 px-6 w-full">
       <div className="w-full max-w-none mx-auto text-center">
@@ -24,27 +44,27 @@ const CTASection = () => {
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Button 
-              asChild 
               size="lg" 
+              onClick={handleEnterPortal}
               className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
             >
-              <Link to="/dashboard/learner">Enter Learning Portal</Link>
+              Enter Learning Portal
             </Button>
             <Button 
-              asChild 
               variant="outline" 
               size="lg"
+              onClick={() => navigate('/organization-signup')}
               className="border-2 border-purple-600 text-purple-600 bg-white/20 hover:bg-purple-600 hover:text-white px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-200"
             >
-              <Link to="/organization-signup">Create Organization</Link>
+              Create Organization
             </Button>
             <Button 
-              asChild 
               variant="outline" 
               size="lg"
+              onClick={() => navigate('/join')}
               className="border-2 border-purple-600 text-purple-600 bg-white/20 hover:bg-purple-600 hover:text-white px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-200"
             >
-              <Link to="/join">Join with Invite Code</Link>
+              Join with Invite Code
             </Button>
           </div>
         </div>

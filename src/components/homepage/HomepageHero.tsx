@@ -1,8 +1,28 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/hooks/useAuth';
+import { useSubscription } from '@/hooks/useSubscription';
 
 const HomepageHero = () => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { subscription } = useSubscription();
+
+  const handleEnterPortal = () => {
+    // Smart routing based on user state
+    if (!user) {
+      // Not authenticated → go to login
+      navigate('/login');
+    } else if (!subscription?.subscribed) {
+      // Authenticated but no subscription → go to plan selection
+      navigate('/choose-plan');
+    } else {
+      // Authenticated with subscription → go to dashboard
+      navigate('/dashboard/learner');
+    }
+  };
+
   return (
     <div className="relative min-h-screen flex items-center justify-center">
       {/* Subtle overlay for better text readability */}
@@ -24,27 +44,27 @@ const HomepageHero = () => {
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Button 
-              asChild 
               size="lg" 
+              onClick={handleEnterPortal}
               className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
             >
-              <Link to="/dashboard/learner">Enter Learning Portal</Link>
+              Enter Learning Portal
             </Button>
             <Button 
-              asChild 
               variant="outline" 
               size="lg"
+              onClick={() => navigate('/courses')}
               className="border-2 border-purple-600 text-purple-600 bg-white/20 hover:bg-purple-600 hover:text-white px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-200"
             >
-              <Link to="/courses">View Courses</Link>
+              View Courses
             </Button>
             <Button 
-              asChild 
               variant="secondary" 
               size="lg"
+              onClick={() => navigate('/login')}
               className="bg-white/20 text-slate-800 border border-slate-300 hover:bg-white/40 px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-200"
             >
-              <Link to="/login">Sign Up</Link>
+              Sign Up
             </Button>
           </div>
         </div>
