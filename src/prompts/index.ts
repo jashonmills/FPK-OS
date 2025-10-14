@@ -14,6 +14,7 @@ import LANGUAGE_AND_STYLE from './core/language_and_style.md?raw';
 import BETTY_CORE from './personas/betty_socratic_core.md?raw';
 import AL_DIRECT_CORE from './personas/al_direct_expert_core.md?raw';
 import AL_SOCRATIC_SUPPORT from './personas/al_socratic_support.md?raw';
+import NITE_OWL_CORE from './personas/nite_owl_fun_facts.md?raw';
 
 // Import skill modules
 import CONVERSATIONAL_OPENERS from './skills/conversational_openers.md?raw';
@@ -89,6 +90,24 @@ export function buildAlSocraticSupportPrompt(): string {
 }
 
 /**
+ * Assemble Nite Owl's complete system prompt (Fun Facts Mode)
+ * 
+ * Nite Owl is the FPK Podcast mascot who swoops in to share
+ * "weird but true" facts as enrichment during learning sessions.
+ */
+export function buildNiteOwlPrompt(): string {
+  const modules = [
+    NO_META_REASONING,        // Critical: Never expose internal thinking
+    NITE_OWL_CORE,           // Core fun fact personality
+    CONVERSATIONAL_OPENERS,   // Natural, energetic response starters
+    HANDLE_TYPOS,             // Silently correct typos
+    SAFETY_AND_ETHICS,        // Never harmful or biased
+  ];
+  
+  return modules.join(MODULE_SEPARATOR);
+}
+
+/**
  * Get a preview of a specific module (for debugging)
  */
 export function getModulePreview(moduleName: string): string {
@@ -99,6 +118,7 @@ export function getModulePreview(moduleName: string): string {
     'betty_core': BETTY_CORE,
     'al_core': AL_DIRECT_CORE,
     'al_support': AL_SOCRATIC_SUPPORT,
+    'nite_owl_core': NITE_OWL_CORE,
     'conversational_openers': CONVERSATIONAL_OPENERS,
     'handle_typos': HANDLE_TYPOS,
     'no_meta': NO_META_REASONING,
@@ -119,6 +139,7 @@ export function listModules(): string[] {
     'betty_core',
     'al_core',
     'al_support',
+    'nite_owl_core',
     'conversational_openers',
     'handle_typos',
     'no_meta',

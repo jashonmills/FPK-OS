@@ -15,7 +15,7 @@ import { useQuery } from '@tanstack/react-query';
 
 interface Message {
   id: string;
-  persona: 'USER' | 'BETTY' | 'AL' | 'CONDUCTOR';
+  persona: 'USER' | 'BETTY' | 'AL' | 'CONDUCTOR' | 'NITE_OWL';
   content: string;
   intent?: string;
   sentiment?: string;
@@ -177,14 +177,14 @@ export default function PhoenixLab() {
     }
   };
 
-  const getCachedAudio = (text: string, persona: 'AL' | 'BETTY'): string | null => {
+  const getCachedAudio = (text: string, persona: 'AL' | 'BETTY' | 'NITE_OWL'): string | null => {
     // Use a hash of the full text for better uniqueness
     const textHash = btoa(encodeURIComponent(text)).replace(/[^a-zA-Z0-9]/g, '').substring(0, 32);
     const cacheKey = `phoenix-welcome-${persona}-${textHash}`;
     return localStorage.getItem(cacheKey);
   };
 
-  const setCachedAudio = (text: string, persona: 'AL' | 'BETTY', audioUrl: string) => {
+  const setCachedAudio = (text: string, persona: 'AL' | 'BETTY' | 'NITE_OWL', audioUrl: string) => {
     const textHash = btoa(encodeURIComponent(text)).replace(/[^a-zA-Z0-9]/g, '').substring(0, 32);
     const cacheKey = `phoenix-welcome-${persona}-${textHash}`;
     try {
@@ -195,7 +195,7 @@ export default function PhoenixLab() {
     }
   };
 
-  const generateWelcomeAudio = async (text: string, persona: 'AL' | 'BETTY'): Promise<string | null> => {
+  const generateWelcomeAudio = async (text: string, persona: 'AL' | 'BETTY' | 'NITE_OWL'): Promise<string | null> => {
     try {
       // Check cache first
       const cached = getCachedAudio(text, persona);
@@ -713,6 +713,7 @@ export default function PhoenixLab() {
       case 'BETTY': return '🧑‍🏫';
       case 'AL': return '🎓';
       case 'CONDUCTOR': return '🎭';
+      case 'NITE_OWL': return '🦉';
       default: return '💬';
     }
   };
@@ -723,6 +724,7 @@ export default function PhoenixLab() {
       case 'BETTY': return 'bg-purple-100 border-purple-300 dark:bg-purple-900/20 dark:border-purple-700';
       case 'AL': return 'bg-green-100 border-green-300 dark:bg-green-900/20 dark:border-green-700';
       case 'CONDUCTOR': return 'bg-yellow-100 border-yellow-300 dark:bg-yellow-900/20 dark:border-yellow-700';
+      case 'NITE_OWL': return 'bg-orange-100 border-orange-300 dark:bg-orange-900/20 dark:border-orange-700';
       default: return 'bg-muted border-border';
     }
   };
