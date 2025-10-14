@@ -76,32 +76,8 @@ export default function PhoenixLab() {
   // Stop all audio when audio is disabled - use immediate effect
   useEffect(() => {
     if (!audioEnabled) {
-      console.log('[PHOENIX] Audio disabled - stopping all playback immediately');
-      // Force stop all audio elements immediately
-      activeAudioElements.current.forEach(audio => {
-        try {
-          audio.pause();
-          audio.currentTime = 0;
-          audio.src = '';
-          audio.remove(); // Remove from DOM as well
-        } catch (err) {
-          console.error('[PHOENIX] Error force-stopping audio:', err);
-        }
-      });
-      activeAudioElements.current.clear();
-      setSpeakingMessageId(null);
-      audioLockRef.current = false;
-      
-      // Also stop any audio elements that might not be tracked
-      document.querySelectorAll('audio').forEach(audio => {
-        try {
-          audio.pause();
-          audio.currentTime = 0;
-          audio.src = '';
-        } catch (err) {
-          console.error('[PHOENIX] Error stopping untracked audio:', err);
-        }
-      });
+      console.log('[PHOENIX] 🔴 Audio toggle disabled - force stopping all audio');
+      stopAllAudio();
     }
   }, [audioEnabled]);
 
@@ -460,33 +436,71 @@ export default function PhoenixLab() {
   };
 
   const stopAllAudio = () => {
-    console.log('[PHOENIX] Stopping all audio playback - active elements:', activeAudioElements.current.size);
+    console.log('[PHOENIX] 🛑 FORCE STOPPING all audio - active elements:', activeAudioElements.current.size);
     
-    // Stop and remove ALL active audio elements
+    // Stop and remove ALL active audio elements with extreme prejudice
     activeAudioElements.current.forEach(audio => {
       try {
+        // Stop playback immediately
         audio.pause();
         audio.currentTime = 0;
-        audio.src = ''; // Release resources
+        
+        // Remove all event listeners
+        audio.onended = null;
+        audio.onerror = null;
+        audio.onplay = null;
+        audio.onpause = null;
+        
+        // Release the audio source
+        audio.src = '';
+        audio.srcObject = null;
+        
+        // Force the audio element to release resources
+        audio.load();
+        
+        // Remove from DOM if attached
+        if (audio.parentNode) {
+          audio.parentNode.removeChild(audio);
+        }
+        
+        console.log('[PHOENIX] ✓ Destroyed audio element');
       } catch (err) {
-        console.error('[PHOENIX] Error stopping audio:', err);
+        console.error('[PHOENIX] Error destroying audio:', err);
       }
     });
     
     // Clear the set
     activeAudioElements.current.clear();
     
+    // Also find and kill any rogue audio elements in the DOM
+    document.querySelectorAll('audio').forEach(audio => {
+      try {
+        audio.pause();
+        audio.currentTime = 0;
+        audio.src = '';
+        audio.load();
+        if (audio.parentNode) {
+          audio.parentNode.removeChild(audio);
+        }
+        console.log('[PHOENIX] ✓ Killed rogue audio element');
+      } catch (err) {
+        console.error('[PHOENIX] Error killing rogue audio:', err);
+      }
+    });
+    
     // Clear any speaking indicators
     setSpeakingMessageId(null);
     
     // Release lock
     audioLockRef.current = false;
+    
+    console.log('[PHOENIX] 🛑 Audio stop complete');
   };
 
   const playAudio = async (audioUrl: string, messageId?: string): Promise<void> => {
-    // Check if audio is enabled
+    // Check if audio is enabled FIRST
     if (!audioEnabled) {
-      console.log('[PHOENIX] Audio disabled, skipping playback');
+      console.log('[PHOENIX] ⛔ Audio disabled, aborting playback');
       return;
     }
     
@@ -499,6 +513,12 @@ export default function PhoenixLab() {
     // Wait for lock to be released (prevent concurrent playback)
     let waitCount = 0;
     while (audioLockRef.current) {
+      // Check if audio was disabled while waiting
+      if (!audioEnabled) {
+        console.log('[PHOENIX] ⛔ Audio disabled during wait, aborting');
+        return;
+      }
+      
       if (waitCount++ > 50) { // Max 5 seconds wait
         console.warn('[PHOENIX] Audio lock timeout, forcing release');
         audioLockRef.current = false;
@@ -506,6 +526,12 @@ export default function PhoenixLab() {
       }
       console.log('[PHOENIX] Waiting for audio lock...', waitCount);
       await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    
+    // Double-check audio is still enabled after waiting
+    if (!audioEnabled) {
+      console.log('[PHOENIX] ⛔ Audio disabled after wait, aborting');
+      return;
     }
     
     // Acquire lock FIRST before doing anything else
@@ -523,7 +549,10 @@ export default function PhoenixLab() {
       try {
         audio.pause();
         audio.currentTime = 0;
+        audio.onended = null;
+        audio.onerror = null;
         audio.src = '';
+        audio.load();
       } catch (err) {
         console.error('[PHOENIX] Error stopping audio:', err);
       }
