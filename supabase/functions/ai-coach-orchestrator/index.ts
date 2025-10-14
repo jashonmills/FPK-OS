@@ -665,39 +665,53 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
       studentContext = await fetchStudentContext(user.id, supabaseClient);
     }
 
-    // 9. Persona Selection based on Intent with Socratic Handoff Logic
+    // 9. Persona Selection with STRICT PRIORITY SYSTEM
+    // CRITICAL: When Nite Owl triggers, ALL other processing must halt for this turn
     let selectedPersona: string;
     let systemPrompt: string;
     let isSocraticHandoff = false;
 
     if (shouldTriggerNiteOwl) {
-      // NITE OWL INTERJECTION: Share a fun fact related to the topic
+      // ⭐ HIGHEST PRIORITY: NITE OWL INTERJECTION
+      // When Nite Owl triggers, ONLY process Nite Owl - no Betty, no Al, nothing else
       selectedPersona = 'NITE_OWL';
       systemPrompt = buildNiteOwlSystemPrompt();
-      console.log('[CONDUCTOR] 🦉 Nite Owl is sharing a fun fact!');
+      console.log('[CONDUCTOR] 🦉 Nite Owl interjection - HALTING all other AI processing');
       
       // Reset counter and set new random interjection point
       socraticTurnCounter = 0;
       nextInterjectionPoint = Math.floor(Math.random() * 4) + 3; // 3-6 turns
+      
+      // CRITICAL: Do NOT increment Betty turn counter or process any other logic
+      // The if-else chain ensures this, but logging for clarity
+      console.log('[CONDUCTOR] Nite Owl has priority - skipping all Betty/Al logic');
+      
     } else if (detectedIntent === 'request_for_clarification' && inBettySession) {
       // SOCRATIC HANDOFF: Al provides factual support during Betty's session
       selectedPersona = 'AL';
       systemPrompt = buildAlSocraticSupportPrompt();
       isSocraticHandoff = true;
       console.log('[CONDUCTOR] 🤝 Socratic Handoff: Al providing factual support in Betty session');
+      
     } else if (detectedIntent === 'query_user_data' || detectedIntent === 'platform_question') {
       // USER DATA QUERY or PLATFORM QUESTION: Al with student context
       selectedPersona = 'AL';
       systemPrompt = buildAlSystemPrompt(studentContext);
       console.log('[CONDUCTOR] 📊 Al providing data-driven or platform guidance response');
+      
     } else if (detectedIntent === 'socratic_guidance') {
+      // BETTY SOCRATIC SESSION: Increment counters
       selectedPersona = 'BETTY';
       systemPrompt = buildBettySystemPrompt();
-      socraticTurnCounter++; // Increment turn counter
+      socraticTurnCounter++; // Increment turn counter for next Nite Owl check
       totalBettyTurns++;
+      console.log('[CONDUCTOR] Betty continues Socratic dialogue');
+      
     } else {
+      // DEFAULT: Al for direct answers
       selectedPersona = 'AL';
       systemPrompt = buildAlSystemPrompt();
+      console.log('[CONDUCTOR] Al provides direct answer');
     }
     
     console.log('[CONDUCTOR] Routing to persona:', selectedPersona, isSocraticHandoff ? '(Socratic Support Mode)' : '');
