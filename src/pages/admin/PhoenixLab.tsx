@@ -70,6 +70,7 @@ export default function PhoenixLab() {
   const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
   const [hasWelcomePlayed, setHasWelcomePlayed] = useState(false); // CRITICAL: Prevents welcome replay
+  const [hasUserStartedChat, setHasUserStartedChat] = useState(false); // Start chat trigger
   const activeAudioElements = React.useRef<Set<HTMLAudioElement>>(new Set());
   const audioLockRef = React.useRef(false);
   const playedMessagesRef = React.useRef<Set<string>>(new Set());
@@ -85,17 +86,17 @@ export default function PhoenixLab() {
 
   // Initialize conversation and speech recognition - ONLY ONCE
   useEffect(() => {
-    console.log('[PHOENIX] 🔍 useEffect triggered - hasWelcomePlayed:', hasWelcomePlayed, 'messages.length:', messages.length);
+    console.log('[PHOENIX] 🔍 useEffect triggered - hasUserStartedChat:', hasUserStartedChat, 'hasWelcomePlayed:', hasWelcomePlayed, 'messages.length:', messages.length);
     
-    // CRITICAL FIX: Only run welcome sequence if it hasn't been played yet
-    if (!hasWelcomePlayed && messages.length === 0) {
+    // CRITICAL FIX: Only run welcome sequence if user has clicked Start Chat AND it hasn't been played yet
+    if (hasUserStartedChat && !hasWelcomePlayed && messages.length === 0) {
       console.log('[PHOENIX] 🎬 Starting one-time welcome sequence');
       initializeConversation();
     } else {
-      console.log('[PHOENIX] ⏭️ Skipping welcome - already played or messages exist');
+      console.log('[PHOENIX] ⏭️ Skipping welcome - not started, already played, or messages exist');
     }
     initializeSpeechRecognition();
-  }, []); // Empty deps = run once on mount only
+  }, [hasUserStartedChat]); // Trigger when user starts chat
 
   const initializeSpeechRecognition = () => {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
@@ -698,6 +699,74 @@ export default function PhoenixLab() {
     }
   };
 
+  // Welcome Screen - Show before chat starts
+  if (!hasUserStartedChat) {
+    return (
+      <div className="container mx-auto p-6 max-w-4xl">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => navigate('/dashboard/admin')}
+          className="mb-4"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back to Admin Dashboard
+        </Button>
+        
+        <Card className="border-2 border-purple-500/20 shadow-2xl">
+          <CardContent className="p-12 text-center space-y-6">
+            <div className="mx-auto w-24 h-24 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg">
+              <TestTube className="w-12 h-12 text-white" />
+            </div>
+            
+            <div>
+              <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                Welcome to Phoenix Lab
+              </h1>
+              <Badge variant="secondary" className="mb-4">Phase 3 - Production Ready</Badge>
+              <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+                Experience the future of AI-powered learning with Betty and Al, 
+                your intelligent learning companions powered by advanced Socratic dialogue and direct expert support.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto text-left">
+              <div className="p-4 rounded-lg bg-purple-100 dark:bg-purple-900/20 border-2 border-purple-300 dark:border-purple-700">
+                <div className="text-3xl mb-2">🧑‍🏫</div>
+                <h3 className="font-semibold mb-1">Betty - Socratic Guide</h3>
+                <p className="text-sm text-muted-foreground">
+                  Asks thought-provoking questions to help you discover the "why" and build deep understanding
+                </p>
+              </div>
+              
+              <div className="p-4 rounded-lg bg-green-100 dark:bg-green-900/20 border-2 border-green-300 dark:border-green-700">
+                <div className="text-3xl mb-2">🎓</div>
+                <h3 className="font-semibold mb-1">Al - Direct Expert</h3>
+                <p className="text-sm text-muted-foreground">
+                  Provides clear, efficient answers and factual support when you need quick help
+                </p>
+              </div>
+            </div>
+            
+            <div className="pt-4">
+              <Button
+                size="lg"
+                onClick={() => setHasUserStartedChat(true)}
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-6 text-lg shadow-lg"
+              >
+                <Sparkles className="mr-2 h-5 w-5" />
+                Start Conversation
+              </Button>
+              <p className="text-xs text-muted-foreground mt-3">
+                Click to begin your personalized learning journey
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto p-6 max-w-6xl">
       {/* Header with Back Button */}
@@ -714,7 +783,7 @@ export default function PhoenixLab() {
         <div className="flex items-center gap-3 mb-2">
           <TestTube className="w-8 h-8 text-purple-600" />
           <h1 className="text-3xl font-bold">Phoenix Lab</h1>
-          <Badge variant="secondary" className="ml-2">Phase 2 - AI Active</Badge>
+          <Badge variant="secondary" className="ml-2">Phase 3 - Production Ready</Badge>
         </div>
         <p className="text-muted-foreground">
           Admin-only testing environment for Project Phoenix AI Engine
@@ -724,7 +793,7 @@ export default function PhoenixLab() {
       <Alert className="mb-6">
         <Sparkles className="h-4 w-4" />
         <AlertDescription>
-          <strong>Phase 2 Status:</strong> Real AI intent detection ✓ | Betty & Al personas active ✓ | Voice input/output enabled ✓
+          <strong>Phase 3 Status:</strong> Modular prompts ✓ | 5-intent detection ✓ | Socratic Handoff ✓ | Streaming UI ✓ | Governor verified ✓
         </AlertDescription>
       </Alert>
 
@@ -794,7 +863,10 @@ export default function PhoenixLab() {
                         <span className="text-2xl">{getPersonaIcon(msg.persona)}</span>
                         <Badge variant="outline">{msg.persona}</Badge>
                         {msg.isStreaming && (
-                          <Badge variant="default" className="animate-pulse bg-gradient-to-r from-blue-500 to-purple-500">
+                          <Badge 
+                            variant="default" 
+                            className="animate-pulse bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 shadow-lg shadow-purple-500/50 text-white font-semibold px-3 py-1"
+                          >
                             ⚡ Streaming...
                           </Badge>
                         )}
@@ -926,15 +998,18 @@ export default function PhoenixLab() {
             </div>
             <Separator />
             <div>
-              <h4 className="font-semibold mb-2">Phase 2 Features</h4>
+              <h4 className="font-semibold mb-2">Phase 3 Features</h4>
               <ul className="text-sm space-y-1">
-                <li>✅ Database schema</li>
-                <li>✅ Real intent detection</li>
-                <li>✅ Betty AI (Socratic)</li>
-                <li>✅ Al AI (Direct)</li>
-                <li>✅ Voice input (STT)</li>
-                <li>✅ Voice output (TTS)</li>
-                <li>⏳ Governor module (pending)</li>
+                <li>✅ Modular Prompt Architecture</li>
+                <li>✅ Betty (Socratic + AVCQ)</li>
+                <li>✅ Al (Direct Expert)</li>
+                <li>✅ Al Socratic Support</li>
+                <li>✅ 5-Intent Detection</li>
+                <li>✅ Socratic Handoff</li>
+                <li>✅ Streaming UI</li>
+                <li>✅ Voice I/O (STT/TTS)</li>
+                <li>✅ Governor Verification</li>
+                <li>✅ Audio Caching</li>
               </ul>
             </div>
           </CardContent>
