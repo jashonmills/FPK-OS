@@ -8,7 +8,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Send, Sparkles, Brain, TestTube, AlertCircle, ArrowLeft } from 'lucide-react';
+import { Loader2, Send, Sparkles, Brain, TestTube, AlertCircle, ArrowLeft, Mic, Volume2 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface Message {
@@ -19,6 +19,7 @@ interface Message {
   sentiment?: string;
   metadata?: any;
   created_at: string;
+  audioUrl?: string;
 }
 
 export default function PhoenixLab() {
@@ -27,12 +28,67 @@ export default function PhoenixLab() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [conversationId] = useState(() => crypto.randomUUID());
+  const [isListening, setIsListening] = useState(false);
+  const [recognition, setRecognition] = useState<any>(null);
+  const audioRef = React.useRef<HTMLAudioElement | null>(null);
   const { toast } = useToast();
 
-  // Initialize conversation
+  // Initialize conversation and speech recognition
   useEffect(() => {
     initializeConversation();
+    initializeSpeechRecognition();
   }, []);
+
+  const initializeSpeechRecognition = () => {
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+      const recognitionInstance = new SpeechRecognition();
+      recognitionInstance.continuous = false;
+      recognitionInstance.interimResults = false;
+      recognitionInstance.lang = 'en-US';
+
+      recognitionInstance.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        setInput(transcript);
+        setIsListening(false);
+      };
+
+      recognitionInstance.onerror = (event: any) => {
+        console.error('Speech recognition error:', event.error);
+        setIsListening(false);
+        toast({
+          title: "Speech Recognition Error",
+          description: "Could not capture audio. Please try again.",
+          variant: "destructive"
+        });
+      };
+
+      recognitionInstance.onend = () => {
+        setIsListening(false);
+      };
+
+      setRecognition(recognitionInstance);
+    }
+  };
+
+  const toggleListening = () => {
+    if (!recognition) {
+      toast({
+        title: "Not Supported",
+        description: "Speech recognition is not supported in your browser.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (isListening) {
+      recognition.stop();
+      setIsListening(false);
+    } else {
+      recognition.start();
+      setIsListening(true);
+    }
+  };
 
   const initializeConversation = async () => {
     try {
@@ -85,17 +141,23 @@ export default function PhoenixLab() {
 
       if (error) throw error;
 
-      // Add Conductor's response to UI
-      const conductorMessage: Message = {
+      // Add AI response to UI
+      const aiMessage: Message = {
         id: crypto.randomUUID(),
-        persona: 'CONDUCTOR',
+        persona: data.metadata.persona || 'CONDUCTOR',
         content: data.response,
         intent: data.metadata.intent,
         sentiment: data.metadata.sentiment,
         metadata: data.metadata,
+        audioUrl: data.audioUrl,
         created_at: new Date().toISOString()
       };
-      setMessages(prev => [...prev, conductorMessage]);
+      setMessages(prev => [...prev, aiMessage]);
+
+      // Auto-play audio if available
+      if (data.audioUrl) {
+        playAudio(data.audioUrl);
+      }
 
     } catch (error) {
       console.error('Error sending message:', error);
@@ -106,6 +168,15 @@ export default function PhoenixLab() {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const playAudio = (audioUrl: string) => {
+    if (audioRef.current) {
+      audioRef.current.src = audioUrl;
+      audioRef.current.play().catch(err => {
+        console.error('Error playing audio:', err);
+      });
     }
   };
 
@@ -145,7 +216,7 @@ export default function PhoenixLab() {
         <div className="flex items-center gap-3 mb-2">
           <TestTube className="w-8 h-8 text-purple-600" />
           <h1 className="text-3xl font-bold">Phoenix Lab</h1>
-          <Badge variant="secondary" className="ml-2">Phase 1 - Sandbox</Badge>
+          <Badge variant="secondary" className="ml-2">Phase 2 - AI Active</Badge>
         </div>
         <p className="text-muted-foreground">
           Admin-only testing environment for Project Phoenix AI Engine
@@ -155,7 +226,7 @@ export default function PhoenixLab() {
       <Alert className="mb-6">
         <Sparkles className="h-4 w-4" />
         <AlertDescription>
-          <strong>Phase 1 Status:</strong> Database tables created ✓ | Conductor placeholder active ✓ | Betty & Al AI routing pending Phase 2
+          <strong>Phase 2 Status:</strong> Real AI intent detection ✓ | Betty & Al personas active ✓ | Voice input/output enabled ✓
         </AlertDescription>
       </Alert>
 
@@ -198,7 +269,18 @@ export default function PhoenixLab() {
                           </Badge>
                         )}
                       </div>
-                      <div className="whitespace-pre-wrap text-sm">{msg.content}</div>
+                       <div className="whitespace-pre-wrap text-sm">{msg.content}</div>
+                       {msg.audioUrl && msg.persona !== 'USER' && (
+                         <Button
+                           variant="ghost"
+                           size="sm"
+                           onClick={() => playAudio(msg.audioUrl!)}
+                           className="mt-2"
+                         >
+                           <Volume2 className="w-4 h-4 mr-2" />
+                           Replay Audio
+                         </Button>
+                       )}
                     </div>
                   ))}
                 </div>
@@ -209,19 +291,32 @@ export default function PhoenixLab() {
 
             {/* Input Area */}
             <div className="space-y-3">
-              <Textarea
-                placeholder="Type your message to test the Conductor..."
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    sendMessage();
-                  }
-                }}
-                rows={3}
-                disabled={loading}
-              />
+              <div className="relative">
+                <Textarea
+                  placeholder="Type or speak your message..."
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      sendMessage();
+                    }
+                  }}
+                  rows={3}
+                  disabled={loading}
+                  className="pr-12"
+                />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={toggleListening}
+                  disabled={loading}
+                  className={`absolute right-2 top-2 ${isListening ? 'text-red-500 animate-pulse' : ''}`}
+                  title={isListening ? 'Stop listening' : 'Start voice input'}
+                >
+                  <Mic className="w-5 h-5" />
+                </Button>
+              </div>
               <Button
                 onClick={sendMessage}
                 disabled={!input.trim() || loading}
@@ -240,6 +335,8 @@ export default function PhoenixLab() {
                 )}
               </Button>
             </div>
+            {/* Hidden audio element for playback */}
+            <audio ref={audioRef} className="hidden" />
           </CardContent>
         </Card>
 
@@ -262,14 +359,14 @@ export default function PhoenixLab() {
             </div>
             <Separator />
             <div>
-              <h4 className="font-semibold mb-2">Phase 1 Features</h4>
+              <h4 className="font-semibold mb-2">Phase 2 Features</h4>
               <ul className="text-sm space-y-1">
                 <li>✅ Database schema</li>
-                <li>✅ Conductor routing</li>
-                <li>✅ Intent detection (placeholder)</li>
-                <li>✅ Sentiment analysis (placeholder)</li>
-                <li>⏳ Betty AI (pending)</li>
-                <li>⏳ Al AI (pending)</li>
+                <li>✅ Real intent detection</li>
+                <li>✅ Betty AI (Socratic)</li>
+                <li>✅ Al AI (Direct)</li>
+                <li>✅ Voice input (STT)</li>
+                <li>✅ Voice output (TTS)</li>
                 <li>⏳ Governor module (pending)</li>
               </ul>
             </div>
