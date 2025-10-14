@@ -226,7 +226,8 @@ serve(async (req) => {
           { role: 'user', content: message }
         ],
         temperature: selectedPersona === 'BETTY' ? 0.8 : 0.6,
-        max_tokens: 500
+        max_tokens: 500,
+        stream: true
       }),
     });
 
@@ -236,97 +237,114 @@ serve(async (req) => {
       throw new Error(`Persona response failed: ${personaResponse.status}`);
     }
 
-    const personaData = await personaResponse.json();
-    const aiResponse = personaData.choices[0]?.message?.content || 'I apologize, but I was unable to generate a response.';
+    console.log('[CONDUCTOR] Streaming AI response...');
     
-    console.log('[CONDUCTOR] AI response generated successfully');
+    // Store metadata for streaming response
+    const responseMetadata = {
+      conversationId,
+      selectedPersona,
+      detectedIntent,
+      detectedSentiment,
+      intentConfidence: intentResult.confidence,
+      intentReasoning: intentResult.reasoning
+    };
 
-    // 9. Generate TTS Audio using ElevenLabs
-    let audioUrl = null;
-    try {
-      const ELEVENLABS_API_KEY = Deno.env.get('ELEVENLABS_API_KEY');
-      if (ELEVENLABS_API_KEY) {
-        console.log('[CONDUCTOR] Generating TTS audio...');
-        
-        // Choose voice based on persona
-        const voiceId = selectedPersona === 'BETTY' ? 'EXAVITQu4vr4xnSDxMaL' : 'N2lVS1w4EtoT3dr4eOWO'; // Sarah for Betty, Callum for Al
-        
-        const ttsResponse = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
-          method: 'POST',
-          headers: {
-            'xi-api-key': ELEVENLABS_API_KEY,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            text: aiResponse,
-            model_id: 'eleven_turbo_v2_5',
-            voice_settings: {
-              stability: selectedPersona === 'BETTY' ? 0.6 : 0.7,
-              similarity_boost: 0.8,
-              style: selectedPersona === 'BETTY' ? 0.4 : 0.2
+    // Return streaming response
+    const stream = new ReadableStream({
+      async start(controller) {
+        const reader = personaResponse.body?.getReader();
+        const decoder = new TextDecoder();
+        let fullText = '';
+
+        try {
+          while (true) {
+            const { done, value } = await reader!.read();
+            if (done) break;
+
+            const chunk = decoder.decode(value, { stream: true });
+            const lines = chunk.split('\n').filter(line => line.trim() !== '');
+
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                const data = line.slice(6);
+                if (data === '[DONE]') continue;
+
+                try {
+                  const parsed = JSON.parse(data);
+                  const content = parsed.choices?.[0]?.delta?.content;
+                  if (content) {
+                    fullText += content;
+                    // Send chunk to client
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'chunk', 
+                          content,
+                          persona: selectedPersona 
+                        })}\n\n`
+                      )
+                    );
+                  }
+                } catch (e) {
+                  console.error('[CONDUCTOR] Error parsing SSE:', e);
+                }
+              }
             }
-          }),
-        });
+          }
 
-        if (ttsResponse.ok) {
-          const audioBuffer = await ttsResponse.arrayBuffer();
-          const base64Audio = btoa(String.fromCharCode(...new Uint8Array(audioBuffer)));
-          audioUrl = `data:audio/mpeg;base64,${base64Audio}`;
-          console.log('[CONDUCTOR] TTS audio generated successfully');
-        } else {
-          console.error('[CONDUCTOR] TTS generation failed:', await ttsResponse.text());
+          // Store complete message in database
+          await supabaseClient.from('phoenix_messages').insert({
+            conversation_id: conversationId,
+            persona: 'USER',
+            content: message,
+            intent: detectedIntent,
+            sentiment: detectedSentiment
+          });
+
+          await supabaseClient.from('phoenix_messages').insert({
+            conversation_id: conversationId,
+            persona: selectedPersona,
+            content: fullText,
+            metadata: {
+              phase: 2,
+              selectedPersona,
+              detectedIntent,
+              detectedSentiment,
+              intentConfidence: intentResult.confidence,
+              intentReasoning: intentResult.reasoning
+            }
+          });
+
+          console.log('[CONDUCTOR] Messages stored successfully');
+
+          // Send completion event
+          controller.enqueue(
+            new TextEncoder().encode(
+              `data: ${JSON.stringify({ 
+                type: 'done',
+                fullText,
+                metadata: responseMetadata
+              })}\n\n`
+            )
+          );
+
+          controller.close();
+        } catch (error) {
+          console.error('[CONDUCTOR] Streaming error:', error);
+          controller.error(error);
         }
       }
-    } catch (ttsError) {
-      console.error('[CONDUCTOR] TTS error (non-critical):', ttsError);
-    }
-
-    // 10. Store messages in database
-    await supabaseClient.from('phoenix_messages').insert({
-      conversation_id: conversationId,
-      persona: 'USER',
-      content: message,
-      intent: detectedIntent,
-      sentiment: detectedSentiment
     });
 
-    await supabaseClient.from('phoenix_messages').insert({
-      conversation_id: conversationId,
-      persona: selectedPersona,
-      content: aiResponse,
-      metadata: {
-        phase: 2,
-        selectedPersona,
-        detectedIntent,
-        detectedSentiment,
-        intentConfidence: intentResult.confidence,
-        intentReasoning: intentResult.reasoning
-      }
+    return new Response(stream, {
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      },
     });
 
-    console.log('[CONDUCTOR] Messages stored successfully');
-
-    // 11. Return response with audio
-    return new Response(
-      JSON.stringify({ 
-        success: true,
-        response: aiResponse,
-        audioUrl,
-        metadata: {
-          intent: detectedIntent,
-          sentiment: detectedSentiment,
-          persona: selectedPersona,
-          phase: 2,
-          intentConfidence: intentResult.confidence,
-          intentReasoning: intentResult.reasoning,
-          hasAudio: audioUrl !== null
-        }
-      }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200
-      }
-    );
 
   } catch (error) {
     console.error('[CONDUCTOR] Error:', error);

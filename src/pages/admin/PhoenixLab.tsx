@@ -21,6 +21,7 @@ interface Message {
   created_at: string;
   audioUrl?: string;
   isWelcome?: boolean;
+  isTyping?: boolean;
 }
 
 const WELCOME_MESSAGES: Omit<Message, 'id' | 'created_at'>[] = [
@@ -147,13 +148,38 @@ export default function PhoenixLab() {
 
       await supabase.from('phoenix_messages').insert(welcomeMessagesToInsert);
 
-      // Load welcome messages into UI
-      const welcomeMessages: Message[] = WELCOME_MESSAGES.map(msg => ({
-        ...msg,
-        id: crypto.randomUUID(),
-        created_at: new Date().toISOString()
-      }));
-      setMessages(welcomeMessages);
+      // Display welcome messages with staggered delays and typing indicators
+      for (let i = 0; i < WELCOME_MESSAGES.length; i++) {
+        await new Promise(resolve => setTimeout(resolve, i === 0 ? 500 : 1500));
+        
+        // Show typing indicator
+        if (i > 0) {
+          setMessages(prev => [...prev, {
+            id: `typing-${i}`,
+            persona: WELCOME_MESSAGES[i].persona,
+            content: '',
+            created_at: new Date().toISOString(),
+            isWelcome: true,
+            isTyping: true
+          }]);
+          
+          await new Promise(resolve => setTimeout(resolve, 800));
+          
+          // Remove typing indicator and add actual message
+          setMessages(prev => prev.filter(m => !m.isTyping).concat({
+            ...WELCOME_MESSAGES[i],
+            id: crypto.randomUUID(),
+            created_at: new Date().toISOString()
+          }));
+        } else {
+          // First message appears immediately
+          setMessages([{
+            ...WELCOME_MESSAGES[0],
+            id: crypto.randomUUID(),
+            created_at: new Date().toISOString()
+          }]);
+        }
+      }
 
       toast({
         title: "🧪 Phoenix Lab Initialized",
@@ -171,7 +197,7 @@ export default function PhoenixLab() {
     const userMessage = input.trim();
     setInput('');
 
-    // Add user message to UI immediately
+    // Add user message to UI immediately (optimistic UI)
     const tempUserMessage: Message = {
       id: crypto.randomUUID(),
       persona: 'USER',
@@ -180,43 +206,94 @@ export default function PhoenixLab() {
     };
     setMessages(prev => [...prev, tempUserMessage]);
 
+    // Add typing indicator
+    const typingId = crypto.randomUUID();
+    setMessages(prev => [...prev, {
+      id: typingId,
+      persona: 'CONDUCTOR',
+      content: '',
+      created_at: new Date().toISOString(),
+      isTyping: true
+    }]);
+
     try {
-      // Call the Conductor edge function (filter out welcome messages from history)
-      const { data, error } = await supabase.functions.invoke('ai-coach-orchestrator', {
-        body: {
-          message: userMessage,
-          conversationId,
-          conversationHistory: messages
-            .filter(m => !m.isWelcome)
-            .map(m => ({
-              persona: m.persona,
-              content: m.content
-            }))
+      // Call the Conductor edge function with streaming
+      const response = await fetch(
+        `https://zgcegkmqfgznbpdplscz.supabase.co/functions/v1/ai-coach-orchestrator`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+          },
+          body: JSON.stringify({
+            message: userMessage,
+            conversationId,
+            conversationHistory: messages
+              .filter(m => !m.isWelcome && !m.isTyping)
+              .map(m => ({
+                persona: m.persona,
+                content: m.content
+              }))
+          })
         }
-      });
+      );
 
-      if (error) throw error;
+      if (!response.ok) throw new Error('Failed to get response');
 
-      // Add AI response to UI
-      const aiMessage: Message = {
-        id: crypto.randomUUID(),
-        persona: data.metadata.persona || 'CONDUCTOR',
-        content: data.response,
-        intent: data.metadata.intent,
-        sentiment: data.metadata.sentiment,
-        metadata: data.metadata,
-        audioUrl: data.audioUrl,
-        created_at: new Date().toISOString()
-      };
-      setMessages(prev => [...prev, aiMessage]);
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let aiMessageId = crypto.randomUUID();
+      let currentPersona: 'BETTY' | 'AL' = 'AL';
+      let fullText = '';
 
-      // Auto-play audio if available
-      if (data.audioUrl) {
-        playAudio(data.audioUrl);
+      // Remove typing indicator
+      setMessages(prev => prev.filter(m => m.id !== typingId));
+
+      while (true) {
+        const { done, value } = await reader!.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n\n').filter(line => line.trim() !== '');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = JSON.parse(line.slice(6));
+
+            if (data.type === 'chunk') {
+              fullText += data.content;
+              currentPersona = data.persona;
+              
+              // Update message with streaming content
+              setMessages(prev => {
+                const existing = prev.find(m => m.id === aiMessageId);
+                if (existing) {
+                  return prev.map(m => 
+                    m.id === aiMessageId 
+                      ? { ...m, content: fullText, persona: currentPersona }
+                      : m
+                  );
+                }
+                // Create new message
+                return [...prev, {
+                  id: aiMessageId,
+                  persona: currentPersona,
+                  content: fullText,
+                  created_at: new Date().toISOString()
+                }];
+              });
+            } else if (data.type === 'done') {
+              console.log('[PHOENIX] Stream complete:', data.metadata);
+            }
+          }
+        }
       }
 
     } catch (error) {
       console.error('Error sending message:', error);
+      // Remove typing indicator on error
+      setMessages(prev => prev.filter(m => m.id !== typingId));
       toast({
         title: "Error",
         description: error.message || "Failed to send message",
@@ -325,18 +402,31 @@ export default function PhoenixLab() {
                           </Badge>
                         )}
                       </div>
-                       <div className="whitespace-pre-wrap text-sm">{msg.content}</div>
-                       {msg.audioUrl && msg.persona !== 'USER' && (
-                         <Button
-                           variant="ghost"
-                           size="sm"
-                           onClick={() => playAudio(msg.audioUrl!)}
-                           className="mt-2"
-                         >
-                           <Volume2 className="w-4 h-4 mr-2" />
-                           Replay Audio
-                         </Button>
-                       )}
+                      {msg.isTyping ? (
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <div className="flex gap-1">
+                            <div className="w-2 h-2 bg-current rounded-full animate-pulse" style={{ animationDelay: '0ms' }} />
+                            <div className="w-2 h-2 bg-current rounded-full animate-pulse" style={{ animationDelay: '150ms' }} />
+                            <div className="w-2 h-2 bg-current rounded-full animate-pulse" style={{ animationDelay: '300ms' }} />
+                          </div>
+                          <span>typing...</span>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="whitespace-pre-wrap text-sm">{msg.content}</div>
+                          {msg.audioUrl && msg.persona !== 'USER' && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => playAudio(msg.audioUrl!)}
+                              className="mt-2"
+                            >
+                              <Volume2 className="w-4 w-4 mr-2" />
+                              Replay Audio
+                            </Button>
+                          )}
+                        </>
+                      )}
                     </div>
                   ))}
                 </div>
