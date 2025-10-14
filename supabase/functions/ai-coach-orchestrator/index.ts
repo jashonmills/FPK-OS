@@ -215,7 +215,7 @@ Rules:
 const MODULE_SEPARATOR = '\n\n---\n\n';
 
 // Prompt assembly functions
-function buildBettySystemPrompt(): string {
+function buildBettySystemPrompt(memories?: any[]): string {
   const modules = [
     NO_META_REASONING,
     BETTY_CORE,
@@ -226,7 +226,20 @@ function buildBettySystemPrompt(): string {
     LANGUAGE_AND_STYLE,
     SAFETY_AND_ETHICS,
   ];
-  return modules.join(MODULE_SEPARATOR);
+  
+  let prompt = modules.join(MODULE_SEPARATOR);
+  
+  // Inject memory context if available (Phase 5: Multi-Session Memory)
+  if (memories && memories.length > 0) {
+    const memorySection = memories.map(mem => {
+      const daysAgo = mem.days_ago === 0 ? 'today' : mem.days_ago === 1 ? 'yesterday' : `${mem.days_ago} days ago`;
+      return `• [${mem.memory_type.toUpperCase()}] ${mem.content} (${daysAgo})`;
+    }).join('\n');
+    
+    prompt += `\n\n${MODULE_SEPARATOR}\n# Multi-Session Memory\n\nYou have access to memories from past conversations with this student. Use these to create continuity and show you remember their journey:\n\n${memorySection}\n\nWhen appropriate, reference these memories naturally in your Socratic questions. For example:\n- "Last time you mentioned [X]..."\n- "You were working on [Y] earlier..."\n- "Remember when you had that breakthrough about [Z]?"\n\nDon't force references, but use them to build rapport and continuity.`;
+  }
+  
+  return prompt;
 }
 
 function buildNiteOwlSystemPrompt(): string {
@@ -240,7 +253,7 @@ function buildNiteOwlSystemPrompt(): string {
   return modules.join(MODULE_SEPARATOR);
 }
 
-function buildAlSystemPrompt(studentContext?: any): string {
+function buildAlSystemPrompt(studentContext?: any, memories?: any[]): string {
   const modules = [
     NO_META_REASONING,
     AL_CORE,
@@ -262,6 +275,16 @@ function buildAlSystemPrompt(studentContext?: any): string {
     if (studentContext.lastSessionTranscript && studentContext.lastSessionTranscript.length > 0) {
       prompt += `\n\n${MODULE_SEPARATOR}\n# Continuity Awareness\n\nIMPORTANT: The student's last conversation (from ${studentContext.lastSessionDate || 'recently'}) is provided below. If they ask to "continue", "pick up where we left off", or reference their last session, use this transcript to provide accurate context.\n\nLast Session Transcript:\n${studentContext.lastSessionTranscript.map((msg: any) => `${msg.persona}: ${msg.content}`).join('\n\n')}\n\nWhen they ask to continue, briefly summarize where you left off and ask if they want to continue from there.`;
     }
+  }
+  
+  // Inject memory context if available (Phase 5: Multi-Session Memory)
+  if (memories && memories.length > 0) {
+    const memorySection = memories.map(mem => {
+      const daysAgo = mem.days_ago === 0 ? 'today' : mem.days_ago === 1 ? 'yesterday' : `${mem.days_ago} days ago`;
+      return `• [${mem.memory_type.toUpperCase()}] ${mem.content} (${daysAgo})`;
+    }).join('\n');
+    
+    prompt += `\n\n${MODULE_SEPARATOR}\n# Multi-Session Memory\n\nYou have access to memories from past conversations with this student:\n\n${memorySection}\n\nWhen relevant, reference these memories to personalize your responses and show continuity across sessions.`;
   }
   
   return prompt;
@@ -292,6 +315,175 @@ function buildAlPrompt(message: string, history: Array<{ persona: string; conten
   return {
     systemPrompt: buildAlSystemPrompt()
   };
+}
+
+// Memory Management Functions (Phase 5: Multi-Session Memory)
+
+async function fetchRelevantMemories(userId: string, supabaseClient: any) {
+  try {
+    console.log('[MEMORY] Fetching relevant memories for user...');
+    
+    const { data: memories, error } = await supabaseClient
+      .rpc('get_relevant_memories', {
+        p_user_id: userId,
+        p_limit: 5,
+        p_days_back: 30
+      });
+    
+    if (error) {
+      console.error('[MEMORY] Error fetching memories:', error);
+      return [];
+    }
+    
+    console.log('[MEMORY] Found', memories?.length || 0, 'relevant memories');
+    return memories || [];
+  } catch (error) {
+    console.error('[MEMORY] Exception fetching memories:', error);
+    return [];
+  }
+}
+
+async function extractAndStoreMemories(
+  conversationId: string,
+  userId: string,
+  conversationHistory: Array<{ persona: string; content: string }>,
+  lovableApiKey: string,
+  supabaseClient: any
+) {
+  try {
+    console.log('[MEMORY] Extracting memories from conversation...');
+    
+    // Only extract if conversation has meaningful content (at least 4 exchanges)
+    if (conversationHistory.length < 4) {
+      console.log('[MEMORY] Conversation too short for memory extraction');
+      return;
+    }
+    
+    // Build conversation transcript
+    const transcript = conversationHistory
+      .map(msg => `${msg.persona}: ${msg.content}`)
+      .join('\n\n');
+    
+    // Call LLM to extract memories
+    const memoryResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${lovableApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-flash',
+        messages: [
+          {
+            role: 'system',
+            content: `You are a memory extraction agent for a learning system. Analyze the conversation and identify key memories worth storing for future sessions.
+
+Memory types:
+- commitment: User promised to practice/study something
+- confusion: User was confused about a specific topic
+- breakthrough: User had an "aha!" moment or grasped a concept
+- question: User asked an unresolved question
+- preference: User expressed a learning preference
+- goal: User stated a learning goal
+- connection: User made an interesting conceptual connection
+
+Extract 2-5 memories that would be useful to reference in future conversations. Focus on specific, actionable insights.`
+          },
+          {
+            role: 'user',
+            content: `Analyze this conversation and extract key memories:\n\n${transcript}`
+          }
+        ],
+        tools: [
+          {
+            type: 'function',
+            function: {
+              name: 'extract_memories',
+              description: 'Extract key memories from the conversation',
+              parameters: {
+                type: 'object',
+                properties: {
+                  memories: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        memory_type: {
+                          type: 'string',
+                          enum: ['commitment', 'confusion', 'breakthrough', 'question', 'preference', 'goal', 'connection']
+                        },
+                        content: {
+                          type: 'string',
+                          description: 'Brief, specific memory content (1-2 sentences)'
+                        },
+                        relevance_score: {
+                          type: 'number',
+                          description: 'How relevant this memory will be for future sessions (0-1)'
+                        }
+                      },
+                      required: ['memory_type', 'content', 'relevance_score']
+                    }
+                  }
+                },
+                required: ['memories'],
+                additionalProperties: false
+              }
+            }
+          }
+        ],
+        tool_choice: { type: 'function', function: { name: 'extract_memories' } }
+      }),
+    });
+    
+    if (!memoryResponse.ok) {
+      console.error('[MEMORY] Memory extraction failed:', memoryResponse.status);
+      return;
+    }
+    
+    const memoryData = await memoryResponse.json();
+    const toolCall = memoryData.choices[0]?.message?.tool_calls?.[0];
+    
+    if (!toolCall) {
+      console.log('[MEMORY] No memories extracted');
+      return;
+    }
+    
+    const extractedMemories = JSON.parse(toolCall.function.arguments).memories;
+    console.log('[MEMORY] Extracted', extractedMemories.length, 'memories');
+    
+    // Get conversation UUID
+    const { data: convData } = await supabaseClient
+      .from('phoenix_conversations')
+      .select('id')
+      .eq('session_id', conversationId)
+      .single();
+    
+    if (!convData) {
+      console.error('[MEMORY] Could not find conversation UUID');
+      return;
+    }
+    
+    // Store memories in database
+    for (const memory of extractedMemories) {
+      await supabaseClient
+        .from('phoenix_memory_fragments')
+        .insert({
+          user_id: userId,
+          conversation_id: convData.id,
+          memory_type: memory.memory_type,
+          content: memory.content,
+          relevance_score: memory.relevance_score,
+          context: {
+            extractedAt: new Date().toISOString(),
+            conversationLength: conversationHistory.length
+          }
+        });
+    }
+    
+    console.log('[MEMORY] ✅ Memories stored successfully');
+  } catch (error) {
+    console.error('[MEMORY] Error extracting/storing memories:', error);
+  }
 }
 
 // Student Context Fetcher: Retrieves user learning data for personalization
@@ -698,9 +890,10 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
       }
     }
 
-    // 8. Fetch Student Context if needed (for data-driven personalization)
+    // 8. Fetch Student Context and Memories (Phase 5 enhancements)
     // CRITICAL: Also fetch for first message to detect "pick up where we left off" requests
     let studentContext = null;
+    let userMemories: any[] = [];
     const isFirstUserMessage = conversationHistory.filter(m => m.persona === 'USER').length === 0;
     const shouldFetchContext = detectedIntent === 'query_user_data' || 
                               detectedIntent === 'platform_question' ||
@@ -709,6 +902,12 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
     if (shouldFetchContext && user?.id) {
       console.log('[CONDUCTOR] 📊 Fetching student context for personalized response...');
       studentContext = await fetchStudentContext(user.id, supabaseClient);
+    }
+    
+    // PHASE 5: Fetch relevant memories for all authenticated users
+    if (user?.id) {
+      console.log('[MEMORY] 🧠 Fetching multi-session memories...');
+      userMemories = await fetchRelevantMemories(user.id, supabaseClient);
     }
 
     // 9. Persona Selection with STRICT PRIORITY SYSTEM
@@ -742,13 +941,13 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
     } else if (detectedIntent === 'query_user_data' || detectedIntent === 'platform_question') {
       // USER DATA QUERY or PLATFORM QUESTION: Al with student context
       selectedPersona = 'AL';
-      systemPrompt = buildAlSystemPrompt(studentContext);
+      systemPrompt = buildAlSystemPrompt(studentContext, userMemories);
       console.log('[CONDUCTOR] 📊 Al providing data-driven or platform guidance response');
       
     } else if (detectedIntent === 'socratic_guidance') {
       // BETTY SOCRATIC SESSION: Increment counters
       selectedPersona = 'BETTY';
-      systemPrompt = buildBettySystemPrompt();
+      systemPrompt = buildBettySystemPrompt(userMemories);
       socraticTurnCounter++; // Increment turn counter for next Nite Owl check
       totalBettyTurns++;
       console.log('[CONDUCTOR] Betty continues Socratic dialogue');
@@ -756,7 +955,7 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
     } else {
       // DEFAULT: Al for direct answers
       selectedPersona = 'AL';
-      systemPrompt = buildAlSystemPrompt();
+      systemPrompt = buildAlSystemPrompt(studentContext, userMemories);
       console.log('[CONDUCTOR] Al provides direct answer');
     }
     
@@ -1404,6 +1603,21 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
           controller.close();
           
           console.log('[CONDUCTOR] Stream closed successfully');
+          
+          // PHASE 5: Extract and store memories after session completion
+          if (user?.id && conversationHistory.length >= 4) {
+            console.log('[MEMORY] 🧠 Starting async memory extraction...');
+            // Run memory extraction asynchronously (don't await)
+            extractAndStoreMemories(
+              conversationId,
+              user.id,
+              conversationHistory,
+              LOVABLE_API_KEY,
+              supabaseClient
+            ).catch(error => {
+              console.error('[MEMORY] Async memory extraction failed:', error);
+            });
+          }
         } catch (error) {
           console.error('[CONDUCTOR] Streaming error:', error);
           

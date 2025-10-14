@@ -6129,6 +6129,56 @@ export type Database = {
           },
         ]
       }
+      phoenix_memory_fragments: {
+        Row: {
+          content: string
+          context: Json | null
+          conversation_id: string | null
+          created_at: string
+          expires_at: string | null
+          id: string
+          last_referenced_at: string | null
+          memory_type: string
+          reference_count: number | null
+          relevance_score: number | null
+          user_id: string
+        }
+        Insert: {
+          content: string
+          context?: Json | null
+          conversation_id?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          last_referenced_at?: string | null
+          memory_type: string
+          reference_count?: number | null
+          relevance_score?: number | null
+          user_id: string
+        }
+        Update: {
+          content?: string
+          context?: Json | null
+          conversation_id?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          last_referenced_at?: string | null
+          memory_type?: string
+          reference_count?: number | null
+          relevance_score?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "phoenix_memory_fragments_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "phoenix_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       phoenix_messages: {
         Row: {
           content: string
@@ -10223,6 +10273,18 @@ export type Database = {
           updated_at: string | null
         }[]
       }
+      get_relevant_memories: {
+        Args: { p_days_back?: number; p_limit?: number; p_user_id: string }
+        Returns: {
+          content: string
+          context: Json
+          created_at: string
+          days_ago: number
+          id: string
+          memory_type: string
+          relevance_score: number
+        }[]
+      }
       get_student_analytics: {
         Args:
           | { p_org_id: string; p_student_id: string }
@@ -10300,6 +10362,10 @@ export type Database = {
           p_resource_type: string
           p_user_id: string
         }
+        Returns: undefined
+      }
+      mark_memory_referenced: {
+        Args: { p_memory_id: string }
         Returns: undefined
       }
       mark_tour_complete: {
