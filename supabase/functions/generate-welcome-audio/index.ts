@@ -57,9 +57,18 @@ serve(async (req) => {
 
         if (elevenLabsResponse.ok) {
           const audioBuffer = await elevenLabsResponse.arrayBuffer()
-          const base64Audio = btoa(
-            String.fromCharCode(...new Uint8Array(audioBuffer))
-          )
+          
+          // Convert to base64 in chunks to avoid stack overflow
+          const uint8Array = new Uint8Array(audioBuffer)
+          let binaryString = ''
+          const chunkSize = 8192 // Process 8KB at a time
+          
+          for (let i = 0; i < uint8Array.length; i += chunkSize) {
+            const chunk = uint8Array.subarray(i, Math.min(i + chunkSize, uint8Array.length))
+            binaryString += String.fromCharCode.apply(null, Array.from(chunk))
+          }
+          
+          const base64Audio = btoa(binaryString)
           
           console.log(`[WELCOME-AUDIO] ✅ ElevenLabs success (${audioBuffer.byteLength} bytes)`)
           
@@ -112,9 +121,18 @@ serve(async (req) => {
     }
 
     const audioBuffer = await openAIResponse.arrayBuffer()
-    const base64Audio = btoa(
-      String.fromCharCode(...new Uint8Array(audioBuffer))
-    )
+    
+    // Convert to base64 in chunks to avoid stack overflow
+    const uint8Array = new Uint8Array(audioBuffer)
+    let binaryString = ''
+    const chunkSize = 8192 // Process 8KB at a time
+    
+    for (let i = 0; i < uint8Array.length; i += chunkSize) {
+      const chunk = uint8Array.subarray(i, Math.min(i + chunkSize, uint8Array.length))
+      binaryString += String.fromCharCode.apply(null, Array.from(chunk))
+    }
+    
+    const base64Audio = btoa(binaryString)
 
     console.log(`[WELCOME-AUDIO] ✅ OpenAI TTS success (${audioBuffer.byteLength} bytes)`)
 
