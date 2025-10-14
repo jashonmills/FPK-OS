@@ -532,14 +532,13 @@ serve(async (req) => {
                   if (elevenLabsResponse.ok) {
                     const audioBuffer = await elevenLabsResponse.arrayBuffer();
                     
-                    // Convert to base64 in chunks to avoid stack overflow
+                    // Convert to base64 safely without stack overflow
                     const uint8Array = new Uint8Array(audioBuffer);
                     let binaryString = '';
-                    const chunkSize = 8192; // Process 8KB at a time
                     
-                    for (let i = 0; i < uint8Array.length; i += chunkSize) {
-                      const chunk = uint8Array.subarray(i, Math.min(i + chunkSize, uint8Array.length));
-                      binaryString += String.fromCharCode.apply(null, Array.from(chunk));
+                    // Process byte by byte to avoid any apply() stack issues
+                    for (let i = 0; i < uint8Array.length; i++) {
+                      binaryString += String.fromCharCode(uint8Array[i]);
                     }
                     
                     const base64Audio = btoa(binaryString);
@@ -576,14 +575,13 @@ serve(async (req) => {
                 if (openAIResponse.ok) {
                   const audioBuffer = await openAIResponse.arrayBuffer();
                   
-                  // Convert to base64 in chunks to avoid stack overflow
+                  // Convert to base64 safely without stack overflow
                   const uint8Array = new Uint8Array(audioBuffer);
                   let binaryString = '';
-                  const chunkSize = 8192; // Process 8KB at a time
                   
-                  for (let i = 0; i < uint8Array.length; i += chunkSize) {
-                    const chunk = uint8Array.subarray(i, Math.min(i + chunkSize, uint8Array.length));
-                    binaryString += String.fromCharCode.apply(null, Array.from(chunk));
+                  // Process byte by byte to avoid any apply() stack issues
+                  for (let i = 0; i < uint8Array.length; i++) {
+                    binaryString += String.fromCharCode(uint8Array[i]);
                   }
                   
                   const base64Audio = btoa(binaryString);

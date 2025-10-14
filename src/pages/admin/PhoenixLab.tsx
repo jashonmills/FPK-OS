@@ -458,8 +458,14 @@ export default function PhoenixLab() {
     }
     
     // Wait for lock to be released (prevent concurrent playback)
+    let waitCount = 0;
     while (audioLockRef.current) {
-      console.log('[PHOENIX] Waiting for audio lock...');
+      if (waitCount++ > 50) { // Max 5 seconds wait
+        console.warn('[PHOENIX] Audio lock timeout, forcing release');
+        audioLockRef.current = false;
+        break;
+      }
+      console.log('[PHOENIX] Waiting for audio lock...', waitCount);
       await new Promise(resolve => setTimeout(resolve, 100));
     }
     
@@ -472,8 +478,8 @@ export default function PhoenixLab() {
       playedMessagesRef.current.add(messageId);
     }
     
-    // Now stop any currently playing audio (but keep OUR lock)
-    console.log('[PHOENIX] Stopping all audio playback - active elements:', activeAudioElements.current.size);
+    // Stop any currently playing audio WITHOUT releasing our lock
+    console.log('[PHOENIX] Stopping previous audio - active elements:', activeAudioElements.current.size);
     activeAudioElements.current.forEach(audio => {
       try {
         audio.pause();
