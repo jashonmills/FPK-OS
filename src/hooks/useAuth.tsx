@@ -37,12 +37,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     );
 
-    // Validate session health on mount
-    const validateSessionHealth = async () => {
-      const sessionTimeout = setTimeout(() => {
-        console.warn('useAuth: Session validation timed out, setting loading to false');
+    // Quick initial session check with short timeout
+    const initSession = async () => {
+      const timeout = setTimeout(() => {
+        console.warn('useAuth: Initial session check timed out');
         setLoading(false);
-      }, 8000); // 8 second timeout
+      }, 3000); // 3 second timeout
       
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
@@ -52,51 +52,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           await supabase.auth.signOut({ scope: 'local' });
           setSession(null);
           setUser(null);
-          setLoading(false);
-          clearTimeout(sessionTimeout);
-          return;
-        }
-        
-        console.log('useAuth: Initial session result', { hasSession: !!session });
-        
-        // If we have a session, verify it's valid server-side
-        if (session) {
-          try {
-            const { error: testError } = await supabase
-              .from('profiles')
-              .select('id')
-              .limit(1);
-            
-            if (testError && (testError.message.includes('JWT') || testError.message.includes('session'))) {
-              console.warn('useAuth: Session JWT is invalid, clearing session');
-              await supabase.auth.signOut({ scope: 'local' });
-              setSession(null);
-              setUser(null);
-            } else {
-              setSession(session);
-              setUser(session.user);
-            }
-          } catch (validationError) {
-            console.error('useAuth: Session validation failed:', validationError);
-            await supabase.auth.signOut({ scope: 'local' });
-            setSession(null);
-            setUser(null);
-          }
         } else {
-          setSession(null);
-          setUser(null);
+          console.log('useAuth: Initial session loaded', { hasSession: !!session });
+          setSession(session);
+          setUser(session?.user ?? null);
         }
       } catch (err) {
-        console.error('useAuth: Error during session validation:', err);
+        console.error('useAuth: Error loading initial session:', err);
         setSession(null);
         setUser(null);
       } finally {
-        clearTimeout(sessionTimeout);
+        clearTimeout(timeout);
         setLoading(false);
       }
     };
 
-    validateSessionHealth();
+    initSession();
 
     return () => {
       console.log('useAuth: Cleaning up auth listeners');

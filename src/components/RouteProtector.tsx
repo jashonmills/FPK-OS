@@ -26,11 +26,10 @@ export const RouteProtector: React.FC<RouteProtectorProps> = ({ children }) => {
   useEffect(() => {
     const checkSubscription = async () => {
       if (!identity?.isPlatformUser || !shouldEnforceSubscription() || !identity.userId) {
-        setHasSubscription(true); // Not checking, so allow access
+        setHasSubscription(true);
         return;
       }
 
-      // Only check subscription for premium routes
       const isPremiumRoute = location.pathname.startsWith('/dashboard/learner');
       if (!isPremiumRoute) {
         setHasSubscription(true);
@@ -46,25 +45,13 @@ export const RouteProtector: React.FC<RouteProtectorProps> = ({ children }) => {
           .eq('subscription_status', 'active')
           .maybeSingle();
 
-        // Check for authentication errors (invalid session)
-        if (error && (error.message.includes('JWT') || error.message.includes('session'))) {
-          console.error('[RouteProtector] Authentication error detected, clearing session');
-          await supabase.auth.signOut({ scope: 'local' });
-          localStorage.clear();
-          window.location.href = '/login';
-          return;
+        if (error) {
+          console.error('[RouteProtector] Error checking subscription:', error);
         }
 
         setHasSubscription(!!data);
-      } catch (error: any) {
+      } catch (error) {
         console.error('[RouteProtector] Error checking subscription:', error);
-        // Check if it's an authentication error
-        if (error?.message?.includes('JWT') || error?.message?.includes('session')) {
-          await supabase.auth.signOut({ scope: 'local' });
-          localStorage.clear();
-          window.location.href = '/login';
-          return;
-        }
         setHasSubscription(false);
       } finally {
         setCheckingSubscription(false);

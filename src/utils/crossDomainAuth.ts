@@ -1,18 +1,14 @@
 import { supabase } from '@/integrations/supabase/client';
 
 /**
- * Clears invalid session from localStorage and Supabase
- * Used when detecting cross-domain session issues
+ * Clears session from localStorage and Supabase
  */
 export const clearInvalidSession = async (): Promise<void> => {
-  console.log('crossDomainAuth: Clearing invalid session');
+  console.log('crossDomainAuth: Clearing session');
   try {
     await supabase.auth.signOut({ scope: 'local' });
-    localStorage.clear();
   } catch (error) {
     console.error('crossDomainAuth: Error clearing session:', error);
-    // Clear localStorage anyway
-    localStorage.clear();
   }
 };
 
@@ -28,38 +24,4 @@ export const isPreviewDomain = (): boolean => {
  */
 export const getProductionLoginUrl = (): string => {
   return 'https://fpkuniversity.com/login';
-};
-
-/**
- * Validates if a session is still valid server-side
- * Returns true if valid, false if invalid
- */
-export const validateSession = async (): Promise<boolean> => {
-  try {
-    const { data: { session }, error } = await supabase.auth.getSession();
-    
-    if (error || !session) {
-      console.log('crossDomainAuth: No valid session found');
-      return false;
-    }
-    
-    // Verify session is valid by making a test API call
-    const { error: testError } = await supabase
-      .from('profiles')
-      .select('id')
-      .limit(1);
-    
-    if (testError) {
-      // Check if it's an authentication error
-      if (testError.message.includes('JWT') || testError.message.includes('session')) {
-        console.log('crossDomainAuth: Session JWT is invalid');
-        return false;
-      }
-    }
-    
-    return true;
-  } catch (error) {
-    console.error('crossDomainAuth: Session validation error:', error);
-    return false;
-  }
 };
