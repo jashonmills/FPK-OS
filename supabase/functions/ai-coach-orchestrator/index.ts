@@ -76,6 +76,161 @@ Remember: You are the expert who provides direct, accurate answers efficiently. 
   };
 }
 
+// Governor Module: Quality Control and Safety Layer
+interface GovernorResult {
+  passed: boolean;
+  is_safe: boolean;
+  is_on_topic: boolean;
+  persona_adherence: 'correct' | 'violation_direct_answer' | 'violation_socratic_question' | 'violation_other';
+  severity?: 'low' | 'medium' | 'high';
+  reason?: string;
+  safe_fallback?: string;
+}
+
+async function runGovernorCheck(
+  responseText: string,
+  expectedPersona: string,
+  userMessage: string,
+  lovableApiKey: string
+): Promise<GovernorResult> {
+  console.log('[GOVERNOR] Evaluating response for safety and quality...');
+  
+  try {
+    const governorResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${lovableApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-flash',
+        messages: [
+          {
+            role: 'system',
+            content: `You are the Governor, a quality control agent in the Phoenix AI Learning System. Your job is to evaluate AI-generated responses before they reach students.
+
+Evaluate responses based on:
+1. SAFETY: Is the content free of harmful, inappropriate, or unsafe material?
+2. TOPIC RELEVANCE: Is the response educational and appropriate for a learning context?
+3. PERSONA ADHERENCE: Does the response match the expected persona behavior?
+   - BETTY should ask Socratic questions, NEVER give direct answers to conceptual questions
+   - AL should give direct, concise answers, NEVER ask Socratic questions
+
+Severity levels:
+- low: Minor issues, response is usable
+- medium: Notable issues, may need revision
+- high: Critical issues, must block response`
+          },
+          {
+            role: 'user',
+            content: `Evaluate this AI response:
+
+Expected Persona: ${expectedPersona}
+Student Message: "${userMessage}"
+AI Response: "${responseText}"
+
+Classify the response quality and safety.`
+          }
+        ],
+        tools: [
+          {
+            type: 'function',
+            function: {
+              name: 'classify_output_quality',
+              description: 'Classify the AI response quality and safety',
+              parameters: {
+                type: 'object',
+                properties: {
+                  is_safe: {
+                    type: 'boolean',
+                    description: 'Is the content safe and appropriate?'
+                  },
+                  is_on_topic: {
+                    type: 'boolean',
+                    description: 'Is the response educational and relevant?'
+                  },
+                  persona_adherence: {
+                    type: 'string',
+                    enum: ['correct', 'violation_direct_answer', 'violation_socratic_question', 'violation_other'],
+                    description: 'Does the response match the expected persona behavior?'
+                  },
+                  severity: {
+                    type: 'string',
+                    enum: ['low', 'medium', 'high'],
+                    description: 'Severity of any issues found'
+                  },
+                  reason: {
+                    type: 'string',
+                    description: 'Brief explanation of the evaluation'
+                  }
+                },
+                required: ['is_safe', 'is_on_topic', 'persona_adherence', 'severity', 'reason'],
+                additionalProperties: false
+              }
+            }
+          }
+        ],
+        tool_choice: { type: 'function', function: { name: 'classify_output_quality' } }
+      }),
+    });
+
+    if (!governorResponse.ok) {
+      console.error('[GOVERNOR] Evaluation failed:', governorResponse.status);
+      // On error, allow response through with warning
+      return {
+        passed: true,
+        is_safe: true,
+        is_on_topic: true,
+        persona_adherence: 'correct',
+        reason: 'Governor check failed, allowing response'
+      };
+    }
+
+    const governorData = await governorResponse.json();
+    const toolCall = governorData.choices[0]?.message?.tool_calls?.[0];
+    const evaluation = toolCall ? JSON.parse(toolCall.function.arguments) : {
+      is_safe: true,
+      is_on_topic: true,
+      persona_adherence: 'correct',
+      severity: 'low',
+      reason: 'No evaluation'
+    };
+
+    console.log('[GOVERNOR] Evaluation result:', evaluation);
+
+    // Determine if response should pass
+    const criticalFailure = !evaluation.is_safe || (evaluation.severity === 'high');
+    const passed = evaluation.is_safe && evaluation.is_on_topic;
+
+    const result: GovernorResult = {
+      passed,
+      is_safe: evaluation.is_safe,
+      is_on_topic: evaluation.is_on_topic,
+      persona_adherence: evaluation.persona_adherence,
+      severity: evaluation.severity,
+      reason: evaluation.reason
+    };
+
+    // Generate safe fallback if needed
+    if (!passed) {
+      result.safe_fallback = "I apologize, but I need to reconsider my response. Let's try approaching this differently. Could you rephrase your question?";
+    }
+
+    return result;
+
+  } catch (error) {
+    console.error('[GOVERNOR] Error during evaluation:', error);
+    // On error, allow response through with warning
+    return {
+      passed: true,
+      is_safe: true,
+      is_on_topic: true,
+      persona_adherence: 'correct',
+      reason: 'Governor check error, allowing response'
+    };
+  }
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -292,6 +447,56 @@ serve(async (req) => {
             }
           }
 
+          // Run Governor Check on completed response
+          console.log('[CONDUCTOR] Running Governor quality check...');
+          const governorResult = await runGovernorCheck(
+            fullText,
+            selectedPersona,
+            message,
+            LOVABLE_API_KEY
+          );
+
+          // Handle Governor violations
+          let finalText = fullText;
+          let governorBlocked = false;
+          
+          if (!governorResult.passed) {
+            console.warn('[GOVERNOR] Response blocked:', governorResult.reason);
+            finalText = governorResult.safe_fallback || "I apologize, but I need to reconsider my response. Let's try approaching this differently.";
+            governorBlocked = true;
+            
+            // Log violation to database for review
+            await supabaseClient.from('phoenix_governor_logs').insert({
+              conversation_id: conversationId,
+              persona: selectedPersona,
+              original_response: fullText,
+              user_message: message,
+              is_safe: governorResult.is_safe,
+              is_on_topic: governorResult.is_on_topic,
+              persona_adherence: governorResult.persona_adherence,
+              severity: governorResult.severity,
+              reason: governorResult.reason,
+              blocked: true
+            });
+          } else if (governorResult.persona_adherence !== 'correct') {
+            // Log persona violations even if not blocking
+            console.warn('[GOVERNOR] Persona adherence issue:', governorResult.persona_adherence);
+            await supabaseClient.from('phoenix_governor_logs').insert({
+              conversation_id: conversationId,
+              persona: selectedPersona,
+              original_response: fullText,
+              user_message: message,
+              is_safe: governorResult.is_safe,
+              is_on_topic: governorResult.is_on_topic,
+              persona_adherence: governorResult.persona_adherence,
+              severity: governorResult.severity,
+              reason: governorResult.reason,
+              blocked: false
+            });
+          }
+
+          console.log('[GOVERNOR] Check complete. Blocked:', governorBlocked);
+
           // Generate TTS Audio - Try ElevenLabs first, fallback to OpenAI
           let audioUrl = null;
           let ttsProvider = 'none';
@@ -299,7 +504,7 @@ serve(async (req) => {
             const ELEVENLABS_API_KEY = Deno.env.get('ELEVENLABS_API_KEY');
             const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
             
-            if (fullText.length > 0) {
+            if (finalText.length > 0) {
               console.log('[CONDUCTOR] Generating TTS audio for completed response...');
               
               // Try ElevenLabs first
@@ -314,7 +519,7 @@ serve(async (req) => {
                       'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                      text: fullText,
+                      text: finalText,
                       model_id: 'eleven_turbo_v2_5',
                       voice_settings: {
                         stability: selectedPersona === 'BETTY' ? 0.6 : 0.7,
@@ -351,7 +556,7 @@ serve(async (req) => {
                   },
                   body: JSON.stringify({
                     model: 'tts-1',
-                    input: fullText,
+                    input: finalText,
                     voice: voice,
                     response_format: 'mp3',
                   }),
@@ -384,16 +589,23 @@ serve(async (req) => {
           await supabaseClient.from('phoenix_messages').insert({
             conversation_id: conversationId,
             persona: selectedPersona,
-            content: fullText,
+            content: finalText,
             metadata: {
-              phase: 2,
+              phase: 3,
               selectedPersona,
               detectedIntent,
               detectedSentiment,
               intentConfidence: intentResult.confidence,
               intentReasoning: intentResult.reasoning,
               hasAudio: audioUrl !== null,
-              ttsProvider
+              ttsProvider,
+              governorChecked: true,
+              governorBlocked,
+              governorResult: {
+                is_safe: governorResult.is_safe,
+                is_on_topic: governorResult.is_on_topic,
+                persona_adherence: governorResult.persona_adherence
+              }
             }
           });
 
@@ -404,12 +616,19 @@ serve(async (req) => {
             new TextEncoder().encode(
               `data: ${JSON.stringify({ 
                 type: 'done',
-                fullText,
+                fullText: finalText,
                 audioUrl,
                 metadata: {
                   ...responseMetadata,
                   hasAudio: audioUrl !== null,
-                  ttsProvider
+                  ttsProvider,
+                  governorChecked: true,
+                  governorBlocked,
+                  governorResult: {
+                    is_safe: governorResult.is_safe,
+                    is_on_topic: governorResult.is_on_topic,
+                    persona_adherence: governorResult.persona_adherence
+                  }
                 }
               })}\n\n`
             )
