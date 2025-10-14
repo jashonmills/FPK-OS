@@ -16,7 +16,7 @@ import AL_DIRECT_CORE from './personas/al_direct_expert_core.md?raw';
 import AL_SOCRATIC_SUPPORT from './personas/al_socratic_support.md?raw';
 
 // Import skill modules
-import VARY_AFFIRMATIONS from './skills/vary_affirmations.md?raw';
+import CONVERSATIONAL_OPENERS from './skills/conversational_openers.md?raw';
 import HANDLE_TYPOS from './skills/handle_typos.md?raw';
 import NO_META_REASONING from './skills/no_meta_reasoning.md?raw';
 import SESSION_INITIALIZATION from './skills/session_initialization.md?raw';
@@ -36,7 +36,7 @@ export function buildBettyPrompt(): string {
   const modules = [
     NO_META_REASONING,        // Critical: Never expose internal thinking
     BETTY_CORE,               // Core Socratic method and AVCQ loop
-    VARY_AFFIRMATIONS,        // Don't be repetitive
+    CONVERSATIONAL_OPENERS,   // Natural, human-like response starters
     HANDLE_TYPOS,             // Silently correct typos
     SESSION_INITIALIZATION,   // Handle different entry points
     TONE_OF_VOICE,            // Warm and encouraging
@@ -57,7 +57,7 @@ export function buildAlPrompt(): string {
   const modules = [
     NO_META_REASONING,        // Critical: Never expose internal thinking
     AL_DIRECT_CORE,           // Core direct answer philosophy
-    VARY_AFFIRMATIONS,        // Keep responses fresh
+    CONVERSATIONAL_OPENERS,   // Natural, human-like response starters
     HANDLE_TYPOS,             // Silently correct typos
     TONE_OF_VOICE,            // Friendly but efficient
     LANGUAGE_AND_STYLE,       // Clear and concise
@@ -78,7 +78,7 @@ export function buildAlSocraticSupportPrompt(): string {
     NO_META_REASONING,        // Critical: Never expose internal thinking
     AL_DIRECT_CORE,           // Base direct answer philosophy
     AL_SOCRATIC_SUPPORT,      // Enhanced: Factual injection pattern
-    VARY_AFFIRMATIONS,        // Keep responses fresh
+    CONVERSATIONAL_OPENERS,   // Natural, human-like response starters
     HANDLE_TYPOS,             // Silently correct typos
     TONE_OF_VOICE,            // Friendly but efficient
     LANGUAGE_AND_STYLE,       // Clear and concise
@@ -99,7 +99,7 @@ export function getModulePreview(moduleName: string): string {
     'betty_core': BETTY_CORE,
     'al_core': AL_DIRECT_CORE,
     'al_support': AL_SOCRATIC_SUPPORT,
-    'vary_affirmations': VARY_AFFIRMATIONS,
+    'conversational_openers': CONVERSATIONAL_OPENERS,
     'handle_typos': HANDLE_TYPOS,
     'no_meta': NO_META_REASONING,
     'session_init': SESSION_INITIALIZATION,
@@ -119,7 +119,7 @@ export function listModules(): string[] {
     'betty_core',
     'al_core',
     'al_support',
-    'vary_affirmations',
+    'conversational_openers',
     'handle_typos',
     'no_meta',
     'session_init',
