@@ -849,7 +849,8 @@ serve(async (req) => {
       .single();
 
     let socraticTurnCounter = sessionState.data?.metadata?.socraticTurnCounter || 0;
-    let nextInterjectionPoint = sessionState.data?.metadata?.nextInterjectionPoint || (Math.floor(Math.random() * 3) + 4); // 4-6
+    // PHASE 5.1: Lowered threshold - 5-8 turns instead of 4-6
+    let nextInterjectionPoint = sessionState.data?.metadata?.nextInterjectionPoint || (Math.floor(Math.random() * 4) + 5); // 5-8
     let totalBettyTurns = sessionState.data?.metadata?.totalBettyTurns || 0;
 
     // 4. Get Lovable AI API Key
@@ -944,10 +945,41 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
 
     // 7. Check if Nite Owl should interject (only during Betty sessions)
     let shouldTriggerNiteOwl = false;
+    let niteOwlTriggerReason = '';
+    
     if (inBettySession && detectedIntent === 'socratic_guidance') {
-      if (socraticTurnCounter >= nextInterjectionPoint) {
+      // PHASE 5.1: STRUGGLE DETECTION
+      // Check if user is stuck on the same concept for multiple turns
+      const recentUserMessages = conversationHistory
+        .filter(m => m.persona === 'USER')
+        .slice(-4); // Last 4 user messages
+      
+      if (recentUserMessages.length >= 3) {
+        // Detect short, frustrated responses or repeated similar questions
+        const shortResponses = recentUserMessages.filter(m => m.content.length < 50).length;
+        const hasRepetition = recentUserMessages.some((msg, idx) => {
+          if (idx === 0) return false;
+          const prevMsg = recentUserMessages[idx - 1];
+          // Simple keyword overlap check
+          const words1 = new Set(msg.content.toLowerCase().split(/\s+/));
+          const words2 = new Set(prevMsg.content.toLowerCase().split(/\s+/));
+          const overlap = [...words1].filter(w => words2.has(w) && w.length > 3).length;
+          return overlap >= 3; // At least 3 significant words overlap
+        });
+        
+        if (shortResponses >= 2 || hasRepetition) {
+          shouldTriggerNiteOwl = true;
+          niteOwlTriggerReason = 'struggle_detected';
+          console.log('[CONDUCTOR] 🦉 Nite Owl triggered - STRUGGLE DETECTED');
+        }
+      }
+      
+      // PHASE 5.1: LOWERED RANDOM THRESHOLD
+      // Original: every 8-12 turns. New: every 5-8 turns (more frequent)
+      if (!shouldTriggerNiteOwl && socraticTurnCounter >= nextInterjectionPoint) {
         shouldTriggerNiteOwl = true;
-        console.log('[CONDUCTOR] 🦉 Nite Owl interjection triggered!');
+        niteOwlTriggerReason = 'random_timer';
+        console.log('[CONDUCTOR] 🦉 Nite Owl interjection triggered - RANDOM TIMER');
       }
     }
 
@@ -986,7 +1018,8 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
       
       // Reset counter and set new random interjection point
       socraticTurnCounter = 0;
-      nextInterjectionPoint = Math.floor(Math.random() * 4) + 3; // 3-6 turns
+      // PHASE 5.1: Lowered threshold - now 5-8 turns instead of 8-12
+      nextInterjectionPoint = Math.floor(Math.random() * 4) + 5; // 5-8 turns
       
       // CRITICAL: Do NOT increment Betty turn counter or process any other logic
       // The if-else chain ensures this, but logging for clarity
@@ -1033,7 +1066,12 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
         .map(msg => msg.content)
         .join('\n');
       
-      niteOwlContext = `Based on this conversation about the topic:\n${topicContext}\n\nShare a brief, fascinating fun fact that enriches their understanding. Remember to use your "Hoo-hoo!" greeting and keep it under 100 words.`;
+      // PHASE 5.1: Context-aware prompt based on trigger reason
+      if (niteOwlTriggerReason === 'struggle_detected') {
+        niteOwlContext = `Based on this conversation:\n${topicContext}\n\nThe student seems to be struggling or stuck. Share an encouraging, lighthearted fun fact that gives them a "small win" and breaks the tension. Use your "Hoo-hoo!" greeting and keep it under 100 words. Make it tangentially related to reward their effort.`;
+      } else {
+        niteOwlContext = `Based on this conversation about the topic:\n${topicContext}\n\nShare a brief, fascinating fun fact that enriches their understanding. Remember to use your "Hoo-hoo!" greeting and keep it under 100 words.`;
+      }
     }
 
     // 10. Generate AI Response with Appropriate Persona
