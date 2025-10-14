@@ -768,7 +768,7 @@ export default function PhoenixLab() {
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-6xl">
+    <div className="container mx-auto px-6 pt-12 pb-6 max-w-6xl">
       {/* Header with Back Button */}
       <div className="mb-6">
         <Button
