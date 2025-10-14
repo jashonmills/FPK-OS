@@ -6,8 +6,12 @@ import { Share2, Calendar, Clock } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 
+import type { Database } from '@/integrations/supabase/types';
+
+type PodcastEpisode = Database['public']['Tables']['podcast_episodes']['Row'];
+
 export function PodcastGallery() {
-  const [episodes, setEpisodes] = useState<any[]>([]);
+  const [episodes, setEpisodes] = useState<PodcastEpisode[]>([]);
   const [loading, setLoading] = useState(true);
   const [playingId, setPlayingId] = useState<string | null>(null);
 
@@ -23,7 +27,6 @@ export function PodcastGallery() {
       const { data, error } = await supabase
         .from('podcast_episodes')
         .select('*')
-        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -31,7 +34,7 @@ export function PodcastGallery() {
         throw error;
       }
 
-      setEpisodes(data || []);
+      setEpisodes((data as PodcastEpisode[]) || []);
     } catch (error) {
       console.error('Error loading podcast episodes:', error);
       toast.error('Failed to load podcast episodes');
@@ -40,8 +43,8 @@ export function PodcastGallery() {
     }
   }
 
-  function handleShare(episode: any) {
-    const shareUrl = `${window.location.origin}/podcast/${episode.share_token}`;
+  function handleShare(episode: PodcastEpisode) {
+    const shareUrl = `${window.location.origin}/podcast/${episode.id}`;
     navigator.clipboard.writeText(shareUrl);
     toast.success('Share link copied to clipboard!');
   }
@@ -95,10 +98,12 @@ export function PodcastGallery() {
             <CardHeader className="bg-gradient-to-br from-primary/10 to-primary/5">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <CardTitle className="text-lg line-clamp-2">{episode.topic}</CardTitle>
-                  <CardDescription className="mt-2 line-clamp-2">
-                    {episode.transcript_excerpt}
-                  </CardDescription>
+                  <CardTitle className="text-lg line-clamp-2">{episode.title}</CardTitle>
+                  {episode.description && (
+                    <CardDescription className="mt-2 line-clamp-2">
+                      {episode.description}
+                    </CardDescription>
+                  )}
                 </div>
               </div>
             </CardHeader>
@@ -114,13 +119,15 @@ export function PodcastGallery() {
                 </div>
               </div>
 
-              <audio
-                src={episode.audio_url}
-                controls
-                className="w-full mb-4"
-                onPlay={() => setPlayingId(episode.id)}
-                onPause={() => setPlayingId(null)}
-              />
+              {episode.audio_url && (
+                <audio
+                  src={episode.audio_url}
+                  controls
+                  className="w-full mb-4"
+                  onPlay={() => setPlayingId(episode.id)}
+                  onPause={() => setPlayingId(null)}
+                />
+              )}
 
               <div className="flex gap-2">
                 <Button
@@ -134,11 +141,11 @@ export function PodcastGallery() {
                 </Button>
               </div>
 
-              {episode.metadata?.breakthrough_type && (
+              {episode.tags && episode.tags.length > 0 && (
                 <div className="mt-3 pt-3 border-t">
                   <div className="text-xs text-muted-foreground">
-                    Breakthrough type: <span className="font-medium capitalize">
-                      {episode.metadata.breakthrough_type.replace(/_/g, ' ')}
+                    Tags: <span className="font-medium">
+                      {episode.tags.join(', ')}
                     </span>
                   </div>
                 </div>

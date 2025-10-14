@@ -99,6 +99,7 @@ const Analytics = lazy(() => import("./pages/admin/Analytics"));
 const ModuleManagerPage = lazy(() => import("./pages/admin/ModuleManagerPage"));
 const LessonManager = lazy(() => import("./components/admin/LessonManager"));
 const PhoenixLab = lazy(() => import("./pages/admin/PhoenixLab"));
+const PhoenixAnalytics = lazy(() => import("./pages/admin/PhoenixAnalytics"));
 const ThresholdManagement = lazy(() => import("./pages/admin/ThresholdManagement"));
 const BetaManagement = lazy(() => import("./pages/admin/BetaManagement"));
 const OrganizationManagement = lazy(() => import("./pages/admin/OrganizationManagement"));
@@ -479,6 +480,11 @@ const App: React.FC = () => {
             <Route path="admin/phoenix-lab" element={
               <RequireAdmin>
                 <LazyRoute><PhoenixLab /></LazyRoute>
+              </RequireAdmin>
+            } />
+            <Route path="admin/phoenix-analytics" element={
+              <RequireAdmin>
+                <LazyRoute><PhoenixAnalytics /></LazyRoute>
               </RequireAdmin>
             } />
             
