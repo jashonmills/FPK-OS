@@ -16,6 +16,66 @@ interface ConductorRequest {
   }>;
 }
 
+// Betty Persona: The Socratic Guide
+function buildBettyPrompt(message: string, history: Array<{ persona: string; content: string }>) {
+  return {
+    systemPrompt: `You are Betty, a Socratic teaching guide in the Phoenix AI Learning System.
+
+Your core philosophy:
+- NEVER give direct answers to conceptual questions
+- Always respond with thoughtful, probing questions that guide discovery
+- Help students think deeply rather than memorize
+- Use the Socratic method to reveal understanding gaps
+- Be warm, encouraging, and patient
+- Ask one question at a time to avoid overwhelming the student
+
+Your teaching approach:
+1. When a student asks "why" or "how" - respond with a question that breaks down the concept
+2. When a student is stuck - ask questions that guide them to reconsider their assumptions
+3. When a student gets close - acknowledge progress and ask a question that helps them complete their reasoning
+4. Never say "Good question!" and then answer it - that defeats the purpose
+
+Examples of your style:
+Student: "Why does gravity pull things down?"
+Betty: "That's an interesting observation! What do you think would happen if you were standing on the other side of the Earth? Would gravity still pull 'down'?"
+
+Student: "How do I solve this equation?"
+Betty: "Let's think about what the equation is telling us. What does the equals sign mean in this context?"
+
+Remember: Your goal is to help students discover answers through guided questioning, not to provide answers directly.`
+  };
+}
+
+// Al Persona: The Direct Expert
+function buildAlPrompt(message: string, history: Array<{ persona: string; content: string }>) {
+  return {
+    systemPrompt: `You are Al, a direct and efficient expert in the Phoenix AI Learning System.
+
+Your core philosophy:
+- Provide clear, concise, factual answers
+- No fluff or unnecessary elaboration
+- Get straight to the point
+- Use precise language
+- Answer what was asked, nothing more
+
+Your communication style:
+1. For definitions - provide the definition directly
+2. For "what is" questions - state the facts clearly
+3. For platform questions - give direct instructions
+4. For procedural questions - list steps concisely
+5. Keep responses under 100 words when possible
+
+Examples of your style:
+Student: "What is photosynthesis?"
+Al: "Photosynthesis is the process by which plants convert light energy into chemical energy (glucose) using carbon dioxide and water, releasing oxygen as a byproduct."
+
+Student: "How do I reset my password?"
+Al: "Click 'Forgot Password' on the login page, enter your email, and follow the link sent to your inbox."
+
+Remember: You are the expert who provides direct, accurate answers efficiently. No Socratic questions.`
+  };
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -63,37 +123,125 @@ serve(async (req) => {
       historyLength: conversationHistory.length
     });
 
-    // 4. PLACEHOLDER: Intent Analysis
-    // TODO: In Phase 2, this will call an LLM to determine intent
-    const detectedIntent = 'socratic_exploration';
-    console.log('[CONDUCTOR] Detected intent:', detectedIntent);
+    // 4. Get Lovable AI API Key
+    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    if (!LOVABLE_API_KEY) {
+      throw new Error('LOVABLE_API_KEY not configured');
+    }
 
-    // 5. PLACEHOLDER: Sentiment Analysis
-    // TODO: In Phase 2, this will call an LLM to analyze sentiment
+    // 5. Intent Detection using LLM with Tool Calling
+    console.log('[CONDUCTOR] Analyzing intent with LLM...');
+    const intentResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-flash',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are the Conductor in an AI tutoring system. Your job is to analyze the user\'s message and determine their intent.'
+          },
+          {
+            role: 'user',
+            content: `Analyze this student message and classify the intent:\n\n"${message}"\n\nClassify as either "socratic_guidance" (for conceptual questions, problem-solving, "why" questions) or "direct_answer" (for platform questions, definitions, "what is" questions).`
+          }
+        ],
+        tools: [
+          {
+            type: 'function',
+            function: {
+              name: 'classify_intent',
+              description: 'Classify the student message intent',
+              parameters: {
+                type: 'object',
+                properties: {
+                  intent: {
+                    type: 'string',
+                    enum: ['socratic_guidance', 'direct_answer'],
+                    description: 'The detected intent type'
+                  },
+                  confidence: {
+                    type: 'number',
+                    description: 'Confidence score between 0 and 1'
+                  },
+                  reasoning: {
+                    type: 'string',
+                    description: 'Brief explanation of the classification'
+                  }
+                },
+                required: ['intent', 'confidence', 'reasoning'],
+                additionalProperties: false
+              }
+            }
+          }
+        ],
+        tool_choice: { type: 'function', function: { name: 'classify_intent' } }
+      }),
+    });
+
+    if (!intentResponse.ok) {
+      const errorText = await intentResponse.text();
+      console.error('[CONDUCTOR] Intent detection error:', intentResponse.status, errorText);
+      throw new Error(`Intent detection failed: ${intentResponse.status}`);
+    }
+
+    const intentData = await intentResponse.json();
+    const toolCall = intentData.choices[0]?.message?.tool_calls?.[0];
+    const intentResult = toolCall ? JSON.parse(toolCall.function.arguments) : { intent: 'direct_answer', confidence: 0.5, reasoning: 'Fallback' };
+    
+    const detectedIntent = intentResult.intent;
+    console.log('[CONDUCTOR] Intent detected:', detectedIntent, 'Confidence:', intentResult.confidence);
+    console.log('[CONDUCTOR] Reasoning:', intentResult.reasoning);
+
+    // 6. Sentiment Analysis (simple for now)
     const detectedSentiment = 'Neutral';
-    console.log('[CONDUCTOR] Detected sentiment:', detectedSentiment);
 
-    // 6. PLACEHOLDER: Persona Selection
-    // TODO: In Phase 2, this will route to Betty or Al based on intent
-    const selectedPersona = detectedIntent === 'socratic_exploration' ? 'BETTY' : 'AL';
-    console.log('[CONDUCTOR] Selected persona:', selectedPersona);
+    // 7. Persona Selection based on Intent
+    const selectedPersona = detectedIntent === 'socratic_guidance' ? 'BETTY' : 'AL';
+    console.log('[CONDUCTOR] Routing to persona:', selectedPersona);
 
-    // 7. Generate placeholder response
-    const placeholderResponse = `[🎭 CONDUCTOR - Phase 1 Sandbox]
+    // 8. Generate AI Response with Appropriate Persona
+    const personaPrompt = selectedPersona === 'BETTY' 
+      ? buildBettyPrompt(message, conversationHistory)
+      : buildAlPrompt(message, conversationHistory);
 
-📥 Received: "${message.substring(0, 50)}${message.length > 50 ? '...' : ''}"
-🎯 Detected Intent: ${detectedIntent}
-😊 Sentiment: ${detectedSentiment}
-🤖 Routing to: ${selectedPersona}
+    console.log('[CONDUCTOR] Generating response with', selectedPersona, 'persona...');
+    const personaResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-flash',
+        messages: [
+          { role: 'system', content: personaPrompt.systemPrompt },
+          ...conversationHistory.slice(-5).map(msg => ({
+            role: msg.persona === 'USER' ? 'user' : 'assistant',
+            content: msg.content
+          })),
+          { role: 'user', content: message }
+        ],
+        temperature: selectedPersona === 'BETTY' ? 0.8 : 0.6,
+        max_tokens: 500
+      }),
+    });
 
----
+    if (!personaResponse.ok) {
+      const errorText = await personaResponse.text();
+      console.error('[CONDUCTOR] Persona response error:', personaResponse.status, errorText);
+      throw new Error(`Persona response failed: ${personaResponse.status}`);
+    }
 
-This is a Phase 1 placeholder response. In Phase 2, ${selectedPersona} will provide a real AI-generated response.
+    const personaData = await personaResponse.json();
+    const aiResponse = personaData.choices[0]?.message?.content || 'I apologize, but I was unable to generate a response.';
+    
+    console.log('[CONDUCTOR] AI response generated successfully');
 
-Conversation ID: ${conversationId}
-History length: ${conversationHistory.length} messages`;
-
-    // 8. Store message in database
+    // 9. Store messages in database
     await supabaseClient.from('phoenix_messages').insert({
       conversation_id: conversationId,
       persona: 'USER',
@@ -104,28 +252,32 @@ History length: ${conversationHistory.length} messages`;
 
     await supabaseClient.from('phoenix_messages').insert({
       conversation_id: conversationId,
-      persona: 'CONDUCTOR',
-      content: placeholderResponse,
+      persona: selectedPersona,
+      content: aiResponse,
       metadata: {
-        phase: 1,
+        phase: 2,
         selectedPersona,
         detectedIntent,
-        detectedSentiment
+        detectedSentiment,
+        intentConfidence: intentResult.confidence,
+        intentReasoning: intentResult.reasoning
       }
     });
 
     console.log('[CONDUCTOR] Messages stored successfully');
 
-    // 9. Return response
+    // 10. Return response
     return new Response(
       JSON.stringify({ 
         success: true,
-        response: placeholderResponse,
+        response: aiResponse,
         metadata: {
           intent: detectedIntent,
           sentiment: detectedSentiment,
           persona: selectedPersona,
-          phase: 1
+          phase: 2,
+          intentConfidence: intentResult.confidence,
+          intentReasoning: intentResult.reasoning
         }
       }),
       { 
