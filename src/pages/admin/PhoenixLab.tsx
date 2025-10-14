@@ -463,11 +463,18 @@ export default function PhoenixLab() {
       if (!authUser) return;
       
       // Create conversation record
-      await supabase.from('phoenix_conversations').insert({
+      const { data: convData, error: convError } = await supabase.from('phoenix_conversations').insert({
         user_id: authUser.id,
         session_id: conversationId,
         metadata: { phase: 2, created_from: 'phoenix_lab', welcome_skipped: true }
-      });
+      }).select('id').single();
+      
+      if (convError || !convData) {
+        console.error('[PHOENIX] Failed to create conversation:', convError);
+        return;
+      }
+      
+      const conversationUuid = convData.id;
       
       // Generate audio for welcome back message
       const userName = user?.user_metadata?.full_name || 'there';
@@ -475,6 +482,14 @@ export default function PhoenixLab() {
       
       console.log('[PHOENIX] 🎵 Generating audio for welcome back message...');
       const audioUrl = await generateWelcomeAudio(welcomeText, 'AL');
+      
+      // Insert the welcome back message to database
+      await supabase.from('phoenix_messages').insert({
+        conversation_id: conversationUuid,
+        persona: 'AL',
+        content: welcomeText,
+        metadata: { is_welcome: true, welcome_skipped: true }
+      });
       
       const simpleWelcome: Message = {
         id: crypto.randomUUID(),
@@ -509,15 +524,23 @@ export default function PhoenixLab() {
       setIsGeneratingAudio(true);
 
       // Create conversation
-      await supabase.from('phoenix_conversations').insert({
+      const { data: convData, error: convError } = await supabase.from('phoenix_conversations').insert({
         user_id: authUser.id,
         session_id: conversationId,
         metadata: { phase: 2, created_from: 'phoenix_lab' }
-      });
+      }).select('id').single();
+      
+      if (convError || !convData) {
+        console.error('[PHOENIX] Failed to create conversation:', convError);
+        setIsGeneratingAudio(false);
+        return;
+      }
+      
+      const conversationUuid = convData.id;
 
       // Insert welcome messages
       const welcomeMessagesToInsert = WELCOME_MESSAGES.map(msg => ({
-        conversation_id: conversationId,
+        conversation_id: conversationUuid,
         persona: msg.persona,
         content: msg.content,
         metadata: { is_welcome: true }

@@ -1080,39 +1080,64 @@ IMPORTANT: Only use "request_for_clarification" when the student explicitly asks
           }
 
           // Store complete message in database
-          await supabaseClient.from('phoenix_messages').insert({
-            conversation_id: conversationId,
-            persona: 'USER',
-            content: message,
-            intent: detectedIntent,
-            sentiment: detectedSentiment
-          });
-
-          await supabaseClient.from('phoenix_messages').insert({
-            conversation_id: conversationId,
-            persona: selectedPersona,
-            content: finalText,
-            metadata: {
-              phase: 3,
-              selectedPersona,
-              detectedIntent,
-              detectedSentiment,
-              intentConfidence: intentResult.confidence,
-              intentReasoning: intentResult.reasoning,
-              hasAudio: audioUrl !== null,
-              ttsProvider,
-              governorChecked: true,
-              governorBlocked,
-              isSocraticHandoff,
-              governorResult: {
-                is_safe: governorResult.is_safe,
-                is_on_topic: governorResult.is_on_topic,
-                persona_adherence: governorResult.persona_adherence
-              }
+          // CRITICAL: Get the UUID id from phoenix_conversations table
+          const { data: convData, error: convError } = await supabaseClient
+            .from('phoenix_conversations')
+            .select('id')
+            .eq('session_id', conversationId)
+            .single();
+          
+          if (convError) {
+            console.error('[CONDUCTOR] ❌ Failed to fetch conversation record:', convError);
+          } else {
+            const conversationUuid = convData.id;
+            
+            // Insert user message
+            const { error: userMsgError } = await supabaseClient.from('phoenix_messages').insert({
+              conversation_id: conversationUuid,
+              persona: 'USER',
+              content: message,
+              intent: detectedIntent,
+              sentiment: detectedSentiment
+            });
+            
+            if (userMsgError) {
+              console.error('[CONDUCTOR] ❌ Failed to insert user message:', userMsgError);
+            } else {
+              console.log('[CONDUCTOR] ✅ User message stored');
             }
-          });
 
-          console.log('[CONDUCTOR] Messages stored successfully');
+            // Insert AI response message
+            const { error: aiMsgError } = await supabaseClient.from('phoenix_messages').insert({
+              conversation_id: conversationUuid,
+              persona: selectedPersona,
+              content: finalText,
+              metadata: {
+                phase: 3,
+                selectedPersona,
+                detectedIntent,
+                detectedSentiment,
+                intentConfidence: intentResult.confidence,
+                intentReasoning: intentResult.reasoning,
+                hasAudio: audioUrl !== null,
+                ttsProvider,
+                governorChecked: true,
+                governorBlocked,
+                isSocraticHandoff,
+                governorResult: {
+                  is_safe: governorResult.is_safe,
+                  is_on_topic: governorResult.is_on_topic,
+                  persona_adherence: governorResult.persona_adherence
+                }
+              }
+            });
+            
+            if (aiMsgError) {
+              console.error('[CONDUCTOR] ❌ Failed to insert AI message:', aiMsgError);
+            } else {
+              console.log('[CONDUCTOR] ✅ AI message stored');
+            }
+          }
 
           // Update session state with turn counters
           await supabaseClient
