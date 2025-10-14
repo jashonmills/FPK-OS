@@ -4,12 +4,41 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
-import { Users, BookOpen, BarChart3, Settings, Database, Download, RefreshCw, CheckCircle, AlertTriangle, Building2, GraduationCap } from 'lucide-react';
+import { Users, BookOpen, BarChart3, Settings, Database, Download, RefreshCw, CheckCircle, AlertTriangle, Building2, GraduationCap, TestTube, TrendingUp } from 'lucide-react';
 import { useQuickStats } from '@/hooks/useQuickStats';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { data: stats, isLoading, error, refetch } = useQuickStats();
+
+  // Fetch Phoenix Analytics KPIs
+  const { data: phoenixStats, isLoading: phoenixLoading } = useQuery({
+    queryKey: ['phoenixAnalyticsKPIs'],
+    queryFn: async () => {
+      const { data: sessions, error } = await supabase
+        .from('coach_sessions')
+        .select('session_data, created_at')
+        .eq('source', 'coach_portal');
+      
+      if (error) throw error;
+      
+      const totalSessions = sessions?.length || 0;
+      const totalTurns = sessions?.reduce((sum, session) => {
+        const sessionData = session.session_data as any;
+        const messageCount = sessionData?.messages?.length || 0;
+        return sum + messageCount;
+      }, 0) || 0;
+      
+      const avgTurnsPerSession = totalSessions > 0 ? (totalTurns / totalSessions).toFixed(1) : '0';
+      
+      return {
+        totalSessions,
+        avgTurnsPerSession
+      };
+    }
+  });
 
   const adminSections = [
     {
@@ -152,6 +181,60 @@ const AdminDashboard = () => {
           );
         })}
       </div>
+
+      {/* Project Phoenix Analytics Card */}
+      <Card className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 border-purple-200 dark:border-purple-800">
+        <CardHeader className="p-4 sm:p-6">
+          <CardTitle className="flex items-center gap-3 text-lg sm:text-xl">
+            <TestTube className="h-6 w-6 text-purple-600" />
+            Project Phoenix Analytics
+            <Badge variant="secondary" className="ml-2">Phase 3</Badge>
+          </CardTitle>
+          <p className="text-sm text-muted-foreground mt-2">
+            AI Coach testing and performance metrics from Phoenix Lab
+          </p>
+        </CardHeader>
+        <CardContent className="p-4 sm:p-6 pt-0">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+            <div className="bg-white dark:bg-gray-900 rounded-lg p-4 border border-purple-100 dark:border-purple-900">
+              <div className="flex items-center gap-2 mb-2">
+                <Database className="h-4 w-4 text-purple-600" />
+                <span className="text-sm text-muted-foreground">Total Sessions</span>
+              </div>
+              <div className="text-3xl font-bold text-purple-600">
+                {phoenixLoading ? (
+                  <div className="animate-pulse h-9 w-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                ) : (
+                  phoenixStats?.totalSessions || 0
+                )}
+              </div>
+            </div>
+            
+            <div className="bg-white dark:bg-gray-900 rounded-lg p-4 border border-pink-100 dark:border-pink-900">
+              <div className="flex items-center gap-2 mb-2">
+                <TrendingUp className="h-4 w-4 text-pink-600" />
+                <span className="text-sm text-muted-foreground">Avg. Turns/Session</span>
+              </div>
+              <div className="text-3xl font-bold text-pink-600">
+                {phoenixLoading ? (
+                  <div className="animate-pulse h-9 w-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                ) : (
+                  phoenixStats?.avgTurnsPerSession || '0.0'
+                )}
+              </div>
+            </div>
+          </div>
+          
+          <Button 
+            onClick={() => navigate('/dashboard/admin/phoenix-analytics')}
+            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+            size="lg"
+          >
+            <BarChart3 className="mr-2 h-5 w-5" />
+            View Full Dashboard
+          </Button>
+        </CardContent>
+      </Card>
 
       <Card className="bg-white/60 backdrop-blur-sm border-white/30">
         <CardHeader className="p-4 sm:p-6">
