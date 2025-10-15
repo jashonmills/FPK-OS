@@ -208,7 +208,7 @@ export const CurrentMembersList = ({ familyId, isOwner }: CurrentMembersListProp
                     )}
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
-                    {format(new Date(member.joined_at), 'MMM d, yyyy')}
+                    {member.joined_at ? format(new Date(member.joined_at), 'MMM d, yyyy') : 'N/A'}
                   </TableCell>
                   {isOwner && (
                     <TableCell className="text-right">
