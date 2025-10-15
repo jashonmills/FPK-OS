@@ -76,6 +76,25 @@ export const AppSidebar = () => {
     enabled: !!user?.id
   });
 
+  // Check if user is super admin
+  const {
+    data: isSuperAdmin
+  } = useQuery({
+    queryKey: ["is-super-admin", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return false;
+      const {
+        data,
+        error
+      } = await supabase.rpc("has_super_admin_role", {
+        _user_id: user.id
+      });
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user?.id
+  });
+
   // Check if user is family owner
   const {
     data: isOwner
@@ -157,6 +176,24 @@ export const AppSidebar = () => {
                 }) => isActive ? 'bg-accent text-accent-foreground font-medium' : ''}>
                       <TrendingUp className="h-4 w-4" />
                       <span>Chart Library</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>}
+
+        {isSuperAdmin && <SidebarGroup>
+            <SidebarGroupLabel>Platform Admin</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <NavLink to="/platform-admin" className={({
+                  isActive
+                }) => isActive ? 'bg-accent text-accent-foreground font-medium' : ''}>
+                      <Settings className="h-4 w-4" />
+                      <span>Feature Flags</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

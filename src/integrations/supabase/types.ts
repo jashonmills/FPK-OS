@@ -2661,6 +2661,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      has_super_admin_role: {
+        Args: { _user_id: string }
+        Returns: boolean
+      }
       hnsw_bit_support: {
         Args: { "": unknown }
         Returns: unknown

@@ -21,6 +21,7 @@ import Settings from "./pages/Settings";
 import AdminKBManager from "./pages/AdminKBManager";
 import AdminKBDiagnostics from "./pages/AdminKBDiagnostics";
 import AdminStripe from "./pages/AdminStripe";
+import PlatformAdmin from "./pages/PlatformAdmin";
 import Pricing from "./pages/Pricing";
 import PricingAuthenticated from "./pages/PricingAuthenticated";
 import ChartLibrary from "./pages/ChartLibrary";
@@ -194,6 +195,14 @@ const App = () => (
                   <AppLayout>
                     <AdminKBDiagnostics />
                   </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/platform-admin"
+              element={
+                <ProtectedRoute>
+                  <PlatformAdmin />
                 </ProtectedRoute>
               }
             />
