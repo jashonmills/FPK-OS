@@ -2,6 +2,7 @@ import React from 'react';
 import { useFamily } from '@/contexts/FamilyContext';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useNavigate } from 'react-router-dom';
 import {
   Select,
   SelectContent,
@@ -10,9 +11,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Users, User } from 'lucide-react';
+import { Users, User, Home } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export const FamilyStudentSelector = () => {
+  const navigate = useNavigate();
   const {
     selectedFamily,
     selectedStudent,
@@ -71,6 +74,18 @@ export const FamilyStudentSelector = () => {
 
   return (
     <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
+      {/* Back to Overview Button */}
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => navigate('/overview')}
+        className="h-8 px-2 sm:px-3"
+        title="Back to Overview"
+      >
+        <Home className="h-4 w-4" />
+        <span className="hidden sm:inline ml-2">Overview</span>
+      </Button>
+
       {/* Family Switcher - Only show if user is in multiple families */}
       {families.length > 1 && (
         <Select
