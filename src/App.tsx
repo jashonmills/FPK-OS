@@ -101,6 +101,7 @@ const LessonManager = lazy(() => import("./components/admin/LessonManager"));
 const PhoenixLab = lazy(() => import("./pages/admin/PhoenixLab"));
 const PhoenixAnalytics = lazy(() => import("./pages/admin/PhoenixAnalytics"));
 const BackfillPhoenixData = lazy(() => import("./pages/admin/BackfillPhoenixData"));
+const PlatformGuide = lazy(() => import("./pages/PlatformGuide"));
 const ThresholdManagement = lazy(() => import("./pages/admin/ThresholdManagement"));
 const BetaManagement = lazy(() => import("./pages/admin/BetaManagement"));
 const OrganizationManagement = lazy(() => import("./pages/admin/OrganizationManagement"));
@@ -493,6 +494,9 @@ const App: React.FC = () => {
                 <LazyRoute><BackfillPhoenixData /></LazyRoute>
               </RequireAdmin>
             } />
+            
+            {/* Platform Guide - Comprehensive Documentation */}
+            <Route path="platform-guide" element={<LazyRoute><PlatformGuide /></LazyRoute>} />
             
             {/* Organizations Hub - Fixed missing route */}
             <Route path="organizations" element={<LazyRoute><OrgHub /></LazyRoute>} />
