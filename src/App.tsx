@@ -18,6 +18,7 @@ import Goals from "./pages/Goals";
 import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
 import AdminKBManager from "./pages/AdminKBManager";
+import AdminKBDiagnostics from "./pages/AdminKBDiagnostics";
 import Pricing from "./pages/Pricing";
 import PricingAuthenticated from "./pages/PricingAuthenticated";
 import ChartLibrary from "./pages/ChartLibrary";
@@ -148,6 +149,16 @@ const App = () => (
                 <ProtectedRoute>
                   <AppLayout>
                     <AdminKBManager />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/kb-diagnostics"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <AdminKBDiagnostics />
                   </AppLayout>
                 </ProtectedRoute>
               }

@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Database, PlayCircle, Loader2, Book, Brain, Plus, X, TrendingUp, LayoutGrid, List, Table as TableIcon, ChevronDown, School, Users, Trash2 } from "lucide-react";
+import { Database, PlayCircle, Loader2, Book, Brain, Plus, X, TrendingUp, LayoutGrid, List, Table as TableIcon, ChevronDown, School, Users, Trash2, TestTube } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { useAuth } from "@/hooks/useAuth";
@@ -318,14 +318,23 @@ export default function AdminKBManager() {
   return (
     <div className="container mx-auto py-6 space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold flex items-center gap-2">
-          <Database className="h-8 w-8" />
-          Knowledge Base Command Center
-        </h1>
-        <p className="text-muted-foreground">
-          Manage and ingest evidence-based resources from academic and clinical sources
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold flex items-center gap-2">
+            <Database className="h-8 w-8" />
+            Knowledge Base Command Center
+          </h1>
+          <p className="text-muted-foreground">
+            Manage and ingest evidence-based resources from academic and clinical sources
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          onClick={() => navigate("/admin/kb-diagnostics")}
+        >
+          <TestTube className="mr-2 h-4 w-4" />
+          Run Diagnostics
+        </Button>
       </div>
 
       {/* Section 1: Statistics */}
