@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { dashboardGuide } from '@/data/platform-guide/organization-owner/dashboard';
+import { organizationOwnerGuide, allGuideEntries } from '@/data/platform-guide';
 import { GuideEntry } from '@/types/platform-guide';
 
 export default function PlatformGuide() {
@@ -20,10 +20,10 @@ export default function PlatformGuide() {
 
   // Search functionality
   const filteredEntries = useMemo(() => {
-    if (!searchQuery.trim()) return dashboardGuide;
+    if (!searchQuery.trim()) return allGuideEntries;
     
     const query = searchQuery.toLowerCase();
-    return dashboardGuide.filter(entry => 
+    return allGuideEntries.filter(entry =>
       entry.title.toLowerCase().includes(query) ||
       entry.description.toLowerCase().includes(query) ||
       entry.userPurpose.toLowerCase().includes(query) ||
