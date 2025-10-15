@@ -7,7 +7,7 @@ const corsHeaders = {
 
 interface WelcomeAudioRequest {
   text: string;
-  persona: 'AL' | 'BETTY';
+  persona: 'AL' | 'BETTY' | 'NITE_OWL';
 }
 
 serve(async (req) => {
@@ -25,13 +25,66 @@ serve(async (req) => {
 
     console.log(`[WELCOME-AUDIO] Generating audio for ${persona}:`, text.substring(0, 50) + '...')
 
-    // Try ElevenLabs first
-    const elevenLabsKey = Deno.env.get('ELEVENLABS_API_KEY')
+    // Feature flags for TTS providers
+    const isGoogleEnabled = Deno.env.get('TTS_PROVIDER_GOOGLE_ENABLED') === 'true';
+    const isElevenLabsEnabled = Deno.env.get('TTS_PROVIDER_ELEVENLABS_ENABLED') !== 'false';
+    const isOpenAIEnabled = Deno.env.get('TTS_PROVIDER_OPENAI_ENABLED') !== 'false';
     
-    if (elevenLabsKey) {
+    const googleKey = Deno.env.get('GOOGLE_CLOUD_TTS_API_KEY');
+    const elevenLabsKey = Deno.env.get('ELEVENLABS_API_KEY');
+    const openAIKey = Deno.env.get('OPENAI_API_KEY');
+    
+    let audioContent = null;
+    let provider = null;
+
+    // Try Google Cloud TTS first (if enabled)
+    if (isGoogleEnabled && googleKey && !audioContent) {
       try {
-        // Betty = custom voice, Al = custom voice
-        const voiceId = persona === 'BETTY' ? 'uYXf8XasLslADfZ2MB4u' : 'scOwDtmlUjD3prqpp97I'
+        const googleVoice = persona === 'BETTY' 
+          ? 'en-US-Wavenet-F'
+          : persona === 'NITE_OWL'
+          ? 'en-US-Wavenet-E'
+          : 'en-US-Wavenet-D';
+        
+        console.log(`[WELCOME-AUDIO] Attempting Google TTS with voice ${googleVoice}`)
+        
+        const googleResponse = await fetch(
+          `https://texttospeech.googleapis.com/v1/text:synthesize?key=${googleKey}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              input: { text },
+              voice: { languageCode: 'en-US', name: googleVoice },
+              audioConfig: { audioEncoding: 'MP3', speakingRate: 1.0, pitch: 0 },
+            }),
+          }
+        );
+        
+        if (googleResponse.ok) {
+          const data = await googleResponse.json();
+          if (data.audioContent) {
+            audioContent = data.audioContent;
+            provider = 'google';
+            console.log(`[WELCOME-AUDIO] ✅ Google Cloud TTS success`);
+          }
+        } else {
+          console.warn(`[WELCOME-AUDIO] Google TTS failed (${googleResponse.status})`);
+        }
+      } catch (googleError) {
+        console.warn('[WELCOME-AUDIO] Google TTS error:', googleError);
+      }
+    }
+
+    // Try ElevenLabs (if enabled and Google failed)
+    if (isElevenLabsEnabled && elevenLabsKey && !audioContent) {
+      try {
+        // Voice mapping: Betty, Al, Nite Owl (Al voice ID corrected for consistency)
+        const voiceId = persona === 'BETTY' 
+          ? 'uYXf8XasLslADfZ2MB4u' 
+          : persona === 'NITE_OWL'
+          ? 'wo6udizrrtpIxWGp2qJk'
+          : 'wo6udizrrtpIxWGp2qJk';
         
         console.log(`[WELCOME-AUDIO] Attempting ElevenLabs with voice ${voiceId}`)
         
@@ -61,26 +114,17 @@ serve(async (req) => {
           // Convert to base64 in chunks to avoid stack overflow
           const uint8Array = new Uint8Array(audioBuffer)
           let binaryString = ''
-          const chunkSize = 8192 // Process 8KB at a time
+          const chunkSize = 8192
           
           for (let i = 0; i < uint8Array.length; i += chunkSize) {
             const chunk = uint8Array.subarray(i, Math.min(i + chunkSize, uint8Array.length))
             binaryString += String.fromCharCode.apply(null, Array.from(chunk))
           }
           
-          const base64Audio = btoa(binaryString)
+          audioContent = btoa(binaryString)
+          provider = 'elevenlabs'
           
           console.log(`[WELCOME-AUDIO] ✅ ElevenLabs success (${audioBuffer.byteLength} bytes)`)
-          
-          return new Response(
-            JSON.stringify({ 
-              audioContent: base64Audio,
-              provider: 'elevenlabs'
-            }),
-            {
-              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            }
-          )
         } else {
           const errorText = await elevenLabsResponse.text()
           console.warn(`[WELCOME-AUDIO] ElevenLabs failed (${elevenLabsResponse.status}):`, errorText)
@@ -88,63 +132,70 @@ serve(async (req) => {
       } catch (elevenLabsError) {
         console.warn('[WELCOME-AUDIO] ElevenLabs error:', elevenLabsError)
       }
-    } else {
-      console.warn('[WELCOME-AUDIO] ELEVENLABS_API_KEY not configured')
     }
 
-    // Fallback to OpenAI TTS
-    console.log('[WELCOME-AUDIO] Falling back to OpenAI TTS')
-    
-    const openAIKey = Deno.env.get('OPENAI_API_KEY')
-    if (!openAIKey) {
-      throw new Error('No TTS provider available (missing API keys)')
-    }
+    // Fallback to OpenAI TTS (if enabled and both Google and ElevenLabs failed)
+    if (isOpenAIEnabled && openAIKey && !audioContent) {
+      console.log('[WELCOME-AUDIO] Falling back to OpenAI TTS')
+      
+      const voice = persona === 'BETTY' 
+        ? 'nova' 
+        : persona === 'NITE_OWL'
+        ? 'shimmer'
+        : 'onyx';
+      
+      const openAIResponse = await fetch('https://api.openai.com/v1/audio/speech', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${openAIKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'tts-1',
+          input: text,
+          voice: voice,
+          response_format: 'mp3',
+        }),
+      })
 
-    const openAIResponse = await fetch('https://api.openai.com/v1/audio/speech', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'tts-1',
-        input: text,
-        voice: persona === 'BETTY' ? 'nova' : 'onyx',
-        response_format: 'mp3',
-      }),
-    })
-
-    if (!openAIResponse.ok) {
-      const errorText = await openAIResponse.text()
-      console.error('[WELCOME-AUDIO] OpenAI TTS failed:', errorText)
-      throw new Error(`OpenAI TTS failed: ${openAIResponse.status}`)
-    }
-
-    const audioBuffer = await openAIResponse.arrayBuffer()
-    
-    // Convert to base64 in chunks to avoid stack overflow
-    const uint8Array = new Uint8Array(audioBuffer)
-    let binaryString = ''
-    const chunkSize = 8192 // Process 8KB at a time
-    
-    for (let i = 0; i < uint8Array.length; i += chunkSize) {
-      const chunk = uint8Array.subarray(i, Math.min(i + chunkSize, uint8Array.length))
-      binaryString += String.fromCharCode.apply(null, Array.from(chunk))
-    }
-    
-    const base64Audio = btoa(binaryString)
-
-    console.log(`[WELCOME-AUDIO] ✅ OpenAI TTS success (${audioBuffer.byteLength} bytes)`)
-
-    return new Response(
-      JSON.stringify({ 
-        audioContent: base64Audio,
-        provider: 'openai'
-      }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      if (openAIResponse.ok) {
+        const audioBuffer = await openAIResponse.arrayBuffer()
+        
+        // Convert to base64 in chunks to avoid stack overflow
+        const uint8Array = new Uint8Array(audioBuffer)
+        let binaryString = ''
+        const chunkSize = 8192
+        
+        for (let i = 0; i < uint8Array.length; i += chunkSize) {
+          const chunk = uint8Array.subarray(i, Math.min(i + chunkSize, uint8Array.length))
+          binaryString += String.fromCharCode.apply(null, Array.from(chunk))
+        }
+        
+        audioContent = btoa(binaryString)
+        provider = 'openai'
+        
+        console.log(`[WELCOME-AUDIO] ✅ OpenAI TTS success (${audioBuffer.byteLength} bytes)`)
+      } else {
+        const errorText = await openAIResponse.text()
+        console.error('[WELCOME-AUDIO] OpenAI TTS failed:', errorText)
       }
-    )
+    }
+    
+    // Return audio if any provider succeeded
+    if (audioContent && provider) {
+      return new Response(
+        JSON.stringify({ 
+          audioContent,
+          provider
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      )
+    }
+    
+    // All providers failed
+    throw new Error('No TTS provider available or all providers failed')
   } catch (error) {
     console.error('[WELCOME-AUDIO] Error:', error)
     return new Response(
