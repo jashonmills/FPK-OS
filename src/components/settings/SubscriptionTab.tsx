@@ -5,13 +5,15 @@ import { Progress } from '@/components/ui/progress';
 import { useFamily } from '@/contexts/FamilyContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { CreditCard, Users, GraduationCap, HardDrive, TrendingUp } from 'lucide-react';
+import { CreditCard, Users, GraduationCap, HardDrive, TrendingUp, Sparkles } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import { useAICredits } from '@/hooks/useAICredits';
 
 export const SubscriptionTab = () => {
   const { selectedFamily } = useFamily();
   const navigate = useNavigate();
+  const { balance } = useAICredits();
 
   const { data: familyData } = useQuery({
     queryKey: ['family-subscription', selectedFamily?.id],
@@ -195,6 +197,40 @@ export const SubscriptionTab = () => {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
+          {/* AI Credits */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4" />
+                AI Credits
+              </span>
+              <span className="font-medium">
+                {balance?.total_credits?.toLocaleString() || 0} 
+                <span className="text-muted-foreground text-xs ml-1">
+                  (Monthly: {balance?.monthly_credits?.toLocaleString() || 0} + 
+                  Purchased: {balance?.purchased_credits?.toLocaleString() || 0})
+                </span>
+              </span>
+            </div>
+            <Progress 
+              value={balance?.monthly_allowance 
+                ? ((balance?.monthly_credits || 0) / balance.monthly_allowance) * 100 
+                : 0
+              } 
+            />
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <span>Monthly allowance resets on billing cycle</span>
+              <Button 
+                variant="link" 
+                size="sm" 
+                className="h-auto p-0"
+                onClick={() => navigate('/settings?tab=credits')}
+              >
+                Buy More Credits
+              </Button>
+            </div>
+          </div>
+
           {/* Students */}
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
