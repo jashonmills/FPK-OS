@@ -85,7 +85,7 @@ export const PhoenixFeatureFlags = () => {
   const getFeatureIcon = (featureName: string) => {
     if (featureName.includes('nite_owl')) return '🦉';
     if (featureName.includes('socratic')) return '🤝';
-    if (featureName.includes('tts') || featureName.includes('audio')) return '🎵';
+    if (featureName.includes('tts') || featureName.includes('audio') || featureName.includes('provider')) return '🎵';
     if (featureName.includes('memory')) return '🧠';
     if (featureName.includes('podcast')) return '🎙️';
     if (featureName.includes('governor')) return '🛡️';
@@ -96,7 +96,7 @@ export const PhoenixFeatureFlags = () => {
   const getFeatureColor = (featureName: string) => {
     if (featureName.includes('nite_owl')) return 'bg-purple-500';
     if (featureName.includes('socratic')) return 'bg-blue-500';
-    if (featureName.includes('tts') || featureName.includes('audio')) return 'bg-green-500';
+    if (featureName.includes('tts') || featureName.includes('audio') || featureName.includes('provider')) return 'bg-green-500';
     if (featureName.includes('memory')) return 'bg-orange-500';
     if (featureName.includes('podcast')) return 'bg-pink-500';
     if (featureName.includes('governor')) return 'bg-red-500';

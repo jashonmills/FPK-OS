@@ -1972,10 +1972,15 @@ Keep it under 100 words.`;
           if (featureFlags['tts_audio']?.enabled) {
             console.log('[CONDUCTOR] 🎵 TTS feature ENABLED - generating audio');
             try {
-            // Feature flags for TTS providers
-            const isGoogleEnabled = Deno.env.get('TTS_PROVIDER_GOOGLE_ENABLED') === 'true';
-            const isElevenLabsEnabled = Deno.env.get('TTS_PROVIDER_ELEVENLABS_ENABLED') !== 'false';
-            const isOpenAIEnabled = Deno.env.get('TTS_PROVIDER_OPENAI_ENABLED') !== 'false';
+            // Feature flags for TTS providers (read from database)
+            const { data: ttsFlags } = await supabaseClient
+              .from('phoenix_feature_flags')
+              .select('feature_name, is_enabled')
+              .in('feature_name', ['tts_provider_google', 'tts_provider_elevenlabs', 'tts_provider_openai']);
+            
+            const isGoogleEnabled = ttsFlags?.find(f => f.feature_name === 'tts_provider_google')?.is_enabled ?? false;
+            const isElevenLabsEnabled = ttsFlags?.find(f => f.feature_name === 'tts_provider_elevenlabs')?.is_enabled ?? true;
+            const isOpenAIEnabled = ttsFlags?.find(f => f.feature_name === 'tts_provider_openai')?.is_enabled ?? false;
             
             const GOOGLE_TTS_KEY = Deno.env.get('GOOGLE_CLOUD_TTS_API_KEY');
             const ELEVENLABS_API_KEY = Deno.env.get('ELEVENLABS_API_KEY');
@@ -2369,10 +2374,15 @@ Keep it brief and focused on answering their original question.`;
               // Generate TTS for handoff message (feature-flagged)
               let handoffAudioUrl = null;
               try {
-                // Feature flags
-                const isGoogleEnabled = Deno.env.get('TTS_PROVIDER_GOOGLE_ENABLED') === 'true';
-                const isElevenLabsEnabled = Deno.env.get('TTS_PROVIDER_ELEVENLABS_ENABLED') !== 'false';
-                const isOpenAIEnabled = Deno.env.get('TTS_PROVIDER_OPENAI_ENABLED') !== 'false';
+                // Feature flags (read from database)
+                const { data: ttsFlags } = await supabaseClient
+                  .from('phoenix_feature_flags')
+                  .select('feature_name, is_enabled')
+                  .in('feature_name', ['tts_provider_google', 'tts_provider_elevenlabs', 'tts_provider_openai']);
+                
+                const isGoogleEnabled = ttsFlags?.find(f => f.feature_name === 'tts_provider_google')?.is_enabled ?? false;
+                const isElevenLabsEnabled = ttsFlags?.find(f => f.feature_name === 'tts_provider_elevenlabs')?.is_enabled ?? true;
+                const isOpenAIEnabled = ttsFlags?.find(f => f.feature_name === 'tts_provider_openai')?.is_enabled ?? false;
                 
                 const GOOGLE_TTS_KEY = Deno.env.get('GOOGLE_CLOUD_TTS_API_KEY');
                 const ELEVENLABS_API_KEY = Deno.env.get('ELEVENLABS_API_KEY');
