@@ -39,6 +39,9 @@ import Guides from "./pages/Guides";
 import GuideCategory from "./pages/GuideCategory";
 import GuideArticle from "./pages/GuideArticle";
 import FAQ from "./pages/FAQ";
+import About from "./pages/About";
+import Authors from "./pages/Authors";
+import AuthorProfile from "./pages/AuthorProfile";
 import AdminContentManager from "./pages/AdminContentManager";
 import { CookieConsent } from "./components/legal/CookieConsent";
 import { useFeatureFlags } from "@/hooks/useFeatureFlags";
@@ -91,10 +94,13 @@ const App = () => (
           <Route path="/cookie-policy" element={<CookiePolicy />} />
           <Route path="/hipaa-notice" element={<HIPAANotice />} />
           <Route path="/data-deletion" element={<DataDeletion />} />
+          <Route path="/about" element={<About />} />
           <Route path="/guides" element={<Guides />} />
           <Route path="/guides/:categorySlug" element={<GuideCategory />} />
           <Route path="/guides/:categorySlug/:articleSlug" element={<GuideArticle />} />
           <Route path="/faq" element={<FAQ />} />
+          <Route path="/authors" element={<Authors />} />
+          <Route path="/authors/:authorSlug" element={<AuthorProfile />} />
             <Route
               path="/onboarding"
               element={

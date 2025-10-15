@@ -3,9 +3,10 @@ import { useParams, Link, Navigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { SchemaMarkup } from '@/components/seo/SchemaMarkup';
+import { SocialShare } from '@/components/content/SocialShare';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Clock, ArrowLeft, Calendar } from 'lucide-react';
+import { Clock, ArrowLeft, Calendar, User } from 'lucide-react';
 import { format } from 'date-fns';
 import { useEffect } from 'react';
 
@@ -145,20 +146,25 @@ export default function GuideArticle() {
 
             {article.description && (
               <p className="text-xl text-muted-foreground mb-6">
-                {article.description}
-              </p>
-            )}
+              {article.description}
+            </p>
+          )}
 
+          <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
             <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
               {article.author && (
-                <div className="flex items-center">
+                <Link
+                  to={`/authors/${article.author.slug}`}
+                  className="flex items-center hover:text-primary transition-colors"
+                >
+                  <User className="w-4 h-4 mr-2" />
                   <span className="font-medium text-foreground">
                     {article.author.name}
                   </span>
                   {article.author.credentials && (
                     <span className="ml-1">, {article.author.credentials}</span>
                   )}
-                </div>
+                </Link>
               )}
               
               {article.published_at && (
@@ -175,7 +181,14 @@ export default function GuideArticle() {
                 </div>
               )}
             </div>
-          </header>
+
+            <SocialShare
+              title={article.title}
+              url={window.location.href}
+              description={article.excerpt || article.description}
+            />
+          </div>
+        </header>
 
           {article.featured_image_url && (
             <img

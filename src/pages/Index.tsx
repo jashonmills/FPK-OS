@@ -180,6 +180,9 @@ const Index = () => {
             <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
               <p>&copy; 2025 FPX MyCNS app. Built for special education families.</p>
               <div className="flex gap-6">
+                <button onClick={() => navigate('/about')} className="hover:text-primary transition-colors">
+                  About Us
+                </button>
                 <button onClick={() => navigate('/guides')} className="hover:text-primary transition-colors">
                   Resource Guides
                 </button>
