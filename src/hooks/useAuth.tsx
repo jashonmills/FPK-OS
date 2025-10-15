@@ -77,14 +77,14 @@ export const useAuth = () => {
 
               if (error) {
                 console.error("Error checking onboarding status:", error);
-                console.log("Falling back to dashboard due to error");
-                navigate('/dashboard');
+                console.log("Falling back to overview due to error");
+                navigate('/overview');
                 return;
               }
 
               if (hasCompletedOnboarding) {
-                console.log("✓ User has completed onboarding. Redirecting to dashboard.");
-                navigate('/dashboard');
+                console.log("✓ User has completed onboarding. Redirecting to overview.");
+                navigate('/overview');
               } else {
                 console.log("✗ New user detected. Redirecting to onboarding.");
                 navigate('/onboarding');

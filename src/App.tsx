@@ -11,6 +11,7 @@ import Auth from "./pages/Auth";
 import AcceptInvite from "./pages/AcceptInvite";
 import OnboardingWizard from "./pages/OnboardingWizard";
 import ProfileSetup from "./pages/ProfileSetup";
+import Overview from "./pages/Overview";
 import Dashboard from "./pages/Dashboard";
 import ActivityLog from "./pages/ActivityLog";
 import Documents from "./pages/Documents";
@@ -72,6 +73,16 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <ProfileSetup />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/overview"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <Overview />
+                  </AppLayout>
                 </ProtectedRoute>
               }
             />

@@ -14,9 +14,12 @@ import { supabase } from '@/integrations/supabase/client';
 
 export const AppHeader = () => {
   const location = useLocation();
+  const isOverviewPage = location.pathname === '/overview';
 
   const getPageTitle = () => {
     switch (location.pathname) {
+      case '/overview':
+        return 'Platform Overview';
       case '/dashboard':
         return 'Progress Dashboard';
       case '/activity-log':
@@ -74,7 +77,7 @@ export const AppHeader = () => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <FamilyStudentSelector />
+          {!isOverviewPage && <FamilyStudentSelector />}
         </div>
       </div>
     </header>
