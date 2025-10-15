@@ -34,7 +34,7 @@ export function FeatureFlagTelemetry() {
     .sort(([, a], [, b]) => b.totalTriggers - a.totalTriggers);
 
   return (
-    <Card className="p-6 col-span-2">
+    <Card className="p-6">
       <div className="flex items-center gap-2 mb-6">
         <Flag className="w-5 h-5 text-primary" />
         <h3 className="text-lg font-semibold">Feature Flag Telemetry</h3>
