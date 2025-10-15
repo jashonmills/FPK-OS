@@ -728,6 +728,13 @@ export default function PhoenixLab() {
               
               const data = JSON.parse(jsonStr);
 
+              // Handle "thinking" indicator from backend
+              if (data.type === 'thinking') {
+                console.log('[PHOENIX] 🤔', data.persona, 'is thinking...');
+                // Optional: Could show "Betty is thinking..." in UI here
+                continue;
+              }
+
               if (data.type === 'chunk') {
                 fullText += data.content;
                 currentPersona = data.persona;
@@ -815,6 +822,16 @@ export default function PhoenixLab() {
               } else if (data.type === 'done') {
                 console.log('[PHOENIX] Stream done event:', data.metadata);
                 isStreamingActive = false;
+                
+                // PHASE 3: Check for audio failure and notify user
+                if (data.metadata?.audioFailed) {
+                  toast({
+                    title: "Voice Unavailable",
+                    description: "Audio generation failed - showing text response only",
+                    variant: "default",
+                  });
+                  console.warn('[PHOENIX] ⚠️ Audio generation failed, continuing with text-only');
+                }
                 
                 // PHASE 5.2: Skip normal processing for co-response (already handled)
                 if (data.isCoResponse) {

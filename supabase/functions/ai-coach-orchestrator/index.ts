@@ -1038,13 +1038,35 @@ serve(async (req) => {
     
     const messageLower = message.toLowerCase();
     
-    // Check for escape hatch patterns (highest priority)
-    const escapePatterns = [
-      'just give me', 'just tell me', 'stop asking', "don't want to continue",
-      'give me the answer', 'tell me the answer', 'can i have', 'i want a recipe',
-      'lets pick up where we left off', "let's pick up"
+    // NEW: Check for continuation/resumption patterns (highest priority)
+    const continuationPatterns = [
+      /proceed|continue|keep going|go on/i,
+      /where we (left off|were|stopped)/i,
+      /back to (it|the topic|what we|where we)/i,
+      /pick up where/i,
+      /resume/i
     ];
-    if (escapePatterns.some(pattern => messageLower.includes(pattern))) {
+    
+    const hasContinuationIntent = continuationPatterns.some(pattern => pattern.test(message));
+    
+    if (hasContinuationIntent) {
+      // Check conversation history to determine if we should resume a Socratic session
+      const lastFewMessages = conversationHistory.slice(-6);
+      const hadBettyInRecent = lastFewMessages.some(msg => msg.persona === 'BETTY');
+      
+      if (hadBettyInRecent || inBettySession) {
+        detectedIntent = 'socratic_guidance';
+        intentConfidence = 0.95;
+        intentReasoning = 'User requesting to continue previous Socratic discussion';
+        console.log('[CONDUCTOR] 🔄 Continuation detected - resuming Socratic mode');
+      } else {
+        detectedIntent = 'direct_answer';
+        intentConfidence = 0.85;
+        intentReasoning = 'User requesting to continue, but no active Socratic session found';
+      }
+    }
+    // Check for escape hatch patterns
+    else if (escapePatterns.some(pattern => messageLower.includes(pattern))) {
       detectedIntent = 'escape_hatch';
       intentConfidence = 0.95;
       intentReasoning = 'Student explicitly requesting direct answer';
@@ -1730,6 +1752,16 @@ Keep it under 100 words.`;
         let chunkCount = 0;
         let buffer = ''; // Buffer for incomplete JSON
 
+        // Define governorResult with safe defaults BEFORE try block to avoid scope issues
+        let governorResult = {
+          passed: true,
+          is_safe: true,
+          is_on_topic: true,
+          persona_adherence: 'correct' as const,
+          severity: 'low' as const,
+          reason: 'Self-governed response'
+        };
+
         try {
           // ⚡ IMMEDIATE USER FEEDBACK: Send "thinking" status before first token
           const thinkingEvent = `data: ${JSON.stringify({ 
@@ -1812,17 +1844,7 @@ Keep it under 100 words.`;
           const governorBlocked = false; // Never blocking with new self-governance approach
           console.log('[CONDUCTOR] ⚡ Skipping blocking Governor check - using LLM response directly');
           
-          // Define governorResult with safe defaults BEFORE async check
-          const governorResult = {
-            passed: true,
-            is_safe: true,
-            is_on_topic: true,
-            persona_adherence: 'correct' as const,
-            severity: 'low' as const,
-            reason: 'Self-governed response'
-          };
-          
-          // Async Governor logging (non-blocking)
+          // Async Governor logging (non-blocking) - updates governorResult if needed
           (async () => {
             try {
               const asyncGovernorResult = await runGovernorCheck(
@@ -1982,8 +2004,15 @@ Keep it under 100 words.`;
               console.warn('[CONDUCTOR] ⚠️ No text to generate audio for (empty finalText)');
             }
           } catch (ttsError) {
-            console.error('[CONDUCTOR] ❌ TTS error (non-critical):', ttsError);
+            console.error('[CONDUCTOR] ❌ TTS generation failed completely:', ttsError);
             console.error('[CONDUCTOR] ❌ Text that failed TTS (first 80):', textForTTS.substring(0, 80));
+            // Audio will be null, but we'll still send the text response
+            ttsProvider = 'failed';
+          }
+          
+          // Log final TTS status
+          if (!audioUrl) {
+            console.warn('[CONDUCTOR] ⚠️ No audio available - text-only response will be sent');
           }
           
           // CRITICAL SANITY CHECK: Verify text-audio alignment
@@ -2361,6 +2390,7 @@ Keep it brief and focused on answering their original question.`;
                 ...responseMetadata,
                 hasAudio: audioUrl !== null,
                 ttsProvider,
+                audioFailed: ttsProvider === 'failed', // NEW: Flag for frontend to show toast
                 governorChecked: true,
                 governorBlocked,
                 isSocraticHandoff,
