@@ -1,7 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.38/deno-dom-wasm.ts";
-import { createEmbedding, chunkText, validateContent } from "../_shared/embedding-helper.ts";
+import { createEmbedding, chunkText } from "../_shared/embedding-helper.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -14,6 +13,9 @@ serve(async (req) => {
   }
 
   try {
+    console.log('🚀 CEC SCRAPER: Starting content scraping...');
+    console.log('🎯 CEC SCRAPER: Targeting Council for Exceptional Children resources');
+
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
@@ -21,56 +23,76 @@ serve(async (req) => {
     const targetUrls = [
       {
         url: "https://exceptionalchildren.org/standards/ethical-principles-and-practice-standards",
-        title: "CEC Ethical Principles and Practice Standards",
+        title: "CEC: Ethical Principles and Practice Standards",
       },
       {
-        url: "https://exceptionalchildren.org/standards/special-education-professional-practice-standards",
-        title: "CEC Professional Practice Standards",
+        url: "https://exceptionalchildren.org/standards/initial-preparation-standards",
+        title: "CEC: Initial Special Education Preparation Standards",
+      },
+      {
+        url: "https://exceptionalchildren.org/standards/high-leverage-practices",
+        title: "CEC: High-Leverage Practices in Special Education",
       },
     ];
 
-    console.log("Starting CEC content scraping...");
     let processedCount = 0;
     let skippedCount = 0;
+    let failedCount = 0;
+    let totalChunksCreated = 0;
 
     for (const target of targetUrls) {
       try {
+        console.log(`\n📄 CEC SCRAPER: Processing ${target.title}`);
+        console.log(`🔗 CEC SCRAPER: URL = ${target.url}`);
+
         const { data: existing } = await supabase
           .from("knowledge_base")
           .select("id")
           .eq("source_url", target.url)
-          .single();
+          .maybeSingle();
 
         if (existing) {
-          console.log(`Skipping existing document: ${target.title}`);
+          console.log(`⏭️  CEC SCRAPER: Document already exists, skipping`);
           skippedCount++;
           continue;
         }
 
-        console.log(`Fetching: ${target.url}`);
-        const response = await fetch(target.url);
-        const html = await response.text();
+        const response = await fetch(target.url, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+          }
+        });
 
-        const doc = new DOMParser().parseFromString(html, "text/html");
-        if (!doc) {
-          console.error(`Failed to parse HTML for ${target.url}`);
+        if (!response.ok) {
+          console.error(`❌ CEC SCRAPER: HTTP ${response.status} for ${target.url}`);
+          failedCount++;
           continue;
         }
 
-        const contentElement = doc.querySelector("article") || doc.querySelector("main") || doc.querySelector(".content") || doc.body;
-        let textContent = contentElement?.textContent || "";
+        const html = await response.text();
+        console.log(`✅ CEC SCRAPER: Fetched ${html.length} bytes of HTML`);
 
-        textContent = textContent
+        let textContent = html
+          .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+          .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
+          .replace(/<!--[\s\S]*?-->/g, '')
+          .replace(/<nav\b[^<]*(?:(?!<\/nav>)<[^<]*)*<\/nav>/gi, '')
+          .replace(/<footer\b[^<]*(?:(?!<\/footer>)<[^<]*)*<\/footer>/gi, '')
+          .replace(/<header\b[^<]*(?:(?!<\/header>)<[^<]*)*<\/header>/gi, '')
+          .replace(/<[^>]+>/g, ' ')
           .replace(/\s+/g, " ")
           .replace(/\n+/g, "\n")
           .trim();
 
-        console.log(`✅ Extracted ${textContent.length} characters from ${target.url}`);
+        console.log(`📊 CEC SCRAPER: Extracted ${textContent.length} characters`);
 
-        if (!validateContent(textContent, target.url, 100)) {
-          skippedCount++;
+        if (textContent.length < 500) {
+          console.error(`❌ CEC SCRAPER: Insufficient content (${textContent.length} chars)`);
+          failedCount++;
           continue;
         }
+
+        console.log(`✅ CEC SCRAPER: Content validation passed`);
 
         const { data: kbEntry, error: kbError } = await supabase
           .from("knowledge_base")
@@ -86,18 +108,19 @@ serve(async (req) => {
           .single();
 
         if (kbError) {
-          console.error(`Error inserting KB entry for ${target.title}:`, kbError);
+          console.error(`❌ CEC SCRAPER: DB insert error:`, kbError);
+          failedCount++;
           continue;
         }
 
-        console.log(`Created KB entry for: ${target.title}`);
+        console.log(`✅ CEC SCRAPER: Created KB entry`);
 
-        const chunks = chunkText(textContent);
-        console.log(`📦 Split into ${chunks.length} chunks for ${target.title}`);
+        const chunks = chunkText(textContent, 8000);
+        console.log(`📦 CEC SCRAPER: Split into ${chunks.length} chunks`);
 
         for (let i = 0; i < chunks.length; i++) {
           try {
-            console.log(`🔄 Creating embedding for chunk ${i + 1}/${chunks.length}...`);
+            console.log(`🧠 CEC SCRAPER: Creating embedding ${i + 1}/${chunks.length}...`);
             const embedding = await createEmbedding(chunks[i]);
 
             await supabase.from("kb_chunks").insert({
@@ -107,33 +130,42 @@ serve(async (req) => {
               token_count: Math.ceil(chunks[i].length / 4),
             });
 
+            totalChunksCreated++;
             await new Promise((resolve) => setTimeout(resolve, 100));
           } catch (error) {
-            console.error(`❌ Failed to create embedding for chunk ${i + 1}:`, error);
-            continue;
+            console.error(`❌ CEC SCRAPER: Embedding failed for chunk ${i + 1}:`, error);
           }
         }
 
         processedCount++;
-        console.log(`Completed processing: ${target.title}`);
+        console.log(`✅ CEC SCRAPER: Successfully processed ${target.title}`);
 
-        await new Promise((resolve) => setTimeout(resolve, 2000));
       } catch (error) {
-        console.error(`Error processing ${target.title}:`, error);
+        console.error(`❌ CEC SCRAPER: Exception processing ${target.title}:`, error);
+        failedCount++;
       }
     }
 
+    const summary = {
+      processed: processedCount,
+      skipped: skippedCount,
+      failed: failedCount,
+      total: targetUrls.length,
+      chunks_created: totalChunksCreated
+    };
+
+    console.log(`\n📊 CEC SCRAPER COMPLETE:`, summary);
+
     return new Response(
       JSON.stringify({
+        success: true,
         message: "CEC content scraping completed",
-        processed: processedCount,
-        skipped: skippedCount,
-        total: targetUrls.length,
+        ...summary
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
-    console.error("Error in scrape-cec-content:", error);
+    console.error("💥 CEC SCRAPER: Fatal error:", error);
     return new Response(
       JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }

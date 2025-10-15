@@ -12,73 +12,116 @@ serve(async (req) => {
   }
 
   try {
-    console.log('🚀 Starting CDC content scraping...');
+    console.log('🚀 CDC SCRAPER: Starting content scraping...');
+    console.log('🎯 CDC SCRAPER: Targeting 6 CDC pages on Autism and ADHD');
     
-    // Target CDC pages about Autism and ADHD
+    // Updated CDC URLs with correct current paths
     const cdcUrls = [
-      'https://www.cdc.gov/ncbddd/autism/facts.html',
-      'https://www.cdc.gov/ncbddd/autism/signs.html',
-      'https://www.cdc.gov/ncbddd/autism/screening.html',
-      'https://www.cdc.gov/ncbddd/adhd/facts.html',
-      'https://www.cdc.gov/ncbddd/adhd/diagnosis.html',
-      'https://www.cdc.gov/ncbddd/adhd/treatment.html',
+      {
+        url: 'https://www.cdc.gov/autism/about/index.html',
+        title: 'CDC: About Autism Spectrum Disorder',
+        focusArea: 'autism'
+      },
+      {
+        url: 'https://www.cdc.gov/autism/signs-symptoms/index.html',
+        title: 'CDC: Signs and Symptoms of Autism',
+        focusArea: 'autism'
+      },
+      {
+        url: 'https://www.cdc.gov/autism/screening-diagnosis/index.html',
+        title: 'CDC: Autism Screening and Diagnosis',
+        focusArea: 'autism'
+      },
+      {
+        url: 'https://www.cdc.gov/adhd/about/index.html',
+        title: 'CDC: About ADHD',
+        focusArea: 'adhd'
+      },
+      {
+        url: 'https://www.cdc.gov/adhd/diagnosis-treatment/index.html',
+        title: 'CDC: ADHD Diagnosis and Treatment',
+        focusArea: 'adhd'
+      },
+      {
+        url: 'https://www.cdc.gov/adhd/features/key-findings-adhd.html',
+        title: 'CDC: Key Findings on ADHD',
+        focusArea: 'adhd'
+      },
     ];
 
     const scrapedDocuments = [];
+    let fetchSuccessCount = 0;
+    let fetchFailCount = 0;
 
-    for (const url of cdcUrls) {
-      console.log(`📄 Fetching CDC page: ${url}`);
+    for (const target of cdcUrls) {
+      console.log(`\n📄 CDC SCRAPER: Processing ${target.title}`);
+      console.log(`🔗 CDC SCRAPER: URL = ${target.url}`);
       
       try {
-        const response = await fetch(url);
+        const response = await fetch(target.url, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+          }
+        });
+        
         if (!response.ok) {
-          console.error(`❌ Failed to fetch ${url}: ${response.status}`);
+          console.error(`❌ CDC SCRAPER: HTTP ${response.status} for ${target.url}`);
+          fetchFailCount++;
           continue;
         }
 
         const html = await response.text();
-        console.log(`✅ Successfully fetched HTML from ${url}`);
+        console.log(`✅ CDC SCRAPER: Fetched ${html.length} bytes of HTML`);
         
-        // Basic HTML parsing - extract text content
-        const textContent = html
+        // Enhanced text extraction with better cleanup
+        let textContent = html
+          // Remove scripts and styles
           .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
           .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
+          // Remove HTML comments
+          .replace(/<!--[\s\S]*?-->/g, '')
+          // Remove navigation and footer noise
+          .replace(/<nav\b[^<]*(?:(?!<\/nav>)<[^<]*)*<\/nav>/gi, '')
+          .replace(/<footer\b[^<]*(?:(?!<\/footer>)<[^<]*)*<\/footer>/gi, '')
+          .replace(/<header\b[^<]*(?:(?!<\/header>)<[^<]*)*<\/header>/gi, '')
+          // Remove all remaining HTML tags
           .replace(/<[^>]+>/g, ' ')
+          // Clean up whitespace
           .replace(/\s+/g, ' ')
+          .replace(/\n+/g, '\n')
           .trim();
 
-        console.log(`📊 Extracted ${textContent.length} characters of clean text from ${url}`);
+        console.log(`📊 CDC SCRAPER: Extracted ${textContent.length} characters of text`);
 
-        // Validate content before proceeding
-        if (!validateContent(textContent, url, 200)) {
-          continue; // Skip if content is insufficient
+        // More lenient validation for CDC pages
+        if (textContent.length < 500) {
+          console.error(`❌ CDC SCRAPER: Insufficient content (${textContent.length} chars) from ${target.url}`);
+          console.error(`   First 200 chars: ${textContent.substring(0, 200)}`);
+          fetchFailCount++;
+          continue;
         }
 
-        // Determine focus area from URL
-        const focusArea = url.includes('autism') ? 'autism' : 'adhd';
-        
-        // Extract title from URL path
-        const pathParts = url.split('/');
-        const fileName = pathParts[pathParts.length - 1].replace('.html', '');
-        const title = `CDC: ${focusArea.toUpperCase()} - ${fileName}`;
+        fetchSuccessCount++;
+        console.log(`✅ CDC SCRAPER: Content validation passed for ${target.title}`);
 
         scrapedDocuments.push({
-          title,
+          title: target.title,
           source_name: 'CDC',
-          source_url: url,
+          source_url: target.url,
           document_type: 'clinical_guideline',
-          focus_areas: [focusArea],
+          focus_areas: [target.focusArea],
           summary: textContent.substring(0, 500) + '...',
           content: textContent,
         });
 
       } catch (error) {
-        console.error(`❌ Error processing ${url}:`, error);
+        console.error(`❌ CDC SCRAPER: Exception while processing ${target.url}:`, error);
+        fetchFailCount++;
         continue;
       }
     }
 
-    console.log(`📚 Scraped ${scrapedDocuments.length} CDC documents`);
+    console.log(`\n📊 CDC SCRAPER: Fetch Summary - Success: ${fetchSuccessCount}, Failed: ${fetchFailCount}, Total: ${cdcUrls.length}`);
 
     // Store documents in knowledge base and generate embeddings
     const results = {
