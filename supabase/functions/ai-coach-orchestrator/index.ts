@@ -1087,6 +1087,18 @@ serve(async (req) => {
       /resume/i
     ];
     
+    // Define escape hatch patterns for when students explicitly request direct answers
+    const escapePatterns = [
+      'just give me the answer',
+      'just tell me',
+      'stop asking questions',
+      'give me the answer',
+      'tell me the answer',
+      'i need the answer',
+      'answer directly',
+      'straight answer'
+    ];
+    
     const hasContinuationIntent = continuationPatterns.some(pattern => pattern.test(message));
     
     if (hasContinuationIntent) {
