@@ -5,6 +5,8 @@ import { StudentProfileCard } from "./StudentProfileCard";
 import { AddStudentDialog } from "./AddStudentDialog";
 import { TourPreferencesCard } from "./TourPreferencesCard";
 import { ChangePasswordCard } from "./ChangePasswordCard";
+import { ExportDataCard } from "./ExportDataCard";
+import { DeleteAccountCard } from "./DeleteAccountCard";
 import { Users } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -41,6 +43,8 @@ export const ProfileTab = () => {
       
       <TourPreferencesCard />
       
+      <ExportDataCard />
+      
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -73,6 +77,8 @@ export const ProfileTab = () => {
           ))
         )}
       </div>
+
+      <DeleteAccountCard />
     </div>
   );
 };
