@@ -15,6 +15,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { ContextualHelpButton } from '@/components/common/ContextualHelpButton';
 
 const orgSettingsSchema = z.object({
   name: z.string().min(1, 'Organization name is required'),
@@ -116,10 +117,13 @@ export default function OrgSettingsPage() {
 
   return (
     <div className="w-full max-w-6xl mx-auto px-6 py-6 space-y-6">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
         <Settings className="h-8 w-8" />
         <div>
-          <h1 className="text-3xl font-bold text-white drop-shadow-lg">Organization Settings</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-bold text-white drop-shadow-lg">Organization Settings</h1>
+            <ContextualHelpButton section="settings" size="icon" variant="ghost" className="text-white hover:text-white/80" />
+          </div>
           <p className="text-white/80 drop-shadow">Manage your organization configuration</p>
         </div>
       </div>

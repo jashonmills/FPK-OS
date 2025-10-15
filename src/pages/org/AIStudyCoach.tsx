@@ -94,6 +94,7 @@ export default function AIStudyCoach() {
         subtitle={isAdmin 
           ? "Your administrative and educational support tool" 
           : "Your personal learning companion and study guide"}
+        helpSection="ai-assistant"
       />
 
       <div className="flex flex-col gap-6 pb-4">

@@ -6,6 +6,7 @@
 import React, { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { ContextualHelpButton } from '@/components/common/ContextualHelpButton';
 
 interface MobilePageLayoutProps {
   children: ReactNode;
@@ -113,19 +114,26 @@ interface MobileSectionHeaderProps {
   subtitle?: string;
   actions?: ReactNode;
   className?: string;
+  helpSection?: string; // For contextual help deep linking
 }
 
 export const MobileSectionHeader: React.FC<MobileSectionHeaderProps> = ({
   title,
   subtitle,
   actions,
-  className
+  className,
+  helpSection
 }) => {
   return (
     <div className={cn('mobile-stack', className)}>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="mobile-stack">
-          <h1 className="mobile-heading-xl mobile-safe-text">{title}</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="mobile-heading-xl mobile-safe-text">{title}</h1>
+            {helpSection && (
+              <ContextualHelpButton section={helpSection} size="icon" variant="ghost" />
+            )}
+          </div>
           {subtitle && (
             <p className="mobile-text-base text-muted-foreground mobile-safe-text">
               {subtitle}

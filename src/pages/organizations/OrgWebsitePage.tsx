@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card';
 import { ExternalLink, AlertCircle } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { ContextualHelpButton } from '@/components/common/ContextualHelpButton';
 export default function OrgWebsitePage() {
   const {
     currentOrg
@@ -19,8 +20,11 @@ export default function OrgWebsitePage() {
         <Card className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold mb-2">Organization Website</h1>
-              <p className="text-muted-foreground">View your organization's website</p>
+              <div className="flex items-center gap-3">
+                <h1 className="text-2xl font-bold">Organization Website</h1>
+                <ContextualHelpButton section="website" size="icon" variant="ghost" />
+              </div>
+              <p className="text-muted-foreground mt-2">View your organization's website</p>
             </div>
             <Button
               variant="outline"

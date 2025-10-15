@@ -20,6 +20,7 @@ interface ContextualHelpButtonProps {
   variant?: 'default' | 'ghost' | 'outline';
   size?: 'default' | 'sm' | 'lg' | 'icon';
   className?: string;
+  viewMode?: 'org-owner' | 'student';
 }
 
 export function ContextualHelpButton({
@@ -27,14 +28,18 @@ export function ContextualHelpButton({
   label = 'Help',
   variant = 'ghost',
   size = 'sm',
-  className = ''
+  className = '',
+  viewMode = 'org-owner'
 }: ContextualHelpButtonProps) {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    // Navigate to platform guide, optionally with section pre-selected
-    const guidePath = '/dashboard/platform-guide';
-    // In future, can add section deep linking: `${guidePath}?section=${section}`
+    // Navigate to platform guide with section and view mode parameters
+    const params = new URLSearchParams();
+    if (section) params.append('section', section);
+    if (viewMode) params.append('view', viewMode);
+    
+    const guidePath = `/dashboard/platform-guide${params.toString() ? '?' + params.toString() : ''}`;
     navigate(guidePath);
   };
 

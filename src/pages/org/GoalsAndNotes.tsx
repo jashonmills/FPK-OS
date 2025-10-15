@@ -16,6 +16,7 @@ import GoalsPage from './goals';
 import OrgNoteCreationDialog from '@/components/organizations/OrgNoteCreationDialog';
 import OrgNoteDetailModal from '@/components/organizations/OrgNoteDetailModal';
 import OrgNoteEditDialog from '@/components/organizations/OrgNoteEditDialog';
+import { ContextualHelpButton } from '@/components/common/ContextualHelpButton';
 
 export default function GoalsAndNotes() {
   const { currentOrg } = useOrgContext();
@@ -58,7 +59,10 @@ export default function GoalsAndNotes() {
       {/* Header */}
       <TransparentTile className="bg-orange-500/10 border-orange-400/30">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Goals & Notes</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-bold tracking-tight">Goals & Notes</h1>
+            <ContextualHelpButton section="goals" size="icon" variant="ghost" />
+          </div>
           <p className="text-muted-foreground mt-2">
             Track learning objectives and manage student notes in one place
           </p>

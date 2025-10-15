@@ -49,6 +49,7 @@ import { convertEnhancedCourseToCard } from '@/utils/courseConversion';
 import { cn } from '@/lib/utils';
 import type { CourseCard } from '@/types/course-card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { ContextualHelpButton } from '@/components/common/ContextualHelpButton';
 
 type ViewType = 'grid' | 'list' | 'compact';
 
@@ -554,10 +555,13 @@ export default function OrgCoursesCatalog() {
           <header className="mb-6 space-y-4">
             {/* Title and Description - Full Width */}
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
-                {isOrgStudent() ? 'My Courses' : 'Course Catalog'}
-              </h1>
-              <p className="text-white/80 text-sm md:text-base">
+              <div className="flex items-center gap-3">
+                <h1 className="text-2xl md:text-3xl font-bold text-white">
+                  {isOrgStudent() ? 'My Courses' : 'Course Catalog'}
+                </h1>
+                <ContextualHelpButton section="courses" size="icon" variant="ghost" className="text-white hover:text-white/80" />
+              </div>
+              <p className="text-white/80 text-sm md:text-base mt-2">
                 {isOrgStudent() 
                   ? 'View your assigned courses and explore available content'
                   : 'Discover and assign courses from our platform in your organization'

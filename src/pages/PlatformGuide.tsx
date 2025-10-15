@@ -3,7 +3,8 @@
  * Comprehensive documentation system for FPK University Platform
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Search, Home, BookOpen, ChevronRight, ExternalLink, Users, UserCog, FileText, Target, Bot, Gamepad2, Globe, Settings, Award, BarChart, StickyNote } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -24,8 +25,51 @@ export default function PlatformGuide() {
   const [selectedEntry, setSelectedEntry] = useState<GuideEntry | null>(null);
   const [selectedSection, setSelectedSection] = useState<GuideSectionMeta | null>(null);
   const [viewMode, setViewMode] = useState<'org-owner' | 'student'>('org-owner');
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const currentSections = viewMode === 'org-owner' ? organizationOwnerGuide : studentPortalGuideSections;
+
+  // Handle URL parameters for deep linking
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const sectionParam = params.get('section');
+    const viewParam = params.get('view');
+    
+    if (viewParam === 'student') {
+      setViewMode('student');
+    }
+    
+    if (sectionParam) {
+      const section = currentSections.find(s => s.id === sectionParam);
+      if (section) {
+        setSelectedSection(section);
+      }
+    }
+  }, [location.search, currentSections]);
+
+  // Global keyboard shortcut (? or Ctrl+/)
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      // ? key (shift + /)
+      if (e.key === '?' && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        if (location.pathname !== '/dashboard/platform-guide') {
+          navigate('/dashboard/platform-guide');
+        }
+      }
+      // Ctrl+/ or Cmd+/
+      if (e.key === '/' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        if (location.pathname !== '/dashboard/platform-guide') {
+          navigate('/dashboard/platform-guide');
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [navigate, location.pathname]);
 
   // Search functionality
   const filteredEntries = useMemo(() => {

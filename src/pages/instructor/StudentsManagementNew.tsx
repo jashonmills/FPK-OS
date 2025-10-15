@@ -23,6 +23,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { OrgStudent } from "@/hooks/useOrgStudents";
 import { supabase } from "@/integrations/supabase/client";
+import { ContextualHelpButton } from '@/components/common/ContextualHelpButton';
 export default function StudentsManagementNew() {
   const {
     orgId
@@ -142,7 +143,10 @@ export default function StudentsManagementNew() {
       <div className={cn("space-y-4 org-background viewport-constrain", isMobile ? "p-3" : "p-6 space-y-6")}>
         <header className={cn("flex justify-between gap-4", isMobile && "flex-col items-start space-y-3")}>
           <div className={isMobile ? "w-full" : ""}>
-            <h1 className="text-xl sm:text-2xl font-bold">Students</h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-xl sm:text-2xl font-bold">Students</h1>
+              <ContextualHelpButton section="students" size="icon" variant="ghost" />
+            </div>
             <p className="text-sm text-muted-foreground">
               Manage your organization's student roster and profiles
             </p>

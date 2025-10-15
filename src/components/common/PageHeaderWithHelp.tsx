@@ -10,6 +10,7 @@ interface PageHeaderWithHelpProps {
   title: string;
   description?: string;
   section?: string;
+  viewMode?: 'org-owner' | 'student';
   children?: React.ReactNode; // For additional header actions
 }
 
@@ -17,6 +18,7 @@ export function PageHeaderWithHelp({
   title,
   description,
   section,
+  viewMode = 'org-owner',
   children
 }: PageHeaderWithHelpProps) {
   return (
@@ -24,7 +26,7 @@ export function PageHeaderWithHelp({
       <div>
         <div className="flex items-center gap-3">
           <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
-          <ContextualHelpButton section={section} size="icon" variant="ghost" />
+          <ContextualHelpButton section={section} viewMode={viewMode} size="icon" variant="ghost" />
         </div>
         {description && (
           <p className="text-muted-foreground mt-2">{description}</p>

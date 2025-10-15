@@ -90,6 +90,9 @@ const OrgPortalHome = lazy(() => import("./pages/organizations/OrgPortalHome"));
 const OrgJoin = lazy(() => import("./pages/organizations/OrgJoin"));
 const OrgInstructorDashboard = lazy(() => import("./pages/organizations/OrgInstructorDashboard"));
 
+// Global components
+import { KeyboardShortcutHint } from './components/common/KeyboardShortcutHint';
+
 // Admin pages
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const UserManagement = lazy(() => import("./pages/admin/UserManagement"));
@@ -265,6 +268,7 @@ const App: React.FC = () => {
       <Sonner />
       <BetaUpdateListener />
       <ConsentManager />
+      <KeyboardShortcutHint />
       
       <Suspense fallback={<PageLoader />}>
         <Routes>

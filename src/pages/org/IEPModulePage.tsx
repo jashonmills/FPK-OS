@@ -9,6 +9,7 @@ import { Copy, Send, Clock, CheckCircle, XCircle, FileText, Plus } from 'lucide-
 import { useOrgContext } from '@/components/organizations/OrgContext';
 import { useIEPInvites } from '@/hooks/useIEPInvites';
 import { useIEPData } from '@/hooks/useIEPData';
+import { ContextualHelpButton } from '@/components/common/ContextualHelpButton';
 export default function IEPModulePage() {
   const {
     orgId
@@ -73,7 +74,10 @@ export default function IEPModulePage() {
   };
   return <div className="container mx-auto p-6 max-w-6xl">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-50">Interactive IEP Module</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-3xl font-bold tracking-tight text-slate-50">Interactive IEP Module</h1>
+          <ContextualHelpButton section="iep" size="icon" variant="ghost" className="text-white hover:text-white/80" />
+        </div>
         <p className="mt-2 text-zinc-950 font-semibold">
           Create comprehensive IEPs and collect parent preparation information
         </p>
