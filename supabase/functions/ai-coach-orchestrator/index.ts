@@ -1809,6 +1809,7 @@ Keep it under 100 words.`;
 
           // ⚡ PERFORMANCE: Fire-and-forget Governor check for logging only (no blocking!)
           const finalText = generatedTextFromLLM; // Use response directly
+          const governorBlocked = false; // Never blocking with new self-governance approach
           console.log('[CONDUCTOR] ⚡ Skipping blocking Governor check - using LLM response directly');
           
           // Async Governor logging (non-blocking)
