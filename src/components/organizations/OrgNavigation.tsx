@@ -18,7 +18,8 @@ import {
   ExternalLink,
   ChevronLeft,
   ChevronRight,
-  Gamepad2
+  Gamepad2,
+  HelpCircle
 } from 'lucide-react';
 import { useOrgContext } from './OrgContext';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -112,6 +113,13 @@ export function OrgNavigation() {
     },
   ];
 
+  // Add Platform Guide link - available to all roles
+  const platformGuideItem: NavItem = {
+    href: '/dashboard/platform-guide',
+    label: 'Platform Guide',
+    icon: HelpCircle,
+  };
+
   const filteredNavItems = navItems.filter(item => {
     if (!item.roles) return true;
     const hasPermission = item.roles.includes(currentOrg.role);
@@ -128,6 +136,9 @@ export function OrgNavigation() {
     
     return hasPermission;
   });
+
+  // Add Platform Guide at the end with a separator visual
+  const allNavItems = [...filteredNavItems, platformGuideItem];
 
   if (isMobile) {
     return (
@@ -156,24 +167,29 @@ export function OrgNavigation() {
         )}>
           <div className="pt-16 p-4 overflow-y-auto h-full">
             <div className="space-y-2">
-              {filteredNavItems.map((item) => (
-                <NavLink
-                  key={item.href}
-                  to={item.href}
-                  end={item.href === `/org/${currentOrg.organization_id}`}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={({ isActive }) =>
-                    cn(
-                      'flex items-center space-x-3 px-4 py-3 rounded-md text-base font-medium transition-colors',
-                      isActive
-                        ? 'bg-orange-500/70 text-white'
-                        : 'text-white/80 hover:text-white hover:bg-orange-500/40'
-                    )
-                  }
-                >
-                  <item.icon className="h-5 w-5" />
-                  <span>{item.label}</span>
-                </NavLink>
+              {allNavItems.map((item, index) => (
+                <React.Fragment key={item.href}>
+                  {/* Add separator before Platform Guide */}
+                  {index === allNavItems.length - 1 && (
+                    <div className="my-3 border-t border-white/20" />
+                  )}
+                  <NavLink
+                    to={item.href}
+                    end={item.href === `/org/${currentOrg.organization_id}`}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={({ isActive }) =>
+                      cn(
+                        'flex items-center space-x-3 px-4 py-3 rounded-md text-base font-medium transition-colors',
+                        isActive
+                          ? 'bg-orange-500/70 text-white'
+                          : 'text-white/80 hover:text-white hover:bg-orange-500/40'
+                      )
+                    }
+                  >
+                    <item.icon className="h-5 w-5" />
+                    <span>{item.label}</span>
+                  </NavLink>
+                </React.Fragment>
               ))}
             </div>
           </div>
@@ -209,25 +225,31 @@ export function OrgNavigation() {
 
         <div className={cn("p-4 flex-1 overflow-y-auto", isCollapsed && "px-2")}>
           <div className="space-y-2">
-            {filteredNavItems.map((item) => {
+            {allNavItems.map((item, index) => {
+              // Add separator before Platform Guide
+              const showSeparator = index === allNavItems.length - 1;
               const navContent = (
-                <NavLink
-                  key={item.href}
-                  to={item.href}
-                  end={item.href === `/org/${currentOrg.organization_id}`}
-                  className={({ isActive }) =>
-                    cn(
-                      'flex items-center rounded-md text-sm font-medium transition-colors',
-                      isCollapsed ? 'justify-center px-3 py-2' : 'space-x-3 px-3 py-2',
-                      isActive
-                        ? 'bg-orange-500/70 text-white'
-                        : 'text-white/80 hover:text-white hover:bg-orange-500/40'
-                    )
-                  }
-                >
-                  <item.icon className="h-4 w-4 flex-shrink-0" />
-                  {!isCollapsed && <span className="transition-opacity duration-300">{item.label}</span>}
-                </NavLink>
+                <>
+                  {showSeparator && !isCollapsed && (
+                    <div className="my-3 border-t border-white/20" />
+                  )}
+                  <NavLink
+                    to={item.href}
+                    end={item.href === `/org/${currentOrg.organization_id}`}
+                    className={({ isActive }) =>
+                      cn(
+                        'flex items-center rounded-md text-sm font-medium transition-colors',
+                        isCollapsed ? 'justify-center px-3 py-2' : 'space-x-3 px-3 py-2',
+                        isActive
+                          ? 'bg-orange-500/70 text-white'
+                          : 'text-white/80 hover:text-white hover:bg-orange-500/40'
+                      )
+                    }
+                  >
+                    <item.icon className="h-4 w-4 flex-shrink-0" />
+                    {!isCollapsed && <span className="transition-opacity duration-300">{item.label}</span>}
+                  </NavLink>
+                </>
               );
 
               if (isCollapsed) {

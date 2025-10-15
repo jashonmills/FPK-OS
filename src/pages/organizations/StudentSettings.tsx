@@ -5,12 +5,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { User, Settings, Shield, Loader2 } from 'lucide-react';
+import { User, Settings, Shield, Loader2, HelpCircle } from 'lucide-react';
 import { useStudentPortalContext } from '@/hooks/useStudentPortalContext';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import EnhancedAvatarUpload from '@/components/settings/EnhancedAvatarUpload';
+import { PageHeaderWithHelp } from '@/components/common/PageHeaderWithHelp';
 
 export default function StudentSettings() {
   const [searchParams] = useSearchParams();
@@ -154,13 +155,27 @@ export default function StudentSettings() {
     <div className="container mx-auto py-8 px-4 max-w-4xl">
       <Card className="border-0 shadow-lg">
         <CardHeader className="bg-gradient-to-r from-purple-600/10 to-orange-600/10">
-          <CardTitle className="text-2xl flex items-center gap-2">
-            <Settings className="h-6 w-6" />
-            Student Settings
-          </CardTitle>
-          <CardDescription>
-            Manage your learning preferences and account settings
-          </CardDescription>
+          <div className="flex items-start justify-between">
+            <div>
+              <CardTitle className="text-2xl flex items-center gap-2">
+                <Settings className="h-6 w-6" />
+                Student Settings
+              </CardTitle>
+              <CardDescription>
+                Manage your learning preferences and account settings
+              </CardDescription>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => window.open('/dashboard/platform-guide', '_blank')}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <HelpCircle className="h-5 w-5" />
+              </Button>
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="pt-6">
           <Tabs defaultValue={defaultTab} className="space-y-6">

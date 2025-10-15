@@ -26,6 +26,7 @@ import { useEnhancedOrgBranding } from '@/hooks/useEnhancedOrgBranding';
 import { useGamificationContext } from '@/contexts/GamificationContext';
 import XPProgressBar from '@/components/gamification/XPProgressBar';
 import { Trophy, Star, Flame } from 'lucide-react';
+import { PageHeaderWithHelp } from '@/components/common/PageHeaderWithHelp';
 
 export default function OrgPortalHome() {
   const navigate = useNavigate();
@@ -320,6 +321,12 @@ export default function OrgPortalHome() {
 
   return (
     <div className="space-y-6">
+      {/* Page Header with Help Button */}
+      <PageHeaderWithHelp
+        title={isStudent ? "My Dashboard" : "Organization Dashboard"}
+        description={isStudent ? "Track your learning progress and achievements" : "Monitor student progress, course assignments, and organizational metrics"}
+        section="dashboard"
+      />
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
