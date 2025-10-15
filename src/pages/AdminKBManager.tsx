@@ -476,16 +476,16 @@ export default function AdminKBManager() {
       {/* Section 3: Web Scraping */}
       <Card>
         <CardHeader>
-          <CardTitle>Scrape Clinical Guidelines & Educational Resources</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-lg md:text-xl">Scrape Clinical Guidelines & Educational Resources</CardTitle>
+          <CardDescription className="text-sm">
             Import content from government agencies and professional organizations
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Government & Educational Agencies */}
           <div>
-            <Label className="mb-2 block font-semibold">Government & Educational Agencies</Label>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Label className="mb-2 block font-semibold text-sm">Government & Educational Agencies</Label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-4">
               {["cdc", "idea", "osep", "wwc"].map((source) => (
                 <div key={source} className="flex items-center space-x-2">
                   <Checkbox
@@ -495,7 +495,7 @@ export default function AdminKBManager() {
                   />
                   <label
                     htmlFor={source}
-                    className="text-sm font-medium cursor-pointer"
+                    className="text-xs sm:text-sm font-medium cursor-pointer"
                   >
                     {source.toUpperCase()}
                   </label>
@@ -506,8 +506,8 @@ export default function AdminKBManager() {
 
           {/* Professional Organizations */}
           <div>
-            <Label className="mb-2 block font-semibold">Professional Organizations</Label>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Label className="mb-2 block font-semibold text-sm">Professional Organizations</Label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-4">
               {["bacb", "nas", "aap", "cec"].map((source) => (
                 <div key={source} className="flex items-center space-x-2">
                   <Checkbox
@@ -517,7 +517,7 @@ export default function AdminKBManager() {
                   />
                   <label
                     htmlFor={source}
-                    className="text-sm font-medium cursor-pointer"
+                    className="text-xs sm:text-sm font-medium cursor-pointer"
                   >
                     {source.toUpperCase()}
                   </label>
@@ -545,26 +545,27 @@ export default function AdminKBManager() {
       {/* Tier 2: Advanced Institutional & Community Resources */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <School className="h-5 w-5" />
-            Scrape Advanced Institutional & Community Resources (Tier 2)
+          <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
+            <School className="h-4 w-4 md:h-5 md:w-5" />
+            <span className="hidden sm:inline">Scrape Advanced Institutional & Community Resources (Tier 2)</span>
+            <span className="sm:hidden">Advanced Resources (Tier 2)</span>
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-sm">
             Import practical strategies from leading research institutions and advocacy organizations
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Research Institutions */}
           <div>
-            <Label className="mb-2 block font-semibold">Leading Research Institutions</Label>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Label className="mb-2 block font-semibold text-sm">Leading Research Institutions</Label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="kennedy-krieger"
                   checked={selectedTier2Sources.includes("kennedy-krieger")}
                   onCheckedChange={() => toggleTier2Source("kennedy-krieger")}
                 />
-                <label htmlFor="kennedy-krieger" className="text-sm font-medium cursor-pointer">
+                <label htmlFor="kennedy-krieger" className="text-xs sm:text-sm font-medium cursor-pointer">
                   Kennedy Krieger Institute
                 </label>
               </div>
@@ -574,7 +575,7 @@ export default function AdminKBManager() {
                   checked={selectedTier2Sources.includes("ucdavis-mind")}
                   onCheckedChange={() => toggleTier2Source("ucdavis-mind")}
                 />
-                <label htmlFor="ucdavis-mind" className="text-sm font-medium cursor-pointer">
+                <label htmlFor="ucdavis-mind" className="text-xs sm:text-sm font-medium cursor-pointer">
                   UC Davis MIND Institute
                 </label>
               </div>
@@ -584,7 +585,7 @@ export default function AdminKBManager() {
                   checked={selectedTier2Sources.includes("vanderbilt-kennedy")}
                   onCheckedChange={() => toggleTier2Source("vanderbilt-kennedy")}
                 />
-                <label htmlFor="vanderbilt-kennedy" className="text-sm font-medium cursor-pointer">
+                <label htmlFor="vanderbilt-kennedy" className="text-xs sm:text-sm font-medium cursor-pointer">
                   Vanderbilt Kennedy Center
                 </label>
               </div>
@@ -593,15 +594,15 @@ export default function AdminKBManager() {
 
           {/* Advocacy Organizations */}
           <div>
-            <Label className="mb-2 block font-semibold">Advocacy Organizations</Label>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Label className="mb-2 block font-semibold text-sm">Advocacy Organizations</Label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-4">
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="autism-speaks"
                   checked={selectedTier2Sources.includes("autism-speaks")}
                   onCheckedChange={() => toggleTier2Source("autism-speaks")}
                 />
-                <label htmlFor="autism-speaks" className="text-sm font-medium cursor-pointer">
+                <label htmlFor="autism-speaks" className="text-xs sm:text-sm font-medium cursor-pointer">
                   Autism Speaks
                 </label>
               </div>
@@ -611,7 +612,7 @@ export default function AdminKBManager() {
                   checked={selectedTier2Sources.includes("chadd")}
                   onCheckedChange={() => toggleTier2Source("chadd")}
                 />
-                <label htmlFor="chadd" className="text-sm font-medium cursor-pointer">
+                <label htmlFor="chadd" className="text-xs sm:text-sm font-medium cursor-pointer">
                   CHADD
                 </label>
               </div>
@@ -621,7 +622,7 @@ export default function AdminKBManager() {
                   checked={selectedTier2Sources.includes("understood")}
                   onCheckedChange={() => toggleTier2Source("understood")}
                 />
-                <label htmlFor="understood" className="text-sm font-medium cursor-pointer">
+                <label htmlFor="understood" className="text-xs sm:text-sm font-medium cursor-pointer">
                   Understood.org
                 </label>
               </div>
@@ -631,7 +632,7 @@ export default function AdminKBManager() {
                   checked={selectedTier2Sources.includes("aane")}
                   onCheckedChange={() => toggleTier2Source("aane")}
                 />
-                <label htmlFor="aane" className="text-sm font-medium cursor-pointer">
+                <label htmlFor="aane" className="text-xs sm:text-sm font-medium cursor-pointer">
                   AANE
                 </label>
               </div>
@@ -640,15 +641,15 @@ export default function AdminKBManager() {
 
           {/* State DOE Resources */}
           <div>
-            <Label className="mb-2 block font-semibold">State Department of Education Handbooks</Label>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Label className="mb-2 block font-semibold text-sm">State Department of Education Handbooks</Label>
+            <div className="grid grid-cols-1 gap-3 md:gap-4">
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="state-doe"
                   checked={selectedTier2Sources.includes("state-doe")}
                   onCheckedChange={() => toggleTier2Source("state-doe")}
                 />
-                <label htmlFor="state-doe" className="text-sm font-medium cursor-pointer">
+                <label htmlFor="state-doe" className="text-xs sm:text-sm font-medium cursor-pointer">
                   State DOE (CA, TX, NY)
                 </label>
               </div>
@@ -674,26 +675,27 @@ export default function AdminKBManager() {
       {/* Tier 3: Specialized & Lived Experience Resources */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Users className="h-5 w-5" />
-            Scrape Specialized Therapeutic Models & Community Voices (Tier 3)
+          <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
+            <Users className="h-4 w-4 md:h-5 md:w-5" />
+            <span className="hidden sm:inline">Scrape Specialized Therapeutic Models & Community Voices (Tier 3)</span>
+            <span className="sm:hidden">Specialized Resources (Tier 3)</span>
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-sm">
             Import specialized intervention frameworks and lived experience perspectives
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Therapeutic Models */}
           <div>
-            <Label className="mb-2 block font-semibold">Therapeutic Models</Label>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Label className="mb-2 block font-semibold text-sm">Therapeutic Models</Label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="prt-resources"
                   checked={selectedTier3Sources.includes("prt-resources")}
                   onCheckedChange={() => toggleTier3Source("prt-resources")}
                 />
-                <label htmlFor="prt-resources" className="text-sm font-medium cursor-pointer">
+                <label htmlFor="prt-resources" className="text-xs sm:text-sm font-medium cursor-pointer">
                   PRT (Pivotal Response Treatment)
                 </label>
               </div>
@@ -703,7 +705,7 @@ export default function AdminKBManager() {
                   checked={selectedTier3Sources.includes("esdm-resources")}
                   onCheckedChange={() => toggleTier3Source("esdm-resources")}
                 />
-                <label htmlFor="esdm-resources" className="text-sm font-medium cursor-pointer">
+                <label htmlFor="esdm-resources" className="text-xs sm:text-sm font-medium cursor-pointer">
                   ESDM (Early Start Denver Model)
                 </label>
               </div>
@@ -713,7 +715,7 @@ export default function AdminKBManager() {
                   checked={selectedTier3Sources.includes("social-thinking")}
                   onCheckedChange={() => toggleTier3Source("social-thinking")}
                 />
-                <label htmlFor="social-thinking" className="text-sm font-medium cursor-pointer">
+                <label htmlFor="social-thinking" className="text-xs sm:text-sm font-medium cursor-pointer">
                   Social Thinking®
                 </label>
               </div>
@@ -722,15 +724,15 @@ export default function AdminKBManager() {
 
           {/* Community & Academic */}
           <div>
-            <Label className="mb-2 block font-semibold">Community & Academic Resources</Label>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Label className="mb-2 block font-semibold text-sm">Community & Academic Resources</Label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="autistic-blogs"
                   checked={selectedTier3Sources.includes("autistic-blogs")}
                   onCheckedChange={() => toggleTier3Source("autistic-blogs")}
                 />
-                <label htmlFor="autistic-blogs" className="text-sm font-medium cursor-pointer">
+                <label htmlFor="autistic-blogs" className="text-xs sm:text-sm font-medium cursor-pointer">
                   Curated Autistic Blogs
                 </label>
               </div>
@@ -740,7 +742,7 @@ export default function AdminKBManager() {
                   checked={selectedTier3Sources.includes("opencourseware")}
                   onCheckedChange={() => toggleTier3Source("opencourseware")}
                 />
-                <label htmlFor="opencourseware" className="text-sm font-medium cursor-pointer">
+                <label htmlFor="opencourseware" className="text-xs sm:text-sm font-medium cursor-pointer">
                   MIT OpenCourseWare
                 </label>
               </div>
@@ -767,73 +769,80 @@ export default function AdminKBManager() {
       <Collapsible open={documentsOpen} onOpenChange={setDocumentsOpen}>
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <CollapsibleTrigger asChild>
-                <Button variant="ghost" className="p-0 hover:bg-transparent">
-                  <CardTitle className="flex items-center gap-2">
-                    <Database className="h-5 w-5" />
-                    Knowledge Base Documents
+                <Button variant="ghost" className="p-0 hover:bg-transparent w-fit">
+                  <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
+                    <Database className="h-4 w-4 md:h-5 md:w-5" />
+                    <span className="hidden sm:inline">Knowledge Base Documents</span>
+                    <span className="sm:hidden">KB Documents</span>
                     <ChevronDown className={`h-4 w-4 transition-transform ${documentsOpen ? "" : "-rotate-90"}`} />
                   </CardTitle>
                 </Button>
               </CollapsibleTrigger>
-            <div className="flex gap-1">
-              <Button
-                variant={viewMode === "table" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setViewMode("table")}
-              >
-                <TableIcon className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={viewMode === "list" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setViewMode("list")}
-              >
-                <List className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={viewMode === "grid" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setViewMode("grid")}
-              >
-                <LayoutGrid className="h-4 w-4" />
-              </Button>
+              <div className="flex gap-1">
+                <Button
+                  variant={viewMode === "table" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setViewMode("table")}
+                  className="flex-1 sm:flex-none"
+                >
+                  <TableIcon className="h-4 w-4" />
+                  <span className="ml-1 sm:hidden">Table</span>
+                </Button>
+                <Button
+                  variant={viewMode === "list" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setViewMode("list")}
+                  className="flex-1 sm:flex-none"
+                >
+                  <List className="h-4 w-4" />
+                  <span className="ml-1 sm:hidden">List</span>
+                </Button>
+                <Button
+                  variant={viewMode === "grid" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setViewMode("grid")}
+                  className="flex-1 sm:flex-none"
+                >
+                  <LayoutGrid className="h-4 w-4" />
+                  <span className="ml-1 sm:hidden">Grid</span>
+                </Button>
+              </div>
             </div>
-          </div>
-          <CollapsibleContent>
-            <div className="flex gap-4 mt-4">
-            <div className="flex-1">
-              <Label htmlFor="source-filter" className="text-sm">Filter by Source</Label>
-              <Select value={sourceFilter} onValueChange={setSourceFilter}>
-                <SelectTrigger id="source-filter">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Sources</SelectItem>
-                  {uniqueSources.map(source => (
-                    <SelectItem key={source} value={source}>{source}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex-1">
-              <Label htmlFor="focus-filter" className="text-sm">Filter by Focus Area</Label>
-              <Select value={focusAreaFilter} onValueChange={setFocusAreaFilter}>
-                <SelectTrigger id="focus-filter">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Focus Areas</SelectItem>
-                  {uniqueFocusAreas.map(area => (
-                    <SelectItem key={area} value={area}>{area}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          </CollapsibleContent>
-        </CardHeader>
+            <CollapsibleContent>
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-4">
+                <div className="flex-1">
+                  <Label htmlFor="source-filter" className="text-sm">Filter by Source</Label>
+                  <Select value={sourceFilter} onValueChange={setSourceFilter}>
+                    <SelectTrigger id="source-filter" className="mt-1">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Sources</SelectItem>
+                      {uniqueSources.map(source => (
+                        <SelectItem key={source} value={source}>{source}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex-1">
+                  <Label htmlFor="focus-filter" className="text-sm">Filter by Focus Area</Label>
+                  <Select value={focusAreaFilter} onValueChange={setFocusAreaFilter}>
+                    <SelectTrigger id="focus-filter" className="mt-1">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Focus Areas</SelectItem>
+                      {uniqueFocusAreas.map(area => (
+                        <SelectItem key={area} value={area}>{area}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </CollapsibleContent>
+          </CardHeader>
         <CollapsibleContent>
           <CardContent>
           {loadingDocs ? (
@@ -852,63 +861,67 @@ export default function AdminKBManager() {
             <>
               {/* Table View */}
               {viewMode === "table" && (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Title</TableHead>
-                      <TableHead>Source</TableHead>
-                      <TableHead>Focus Areas</TableHead>
-                      <TableHead>Document Type</TableHead>
-                      <TableHead>Publication Date</TableHead>
-                      <TableHead>Added</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {paginatedDocuments?.map((doc) => (
-                      <TableRow key={doc.id}>
-                        <TableCell className="font-medium max-w-xs">
-                          <div className="truncate">{doc.title || "—"}</div>
-                        </TableCell>
-                        <TableCell className="text-sm">
-                          <button
-                            onClick={() => {
-                              setSelectedSource(doc.source_name);
-                              setResourcesModalOpen(true);
-                            }}
-                            className="text-primary hover:underline font-medium cursor-pointer"
-                          >
-                            {doc.source_name}
-                          </button>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex gap-1.5 flex-wrap">
-                            {doc.focus_areas?.map((area: string) => (
-                              <span
-                                key={area}
-                                className={`px-2 py-0.5 text-xs font-medium rounded-md border ${
-                                  FOCUS_AREA_COLORS[area] || "bg-muted text-muted-foreground border-border"
-                                }`}
+                <div className="overflow-x-auto -mx-4 sm:mx-0">
+                  <div className="inline-block min-w-full align-middle px-4 sm:px-0">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="min-w-[200px]">Title</TableHead>
+                          <TableHead className="min-w-[120px]">Source</TableHead>
+                          <TableHead className="min-w-[150px]">Focus Areas</TableHead>
+                          <TableHead className="min-w-[100px]">Type</TableHead>
+                          <TableHead className="min-w-[100px]">Pub Date</TableHead>
+                          <TableHead className="min-w-[100px]">Added</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {paginatedDocuments?.map((doc) => (
+                          <TableRow key={doc.id}>
+                            <TableCell className="font-medium">
+                              <div className="max-w-[250px] truncate text-sm">{doc.title || "—"}</div>
+                            </TableCell>
+                            <TableCell className="text-xs sm:text-sm">
+                              <button
+                                onClick={() => {
+                                  setSelectedSource(doc.source_name);
+                                  setResourcesModalOpen(true);
+                                }}
+                                className="text-primary hover:underline font-medium cursor-pointer"
                               >
-                                {area}
-                              </span>
-                            ))}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className="rounded-md">{doc.document_type}</Badge>
-                        </TableCell>
-                        <TableCell className="text-sm">
-                          {doc.publication_date
-                            ? format(new Date(doc.publication_date), "MMM yyyy")
-                            : "—"}
-                        </TableCell>
-                        <TableCell className="text-muted-foreground text-sm">
-                          {format(new Date(doc.created_at), "MMM dd, yyyy")}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                                {doc.source_name}
+                              </button>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex gap-1 flex-wrap max-w-[180px]">
+                                {doc.focus_areas?.map((area: string) => (
+                                  <span
+                                    key={area}
+                                    className={`px-1.5 py-0.5 text-[10px] sm:text-xs font-medium rounded-md border ${
+                                      FOCUS_AREA_COLORS[area] || "bg-muted text-muted-foreground border-border"
+                                    }`}
+                                  >
+                                    {area}
+                                  </span>
+                                ))}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant="outline" className="rounded-md text-xs">{doc.document_type}</Badge>
+                            </TableCell>
+                            <TableCell className="text-xs sm:text-sm">
+                              {doc.publication_date
+                                ? format(new Date(doc.publication_date), "MMM yyyy")
+                                : "—"}
+                            </TableCell>
+                            <TableCell className="text-muted-foreground text-xs sm:text-sm">
+                              {format(new Date(doc.created_at), "MMM dd, yyyy")}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
               )}
 
               {/* List View */}
