@@ -17,6 +17,12 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/useAuth';
 import { PhoenixFeatureFlags } from '@/components/admin/PhoenixFeatureFlags';
+import { PerformanceDashboard } from '@/components/admin/phoenix-analytics/PerformanceDashboard';
+import { FrustrationHeatmap } from '@/components/admin/phoenix-analytics/FrustrationHeatmap';
+import { NiteOwlMonitor } from '@/components/admin/phoenix-analytics/NiteOwlMonitor';
+import { IntentAccuracyChart } from '@/components/admin/phoenix-analytics/IntentAccuracyChart';
+import { FeatureFlagTelemetry } from '@/components/admin/phoenix-analytics/FeatureFlagTelemetry';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface Message {
   id: string;
@@ -1783,6 +1789,50 @@ export default function PhoenixLab() {
         {/* Feature Flags Control Panel */}
         <PhoenixFeatureFlags />
       </div>
+
+      {/* Analytics Dashboard */}
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TestTube className="w-5 h-5" />
+            Phoenix Analytics Dashboard
+          </CardTitle>
+          <CardDescription>
+            Real-time performance metrics and AI behavior analytics
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="performance" className="w-full">
+            <TabsList className="grid w-full grid-cols-5">
+              <TabsTrigger value="performance">Performance</TabsTrigger>
+              <TabsTrigger value="frustration">Frustration</TabsTrigger>
+              <TabsTrigger value="nite-owl">Nite Owl</TabsTrigger>
+              <TabsTrigger value="intent">Intent Accuracy</TabsTrigger>
+              <TabsTrigger value="features">Features</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="performance" className="mt-4">
+              <PerformanceDashboard />
+            </TabsContent>
+            
+            <TabsContent value="frustration" className="mt-4">
+              <FrustrationHeatmap />
+            </TabsContent>
+            
+            <TabsContent value="nite-owl" className="mt-4">
+              <NiteOwlMonitor />
+            </TabsContent>
+            
+            <TabsContent value="intent" className="mt-4">
+              <IntentAccuracyChart />
+            </TabsContent>
+            
+            <TabsContent value="features" className="mt-4">
+              <FeatureFlagTelemetry />
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
 
       {/* Session History Modal */}
       <Dialog open={showHistoryModal} onOpenChange={setShowHistoryModal}>

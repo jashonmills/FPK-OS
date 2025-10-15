@@ -10539,6 +10539,10 @@ export type Database = {
           activity_date: string
         }[]
       }
+      get_feature_usage_stats: {
+        Args: { p_days_back?: number }
+        Returns: Json
+      }
       get_global_avg_score: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -10553,6 +10557,14 @@ export type Database = {
       }
       get_iep_wizard_steps: {
         Args: { p_jurisdiction?: string }
+        Returns: Json
+      }
+      get_intent_accuracy_report: {
+        Args: { p_days_back?: number }
+        Returns: Json
+      }
+      get_nite_owl_effectiveness: {
+        Args: { p_days_back?: number }
         Returns: Json
       }
       get_org_student_activity_heatmap: {
@@ -10603,6 +10615,10 @@ export type Database = {
       }
       get_phoenix_analytics: {
         Args: { p_user_id?: string }
+        Returns: Json
+      }
+      get_phoenix_performance_summary: {
+        Args: { p_days_back?: number; p_user_id?: string }
         Returns: Json
       }
       get_public_platform_metrics: {
@@ -10716,6 +10732,10 @@ export type Database = {
       }
       get_user_entitlements: {
         Args: { p_user_id: string }
+        Returns: Json
+      }
+      get_user_frustration_report: {
+        Args: { p_days_back?: number }
         Returns: Json
       }
       get_user_id_by_email: {

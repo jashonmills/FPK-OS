@@ -911,6 +911,12 @@ serve(async (req) => {
 
   try {
     console.log('[CONDUCTOR] Function invoked');
+    
+    // 🔬 PERFORMANCE TRACKING - Phase 1
+    const perfStart = Date.now();
+    const timings: Record<string, number> = {};
+    let timeToFirstToken: number | null = null;
+    let firstTokenRecorded = false;
 
     // 1. Authenticate user
     const authHeader = req.headers.get('Authorization');
@@ -933,6 +939,7 @@ serve(async (req) => {
 
     // 🚦 LOAD FEATURE FLAGS (PLUG-AND-PLAY CONTROL)
     console.log('[CONDUCTOR] 🚦 Loading feature flags...');
+    const contextLoadStart = Date.now();
     const { data: featureFlagsData, error: flagsError } = await supabaseClient
       .from('phoenix_feature_flags')
       .select('feature_name, is_enabled, configuration')
@@ -978,6 +985,9 @@ serve(async (req) => {
         current_streak: knowledgePack?.learning_patterns?.current_streak || 0
       });
     }
+    
+    timings.context_loading = Date.now() - contextLoadStart;
+    console.log(`[PERF] Context loading: ${timings.context_loading}ms`);
 
     // 2. Verify admin status
     const { data: roles } = await supabaseClient
@@ -1053,6 +1063,7 @@ serve(async (req) => {
 
     // 5. FAST INTENT DETECTION - Lightweight heuristic-based approach
     console.log('[CONDUCTOR] ⚡ Fast intent detection (heuristic-based)...');
+    const intentDetectionStart = Date.now();
     
     // Determine if we're in an active Betty conversation
     const lastPersona = conversationHistory.length > 0 
@@ -1133,6 +1144,26 @@ serve(async (req) => {
     }
     
     const intentResult = { intent: detectedIntent, confidence: intentConfidence, reasoning: intentReasoning };
+    
+    timings.intent_detection = Date.now() - intentDetectionStart;
+    console.log(`[PERF] Intent detection: ${timings.intent_detection}ms`);
+    
+    // 🔍 PHASE 2: FRUSTRATION DETECTION
+    const frustrationPatterns = {
+      escape_hatch: [/just (give me|tell me) the answer/i, /stop asking (me )?questions/i],
+      correction: [/(no|wrong),? that's not what I (meant|asked)/i, /you (misunderstood|got it wrong)/i],
+      confusion: [/I don't understand/i, /what do you mean/i, /confused/i],
+      repetition: [/(say|tell me) that again/i, /(can|could) you repeat/i],
+      frustration: [/(this|that) (isn't|is not) helping/i, /you're not answering/i]
+    };
+    
+    let frustrationDetected: string | null = null;
+    for (const [type, patterns] of Object.entries(frustrationPatterns)) {
+      if (patterns.some(p => p.test(message))) {
+        frustrationDetected = type;
+        break;
+      }
+    }
     
     console.log('[CONDUCTOR] ⚡ Intent detected:', detectedIntent, 'Confidence:', intentConfidence);
     console.log('[CONDUCTOR] Reasoning:', intentReasoning);
