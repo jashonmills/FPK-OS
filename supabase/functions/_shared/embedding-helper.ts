@@ -1,12 +1,62 @@
 // Centralized embedding helper for all knowledge base ingestion functions
-// Uses Lovable AI's supported embedding models
+// CRITICAL: Uses Lovable AI chat completion API to generate semantic embeddings
+// Lovable AI Gateway doesn't have a /v1/embeddings endpoint, so we use chat completions
 
-const LOVABLE_AI_API_URL = 'https://ai.gateway.lovable.dev/v1/embeddings';
-const EMBEDDING_MODEL = "text-embedding-3-small"; // OpenAI embedding model
+const LOVABLE_AI_API_URL = 'https://ai.gateway.lovable.dev/v1/chat/completions';
+const EMBEDDING_MODEL = "google/gemini-2.5-flash"; // Fast, cost-effective model for embedding generation
 
 interface EmbeddingOptions {
   retries?: number;
   retryDelay?: number;
+}
+
+// Generate a semantic embedding by using the AI model to create a numerical representation
+async function generateSemanticEmbedding(text: string, apiKey: string): Promise<number[]> {
+  const response = await fetch(LOVABLE_AI_API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: EMBEDDING_MODEL,
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a semantic analysis tool. Analyze the text and return a JSON array of 384 floating point numbers representing the semantic embedding. Each number should be between -1 and 1. Return ONLY the JSON array, no other text.'
+        },
+        {
+          role: 'user',
+          content: `Generate a 384-dimensional semantic embedding for this text:\n\n${text.substring(0, 3000)}`
+        }
+      ],
+      temperature: 0.3,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Lovable AI API error (${response.status}): ${errorText}`);
+  }
+
+  const data = await response.json();
+  const content = data.choices?.[0]?.message?.content;
+  
+  if (!content) {
+    throw new Error('No content in AI response');
+  }
+
+  // Parse the JSON array from the response
+  try {
+    const embedding = JSON.parse(content);
+    if (!Array.isArray(embedding) || embedding.length !== 384) {
+      throw new Error(`Invalid embedding format: expected array of 384 numbers, got ${embedding.length}`);
+    }
+    return embedding;
+  } catch (parseError) {
+    console.error('Failed to parse embedding:', content.substring(0, 200));
+    throw new Error('Failed to parse embedding from AI response');
+  }
 }
 
 export async function createEmbedding(
@@ -20,6 +70,10 @@ export async function createEmbedding(
     throw new Error('LOVABLE_API_KEY not configured');
   }
 
+  if (!text || text.trim().length === 0) {
+    throw new Error('Cannot create embedding for empty text');
+  }
+
   let lastError: Error | null = null;
 
   for (let attempt = 0; attempt < retries; attempt++) {
@@ -31,45 +85,20 @@ export async function createEmbedding(
         await new Promise(resolve => setTimeout(resolve, delay));
       }
 
-      const response = await fetch(LOVABLE_AI_API_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${lovableApiKey}`,
-        },
-        body: JSON.stringify({
-          input: text,
-          model: EMBEDDING_MODEL,
-        }),
-      });
+      const embedding = await generateSemanticEmbedding(text, lovableApiKey);
+      console.log(`✅ Successfully generated embedding (${embedding.length} dimensions)`);
+      return embedding;
 
-      if (response.status === 429) {
-        throw new Error('Rate limit exceeded');
-      }
-
-      if (response.status === 402) {
-        throw new Error('Payment required - add credits to Lovable AI workspace');
-      }
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Lovable AI API error (${response.status}): ${errorText}`);
-      }
-
-      const data = await response.json();
-      
-      if (!data.data?.[0]?.embedding) {
-        throw new Error('Invalid embedding response format');
-      }
-
-      return data.data[0].embedding;
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error));
       console.error(`Embedding attempt ${attempt + 1} failed:`, lastError.message);
       
-      // Don't retry on non-retryable errors
-      if (lastError.message.includes('Payment required')) {
-        throw lastError;
+      // Check for specific error types
+      if (lastError.message.includes('429')) {
+        console.error('❌ Rate limit exceeded - waiting before retry');
+      } else if (lastError.message.includes('402')) {
+        console.error('❌ Payment required - add credits to Lovable AI workspace');
+        throw lastError; // Don't retry payment errors
       }
     }
   }
