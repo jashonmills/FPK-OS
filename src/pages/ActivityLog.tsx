@@ -57,34 +57,34 @@ const ActivityLog = () => {
       )}
 
       <Tabs defaultValue={currentUserRole === 'viewer' ? 'recent-activity' : 'new-incident'} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-1">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-1 h-auto sm:h-10 p-1">
           {(currentUserRole === 'owner' || currentUserRole === 'contributor') && (
             <>
-              <TabsTrigger value="new-incident" className="text-xs sm:text-sm px-2 sm:px-3">
-                <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-                <span className="hidden sm:inline">New </span>Incident
+              <TabsTrigger value="new-incident" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-2.5 sm:py-1.5">
+                <AlertCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <span className="truncate">Incident</span>
               </TabsTrigger>
-              <TabsTrigger value="parent-log" className="text-xs sm:text-sm px-2 sm:px-3">
-                <Heart className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Parent </span>Log
+              <TabsTrigger value="parent-log" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-2.5 sm:py-1.5">
+                <Heart className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <span className="truncate">Parent</span>
               </TabsTrigger>
-              <TabsTrigger value="educator-log" className="text-xs sm:text-sm px-2 sm:px-3">
-                <GraduationCap className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Educator </span>Log
+              <TabsTrigger value="educator-log" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-2.5 sm:py-1.5">
+                <GraduationCap className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <span className="truncate">Educator</span>
               </TabsTrigger>
-              <TabsTrigger value="sleep-log" className="text-xs sm:text-sm px-2 sm:px-3">
-                <Moon className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Sleep </span>Log
+              <TabsTrigger value="sleep-log" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-2.5 sm:py-1.5">
+                <Moon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <span className="truncate">Sleep</span>
               </TabsTrigger>
             </>
           )}
-          <TabsTrigger value="analytics" className="text-xs sm:text-sm px-2 sm:px-3">
-            <BarChart className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-            <span className="hidden sm:inline">Analytics</span><span className="sm:hidden">Stats</span>
+          <TabsTrigger value="analytics" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-2.5 sm:py-1.5">
+            <BarChart className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            <span className="truncate">Stats</span>
           </TabsTrigger>
-          <TabsTrigger value="recent-activity" className="text-xs sm:text-sm px-2 sm:px-3">
-            <Activity className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-            <span className="hidden sm:inline">Recent </span>Activity
+          <TabsTrigger value="recent-activity" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-2.5 sm:py-1.5">
+            <Activity className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            <span className="truncate">Activity</span>
           </TabsTrigger>
         </TabsList>
 
@@ -120,18 +120,18 @@ const ActivityLog = () => {
 
         <TabsContent value="recent-activity" className="mt-6">
           <Tabs defaultValue="incidents" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 gap-1">
-              <TabsTrigger value="incidents" className="text-xs sm:text-sm">
-                <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Incidents</span><span className="sm:hidden">Inc.</span>
+            <TabsList className="grid w-full grid-cols-3 gap-1 h-auto sm:h-10 p-1">
+              <TabsTrigger value="incidents" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2.5 sm:py-1.5">
+                <AlertCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <span className="truncate">Incidents</span>
               </TabsTrigger>
-              <TabsTrigger value="parent-logs" className="text-xs sm:text-sm">
-                <Heart className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Parent Logs</span><span className="sm:hidden">Parent</span>
+              <TabsTrigger value="parent-logs" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2.5 sm:py-1.5">
+                <Heart className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <span className="truncate">Parent</span>
               </TabsTrigger>
-              <TabsTrigger value="educator-logs" className="text-xs sm:text-sm">
-                <GraduationCap className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Educator Logs</span><span className="sm:hidden">Educator</span>
+              <TabsTrigger value="educator-logs" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2.5 sm:py-1.5">
+                <GraduationCap className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <span className="truncate">Educator</span>
               </TabsTrigger>
             </TabsList>
 
