@@ -1,12 +1,23 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import Anthropic from "npm:@anthropic-ai/sdk@0.24.3";
 import { formatKnowledgePack } from './helpers/formatKnowledgePack.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Initialize Anthropic client for V2 Dialogue Engine
+const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
+const anthropic = ANTHROPIC_API_KEY ? new Anthropic({ apiKey: ANTHROPIC_API_KEY }) : null;
+
+if (!anthropic) {
+  console.warn('[ORCHESTRATOR] ⚠️ Anthropic API key not found - V2 Dialogue Engine disabled');
+} else {
+  console.log('[ORCHESTRATOR] ✅ Claude 3 Opus integration enabled');
+}
 
 interface ConductorRequest {
   message: string;
