@@ -98,7 +98,15 @@ const Index = () => {
               >
                 Sign In
               </Button>
-            </div>
+              <Button
+                size="lg"
+                variant="ghost"
+                onClick={() => navigate('/guides')}
+                className="text-lg px-8"
+              >
+                Browse Guides
+              </Button>
+          </div>
           </div>
         </section>
 
@@ -168,8 +176,24 @@ const Index = () => {
 
         {/* Footer */}
         <footer className="py-8 px-4 glass-subtle border-t">
-          <div className="max-w-6xl mx-auto text-center text-muted-foreground">
-            <p>&copy; 2025 FPX MyCNS app. Built for special education families.</p>
+          <div className="max-w-6xl mx-auto">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
+              <p>&copy; 2025 FPX MyCNS app. Built for special education families.</p>
+              <div className="flex gap-6">
+                <button onClick={() => navigate('/guides')} className="hover:text-primary transition-colors">
+                  Resource Guides
+                </button>
+                <button onClick={() => navigate('/faq')} className="hover:text-primary transition-colors">
+                  FAQ
+                </button>
+                <button onClick={() => navigate('/privacy-policy')} className="hover:text-primary transition-colors">
+                  Privacy
+                </button>
+                <button onClick={() => navigate('/terms-of-service')} className="hover:text-primary transition-colors">
+                  Terms
+                </button>
+              </div>
+            </div>
           </div>
         </footer>
       </div>

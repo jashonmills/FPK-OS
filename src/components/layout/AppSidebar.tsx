@@ -221,6 +221,16 @@ export const AppSidebar = () => {
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <NavLink to="/admin/content-manager" className={({
+                  isActive
+                }) => isActive ? 'bg-accent text-accent-foreground font-medium' : ''}>
+                      <FileText className="h-4 w-4" />
+                      <span>Content Manager</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>}

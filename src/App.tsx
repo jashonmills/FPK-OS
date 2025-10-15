@@ -39,6 +39,7 @@ import Guides from "./pages/Guides";
 import GuideCategory from "./pages/GuideCategory";
 import GuideArticle from "./pages/GuideArticle";
 import FAQ from "./pages/FAQ";
+import AdminContentManager from "./pages/AdminContentManager";
 import { CookieConsent } from "./components/legal/CookieConsent";
 import { useFeatureFlags } from "@/hooks/useFeatureFlags";
 
@@ -213,6 +214,16 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <PlatformAdmin />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/content-manager"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <AdminContentManager />
+                  </AppLayout>
                 </ProtectedRoute>
               }
             />
