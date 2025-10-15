@@ -80,6 +80,27 @@ Instead of using these crutches, you MUST integrate your acknowledgment into a m
 
 If you find yourself about to start a sentence with "That's...", STOP and rephrase it immediately.`;
 
+const SELF_GOVERNANCE = `# Self-Governance
+
+Before generating your response, internally check:
+
+**Safety:**
+- Is this content appropriate and safe for learning?
+- Does it avoid harmful, inappropriate, or age-inappropriate content?
+- Does it protect student privacy and dignity?
+
+**Persona Adherence:**
+- Betty: Are you asking Socratic questions rather than giving direct answers?
+- Al: Are you providing direct, factual information without asking Socratic questions?
+- Nite Owl: Are you sharing fun facts, not teaching core concepts?
+
+**Quality:**
+- Is your response clear and helpful?
+- Is it on-topic and relevant to the student's question?
+- Have you avoided verbose filler and meta-reasoning?
+
+If any check fails, revise internally before outputting. Your goal is to generate a clean, high-quality response on the first try.`;
+
 const HANDLE_TYPOS = `# Handle Typos
 
 Silently correct typos and respond to the intended meaning. Never point out spelling errors unless they create genuine ambiguity or the student explicitly asks for spelling help.`;
@@ -240,6 +261,7 @@ const MODULE_SEPARATOR = '\n\n---\n\n';
 function buildBettySystemPrompt(memories?: any[], knowledgePack?: any): string {
   const modules = [
     NO_META_REASONING,
+    SELF_GOVERNANCE,
     BETTY_CORE,
     CONVERSATIONAL_OPENERS,
     HANDLE_TYPOS,
@@ -273,6 +295,7 @@ function buildBettySystemPrompt(memories?: any[], knowledgePack?: any): string {
 function buildNiteOwlSystemPrompt(knowledgePack?: any): string {
   const modules = [
     NO_META_REASONING,
+    SELF_GOVERNANCE,
     NITE_OWL_CORE,
     TONE_OF_VOICE,
     LANGUAGE_AND_STYLE,
@@ -303,6 +326,7 @@ function buildNiteOwlSystemPrompt(knowledgePack?: any): string {
 function buildAlSystemPrompt(studentContext?: any, memories?: any[], knowledgePack?: any): string {
   const modules = [
     NO_META_REASONING,
+    SELF_GOVERNANCE,
     AL_CORE,
     PLATFORM_KNOWLEDGE,
     CONVERSATIONAL_OPENERS,
@@ -346,6 +370,7 @@ function buildAlSystemPrompt(studentContext?: any, memories?: any[], knowledgePa
 function buildAlSocraticSupportPrompt(): string {
   const modules = [
     NO_META_REASONING,
+    SELF_GOVERNANCE,
     AL_CORE,
     AL_SOCRATIC_SUPPORT,
     CONVERSATIONAL_OPENERS,
@@ -997,8 +1022,8 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY not configured');
     }
 
-    // 5. Intent Detection using LLM with Tool Calling
-    console.log('[CONDUCTOR] Analyzing intent with LLM...');
+    // 5. FAST INTENT DETECTION - Lightweight heuristic-based approach
+    console.log('[CONDUCTOR] ⚡ Fast intent detection (heuristic-based)...');
     
     // Determine if we're in an active Betty conversation
     const lastPersona = conversationHistory.length > 0 
@@ -1006,85 +1031,60 @@ serve(async (req) => {
       : null;
     const inBettySession = lastPersona === 'BETTY';
     
-    const intentResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          {
-            role: 'system',
-            content: `You are the Conductor in an AI tutoring system. Your job is to analyze the user's message and determine their intent.
-
-Intent Types:
-- "socratic_guidance": Conceptual questions, problem-solving, "why" or "how" questions, seeking understanding
-- "direct_answer": Platform questions, general facts, "what is" questions requiring factual answers
-- "request_for_clarification": Student explicitly states they don't know a term/definition (e.g., "I don't know what X means", "What does X stand for?", "I'm not sure what that is")
-- "escape_hatch": Student is rejecting Socratic method and requesting direct answers (e.g., "I don't want to continue", "Just give me the answer", "I want a recipe", "Stop asking questions")
-
-CRITICAL: The "escape_hatch" intent has HIGHEST PRIORITY when detected. If a student says anything like:
-- "I don't want to continue [this conversation/Socratic method]"
-- "Just give me [the answer/a recipe/the facts]"
-- "Can you just tell me"
-- "Stop asking questions"
-Then classify as "escape_hatch" regardless of other context.
-
-IMPORTANT: Only use "request_for_clarification" when the student explicitly asks for a definition or states they don't understand a specific term. Regular questions should still be "socratic_guidance" or "direct_answer".`
-          },
-          {
-            role: 'user',
-            content: `Analyze this student message and classify the intent:\n\n"${message}"\n\n${inBettySession ? 'Context: This is during an active Socratic learning session with Betty.\n\n' : ''}Classify the intent type.`
-          }
-        ],
-        tools: [
-          {
-            type: 'function',
-            function: {
-              name: 'classify_intent',
-              description: 'Classify the student message intent',
-              parameters: {
-                type: 'object',
-                properties: {
-                  intent: {
-                    type: 'string',
-                    enum: ['socratic_guidance', 'direct_answer', 'request_for_clarification', 'query_user_data', 'platform_question', 'escape_hatch'],
-                    description: 'The detected intent type. Use escape_hatch when student explicitly rejects Socratic method. Use query_user_data when asking about their own progress/stats. Use platform_question when asking how features work.'
-                  },
-                  confidence: {
-                    type: 'number',
-                    description: 'Confidence score between 0 and 1'
-                  },
-                  reasoning: {
-                    type: 'string',
-                    description: 'Brief explanation of the classification'
-                  }
-                },
-                required: ['intent', 'confidence', 'reasoning'],
-                additionalProperties: false
-              }
-            }
-          }
-        ],
-        tool_choice: { type: 'function', function: { name: 'classify_intent' } }
-      }),
-    });
-
-    if (!intentResponse.ok) {
-      const errorText = await intentResponse.text();
-      console.error('[CONDUCTOR] Intent detection error:', intentResponse.status, errorText);
-      throw new Error(`Intent detection failed: ${intentResponse.status}`);
-    }
-
-    const intentData = await intentResponse.json();
-    const toolCall = intentData.choices[0]?.message?.tool_calls?.[0];
-    const intentResult = toolCall ? JSON.parse(toolCall.function.arguments) : { intent: 'direct_answer', confidence: 0.5, reasoning: 'Fallback' };
+    // Fast heuristic-based intent detection (no LLM call needed!)
+    let detectedIntent = 'direct_answer'; // Default
+    let intentConfidence = 0.8;
+    let intentReasoning = '';
     
-    const detectedIntent = intentResult.intent;
-    console.log('[CONDUCTOR] Intent detected:', detectedIntent, 'Confidence:', intentResult.confidence);
-    console.log('[CONDUCTOR] Reasoning:', intentResult.reasoning);
+    const messageLower = message.toLowerCase();
+    
+    // Check for escape hatch patterns (highest priority)
+    const escapePatterns = [
+      'just give me', 'just tell me', 'stop asking', "don't want to continue",
+      'give me the answer', 'tell me the answer', 'can i have', 'i want a recipe',
+      'lets pick up where we left off', "let's pick up"
+    ];
+    if (escapePatterns.some(pattern => messageLower.includes(pattern))) {
+      detectedIntent = 'escape_hatch';
+      intentConfidence = 0.95;
+      intentReasoning = 'Student explicitly requesting direct answer';
+    }
+    // Check for clarification requests
+    else if (messageLower.includes("don't know what") || 
+             messageLower.includes("what does") && messageLower.includes("mean") ||
+             messageLower.includes("what is") && message.length < 50) {
+      detectedIntent = 'request_for_clarification';
+      intentConfidence = 0.9;
+      intentReasoning = 'Student asking for definition';
+    }
+    // Check for platform questions
+    else if (messageLower.includes('how do i') || messageLower.includes('where is') ||
+             messageLower.includes('can i') || messageLower.includes('dashboard') ||
+             messageLower.includes('profile') || messageLower.includes('settings')) {
+      detectedIntent = 'platform_question';
+      intentConfidence = 0.85;
+      intentReasoning = 'Platform navigation question';
+    }
+    // Check for user data queries
+    else if (messageLower.includes('my progress') || messageLower.includes('my stats') ||
+             messageLower.includes('my courses') || messageLower.includes('how am i doing')) {
+      detectedIntent = 'query_user_data';
+      intentConfidence = 0.9;
+      intentReasoning = 'Query about personal data';
+    }
+    // If in Betty session and asking conceptual questions
+    else if (inBettySession || 
+             messageLower.includes('why') || messageLower.includes('how') ||
+             message.includes('?') && !messageLower.includes('what is')) {
+      detectedIntent = 'socratic_guidance';
+      intentConfidence = 0.8;
+      intentReasoning = inBettySession ? 'Continuing Socratic session' : 'Conceptual question detected';
+    }
+    
+    const intentResult = { intent: detectedIntent, confidence: intentConfidence, reasoning: intentReasoning };
+    
+    console.log('[CONDUCTOR] ⚡ Intent detected:', detectedIntent, 'Confidence:', intentConfidence);
+    console.log('[CONDUCTOR] Reasoning:', intentReasoning);
 
     // 6. Sentiment Analysis (simple for now)
     const detectedSentiment = 'Neutral';
@@ -1731,6 +1731,18 @@ Keep it under 100 words.`;
         let buffer = ''; // Buffer for incomplete JSON
 
         try {
+          // ⚡ IMMEDIATE USER FEEDBACK: Send "thinking" status before first token
+          const thinkingEvent = `data: ${JSON.stringify({ 
+            type: 'thinking', 
+            persona: selectedPersona,
+            metadata: {
+              intent: detectedIntent,
+              confidence: intentConfidence
+            }
+          })}\n\n`;
+          controller.enqueue(new TextEncoder().encode(thinkingEvent));
+          console.log('[CONDUCTOR] ✅ Sent immediate "thinking" indicator to user');
+          
           console.log('[CONDUCTOR] Starting SSE stream...');
           
           while (true) {
@@ -1792,74 +1804,48 @@ Keep it under 100 words.`;
           // CRITICAL VALIDATION: Check for empty response
           if (!generatedTextFromLLM || generatedTextFromLLM.trim().length === 0) {
             console.error('[CONDUCTOR] ❌ Empty response received from LLM - generating fallback');
-            // Instead of continuing with empty text, throw error to be caught and return fallback
             throw new Error('Empty response from LLM');
           }
 
-          // Run Governor Check on completed response
-          console.log('[CONDUCTOR] Running Governor quality check...');
-          const governorResult = await runGovernorCheck(
-            generatedTextFromLLM,
-            selectedPersona,
-            message,
-            LOVABLE_API_KEY,
-            {
-              isWelcomeBack,
-              isNiteOwl: selectedPersona === 'NITE_OWL',
-              isHandoff: false
+          // ⚡ PERFORMANCE: Fire-and-forget Governor check for logging only (no blocking!)
+          const finalText = generatedTextFromLLM; // Use response directly
+          console.log('[CONDUCTOR] ⚡ Skipping blocking Governor check - using LLM response directly');
+          
+          // Async Governor logging (non-blocking)
+          (async () => {
+            try {
+              const governorResult = await runGovernorCheck(
+                generatedTextFromLLM,
+                selectedPersona,
+                message,
+                LOVABLE_API_KEY,
+                {
+                  isWelcomeBack,
+                  isNiteOwl: selectedPersona === 'NITE_OWL',
+                  isHandoff: false
+                }
+              );
+              
+              // Log for monitoring only
+              if (!governorResult.passed || governorResult.persona_adherence !== 'correct') {
+                console.warn('[GOVERNOR] ⚠️ Quality issue detected (non-blocking):', governorResult.reason);
+                await supabaseClient.from('phoenix_governor_logs').insert({
+                  conversation_id: conversationId,
+                  persona: selectedPersona,
+                  original_response: generatedTextFromLLM,
+                  user_message: message,
+                  is_safe: governorResult.is_safe,
+                  is_on_topic: governorResult.is_on_topic,
+                  persona_adherence: governorResult.persona_adherence,
+                  severity: governorResult.severity,
+                  reason: governorResult.reason,
+                  blocked: false // Never blocking anymore
+                });
+              }
+            } catch (error) {
+              console.error('[GOVERNOR] Non-blocking check failed:', error);
             }
-          );
-
-          // Handle Governor violations - use const to prevent accidental reassignment
-          const finalText = !governorResult.passed 
-            ? (governorResult.safe_fallback || "I apologize, but I need to reconsider my response. Let's try approaching this differently.")
-            : generatedTextFromLLM;
-            
-          const governorBlocked = !governorResult.passed;
-          
-          // CRITICAL LOGGING: Track if text was modified
-          if (finalText !== generatedTextFromLLM) {
-            console.warn('[GOVERNOR] ⚠️ TEXT REPLACED BY GOVERNOR');
-            console.warn('[GOVERNOR] Original text (first 80):', generatedTextFromLLM.substring(0, 80));
-            console.warn('[GOVERNOR] Replacement text:', finalText);
-          } else {
-            console.log('[GOVERNOR] ✅ Text unchanged - using original LLM output');
-          }
-          
-          if (!governorResult.passed) {
-            console.warn('[GOVERNOR] Response blocked:', governorResult.reason);
-            
-            // Log violation to database for review
-            await supabaseClient.from('phoenix_governor_logs').insert({
-              conversation_id: conversationId,
-              persona: selectedPersona,
-              original_response: generatedTextFromLLM,
-              user_message: message,
-              is_safe: governorResult.is_safe,
-              is_on_topic: governorResult.is_on_topic,
-              persona_adherence: governorResult.persona_adherence,
-              severity: governorResult.severity,
-              reason: governorResult.reason,
-              blocked: true
-            });
-          } else if (governorResult.persona_adherence !== 'correct') {
-            // Log persona violations even if not blocking
-            console.warn('[GOVERNOR] Persona adherence issue:', governorResult.persona_adherence);
-            await supabaseClient.from('phoenix_governor_logs').insert({
-              conversation_id: conversationId,
-              persona: selectedPersona,
-              original_response: generatedTextFromLLM,
-              user_message: message,
-              is_safe: governorResult.is_safe,
-              is_on_topic: governorResult.is_on_topic,
-              persona_adherence: governorResult.persona_adherence,
-              severity: governorResult.severity,
-              reason: governorResult.reason,
-              blocked: false
-            });
-          }
-
-          console.log('[GOVERNOR] Check complete. Blocked:', governorBlocked);
+          })();
 
           // Generate TTS Audio - Try ElevenLabs first, fallback to OpenAI
           // CRITICAL: Store text for TTS as immutable const to prevent corruption
