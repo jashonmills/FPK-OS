@@ -1,4 +1,5 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -25,20 +26,45 @@ serve(async (req) => {
 
     console.log(`[WELCOME-AUDIO] Generating audio for ${persona}:`, text.substring(0, 50) + '...')
 
-    // Feature flags for TTS providers
-    const isGoogleEnabled = Deno.env.get('TTS_PROVIDER_GOOGLE_ENABLED') === 'true';
-    const isElevenLabsEnabled = Deno.env.get('TTS_PROVIDER_ELEVENLABS_ENABLED') !== 'false';
-    const isOpenAIEnabled = Deno.env.get('TTS_PROVIDER_OPENAI_ENABLED') !== 'false';
-    
-    const googleKey = Deno.env.get('GOOGLE_CLOUD_TTS_API_KEY');
-    const elevenLabsKey = Deno.env.get('ELEVENLABS_API_KEY');
-    const openAIKey = Deno.env.get('OPENAI_API_KEY');
-    
-    let audioContent = null;
-    let provider = null;
+    // ------------------- Database-Driven Feature Flag Logic -------------------
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!
+    const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
-    // Try Google Cloud TTS first (if enabled)
-    if (isGoogleEnabled && googleKey && !audioContent) {
+    // Fetch all enabled TTS provider flags from the database
+    const { data: flags, error: flagsError } = await supabase
+      .from('phoenix_feature_flags')
+      .select('feature_name, priority')
+      .eq('is_enabled', true)
+      .like('feature_name', 'tts_provider_%')
+
+    if (flagsError) {
+      console.error('[WELCOME-AUDIO] Error fetching feature flags:', flagsError)
+    }
+
+    // Sort providers by priority (lower number = higher priority)
+    const sortedProviders = flags
+      ? flags.sort((a, b) => a.priority - b.priority).map(f => f.feature_name.replace('tts_provider_', ''))
+      : ['google', 'elevenlabs'] // Safe default if DB fetch fails
+
+    console.log('[WELCOME-AUDIO] Enabled TTS Providers (by priority):', sortedProviders)
+    // --------------------------------------------------------------------------
+    
+    const googleKey = Deno.env.get('GOOGLE_CLOUD_TTS_API_KEY')
+    const elevenLabsKey = Deno.env.get('ELEVENLABS_API_KEY')
+    const openAIKey = Deno.env.get('OPENAI_API_KEY')
+    
+    let audioContent = null
+    let provider = null
+
+    // Iterate through providers in priority order
+    for (const providerName of sortedProviders) {
+      if (audioContent) break // Exit loop once audio is successfully generated
+
+      console.log(`[WELCOME-AUDIO] Attempting TTS via ${providerName}`)
+
+      // Try Google Cloud TTS
+      if (providerName === 'google' && googleKey) {
       try {
         const googleVoice = persona === 'BETTY' 
           ? 'en-US-Wavenet-F'
@@ -72,12 +98,12 @@ serve(async (req) => {
           console.warn(`[WELCOME-AUDIO] Google TTS failed (${googleResponse.status})`);
         }
       } catch (googleError) {
-        console.warn('[WELCOME-AUDIO] Google TTS error:', googleError);
+        console.warn('[WELCOME-AUDIO] Google TTS error:', googleError)
       }
     }
 
-    // Try ElevenLabs (if enabled and Google failed)
-    if (isElevenLabsEnabled && elevenLabsKey && !audioContent) {
+    // Try ElevenLabs
+    if (providerName === 'elevenlabs' && elevenLabsKey) {
       try {
         // Voice mapping: Betty, Al, Nite Owl (Al voice ID corrected for consistency)
         const voiceId = persona === 'BETTY' 
@@ -134,9 +160,8 @@ serve(async (req) => {
       }
     }
 
-    // Fallback to OpenAI TTS (if enabled and both Google and ElevenLabs failed)
-    if (isOpenAIEnabled && openAIKey && !audioContent) {
-      console.log('[WELCOME-AUDIO] Falling back to OpenAI TTS')
+    // Try OpenAI TTS
+    if (providerName === 'openai' && openAIKey) {
       
       const voice = persona === 'BETTY' 
         ? 'nova' 
@@ -180,6 +205,7 @@ serve(async (req) => {
         console.error('[WELCOME-AUDIO] OpenAI TTS failed:', errorText)
       }
     }
+  } // End of provider loop
     
     // Return audio if any provider succeeded
     if (audioContent && provider) {
