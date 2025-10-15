@@ -2160,8 +2160,10 @@ export type Database = {
           id: string
           is_active: boolean | null
           metadata: Json | null
+          personal_notes: string | null
           photo_url: string | null
           primary_diagnosis: string[] | null
+          profile_image_url: string | null
           school_name: string | null
           secondary_conditions: string[] | null
           student_name: string
@@ -2175,8 +2177,10 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           metadata?: Json | null
+          personal_notes?: string | null
           photo_url?: string | null
           primary_diagnosis?: string[] | null
+          profile_image_url?: string | null
           school_name?: string | null
           secondary_conditions?: string[] | null
           student_name: string
@@ -2190,8 +2194,10 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           metadata?: Json | null
+          personal_notes?: string | null
           photo_url?: string | null
           primary_diagnosis?: string[] | null
+          profile_image_url?: string | null
           school_name?: string | null
           secondary_conditions?: string[] | null
           student_name?: string

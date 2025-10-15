@@ -10,6 +10,8 @@ interface Student {
   primary_diagnosis: string[];
   secondary_conditions: string[] | null;
   photo_url: string | null;
+  profile_image_url: string | null;
+  personal_notes: string | null;
 }
 
 interface Family {

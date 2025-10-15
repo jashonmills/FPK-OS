@@ -5,9 +5,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { School, Edit, Save, X } from 'lucide-react';
+import { School, Edit, Save, X, Upload, User } from 'lucide-react';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 interface StudentProfileCardProps {
   student: {
@@ -18,6 +20,8 @@ interface StudentProfileCardProps {
     grade_level: string | null;
     primary_diagnosis: string[];
     secondary_conditions: string[] | null;
+    profile_image_url: string | null;
+    personal_notes: string | null;
   };
   onUpdate: () => void;
   canEdit?: boolean;
@@ -56,6 +60,7 @@ const GRADE_OPTIONS = [
 export const StudentProfileCard = ({ student, onUpdate, canEdit = true }: StudentProfileCardProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   
   const [studentName, setStudentName] = useState(student.student_name);
   const [dateOfBirth, setDateOfBirth] = useState(student.date_of_birth);
@@ -63,6 +68,8 @@ export const StudentProfileCard = ({ student, onUpdate, canEdit = true }: Studen
   const [gradeLevel, setGradeLevel] = useState(student.grade_level || '');
   const [primaryDiagnosis, setPrimaryDiagnosis] = useState<string[]>(student.primary_diagnosis || []);
   const [secondaryConditions, setSecondaryConditions] = useState<string[]>(student.secondary_conditions || []);
+  const [profileImageUrl, setProfileImageUrl] = useState(student.profile_image_url || '');
+  const [personalNotes, setPersonalNotes] = useState(student.personal_notes || '');
 
   const handleDiagnosisToggle = (diagnosis: string, isPrimary: boolean) => {
     if (isPrimary) {
@@ -80,6 +87,77 @@ export const StudentProfileCard = ({ student, onUpdate, canEdit = true }: Studen
     }
   };
 
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please upload an image file');
+      return;
+    }
+
+    // Validate file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image size must be less than 5MB');
+      return;
+    }
+
+    setIsUploadingImage(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${student.id}-${Date.now()}.${fileExt}`;
+      const filePath = `student-profiles/${fileName}`;
+
+      // Upload to storage
+      const { error: uploadError } = await supabase.storage
+        .from('app-assets')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('app-assets')
+        .getPublicUrl(filePath);
+
+      // Update student record
+      const { error: updateError } = await supabase
+        .from('students')
+        .update({ profile_image_url: publicUrl })
+        .eq('id', student.id);
+
+      if (updateError) throw updateError;
+
+      setProfileImageUrl(publicUrl);
+      toast.success('Profile image updated successfully');
+      onUpdate();
+    } catch (error: any) {
+      console.error('Error uploading image:', error);
+      toast.error(error.message || 'Failed to upload image');
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
+  const handleRemoveImage = async () => {
+    try {
+      const { error } = await supabase
+        .from('students')
+        .update({ profile_image_url: null })
+        .eq('id', student.id);
+
+      if (error) throw error;
+
+      setProfileImageUrl('');
+      toast.success('Profile image removed');
+      onUpdate();
+    } catch (error: any) {
+      console.error('Error removing image:', error);
+      toast.error(error.message || 'Failed to remove image');
+    }
+  };
+
   const handleSave = async () => {
     setIsSaving(true);
     try {
@@ -92,6 +170,7 @@ export const StudentProfileCard = ({ student, onUpdate, canEdit = true }: Studen
           grade_level: gradeLevel || null,
           primary_diagnosis: primaryDiagnosis,
           secondary_conditions: secondaryConditions,
+          personal_notes: personalNotes || null,
         })
         .eq('id', student.id);
 
@@ -115,6 +194,8 @@ export const StudentProfileCard = ({ student, onUpdate, canEdit = true }: Studen
     setGradeLevel(student.grade_level || '');
     setPrimaryDiagnosis(student.primary_diagnosis || []);
     setSecondaryConditions(student.secondary_conditions || []);
+    setProfileImageUrl(student.profile_image_url || '');
+    setPersonalNotes(student.personal_notes || '');
     setIsEditing(false);
   };
 
@@ -122,9 +203,12 @@ export const StudentProfileCard = ({ student, onUpdate, canEdit = true }: Studen
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-            <School className="w-5 h-5 text-primary" />
-          </div>
+          <Avatar className="w-16 h-16">
+            <AvatarImage src={profileImageUrl} alt={student.student_name} />
+            <AvatarFallback>
+              <User className="w-8 h-8" />
+            </AvatarFallback>
+          </Avatar>
           <div>
             <CardTitle>{student.student_name}</CardTitle>
             <CardDescription>Student Profile</CardDescription>
@@ -155,6 +239,51 @@ export const StudentProfileCard = ({ student, onUpdate, canEdit = true }: Studen
       <CardContent className="space-y-4">
         {isEditing ? (
           <>
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                <Avatar className="w-24 h-24">
+                  <AvatarImage src={profileImageUrl} alt={student.student_name} />
+                  <AvatarFallback>
+                    <User className="w-12 h-12" />
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="profile-image" className="cursor-pointer">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={isUploadingImage}
+                      onClick={() => document.getElementById('profile-image')?.click()}
+                    >
+                      <Upload className="w-4 h-4 mr-2" />
+                      {isUploadingImage ? 'Uploading...' : 'Upload Photo'}
+                    </Button>
+                  </Label>
+                  <input
+                    id="profile-image"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleImageUpload}
+                    disabled={isUploadingImage}
+                  />
+                  {profileImageUrl && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleRemoveImage}
+                      className="text-destructive hover:text-destructive"
+                    >
+                      Remove Photo
+                    </Button>
+                  )}
+                  <p className="text-xs text-muted-foreground">Max 5MB (JPG, PNG)</p>
+                </div>
+              </div>
+            </div>
+
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="student-name">Student Name</Label>
@@ -203,6 +332,18 @@ export const StudentProfileCard = ({ student, onUpdate, canEdit = true }: Studen
               </div>
             </div>
 
+            <div className="space-y-2">
+              <Label htmlFor="personal-notes">About {studentName}</Label>
+              <Textarea
+                id="personal-notes"
+                value={personalNotes}
+                onChange={(e) => setPersonalNotes(e.target.value)}
+                placeholder="Add any personal notes, strengths, interests, or things to know about this student..."
+                rows={4}
+                className="resize-none"
+              />
+            </div>
+
             <div className="space-y-3">
               <Label>Primary Focus Areas</Label>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -246,9 +387,17 @@ export const StudentProfileCard = ({ student, onUpdate, canEdit = true }: Studen
             </div>
           </>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Date of Birth</p>
+          <div className="space-y-4">
+            {personalNotes && (
+              <div className="p-4 bg-muted/50 rounded-lg">
+                <p className="text-sm font-medium text-muted-foreground mb-2">About {student.student_name}</p>
+                <p className="text-sm whitespace-pre-wrap">{personalNotes}</p>
+              </div>
+            )}
+            
+            <div className="grid gap-4 md:grid-cols-2">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Date of Birth</p>
               <p className="text-sm">{new Date(student.date_of_birth).toLocaleDateString()}</p>
             </div>
             <div>
@@ -301,6 +450,7 @@ export const StudentProfileCard = ({ student, onUpdate, canEdit = true }: Studen
                 </div>
               </div>
             )}
+            </div>
           </div>
         )}
       </CardContent>
