@@ -37,22 +37,29 @@ const PlatformAdmin = () => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   // Check super admin status
-  const { data: isSuperAdmin, isLoading: checkingAdmin } = useQuery({
+  const { data: isSuperAdmin, isLoading: checkingAdmin, error: adminError } = useQuery({
     queryKey: ["is-super-admin", user?.id],
     queryFn: async () => {
       if (!user?.id) return false;
       const { data, error } = await supabase.rpc("has_super_admin_role", {
         _user_id: user.id,
       });
-      if (error) throw error;
+      if (error) {
+        console.error("Super admin check error:", error);
+        throw error;
+      }
+      console.log("Super admin check result:", data);
       return data;
     },
     enabled: !!user?.id,
+    retry: 2,
+    staleTime: 0, // Don't cache this check
   });
 
   // Redirect if not super admin
   useEffect(() => {
-    if (!checkingAdmin && !isSuperAdmin) {
+    if (!checkingAdmin && isSuperAdmin === false) {
+      console.log("Access denied - not super admin");
       toast.error("Access denied: Super admin only");
       navigate("/dashboard");
     }

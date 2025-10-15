@@ -89,10 +89,16 @@ export const AppSidebar = () => {
       } = await supabase.rpc("has_super_admin_role", {
         _user_id: user.id
       });
-      if (error) throw error;
+      if (error) {
+        console.error("Super admin check error in sidebar:", error);
+        return false;
+      }
+      console.log("Super admin check in sidebar:", data, "for user:", user.id);
       return data;
     },
-    enabled: !!user?.id
+    enabled: !!user?.id,
+    retry: 2,
+    staleTime: 0, // Don't cache
   });
 
   // Check if user is family owner
