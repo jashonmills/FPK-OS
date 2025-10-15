@@ -93,6 +93,14 @@ Deno.serve(async (req) => {
         const familyId = session.metadata?.family_id;
         const tier = session.metadata?.tier;
 
+        // Log discount information if coupon was applied
+        if (session.total_details?.amount_discount && session.total_details.amount_discount > 0) {
+          console.log(`Coupon applied to family ${familyId}: $${session.total_details.amount_discount / 100} discount`);
+          if (session.discount?.coupon) {
+            console.log(`Coupon details: ${JSON.stringify(session.discount.coupon)}`);
+          }
+        }
+
         if (!familyId || !tier) {
           console.error('Missing metadata in checkout session');
           break;

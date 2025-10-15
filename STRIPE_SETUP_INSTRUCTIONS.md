@@ -67,6 +67,30 @@ Use Stripe test mode with test card `4242 4242 4242 4242`:
 4. Verify subscription appears in Stripe Dashboard
 5. Verify family tier updates in database
 
+## Step 7: Configure Promotion Codes (Optional)
+
+Promotion codes are already enabled in the checkout! To use them:
+
+1. Go to Stripe Dashboard → Products → Coupons
+2. Click "Create coupon"
+3. Configure discount:
+   - Percentage off (e.g., 100% for free trial)
+   - Fixed amount off
+   - Duration: once, forever, or repeating (e.g., 12 months)
+4. Save the coupon
+5. The coupon field will automatically appear in checkout
+6. Share the coupon code with users (e.g., "Just4You")
+
+**Note:** The checkout session includes `allow_promotion_codes: true`, so users will see a "Add promotion code" link during checkout.
+
+## Step 8: Monitor Integration (Optional)
+
+Access the Stripe integration dashboard at `/admin-stripe` to:
+- View Stripe connection status
+- Check configured price IDs
+- See recent subscriptions
+- Test the checkout flow
+
 ## Verification Checklist
 
 - [ ] Products created in Stripe (visible in Dashboard → Products)
@@ -76,6 +100,10 @@ Use Stripe test mode with test card `4242 4242 4242 4242`:
 - [ ] Test purchase completes successfully
 - [ ] Database updates with correct subscription tier
 - [ ] À la carte purchases work for Deep-Dive, Goal Generation, Resource Pack
+- [ ] **Coupon field appears in checkout**
+- [ ] **Test coupon applies correctly (e.g., 100% off)**
+- [ ] **Discounted subscription activates properly**
+- [ ] **Webhook logs discount information**
 
 ## Troubleshooting
 
