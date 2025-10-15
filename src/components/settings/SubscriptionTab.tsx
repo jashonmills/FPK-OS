@@ -63,6 +63,31 @@ export const SubscriptionTab = () => {
     enabled: !!selectedFamily?.id,
   });
 
+  const handleSyncSubscription = async () => {
+    try {
+      toast.loading('Syncing subscription from Stripe...');
+      
+      const { data, error } = await supabase.functions.invoke('sync-subscription-tier', {
+        body: {
+          familyId: selectedFamily?.id,
+        },
+      });
+
+      if (error) throw error;
+
+      toast.dismiss();
+      if (data.success) {
+        toast.success(`Subscription synced! You're now on the ${data.tier} tier with ${data.max_students === -1 ? 'unlimited' : data.max_students} student slots.`);
+        // Refetch family data
+        window.location.reload();
+      }
+    } catch (error) {
+      toast.dismiss();
+      console.error('Sync error:', error);
+      toast.error('Failed to sync subscription. Please try again or contact support.');
+    }
+  };
+
   const handleManageSubscription = async () => {
     try {
       const { data, error } = await supabase.functions.invoke('manage-subscription', {
@@ -143,8 +168,19 @@ export const SubscriptionTab = () => {
           </div>
 
           {tier !== 'free' && (
-            <Button onClick={handleManageSubscription} className="w-full">
-              Manage Subscription
+            <div className="space-y-2">
+              <Button onClick={handleManageSubscription} className="w-full">
+                Manage Subscription
+              </Button>
+              <Button onClick={handleSyncSubscription} variant="outline" className="w-full">
+                Sync from Stripe
+              </Button>
+            </div>
+          )}
+          
+          {tier === 'free' && familyData.stripe_customer_id && (
+            <Button onClick={handleSyncSubscription} variant="outline" className="w-full">
+              Sync Subscription from Stripe
             </Button>
           )}
         </CardContent>
