@@ -2048,7 +2048,7 @@ Keep it under 100 words.`;
                   const googleVoice = selectedPersona === 'BETTY' 
                     ? 'en-US-Wavenet-F'
                     : selectedPersona === 'NITE_OWL'
-                    ? 'en-US-Wavenet-E'
+                    ? 'en-US-Wavenet-J'
                     : 'en-US-Wavenet-D';
                   
                   console.log(`[CONDUCTOR] 🎤 Calling Google TTS with voice ${googleVoice}`);
