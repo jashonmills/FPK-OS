@@ -931,6 +931,35 @@ serve(async (req) => {
 
     console.log('[CONDUCTOR] User authenticated:', user.id);
 
+    // 🚦 LOAD FEATURE FLAGS (PLUG-AND-PLAY CONTROL)
+    console.log('[CONDUCTOR] 🚦 Loading feature flags...');
+    const { data: featureFlagsData, error: flagsError } = await supabaseClient
+      .from('phoenix_feature_flags')
+      .select('feature_name, is_enabled, configuration')
+      .eq('is_enabled', true);
+    
+    // Convert to easy-to-use object
+    const featureFlags: Record<string, { enabled: boolean; config: any }> = {};
+    if (!flagsError && featureFlagsData) {
+      featureFlagsData.forEach(flag => {
+        featureFlags[flag.feature_name] = {
+          enabled: flag.is_enabled,
+          config: flag.configuration || {}
+        };
+      });
+      console.log('[CONDUCTOR] ✅ Feature flags loaded:', Object.keys(featureFlags).filter(k => featureFlags[k].enabled).join(', '));
+    } else {
+      console.warn('[CONDUCTOR] ⚠️ Failed to load feature flags, using defaults:', flagsError);
+      // Default to all features enabled if load fails
+      featureFlags['nite_owl_interjections'] = { enabled: true, config: {} };
+      featureFlags['socratic_sandwich'] = { enabled: true, config: {} };
+      featureFlags['welcome_back_detection'] = { enabled: true, config: {} };
+      featureFlags['governor_quality_checks'] = { enabled: true, config: {} };
+      featureFlags['podcast_generation'] = { enabled: true, config: {} };
+      featureFlags['memory_extraction'] = { enabled: true, config: {} };
+      featureFlags['tts_audio'] = { enabled: true, config: {} };
+    }
+
     // 🧠 FETCH STUDENT KNOWLEDGE PACK
     console.log('[CONDUCTOR] 🧠 Fetching Student Knowledge Pack for user:', user.id);
     const { data: knowledgePack, error: kpError } = await supabaseClient
@@ -1116,7 +1145,8 @@ serve(async (req) => {
     let shouldTriggerCoResponse = false;
     let answerQualityScore = 0;
     
-    if (inBettySession && detectedIntent === 'socratic_guidance') {
+    if (featureFlags['socratic_sandwich']?.enabled && inBettySession && detectedIntent === 'socratic_guidance') {
+      console.log('[CO-RESPONSE] 🤝 Socratic Sandwich feature ENABLED - evaluating answer quality');
       // Only evaluate if there's a recent Betty question
       const lastBettyMessage = conversationHistory
         .slice()
@@ -1208,7 +1238,8 @@ serve(async (req) => {
     let shouldTriggerNiteOwl = false;
     let niteOwlTriggerReason = '';
     
-    if (inBettySession && detectedIntent === 'socratic_guidance') {
+    if (featureFlags['nite_owl_interjections']?.enabled && inBettySession && detectedIntent === 'socratic_guidance') {
+      console.log('[CONDUCTOR] 🦉 Nite Owl feature ENABLED - checking trigger conditions');
       // CRITICAL FIX: Trigger lock - prevent Nite Owl from triggering twice in a row
       const currentTurnIndex = conversationHistory.length;
       const turnsSinceLastNiteOwl = currentTurnIndex - lastNiteOwlTurn;
@@ -1284,8 +1315,8 @@ serve(async (req) => {
     let isWelcomeBack = false; // Flag for session resumption greeting
 
     // HIGHEST PRIORITY: Session Resumption - Generate "Welcome Back" message
-    if (isResumingThisTurn) {
-      console.log('[CONDUCTOR] 👋👋👋 GENERATING WELCOME BACK MESSAGE');
+    if (featureFlags['welcome_back_detection']?.enabled && isResumingThisTurn) {
+      console.log('[CONDUCTOR] 👋👋👋 GENERATING WELCOME BACK MESSAGE (Feature Enabled)');
       console.log('[CONDUCTOR] Session was inactive for', Math.round(timeSinceLastUpdate / 60000), 'minutes');
       
       // Determine which persona should welcome them back
@@ -1348,8 +1379,8 @@ Include the time elapsed (${minutesAway} minutes) and the specific topic in your
       console.log('[CONDUCTOR] ✅ All other logic BYPASSED - Welcome Back has absolute priority');
       
       
-    } else if (shouldTriggerNiteOwl) {
-      // ⭐ HIGHEST PRIORITY: NITE OWL INTERJECTION
+    } else if (featureFlags['nite_owl_interjections']?.enabled && shouldTriggerNiteOwl) {
+      // ⭐ HIGHEST PRIORITY: NITE OWL INTERJECTION (only if feature enabled)
       // When Nite Owl triggers, ONLY process Nite Owl - no Betty, no Al, nothing else
       selectedPersona = 'NITE_OWL';
       systemPrompt = buildNiteOwlSystemPrompt(knowledgePack);
@@ -1373,11 +1404,11 @@ Include the time elapsed (${minutesAway} minutes) and the specific topic in your
           const willNeedBettyHandoff = inBettySession;
           console.log('[CONDUCTOR] Will need Betty handoff after Nite Owl:', willNeedBettyHandoff);
       
-    } else if (shouldTriggerCoResponse) {
-      // ⭐⭐ PHASE 5.2: CO-RESPONSE MODE - Al validates, then Betty deepens
+    } else if (featureFlags['socratic_sandwich']?.enabled && shouldTriggerCoResponse) {
+      // ⭐⭐ PHASE 5.2: CO-RESPONSE MODE - Al validates, then Betty deepens (only if feature enabled)
       isCoResponse = true;
       selectedPersona = 'CO_RESPONSE'; // Special mode flag
-      console.log('[CO-RESPONSE] 🤝✨ Triggering Socratic Sandwich - Al + Betty collaboration');
+      console.log('[CO-RESPONSE] 🤝✨ Triggering Socratic Sandwich - Al + Betty collaboration (Feature Enabled)');
       
       // We'll handle the dual response generation after the normal flow
       // For now, set Betty as the primary persona (we'll override later)
@@ -1842,12 +1873,13 @@ Keep it under 100 words.`;
           // ⚡ PERFORMANCE: Fire-and-forget Governor check for logging only (no blocking!)
           const finalText = generatedTextFromLLM; // Use response directly
           const governorBlocked = false; // Never blocking with new self-governance approach
-          console.log('[CONDUCTOR] ⚡ Skipping blocking Governor check - using LLM response directly');
           
-          // Async Governor logging (non-blocking) - updates governorResult if needed
-          (async () => {
-            try {
-              const asyncGovernorResult = await runGovernorCheck(
+          // Async Governor logging (non-blocking) - only if feature enabled
+          if (featureFlags['governor_quality_checks']?.enabled) {
+            console.log('[CONDUCTOR] 🛡️ Governor feature ENABLED - running async quality check for logging');
+            (async () => {
+              try {
+                const asyncGovernorResult = await runGovernorCheck(
                 generatedTextFromLLM,
                 selectedPersona,
                 message,
@@ -1879,6 +1911,9 @@ Keep it under 100 words.`;
               console.error('[GOVERNOR] Non-blocking check failed:', error);
             }
           })();
+        } else {
+          console.log('[CONDUCTOR] 🛡️ Governor feature DISABLED - skipping quality checks');
+        }
 
           // Generate TTS Audio - Try ElevenLabs first, fallback to OpenAI
           // CRITICAL: Store text for TTS as immutable const to prevent corruption
@@ -1889,7 +1924,11 @@ Keep it under 100 words.`;
           
           let audioUrl = null;
           let ttsProvider = 'none';
-          try {
+          
+          // Check if TTS feature is enabled
+          if (featureFlags['tts_audio']?.enabled) {
+            console.log('[CONDUCTOR] 🎵 TTS feature ENABLED - generating audio');
+            try {
             const ELEVENLABS_API_KEY = Deno.env.get('ELEVENLABS_API_KEY');
             const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
             
@@ -2014,6 +2053,10 @@ Keep it under 100 words.`;
           if (!audioUrl) {
             console.warn('[CONDUCTOR] ⚠️ No audio available - text-only response will be sent');
           }
+        } else {
+          console.log('[CONDUCTOR] 🔇 TTS feature DISABLED - skipping audio generation');
+          ttsProvider = 'disabled';
+        }
           
           // CRITICAL SANITY CHECK: Verify text-audio alignment
           console.log('[CONDUCTOR] 🔍 SANITY CHECK - Text vs Audio alignment:');
@@ -2344,7 +2387,8 @@ Keep it brief and focused on answering their original question.`;
           } // End of NITE_OWL handoff
 
           // 12. Check if we should trigger podcast generation (async, non-blocking)
-          if (selectedPersona === 'BETTY' && totalBettyTurns >= 6) {
+          if (featureFlags['podcast_generation']?.enabled && selectedPersona === 'BETTY' && totalBettyTurns >= 6) {
+            console.log('[CONDUCTOR] 🎙️ Podcast feature ENABLED - checking trigger conditions');
             // Extract sentiment from recent messages to check for "Aha!" moments
             const recentUserMessages = conversationHistory
               .filter(msg => msg.persona === 'USER')
@@ -2412,8 +2456,9 @@ Keep it brief and focused on answering their original question.`;
           console.log('[CONDUCTOR] Stream closed successfully');
           
           // PHASE 5: Extract and store memories after session completion
-          if (user?.id && conversationHistory.length >= 4) {
-            console.log('[MEMORY] 🧠 Starting async memory extraction...');
+          if (featureFlags['memory_extraction']?.enabled && user?.id && conversationHistory.length >= 4) {
+            const minMessages = featureFlags['memory_extraction']?.config?.min_messages || 4;
+            console.log(`[MEMORY] 🧠 Memory extraction feature ENABLED (min ${minMessages} messages) - starting async extraction...`);
             // Run memory extraction asynchronously (don't await)
             extractAndStoreMemories(
               conversationId,

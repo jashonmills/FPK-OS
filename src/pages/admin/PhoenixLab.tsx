@@ -16,6 +16,7 @@ import { usePhoenixSettings } from '@/hooks/usePhoenixSettings';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/useAuth';
+import { PhoenixFeatureFlags } from '@/components/admin/PhoenixFeatureFlags';
 
 interface Message {
   id: string;
@@ -1778,6 +1779,9 @@ export default function PhoenixLab() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Feature Flags Control Panel */}
+        <PhoenixFeatureFlags />
       </div>
 
       {/* Session History Modal */}

@@ -6082,6 +6082,36 @@ export type Database = {
         }
         Relationships: []
       }
+      phoenix_feature_flags: {
+        Row: {
+          configuration: Json | null
+          created_at: string
+          description: string | null
+          feature_name: string
+          id: string
+          is_enabled: boolean
+          updated_at: string
+        }
+        Insert: {
+          configuration?: Json | null
+          created_at?: string
+          description?: string | null
+          feature_name: string
+          id?: string
+          is_enabled?: boolean
+          updated_at?: string
+        }
+        Update: {
+          configuration?: Json | null
+          created_at?: string
+          description?: string | null
+          feature_name?: string
+          id?: string
+          is_enabled?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       phoenix_governor_logs: {
         Row: {
           blocked: boolean
