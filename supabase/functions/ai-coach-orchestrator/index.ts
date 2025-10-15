@@ -1454,7 +1454,6 @@ Their learning preference is valid. Respect it.`;
         .insert({
           session_id: conversationId,
           user_id: user.id,
-          started_at: new Date().toISOString(),
           metadata: {
             socraticTurnCounter,
             nextInterjectionPoint,
@@ -2137,8 +2136,9 @@ Keep it under 100 words.`;
           // ============================================
           // CRITICAL: Do NOT trigger handoff if this was a session resumption (isWelcomeBack prevents it)
           if (selectedPersona === 'NITE_OWL' && !isWelcomeBack) {
-            console.log('[CONDUCTOR] 🦉🔄 GRACEFUL HANDOFF INITIATED');
-            console.log('[CONDUCTOR] Generating fresh, context-aware follow-up from original persona');
+            try {
+              console.log('[CONDUCTOR] 🦉🔄 GRACEFUL HANDOFF INITIATED');
+              console.log('[CONDUCTOR] Generating fresh, context-aware follow-up from original persona');
             
             // Determine which persona to hand back to (Betty for socratic, Al for direct)
             const handoffPersona = inBettySession ? 'BETTY' : 'AL';
@@ -2278,6 +2278,38 @@ Keep it brief and focused on answering their original question.`;
               controller.enqueue(new TextEncoder().encode(handoffMessage));
             } else {
               console.error('[CONDUCTOR] ❌ Handoff response failed:', await handoffResponse.text());
+            }
+            } catch (handoffError) {
+              console.error('[CONDUCTOR] ❌ Handoff error (non-critical):', handoffError);
+              
+              // Fallback: Send a simple transition message
+              try {
+                const fallbackPersona = inBettySession ? 'BETTY' : 'AL';
+                const fallbackText = fallbackPersona === 'BETTY' 
+                  ? "Thanks, Nite Owl! Now, let's continue exploring this together."
+                  : "Thanks for that insight, Nite Owl. Let's continue with your learning.";
+                
+                if (conversationUuid) {
+                  await supabaseClient.from('phoenix_messages').insert({
+                    conversation_id: conversationUuid,
+                    persona: fallbackPersona,
+                    content: fallbackText,
+                    metadata: { isHandoff: true, isFallback: true }
+                  });
+                  
+                  const fallbackMessage = `data: ${JSON.stringify({ 
+                    type: 'handoff',
+                    persona: fallbackPersona,
+                    content: fallbackText,
+                    audioUrl: null
+                  })}\n\n`;
+                  
+                  controller.enqueue(new TextEncoder().encode(fallbackMessage));
+                  console.log('[CONDUCTOR] ✅ Sent fallback handoff message');
+                }
+              } catch (fallbackError) {
+                console.error('[CONDUCTOR] ❌ Fallback handoff also failed:', fallbackError);
+              }
             }
           } // End of NITE_OWL handoff
 
