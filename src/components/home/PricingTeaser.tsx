@@ -6,16 +6,31 @@ import { Badge } from '@/components/ui/badge';
 import { CheckCircle2, ChevronDown, ChevronUp, Zap, Sparkles, Target, BookOpen } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Separator } from '@/components/ui/separator';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 export const PricingTeaser = () => {
   const navigate = useNavigate();
   const [expandedTier, setExpandedTier] = useState<number | null>(null);
   const [showALaCarte, setShowALaCarte] = useState(false);
+  const [currency, setCurrency] = useState<'USD' | 'EUR'>('USD');
+
+  const eurRate = 0.92;
+
+  const convertPrice = (price: number) => {
+    if (currency === 'EUR') {
+      return (price * eurRate).toFixed(2);
+    }
+    return price.toFixed(2);
+  };
+
+  const currencySymbol = currency === 'EUR' ? '€' : '$';
 
   const tiers = [
     {
       name: 'Family',
-      price: 'Free Forever',
+      price: 0,
+      priceLabel: 'Free Forever',
       tagline: 'For getting started and organizing your world.',
       features: [
         '1 Student Profile',
@@ -36,7 +51,8 @@ export const PricingTeaser = () => {
     },
     {
       name: 'Collaborative Team',
-      price: '$25 / month',
+      price: 25,
+      priceLabel: null,
       tagline: 'For connecting your entire support team.',
       features: [
         'Up to 5 Student Profiles',
@@ -61,7 +77,8 @@ export const PricingTeaser = () => {
     },
     {
       name: 'Insights Pro',
-      price: '$60 / month',
+      price: 60,
+      priceLabel: null,
       tagline: 'For proactive, AI-driven decision making.',
       features: [
         'Unlimited Students & Users',
@@ -84,15 +101,15 @@ export const PricingTeaser = () => {
   ];
 
   const creditPacks = [
-    { name: 'Starter Pack', price: '$5', credits: '500 Credits' },
-    { name: 'Value Pack', price: '$10', credits: '1,200 Credits', bonus: '20% Bonus' },
-    { name: 'Pro Pack', price: '$20', credits: '3,000 Credits', bonus: '50% Bonus' },
+    { name: 'Starter Pack', price: 5, credits: '500 Credits' },
+    { name: 'Value Pack', price: 10, credits: '1,200 Credits', bonus: '20% Bonus' },
+    { name: 'Pro Pack', price: 20, credits: '3,000 Credits', bonus: '50% Bonus' },
   ];
 
   const alaCarteTools = [
-    { name: 'Document Deep-Dive', price: '$9.99', icon: Sparkles },
-    { name: 'AI Goal Generation', price: '$4.99', icon: Target },
-    { name: 'Personalized Resource Pack', price: '$19.99', icon: BookOpen },
+    { name: 'Document Deep-Dive', price: 9.99, icon: Sparkles },
+    { name: 'AI Goal Generation', price: 4.99, icon: Target },
+    { name: 'Personalized Resource Pack', price: 19.99, icon: BookOpen },
   ];
 
   return (
@@ -108,6 +125,21 @@ export const PricingTeaser = () => {
           <p className="text-sm text-muted-foreground mt-2">
             <strong>AI Credits Power Everything:</strong> Text-to-Speech (1 credit per 1,000 chars), AI Chat, Document Analysis, and more.
           </p>
+          
+          {/* Currency Toggle */}
+          <div className="flex items-center justify-center gap-2 mt-6">
+            <Label htmlFor="currency-toggle-home" className={currency === 'USD' ? 'font-semibold' : 'text-muted-foreground'}>
+              USD ($)
+            </Label>
+            <Switch
+              id="currency-toggle-home"
+              checked={currency === 'EUR'}
+              onCheckedChange={(checked) => setCurrency(checked ? 'EUR' : 'USD')}
+            />
+            <Label htmlFor="currency-toggle-home" className={currency === 'EUR' ? 'font-semibold' : 'text-muted-foreground'}>
+              EUR (€)
+            </Label>
+          </div>
         </div>
 
         <div className="grid md:grid-cols-3 gap-8 mb-12">
@@ -126,7 +158,7 @@ export const PricingTeaser = () => {
               <CardHeader>
                 <CardTitle className="text-2xl">{tier.name}</CardTitle>
                 <div className="text-3xl font-bold text-primary mt-2">
-                  {tier.price}
+                  {tier.priceLabel || `${currencySymbol}${convertPrice(tier.price)} / month`}
                 </div>
                 <CardDescription className="text-base mt-2">
                   {tier.tagline}
@@ -216,7 +248,7 @@ export const PricingTeaser = () => {
                             <Badge variant="secondary" className="mt-1 text-xs">{pack.bonus}</Badge>
                           )}
                         </div>
-                        <p className="text-lg font-bold text-primary">{pack.price}</p>
+                        <p className="text-lg font-bold text-primary">{currencySymbol}{convertPrice(pack.price)}</p>
                       </div>
                     ))}
                   </div>
@@ -241,7 +273,7 @@ export const PricingTeaser = () => {
                             <Icon className="h-5 w-5 text-primary" />
                             <p className="font-medium text-sm">{tool.name}</p>
                           </div>
-                          <p className="text-lg font-bold text-primary">{tool.price}</p>
+                          <p className="text-lg font-bold text-primary">{currencySymbol}{convertPrice(tool.price)}</p>
                         </div>
                       );
                     })}

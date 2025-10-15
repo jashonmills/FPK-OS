@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router-dom';
 
 const Pricing = () => {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
+  const [currency, setCurrency] = useState<'USD' | 'EUR'>('USD');
   const navigate = useNavigate();
 
   return (
@@ -37,32 +38,48 @@ const Pricing = () => {
               Start free, upgrade when you're ready. All plans include our core features.
             </p>
 
-            {/* Billing Toggle */}
-            <div className="inline-flex items-center gap-4 p-2 glass-card rounded-full">
-              <Label
-                htmlFor="billing-toggle"
-                className={`cursor-pointer px-4 py-2 rounded-full transition-colors ${
-                  billingCycle === 'monthly' ? 'bg-primary text-primary-foreground' : ''
-                }`}
-              >
-                Bill Monthly
-              </Label>
-              <Switch
-                id="billing-toggle"
-                checked={billingCycle === 'annual'}
-                onCheckedChange={(checked) => setBillingCycle(checked ? 'annual' : 'monthly')}
-              />
-              <Label
-                htmlFor="billing-toggle"
-                className={`cursor-pointer px-4 py-2 rounded-full transition-colors ${
-                  billingCycle === 'annual' ? 'bg-primary text-primary-foreground' : ''
-                }`}
-              >
-                Bill Annually
-                <span className="ml-2 text-xs bg-green-500 text-white px-2 py-0.5 rounded-full">
-                  Save 15%
-                </span>
-              </Label>
+            {/* Billing and Currency Toggles */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <div className="inline-flex items-center gap-4 p-2 glass-card rounded-full">
+                <Label
+                  htmlFor="billing-toggle"
+                  className={`cursor-pointer px-4 py-2 rounded-full transition-colors ${
+                    billingCycle === 'monthly' ? 'bg-primary text-primary-foreground' : ''
+                  }`}
+                >
+                  Bill Monthly
+                </Label>
+                <Switch
+                  id="billing-toggle"
+                  checked={billingCycle === 'annual'}
+                  onCheckedChange={(checked) => setBillingCycle(checked ? 'annual' : 'monthly')}
+                />
+                <Label
+                  htmlFor="billing-toggle"
+                  className={`cursor-pointer px-4 py-2 rounded-full transition-colors ${
+                    billingCycle === 'annual' ? 'bg-primary text-primary-foreground' : ''
+                  }`}
+                >
+                  Bill Annually
+                  <span className="ml-2 text-xs bg-green-500 text-white px-2 py-0.5 rounded-full">
+                    Save 15%
+                  </span>
+                </Label>
+              </div>
+
+              <div className="inline-flex items-center gap-2 p-2 glass-card rounded-full">
+                <Label htmlFor="currency-toggle-pricing" className={`cursor-pointer px-3 py-2 text-sm ${currency === 'USD' ? 'font-semibold' : 'text-muted-foreground'}`}>
+                  USD ($)
+                </Label>
+                <Switch
+                  id="currency-toggle-pricing"
+                  checked={currency === 'EUR'}
+                  onCheckedChange={(checked) => setCurrency(checked ? 'EUR' : 'USD')}
+                />
+                <Label htmlFor="currency-toggle-pricing" className={`cursor-pointer px-3 py-2 text-sm ${currency === 'EUR' ? 'font-semibold' : 'text-muted-foreground'}`}>
+                  EUR (€)
+                </Label>
+              </div>
             </div>
           </div>
         </section>
@@ -70,7 +87,7 @@ const Pricing = () => {
         {/* Pricing Grid */}
         <section className="px-4 pb-16">
           <div className="max-w-7xl mx-auto">
-            <PricingGrid billingCycle={billingCycle} />
+            <PricingGrid billingCycle={billingCycle} currency={currency} />
           </div>
         </section>
 
