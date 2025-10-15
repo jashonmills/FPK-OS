@@ -1056,6 +1056,45 @@ export type Database = {
           },
         ]
       }
+      feature_flags: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          flag_key: string
+          flag_name: string
+          id: string
+          is_enabled: boolean
+          metadata: Json | null
+          rollout_percentage: number | null
+          target_users: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          flag_key: string
+          flag_name: string
+          id?: string
+          is_enabled?: boolean
+          metadata?: Json | null
+          rollout_percentage?: number | null
+          target_users?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          flag_key?: string
+          flag_name?: string
+          id?: string
+          is_enabled?: boolean
+          metadata?: Json | null
+          rollout_percentage?: number | null
+          target_users?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       goals: {
         Row: {
           created_at: string | null
@@ -2212,6 +2251,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_feature_overrides: {
+        Row: {
+          created_at: string | null
+          flag_key: string
+          id: string
+          is_enabled: boolean
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          flag_key: string
+          id?: string
+          is_enabled: boolean
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          flag_key?: string
+          id?: string
+          is_enabled?: boolean
+          user_id?: string
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {

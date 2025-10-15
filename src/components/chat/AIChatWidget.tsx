@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { MessageCircle, X, Send, Loader2 } from "lucide-react";
+import { MessageCircle, X, Send, Loader2, Mic, MicOff, Volume2, VolumeX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -7,6 +7,11 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useFamily } from "@/contexts/FamilyContext";
+import { useFeatureFlags } from "@/hooks/useFeatureFlags";
+import { useSpeechToText } from "@/hooks/useSpeechToText";
+import { useTextToSpeech } from "@/hooks/useTextToSpeech";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 interface Message {
   id: string;
@@ -21,8 +26,21 @@ export function AIChatWidget() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
+  const [autoPlay, setAutoPlay] = useState(false);
   const { toast } = useToast();
   const { selectedFamily } = useFamily();
+  
+  // Feature flags
+  const { flags, loading: flagsLoading } = useFeatureFlags([
+    'enable-advanced-ai-assistant',
+    'enable-ai-speech-to-text',
+    'enable-ai-text-to-speech',
+    'enable-ai-auto-play'
+  ]);
+
+  // Voice capabilities
+  const { isRecording, isTranscribing, startRecording, stopRecording, cancelRecording } = useSpeechToText();
+  const { speak, stop: stopSpeaking, isSpeaking, isLoading: isTTSLoading } = useTextToSpeech();
 
   useEffect(() => {
     if (isOpen && !conversationId && selectedFamily) {
@@ -51,13 +69,14 @@ export function AIChatWidget() {
     }
   };
 
-  const sendMessage = async () => {
-    if (!input.trim() || !conversationId || !selectedFamily) return;
+  const sendMessage = async (messageText?: string) => {
+    const textToSend = messageText || input.trim();
+    if (!textToSend || !conversationId || !selectedFamily) return;
 
     const userMessage: Message = {
       id: crypto.randomUUID(),
       role: "user",
-      content: input,
+      content: textToSend,
     };
 
     setMessages((prev) => [...prev, userMessage]);
@@ -67,7 +86,7 @@ export function AIChatWidget() {
     try {
       const { data, error } = await supabase.functions.invoke("chat-with-data", {
         body: {
-          question: input,
+          question: textToSend,
           family_id: selectedFamily.id,
           conversation_id: conversationId,
         },
@@ -83,6 +102,11 @@ export function AIChatWidget() {
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
+
+      // Auto-play response if enabled
+      if (autoPlay && flags['enable-ai-text-to-speech'] && data.answer) {
+        speak(data.answer);
+      }
     } catch (error) {
       console.error("Chat error:", error);
       toast({
@@ -95,6 +119,19 @@ export function AIChatWidget() {
     }
   };
 
+  const handleVoiceInput = async () => {
+    if (isRecording) {
+      try {
+        const transcription = await stopRecording();
+        setInput(transcription);
+      } catch (error) {
+        console.error('Voice input error:', error);
+      }
+    } else {
+      startRecording();
+    }
+  };
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -102,7 +139,8 @@ export function AIChatWidget() {
     }
   };
 
-  if (!selectedFamily) {
+  // Don't render if feature is disabled or family not selected
+  if (!selectedFamily || (flagsLoading === false && !flags['enable-advanced-ai-assistant'])) {
     return null;
   }
 
@@ -169,7 +207,27 @@ export function AIChatWidget() {
                         : "bg-muted"
                     }`}
                   >
-                    <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-sm whitespace-pre-wrap flex-1">{message.content}</p>
+                      
+                      {/* Text-to-speech button for assistant messages */}
+                      {message.role === "assistant" && flags['enable-ai-text-to-speech'] && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => isSpeaking ? stopSpeaking() : speak(message.content)}
+                          className="h-6 w-6 p-0 shrink-0"
+                          title={isSpeaking ? "Stop speaking" : "Read aloud"}
+                        >
+                          {isSpeaking ? (
+                            <VolumeX className="h-3 w-3" />
+                          ) : (
+                            <Volume2 className="h-3 w-3" />
+                          )}
+                        </Button>
+                      )}
+                    </div>
+                    
                     {message.sources && message.sources.length > 0 && (
                       <div className="mt-2 pt-2 border-t border-muted-foreground/20">
                         <p className="text-xs opacity-70">
@@ -191,19 +249,51 @@ export function AIChatWidget() {
           </ScrollArea>
 
           {/* Input */}
-          <div className="p-4 border-t">
+          <div className="p-4 border-t space-y-3">
+            {/* Auto-play toggle */}
+            {flags['enable-ai-text-to-speech'] && (
+              <div className="flex items-center justify-between">
+                <Label htmlFor="auto-play" className="text-sm">
+                  Auto-play responses
+                </Label>
+                <Switch
+                  id="auto-play"
+                  checked={autoPlay}
+                  onCheckedChange={setAutoPlay}
+                />
+              </div>
+            )}
+
             <div className="flex gap-2">
               <Input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Ask a question..."
-                disabled={isLoading}
+                placeholder={isRecording ? "Listening..." : isTranscribing ? "Transcribing..." : "Ask a question..."}
+                disabled={isLoading || isRecording || isTranscribing}
                 className="flex-1"
               />
+              
+              {/* Voice input button */}
+              {flags['enable-ai-speech-to-text'] && (
+                <Button
+                  onClick={handleVoiceInput}
+                  disabled={isLoading || isTranscribing}
+                  size="icon"
+                  variant={isRecording ? "destructive" : "outline"}
+                  title={isRecording ? "Stop recording" : "Start voice input"}
+                >
+                  {isRecording ? (
+                    <MicOff className="h-4 w-4" />
+                  ) : (
+                    <Mic className="h-4 w-4" />
+                  )}
+                </Button>
+              )}
+
               <Button
-                onClick={sendMessage}
-                disabled={!input.trim() || isLoading}
+                onClick={() => sendMessage()}
+                disabled={!input.trim() || isLoading || isRecording || isTranscribing}
                 size="icon"
               >
                 <Send className="h-4 w-4" />
