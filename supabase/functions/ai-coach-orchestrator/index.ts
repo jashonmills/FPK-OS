@@ -1885,7 +1885,7 @@ Keep it under 100 words.`;
                     ? 'uYXf8XasLslADfZ2MB4u' 
                     : selectedPersona === 'NITE_OWL'
                     ? 'wo6udizrrtpIxWGp2qJk'
-                    : 'DTKMou8ccj1ZaWGBiotd';
+                    : 'wo6udizrrtpIxWGp2qJk';
                   
                   console.log(`[CONDUCTOR] 🎤 Calling ElevenLabs with voice ${voiceId}`);
                   
@@ -2215,7 +2215,7 @@ Keep it brief and focused on answering their original question.`;
                 if (ELEVENLABS_API_KEY && handoffText.length > 0) {
                   const voiceId = handoffPersona === 'BETTY' 
                     ? 'uYXf8XasLslADfZ2MB4u' 
-                    : 'DTKMou8ccj1ZaWGBiotd';
+                    : 'wo6udizrrtpIxWGp2qJk';
                   
                   console.log(`[CONDUCTOR] 🎤 Generating TTS for handoff with voice ${voiceId}`);
                   
