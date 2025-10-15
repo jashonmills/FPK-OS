@@ -6112,6 +6112,69 @@ export type Database = {
         }
         Relationships: []
       }
+      phoenix_feature_usage: {
+        Row: {
+          config_snapshot: Json | null
+          conversation_id: string | null
+          created_at: string | null
+          error_message: string | null
+          execution_duration_ms: number | null
+          feature_name: string
+          id: string
+          message_id: string | null
+          user_id: string | null
+          was_enabled: boolean
+          was_executed: boolean
+          was_successful: boolean | null
+          was_triggered: boolean
+        }
+        Insert: {
+          config_snapshot?: Json | null
+          conversation_id?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          execution_duration_ms?: number | null
+          feature_name: string
+          id?: string
+          message_id?: string | null
+          user_id?: string | null
+          was_enabled: boolean
+          was_executed: boolean
+          was_successful?: boolean | null
+          was_triggered: boolean
+        }
+        Update: {
+          config_snapshot?: Json | null
+          conversation_id?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          execution_duration_ms?: number | null
+          feature_name?: string
+          id?: string
+          message_id?: string | null
+          user_id?: string | null
+          was_enabled?: boolean
+          was_executed?: boolean
+          was_successful?: boolean | null
+          was_triggered?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "phoenix_feature_usage_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "phoenix_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "phoenix_feature_usage_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "phoenix_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       phoenix_governor_logs: {
         Row: {
           blocked: boolean
@@ -6347,6 +6410,153 @@ export type Database = {
           },
         ]
       }
+      phoenix_nite_owl_events: {
+        Row: {
+          context_snapshot: Json | null
+          conversation_id: string | null
+          created_at: string | null
+          id: string
+          message_id: string | null
+          session_ended_after: boolean | null
+          socratic_turn_count: number | null
+          time_to_next_message_ms: number | null
+          trigger_reason: string
+          turns_since_last_nite_owl: number | null
+          user_continued_after: boolean | null
+          user_frustration_score: number | null
+          user_id: string | null
+          was_helpful: boolean | null
+        }
+        Insert: {
+          context_snapshot?: Json | null
+          conversation_id?: string | null
+          created_at?: string | null
+          id?: string
+          message_id?: string | null
+          session_ended_after?: boolean | null
+          socratic_turn_count?: number | null
+          time_to_next_message_ms?: number | null
+          trigger_reason: string
+          turns_since_last_nite_owl?: number | null
+          user_continued_after?: boolean | null
+          user_frustration_score?: number | null
+          user_id?: string | null
+          was_helpful?: boolean | null
+        }
+        Update: {
+          context_snapshot?: Json | null
+          conversation_id?: string | null
+          created_at?: string | null
+          id?: string
+          message_id?: string | null
+          session_ended_after?: boolean | null
+          socratic_turn_count?: number | null
+          time_to_next_message_ms?: number | null
+          trigger_reason?: string
+          turns_since_last_nite_owl?: number | null
+          user_continued_after?: boolean | null
+          user_frustration_score?: number | null
+          user_id?: string | null
+          was_helpful?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "phoenix_nite_owl_events_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "phoenix_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "phoenix_nite_owl_events_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "phoenix_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      phoenix_performance_logs: {
+        Row: {
+          context_loading_duration: number | null
+          conversation_id: string | null
+          correction_message: string | null
+          created_at: string | null
+          error_message: string | null
+          error_occurred: boolean | null
+          feature_flags_snapshot: Json | null
+          governor_check_duration: number | null
+          id: string
+          intent: Database["public"]["Enums"]["message_intent"] | null
+          intent_detection_duration: number | null
+          intent_was_misinterpreted: boolean | null
+          llm_response_duration: number | null
+          message_id: string | null
+          persona: Database["public"]["Enums"]["persona_type"]
+          time_to_first_token: number | null
+          total_duration: number
+          tts_generation_duration: number | null
+          user_id: string | null
+        }
+        Insert: {
+          context_loading_duration?: number | null
+          conversation_id?: string | null
+          correction_message?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          error_occurred?: boolean | null
+          feature_flags_snapshot?: Json | null
+          governor_check_duration?: number | null
+          id?: string
+          intent?: Database["public"]["Enums"]["message_intent"] | null
+          intent_detection_duration?: number | null
+          intent_was_misinterpreted?: boolean | null
+          llm_response_duration?: number | null
+          message_id?: string | null
+          persona: Database["public"]["Enums"]["persona_type"]
+          time_to_first_token?: number | null
+          total_duration: number
+          tts_generation_duration?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          context_loading_duration?: number | null
+          conversation_id?: string | null
+          correction_message?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          error_occurred?: boolean | null
+          feature_flags_snapshot?: Json | null
+          governor_check_duration?: number | null
+          id?: string
+          intent?: Database["public"]["Enums"]["message_intent"] | null
+          intent_detection_duration?: number | null
+          intent_was_misinterpreted?: boolean | null
+          llm_response_duration?: number | null
+          message_id?: string | null
+          persona?: Database["public"]["Enums"]["persona_type"]
+          time_to_first_token?: number | null
+          total_duration?: number
+          tts_generation_duration?: number | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "phoenix_performance_logs_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "phoenix_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "phoenix_performance_logs_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "phoenix_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       phoenix_user_context: {
         Row: {
           confidence_score: number | null
@@ -6382,6 +6592,69 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      phoenix_user_feedback: {
+        Row: {
+          context: Json | null
+          conversation_id: string | null
+          created_at: string | null
+          feedback_type: string
+          id: string
+          message_id: string | null
+          persona_before_feedback:
+            | Database["public"]["Enums"]["persona_type"]
+            | null
+          previous_ai_message: string | null
+          session_turn_count: number | null
+          user_id: string | null
+          user_message: string
+        }
+        Insert: {
+          context?: Json | null
+          conversation_id?: string | null
+          created_at?: string | null
+          feedback_type: string
+          id?: string
+          message_id?: string | null
+          persona_before_feedback?:
+            | Database["public"]["Enums"]["persona_type"]
+            | null
+          previous_ai_message?: string | null
+          session_turn_count?: number | null
+          user_id?: string | null
+          user_message: string
+        }
+        Update: {
+          context?: Json | null
+          conversation_id?: string | null
+          created_at?: string | null
+          feedback_type?: string
+          id?: string
+          message_id?: string | null
+          persona_before_feedback?:
+            | Database["public"]["Enums"]["persona_type"]
+            | null
+          previous_ai_message?: string | null
+          session_turn_count?: number | null
+          user_id?: string | null
+          user_message?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "phoenix_user_feedback_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "phoenix_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "phoenix_user_feedback_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "phoenix_messages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       podcast_episodes: {
         Row: {
