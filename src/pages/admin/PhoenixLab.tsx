@@ -49,8 +49,7 @@ Nite Owl kicks off your AI Coach session, introducing Betty (your Socratic guide
 Ready to learn? Let's make some magic happen! 🦉✨`,
     isWelcome: true,
     // NOTE: Replace this URL with the actual public URL after uploading to Supabase Storage
-    audioUrl: 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/audio_assets/welcome_dialogue_trio.mp3'
-  }
+audioUrl: 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/audio/betty-al-night-Owl-intro/welcome_dialogue_trio.mp3'
 ];
 
 // Phase features data
