@@ -23,6 +23,7 @@ import { AnalyticsEmptyState } from "@/components/analytics/AnalyticsEmptyState"
 import { ProductTour } from "@/components/onboarding/ProductTour";
 import { analyticsTourSteps } from "@/components/onboarding/tourConfigs";
 import { useTourProgress } from "@/hooks/useTourProgress";
+import { FeatureFlag } from "@/components/shared/FeatureFlag";
 
 const Analytics = () => {
   const { selectedFamily, selectedStudent } = useFamily();
@@ -189,86 +190,100 @@ const Analytics = () => {
       )}
 
       {/* Goal Progress Cards - Top Priority */}
-      <GoalProgressCards 
-        familyId={selectedFamily!.id} 
-        studentId={selectedStudent.id} 
-      />
+      <FeatureFlag flag="enable-goal-progress-cards">
+        <GoalProgressCards 
+          familyId={selectedFamily!.id} 
+          studentId={selectedStudent.id} 
+        />
+      </FeatureFlag>
 
       {/* Primary Charts - 2 Column Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Overall Activity Log</CardTitle>
-            <CardDescription>Daily logging engagement and data collection trends</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ActivityLogChart 
-              familyId={selectedFamily!.id}
-              studentId={selectedStudent.id}
-              days={parseInt(dateRange)}
-            />
-          </CardContent>
-        </Card>
+        <FeatureFlag flag="enable-activity-log-chart">
+          <Card>
+            <CardHeader>
+              <CardTitle>Overall Activity Log</CardTitle>
+              <CardDescription>Daily logging engagement and data collection trends</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ActivityLogChart 
+                familyId={selectedFamily!.id}
+                studentId={selectedStudent.id}
+                days={parseInt(dateRange)}
+              />
+            </CardContent>
+          </Card>
+        </FeatureFlag>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Sleep Duration & Quality</CardTitle>
-            <CardDescription>Sleep patterns and quality over time</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <SleepChart 
-              familyId={selectedFamily!.id}
-              studentId={selectedStudent.id}
-              days={parseInt(dateRange)}
-            />
-          </CardContent>
-        </Card>
+        <FeatureFlag flag="enable-sleep-chart">
+          <Card>
+            <CardHeader>
+              <CardTitle>Sleep Duration & Quality</CardTitle>
+              <CardDescription>Sleep patterns and quality over time</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <SleepChart 
+                familyId={selectedFamily!.id}
+                studentId={selectedStudent.id}
+                days={parseInt(dateRange)}
+              />
+            </CardContent>
+          </Card>
+        </FeatureFlag>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Weekly Mood Distribution</CardTitle>
-            <CardDescription>Emotional well-being summary for the last 7 days</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <MoodDistributionChart 
-              familyId={selectedFamily!.id}
-              studentId={selectedStudent.id}
-            />
-          </CardContent>
-        </Card>
+        <FeatureFlag flag="enable-mood-distribution-chart">
+          <Card>
+            <CardHeader>
+              <CardTitle>Weekly Mood Distribution</CardTitle>
+              <CardDescription>Emotional well-being summary for the last 7 days</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <MoodDistributionChart 
+                familyId={selectedFamily!.id}
+                studentId={selectedStudent.id}
+              />
+            </CardContent>
+          </Card>
+        </FeatureFlag>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Incident Frequency</CardTitle>
-            <CardDescription>Challenging behavior occurrences over time</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <IncidentFrequencyChart 
-              familyId={selectedFamily!.id}
-              studentId={selectedStudent.id}
-              days={parseInt(dateRange)}
-            />
-          </CardContent>
-        </Card>
+        <FeatureFlag flag="enable-incident-frequency-chart">
+          <Card>
+            <CardHeader>
+              <CardTitle>Incident Frequency</CardTitle>
+              <CardDescription>Challenging behavior occurrences over time</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <IncidentFrequencyChart 
+                familyId={selectedFamily!.id}
+                studentId={selectedStudent.id}
+                days={parseInt(dateRange)}
+              />
+            </CardContent>
+          </Card>
+        </FeatureFlag>
       </div>
 
       {/* Intervention Effectiveness - Full Width */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Intervention Effectiveness</CardTitle>
-          <CardDescription>Correlation between incidents and interventions used</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <InterventionEffectivenessChart 
-            familyId={selectedFamily!.id}
-            studentId={selectedStudent.id}
-            days={parseInt(dateRange)}
-          />
-        </CardContent>
-      </Card>
+      <FeatureFlag flag="enable-intervention-effectiveness-chart">
+        <Card>
+          <CardHeader>
+            <CardTitle>Intervention Effectiveness</CardTitle>
+            <CardDescription>Correlation between incidents and interventions used</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <InterventionEffectivenessChart 
+              familyId={selectedFamily!.id}
+              studentId={selectedStudent.id}
+              days={parseInt(dateRange)}
+            />
+          </CardContent>
+        </Card>
+      </FeatureFlag>
 
       {/* Strategy Effectiveness */}
-      <StrategyEffectiveness />
+      <FeatureFlag flag="enable-strategy-effectiveness">
+        <StrategyEffectiveness />
+      </FeatureFlag>
 
       {/* Specialized Trial Charts */}
       {hasActiveTrial && suggestedCharts.length > 0 && (

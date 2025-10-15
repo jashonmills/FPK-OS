@@ -20,6 +20,7 @@ import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
 import AdminKBManager from "./pages/AdminKBManager";
 import AdminKBDiagnostics from "./pages/AdminKBDiagnostics";
+import AdminStripe from "./pages/AdminStripe";
 import Pricing from "./pages/Pricing";
 import PricingAuthenticated from "./pages/PricingAuthenticated";
 import ChartLibrary from "./pages/ChartLibrary";
@@ -33,6 +34,7 @@ import CookiePolicy from "./pages/CookiePolicy";
 import HIPAANotice from "./pages/HIPAANotice";
 import DataDeletion from "./pages/DataDeletion";
 import { CookieConsent } from "./components/legal/CookieConsent";
+import { useFeatureFlags } from "@/hooks/useFeatureFlags";
 
 const queryClient = new QueryClient();
 
@@ -51,6 +53,15 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <Navigate to="/auth" replace />;
   }
 
+  return <>{children}</>;
+};
+
+const FeatureFlaggedRoute = ({ flag, children }: { flag: string; children: React.ReactNode }) => {
+  const { flags, loading } = useFeatureFlags([flag]);
+  
+  if (loading) return null;
+  if (!flags[flag]) return <Navigate to="/dashboard" replace />;
+  
   return <>{children}</>;
 };
 
@@ -200,9 +211,11 @@ const App = () => (
               path="/live-data-hub"
               element={
                 <ProtectedRoute>
-                  <AppLayout>
-                    <LiveDataHub />
-                  </AppLayout>
+                  <FeatureFlaggedRoute flag="enable-live-data-hub">
+                    <AppLayout>
+                      <LiveDataHub />
+                    </AppLayout>
+                  </FeatureFlaggedRoute>
                 </ProtectedRoute>
               }
             />
@@ -210,14 +223,32 @@ const App = () => (
               path="/garmin-demo"
               element={
                 <ProtectedRoute>
-                  <GarminDemo />
+                  <FeatureFlaggedRoute flag="enable-garmin-demo">
+                    <GarminDemo />
+                  </FeatureFlaggedRoute>
                 </ProtectedRoute>
               }
             />
             <Route
               path="/garmin-hub"
               element={
-                <GarminHub />
+                <ProtectedRoute>
+                  <FeatureFlaggedRoute flag="enable-garmin-integration">
+                    <GarminHub />
+                  </FeatureFlaggedRoute>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/stripe"
+              element={
+                <ProtectedRoute>
+                  <FeatureFlaggedRoute flag="enable-stripe-admin">
+                    <AppLayout>
+                      <AdminStripe />
+                    </AppLayout>
+                  </FeatureFlaggedRoute>
+                </ProtectedRoute>
               }
             />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

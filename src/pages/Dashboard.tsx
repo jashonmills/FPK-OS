@@ -12,6 +12,7 @@ import { ProductTour } from '@/components/onboarding/ProductTour';
 import { dashboardTourSteps } from '@/components/onboarding/tourConfigs';
 import { useTourProgress } from '@/hooks/useTourProgress';
 import { Plus, TrendingUp, BookOpen, Activity, FileText, Sparkles } from 'lucide-react';
+import { FeatureFlag } from '@/components/shared/FeatureFlag';
 
 const Dashboard = () => {
   const { selectedStudent, isLoading } = useFamily();
@@ -56,7 +57,9 @@ const Dashboard = () => {
         </div>
 
         {/* Daily Briefing - Top Priority */}
-        <DailyBriefingWidget />
+        <FeatureFlag flag="enable-ai-daily-briefing">
+          <DailyBriefingWidget />
+        </FeatureFlag>
 
         {/* Student Overview Cards */}
         <StudentOverview />
@@ -95,7 +98,9 @@ const Dashboard = () => {
             </TabsContent>
 
             <TabsContent value="insights" className="space-y-4">
-              <AIInsightsWidget />
+              <FeatureFlag flag="enable-ai-document-analysis">
+                <AIInsightsWidget />
+              </FeatureFlag>
             </TabsContent>
           </Tabs>
       </div>

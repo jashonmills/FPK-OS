@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarFooter, SidebarHeader, useSidebar } from '@/components/ui/sidebar';
+import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 const navItems = [{
   title: 'Dashboard',
   url: '/dashboard',
@@ -49,6 +50,11 @@ export const AppSidebar = () => {
     user,
     signOut
   } = useAuth();
+  
+  const { flags } = useFeatureFlags([
+    'enable-chart-library-access',
+    'enable-knowledge-base-manager'
+  ]);
 
   // Check if user is admin
   const {
@@ -140,7 +146,7 @@ export const AppSidebar = () => {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {isOwner && <SidebarGroup>
+        {isOwner && flags['enable-chart-library-access'] && <SidebarGroup>
             <SidebarGroupLabel>Premium</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
@@ -158,7 +164,7 @@ export const AppSidebar = () => {
             </SidebarGroupContent>
           </SidebarGroup>}
 
-        {isAdmin && <SidebarGroup>
+        {isAdmin && flags['enable-knowledge-base-manager'] && <SidebarGroup>
             <SidebarGroupLabel>Admin</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
