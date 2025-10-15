@@ -424,7 +424,13 @@ Generate a dialogue response where Betty and Al collaborate to guide this studen
       throw new Error('No JSON object found in Claude response');
     }
     
-    const script = JSON.parse(jsonMatch[0]);
+    let script;
+    try {
+      script = JSON.parse(jsonMatch[0]);
+    } catch (parseError) {
+      console.error('[CLAUDE] ❌ JSON parsing failed:', parseError);
+      throw new Error('Invalid JSON in Claude response');
+    }
     
     // Validate structure
     if (!script.betty_line || !script.al_line) {
