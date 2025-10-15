@@ -582,13 +582,14 @@ Extract 2-5 memories and 1-3 learning outcomes. Be specific and actionable.`
         .from('phoenix_learning_outcomes')
         .insert({
           user_id: userId,
-          session_id: conversationId,
+          conversation_id: convData.id,
           topic: outcome.topic,
           outcome_type: outcome.outcome_type,
           mastery_level: outcome.mastery_level,
           concept_id: conceptId,
+          evidence: outcome.evidence,
+          description: `Learned: ${outcome.topic}`,
           metadata: {
-            evidence: outcome.evidence,
             extractedAt: new Date().toISOString()
           }
         });
@@ -2252,7 +2253,10 @@ Keep it brief and focused on answering their original question.`;
               }
               
               // Store handoff message in database
-              if (conversationUuid!) {
+              if (!conversationUuid) {
+                console.warn('[CONDUCTOR] ⚠️ Conversation UUID missing - skipping handoff message storage');
+              }
+              if (conversationUuid) {
                 await supabaseClient.from('phoenix_messages').insert({
                   conversation_id: conversationUuid,
                   persona: handoffPersona,
