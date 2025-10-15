@@ -7,6 +7,7 @@ import React from 'react';
 import { HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import { getActiveOrgId } from '@/lib/org/context';
 import {
   Tooltip,
   TooltipContent,
@@ -39,7 +40,10 @@ export function ContextualHelpButton({
     if (section) params.append('section', section);
     if (viewMode) params.append('view', viewMode);
     
-    const guidePath = `/dashboard/platform-guide${params.toString() ? '?' + params.toString() : ''}`;
+    // Check if we're in org context
+    const orgId = getActiveOrgId();
+    const basePath = orgId ? `/org/${orgId}/platform-guide` : '/dashboard/platform-guide';
+    const guidePath = `${basePath}${params.toString() ? '?' + params.toString() : ''}`;
     navigate(guidePath);
   };
 

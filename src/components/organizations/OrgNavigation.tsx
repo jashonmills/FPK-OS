@@ -113,9 +113,9 @@ export function OrgNavigation() {
     },
   ];
 
-  // Add Platform Guide link - available to all roles
+  // Add Platform Guide link - available to all roles, org-aware
   const platformGuideItem: NavItem = {
-    href: '/dashboard/platform-guide',
+    href: `/org/${currentOrg.organization_id}/platform-guide`,
     label: 'Platform Guide',
     icon: HelpCircle,
   };

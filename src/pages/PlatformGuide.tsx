@@ -6,6 +6,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Search, Home, BookOpen, ChevronRight, ExternalLink, Users, UserCog, FileText, Target, Bot, Gamepad2, Globe, Settings, Award, BarChart, StickyNote } from 'lucide-react';
+import { getActiveOrgId } from '@/lib/org/context';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -48,21 +49,24 @@ export default function PlatformGuide() {
     }
   }, [location.search, currentSections]);
 
-  // Global keyboard shortcut (? or Ctrl+/)
+  // Global keyboard shortcut (? or Ctrl+/) - org-aware
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
+      const orgId = getActiveOrgId();
+      const guidePath = orgId ? `/org/${orgId}/platform-guide` : '/dashboard/platform-guide';
+      
       // ? key (shift + /)
       if (e.key === '?' && !e.ctrlKey && !e.metaKey) {
         e.preventDefault();
-        if (location.pathname !== '/dashboard/platform-guide') {
-          navigate('/dashboard/platform-guide');
+        if (location.pathname !== guidePath) {
+          navigate(guidePath);
         }
       }
       // Ctrl+/ or Cmd+/
       if (e.key === '/' && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
-        if (location.pathname !== '/dashboard/platform-guide') {
-          navigate('/dashboard/platform-guide');
+        if (location.pathname !== guidePath) {
+          navigate(guidePath);
         }
       }
     };
