@@ -1812,10 +1812,20 @@ Keep it under 100 words.`;
           const governorBlocked = false; // Never blocking with new self-governance approach
           console.log('[CONDUCTOR] ⚡ Skipping blocking Governor check - using LLM response directly');
           
+          // Define governorResult with safe defaults BEFORE async check
+          const governorResult = {
+            passed: true,
+            is_safe: true,
+            is_on_topic: true,
+            persona_adherence: 'correct' as const,
+            severity: 'low' as const,
+            reason: 'Self-governed response'
+          };
+          
           // Async Governor logging (non-blocking)
           (async () => {
             try {
-              const governorResult = await runGovernorCheck(
+              const asyncGovernorResult = await runGovernorCheck(
                 generatedTextFromLLM,
                 selectedPersona,
                 message,
@@ -1828,18 +1838,18 @@ Keep it under 100 words.`;
               );
               
               // Log for monitoring only
-              if (!governorResult.passed || governorResult.persona_adherence !== 'correct') {
-                console.warn('[GOVERNOR] ⚠️ Quality issue detected (non-blocking):', governorResult.reason);
+              if (!asyncGovernorResult.passed || asyncGovernorResult.persona_adherence !== 'correct') {
+                console.warn('[GOVERNOR] ⚠️ Quality issue detected (non-blocking):', asyncGovernorResult.reason);
                 await supabaseClient.from('phoenix_governor_logs').insert({
                   conversation_id: conversationId,
                   persona: selectedPersona,
                   original_response: generatedTextFromLLM,
                   user_message: message,
-                  is_safe: governorResult.is_safe,
-                  is_on_topic: governorResult.is_on_topic,
-                  persona_adherence: governorResult.persona_adherence,
-                  severity: governorResult.severity,
-                  reason: governorResult.reason,
+                  is_safe: asyncGovernorResult.is_safe,
+                  is_on_topic: asyncGovernorResult.is_on_topic,
+                  persona_adherence: asyncGovernorResult.persona_adherence,
+                  severity: asyncGovernorResult.severity,
+                  reason: asyncGovernorResult.reason,
                   blocked: false // Never blocking anymore
                 });
               }

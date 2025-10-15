@@ -497,55 +497,29 @@ export default function PhoenixLab() {
       const { data: { user: authUser } } = await supabase.auth.getUser();
       if (!authUser) return;
       
-      // Create conversation record
+      // Create conversation record WITHOUT any welcome messages
       const { data: convData, error: convError } = await supabase.from('phoenix_conversations').insert({
         user_id: authUser.id,
         session_id: conversationId,
-        metadata: { phase: 2, created_from: 'phoenix_lab', welcome_skipped: true }
+        metadata: { 
+          phase: 3,
+          source: 'phoenix_lab',
+          welcome_skipped: true
+        }
       }).select('id').single();
       
-      if (convError || !convData) {
-        console.error('[PHOENIX] Failed to create conversation:', convError);
-        return;
+      if (convError) {
+        console.error('[PHOENIX] Error creating conversation:', convError);
+      } else {
+        console.log('[PHOENIX] ✅ Conversation created (no welcome):', convData.id);
       }
       
-      const conversationUuid = convData.id;
-      
-      // Generate audio for welcome back message
-      const userName = user?.user_metadata?.full_name || 'there';
-      const welcomeText = `Welcome back, ${userName}. What would you like to work on today?`;
-      
-      console.log('[PHOENIX] 🎵 Generating audio for welcome back message...');
-      const audioUrl = await generateWelcomeAudio(welcomeText, 'AL');
-      
-      // Insert the welcome back message to database
-      await supabase.from('phoenix_messages').insert({
-        conversation_id: conversationUuid,
-        persona: 'AL',
-        content: welcomeText,
-        metadata: { is_welcome: true, welcome_skipped: true }
-      });
-      
-      const simpleWelcome: Message = {
-        id: crypto.randomUUID(),
-        persona: 'AL',
-        content: welcomeText,
-        created_at: new Date().toISOString(),
-        isWelcome: true,
-        audioUrl: audioUrl || undefined
-      };
-      
-      setMessages([simpleWelcome]);
+      // CRITICAL: Mark as played to prevent re-triggering
       setHasWelcomePlayed(true);
-      
-      // Play audio if available and enabled
-      if (audioUrl && audioEnabled) {
-        await playAudioWithHighlight(audioUrl, simpleWelcome.id);
-      }
       
       toast({
         title: "🧪 Phoenix Lab Ready",
-        description: "Let's continue learning!"
+        description: "Start chatting to begin learning!"
       });
       
       return;
