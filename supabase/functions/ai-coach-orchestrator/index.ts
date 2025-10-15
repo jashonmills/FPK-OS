@@ -321,6 +321,209 @@ function buildBettySystemPrompt(memories?: any[], knowledgePack?: any): string {
   return prompt;
 }
 
+// ============================================
+// V2 DIALOGUE ENGINE: CLAUDE SCRIPTWRITER SYSTEM
+// ============================================
+
+const CLAUDE_SCRIPTWRITER_PROMPT = `You are an expert scriptwriter for a conversational AI tutor. Your task is to generate a natural, two-turn dialogue between two AI personas based on the student's response in a Socratic learning session.
+
+# Personas:
+- **Betty** (Voice: en-US-Wavenet-F): The Socratic Guide. Asks insightful "why" and "how" questions to help students discover answers themselves. Warm, encouraging, patient. NEVER gives direct answers.
+- **Al** (Voice: en-US-Wavenet-D): The Direct Expert. Provides concise, factual definitions and statements. Direct, efficient, supportive. Adds context but doesn't replace Betty's teaching.
+
+# Context:
+This is a "Socratic Sandwich" moment where the student gave a partially correct answer (60-80% quality). Betty and Al collaborate to:
+1. Validate what the student got RIGHT
+2. Deepen their understanding with a follow-up question
+
+# Your Task:
+Generate a SHORT, natural dialogue where Betty and Al work together seamlessly. The dialogue must feel like two real tutors collaborating in real-time.
+
+# Dialogue Structure:
+**Turn 1 - Betty speaks first:**
+- Acknowledge the student's effort/insight (1 sentence)
+- Ask a probing Socratic question that pushes deeper (1-2 sentences)
+- Can reference Al naturally: "Al, what's the technical term?" or just let Al jump in
+
+**Turn 2 - Al speaks second:**
+- Add a brief, relevant factual tidbit that supports Betty's question (1-2 sentences)
+- Provide definition, context, or clarification
+- Keep it concise and conversational
+
+# Critical Rules:
+1. **Keep it SHORT** - Each line should be 1-2 sentences (under 100 words total for both)
+2. **Natural transitions** - The handoff between Betty and Al should feel organic
+3. **No meta-language** - Don't say "Let me ask..." or "I should clarify..."
+4. **Conversational tone** - Use contractions, natural speech patterns
+5. **Output ONLY valid JSON** - No markdown, no explanation, just the JSON object
+
+# Output Format:
+{
+  "betty_line": "Betty's dialogue here",
+  "al_line": "Al's dialogue here"
+}
+
+# Example:
+Student said: "Sifting flour makes it lighter by adding air."
+Output:
+{
+  "betty_line": "Good observation! You've identified that sifting adds air. Now, why do you think those tiny air bubbles are important for the texture of the final cake?",
+  "al_line": "Those air pockets also help the baking powder distribute evenly, which ensures a uniform rise without dense spots."
+}`;
+
+/**
+ * V2 DIALOGUE ENGINE: Generate Betty+Al dialogue using Claude 3 Opus
+ * Returns structured dialogue script or null if generation fails
+ */
+async function generateDialogueWithClaude(
+  userMessage: string,
+  conversationHistory: Array<{ persona: string; content: string }>,
+  lastBettyQuestion: string | undefined,
+  answerQuality: number,
+  userName: string
+): Promise<{ betty_line: string; al_line: string } | null> {
+  if (!anthropic) {
+    console.error('[CLAUDE] ❌ Anthropic client not initialized - API key missing');
+    return null;
+  }
+
+  try {
+    console.log('[CLAUDE] 🎬 Generating dialogue script with Claude 3 Opus...');
+    
+    // Build context from recent conversation
+    const recentContext = conversationHistory
+      .slice(-4)
+      .map(m => `${m.persona}: ${m.content}`)
+      .join('\n');
+    
+    const prompt = `Recent conversation:
+${recentContext}
+
+Betty's last question: "${lastBettyQuestion || 'N/A'}"
+Student's response: "${userMessage}"
+Answer quality score: ${answerQuality}/100
+
+Generate a dialogue response where Betty and Al collaborate to guide this student forward. Remember: Betty validates and asks a deeper question, then Al adds supporting factual context.`;
+
+    const response = await anthropic.messages.create({
+      model: 'claude-3-opus-20240229',
+      max_tokens: 500,
+      temperature: 0.8,
+      system: CLAUDE_SCRIPTWRITER_PROMPT,
+      messages: [
+        { role: 'user', content: prompt }
+      ]
+    });
+
+    const textContent = response.content[0].type === 'text' ? response.content[0].text : '';
+    console.log('[CLAUDE] 📝 Raw response received (first 200 chars):', textContent.substring(0, 200));
+    
+    // Parse JSON (handle potential markdown wrapping)
+    const jsonMatch = textContent.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new Error('No JSON object found in Claude response');
+    }
+    
+    const script = JSON.parse(jsonMatch[0]);
+    
+    // Validate structure
+    if (!script.betty_line || !script.al_line) {
+      throw new Error('Invalid script structure - missing required fields');
+    }
+    
+    console.log('[CLAUDE] ✅ Script parsed successfully');
+    console.log('[CLAUDE] Betty line length:', script.betty_line.length, 'chars');
+    console.log('[CLAUDE] Al line length:', script.al_line.length, 'chars');
+    
+    return script;
+    
+  } catch (error) {
+    console.error('[CLAUDE] ❌ Dialogue generation failed:', error);
+    return null;
+  }
+}
+
+/**
+ * V2 DIALOGUE ENGINE: Build SSML string for multi-speaker audio
+ * Combines Betty (Wavenet-F) and Al (Wavenet-D) with natural pause
+ */
+function buildSSMLDialogue(bettyLine: string, alLine: string): string {
+  // Escape XML special characters for SSML safety
+  const escapeXML = (text: string): string => {
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&apos;');
+  };
+  
+  const escapedBetty = escapeXML(bettyLine);
+  const escapedAl = escapeXML(alLine);
+  
+  const ssml = `<speak>
+  <voice name="en-US-Wavenet-F">${escapedBetty}</voice>
+  <break time="750ms"/>
+  <voice name="en-US-Wavenet-D">${escapedAl}</voice>
+</speak>`;
+  
+  console.log('[SSML] ✅ Built multi-speaker SSML string (length:', ssml.length, 'chars)');
+  return ssml;
+}
+
+/**
+ * V2 DIALOGUE ENGINE: Generate multi-speaker audio using Google TTS SSML
+ * Returns base64 data URL or null if generation fails
+ */
+async function generateSSMLAudio(ssml: string): Promise<string | null> {
+  const GOOGLE_TTS_KEY = Deno.env.get('GOOGLE_CLOUD_TTS_API_KEY');
+  if (!GOOGLE_TTS_KEY) {
+    console.error('[SSML-TTS] ❌ Google TTS API key not found');
+    return null;
+  }
+
+  try {
+    console.log('[SSML-TTS] 🎙️ Generating multi-speaker audio...');
+    console.log('[SSML-TTS] SSML input length:', ssml.length, 'chars');
+    
+    const response = await fetch(
+      `https://texttospeech.googleapis.com/v1/text:synthesize?key=${GOOGLE_TTS_KEY}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          input: { ssml }, // ← Critical: Use 'ssml' field, not 'text'
+          voice: { languageCode: 'en-US' }, // Voices specified in SSML tags
+          audioConfig: {
+            audioEncoding: 'MP3',
+            speakingRate: 1.0,
+            pitch: 0
+          }
+        })
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('[SSML-TTS] ❌ Google TTS API error:', response.status, errorText);
+      return null;
+    }
+
+    const data = await response.json();
+    if (!data.audioContent) {
+      console.error('[SSML-TTS] ❌ No audio content in response');
+      return null;
+    }
+
+    console.log('[SSML-TTS] ✅ Multi-speaker audio generated successfully');
+    return `data:audio/mpeg;base64,${data.audioContent}`;
+    
+  } catch (error) {
+    console.error('[SSML-TTS] ❌ Exception during audio generation:', error);
+    return null;
+  }
+}
+
 function buildNiteOwlSystemPrompt(knowledgePack?: any): string {
   const modules = [
     NO_META_REASONING,
@@ -1621,6 +1824,165 @@ If they seem confused, provide clarification directly. Do NOT switch to Socratic
         console.log('[CONDUCTOR] ✅ Created new conversation UUID:', conversationUuid);
       }
     }
+    
+    // ============================================
+    // V2 DIALOGUE ENGINE: Feature-Flagged Co-Response with Claude + SSML
+    // ============================================
+    // Check if V2 Dialogue Engine is enabled via feature flag
+    if (isCoResponse && featureFlags['v2_dialogue_engine_enabled']?.is_enabled && anthropic) {
+      console.log('[V2-DIALOGUE] 🎭✨ V2 Dialogue Engine ENABLED - Using Claude + SSML');
+      
+      // Get context for Claude
+      const lastBettyMessage = conversationHistory
+        .slice()
+        .reverse()
+        .find(m => m.persona === 'BETTY');
+      
+      const userName = user?.user_metadata?.full_name || 'there';
+      
+      // STEP 1: Generate dialogue script via Claude
+      const scriptStartTime = Date.now();
+      const script = await generateDialogueWithClaude(
+        message,
+        conversationHistory,
+        lastBettyMessage?.content,
+        answerQualityScore,
+        userName
+      );
+      const scriptEndTime = Date.now();
+      console.log('[V2-DIALOGUE] ⏱️ Claude generation time:', scriptEndTime - scriptStartTime, 'ms');
+      
+      if (!script) {
+        // Claude failed - fall back to V1 co-response
+        console.warn('[V2-DIALOGUE] ⚠️ Claude script generation failed - falling back to V1 co-response');
+        // Continue to V1 co-response below
+        
+      } else {
+        // SUCCESS! Build SSML and generate audio
+        console.log('[V2-DIALOGUE] ✅ Claude script generated');
+        console.log('[V2-DIALOGUE] Betty:', script.betty_line.substring(0, 80) + '...');
+        console.log('[V2-DIALOGUE] Al:', script.al_line.substring(0, 80) + '...');
+        
+        // STEP 2: Build SSML string
+        const ssml = buildSSMLDialogue(script.betty_line, script.al_line);
+        
+        // STEP 3: Generate single multi-voice audio
+        const audioStartTime = Date.now();
+        const audioUrl = await generateSSMLAudio(ssml);
+        const audioEndTime = Date.now();
+        console.log('[V2-DIALOGUE] ⏱️ SSML audio generation time:', audioEndTime - audioStartTime, 'ms');
+        
+        if (!audioUrl) {
+          console.warn('[V2-DIALOGUE] ⚠️ SSML audio generation failed - will send text-only dialogue');
+        }
+        
+        // STEP 4: Create streaming response with structured dialogue
+        const dialogueStream = new ReadableStream({
+          async start(controller) {
+            try {
+              // Send immediate "thinking" indicator
+              const thinkingEvent = `data: ${JSON.stringify({
+                type: 'thinking',
+                persona: 'DIALOGUE',
+                metadata: {
+                  intent: detectedIntent,
+                  confidence: intentConfidence,
+                  mode: 'v2_dialogue'
+                }
+              })}\n\n`;
+              controller.enqueue(new TextEncoder().encode(thinkingEvent));
+              console.log('[V2-DIALOGUE] ✅ Sent thinking indicator');
+              
+              // Send dialogue event with structured transcript
+              const dialogueEvent = `data: ${JSON.stringify({
+                type: 'dialogue',
+                dialogue: [
+                  { persona: 'BETTY', text: script.betty_line },
+                  { persona: 'AL', text: script.al_line }
+                ],
+                audioUrl: audioUrl || undefined,
+                ttsProvider: audioUrl ? 'google_ssml' : 'none',
+                metadata: {
+                  isDialogue: true,
+                  conversationId,
+                  detectedIntent,
+                  answerQualityScore,
+                  generatedBy: 'claude_opus'
+                }
+              })}\n\n`;
+              controller.enqueue(new TextEncoder().encode(dialogueEvent));
+              console.log('[V2-DIALOGUE] ✅ Sent dialogue event');
+              
+              // Send completion
+              const doneEvent = `data: ${JSON.stringify({
+                type: 'done',
+                metadata: {
+                  conversationId,
+                  selectedPersona: 'DIALOGUE',
+                  hasAudio: !!audioUrl,
+                  mode: 'v2_dialogue'
+                }
+              })}\n\n`;
+              controller.enqueue(new TextEncoder().encode(doneEvent));
+              
+              console.log('[V2-DIALOGUE] ✨ Live Dialogue delivered successfully');
+              controller.close();
+              
+              // Store both messages in database with dialogue metadata
+              if (conversationUuid) {
+                await supabaseClient.from('phoenix_messages').insert([
+                  {
+                    conversation_id: conversationUuid,
+                    persona: 'BETTY',
+                    content: script.betty_line,
+                    metadata: {
+                      isDialogue: true,
+                      dialoguePart: 1,
+                      generatedBy: 'claude_opus',
+                      answerQuality: answerQualityScore
+                    }
+                  },
+                  {
+                    conversation_id: conversationUuid,
+                    persona: 'AL',
+                    content: script.al_line,
+                    metadata: {
+                      isDialogue: true,
+                      dialoguePart: 2,
+                      generatedBy: 'claude_opus',
+                      audioUrl: audioUrl || null
+                    }
+                  }
+                ]);
+                console.log('[V2-DIALOGUE] ✅ Dialogue stored in database');
+              }
+              
+            } catch (error) {
+              console.error('[V2-DIALOGUE] ❌ Stream error:', error);
+              controller.error(error);
+            }
+          }
+        });
+        
+        // Return streaming response immediately (V2 path complete)
+        return new Response(dialogueStream, {
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'text/event-stream',
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive'
+          }
+        });
+      }
+    }
+    
+    // ============================================
+    // V1 FALLBACK: Legacy Co-Response (Gemini-powered)
+    // ============================================
+    // Activated when:
+    // - V2 flag is disabled, OR
+    // - Claude/SSML generation failed, OR
+    // - Anthropic client not available
     
     // PHASE 5.2: CO-RESPONSE MODE - Generate TWO responses (Al + Betty)
     if (isCoResponse) {

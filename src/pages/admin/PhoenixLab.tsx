@@ -671,6 +671,75 @@ export default function PhoenixLab() {
                   console.log('[PHOENIX] Auto-playing handoff audio');
                   await playAudio(data.audioUrl, handoffMessageId);
                 }
+              } else if (data.type === 'dialogue') {
+                // V2 DIALOGUE ENGINE: Single audio file with Betty + Al together
+                console.log('[PHOENIX] 🎭✨ V2 Live Dialogue response received');
+                console.log('[PHOENIX] Dialogue:', data.dialogue);
+                console.log('[PHOENIX] Has audio:', !!data.audioUrl);
+                
+                const { dialogue, audioUrl } = data;
+                
+                // Validate dialogue structure
+                if (!dialogue || !Array.isArray(dialogue) || dialogue.length !== 2) {
+                  console.error('[PHOENIX] Invalid dialogue structure received');
+                  return;
+                }
+                
+                // Create message objects for both speakers
+                const bettyMsgId = crypto.randomUUID();
+                const bettyMsg: Message = {
+                  id: bettyMsgId,
+                  persona: 'BETTY',
+                  content: dialogue[0].text,
+                  created_at: new Date().toISOString(),
+                  isStreaming: false,
+                  metadata: {
+                    isDialogue: true,
+                    dialoguePart: 1,
+                    generatedBy: data.metadata?.generatedBy
+                  }
+                };
+                
+                const alMsgId = crypto.randomUUID();
+                const alMsg: Message = {
+                  id: alMsgId,
+                  persona: 'AL',
+                  content: dialogue[1].text,
+                  created_at: new Date().toISOString(),
+                  audioUrl: audioUrl || undefined,
+                  isStreaming: false,
+                  metadata: {
+                    isDialogue: true,
+                    dialoguePart: 2,
+                    generatedBy: data.metadata?.generatedBy
+                  }
+                };
+                
+                // Display Betty's message first
+                setMessages(prev => [...prev, bettyMsg]);
+                console.log('[PHOENIX] ✅ Betty message displayed');
+                
+                // Play combined audio immediately (contains both voices with natural pause)
+                if (audioEnabled && audioUrl) {
+                  console.log('[PHOENIX] 🎵 Playing multi-speaker dialogue audio');
+                  try {
+                    await playAudio(audioUrl, bettyMsgId);
+                    console.log('[PHOENIX] ✅ Dialogue audio playback complete');
+                  } catch (error) {
+                    console.error('[PHOENIX] Audio playback error:', error);
+                  }
+                } else if (audioUrl) {
+                  console.log('[PHOENIX] 🔇 Audio available but playback disabled');
+                } else {
+                  console.log('[PHOENIX] 📝 No audio generated - text-only dialogue');
+                }
+                
+                // Display Al's message after short delay (matches audio pause timing)
+                setTimeout(() => {
+                  setMessages(prev => [...prev, alMsg]);
+                  console.log('[PHOENIX] ✅ Al message displayed (delayed for natural flow)');
+                }, 1500); // 1.5s matches the 750ms SSML pause + natural reading time
+                
               } else if (data.type === 'co_response_al') {
                 // PHASE 5.2: Co-Response Part 1 - Al's validation
                 console.log('[PHOENIX] 🤝✨ Co-Response: Al validates (Part 1)');
