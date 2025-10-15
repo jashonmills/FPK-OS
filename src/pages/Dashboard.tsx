@@ -63,22 +63,22 @@ const Dashboard = () => {
 
           {/* Main Content Tabs */}
           <Tabs defaultValue="logs" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1">
-              <TabsTrigger value="logs" className="text-xs sm:text-sm">
-                <BookOpen className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
-                <span className="hidden sm:inline">Educator </span>Logs
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1 h-auto sm:h-10 p-1">
+              <TabsTrigger value="logs" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2.5 sm:py-1.5">
+                <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="truncate">Logs</span>
               </TabsTrigger>
-              <TabsTrigger value="metrics" className="text-xs sm:text-sm">
-                <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
-                <span className="hidden sm:inline">Progress </span>Metrics
+              <TabsTrigger value="metrics" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2.5 sm:py-1.5">
+                <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="truncate">Metrics</span>
               </TabsTrigger>
-              <TabsTrigger value="documents" className="text-xs sm:text-sm">
-                <FileText className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
-                <span className="hidden sm:inline">Document </span>Docs
+              <TabsTrigger value="documents" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2.5 sm:py-1.5">
+                <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="truncate">Docs</span>
               </TabsTrigger>
-              <TabsTrigger value="insights" className="text-xs sm:text-sm">
-                <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
-                <span className="hidden sm:inline">AI </span>Insights
+              <TabsTrigger value="insights" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2.5 sm:py-1.5">
+                <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="truncate">Insights</span>
               </TabsTrigger>
             </TabsList>
 
