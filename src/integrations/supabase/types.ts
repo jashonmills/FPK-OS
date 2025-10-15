@@ -2238,6 +2238,8 @@ export type Database = {
           has_seen_goals_tour: boolean | null
           has_seen_settings_tour: boolean | null
           id: string
+          reset_all_tours: boolean | null
+          tours_disabled: boolean | null
           updated_at: string | null
           user_id: string
         }
@@ -2250,6 +2252,8 @@ export type Database = {
           has_seen_goals_tour?: boolean | null
           has_seen_settings_tour?: boolean | null
           id?: string
+          reset_all_tours?: boolean | null
+          tours_disabled?: boolean | null
           updated_at?: string | null
           user_id: string
         }
@@ -2262,6 +2266,8 @@ export type Database = {
           has_seen_goals_tour?: boolean | null
           has_seen_settings_tour?: boolean | null
           id?: string
+          reset_all_tours?: boolean | null
+          tours_disabled?: boolean | null
           updated_at?: string | null
           user_id?: string
         }
@@ -2483,7 +2489,7 @@ export type Database = {
       }
       l2_normalize: {
         Args: { "": string } | { "": unknown } | { "": unknown }
-        Returns: string
+        Returns: unknown
       }
       mark_expired_invites: {
         Args: Record<PropertyKey, never>

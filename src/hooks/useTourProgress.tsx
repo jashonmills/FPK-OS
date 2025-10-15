@@ -67,8 +67,9 @@ export const useTourProgress = (tourKey: TourKey) => {
   // Determine if tour should run
   useEffect(() => {
     if (!isLoading && tourProgress) {
+      const toursDisabled = tourProgress.tours_disabled || false;
       const hasSeenTour = tourProgress[tourKey] || false;
-      setShouldRunTour(!hasSeenTour);
+      setShouldRunTour(!toursDisabled && !hasSeenTour);
     }
   }, [tourProgress, isLoading, tourKey]);
 

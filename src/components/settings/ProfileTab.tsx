@@ -3,6 +3,7 @@ import { useFamily } from "@/contexts/FamilyContext";
 import { UserProfileCard } from "./UserProfileCard";
 import { StudentProfileCard } from "./StudentProfileCard";
 import { AddStudentDialog } from "./AddStudentDialog";
+import { TourPreferencesCard } from "./TourPreferencesCard";
 import { Users } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -34,6 +35,8 @@ export const ProfileTab = () => {
   return (
     <div className="space-y-6">
       <UserProfileCard user={user || { id: '', email: '' }} />
+      
+      <TourPreferencesCard />
       
       <div className="space-y-4">
         <div className="flex items-center justify-between">
