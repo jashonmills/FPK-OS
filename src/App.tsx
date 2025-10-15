@@ -804,6 +804,7 @@ const App: React.FC = () => {
             <Route path=":orgId/student-settings" element={<LazyRoute><StudentSettings /></LazyRoute>} />
             <Route path=":orgId/settings" element={<LazyRoute><OrgSettingsTabs /></LazyRoute>} />
             <Route path=":orgId/settings/invites" element={<LazyRoute><InviteManagement /></LazyRoute>} />
+            <Route path=":orgId/platform-guide" element={<LazyRoute><PlatformGuide /></LazyRoute>} />
           </Route>
           
           {/* Forbidden Page */}
