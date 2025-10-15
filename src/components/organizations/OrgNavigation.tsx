@@ -24,6 +24,7 @@ import {
 import { useOrgContext } from './OrgContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { shouldShowPlatformGuide } from '@/lib/featureFlags';
 import {
   Tooltip,
   TooltipContent,
@@ -113,12 +114,12 @@ export function OrgNavigation() {
     },
   ];
 
-  // Add Platform Guide link - available to all roles, org-aware
-  const platformGuideItem: NavItem = {
+  // Add Platform Guide link - available to all roles, org-aware (if feature enabled)
+  const platformGuideItem: NavItem | null = shouldShowPlatformGuide() ? {
     href: `/org/${currentOrg.organization_id}/platform-guide`,
     label: 'Platform Guide',
     icon: HelpCircle,
-  };
+  } : null;
 
   const filteredNavItems = navItems.filter(item => {
     if (!item.roles) return true;
@@ -137,8 +138,10 @@ export function OrgNavigation() {
     return hasPermission;
   });
 
-  // Add Platform Guide at the end with a separator visual
-  const allNavItems = [...filteredNavItems, platformGuideItem];
+  // Add Platform Guide at the end with a separator visual (if enabled)
+  const allNavItems = platformGuideItem 
+    ? [...filteredNavItems, platformGuideItem]
+    : filteredNavItems;
 
   if (isMobile) {
     return (

@@ -8,6 +8,7 @@ import { HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { getActiveOrgId } from '@/lib/org/context';
+import { shouldShowPlatformGuide } from '@/lib/featureFlags';
 import {
   Tooltip,
   TooltipContent,
@@ -33,6 +34,11 @@ export function ContextualHelpButton({
   viewMode = 'org-owner'
 }: ContextualHelpButtonProps) {
   const navigate = useNavigate();
+  
+  // Don't render if feature is disabled
+  if (!shouldShowPlatformGuide()) {
+    return null;
+  }
 
   const handleClick = () => {
     // Navigate to platform guide with section and view mode parameters

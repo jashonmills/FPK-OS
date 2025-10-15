@@ -8,6 +8,7 @@
 export const FeatureFlags = {
   USE_USER_HUB: import.meta.env.VITE_FEATURE_USE_USER_HUB === 'true',
   ENFORCE_SUBSCRIPTION: import.meta.env.VITE_FEATURE_ENFORCE_SUBSCRIPTION === 'true',
+  ENABLE_PLATFORM_GUIDE: import.meta.env.VITE_FEATURE_ENABLE_PLATFORM_GUIDE !== 'false', // Default enabled
 } as const;
 
 export function isFeatureEnabled(flag: keyof typeof FeatureFlags): boolean {
@@ -26,4 +27,11 @@ export function shouldUseUserHub(): boolean {
  */
 export function shouldEnforceSubscription(): boolean {
   return isFeatureEnabled('ENFORCE_SUBSCRIPTION');
+}
+
+/**
+ * Check if Platform Guide should be visible (documentation system)
+ */
+export function shouldShowPlatformGuide(): boolean {
+  return isFeatureEnabled('ENABLE_PLATFORM_GUIDE');
 }
