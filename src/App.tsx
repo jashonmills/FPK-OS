@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { HelmetProvider } from 'react-helmet-async';
 import { FamilyProvider } from "@/contexts/FamilyContext";
 import { useAuth } from "@/hooks/useAuth";
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -34,6 +35,10 @@ import TermsOfService from "./pages/TermsOfService";
 import CookiePolicy from "./pages/CookiePolicy";
 import HIPAANotice from "./pages/HIPAANotice";
 import DataDeletion from "./pages/DataDeletion";
+import Guides from "./pages/Guides";
+import GuideCategory from "./pages/GuideCategory";
+import GuideArticle from "./pages/GuideArticle";
+import FAQ from "./pages/FAQ";
 import { CookieConsent } from "./components/legal/CookieConsent";
 import { useFeatureFlags } from "@/hooks/useFeatureFlags";
 
@@ -68,13 +73,14 @@ const FeatureFlaggedRoute = ({ flag, children }: { flag: string; children: React
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <CookieConsent />
-        <FamilyProvider>
-          <Routes>
+    <HelmetProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <CookieConsent />
+          <FamilyProvider>
+            <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/pricing" element={<Pricing />} />
@@ -84,6 +90,10 @@ const App = () => (
           <Route path="/cookie-policy" element={<CookiePolicy />} />
           <Route path="/hipaa-notice" element={<HIPAANotice />} />
           <Route path="/data-deletion" element={<DataDeletion />} />
+          <Route path="/guides" element={<Guides />} />
+          <Route path="/guides/:categorySlug" element={<GuideCategory />} />
+          <Route path="/guides/:categorySlug/:articleSlug" element={<GuideArticle />} />
+          <Route path="/faq" element={<FAQ />} />
             <Route
               path="/onboarding"
               element={
@@ -266,6 +276,7 @@ const App = () => (
         </FamilyProvider>
       </BrowserRouter>
     </TooltipProvider>
+    </HelmetProvider>
   </QueryClientProvider>
 );
 
