@@ -316,21 +316,23 @@ export default function AdminKBManager() {
                        runTier3ScrapingMutation.isPending;
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="container mx-auto py-4 px-4 space-y-4 md:py-6 md:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">
-            <Database className="h-8 w-8" />
-            Knowledge Base Command Center
+          <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
+            <Database className="h-6 w-6 md:h-8 md:w-8" />
+            <span className="hidden sm:inline">Knowledge Base Command Center</span>
+            <span className="sm:hidden">KB Manager</span>
           </h1>
-          <p className="text-muted-foreground">
-            Manage and ingest evidence-based resources from academic and clinical sources
+          <p className="text-sm md:text-base text-muted-foreground mt-1">
+            Manage and ingest evidence-based resources
           </p>
         </div>
         <Button
           variant="outline"
           onClick={() => navigate("/admin/kb-diagnostics")}
+          className="w-full sm:w-auto"
         >
           <TestTube className="mr-2 h-4 w-4" />
           Run Diagnostics
@@ -340,18 +342,17 @@ export default function AdminKBManager() {
       {/* Section 1: Statistics */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
-                Knowledge Base Statistics
-              </CardTitle>
-            </div>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
+              <TrendingUp className="h-4 w-4 md:h-5 md:w-5" />
+              KB Statistics
+            </CardTitle>
             <Button
               variant="destructive"
               size="sm"
               onClick={() => setClearDialogOpen(true)}
               disabled={clearKnowledgeBaseMutation.isPending}
+              className="w-full sm:w-auto"
             >
               {clearKnowledgeBaseMutation.isPending ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -363,26 +364,26 @@ export default function AdminKBManager() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
             {/* Total Documents */}
-            <div className="flex items-center gap-4 p-4 border rounded-lg">
-              <div className="p-3 bg-primary/10 rounded-full">
-                <Book className="h-6 w-6 text-primary" />
+            <div className="flex items-center gap-3 p-3 md:p-4 border rounded-lg">
+              <div className="p-2 md:p-3 bg-primary/10 rounded-full">
+                <Book className="h-5 w-5 md:h-6 md:w-6 text-primary" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Total Documents</p>
-                <p className="text-3xl font-bold">{documentsCount.toLocaleString()}</p>
+                <p className="text-xs md:text-sm text-muted-foreground">Total Documents</p>
+                <p className="text-2xl md:text-3xl font-bold">{documentsCount.toLocaleString()}</p>
               </div>
             </div>
 
             {/* Total Embeddings */}
-            <div className="flex items-center gap-4 p-4 border rounded-lg">
-              <div className="p-3 bg-primary/10 rounded-full">
-                <Brain className="h-6 w-6 text-primary" />
+            <div className="flex items-center gap-3 p-3 md:p-4 border rounded-lg">
+              <div className="p-2 md:p-3 bg-primary/10 rounded-full">
+                <Brain className="h-5 w-5 md:h-6 md:w-6 text-primary" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Total Embeddings</p>
-                <p className="text-3xl font-bold">{embeddingsCount.toLocaleString()}</p>
+                <p className="text-xs md:text-sm text-muted-foreground">Total Embeddings</p>
+                <p className="text-2xl md:text-3xl font-bold">{embeddingsCount.toLocaleString()}</p>
               </div>
             </div>
           </div>
@@ -392,16 +393,16 @@ export default function AdminKBManager() {
       {/* Section 2: Academic Databases */}
       <Card>
         <CardHeader>
-          <CardTitle>Ingest from Academic Databases</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-lg md:text-xl">Ingest from Academic Databases</CardTitle>
+          <CardDescription className="text-sm">
             Search and import research articles from academic sources
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Source Selection */}
           <div>
-            <Label className="mb-2 block">Academic Sources</Label>
-            <div className="flex flex-wrap gap-4">
+            <Label className="mb-2 block text-sm">Academic Sources</Label>
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="pubmed"
@@ -427,7 +428,7 @@ export default function AdminKBManager() {
 
           {/* Search Queries */}
           <div>
-            <Label htmlFor="search-query">Search Queries</Label>
+            <Label htmlFor="search-query" className="text-sm">Search Queries</Label>
             <div className="flex gap-2 mt-2">
               <Input
                 id="search-query"
@@ -435,8 +436,9 @@ export default function AdminKBManager() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyPress={(e) => e.key === "Enter" && addSearchQuery()}
+                className="text-sm"
               />
-              <Button onClick={addSearchQuery} size="icon" variant="outline">
+              <Button onClick={addSearchQuery} size="icon" variant="outline" className="shrink-0">
                 <Plus className="h-4 w-4" />
               </Button>
             </div>
@@ -444,7 +446,7 @@ export default function AdminKBManager() {
             {/* Query List */}
             <div className="flex flex-wrap gap-2 mt-3">
               {searchQueries.map((query) => (
-                <Badge key={query} variant="secondary" className="gap-2">
+                <Badge key={query} variant="secondary" className="gap-2 text-xs">
                   {query}
                   <X
                     className="h-3 w-3 cursor-pointer"
