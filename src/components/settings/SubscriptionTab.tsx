@@ -9,11 +9,15 @@ import { CreditCard, Users, GraduationCap, HardDrive, TrendingUp, Sparkles } fro
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { useAICredits } from '@/hooks/useAICredits';
+import { PricingGrid } from '@/components/pricing/PricingGrid';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { useState } from 'react';
 
 export const SubscriptionTab = () => {
   const { selectedFamily } = useFamily();
   const navigate = useNavigate();
   const { balance } = useAICredits();
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
 
   const { data: familyData } = useQuery({
     queryKey: ['family-subscription', selectedFamily?.id],
@@ -278,22 +282,34 @@ export const SubscriptionTab = () => {
         </CardContent>
       </Card>
 
-      {/* Upgrade Prompt */}
-      {tier === 'free' && (
-        <Card className="border-primary/50">
-          <CardHeader>
-            <CardTitle>Unlock More Features</CardTitle>
-            <CardDescription>
-              Upgrade to Collaborative Team or Insights Pro for more students, users, and AI-powered insights
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button className="w-full" onClick={() => navigate('/pricing-authenticated')}>
-              View Plans & Pricing
-            </Button>
-          </CardContent>
-        </Card>
-      )}
+      {/* Subscription Plans */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Available Plans</CardTitle>
+          <CardDescription>
+            Compare plans and upgrade or change your subscription
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Tabs value={billingCycle} onValueChange={(v) => setBillingCycle(v as 'monthly' | 'annual')} className="w-full">
+            <div className="flex justify-center mb-6">
+              <TabsList>
+                <TabsTrigger value="monthly">Monthly</TabsTrigger>
+                <TabsTrigger value="annual">
+                  Annual
+                  <Badge variant="secondary" className="ml-2 text-xs">Save 15%</Badge>
+                </TabsTrigger>
+              </TabsList>
+            </div>
+            <TabsContent value="monthly">
+              <PricingGrid billingCycle="monthly" />
+            </TabsContent>
+            <TabsContent value="annual">
+              <PricingGrid billingCycle="annual" />
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
     </div>
   );
 };
