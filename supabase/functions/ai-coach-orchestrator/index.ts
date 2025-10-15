@@ -1835,7 +1835,7 @@ If they seem confused, provide clarification directly. Do NOT switch to Socratic
     // V2 DIALOGUE ENGINE: Feature-Flagged Co-Response with Claude + SSML
     // ============================================
     // Check if V2 Dialogue Engine is enabled via feature flag
-    if (isCoResponse && featureFlags['v2_dialogue_engine_enabled']?.is_enabled && anthropic) {
+    if (isCoResponse && featureFlags['v2_dialogue_engine_enabled']?.enabled && anthropic) {
       console.log('[V2-DIALOGUE] 🎭✨ V2 Dialogue Engine ENABLED - Using Claude + SSML');
       
       // Get context for Claude
