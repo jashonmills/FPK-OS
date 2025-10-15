@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createEmbedding } from "../_shared/embedding-helper.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -21,25 +22,14 @@ serve(async (req) => {
 
     console.log(`Processing question for family ${family_id}: ${question}`);
 
-    // Generate embedding for the question
-    const embeddingResponse = await fetch("https://ai.gateway.lovable.dev/v1/embeddings", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${lovableApiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        input: question,
-        model: "text-embedding-3-small",
-      }),
-    });
-
-    if (!embeddingResponse.ok) {
+    // Generate embedding for the question using the shared helper
+    let questionEmbedding: number[];
+    try {
+      questionEmbedding = await createEmbedding(question, { retries: 2 });
+    } catch (error) {
+      console.error("Failed to generate question embedding:", error);
       throw new Error("Failed to generate question embedding");
     }
-
-    const embeddingData = await embeddingResponse.json();
-    const questionEmbedding = embeddingData.data[0].embedding;
 
     // Parallel vector searches
     const [familyDataResults, clinicalKBResults] = await Promise.all([
