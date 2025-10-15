@@ -162,8 +162,8 @@ serve(async (req) => {
 
     // Try OpenAI TTS
     if (providerName === 'openai' && openAIKey) {
-      
-      const voice = persona === 'BETTY' 
+      try {
+        const voice = persona === 'BETTY'
         ? 'nova' 
         : persona === 'NITE_OWL'
         ? 'shimmer'
@@ -200,9 +200,12 @@ serve(async (req) => {
         provider = 'openai'
         
         console.log(`[WELCOME-AUDIO] ✅ OpenAI TTS success (${audioBuffer.byteLength} bytes)`)
-      } else {
-        const errorText = await openAIResponse.text()
-        console.error('[WELCOME-AUDIO] OpenAI TTS failed:', errorText)
+        } else {
+          const errorText = await openAIResponse.text()
+          console.error('[WELCOME-AUDIO] OpenAI TTS failed:', errorText)
+        }
+      } catch (openAIError) {
+        console.warn('[WELCOME-AUDIO] OpenAI TTS error:', openAIError)
       }
     }
   } // End of provider loop

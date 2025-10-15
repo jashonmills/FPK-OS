@@ -1972,15 +1972,19 @@ Keep it under 100 words.`;
           if (featureFlags['tts_audio']?.enabled) {
             console.log('[CONDUCTOR] 🎵 TTS feature ENABLED - generating audio');
             try {
-            // Feature flags for TTS providers (read from database)
+            // Feature flags for TTS providers (read from database with priority)
             const { data: ttsFlags } = await supabaseClient
               .from('phoenix_feature_flags')
-              .select('feature_name, is_enabled')
-              .in('feature_name', ['tts_provider_google', 'tts_provider_elevenlabs', 'tts_provider_openai']);
+              .select('feature_name, is_enabled, priority')
+              .eq('is_enabled', true)
+              .like('feature_name', 'tts_provider_%');
             
-            const isGoogleEnabled = ttsFlags?.find(f => f.feature_name === 'tts_provider_google')?.is_enabled ?? false;
-            const isElevenLabsEnabled = ttsFlags?.find(f => f.feature_name === 'tts_provider_elevenlabs')?.is_enabled ?? true;
-            const isOpenAIEnabled = ttsFlags?.find(f => f.feature_name === 'tts_provider_openai')?.is_enabled ?? false;
+            // Sort providers by priority (lower number = higher priority)
+            const sortedProviders = ttsFlags
+              ? ttsFlags.sort((a, b) => a.priority - b.priority).map(f => f.feature_name.replace('tts_provider_', ''))
+              : ['google', 'elevenlabs'];
+            
+            console.log('[CONDUCTOR] Enabled TTS Providers (by priority):', sortedProviders);
             
             const GOOGLE_TTS_KEY = Deno.env.get('GOOGLE_CLOUD_TTS_API_KEY');
             const ELEVENLABS_API_KEY = Deno.env.get('ELEVENLABS_API_KEY');
@@ -1989,8 +1993,14 @@ Keep it under 100 words.`;
             if (textForTTS.length > 0) {
               console.log('[CONDUCTOR] Generating TTS audio for completed response...');
               
-              // Try Google Cloud TTS first (if enabled)
-              if (isGoogleEnabled && !audioUrl && GOOGLE_TTS_KEY) {
+              // Iterate through providers in priority order
+              for (const providerName of sortedProviders) {
+                if (audioUrl) break; // Exit once audio is generated
+                
+                console.log(`[CONDUCTOR] Attempting TTS via ${providerName}`);
+                
+                // Try Google Cloud TTS
+                if (providerName === 'google' && GOOGLE_TTS_KEY) {
                 try {
                   const googleVoice = selectedPersona === 'BETTY' 
                     ? 'en-US-Wavenet-F'
@@ -2029,8 +2039,8 @@ Keep it under 100 words.`;
                 }
               }
               
-              // Try ElevenLabs (if enabled and Google failed)
-              if (isElevenLabsEnabled && !audioUrl && ELEVENLABS_API_KEY) {
+              // Try ElevenLabs
+              if (providerName === 'elevenlabs' && ELEVENLABS_API_KEY) {
                 try {
                   // Voice mapping: Betty = custom voice, Al = custom voice, Nite Owl = custom voice
                   const voiceId = selectedPersona === 'BETTY' 
@@ -2086,53 +2096,58 @@ Keep it under 100 words.`;
                 }
               }
               
-              // Fallback to OpenAI (if enabled and both Google and ElevenLabs failed)
-              if (isOpenAIEnabled && !audioUrl && OPENAI_API_KEY) {
-                const voice = selectedPersona === 'BETTY' 
-                  ? 'nova' 
-                  : selectedPersona === 'NITE_OWL'
-                  ? 'shimmer'
-                  : 'onyx';
-                
-                console.log(`[CONDUCTOR] 🎤 Falling back to OpenAI TTS with voice ${voice}`);
-                
-                const openAIResponse = await fetch('https://api.openai.com/v1/audio/speech', {
-                  method: 'POST',
-                  headers: {
-                    'Authorization': `Bearer ${OPENAI_API_KEY}`,
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify({
-                    model: 'tts-1',
-                    input: textForTTS, // CRITICAL: Use the const variable
-                    voice: voice,
-                    response_format: 'mp3',
-                  }),
-                });
+              // Try OpenAI TTS
+              if (providerName === 'openai' && OPENAI_API_KEY) {
+                try {
+                  const voice = selectedPersona === 'BETTY' 
+                    ? 'nova' 
+                    : selectedPersona === 'NITE_OWL'
+                    ? 'shimmer'
+                    : 'onyx';
+                  
+                  console.log(`[CONDUCTOR] 🎤 Attempting OpenAI TTS with voice ${voice}`);
+                  
+                  const openAIResponse = await fetch('https://api.openai.com/v1/audio/speech', {
+                    method: 'POST',
+                    headers: {
+                      'Authorization': `Bearer ${OPENAI_API_KEY}`,
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                      model: 'tts-1',
+                      input: textForTTS,
+                      voice: voice,
+                      response_format: 'mp3',
+                    }),
+                  });
 
-                if (openAIResponse.ok) {
-                  const audioBuffer = await openAIResponse.arrayBuffer();
-                  
-                  // Convert to base64 safely without stack overflow
-                  const uint8Array = new Uint8Array(audioBuffer);
-                  let binaryString = '';
-                  
-                  // Process byte by byte to avoid any apply() stack issues
-                  for (let i = 0; i < uint8Array.length; i++) {
-                    binaryString += String.fromCharCode(uint8Array[i]);
+                  if (openAIResponse.ok) {
+                    const audioBuffer = await openAIResponse.arrayBuffer();
+                    
+                    // Convert to base64 safely without stack overflow
+                    const uint8Array = new Uint8Array(audioBuffer);
+                    let binaryString = '';
+                    
+                    // Process byte by byte to avoid any apply() stack issues
+                    for (let i = 0; i < uint8Array.length; i++) {
+                      binaryString += String.fromCharCode(uint8Array[i]);
+                    }
+                    
+                    const base64Audio = btoa(binaryString);
+                    audioUrl = `data:audio/mpeg;base64,${base64Audio}`;
+                    ttsProvider = 'openai';
+                    console.log('[CONDUCTOR] ✅ TTS audio generated successfully via OpenAI');
+                    console.log('[CONDUCTOR] 🔍 Audio generated for text (first 80):', textForTTS.substring(0, 80));
+                  } else {
+                    const errorText = await openAIResponse.text();
+                    console.error('[CONDUCTOR] ❌ OpenAI TTS failed:', errorText);
+                    console.error('[CONDUCTOR] ❌ Failed text was (first 80):', textForTTS.substring(0, 80));
                   }
-                  
-                  const base64Audio = btoa(binaryString);
-                  audioUrl = `data:audio/mpeg;base64,${base64Audio}`;
-                  ttsProvider = 'openai';
-                  console.log('[CONDUCTOR] ✅ TTS audio generated successfully via OpenAI (fallback)');
-                  console.log('[CONDUCTOR] 🔍 Audio generated for text (first 80):', textForTTS.substring(0, 80));
-                } else {
-                  const errorText = await openAIResponse.text();
-                  console.error('[CONDUCTOR] ❌ OpenAI TTS failed:', errorText);
-                  console.error('[CONDUCTOR] ❌ Failed text was (first 80):', textForTTS.substring(0, 80));
+                } catch (openAIError) {
+                  console.error('[CONDUCTOR] ❌ OpenAI TTS exception:', openAIError);
                 }
               }
+            } // End provider loop
             } else {
               console.warn('[CONDUCTOR] ⚠️ No text to generate audio for (empty finalText)');
             }
@@ -2374,23 +2389,33 @@ Keep it brief and focused on answering their original question.`;
               // Generate TTS for handoff message (feature-flagged)
               let handoffAudioUrl = null;
               try {
-                // Feature flags (read from database)
+                // Feature flags (read from database with priority)
                 const { data: ttsFlags } = await supabaseClient
                   .from('phoenix_feature_flags')
-                  .select('feature_name, is_enabled')
-                  .in('feature_name', ['tts_provider_google', 'tts_provider_elevenlabs', 'tts_provider_openai']);
+                  .select('feature_name, is_enabled, priority')
+                  .eq('is_enabled', true)
+                  .like('feature_name', 'tts_provider_%');
                 
-                const isGoogleEnabled = ttsFlags?.find(f => f.feature_name === 'tts_provider_google')?.is_enabled ?? false;
-                const isElevenLabsEnabled = ttsFlags?.find(f => f.feature_name === 'tts_provider_elevenlabs')?.is_enabled ?? true;
-                const isOpenAIEnabled = ttsFlags?.find(f => f.feature_name === 'tts_provider_openai')?.is_enabled ?? false;
+                // Sort providers by priority
+                const sortedHandoffProviders = ttsFlags
+                  ? ttsFlags.sort((a, b) => a.priority - b.priority).map(f => f.feature_name.replace('tts_provider_', ''))
+                  : ['google', 'elevenlabs'];
+                
+                console.log('[CONDUCTOR] Handoff TTS Providers (by priority):', sortedHandoffProviders);
                 
                 const GOOGLE_TTS_KEY = Deno.env.get('GOOGLE_CLOUD_TTS_API_KEY');
                 const ELEVENLABS_API_KEY = Deno.env.get('ELEVENLABS_API_KEY');
                 const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
                 
                 if (handoffText.length > 0) {
-                  // Try Google TTS first
-                  if (isGoogleEnabled && !handoffAudioUrl && GOOGLE_TTS_KEY) {
+                  // Iterate through providers in priority order
+                  for (const providerName of sortedHandoffProviders) {
+                    if (handoffAudioUrl) break; // Exit once audio is generated
+                    
+                    console.log(`[CONDUCTOR] Attempting handoff TTS via ${providerName}`);
+                    
+                    // Try Google TTS
+                    if (providerName === 'google' && GOOGLE_TTS_KEY) {
                     try {
                       const googleVoice = handoffPersona === 'BETTY' 
                         ? 'en-US-Wavenet-F'
@@ -2418,81 +2443,89 @@ Keep it brief and focused on answering their original question.`;
                           console.log('[CONDUCTOR] ✅ Handoff TTS generated via Google Cloud');
                         }
                       }
-                    } catch (googleError) {
-                      console.error('[CONDUCTOR] ❌ Google handoff TTS error:', googleError);
+                      } catch (googleError) {
+                        console.error('[CONDUCTOR] ❌ Google handoff TTS error:', googleError);
+                      }
                     }
-                  }
-                  
-                  // Try ElevenLabs if Google failed
-                  if (isElevenLabsEnabled && !handoffAudioUrl && ELEVENLABS_API_KEY) {
-                    const voiceId = handoffPersona === 'BETTY' 
-                      ? 'uYXf8XasLslADfZ2MB4u' 
-                      : 'wo6udizrrtpIxWGp2qJk';
                     
-                    console.log(`[CONDUCTOR] 🎤 Generating handoff TTS via ElevenLabs with voice ${voiceId}`);
-                    
-                    const handoffTTSResponse = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
-                      method: 'POST',
-                      headers: {
-                        'xi-api-key': ELEVENLABS_API_KEY,
-                        'Content-Type': 'application/json',
-                      },
-                      body: JSON.stringify({
-                        text: handoffText,
-                        model_id: 'eleven_turbo_v2_5',
-                        voice_settings: {
-                          stability: handoffPersona === 'BETTY' ? 0.6 : 0.7,
-                          similarity_boost: 0.8,
-                          style: handoffPersona === 'BETTY' ? 0.4 : 0.2
+                    // Try ElevenLabs
+                    if (providerName === 'elevenlabs' && ELEVENLABS_API_KEY) {
+                      try {
+                      const voiceId = handoffPersona === 'BETTY' 
+                        ? 'uYXf8XasLslADfZ2MB4u' 
+                        : 'wo6udizrrtpIxWGp2qJk';
+                      
+                      console.log(`[CONDUCTOR] 🎤 Generating handoff TTS via ElevenLabs with voice ${voiceId}`);
+                      
+                      const handoffTTSResponse = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+                        method: 'POST',
+                        headers: {
+                          'xi-api-key': ELEVENLABS_API_KEY,
+                          'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                          text: handoffText,
+                          model_id: 'eleven_turbo_v2_5',
+                          voice_settings: {
+                            stability: handoffPersona === 'BETTY' ? 0.6 : 0.7,
+                            similarity_boost: 0.8,
+                            style: handoffPersona === 'BETTY' ? 0.4 : 0.2
+                          }
+                        }),
+                      });
+                      
+                      if (handoffTTSResponse.ok) {
+                        const audioBuffer = await handoffTTSResponse.arrayBuffer();
+                        const uint8Array = new Uint8Array(audioBuffer);
+                        let binaryString = '';
+                        for (let i = 0; i < uint8Array.length; i++) {
+                          binaryString += String.fromCharCode(uint8Array[i]);
                         }
-                      }),
-                    });
-                    
-                    if (handoffTTSResponse.ok) {
-                      const audioBuffer = await handoffTTSResponse.arrayBuffer();
-                      const uint8Array = new Uint8Array(audioBuffer);
-                      let binaryString = '';
-                      for (let i = 0; i < uint8Array.length; i++) {
-                        binaryString += String.fromCharCode(uint8Array[i]);
+                        const base64Audio = btoa(binaryString);
+                        handoffAudioUrl = `data:audio/mpeg;base64,${base64Audio}`;
+                        console.log('[CONDUCTOR] ✅ Handoff TTS generated via ElevenLabs');
                       }
-                      const base64Audio = btoa(binaryString);
-                      handoffAudioUrl = `data:audio/mpeg;base64,${base64Audio}`;
-                      console.log('[CONDUCTOR] ✅ Handoff TTS generated via ElevenLabs');
+                    } catch (elevenLabsError) {
+                      console.error('[CONDUCTOR] ❌ ElevenLabs handoff TTS error:', elevenLabsError);
                     }
                   }
                   
-                  // Try OpenAI if both failed
-                  if (isOpenAIEnabled && !handoffAudioUrl && OPENAI_API_KEY) {
-                    const voice = handoffPersona === 'BETTY' ? 'nova' : 'onyx';
-                    console.log(`[CONDUCTOR] 🎤 Generating handoff TTS via OpenAI with voice ${voice}`);
-                    
-                    const openAIResponse = await fetch('https://api.openai.com/v1/audio/speech', {
-                      method: 'POST',
-                      headers: {
-                        'Authorization': `Bearer ${OPENAI_API_KEY}`,
-                        'Content-Type': 'application/json',
-                      },
-                      body: JSON.stringify({
-                        model: 'tts-1',
-                        input: handoffText,
-                        voice: voice,
-                        response_format: 'mp3',
-                      }),
-                    });
-                    
-                    if (openAIResponse.ok) {
-                      const audioBuffer = await openAIResponse.arrayBuffer();
-                      const uint8Array = new Uint8Array(audioBuffer);
-                      let binaryString = '';
-                      for (let i = 0; i < uint8Array.length; i++) {
-                        binaryString += String.fromCharCode(uint8Array[i]);
+                  // Try OpenAI
+                  if (providerName === 'openai' && OPENAI_API_KEY) {
+                    try {
+                      const voice = handoffPersona === 'BETTY' ? 'nova' : 'onyx';
+                      console.log(`[CONDUCTOR] 🎤 Generating handoff TTS via OpenAI with voice ${voice}`);
+                      
+                      const openAIResponse = await fetch('https://api.openai.com/v1/audio/speech', {
+                        method: 'POST',
+                        headers: {
+                          'Authorization': `Bearer ${OPENAI_API_KEY}`,
+                          'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                          model: 'tts-1',
+                          input: handoffText,
+                          voice: voice,
+                          response_format: 'mp3',
+                        }),
+                      });
+                      
+                      if (openAIResponse.ok) {
+                        const audioBuffer = await openAIResponse.arrayBuffer();
+                        const uint8Array = new Uint8Array(audioBuffer);
+                        let binaryString = '';
+                        for (let i = 0; i < uint8Array.length; i++) {
+                          binaryString += String.fromCharCode(uint8Array[i]);
+                        }
+                        const base64Audio = btoa(binaryString);
+                        handoffAudioUrl = `data:audio/mpeg;base64,${base64Audio}`;
+                        console.log('[CONDUCTOR] ✅ Handoff TTS generated via OpenAI');
                       }
-                      const base64Audio = btoa(binaryString);
-                      handoffAudioUrl = `data:audio/mpeg;base64,${base64Audio}`;
-                      console.log('[CONDUCTOR] ✅ Handoff TTS generated via OpenAI');
+                    } catch (openAIError) {
+                      console.error('[CONDUCTOR] ❌ OpenAI handoff TTS error:', openAIError);
                     }
                   }
-                }
+                } // End provider loop
               } catch (ttsError) {
                 console.error('[CONDUCTOR] ❌ Handoff TTS error (non-critical):', ttsError);
               }
