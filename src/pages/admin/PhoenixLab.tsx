@@ -38,36 +38,18 @@ interface Message {
   isStreaming?: boolean;
 }
 
+// New single-message "Showtime" welcome with pre-generated multi-speaker audio
 const WELCOME_MESSAGES: Omit<Message, 'id' | 'created_at'>[] = [
   {
-    persona: 'AL',
-    content: "System online. Welcome. I'm Al, your direct support expert.",
-    isWelcome: true
-  },
-  {
-    persona: 'BETTY',
-    content: "And I'm Betty, your Socratic guide! We're both here to help you learn in the best way possible.",
-    isWelcome: true
-  },
-  {
-    persona: 'AL',
-    content: "My approach is to give you clear, efficient answers. If you ask 'what' or 'how-to', I'll provide the facts...",
-    isWelcome: true
-  },
-  {
-    persona: 'BETTY',
-    content: "...and my approach is to help you discover the 'why'. I'll ask questions that challenge you to think critically and build a deeper understanding.",
-    isWelcome: true
-  },
-  {
-    persona: 'AL',
-    content: "So you get the best of both worlds: direct help when you need it...",
-    isWelcome: true
-  },
-  {
-    persona: 'BETTY',
-    content: "...and deep learning when you're ready for it. We're excited to start. What would you like to tackle first?",
-    isWelcome: true
+    persona: 'NITE_OWL',
+    content: `🎙️ **Showtime!**
+
+Nite Owl kicks off your AI Coach session, introducing Betty (your Socratic guide) and Al (your direct expert).
+
+Ready to learn? Let's make some magic happen! 🦉✨`,
+    isWelcome: true,
+    // NOTE: Replace this URL with the actual public URL after uploading to Supabase Storage
+    audioUrl: 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/audio_assets/welcome_dialogue_trio.mp3'
   }
 ];
 
@@ -434,61 +416,7 @@ export default function PhoenixLab() {
     }
   };
 
-  const getCachedAudio = (text: string, persona: 'AL' | 'BETTY' | 'NITE_OWL'): string | null => {
-    // Use a hash of the full text for better uniqueness
-    const textHash = btoa(encodeURIComponent(text)).replace(/[^a-zA-Z0-9]/g, '').substring(0, 32);
-    const cacheKey = `phoenix-welcome-${persona}-${textHash}`;
-    return localStorage.getItem(cacheKey);
-  };
-
-  const setCachedAudio = (text: string, persona: 'AL' | 'BETTY' | 'NITE_OWL', audioUrl: string) => {
-    const textHash = btoa(encodeURIComponent(text)).replace(/[^a-zA-Z0-9]/g, '').substring(0, 32);
-    const cacheKey = `phoenix-welcome-${persona}-${textHash}`;
-    try {
-      localStorage.setItem(cacheKey, audioUrl);
-      console.log(`[PHOENIX] 💾 Cached audio for ${persona}: ${cacheKey}`);
-    } catch (e) {
-      console.warn('[PHOENIX] Failed to cache audio:', e);
-    }
-  };
-
-  const generateWelcomeAudio = async (text: string, persona: 'AL' | 'BETTY' | 'NITE_OWL'): Promise<string | null> => {
-    try {
-      // Check cache first
-      const cached = getCachedAudio(text, persona);
-      if (cached) {
-        console.log(`[PHOENIX] ✅ Using cached audio for ${persona}: "${text.substring(0, 30)}..."`);
-        return cached;
-      }
-
-      console.log(`[PHOENIX] 🎵 Generating audio for ${persona}: "${text.substring(0, 40)}..."`);
-      
-      const { data, error } = await supabase.functions.invoke('generate-welcome-audio', {
-        body: { text, persona }
-      });
-
-      if (error) {
-        console.error(`[PHOENIX] ❌ Audio generation failed for ${persona}:`, error);
-        return null;
-      }
-      
-      if (data?.audioContent) {
-        const provider = data.provider || 'unknown';
-        const audioUrl = `data:audio/mp3;base64,${data.audioContent}`;
-        console.log(`[PHOENIX] ✅ Audio ready for ${persona} via ${provider}: "${text.substring(0, 40)}..."`);
-        
-        // Cache for next time
-        setCachedAudio(text, persona, audioUrl);
-        return audioUrl;
-      }
-      
-      console.warn(`[PHOENIX] ⚠️ No audio content returned for ${persona}: "${text.substring(0, 40)}..."`);
-      return null;
-    } catch (error) {
-      console.error(`[PHOENIX] ❌ Exception generating audio for ${persona}: "${text.substring(0, 40)}..."`, error);
-      return null;
-    }
-  };
+  // Audio caching and generation functions removed - using pre-generated Showtime audio file
 
   const initializeConversation = async () => {
     // CRITICAL GUARD: Prevent welcome sequence from ever replaying
@@ -554,89 +482,45 @@ export default function PhoenixLab() {
       
       const conversationUuid = convData.id;
 
-      // Insert welcome messages
-      const welcomeMessagesToInsert = WELCOME_MESSAGES.map(msg => ({
+      // Insert single welcome message
+      await supabase.from('phoenix_messages').insert({
         conversation_id: conversationUuid,
-        persona: msg.persona,
-        content: msg.content,
-        metadata: { is_welcome: true }
-      }));
-
-      await supabase.from('phoenix_messages').insert(welcomeMessagesToInsert);
-
-      // Generate ALL audio in parallel (much faster!)
-      console.log('[PHOENIX] 🚀 Generating all 6 welcome audios in parallel...');
-      const audioPromises = WELCOME_MESSAGES.map((msg, index) => {
-        console.log(`[PHOENIX] Starting audio ${index + 1}/6 for ${msg.persona}`);
-        return generateWelcomeAudio(msg.content, msg.persona as 'AL' | 'BETTY');
-      });
-      
-      const audioUrls = await Promise.all(audioPromises);
-      
-      // Log results
-      const successCount = audioUrls.filter(url => url !== null).length;
-      console.log(`[PHOENIX] ✅ Audio generation complete: ${successCount}/6 succeeded`);
-      audioUrls.forEach((url, i) => {
-        if (!url) {
-          console.error(`[PHOENIX] ❌ Message ${i + 1} (${WELCOME_MESSAGES[i].persona}) has NO AUDIO`);
-        }
+        persona: 'NITE_OWL',
+        content: WELCOME_MESSAGES[0].content,
+        metadata: { is_welcome: true, is_showtime: true }
       });
 
       setIsGeneratingAudio(false);
 
-      // Create all messages with audio URLs
-      const messagesWithAudio: Message[] = WELCOME_MESSAGES.map((msg, i) => ({
-        ...msg,
+      // Create message with pre-defined audio URL
+      const showtimeMessage: Message = {
+        ...WELCOME_MESSAGES[0],
         id: crypto.randomUUID(),
-        created_at: new Date().toISOString(),
-        audioUrl: audioUrls[i] || undefined
-      }));
+        created_at: new Date().toISOString()
+      };
 
-      // Display messages with typing effect and play audio sequentially
-      for (let i = 0; i < messagesWithAudio.length; i++) {
-        await new Promise(resolve => setTimeout(resolve, i === 0 ? 500 : 800));
-        
-        // Show typing indicator
-        if (i > 0) {
-          setMessages(prev => [...prev, {
-            id: `typing-${i}`,
-            persona: messagesWithAudio[i].persona,
-            content: '',
-            created_at: new Date().toISOString(),
-            isWelcome: true,
-            isTyping: true
-          }]);
-          
-          await new Promise(resolve => setTimeout(resolve, 600));
-        }
-        
-        // Remove typing indicator and add actual message
-        if (i > 0) {
-          setMessages(prev => prev.filter(m => !m.isTyping).concat(messagesWithAudio[i]));
-        } else {
-          setMessages([messagesWithAudio[i]]);
-        }
-        
-        // Play audio immediately if available and enabled
-        if (audioUrls[i] && audioEnabled) {
-          await playAudioWithHighlight(audioUrls[i], messagesWithAudio[i].id);
-        } else {
-          // If no audio, just wait a bit before next message
-          await new Promise(resolve => setTimeout(resolve, 1500));
-        }
+      // Display message
+      setMessages([showtimeMessage]);
+
+      // Play audio if enabled
+      if (audioEnabled && showtimeMessage.audioUrl) {
+        console.log('[PHOENIX] 🎵 Playing Showtime welcome audio');
+        await playAudioWithHighlight(showtimeMessage.audioUrl, showtimeMessage.id);
       }
 
-      // CRITICAL: Mark welcome as played to prevent replay
+      // Mark welcome as played to prevent replay
       setHasWelcomePlayed(true);
-      console.log('[PHOENIX] ✅ Welcome sequence complete and locked');
+      console.log('[PHOENIX] ✅ Showtime welcome complete');
 
       toast({
-        title: "🧪 Phoenix Lab Initialized",
-        description: "Betty and Al are ready to help you learn!"
+        title: "🎬 Showtime!",
+        description: "Betty and Al are ready. What would you like to learn?"
       });
+
     } catch (error) {
       console.error('Error initializing conversation:', error);
       setIsGeneratingAudio(false);
+      setHasWelcomePlayed(false); // Unlock if failed
     }
   };
 

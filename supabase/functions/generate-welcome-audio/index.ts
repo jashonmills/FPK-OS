@@ -69,7 +69,7 @@ serve(async (req) => {
         const googleVoice = persona === 'BETTY' 
           ? 'en-US-Wavenet-F'
           : persona === 'NITE_OWL'
-          ? 'en-US-Wavenet-E'
+          ? 'en-US-Wavenet-J'
           : 'en-US-Wavenet-D';
         
         console.log(`[WELCOME-AUDIO] Attempting Google TTS with voice ${googleVoice}`)
