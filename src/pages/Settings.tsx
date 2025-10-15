@@ -25,37 +25,40 @@ const Settings = () => {
         tourDescription="Manage your profile, team members, and subscription here. Let me show you around!"
       />
       
-      <div className="container mx-auto py-8 px-4 max-w-6xl">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Settings</h1>
-          <p className="text-muted-foreground">
+      <div className="container mx-auto py-4 sm:py-8 px-4 max-w-6xl">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold mb-2">Settings</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
             Manage your account, family members, and preferences
           </p>
         </div>
 
         <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className={`grid w-full max-w-4xl ${isOwner ? 'grid-cols-5' : 'grid-cols-2'}`}>
-            <TabsTrigger value="profile" className="flex items-center gap-2" data-tour="profile-tab">
-              <UserCircle className="h-4 w-4" />
-              Profile
+          <TabsList className={`grid w-full ${isOwner ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-5' : 'grid-cols-2'} gap-1 h-auto sm:h-10 p-1`}>
+            <TabsTrigger value="profile" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2.5 sm:py-1.5" data-tour="profile-tab">
+              <UserCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <span className="truncate">Profile</span>
             </TabsTrigger>
-            <TabsTrigger value="members" className="flex items-center gap-2" data-tour="members-tab">
-              <Users className="h-4 w-4" />
-              Family Members
+            <TabsTrigger value="members" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2.5 sm:py-1.5" data-tour="members-tab">
+              <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <span className="truncate hidden sm:inline">Family Members</span>
+              <span className="truncate sm:hidden">Members</span>
             </TabsTrigger>
             {isOwner && (
               <>
-                <TabsTrigger value="credits" className="flex items-center gap-2">
-                  <Zap className="h-4 w-4" />
-                  AI Credits
+                <TabsTrigger value="credits" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2.5 sm:py-1.5">
+                  <Zap className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  <span className="truncate">Credits</span>
                 </TabsTrigger>
-                <TabsTrigger value="subscription" className="flex items-center gap-2" data-tour="subscription-tab">
-                  <CreditCard className="h-4 w-4" />
-                  Subscription
+                <TabsTrigger value="subscription" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2.5 sm:py-1.5" data-tour="subscription-tab">
+                  <CreditCard className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  <span className="truncate hidden sm:inline">Subscription</span>
+                  <span className="truncate sm:hidden">Plan</span>
                 </TabsTrigger>
-                <TabsTrigger value="integrations" className="flex items-center gap-2">
-                  <Plug className="h-4 w-4" />
-                  Integrations
+                <TabsTrigger value="integrations" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2.5 sm:py-1.5">
+                  <Plug className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  <span className="truncate hidden sm:inline">Integrations</span>
+                  <span className="truncate sm:hidden">Apps</span>
                 </TabsTrigger>
               </>
             )}
