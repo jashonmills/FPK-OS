@@ -3,6 +3,7 @@ import { AppSidebar } from './AppSidebar';
 import { AppHeader } from './AppHeader';
 import { AppBackground } from './AppBackground';
 import { AIChatWidget } from '@/components/chat/AIChatWidget';
+import { Footer } from './Footer';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -20,6 +21,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
           <main className="flex-1 p-3 sm:p-4 md:p-6">
             {children}
           </main>
+          <Footer />
         </div>
         </div>
       </SidebarProvider>

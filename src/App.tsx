@@ -27,6 +27,12 @@ import LiveDataHub from "./pages/LiveDataHub";
 import GarminDemo from "./pages/GarminDemo";
 import GarminHub from "./pages/GarminHub";
 import NotFound from "./pages/NotFound";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
+import CookiePolicy from "./pages/CookiePolicy";
+import HIPAANotice from "./pages/HIPAANotice";
+import DataDeletion from "./pages/DataDeletion";
+import { CookieConsent } from "./components/legal/CookieConsent";
 
 const queryClient = new QueryClient();
 
@@ -53,6 +59,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <CookieConsent />
       <BrowserRouter>
         <FamilyProvider>
           <Routes>
@@ -60,6 +67,11 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/accept-invite" element={<AcceptInvite />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-of-service" element={<TermsOfService />} />
+          <Route path="/cookie-policy" element={<CookiePolicy />} />
+          <Route path="/hipaa-notice" element={<HIPAANotice />} />
+          <Route path="/data-deletion" element={<DataDeletion />} />
             <Route
               path="/onboarding"
               element={
