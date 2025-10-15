@@ -4,11 +4,14 @@ import { SEOHead } from '@/components/seo/SEOHead';
 import { SchemaMarkup } from '@/components/seo/SchemaMarkup';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { BookOpen, Clock, ArrowRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { BookOpen, Clock, ArrowRight, ArrowLeft, Home } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 
 export default function Guides() {
+  const navigate = useNavigate();
+  
   const { data: categories } = useQuery({
     queryKey: ['article-categories'],
     queryFn: async () => {
@@ -65,6 +68,30 @@ export default function Guides() {
       />
 
       <div className="min-h-screen bg-gradient-subtle">
+        {/* Header Navigation */}
+        <div className="glass-subtle border-b">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              <Button
+                variant="ghost"
+                onClick={() => navigate('/')}
+                className="gap-2"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Back to Home
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => navigate('/')}
+                className="gap-2"
+              >
+                <Home className="w-4 h-4" />
+                Home
+              </Button>
+            </div>
+          </div>
+        </div>
+
         <div className="container mx-auto px-4 py-16">
           <div className="max-w-4xl mx-auto text-center mb-16">
             <h1 className="text-4xl md:text-5xl font-bold text-primary mb-6">

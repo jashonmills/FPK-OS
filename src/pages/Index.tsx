@@ -110,6 +110,62 @@ const Index = () => {
           </div>
         </section>
 
+        {/* Resource Guides Section */}
+        <section className="py-20 px-4 bg-gradient-subtle">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                Expert Neurodiversity Resources
+              </h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Evidence-based guides for IEPs, autism, ADHD, and special education
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-6 mb-8">
+              <Card className="glass-card hover:shadow-elegant transition-shadow">
+                <CardHeader>
+                  <GraduationCap className="w-10 h-10 text-primary mb-3" />
+                  <CardTitle>IEP & Special Ed</CardTitle>
+                  <CardDescription>
+                    Navigate IEP meetings, 504 plans, and special education rights with confidence
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+              <Card className="glass-card hover:shadow-elegant transition-shadow">
+                <CardHeader>
+                  <Brain className="w-10 h-10 text-primary mb-3" />
+                  <CardTitle>Autism & ADHD</CardTitle>
+                  <CardDescription>
+                    Evidence-based strategies for communication, sensory needs, and executive function
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+              <Card className="glass-card hover:shadow-elegant transition-shadow">
+                <CardHeader>
+                  <Users className="w-10 h-10 text-primary mb-3" />
+                  <CardTitle>Family Support</CardTitle>
+                  <CardDescription>
+                    Build collaboration between parents, therapists, and educators for better outcomes
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            </div>
+
+            <div className="text-center">
+              <Button
+                size="lg"
+                variant="secondary"
+                onClick={() => navigate('/guides')}
+                className="text-lg px-8"
+              >
+                Explore All Guides
+                <ArrowRight className="ml-2" />
+              </Button>
+            </div>
+          </div>
+        </section>
+
         {/* Features Grid */}
         <section className="py-20 px-4">
         <div className="max-w-6xl mx-auto">
