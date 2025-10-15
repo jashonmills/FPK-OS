@@ -2579,6 +2579,10 @@ export type Database = {
         }
         Returns: Json
       }
+      delete_user_account: {
+        Args: { user_id_to_delete: string }
+        Returns: undefined
+      }
       get_daily_log_counts: {
         Args: { p_days?: number; p_family_id: string; p_student_id: string }
         Returns: {
