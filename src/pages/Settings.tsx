@@ -3,7 +3,8 @@ import { FamilyMembersTab } from "@/components/settings/FamilyMembersTab";
 import { ProfileTab } from "@/components/settings/ProfileTab";
 import { SubscriptionTab } from "@/components/settings/SubscriptionTab";
 import { IntegrationsTab } from "@/components/settings/IntegrationsTab";
-import { Users, UserCircle, CreditCard, Plug } from "lucide-react";
+import { CreditsTab } from "@/components/settings/CreditsTab";
+import { Users, UserCircle, CreditCard, Plug, Zap } from "lucide-react";
 import { useFamily } from "@/contexts/FamilyContext";
 import { ProductTour } from "@/components/onboarding/ProductTour";
 import { settingsTourSteps } from "@/components/onboarding/tourConfigs";
@@ -33,7 +34,7 @@ const Settings = () => {
         </div>
 
         <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className={`grid w-full max-w-3xl ${isOwner ? 'grid-cols-4' : 'grid-cols-2'}`}>
+          <TabsList className={`grid w-full max-w-4xl ${isOwner ? 'grid-cols-5' : 'grid-cols-2'}`}>
             <TabsTrigger value="profile" className="flex items-center gap-2" data-tour="profile-tab">
               <UserCircle className="h-4 w-4" />
               Profile
@@ -44,6 +45,10 @@ const Settings = () => {
             </TabsTrigger>
             {isOwner && (
               <>
+                <TabsTrigger value="credits" className="flex items-center gap-2">
+                  <Zap className="h-4 w-4" />
+                  AI Credits
+                </TabsTrigger>
                 <TabsTrigger value="subscription" className="flex items-center gap-2" data-tour="subscription-tab">
                   <CreditCard className="h-4 w-4" />
                   Subscription
@@ -66,6 +71,10 @@ const Settings = () => {
 
         {isOwner && (
           <>
+            <TabsContent value="credits">
+              <CreditsTab />
+            </TabsContent>
+
             <TabsContent value="subscription">
               <SubscriptionTab />
             </TabsContent>

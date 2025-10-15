@@ -14,6 +14,130 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_credit_balances: {
+        Row: {
+          created_at: string | null
+          family_id: string
+          id: string
+          last_monthly_reset: string | null
+          monthly_allowance: number
+          monthly_credits: number
+          purchased_credits: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          family_id: string
+          id?: string
+          last_monthly_reset?: string | null
+          monthly_allowance?: number
+          monthly_credits?: number
+          purchased_credits?: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          family_id?: string
+          id?: string
+          last_monthly_reset?: string | null
+          monthly_allowance?: number
+          monthly_credits?: number
+          purchased_credits?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_credit_balances_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: true
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_credit_costs: {
+        Row: {
+          action_name: string
+          action_type: string
+          created_at: string | null
+          credits_per_unit: number
+          id: string
+          is_active: boolean | null
+          unit_description: string
+          updated_at: string | null
+        }
+        Insert: {
+          action_name: string
+          action_type: string
+          created_at?: string | null
+          credits_per_unit: number
+          id?: string
+          is_active?: boolean | null
+          unit_description: string
+          updated_at?: string | null
+        }
+        Update: {
+          action_name?: string
+          action_type?: string
+          created_at?: string | null
+          credits_per_unit?: number
+          id?: string
+          is_active?: boolean | null
+          unit_description?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      ai_credit_ledger: {
+        Row: {
+          action_type: string
+          balance_monthly_after: number
+          balance_monthly_before: number
+          balance_purchased_after: number
+          balance_purchased_before: number
+          created_at: string | null
+          credits_changed: number
+          family_id: string
+          id: string
+          metadata: Json | null
+          transaction_date: string | null
+        }
+        Insert: {
+          action_type: string
+          balance_monthly_after: number
+          balance_monthly_before: number
+          balance_purchased_after: number
+          balance_purchased_before: number
+          created_at?: string | null
+          credits_changed: number
+          family_id: string
+          id?: string
+          metadata?: Json | null
+          transaction_date?: string | null
+        }
+        Update: {
+          action_type?: string
+          balance_monthly_after?: number
+          balance_monthly_before?: number
+          balance_purchased_after?: number
+          balance_purchased_before?: number
+          created_at?: string | null
+          credits_changed?: number
+          family_id?: string
+          id?: string
+          metadata?: Json | null
+          transaction_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_credit_ledger_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_insights: {
         Row: {
           confidence_score: number | null
@@ -2422,6 +2546,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_purchased_credits: {
+        Args: {
+          p_credits_to_add: number
+          p_family_id: string
+          p_metadata?: Json
+        }
+        Returns: Json
+      }
       binary_quantize: {
         Args: { "": string } | { "": unknown }
         Returns: unknown
@@ -2437,6 +2569,15 @@ export type Database = {
       check_user_onboarding_status: {
         Args: Record<PropertyKey, never>
         Returns: boolean
+      }
+      consume_ai_credits: {
+        Args: {
+          p_action_type: string
+          p_credits_required: number
+          p_family_id: string
+          p_metadata?: Json
+        }
+        Returns: Json
       }
       get_daily_log_counts: {
         Args: { p_days?: number; p_family_id: string; p_student_id: string }
@@ -2457,6 +2598,10 @@ export type Database = {
         }[]
       }
       get_max_users_for_tier: {
+        Args: { tier: string }
+        Returns: number
+      }
+      get_monthly_credit_allowance: {
         Args: { tier: string }
         Returns: number
       }
@@ -2595,6 +2740,10 @@ export type Database = {
           similarity: number
           source_name: string
         }[]
+      }
+      reset_monthly_credits: {
+        Args: { p_family_id: string }
+        Returns: undefined
       }
       sparsevec_out: {
         Args: { "": unknown }

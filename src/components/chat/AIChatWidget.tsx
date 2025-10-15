@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { MessageCircle, X, Send, Loader2, Mic, MicOff, Volume2, VolumeX } from "lucide-react";
+import { MessageCircle, X, Send, Loader2, Mic, MicOff, Volume2, VolumeX, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -10,8 +10,11 @@ import { useFamily } from "@/contexts/FamilyContext";
 import { useFeatureFlags } from "@/hooks/useFeatureFlags";
 import { useSpeechToText } from "@/hooks/useSpeechToText";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
+import { useAICredits } from "@/hooks/useAICredits";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { consumeCredits, getChatCredits } from "@/lib/creditUtils";
 
 interface Message {
   id: string;
@@ -41,6 +44,9 @@ export function AIChatWidget() {
   // Voice capabilities
   const { isRecording, isTranscribing, startRecording, stopRecording, cancelRecording } = useSpeechToText();
   const { speak, stop: stopSpeaking, isSpeaking, isLoading: isTTSLoading } = useTextToSpeech();
+  
+  // Credits
+  const { balance, canAfford, getInsufficientCreditsMessage, getCostForAction } = useAICredits();
 
   useEffect(() => {
     if (isOpen && !conversationId && selectedFamily) {
@@ -73,6 +79,17 @@ export function AIChatWidget() {
     const textToSend = messageText || input.trim();
     if (!textToSend || !conversationId || !selectedFamily) return;
 
+    // Check if user can afford the query (assuming RAG for safety)
+    const creditsRequired = getChatCredits(true);
+    if (!canAfford('chat_rag', 1)) {
+      toast({
+        title: "Insufficient Credits",
+        description: getInsufficientCreditsMessage('chat_rag', 1),
+        variant: "destructive",
+      });
+      return;
+    }
+
     const userMessage: Message = {
       id: crypto.randomUUID(),
       role: "user",
@@ -84,6 +101,18 @@ export function AIChatWidget() {
     setIsLoading(true);
 
     try {
+      // Consume credits first
+      const creditResult = await consumeCredits(
+        selectedFamily.id,
+        'chat_rag',
+        creditsRequired,
+        { question: textToSend }
+      );
+
+      if (!creditResult.success) {
+        throw new Error(creditResult.error || 'Failed to consume credits');
+      }
+
       const { data, error } = await supabase.functions.invoke("chat-with-data", {
         body: {
           question: textToSend,
@@ -111,7 +140,7 @@ export function AIChatWidget() {
       console.error("Chat error:", error);
       toast({
         title: "Error",
-        description: "Failed to get response. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to get response. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -176,17 +205,28 @@ export function AIChatWidget() {
             </Button>
           </div>
 
-          {/* Welcome Message */}
+          {/* Welcome Message and Credit Balance */}
           {messages.length === 0 && (
-            <div className="p-4 bg-muted/50 text-sm text-muted-foreground">
-              <p className="font-medium mb-2">Hi! I'm your personal AI assistant.</p>
-              <p>I've studied all of your family's data. Ask me anything about:</p>
-              <ul className="list-disc list-inside mt-2 space-y-1">
-                <li>Logs and observations</li>
-                <li>Patterns and trends</li>
-                <li>IEPs and evaluations</li>
-                <li>Clinical research</li>
-              </ul>
+            <div className="p-4 space-y-4">
+              <div className="bg-muted/50 rounded-lg p-4 text-sm text-muted-foreground">
+                <p className="font-medium mb-2">Hi! I'm your personal AI assistant.</p>
+                <p>I've studied all of your family's data. Ask me anything about:</p>
+                <ul className="list-disc list-inside mt-2 space-y-1">
+                  <li>Logs and observations</li>
+                  <li>Patterns and trends</li>
+                  <li>IEPs and evaluations</li>
+                  <li>Clinical research</li>
+                </ul>
+              </div>
+              
+              {balance && (
+                <Alert>
+                  <AlertDescription className="text-sm">
+                    <span className="font-semibold">{balance.total_credits} credits</span> available
+                    <span className="text-muted-foreground"> • Chat queries: {getCostForAction('chat_rag')} credits each</span>
+                  </AlertDescription>
+                </Alert>
+              )}
             </div>
           )}
 
