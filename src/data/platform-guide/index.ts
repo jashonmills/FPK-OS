@@ -12,6 +12,7 @@ import { aiAssistantGuide } from './organization-owner/ai-assistant';
 import { gamesGuide } from './organization-owner/games';
 import { websiteGuide } from './organization-owner/website';
 import { settingsGuide } from './organization-owner/settings';
+import { studentPortalGuide } from './student-portal/overview';
 import { GuideSectionMeta } from '@/types/platform-guide';
 
 export const organizationOwnerGuide: GuideSectionMeta[] = [
@@ -27,4 +28,14 @@ export const organizationOwnerGuide: GuideSectionMeta[] = [
   { id: 'settings', title: 'Settings', description: 'Organization settings and preferences', icon: 'Settings', route: '/org/:orgId/settings', entries: settingsGuide }
 ];
 
-export const allGuideEntries = [...dashboardGuide, ...studentsGuide, ...groupsGuide, ...coursesGuide, ...iepGuide, ...goalsNotesGuide, ...aiAssistantGuide, ...gamesGuide, ...websiteGuide, ...settingsGuide];
+export const studentPortalGuideSections: GuideSectionMeta[] = [
+  { id: 'dashboard', title: 'Student Dashboard', description: 'Personal learning overview and stats', icon: 'Home', route: '/dashboard/learner', entries: studentPortalGuide.filter(e => e.id === 'student-dashboard') },
+  { id: 'courses', title: 'My Courses', description: 'Assigned courses and progress', icon: 'BookOpen', route: '/dashboard/learner/courses', entries: studentPortalGuide.filter(e => e.section === 'courses') },
+  { id: 'goals', title: 'Goals', description: 'Learning objectives and targets', icon: 'Target', route: '/dashboard/learner/goals', entries: studentPortalGuide.filter(e => e.section === 'goals') },
+  { id: 'analytics', title: 'Learning Analytics', description: 'Performance and progress insights', icon: 'BarChart', route: '/dashboard/learner/analytics', entries: studentPortalGuide.filter(e => e.section === 'analytics') },
+  { id: 'gamification', title: 'XP & Achievements', description: 'Gamification rewards system', icon: 'Award', route: '/dashboard/learner/gamification', entries: studentPortalGuide.filter(e => e.section === 'gamification') },
+  { id: 'ai-assistant', title: 'AI Study Coach', description: 'Personal AI tutor', icon: 'Bot', route: '/dashboard/learner/ai-coach', entries: studentPortalGuide.filter(e => e.section === 'ai-assistant') },
+  { id: 'study', title: 'Notes & Flashcards', description: 'Study tools', icon: 'StickyNote', route: '/dashboard/learner/notes', entries: studentPortalGuide.filter(e => e.section === 'study') }
+];
+
+export const allGuideEntries = [...dashboardGuide, ...studentsGuide, ...groupsGuide, ...coursesGuide, ...iepGuide, ...goalsNotesGuide, ...aiAssistantGuide, ...gamesGuide, ...websiteGuide, ...settingsGuide, ...studentPortalGuide];

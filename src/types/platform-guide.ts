@@ -4,7 +4,7 @@
  */
 
 export type AccessLevel = 'owner' | 'admin' | 'instructor' | 'instructor_aide' | 'student';
-export type GuideSection = 'dashboard' | 'students' | 'groups' | 'courses' | 'iep' | 'goals' | 'ai-assistant' | 'games' | 'website' | 'settings';
+export type GuideSection = 'dashboard' | 'students' | 'groups' | 'courses' | 'iep' | 'goals' | 'ai-assistant' | 'games' | 'website' | 'settings' | 'analytics' | 'gamification' | 'study';
 
 export interface InteractionDetail {
   element: string;
