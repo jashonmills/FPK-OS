@@ -128,7 +128,7 @@ export const PhoenixFeatureFlags = () => {
   const totalCount = flags?.length || 0;
 
   return (
-    <Card className="border-purple-500/20">
+    <Card className="border-purple-500/20 mt-6">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -157,7 +157,7 @@ export const PhoenixFeatureFlags = () => {
           </AlertDescription>
         </Alert>
 
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {flags?.map((flag) => (
             <div
               key={flag.id}

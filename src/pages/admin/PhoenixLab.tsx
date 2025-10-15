@@ -1785,10 +1785,10 @@ export default function PhoenixLab() {
             </div>
           </CardContent>
         </Card>
-
-        {/* Feature Flags Control Panel */}
-        <PhoenixFeatureFlags />
       </div>
+
+      {/* Feature Flags Control Panel - Full Width */}
+      <PhoenixFeatureFlags />
 
       {/* Analytics Dashboard */}
       <Card className="mt-6">
