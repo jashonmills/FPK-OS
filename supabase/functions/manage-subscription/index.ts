@@ -105,6 +105,13 @@ Deno.serve(async (req) => {
         );
       }
 
+      // Dynamically detect origin from request headers
+      const origin = req.headers.get('origin') || 
+                     req.headers.get('referer')?.split('/').slice(0, 3).join('/') ||
+                     `https://${Deno.env.get('SUPABASE_URL')?.replace('.supabase.co', '.lovable.app')}`;
+
+      console.log('Creating checkout session with origin:', origin);
+
       // Create checkout session
       const session = await stripe.checkout.sessions.create({
         customer: customerId,
@@ -117,13 +124,21 @@ Deno.serve(async (req) => {
             quantity: 1,
           },
         ],
-        success_url: `${Deno.env.get('SUPABASE_URL')?.replace('.supabase.co', '.lovable.app')}/settings?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${Deno.env.get('SUPABASE_URL')?.replace('.supabase.co', '.lovable.app')}/pricing`,
+        success_url: `${origin}/settings?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${origin}/pricing`,
         metadata: {
           family_id: familyId,
           tier,
           billing_cycle: billingCycle,
         },
+      });
+
+      console.log('Checkout session created:', {
+        id: session.id,
+        mode: session.mode,
+        allow_promotion_codes: session.allow_promotion_codes,
+        success_url: session.success_url,
+        cancel_url: session.cancel_url,
       });
 
       return new Response(
@@ -140,9 +155,14 @@ Deno.serve(async (req) => {
         );
       }
 
+      // Dynamically detect origin for portal return URL
+      const origin = req.headers.get('origin') || 
+                     req.headers.get('referer')?.split('/').slice(0, 3).join('/') ||
+                     `https://${Deno.env.get('SUPABASE_URL')?.replace('.supabase.co', '.lovable.app')}`;
+
       const portalSession = await stripe.billingPortal.sessions.create({
         customer: family.stripe_customer_id,
-        return_url: `${Deno.env.get('SUPABASE_URL')?.replace('.supabase.co', '.lovable.app')}/settings`,
+        return_url: `${origin}/settings`,
       });
 
       return new Response(
