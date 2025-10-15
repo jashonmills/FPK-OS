@@ -2526,6 +2526,7 @@ Keep it brief and focused on answering their original question.`;
                     }
                   }
                 } // End provider loop
+              } // End if (handoffText.length > 0)
               } catch (ttsError) {
                 console.error('[CONDUCTOR] ❌ Handoff TTS error (non-critical):', ttsError);
               }
