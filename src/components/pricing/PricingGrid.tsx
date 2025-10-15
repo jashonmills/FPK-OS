@@ -12,13 +12,17 @@ import { useQuery } from '@tanstack/react-query';
 
 interface PricingGridProps {
   billingCycle: 'monthly' | 'annual';
+  currency?: 'USD' | 'EUR';
 }
 
-export const PricingGrid = ({ billingCycle }: PricingGridProps) => {
+export const PricingGrid = ({ billingCycle, currency = 'USD' }: PricingGridProps) => {
   const { user } = useAuth();
   const { selectedFamily } = useFamily();
   const navigate = useNavigate();
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
+
+  // Exchange rate (approximate)
+  const eurRate = 0.92;
 
   // Fetch family subscription data
   const { data: familyData } = useQuery({
@@ -191,6 +195,15 @@ export const PricingGrid = ({ billingCycle }: PricingGridProps) => {
     }
   };
 
+  const convertPrice = (price: number) => {
+    if (currency === 'EUR') {
+      return (price * eurRate).toFixed(2);
+    }
+    return price.toFixed(2);
+  };
+
+  const currencySymbol = currency === 'EUR' ? '€' : '$';
+
   const tiers = [
     {
       name: 'Family',
@@ -326,7 +339,7 @@ export const PricingGrid = ({ billingCycle }: PricingGridProps) => {
               <CardDescription className="min-h-[3rem]">{tier.description}</CardDescription>
               <div className="mt-4">
                 <span className="text-4xl font-bold">
-                  ${billingCycle === 'monthly' ? tier.monthlyPrice : tier.annualPrice}
+                  {currencySymbol}{convertPrice(billingCycle === 'monthly' ? tier.monthlyPrice : tier.annualPrice)}
                 </span>
                 <span className="text-muted-foreground">
                   {billingCycle === 'monthly' ? '/month' : '/year'}
@@ -378,28 +391,33 @@ export const PricingGrid = ({ billingCycle }: PricingGridProps) => {
                     <div className="text-xl font-bold min-h-[2rem] flex items-center justify-center">{tier.name}</div>
                     <div className="text-sm text-muted-foreground min-h-[3rem] flex items-center justify-center">{tier.description}</div>
                     <div className="text-3xl font-bold min-h-[3rem] flex items-center justify-center">
-                      ${billingCycle === 'monthly' ? tier.monthlyPrice : tier.annualPrice}
+                      {currencySymbol}{convertPrice(billingCycle === 'monthly' ? tier.monthlyPrice : tier.annualPrice)}
                     </div>
                     <div className="text-sm text-muted-foreground min-h-[2rem] flex items-center justify-center">
                       {billingCycle === 'monthly' ? '/month' : '/year'}
                     </div>
-                    <div className="mt-auto pt-2">
-                      {(() => {
-                        const btnConfig = getButtonConfig(tier.tier);
-                        return (
-                          <Button 
-                            className="w-full"
-                            variant={btnConfig.variant}
-                            onClick={btnConfig.action}
-                            disabled={checkoutLoading !== null || btnConfig.disabled}
-                          >
-                            {checkoutLoading === tier.tier ? 'Processing...' : btnConfig.text}
-                          </Button>
-                        );
-                      })()}
-                    </div>
                   </div>
                 </th>
+              ))}
+            </tr>
+            <tr className="border-b">
+              <td className="p-4"></td>
+              {tiers.map((tier) => (
+                <td key={tier.tier} className="p-4">
+                  {(() => {
+                    const btnConfig = getButtonConfig(tier.tier);
+                    return (
+                      <Button 
+                        className="w-full"
+                        variant={btnConfig.variant}
+                        onClick={btnConfig.action}
+                        disabled={checkoutLoading !== null || btnConfig.disabled}
+                      >
+                        {checkoutLoading === tier.tier ? 'Processing...' : btnConfig.text}
+                      </Button>
+                    );
+                  })()}
+                </td>
               ))}
             </tr>
           </thead>

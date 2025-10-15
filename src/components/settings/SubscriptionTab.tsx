@@ -10,7 +10,10 @@ import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { useAICredits } from '@/hooks/useAICredits';
 import { PricingGrid } from '@/components/pricing/PricingGrid';
+import { AlaCarteSection } from '@/components/pricing/AlaCarteSection';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { useState } from 'react';
 
 export const SubscriptionTab = () => {
@@ -18,6 +21,7 @@ export const SubscriptionTab = () => {
   const navigate = useNavigate();
   const { balance } = useAICredits();
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
+  const [currency, setCurrency] = useState<'USD' | 'EUR'>('USD');
 
   const { data: familyData } = useQuery({
     queryKey: ['family-subscription', selectedFamily?.id],
@@ -173,22 +177,9 @@ export const SubscriptionTab = () => {
             </Badge>
           </div>
 
-          {tier !== 'free' && (
-            <div className="space-y-2">
-              <Button onClick={handleManageSubscription} className="w-full">
-                Manage Subscription
-              </Button>
-              <Button onClick={handleSyncSubscription} variant="outline" className="w-full">
-                Sync from Stripe
-              </Button>
-            </div>
-          )}
-          
-          {tier === 'free' && familyData.stripe_customer_id && (
-            <Button onClick={handleSyncSubscription} variant="outline" className="w-full">
-              Sync Subscription from Stripe
-            </Button>
-          )}
+          <Button onClick={handleSyncSubscription} variant="outline" className="w-full">
+            Sync from Stripe
+          </Button>
         </CardContent>
       </Card>
 
@@ -292,7 +283,7 @@ export const SubscriptionTab = () => {
         </CardHeader>
         <CardContent>
           <Tabs value={billingCycle} onValueChange={(v) => setBillingCycle(v as 'monthly' | 'annual')} className="w-full">
-            <div className="flex justify-center mb-6">
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-6">
               <TabsList>
                 <TabsTrigger value="monthly">Monthly</TabsTrigger>
                 <TabsTrigger value="annual">
@@ -300,16 +291,35 @@ export const SubscriptionTab = () => {
                   <Badge variant="secondary" className="ml-2 text-xs">Save 15%</Badge>
                 </TabsTrigger>
               </TabsList>
+              
+              <div className="flex items-center gap-2">
+                <Label htmlFor="currency-toggle" className={currency === 'USD' ? 'font-semibold' : 'text-muted-foreground'}>
+                  USD ($)
+                </Label>
+                <Switch
+                  id="currency-toggle"
+                  checked={currency === 'EUR'}
+                  onCheckedChange={(checked) => setCurrency(checked ? 'EUR' : 'USD')}
+                />
+                <Label htmlFor="currency-toggle" className={currency === 'EUR' ? 'font-semibold' : 'text-muted-foreground'}>
+                  EUR (€)
+                </Label>
+              </div>
             </div>
             <TabsContent value="monthly">
-              <PricingGrid billingCycle="monthly" />
+              <PricingGrid billingCycle="monthly" currency={currency} />
             </TabsContent>
             <TabsContent value="annual">
-              <PricingGrid billingCycle="annual" />
+              <PricingGrid billingCycle="annual" currency={currency} />
             </TabsContent>
           </Tabs>
         </CardContent>
       </Card>
+
+      {/* À La Carte Items */}
+      <div className="-mx-6">
+        <AlaCarteSection />
+      </div>
     </div>
   );
 };
