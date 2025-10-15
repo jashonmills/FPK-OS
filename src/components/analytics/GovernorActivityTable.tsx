@@ -65,7 +65,7 @@ export const GovernorActivityTable = ({ data }: GovernorActivityTableProps) => {
           {data.map((log) => (
             <TableRow key={log.id}>
               <TableCell className="text-sm">
-                {format(parseISO(log.created_at), 'MMM dd, HH:mm')}
+                {log.created_at ? format(parseISO(log.created_at), 'MMM dd, HH:mm') : 'N/A'}
               </TableCell>
               <TableCell>
                 <Badge variant="outline">{log.persona}</Badge>
