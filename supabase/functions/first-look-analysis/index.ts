@@ -406,31 +406,51 @@ Format your response as a single JSON object:
       };
 
       const goals = analysisResult.baseline_data.iep_goals
-        .filter((goal: any) => typeof goal.current_value === 'number') // Only insert if current_value is numeric
         .map((goal: any) => {
-          const mappedType = goalTypeMap[goal.goal_type.toLowerCase()] || 'life_skill';
+          // Parse current_value - convert strings to 0 if not numeric
+          let currentValue = goal.current_value;
+          if (typeof currentValue === 'string') {
+            const parsed = parseFloat(currentValue);
+            currentValue = isNaN(parsed) ? 0 : parsed;
+          }
+          if (typeof currentValue !== 'number') {
+            currentValue = 0;
+          }
+          
+          // Parse target_value
+          let targetValue = goal.target_value;
+          if (typeof targetValue === 'string') {
+            const parsed = parseFloat(targetValue);
+            targetValue = isNaN(parsed) ? null : parsed;
+          }
+          const mappedType = goalTypeMap[goal.goal_type?.toLowerCase()] || 'life_skill';
           return {
             family_id,
             student_id: student.id,
             goal_title: goal.goal_title,
             goal_type: mappedType,
             goal_description: goal.goal_description || null,
-            current_value: goal.current_value || 0,
-            target_value: goal.target_value || null,
+            current_value: currentValue,
+            target_value: targetValue,
             unit: goal.unit || null,
             start_date: goal.start_date || new Date().toISOString().split('T')[0],
             is_active: true,
           };
         });
 
+      console.log(`Attempting to insert ${goals.length} goals`);
       if (goals.length > 0) {
-        const { error: goalsError } = await supabase.from("goals").insert(goals);
+        const { data: insertedGoals, error: goalsError } = await supabase.from("goals").insert(goals).select();
         if (goalsError) {
           console.error("❌ Error inserting goals:", goalsError);
+          console.error("Goals that failed:", JSON.stringify(goals, null, 2));
         } else {
           importedCounts.goals = goals.length;
           console.log(`✅ Inserted ${goals.length} goals successfully`);
+          console.log("Inserted goal IDs:", insertedGoals?.map((g: any) => g.id));
         }
+      } else {
+        console.warn("⚠️ No valid goals to insert");
       }
     }
 
