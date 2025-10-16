@@ -111,13 +111,19 @@ export default function Documents() {
     try {
       const { data, error } = await supabase.storage
         .from("family-documents")
-        .createSignedUrl(document.file_path, 60);
+        .download(document.file_path);
 
       if (error) throw error;
-      if (data?.signedUrl) {
-        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-        const fullUrl = `${supabaseUrl}/storage/v1${data.signedUrl}`;
-        window.open(fullUrl, "_blank");
+      if (data) {
+        // Create a blob URL and trigger download
+        const url = window.URL.createObjectURL(data);
+        const link = window.document.createElement('a');
+        link.href = url;
+        link.download = document.file_name;
+        window.document.body.appendChild(link);
+        link.click();
+        window.document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
       }
     } catch (error: any) {
       toast.error("Failed to download: " + error.message);
