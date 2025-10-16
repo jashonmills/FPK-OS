@@ -277,19 +277,21 @@ export default function AdminContentManager() {
                       <TableCell>{format(new Date(article.updated_at), 'MMM d, yyyy')}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
-                          {article.is_published && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => {
-                                const category = Array.isArray(article.category) ? article.category[0] : article.category;
-                                const categorySlug = (category as any)?.slug || 'general';
-                                window.open(`/guides/${categorySlug}/${article.slug}`, '_blank');
-                              }}
-                            >
-                              <Eye className="w-4 h-4" />
-                            </Button>
-                          )}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              const category = Array.isArray(article.category) ? article.category[0] : article.category;
+                              const categorySlug = (category as any)?.slug || 'general';
+                              const url = article.is_published 
+                                ? `/guides/${categorySlug}/${article.slug}`
+                                : `/guides/${categorySlug}/${article.slug}?preview=true`;
+                              window.open(url, '_blank');
+                            }}
+                            title={article.is_published ? 'View Published' : 'Preview Draft'}
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Button>
                           <Button
                             variant="ghost"
                             size="sm"

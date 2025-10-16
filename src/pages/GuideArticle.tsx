@@ -1,25 +1,44 @@
 import { useQuery } from '@tanstack/react-query';
-import { useParams, Link, Navigate } from 'react-router-dom';
+import { useParams, Link, Navigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { SchemaMarkup } from '@/components/seo/SchemaMarkup';
 import { SocialShare } from '@/components/content/SocialShare';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Clock, ArrowLeft, Calendar, User } from 'lucide-react';
+import { Clock, ArrowLeft, Calendar, User, Eye } from 'lucide-react';
 import { format } from 'date-fns';
 import { useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { AIAttribution } from '@/components/shared/AIAttribution';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function GuideArticle() {
   const { categorySlug, articleSlug } = useParams<{ categorySlug: string; articleSlug: string }>();
+  const [searchParams] = useSearchParams();
+  const isPreview = searchParams.get('preview') === 'true';
+  const { user } = useAuth();
+
+  const { data: isSuperAdmin } = useQuery({
+    queryKey: ['is-super-admin', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return false;
+      const { data } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('role', 'super_admin')
+        .maybeSingle();
+      return !!data;
+    },
+    enabled: !!user?.id && isPreview,
+  });
 
   const { data: article, isLoading } = useQuery({
-    queryKey: ['article', articleSlug],
+    queryKey: ['article', articleSlug, isPreview],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const query = supabase
         .from('public_articles')
         .select(`
           *,
@@ -27,9 +46,14 @@ export default function GuideArticle() {
           category:article_categories(*),
           pillar_page:public_articles!pillar_page_id(title, slug)
         `)
-        .eq('slug', articleSlug)
-        .eq('is_published', true)
-        .single();
+        .eq('slug', articleSlug);
+      
+      // Only filter by is_published if not in preview mode
+      if (!isPreview) {
+        query.eq('is_published', true);
+      }
+      
+      const { data, error } = await query.single();
       if (error) throw error;
       return data;
     },
@@ -77,6 +101,11 @@ export default function GuideArticle() {
   }
 
   if (!article) {
+    return <Navigate to="/guides" replace />;
+  }
+
+  // If in preview mode and not a super admin, redirect
+  if (isPreview && !isSuperAdmin) {
     return <Navigate to="/guides" replace />;
   }
 
@@ -139,6 +168,12 @@ export default function GuideArticle() {
           )}
 
           <header className="mb-12">
+            {isPreview && (
+              <Badge variant="outline" className="mb-4 flex items-center gap-1 w-fit">
+                <Eye className="w-3 h-3" />
+                Preview Mode - Draft Article
+              </Badge>
+            )}
             {article.category && (
               <Badge className="mb-4">{article.category.name}</Badge>
             )}

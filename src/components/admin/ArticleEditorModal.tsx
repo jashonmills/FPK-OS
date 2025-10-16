@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,6 +23,19 @@ export function ArticleEditorModal({ article, onClose, onSave }: ArticleEditorMo
     meta_title: article.meta_title,
     meta_description: article.meta_description,
   });
+
+  // Update form data when article changes
+  useEffect(() => {
+    if (article) {
+      setFormData({
+        title: article.title,
+        description: article.description,
+        content: article.content,
+        meta_title: article.meta_title,
+        meta_description: article.meta_description,
+      });
+    }
+  }, [article]);
 
   const handleSave = async () => {
     setIsSaving(true);
