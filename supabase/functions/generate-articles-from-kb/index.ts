@@ -195,7 +195,15 @@ Focus on depth in one area rather than breadth. Be practical and actionable.`;
       if (!response.ok) {
         const errorText = await response.text();
         console.error('AI Gateway error:', response.status, errorText);
-        throw new Error(`AI Gateway error: ${response.status}`);
+        
+        // Provide user-friendly error messages
+        if (response.status === 402) {
+          throw new Error('Insufficient AI credits. Please add credits to your Lovable workspace to continue generating articles.');
+        } else if (response.status === 429) {
+          throw new Error('Rate limit exceeded. Please wait a moment and try again.');
+        } else {
+          throw new Error(`AI generation failed: ${errorText || 'Unknown error'}`);
+        }
       }
 
       const aiData = await response.json();
