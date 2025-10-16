@@ -55,13 +55,13 @@ serve(async (req) => {
     // Fetch student data for prompts
     const { data: student, error: studentError } = await supabase
       .from('students')
-      .select('first_name, last_name, date_of_birth')
+      .select('student_name, date_of_birth')
       .eq('id', student_id)
       .single();
 
     if (studentError) throw studentError;
 
-    const studentName = `${student.first_name} ${student.last_name}`;
+    const studentName = student.student_name;
     const studentAge = student.date_of_birth 
       ? Math.floor((Date.now() - new Date(student.date_of_birth).getTime()) / (365.25 * 24 * 60 * 60 * 1000))
       : 0;
