@@ -46,27 +46,36 @@ serve(async (req) => {
       finalAuthorId = authors.id;
     }
 
-    // Query knowledge base for relevant documents
+    // Query knowledge base for relevant documents with their chunks
     const { data: kbDocs, error: kbError } = await supabase
-      .from('knowledge_base')
-      .select('source_name, content, url, metadata')
-      .or(`source_name.ilike.%${topic}%,content.ilike.%${topic}%`)
-      .limit(10);
+      .from('kb_chunks')
+      .select(`
+        chunk_text,
+        knowledge_base:kb_id (
+          source_name,
+          source_url,
+          title,
+          summary
+        )
+      `)
+      .or(`chunk_text.ilike.%${topic}%`)
+      .limit(20);
 
     if (kbError) throw new Error(`KB query failed: ${kbError.message}`);
     if (!kbDocs || kbDocs.length === 0) {
       throw new Error('No relevant knowledge base content found');
     }
 
-    console.log(`Found ${kbDocs.length} relevant KB documents`);
+    console.log(`Found ${kbDocs.length} relevant KB chunks`);
 
     const articlesGenerated = [];
 
     for (let i = 0; i < count; i++) {
-      // Prepare context for AI
-      const kbContext = kbDocs.map((doc, idx) => 
-        `Source ${idx + 1} (${doc.source_name}):\n${doc.content.substring(0, 2000)}`
-      ).join('\n\n---\n\n');
+      // Prepare context for AI from chunks
+      const kbContext = kbDocs.map((doc, idx) => {
+        const kb = Array.isArray(doc.knowledge_base) ? doc.knowledge_base[0] : doc.knowledge_base;
+        return `Source ${idx + 1} (${kb?.source_name || 'Unknown'}):\n${doc.chunk_text}`;
+      }).join('\n\n---\n\n');
 
       const systemPrompt = `You are an expert content writer specializing in neurodiversity, special education, IEP planning, autism, and ADHD support. 
 
@@ -156,7 +165,10 @@ Focus on providing actionable insights that parents and educators can implement 
           keywords: articleData.keywords,
           metadata: {
             generated_from_kb: true,
-            sources: kbDocs.slice(0, 3).map(d => ({ name: d.source_name, url: d.url })),
+            sources: kbDocs.slice(0, 3).map(d => {
+              const kb = Array.isArray(d.knowledge_base) ? d.knowledge_base[0] : d.knowledge_base;
+              return { name: kb?.source_name || 'Unknown', url: kb?.source_url || '' };
+            }),
             topic: topic
           }
         })
