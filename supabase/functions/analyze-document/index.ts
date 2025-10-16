@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { DOCUMENT_INTELLIGENCE_MATRIX, identifyDocumentType } from "../_shared/document-matrix.ts";
+import { getSpecializedPrompt } from "../_shared/prompts/index.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -108,9 +109,18 @@ serve(async (req) => {
       console.log("⚠️ Could not identify document type, using generic analysis");
     }
 
-    // Stage 2: Build type-specific system prompt
-    const systemPrompt = identifiedType 
-      ? `You are analyzing a **${identifiedType.doc_type}** document.
+    // Stage 2: Build type-specific system prompt using specialized prompts
+    let systemPrompt: string;
+    
+    if (identifiedType) {
+      const specializedPrompt = getSpecializedPrompt(identifiedType.doc_type);
+      
+      if (specializedPrompt) {
+        console.log(`✅ Using specialized "Deep Read" prompt for: ${identifiedType.doc_type}`);
+        systemPrompt = specializedPrompt;
+      } else {
+        console.log(`⚠️ No specialized prompt found for ${identifiedType.doc_type}, using enhanced generic prompt`);
+        systemPrompt = `You are analyzing a **${identifiedType.doc_type}** document.
 
 **Expected Data to Extract:**
 ${identifiedType.expected_data}
@@ -125,11 +135,13 @@ ${identifiedType.expected_data}
 
 ${identifiedType.generates_chart ? `**Chart Generation:** This document type typically populates the "${identifiedType.generates_chart}" chart.` : ''}
 
-Format your response as a single, valid JSON object with the following structure:`
-      : `You are an expert AI data analyst specializing in special education documents.
-  
+Format your response as a single, valid JSON object with the following structure:`;
+      }
+    } else {
+      systemPrompt = `You are an expert AI data analyst specializing in special education documents.
+
 **Document Type:** Unknown/Generic
-  
+
 Extract any structured data you can find. Focus on:
 - Quantifiable metrics (frequencies, percentages, scores)
 - Goals or targets with baseline/current/target values
@@ -175,6 +187,7 @@ Format your entire response as a single, valid JSON object with the following st
     }
   ]
 }`;
+    }
 
     const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
