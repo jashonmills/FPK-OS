@@ -22,6 +22,8 @@ export default function AdminContentManager() {
   const [selectedArticle, setSelectedArticle] = useState<any>(null);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [isGeneratorOpen, setIsGeneratorOpen] = useState(false);
+  const [selectedAuthor, setSelectedAuthor] = useState<any>(null);
+  const [isAuthorEditorOpen, setIsAuthorEditorOpen] = useState(false);
 
   // Fetch articles
   const { data: articles } = useQuery({
@@ -80,6 +82,24 @@ export default function AdminContentManager() {
       toast({
         title: 'Article deleted',
         description: 'The article has been successfully deleted.',
+      });
+    },
+  });
+
+  // Delete author mutation
+  const deleteAuthor = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('article_authors')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-authors'] });
+      toast({
+        title: 'Author deleted',
+        description: 'The author has been successfully deleted.',
       });
     },
   });
@@ -276,9 +296,15 @@ export default function AdminContentManager() {
 
         <TabsContent value="authors">
           <Card>
-            <CardHeader>
-              <CardTitle>Authors</CardTitle>
-              <CardDescription>Manage content contributors</CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Authors</CardTitle>
+                <CardDescription>Manage content contributors</CardDescription>
+              </div>
+              <Button onClick={() => { setSelectedAuthor(null); setIsAuthorEditorOpen(true); }}>
+                <Plus className="w-4 h-4 mr-2" />
+                New Author
+              </Button>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -288,7 +314,7 @@ export default function AdminContentManager() {
                       {author.photo_url && (
                         <img src={author.photo_url} alt={author.name} className="w-12 h-12 rounded-full" />
                       )}
-                      <div>
+                      <div className="flex-1">
                         <h3 className="font-semibold">{author.name}</h3>
                         {author.credentials && (
                           <p className="text-sm text-muted-foreground">{author.credentials}</p>
@@ -297,6 +323,26 @@ export default function AdminContentManager() {
                           <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{author.bio}</p>
                         )}
                       </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => { setSelectedAuthor(author); setIsAuthorEditorOpen(true); }}
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          if (confirm('Are you sure you want to delete this author?')) {
+                            deleteAuthor.mutate(author.id);
+                          }
+                        }}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
                     </div>
                   </div>
                 ))}
@@ -320,6 +366,12 @@ export default function AdminContentManager() {
         onGenerate={generateArticles.mutate}
         categories={categories || []}
         isLoading={generateArticles.isPending}
+      />
+
+      <AuthorEditorDialog
+        author={selectedAuthor}
+        isOpen={isAuthorEditorOpen}
+        onClose={() => { setIsAuthorEditorOpen(false); setSelectedAuthor(null); }}
       />
     </div>
   );
@@ -614,6 +666,206 @@ function ArticleGeneratorDialog({ isOpen, onClose, onGenerate, categories, isLoa
           </Button>
           <Button onClick={handleGenerate} disabled={!topic || !categorySlug || isLoading}>
             {isLoading ? 'Generating...' : 'Generate Articles'}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Author Editor Dialog Component
+function AuthorEditorDialog({ author, isOpen, onClose }: { 
+  author: any; 
+  isOpen: boolean; 
+  onClose: () => void; 
+}) {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [name, setName] = useState('');
+  const [slug, setSlug] = useState('');
+  const [credentials, setCredentials] = useState('');
+  const [bio, setBio] = useState('');
+  const [photoUrl, setPhotoUrl] = useState('');
+  const [linkedinUrl, setLinkedinUrl] = useState('');
+
+  // Initialize form when author changes
+  useState(() => {
+    if (author) {
+      setName(author.name || '');
+      setSlug(author.slug || '');
+      setCredentials(author.credentials || '');
+      setBio(author.bio || '');
+      setPhotoUrl(author.photo_url || '');
+      setLinkedinUrl(author.linkedin_url || '');
+    } else {
+      setName('');
+      setSlug('');
+      setCredentials('');
+      setBio('');
+      setPhotoUrl('');
+      setLinkedinUrl('');
+    }
+  });
+
+  // Auto-generate slug from name
+  const handleNameChange = (value: string) => {
+    setName(value);
+    if (!author) {
+      const generatedSlug = value
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+      setSlug(generatedSlug);
+    }
+  };
+
+  const saveAuthor = useMutation({
+    mutationFn: async () => {
+      // Basic validation
+      if (!name.trim() || !slug.trim()) {
+        throw new Error('Name and slug are required');
+      }
+
+      if (name.length > 100) {
+        throw new Error('Name must be less than 100 characters');
+      }
+
+      if (bio.length > 1000) {
+        throw new Error('Bio must be less than 1000 characters');
+      }
+
+      const authorData = {
+        name: name.trim(),
+        slug: slug.trim(),
+        credentials: credentials.trim() || null,
+        bio: bio.trim() || null,
+        photo_url: photoUrl.trim() || null,
+        linkedin_url: linkedinUrl.trim() || null,
+      };
+
+      if (author) {
+        // Update existing author
+        const { error } = await supabase
+          .from('article_authors')
+          .update(authorData)
+          .eq('id', author.id);
+        if (error) throw error;
+      } else {
+        // Create new author
+        const { error } = await supabase
+          .from('article_authors')
+          .insert(authorData);
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-authors'] });
+      toast({
+        title: author ? 'Author updated' : 'Author created',
+        description: `The author has been successfully ${author ? 'updated' : 'created'}.`,
+      });
+      onClose();
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Error',
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
+
+  return (
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>{author ? 'Edit Author' : 'New Author'}</DialogTitle>
+          <DialogDescription>
+            {author ? 'Update author information' : 'Create a new content contributor'}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="name">Name *</Label>
+            <Input
+              id="name"
+              value={name}
+              onChange={(e) => handleNameChange(e.target.value)}
+              placeholder="Dr. Sarah Mitchell"
+              maxLength={100}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="slug">Slug *</Label>
+            <Input
+              id="slug"
+              value={slug}
+              onChange={(e) => setSlug(e.target.value)}
+              placeholder="dr-sarah-mitchell"
+              maxLength={100}
+            />
+            <p className="text-xs text-muted-foreground">
+              URL-friendly version of the name (auto-generated)
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="credentials">Credentials</Label>
+            <Input
+              id="credentials"
+              value={credentials}
+              onChange={(e) => setCredentials(e.target.value)}
+              placeholder="PhD in Special Education, BCBA"
+              maxLength={200}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="bio">Bio</Label>
+            <Textarea
+              id="bio"
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+              placeholder="Brief professional biography..."
+              rows={4}
+              maxLength={1000}
+            />
+            <p className="text-xs text-muted-foreground">
+              {bio.length}/1000 characters
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="photoUrl">Photo URL</Label>
+            <Input
+              id="photoUrl"
+              value={photoUrl}
+              onChange={(e) => setPhotoUrl(e.target.value)}
+              placeholder="https://example.com/photo.jpg"
+              type="url"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="linkedinUrl">LinkedIn URL</Label>
+            <Input
+              id="linkedinUrl"
+              value={linkedinUrl}
+              onChange={(e) => setLinkedinUrl(e.target.value)}
+              placeholder="https://linkedin.com/in/username"
+              type="url"
+            />
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose} disabled={saveAuthor.isPending}>
+            Cancel
+          </Button>
+          <Button onClick={() => saveAuthor.mutate()} disabled={saveAuthor.isPending || !name || !slug}>
+            {saveAuthor.isPending ? 'Saving...' : author ? 'Update Author' : 'Create Author'}
           </Button>
         </DialogFooter>
       </DialogContent>
