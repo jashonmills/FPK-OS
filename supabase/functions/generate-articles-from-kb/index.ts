@@ -32,6 +32,20 @@ Deno.serve(async (req) => {
 
     console.log('Generating articles:', { topic, categorySlug, count, articleType });
 
+    // Get the AI Assistant author if authorId not provided
+    let finalAuthorId = authorId;
+    if (!finalAuthorId) {
+      const { data: aiAuthor } = await supabase
+        .from('article_authors')
+        .select('id')
+        .eq('slug', 'fpx-ai-assistant')
+        .single();
+      
+      if (aiAuthor) {
+        finalAuthorId = aiAuthor.id;
+      }
+    }
+
     // Get category
     const { data: category, error: categoryError } = await supabase
       .from('article_categories')
@@ -236,7 +250,7 @@ Focus on depth in one area rather than breadth. Be practical and actionable.`;
           excerpt: excerptText,
           content: contentWithoutTitle,
           category_id: category.id,
-          author_id: authorId,
+          author_id: finalAuthorId,
           meta_title: `${title} | ${category.name} Guide`,
           meta_description: metaDescription,
           keywords,
