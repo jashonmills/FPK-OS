@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Navigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -13,7 +13,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Edit, Trash2, Eye, FileText, Users, FolderTree, Sparkles, Shield } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, FileText, Users, FolderTree, Sparkles, Shield, Loader2 } from 'lucide-react';
+import { ArticleViewerModal } from '@/components/admin/ArticleViewerModal';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { format } from 'date-fns';
 import { useIsSuperAdmin } from '@/hooks/useAuth';
@@ -32,6 +33,7 @@ export default function AdminContentManager() {
   const [isGeneratorOpen, setIsGeneratorOpen] = useState(false);
   const [selectedAuthor, setSelectedAuthor] = useState<any>(null);
   const [isAuthorEditorOpen, setIsAuthorEditorOpen] = useState(false);
+  const [viewingArticle, setViewingArticle] = useState<any>(null);
 
   // Fetch articles
   const { data: articles, refetch: refetchArticles } = useQuery({
@@ -292,14 +294,7 @@ export default function AdminContentManager() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => {
-                              const category = Array.isArray(article.category) ? article.category[0] : article.category;
-                              const categorySlug = (category as any)?.slug || 'general';
-                              const url = article.is_published 
-                                ? `/guides/${categorySlug}/${article.slug}`
-                                : `/guides/${categorySlug}/${article.slug}?preview=true`;
-                              window.open(url, '_blank');
-                            }}
+                            onClick={() => setViewingArticle(article)}
                             title={article.is_published ? 'View Published' : 'Preview Draft'}
                           >
                             <Eye className="w-4 h-4" />
@@ -440,6 +435,13 @@ export default function AdminContentManager() {
         isOpen={isAuthorEditorOpen}
         onClose={() => { setIsAuthorEditorOpen(false); setSelectedAuthor(null); }}
       />
+
+      {viewingArticle && (
+        <ArticleViewerModal
+          article={viewingArticle}
+          onClose={() => setViewingArticle(null)}
+        />
+      )}
     </div>
   );
 }
@@ -455,19 +457,93 @@ interface ArticleEditorDialogProps {
 function ArticleEditorDialog({ article, isOpen, onClose, categories, authors }: ArticleEditorDialogProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    title: article?.title || '',
-    slug: article?.slug || '',
-    description: article?.description || '',
-    excerpt: article?.excerpt || '',
-    content: article?.content || '',
-    category_id: article?.category_id || '',
-    author_id: article?.author_id || '',
-    meta_title: article?.meta_title || '',
-    meta_description: article?.meta_description || '',
-    keywords: article?.keywords?.join(', ') || '',
-    is_published: article?.is_published || false,
+    title: '',
+    slug: '',
+    description: '',
+    excerpt: '',
+    content: '',
+    category_id: '',
+    author_id: '',
+    meta_title: '',
+    meta_description: '',
+    keywords: '',
+    is_published: false,
   });
+
+  // Fetch full article data when editing
+  useEffect(() => {
+    const loadArticle = async () => {
+      if (!article?.id) {
+        // Reset form for new article
+        setFormData({
+          title: '',
+          slug: '',
+          description: '',
+          excerpt: '',
+          content: '',
+          category_id: '',
+          author_id: '',
+          meta_title: '',
+          meta_description: '',
+          keywords: '',
+          is_published: false,
+        });
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        console.log('📝 Fetching full article data for:', article.id);
+        
+        const { data, error } = await supabase
+          .from('public_articles')
+          .select('*')
+          .eq('id', article.id)
+          .maybeSingle();
+
+        if (error) throw error;
+        
+        if (data) {
+          console.log('✅ Article data loaded:', { 
+            title: data.title, 
+            hasContent: !!data.content,
+            contentLength: data.content?.length 
+          });
+          
+          setFormData({
+            title: data.title || '',
+            slug: data.slug || '',
+            description: data.description || '',
+            excerpt: data.excerpt || '',
+            content: data.content || '',
+            category_id: data.category_id || '',
+            author_id: data.author_id || '',
+            meta_title: data.meta_title || '',
+            meta_description: data.meta_description || '',
+            keywords: data.keywords?.join(', ') || '',
+            is_published: data.is_published || false,
+          });
+        } else {
+          console.warn('⚠️ No article found with id:', article.id);
+        }
+      } catch (error) {
+        console.error('❌ Error loading article:', error);
+        toast({
+          variant: 'destructive',
+          title: 'Error loading article',
+          description: 'Failed to load article content. Please try again.',
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (isOpen) {
+      loadArticle();
+    }
+  }, [article?.id, isOpen, toast]);
 
   const saveArticle = useMutation({
     mutationFn: async (data: any) => {
@@ -511,29 +587,35 @@ function ArticleEditorDialog({ article, isOpen, onClose, categories, authors }: 
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="title">Title *</Label>
-              <Input
-                id="title"
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                placeholder="Enter article title"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="slug">URL Slug *</Label>
-              <Input
-                id="slug"
-                value={formData.slug}
-                onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                placeholder="article-url-slug"
-              />
-            </div>
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-12 space-y-4">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            <p className="text-sm text-muted-foreground">Loading article content...</p>
           </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="title">Title *</Label>
+                <Input
+                  id="title"
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  placeholder="Enter article title"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="slug">URL Slug *</Label>
+                <Input
+                  id="slug"
+                  value={formData.slug}
+                  onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                  placeholder="article-url-slug"
+                />
+              </div>
+            </div>
 
-          <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="category">Category</Label>
               <Select value={formData.category_id} onValueChange={(value) => setFormData({ ...formData, category_id: value })}>
@@ -627,14 +709,15 @@ function ArticleEditorDialog({ article, isOpen, onClose, categories, authors }: 
             />
             <Label htmlFor="is_published">Publish immediately</Label>
           </div>
-        </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button onClick={() => saveArticle.mutate(formData)} disabled={!formData.title || !formData.content}>
-            {article ? 'Update Article' : 'Create Article'}
-          </Button>
-        </DialogFooter>
+            <DialogFooter>
+              <Button variant="outline" onClick={onClose}>Cancel</Button>
+              <Button onClick={() => saveArticle.mutate(formData)} disabled={!formData.title || !formData.content}>
+                {article ? 'Update Article' : 'Create Article'}
+              </Button>
+            </DialogFooter>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
