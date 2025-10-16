@@ -152,7 +152,7 @@ export function DocumentUploadModal({ open, onOpenChange }: DocumentUploadModalP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle>Upload Document</DialogTitle>
           {selectedStudent && (
@@ -162,7 +162,8 @@ export function DocumentUploadModal({ open, onOpenChange }: DocumentUploadModalP
           )}
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="flex-1 overflow-y-auto pr-1">`
+          <div className="space-y-4 py-4">
           <div className="space-y-2">
             <Label htmlFor="file">Select Files</Label>
             {files.length === 0 ? (
@@ -187,24 +188,26 @@ export function DocumentUploadModal({ open, onOpenChange }: DocumentUploadModalP
               </div>
             ) : (
               <>
-                <div className="space-y-2 max-h-64 overflow-y-auto">
+                <div className="space-y-2 max-h-80 overflow-y-auto pr-2">
                   {files.map((file, index) => (
-                    <Card key={index} className="p-3">
-                      <div className="flex items-center gap-3">
-                        {file.type === 'application/pdf' ? (
-                          <FileText className="h-8 w-8 text-destructive flex-shrink-0" />
-                        ) : (
-                          <File className="h-8 w-8 text-primary flex-shrink-0" />
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate">{file.name}</p>
+                    <Card key={index} className="p-3 border-2">
+                      <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0 mt-0.5">
+                          {file.type === 'application/pdf' ? (
+                            <FileText className="h-8 w-8 text-destructive" />
+                          ) : (
+                            <File className="h-8 w-8 text-primary" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0 overflow-hidden">
+                          <p className="text-sm font-medium truncate pr-2">{file.name}</p>
                           <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
                         </div>
                         <Button
                           variant="ghost"
                           size="icon"
                           onClick={() => removeFile(index)}
-                          className="flex-shrink-0"
+                          className="flex-shrink-0 h-8 w-8"
                         >
                           <X className="h-4 w-4" />
                         </Button>
@@ -213,7 +216,7 @@ export function DocumentUploadModal({ open, onOpenChange }: DocumentUploadModalP
                   ))}
                 </div>
                 {files.length < MAX_FILES && (
-                  <div className="border-2 border-dashed rounded-lg p-4 text-center hover:border-primary/50 transition-colors">
+                  <div className="border-2 border-dashed rounded-lg p-4 text-center hover:border-primary/50 transition-colors mt-3">
                     <Input
                       id="file-more"
                       type="file"
@@ -222,7 +225,7 @@ export function DocumentUploadModal({ open, onOpenChange }: DocumentUploadModalP
                       className="hidden"
                       multiple
                     />
-                    <label htmlFor="file-more" className="cursor-pointer">
+                    <label htmlFor="file-more" className="cursor-pointer block">
                       <Upload className="mx-auto h-8 w-8 text-muted-foreground mb-1" />
                       <p className="text-xs text-muted-foreground">
                         Add more files ({files.length}/{MAX_FILES})
@@ -260,8 +263,9 @@ export function DocumentUploadModal({ open, onOpenChange }: DocumentUploadModalP
             />
           </div>
         </div>
+      </div>
 
-        <DialogFooter>
+        <DialogFooter className="flex-shrink-0">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
