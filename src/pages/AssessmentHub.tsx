@@ -199,18 +199,24 @@ export default function AssessmentHub() {
       {/* Assessment Library */}
       <div>
         <h2 className="text-2xl font-bold mb-4">Assessment Library</h2>
-        <Tabs defaultValue="all" className="space-y-4">
-          <TabsList className="grid grid-cols-3 lg:grid-cols-7">
-            {categories.map(cat => {
-              const Icon = cat.icon;
-              return (
-                <TabsTrigger key={cat.id} value={cat.id} className="gap-2">
-                  <Icon className="h-4 w-4" />
-                  <span className="hidden lg:inline">{cat.label}</span>
-                </TabsTrigger>
-              );
-            })}
-          </TabsList>
+        <Tabs defaultValue="all" className="space-y-6">
+          <div className="w-full overflow-x-auto pb-2">
+            <TabsList className="inline-flex w-auto min-w-full sm:min-w-0 h-auto gap-1 p-1.5">
+              {categories.map(cat => {
+                const Icon = cat.icon;
+                return (
+                  <TabsTrigger 
+                    key={cat.id} 
+                    value={cat.id} 
+                    className="flex items-center gap-2 px-3 py-2.5 sm:px-4 sm:py-2 whitespace-nowrap text-xs sm:text-sm"
+                  >
+                    <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" />
+                    <span className="font-medium">{cat.label}</span>
+                  </TabsTrigger>
+                );
+              })}
+            </TabsList>
+          </div>
 
           {categories.map(category => (
             <TabsContent key={category.id} value={category.id}>
