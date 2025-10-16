@@ -1,7 +1,7 @@
 import { WizardStepProps } from '@/lib/wizards/types';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { TextareaWithVoice } from '@/components/shared/TextareaWithVoice';
 
 interface TextInputStepProps extends WizardStepProps {
   fields: Array<{
@@ -31,13 +31,12 @@ export const TextInputStep = ({ data, onUpdate, fields }: TextInputStepProps) =>
             {field.required && <span className="text-destructive ml-1">*</span>}
           </Label>
           {field.type === 'textarea' ? (
-            <Textarea
+            <TextareaWithVoice
               id={field.id}
               value={data[field.id] || ''}
               onChange={(e) => handleChange(field.id, e.target.value)}
               placeholder={field.placeholder}
               rows={4}
-              className="resize-none"
             />
           ) : (
             <Input

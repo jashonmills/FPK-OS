@@ -26,7 +26,14 @@ export const iepWizardConfig: WizardConfig = {
       title: 'Student Profile',
       description: 'Student and family demographics',
       component: StudentOverviewStep,
-      validation: (data) => !!data?.studentName && !!data?.dateOfBirth,
+      validation: (data) => {
+        return !!(
+          data?.studentName?.trim() && 
+          data?.grade && 
+          data?.dateOfBirth && 
+          data?.primaryDisability
+        );
+      },
     },
     {
       id: 'team-members',
@@ -47,7 +54,12 @@ export const iepWizardConfig: WizardConfig = {
       title: 'Present Levels (PLOP)',
       description: 'Current academic and functional performance',
       component: AcademicPerformanceStep,
-      validation: (data) => !!data?.academicPerformance || !!data?.functionalPerformance,
+      validation: (data) => {
+        return !!(
+          data?.strengths?.trim() && 
+          data?.weaknesses?.trim()
+        );
+      },
     },
     {
       id: 'goals-objectives',
