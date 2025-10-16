@@ -35,9 +35,20 @@ export function DocumentViewerModal({ open, onOpenChange, document }: DocumentVi
   const fetchSignedUrl = async () => {
     setLoading(true);
     try {
+      // Extract the storage path from file_path
+      // file_path can be either:
+      // 1. Full URL: https://...supabase.co/storage/v1/object/public/family-documents/path/to/file.pdf
+      // 2. Storage path: e5c4f130-ffcb-4a0c-8dbc-d8089eb6f976/file-id-file.pdf
+      let storagePath = document.file_path;
+      
+      // If it's a full URL, extract just the path portion
+      if (storagePath.includes('/storage/v1/object/public/family-documents/')) {
+        storagePath = storagePath.split('/storage/v1/object/public/family-documents/')[1];
+      }
+
       const { data, error } = await supabase.storage
         .from("family-documents")
-        .createSignedUrl(document.file_path, 3600); // 1 hour
+        .createSignedUrl(storagePath, 3600); // 1 hour
 
       if (error) throw error;
       setSignedUrl(data.signedUrl);
