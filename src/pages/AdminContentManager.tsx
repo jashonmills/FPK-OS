@@ -270,14 +270,21 @@ export default function AdminContentManager() {
                       <TableCell className="font-medium">{article.title}</TableCell>
                       <TableCell>{article.category?.name || '-'}</TableCell>
                       <TableCell>{article.author?.name || '-'}</TableCell>
-                      <TableCell>
-                        <Badge 
-                          variant={article.is_published ? 'default' : 'secondary'}
-                          className={article.is_published ? 'bg-green-500 hover:bg-green-600' : 'bg-yellow-500 hover:bg-yellow-600'}
-                        >
-                          {article.is_published ? 'Published' : 'Draft'}
-                        </Badge>
-                      </TableCell>
+                       <TableCell>
+                         <div className="flex flex-col gap-1">
+                           <Badge 
+                             variant={article.is_published ? 'default' : 'secondary'}
+                             className={article.is_published ? 'bg-green-500 hover:bg-green-600' : 'bg-yellow-500 hover:bg-yellow-600'}
+                           >
+                             {article.is_published ? 'Published' : 'Draft'}
+                           </Badge>
+                           {article.is_published && article.published_at && (
+                             <span className="text-xs text-muted-foreground">
+                               {format(new Date(article.published_at), 'MMM d, yyyy')}
+                             </span>
+                           )}
+                         </div>
+                       </TableCell>
                       <TableCell>{article.view_count || 0}</TableCell>
                       <TableCell>{format(new Date(article.updated_at), 'MMM d, yyyy')}</TableCell>
                       <TableCell className="text-right">

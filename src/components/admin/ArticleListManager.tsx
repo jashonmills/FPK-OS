@@ -6,11 +6,12 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { Eye, Edit, Trash2, CheckCircle, Clock } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import { ArticleEditorModal } from './ArticleEditorModal';
+import { ArticleViewerModal } from './ArticleViewerModal';
 
 export function ArticleListManager() {
   const [editingArticle, setEditingArticle] = useState<any>(null);
+  const [viewingArticle, setViewingArticle] = useState<any>(null);
   const queryClient = useQueryClient();
 
   const { data: articles, isLoading } = useQuery({
@@ -33,7 +34,10 @@ export function ArticleListManager() {
     mutationFn: async ({ id, isPublished }: { id: string; isPublished: boolean }) => {
       const { error } = await supabase
         .from('public_articles')
-        .update({ is_published: !isPublished })
+        .update({ 
+          is_published: !isPublished,
+          published_at: !isPublished ? new Date().toISOString() : null
+        })
         .eq('id', id);
       if (error) throw error;
     },
@@ -111,17 +115,14 @@ export function ArticleListManager() {
                 </div>
 
                 <div className="flex items-center gap-2 ml-4">
-                  {article.is_published && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      asChild
-                    >
-                      <Link to={`/guides/${article.article_categories?.slug}/${article.slug}`}>
-                        <Eye className="w-4 h-4" />
-                      </Link>
-                    </Button>
-                  )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setViewingArticle(article)}
+                    title={article.is_published ? 'View Article' : 'Preview Draft'}
+                  >
+                    <Eye className="w-4 h-4" />
+                  </Button>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -175,6 +176,13 @@ export function ArticleListManager() {
             queryClient.invalidateQueries({ queryKey: ['admin-articles'] });
             setEditingArticle(null);
           }}
+        />
+      )}
+
+      {viewingArticle && (
+        <ArticleViewerModal
+          article={viewingArticle}
+          onClose={() => setViewingArticle(null)}
         />
       )}
     </>
