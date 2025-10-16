@@ -47,7 +47,8 @@ serve(async (req) => {
     }
 
     // Query knowledge base for relevant documents with their chunks
-    const { data: kbDocs, error: kbError } = await supabase
+    // First try to find specific topic matches
+    let { data: kbDocs, error: kbError } = await supabase
       .from('kb_chunks')
       .select(`
         chunk_text,
@@ -62,8 +63,29 @@ serve(async (req) => {
       .limit(20);
 
     if (kbError) throw new Error(`KB query failed: ${kbError.message}`);
+    
+    // If no specific matches, get general autism/special education content
     if (!kbDocs || kbDocs.length === 0) {
-      throw new Error('No relevant knowledge base content found');
+      console.log(`No specific matches for "${topic}", fetching general autism/education content`);
+      const { data: generalDocs, error: generalError } = await supabase
+        .from('kb_chunks')
+        .select(`
+          chunk_text,
+          knowledge_base:kb_id (
+            source_name,
+            source_url,
+            title,
+            summary
+          )
+        `)
+        .or(`chunk_text.ilike.%autism%,chunk_text.ilike.%education%,chunk_text.ilike.%IEP%`)
+        .limit(20);
+      
+      if (generalError) throw new Error(`General KB query failed: ${generalError.message}`);
+      if (!generalDocs || generalDocs.length === 0) {
+        throw new Error('No knowledge base content available. Please ensure the knowledge base has been populated with content.');
+      }
+      kbDocs = generalDocs;
     }
 
     console.log(`Found ${kbDocs.length} relevant KB chunks`);
