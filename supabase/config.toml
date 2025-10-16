@@ -155,3 +155,12 @@ verify_jwt = true
 
 [functions.generate-articles-from-kb]
 verify_jwt = true
+
+[functions.upload-document]
+verify_jwt = true
+
+[functions.generate-document-report]
+verify_jwt = true
+
+[functions.synthesize-progress-trends]
+verify_jwt = true

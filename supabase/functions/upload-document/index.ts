@@ -143,10 +143,8 @@ serve(async (req) => {
       }
     })();
 
-    // Use waitUntil to run analysis in background
-    if (typeof EdgeRuntime !== 'undefined' && EdgeRuntime.waitUntil) {
-      EdgeRuntime.waitUntil(analyzePromise);
-    }
+    // Note: Analysis will run in background via the Promise
+    // EdgeRuntime.waitUntil is not available in this Deno environment
 
     return new Response(
       JSON.stringify({

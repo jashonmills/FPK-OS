@@ -256,7 +256,15 @@ export default function Documents() {
     familyData?.initial_doc_analysis_status === 'pending';
 
   const handleGenerateReport = async () => {
-    if (!selectedFamily?.id || !selectedStudent?.id) return;
+    if (!selectedFamily?.id || !selectedStudent?.id) {
+      toast.error("Please select a family and student");
+      return;
+    }
+
+    if (!documents || documents.length === 0) {
+      toast.error("No documents found to generate a report");
+      return;
+    }
 
     setIsGeneratingReport(true);
     try {
@@ -268,13 +276,17 @@ export default function Documents() {
       });
 
       if (error) throw error;
+      
+      if (!data?.success) {
+        throw new Error(data?.error || 'Report generation failed');
+      }
 
       setReportData(data);
       setIsReportModalOpen(true);
-      toast.success(`Comprehensive report created for ${selectedStudent.student_name}`);
+      toast.success(`Report generated! Analyzed ${data.document_count} documents with ${data.metrics_analyzed} metrics.`);
     } catch (error: any) {
       console.error('Report generation error:', error);
-      toast.error(error.message || "Failed to generate report");
+      toast.error("Failed to generate report: " + error.message);
     } finally {
       setIsGeneratingReport(false);
     }

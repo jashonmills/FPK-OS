@@ -51,15 +51,17 @@ serve(async (req) => {
 
     // Analyze each metric type
     for (const [metricType, metricList] of Object.entries(metricsByType)) {
-      if (metricList.length < 2) continue; // Need at least 2 data points
+      const typedMetricList = metricList as any[];
+      
+      if (typedMetricList.length < 2) continue; // Need at least 2 data points
 
       // Sort by date
-      metricList.sort((a, b) => 
+      typedMetricList.sort((a: any, b: any) => 
         new Date(a.measurement_date).getTime() - new Date(b.measurement_date).getTime()
       );
 
-      const baseline = metricList[0];
-      const current = metricList[metricList.length - 1];
+      const baseline = typedMetricList[0];
+      const current = typedMetricList[typedMetricList.length - 1];
       const target = baseline.target_value || current.target_value;
 
       // Calculate trend
@@ -108,7 +110,7 @@ serve(async (req) => {
         trend,
         period_start: baseline.measurement_date,
         period_end: current.measurement_date,
-        notes: `Analyzed ${metricList.length} data points. Change: ${percentChange.toFixed(1)}%`
+        notes: `Analyzed ${typedMetricList.length} data points. Change: ${percentChange.toFixed(1)}%`
       });
     }
 

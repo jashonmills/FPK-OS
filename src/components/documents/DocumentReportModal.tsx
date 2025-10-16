@@ -9,12 +9,13 @@ interface DocumentReportModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   reportData: {
-    id: string;
+    report_id?: string;
     report_content: string;
     generated_at: string;
-    document_ids: string[];
-    metrics_count: number;
-    insights_count: number;
+    document_count: number;
+    metrics_analyzed: number;
+    insights_included: number;
+    document_ids?: string[];
   } | null;
   documents?: any[];
 }
@@ -59,7 +60,7 @@ export const DocumentReportModal = ({
   if (!reportData) return null;
 
   const includedDocs = documents?.filter(d => 
-    reportData.document_ids.includes(d.id)
+    reportData.document_ids?.includes(d.id)
   ) || [];
 
   return (
@@ -80,10 +81,10 @@ export const DocumentReportModal = ({
                 <strong>Generated:</strong> {new Date(reportData.generated_at).toLocaleString()}
               </p>
               <p className="text-sm text-muted-foreground">
-                <strong>Documents Analyzed:</strong> {reportData.document_ids.length}
+                <strong>Documents Analyzed:</strong> {reportData.document_count || reportData.document_ids?.length || 0}
               </p>
               <p className="text-sm text-muted-foreground">
-                <strong>Data Points:</strong> {reportData.metrics_count} metrics, {reportData.insights_count} insights
+                <strong>Data Points:</strong> {reportData.metrics_analyzed || 0} metrics, {reportData.insights_included || 0} insights
               </p>
               
               {includedDocs.length > 0 && (

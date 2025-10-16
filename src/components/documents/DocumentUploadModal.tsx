@@ -60,54 +60,42 @@ export function DocumentUploadModal({ open, onOpenChange }: DocumentUploadModalP
         throw new Error("Please select a student before uploading documents");
       }
 
-      // Extract text from PDF first
-      let extractedContent = "";
-      if (file.type === "application/pdf") {
-        toast.info("Extracting text from PDF...");
-        extractedContent = await extractTextFromPDF(file);
-      }
+      // Use the upload-document edge function
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('family_id', selectedFamily.id);
+      formData.append('student_id', selectedStudent.id);
+      formData.append('category', category);
+      formData.append('document_date', documentDate || '');
+      formData.append('uploaded_by', user.id);
 
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${crypto.randomUUID()}-${file.name}`;
-      const filePath = `${selectedFamily.id}/${fileName}`;
-
-      // Upload to storage
-      const { error: uploadError } = await supabase.storage
-        .from("family-documents")
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      // Insert metadata into database with extracted content
-      const { error: dbError } = await supabase.from("documents").insert({
-        family_id: selectedFamily.id,
-        student_id: selectedStudent.id, // Now required - will never be null
-        uploaded_by: user.id,
-        file_name: file.name,
-        file_path: filePath,
-        file_type: file.type,
-        file_size_kb: Math.round(file.size / 1024),
-        category,
-        document_date: documentDate || null,
-        extracted_content: extractedContent || null,
+      const { data, error } = await supabase.functions.invoke('upload-document', {
+        body: formData,
       });
 
-      if (dbError) throw dbError;
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || 'Upload failed');
 
-      return { familyId: selectedFamily.id };
+      return { familyId: selectedFamily.id, document: data.document };
     },
     onSuccess: async (data) => {
       queryClient.invalidateQueries({ queryKey: ["documents"] });
-      toast.success("Document uploaded successfully");
       
-      // Check if we now have 5 documents and should trigger analysis
+      // Show success with extraction stats
+      if (data.document?.extraction_stats) {
+        const stats = data.document.extraction_stats;
+        toast.success(`Document uploaded! Extracted ${stats.words} words. Analysis starting in background.`);
+      } else {
+        toast.success("Document uploaded successfully. Analysis starting in background.");
+      }
+      
+      // Check if we now have 3+ documents and should show analysis button
       const { count } = await supabase
         .from("documents")
         .select("*", { count: "exact", head: true })
         .eq("family_id", data.familyId);
 
-      if (count === 5) {
-        // Check if analysis hasn't been run yet
+      if (count && count >= 3) {
         const { data: familyData } = await supabase
           .from("families")
           .select("initial_doc_analysis_status")
@@ -115,21 +103,7 @@ export function DocumentUploadModal({ open, onOpenChange }: DocumentUploadModalP
           .single();
 
         if (familyData?.initial_doc_analysis_status === "pending") {
-          toast.info("Analyzing your documents to personalize your dashboard...");
-          
-          // Trigger the first-look-analysis
-          const { error: analysisError } = await supabase.functions.invoke(
-            "first-look-analysis",
-            { body: { family_id: data.familyId } }
-          );
-
-          if (analysisError) {
-            console.error("Analysis error:", analysisError);
-            toast.error("Document analysis failed. You can retry from Settings.");
-          } else {
-            toast.success("Analysis complete! Check out your personalized charts in Analytics.");
-            queryClient.invalidateQueries({ queryKey: ["families"] });
-          }
+          toast.info("You now have enough documents for AI analysis! Check the 'Analyze My Documents' button.");
         }
       }
 
