@@ -56,6 +56,10 @@ export function DocumentUploadModal({ open, onOpenChange }: DocumentUploadModalP
         throw new Error("Missing required data");
       }
 
+      if (!selectedStudent?.id) {
+        throw new Error("Please select a student before uploading documents");
+      }
+
       // Extract text from PDF first
       let extractedContent = "";
       if (file.type === "application/pdf") {
@@ -77,7 +81,7 @@ export function DocumentUploadModal({ open, onOpenChange }: DocumentUploadModalP
       // Insert metadata into database with extracted content
       const { error: dbError } = await supabase.from("documents").insert({
         family_id: selectedFamily.id,
-        student_id: selectedStudent?.id || null,
+        student_id: selectedStudent.id, // Now required - will never be null
         uploaded_by: user.id,
         file_name: file.name,
         file_path: filePath,
@@ -150,6 +154,11 @@ export function DocumentUploadModal({ open, onOpenChange }: DocumentUploadModalP
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Upload Document</DialogTitle>
+          {selectedStudent && (
+            <p className="text-sm text-muted-foreground">
+              Uploading for: <span className="font-semibold text-foreground">{selectedStudent.student_name}</span>
+            </p>
+          )}
         </DialogHeader>
 
         <div className="space-y-4 py-4">
@@ -208,7 +217,7 @@ export function DocumentUploadModal({ open, onOpenChange }: DocumentUploadModalP
           </Button>
           <Button
             onClick={() => uploadMutation.mutate()}
-            disabled={!file || uploadMutation.isPending}
+            disabled={!file || !selectedStudent || uploadMutation.isPending}
           >
             {uploadMutation.isPending ? "Uploading..." : "Upload"}
           </Button>

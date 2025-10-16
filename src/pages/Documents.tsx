@@ -35,19 +35,20 @@ export default function Documents() {
   const [guideOpen, setGuideOpen] = useState(false);
 
   const { data: documents, isLoading } = useQuery({
-    queryKey: ["documents", selectedFamily?.id],
+    queryKey: ["documents", selectedFamily?.id, selectedStudent?.id],
     queryFn: async () => {
-      if (!selectedFamily?.id) return [];
+      if (!selectedFamily?.id || !selectedStudent?.id) return [];
       const { data, error } = await supabase
         .from("documents")
         .select("*")
         .eq("family_id", selectedFamily.id)
+        .eq("student_id", selectedStudent.id)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
       return data;
     },
-    enabled: !!selectedFamily?.id,
+    enabled: !!selectedFamily?.id && !!selectedStudent?.id,
   });
 
   const { data: familyData } = useQuery({
@@ -275,9 +276,16 @@ export default function Documents() {
       
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
-          <p className="text-muted-foreground text-sm sm:text-base">
-            Manage IEPs, evaluations, progress reports, and more
-          </p>
+          <div>
+            <p className="text-muted-foreground text-sm sm:text-base">
+              Manage IEPs, evaluations, progress reports, and more
+            </p>
+            {selectedStudent && (
+              <p className="text-xs text-muted-foreground mt-1">
+                Viewing documents for: <span className="font-semibold text-foreground">{selectedStudent.student_name}</span>
+              </p>
+            )}
+          </div>
           <div className="flex gap-2 flex-wrap">
             {shouldShowAnalyzeButtons && (
               <>
