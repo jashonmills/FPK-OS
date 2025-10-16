@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.75.0";
-// Import PDF.js for proper PDF text extraction via esm.sh
-import * as pdfjsLib from "https://esm.sh/pdfjs-dist@4.0.379/build/pdf.min.mjs";
+// Import pdf-parse for reliable PDF text extraction via esm.sh
+import pdf from "https://esm.sh/pdf-parse@1.1.1";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -35,26 +35,17 @@ serve(async (req) => {
     const fileBuffer = await file.arrayBuffer();
     const uint8Array = new Uint8Array(fileBuffer);
     
-    // Extract text from PDF using pdfjs-dist
+    // Extract text from PDF using pdf-parse
     let extractedContent = '';
     
     try {
-      // Load the PDF document
-      const loadingTask = pdfjsLib.getDocument({ data: uint8Array });
-      const pdf = await loadingTask.promise;
+      console.log('Starting PDF text extraction...');
       
-      // Extract text from all pages
-      const textParts: string[] = [];
-      for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-        const page = await pdf.getPage(pageNum);
-        const textContent = await page.getTextContent();
-        const pageText = textContent.items
-          .map((item: any) => item.str)
-          .join(' ');
-        textParts.push(pageText);
-      }
+      // Use pdf-parse to extract text from the PDF
+      const pdfData = await pdf(fileBuffer);
+      extractedContent = pdfData.text;
       
-      extractedContent = textParts.join('\n\n').trim();
+      console.log(`Raw extraction completed: ${extractedContent.length} characters`);
       
       // Sanitize extracted content to remove null bytes and problematic characters
       extractedContent = extractedContent
@@ -62,6 +53,9 @@ serve(async (req) => {
         .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '') // Remove control characters
         .replace(/\s+/g, ' ') // Normalize whitespace
         .trim();
+      
+      console.log(`After sanitization: ${extractedContent.length} characters`);
+      console.log(`First 200 chars: ${extractedContent.substring(0, 200)}`);
         
     } catch (pdfError) {
       console.error('PDF extraction error:', pdfError);
