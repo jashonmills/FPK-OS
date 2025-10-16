@@ -784,6 +784,7 @@ export type Database = {
           created_at: string
           document_ids: Json
           family_id: string
+          focus_area: string | null
           generated_at: string
           generated_by: string | null
           id: string
@@ -799,6 +800,7 @@ export type Database = {
           created_at?: string
           document_ids: Json
           family_id: string
+          focus_area?: string | null
           generated_at?: string
           generated_by?: string | null
           id?: string
@@ -814,6 +816,7 @@ export type Database = {
           created_at?: string
           document_ids?: Json
           family_id?: string
+          focus_area?: string | null
           generated_at?: string
           generated_by?: string | null
           id?: string
