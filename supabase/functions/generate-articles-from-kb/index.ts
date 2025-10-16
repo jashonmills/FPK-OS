@@ -31,6 +31,21 @@ serve(async (req) => {
 
     if (catError) throw new Error(`Category not found: ${catError.message}`);
 
+    // Get author (use provided or pick first available)
+    let finalAuthorId = authorId;
+    if (!finalAuthorId) {
+      const { data: authors, error: authError } = await supabase
+        .from('article_authors')
+        .select('id')
+        .limit(1)
+        .single();
+      
+      if (authError || !authors) {
+        throw new Error('No authors available. Please create an author first.');
+      }
+      finalAuthorId = authors.id;
+    }
+
     // Query knowledge base for relevant documents
     const { data: kbDocs, error: kbError } = await supabase
       .from('knowledge_base')
@@ -134,8 +149,8 @@ Focus on providing actionable insights that parents and educators can implement 
           excerpt: articleData.excerpt,
           meta_description: articleData.meta_description,
           category_id: category.id,
-          author_id: authorId,
-          published: true,
+          author_id: finalAuthorId,
+          is_published: true,
           published_at: new Date().toISOString(),
           reading_time_minutes: articleData.reading_time_minutes,
           keywords: articleData.keywords,

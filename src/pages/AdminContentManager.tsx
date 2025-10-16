@@ -537,10 +537,22 @@ function ArticleGeneratorDialog({ isOpen, onClose, onGenerate, categories, isLoa
   const handleGenerate = () => {
     if (!topic || !categorySlug) return;
     onGenerate({ topic, categorySlug, count });
+    // Reset form
+    setTopic('');
+    setCategorySlug('');
+    setCount(1);
+  };
+
+  const handleClose = () => {
+    // Reset form on close
+    setTopic('');
+    setCategorySlug('');
+    setCount(1);
+    onClose();
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
@@ -597,7 +609,7 @@ function ArticleGeneratorDialog({ isOpen, onClose, onGenerate, categories, isLoa
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={isLoading}>
+          <Button variant="outline" onClick={handleClose} disabled={isLoading}>
             Cancel
           </Button>
           <Button onClick={handleGenerate} disabled={!topic || !categorySlug || isLoading}>
