@@ -20,7 +20,7 @@ serve(async (req) => {
     const documentDate = formData.get('document_date') as string;
     const uploadedBy = formData.get('uploaded_by') as string;
 
-    if (!file || !familyId || !studentId || !category || !documentDate) {
+    if (!file || !familyId || !studentId || !category) {
       throw new Error('Missing required fields');
     }
 
@@ -108,7 +108,7 @@ serve(async (req) => {
         file_type: file.type,
         file_size_kb: Math.round(file.size / 1024),
         category,
-        document_date: documentDate,
+        document_date: documentDate || null,
         extracted_content: extractedContent,
         metadata: {
           extraction_quality: 'success',
