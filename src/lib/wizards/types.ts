@@ -27,17 +27,18 @@ export interface WizardStepProps {
 
 export interface WizardSession {
   id: string;
-  familyId: string;
-  studentId: string;
-  wizardType: string;
-  currentStep: number;
-  totalSteps: number;
-  sessionData: Record<string, any>;
+  family_id: string;
+  student_id: string;
+  wizard_type: string;
+  current_step: number;
+  total_steps: number;
+  session_data: Record<string, any>;
   status: 'in_progress' | 'completed' | 'abandoned';
-  startedAt: string;
-  completedAt?: string;
-  lastUpdated: string;
-  createdBy: string;
+  started_at: string;
+  completed_at?: string;
+  last_updated: string;
+  created_by: string;
+  created_at: string;
 }
 
 export interface WizardCompletion {

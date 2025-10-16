@@ -144,8 +144,8 @@ export const useWizardSession = (
         .from('wizard_completions')
         .insert({
           session_id: session.id,
-          family_id: session.familyId,
-          student_id: session.studentId,
+          family_id: session.family_id,
+          student_id: session.student_id,
           wizard_type: wizardType,
           generated_report: reportData,
         });

@@ -49,19 +49,7 @@ export const WIZARD_REGISTRY: WizardConfig[] = [
 ];
 
 export const getWizardByType = (type: string): WizardConfig | undefined => {
-  console.log('🔍 getWizardByType called:', { 
-    type, 
-    registryCount: WIZARD_REGISTRY.length,
-    availableTypes: WIZARD_REGISTRY.map(w => w.type)
-  });
-  const wizard = WIZARD_REGISTRY.find(w => w.type === type);
-  console.log('🔍 Found wizard:', { 
-    found: !!wizard, 
-    name: wizard?.name,
-    stepsCount: wizard?.steps?.length,
-    firstStepComponent: wizard?.steps?.[0]?.component?.name
-  });
-  return wizard;
+  return WIZARD_REGISTRY.find(w => w.type === type);
 };
 
 export const getWizardsByCategory = (category: string): WizardConfig[] => {

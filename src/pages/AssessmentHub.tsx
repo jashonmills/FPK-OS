@@ -163,7 +163,7 @@ export default function AssessmentHub() {
           <h2 className="text-2xl font-bold mb-4">Resume Your Assessments</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {inProgressSessions.map(session => {
-              const wizard = WIZARD_REGISTRY.find(w => w.type === session.wizardType);
+              const wizard = WIZARD_REGISTRY.find(w => w.type === session.wizard_type);
               if (!wizard) return null;
               const Icon = wizard.icon;
 
@@ -173,12 +173,12 @@ export default function AssessmentHub() {
                     <div className="flex items-start justify-between">
                       <Icon className="h-8 w-8 text-primary" />
                       <Badge variant="outline">
-                        {Math.round((session.currentStep / session.totalSteps) * 100)}%
+                        {Math.round((session.current_step / session.total_steps) * 100)}%
                       </Badge>
                     </div>
                     <CardTitle className="text-lg mt-4">{wizard.name}</CardTitle>
                     <CardDescription>
-                      Step {session.currentStep + 1} of {session.totalSteps}
+                      Step {session.current_step + 1} of {session.total_steps}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -221,7 +221,7 @@ export default function AssessmentHub() {
                 {getFilteredWizards(category.id).map(wizard => {
                   const Icon = wizard.icon;
                   const isEnabled = flags[wizard.flagKey];
-                  const inProgress = inProgressSessions.find(s => s.wizardType === wizard.type);
+                  const inProgress = inProgressSessions.find(s => s.wizard_type === wizard.type);
 
                   return (
                     <Card 

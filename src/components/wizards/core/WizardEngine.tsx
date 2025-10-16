@@ -13,14 +13,6 @@ interface WizardEngineProps {
 }
 
 export const WizardEngine = ({ config, sessionId, familyId, studentId }: WizardEngineProps) => {
-  console.log('🧙 WizardEngine render:', { 
-    configType: config.type, 
-    stepsCount: config.steps?.length,
-    sessionId, 
-    familyId, 
-    studentId 
-  });
-
   const { session, loading, createSession, updateSession, saveAndExit, completeWizard } = 
     useWizardSession(config.type, sessionId, studentId);
   const [currentStep, setCurrentStep] = useState(0);
@@ -30,7 +22,6 @@ export const WizardEngine = ({ config, sessionId, familyId, studentId }: WizardE
   useEffect(() => {
     const initSession = async () => {
       if (!sessionId && !session) {
-        console.log('🧙 Creating new session...');
         await createSession(familyId, studentId, config.steps.length);
       }
     };
@@ -40,9 +31,8 @@ export const WizardEngine = ({ config, sessionId, familyId, studentId }: WizardE
   // Load session data
   useEffect(() => {
     if (session) {
-      console.log('🧙 Loading session data:', { currentStep: session.currentStep, sessionData: session.sessionData });
-      setCurrentStep(session.currentStep);
-      setSessionData(session.sessionData);
+      setCurrentStep(session.current_step);
+      setSessionData(session.session_data);
     }
   }, [session]);
 
@@ -53,8 +43,8 @@ export const WizardEngine = ({ config, sessionId, familyId, studentId }: WizardE
     };
     setSessionData(updatedData);
     updateSession({
-      sessionData: updatedData,
-      currentStep,
+      session_data: updatedData,
+      current_step: currentStep,
     });
   };
 
@@ -71,7 +61,7 @@ export const WizardEngine = ({ config, sessionId, familyId, studentId }: WizardE
     } else {
       const nextStep = currentStep + 1;
       setCurrentStep(nextStep);
-      updateSession({ currentStep: nextStep });
+      updateSession({ current_step: nextStep });
     }
   };
 
@@ -79,7 +69,7 @@ export const WizardEngine = ({ config, sessionId, familyId, studentId }: WizardE
     if (currentStep > 0) {
       const prevStep = currentStep - 1;
       setCurrentStep(prevStep);
-      updateSession({ currentStep: prevStep });
+      updateSession({ current_step: prevStep });
     }
   };
 
@@ -102,15 +92,7 @@ export const WizardEngine = ({ config, sessionId, familyId, studentId }: WizardE
   }
 
   // Safety check: ensure we have a valid step
-  console.log('🧙 Checking step validity:', { 
-    hasSteps: !!config.steps, 
-    stepsLength: config.steps?.length, 
-    currentStep, 
-    isOutOfBounds: currentStep >= (config.steps?.length || 0) 
-  });
-  
   if (!config.steps || config.steps.length === 0 || currentStep >= config.steps.length) {
-    console.error('🧙 Invalid step configuration:', { config, currentStep });
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
@@ -122,13 +104,8 @@ export const WizardEngine = ({ config, sessionId, familyId, studentId }: WizardE
   }
 
   const currentStepConfig = config.steps[currentStep];
-  console.log('🧙 Current step config:', { 
-    stepId: currentStepConfig?.id, 
-    hasComponent: !!currentStepConfig?.component 
-  });
   
   if (!currentStepConfig || !currentStepConfig.component) {
-    console.error('🧙 Missing step component:', { currentStepConfig, currentStep });
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">

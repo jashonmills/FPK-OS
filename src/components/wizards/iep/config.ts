@@ -7,15 +7,6 @@ import { ConcernsReferralStep } from './steps/ConcernsReferralStep';
 import { AcademicStrengthsStep } from './steps/AcademicStrengthsStep';
 import { AcademicPerformanceStep } from './steps/AcademicPerformanceStep';
 
-console.log('📚 IEP Config Loading - Components:', {
-  JurisdictionConsentStep: !!JurisdictionConsentStep,
-  StudentOverviewStep: !!StudentOverviewStep,
-  TeamMembersStep: !!TeamMembersStep,
-  ConcernsReferralStep: !!ConcernsReferralStep,
-  AcademicStrengthsStep: !!AcademicStrengthsStep,
-  AcademicPerformanceStep: !!AcademicPerformanceStep,
-});
-
 export const iepWizardConfig: WizardConfig = {
   type: 'iep-blueprint',
   name: 'FPX-IEP Blueprint™',
@@ -105,16 +96,3 @@ export const iepWizardConfig: WizardConfig = {
   requiresSubscription: 'team',
   category: 'educational',
 };
-
-console.log('📚 IEP Config Created:', {
-  type: iepWizardConfig.type,
-  stepsCount: iepWizardConfig.steps.length,
-  steps: iepWizardConfig.steps.map((s, i) => ({
-    index: i,
-    id: s.id,
-    title: s.title,
-    hasComponent: !!s.component,
-    componentName: s.component?.name,
-    componentType: typeof s.component,
-  }))
-});
