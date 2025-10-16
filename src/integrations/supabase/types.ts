@@ -3062,6 +3062,37 @@ export type Database = {
           total_count: number
         }[]
       }
+      get_dls_trends_data: {
+        Args: { p_days?: number; p_family_id: string; p_student_id: string }
+        Returns: {
+          dressing: number
+          hand_washing: number
+          log_date: string
+          meal_prep: number
+          teeth_brushing: number
+          toileting: number
+        }[]
+      }
+      get_fine_motor_data: {
+        Args: { p_days?: number; p_family_id: string; p_student_id: string }
+        Returns: {
+          current_level: number
+          mastery_percentage: number
+          measurement_date: string
+          skill_name: string
+          target_level: number
+        }[]
+      }
+      get_gross_motor_data: {
+        Args: { p_days?: number; p_family_id: string; p_student_id: string }
+        Returns: {
+          complexity_level: string
+          measurement_date: string
+          skill_name: string
+          success_rate: number
+          trial_count: number
+        }[]
+      }
       get_iep_goal_progress: {
         Args: { p_family_id: string; p_student_id: string }
         Returns: {
@@ -3098,6 +3129,14 @@ export type Database = {
           verbal_count: number
         }[]
       }
+      get_reading_error_data: {
+        Args: { p_days?: number; p_family_id: string; p_student_id: string }
+        Returns: {
+          error_type: string
+          frequency: number
+          percentage: number
+        }[]
+      }
       get_sensory_profile_data: {
         Args: { p_family_id: string; p_student_id: string }
         Returns: {
@@ -3105,6 +3144,17 @@ export type Database = {
           frequency: number
           intensity_level: string
           sensory_category: string
+        }[]
+      }
+      get_session_activity_data: {
+        Args: { p_days?: number; p_family_id: string; p_student_id: string }
+        Returns: {
+          academic_count: number
+          log_date: string
+          movement_count: number
+          sensory_count: number
+          session_duration: number
+          social_count: number
         }[]
       }
       get_skill_mastery_data: {
@@ -3134,6 +3184,15 @@ export type Database = {
           total_attempts: number
         }[]
       }
+      get_strategy_success_rates_data: {
+        Args: { p_days?: number; p_family_id: string; p_student_id: string }
+        Returns: {
+          strategy_name: string
+          success_rate: number
+          successful_uses: number
+          total_uses: number
+        }[]
+      }
       get_subscription_tier_details: {
         Args: { tier: string }
         Returns: {
@@ -3143,6 +3202,27 @@ export type Database = {
           monthly_price: number
           storage_limit_mb: number
           tier_name: string
+        }[]
+      }
+      get_task_initiation_data: {
+        Args: { p_days?: number; p_family_id: string; p_student_id: string }
+        Returns: {
+          avg_latency_seconds: number
+          measurement_date: string
+          prompt_level: string
+          task_complexity: string
+        }[]
+      }
+      get_top_priority_goals_data: {
+        Args: { p_family_id: string; p_student_id: string }
+        Returns: {
+          current_value: number
+          goal_title: string
+          goal_type: string
+          is_active: boolean
+          progress_percentage: number
+          target_date: string
+          target_value: number
         }[]
       }
       get_user_family_role: {
@@ -3156,6 +3236,15 @@ export type Database = {
           day_of_week: string
           day_order: number
           mood: string
+        }[]
+      }
+      get_working_memory_data: {
+        Args: { p_days?: number; p_family_id: string; p_student_id: string }
+        Returns: {
+          measurement_date: string
+          step_count: string
+          success_rate: number
+          trial_count: number
         }[]
       }
       halfvec_avg: {

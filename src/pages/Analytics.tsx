@@ -21,6 +21,15 @@ import { SocialInteractionFunnel } from "@/components/analytics/SocialInteractio
 import { StrategyEffectiveness } from "@/components/analytics/StrategyEffectiveness";
 import { PromptingLevelFading } from "@/components/analytics/PromptingLevelFading";
 import { SleepBehaviorCorrelation } from "@/components/analytics/SleepBehaviorCorrelation";
+import { TopPriorityGoalsChart } from "@/components/analytics/TopPriorityGoalsChart";
+import { StrategySuccessRatesChart } from "@/components/analytics/StrategySuccessRatesChart";
+import { TaskInitiationLatencyChart } from "@/components/analytics/TaskInitiationLatencyChart";
+import { WorkingMemorySuccessChart } from "@/components/analytics/WorkingMemorySuccessChart";
+import { ReadingErrorAnalysisChart } from "@/components/analytics/ReadingErrorAnalysisChart";
+import { FineMotorSkillMasteryChart } from "@/components/analytics/FineMotorSkillMasteryChart";
+import { GrossMotorPlanningChart } from "@/components/analytics/GrossMotorPlanningChart";
+import { DailyLivingSkillsTrendsChart } from "@/components/analytics/DailyLivingSkillsTrendsChart";
+import { SessionActivityBreakdownChart } from "@/components/analytics/SessionActivityBreakdownChart";
 import { AnalyticsEmptyState } from "@/components/analytics/AnalyticsEmptyState";
 import { ProductTour } from "@/components/onboarding/ProductTour";
 import { analyticsTourSteps } from "@/components/onboarding/tourConfigs";
@@ -154,7 +163,22 @@ const Analytics = () => {
   
   // Dynamic chart component mapping
   const CHART_COMPONENT_MAP: Record<string, React.ReactNode> = {
-    // Tier 2: Specialized Domain Charts
+    // Tier 1: Standard Charts (always available via logs)
+    top_priority_goals: (
+      <TopPriorityGoalsChart 
+        familyId={selectedFamily!.id} 
+        studentId={selectedStudent!.id} 
+      />
+    ),
+    strategy_success_rates: (
+      <StrategySuccessRatesChart 
+        familyId={selectedFamily!.id} 
+        studentId={selectedStudent!.id}
+        days={parseInt(dateRange)}
+      />
+    ),
+    
+    // Tier 2: Specialized Domain Charts (AI-unlocked)
     behavior_function_analysis: (
       <BehaviorFunctionAnalysis 
         studentId={selectedStudent!.id} 
@@ -177,6 +201,48 @@ const Analytics = () => {
         }} 
       />
     ),
+    task_initiation_latency: (
+      <TaskInitiationLatencyChart 
+        familyId={selectedFamily!.id} 
+        studentId={selectedStudent!.id}
+        days={parseInt(dateRange)}
+      />
+    ),
+    working_memory_success: (
+      <WorkingMemorySuccessChart 
+        familyId={selectedFamily!.id} 
+        studentId={selectedStudent!.id}
+        days={parseInt(dateRange)}
+      />
+    ),
+    reading_error_analysis: (
+      <ReadingErrorAnalysisChart 
+        familyId={selectedFamily!.id} 
+        studentId={selectedStudent!.id}
+        days={90}
+      />
+    ),
+    fine_motor_skill_mastery: (
+      <FineMotorSkillMasteryChart 
+        familyId={selectedFamily!.id} 
+        studentId={selectedStudent!.id}
+        days={parseInt(dateRange)}
+      />
+    ),
+    gross_motor_planning: (
+      <GrossMotorPlanningChart 
+        familyId={selectedFamily!.id} 
+        studentId={selectedStudent!.id}
+        days={parseInt(dateRange)}
+      />
+    ),
+    daily_living_skills_trends: (
+      <DailyLivingSkillsTrendsChart 
+        familyId={selectedFamily!.id} 
+        studentId={selectedStudent!.id}
+        days={parseInt(dateRange)}
+      />
+    ),
     sensory_profile_heatmap: (
       <SensoryProfileHeatmap 
         studentId={selectedStudent!.id} 
@@ -187,6 +253,13 @@ const Analytics = () => {
       <SocialInteractionFunnel 
         studentId={selectedStudent!.id} 
         familyId={selectedFamily!.id} 
+      />
+    ),
+    session_activity_breakdown: (
+      <SessionActivityBreakdownChart 
+        familyId={selectedFamily!.id} 
+        studentId={selectedStudent!.id}
+        days={parseInt(dateRange)}
       />
     ),
     prompting_level_fading: (
