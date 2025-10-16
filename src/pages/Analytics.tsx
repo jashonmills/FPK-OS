@@ -30,6 +30,14 @@ import { FineMotorSkillMasteryChart } from "@/components/analytics/FineMotorSkil
 import { GrossMotorPlanningChart } from "@/components/analytics/GrossMotorPlanningChart";
 import { DailyLivingSkillsTrendsChart } from "@/components/analytics/DailyLivingSkillsTrendsChart";
 import { SessionActivityBreakdownChart } from "@/components/analytics/SessionActivityBreakdownChart";
+import { CommunicationProgressChart } from "@/components/analytics/CommunicationProgressChart";
+import { AttentionSpanChart } from "@/components/analytics/AttentionSpanChart";
+import { SelfRegulationChart } from "@/components/analytics/SelfRegulationChart";
+import { PeerInteractionChart } from "@/components/analytics/PeerInteractionChart";
+import { ExecutiveFunctionDashboard } from "@/components/analytics/ExecutiveFunctionDashboard";
+import { SensoryIntegrationChart } from "@/components/analytics/SensoryIntegrationChart";
+import { TransitionSuccessChart } from "@/components/analytics/TransitionSuccessChart";
+import { EnvironmentalImpactChart } from "@/components/analytics/EnvironmentalImpactChart";
 import { AnalyticsEmptyState } from "@/components/analytics/AnalyticsEmptyState";
 import { ProductTour } from "@/components/onboarding/ProductTour";
 import { analyticsTourSteps } from "@/components/onboarding/tourConfigs";
@@ -262,6 +270,21 @@ const Analytics = () => {
         days={parseInt(dateRange)}
       />
     ),
+    
+    // Tier 3: Communication & Social-Emotional (AI-unlocked)
+    communication_progress: <CommunicationProgressChart />,
+    attention_span_tracking: <AttentionSpanChart />,
+    self_regulation_skills: <SelfRegulationChart />,
+    peer_interaction_quality: <PeerInteractionChart />,
+    
+    // Tier 4: Executive & Sensory Integration (AI-unlocked)
+    executive_function_dashboard: <ExecutiveFunctionDashboard />,
+    sensory_integration_patterns: <SensoryIntegrationChart />,
+    transition_success_rates: <TransitionSuccessChart />,
+    
+    // Tier 5: Advanced Analytics (AI-unlocked)
+    environmental_impact: <EnvironmentalImpactChart />,
+    
     prompting_level_fading: (
       <PromptingLevelFading 
         familyId={selectedFamily!.id} 

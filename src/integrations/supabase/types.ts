@@ -3034,6 +3034,16 @@ export type Database = {
           reading_target: number
         }[]
       }
+      get_attention_span_data: {
+        Args: { p_days?: number; p_family_id: string; p_student_id: string }
+        Returns: {
+          avg_attention_minutes: number
+          distraction_count: number
+          log_date: string
+          redirection_count: number
+          task_type: string
+        }[]
+      }
       get_available_specialized_charts: {
         Args: { p_family_id: string }
         Returns: {
@@ -3050,6 +3060,16 @@ export type Database = {
           common_antecedent: string
           common_consequence: string
           frequency: number
+        }[]
+      }
+      get_communication_progress_data: {
+        Args: { p_days?: number; p_family_id: string; p_student_id: string }
+        Returns: {
+          articulation: number
+          expressive_language: number
+          measurement_date: string
+          pragmatic_skills: number
+          receptive_language: number
         }[]
       }
       get_daily_log_counts: {
@@ -3071,6 +3091,24 @@ export type Database = {
           meal_prep: number
           teeth_brushing: number
           toileting: number
+        }[]
+      }
+      get_environmental_impact_data: {
+        Args: { p_days?: number; p_family_id: string; p_student_id: string }
+        Returns: {
+          factor_category: string
+          negative_correlation: number
+          positive_correlation: number
+          sample_size: number
+        }[]
+      }
+      get_executive_function_data: {
+        Args: { p_days?: number; p_family_id: string; p_student_id: string }
+        Returns: {
+          current_score: number
+          data_points: number
+          skill_area: string
+          trend: string
         }[]
       }
       get_fine_motor_data: {
@@ -3118,6 +3156,16 @@ export type Database = {
         Args: { tier: string }
         Returns: number
       }
+      get_peer_interaction_data: {
+        Args: { p_days?: number; p_family_id: string; p_student_id: string }
+        Returns: {
+          initiated_interactions: number
+          log_date: string
+          negative_interactions: number
+          positive_interactions: number
+          reciprocal_play: number
+        }[]
+      }
       get_prompting_trend_data: {
         Args: { p_days?: number; p_family_id: string; p_student_id: string }
         Returns: {
@@ -3135,6 +3183,25 @@ export type Database = {
           error_type: string
           frequency: number
           percentage: number
+        }[]
+      }
+      get_self_regulation_data: {
+        Args: { p_days?: number; p_family_id: string; p_student_id: string }
+        Returns: {
+          emotional_regulation: number
+          frustration_tolerance: number
+          impulse_control: number
+          measurement_date: string
+          self_calming: number
+        }[]
+      }
+      get_sensory_integration_data: {
+        Args: { p_days?: number; p_family_id: string; p_student_id: string }
+        Returns: {
+          avoiding_behaviors: number
+          regulation_score: number
+          seeking_behaviors: number
+          sensory_system: string
         }[]
       }
       get_sensory_profile_data: {
@@ -3223,6 +3290,16 @@ export type Database = {
           progress_percentage: number
           target_date: string
           target_value: number
+        }[]
+      }
+      get_transition_success_data: {
+        Args: { p_days?: number; p_family_id: string; p_student_id: string }
+        Returns: {
+          avg_support_level: number
+          success_rate: number
+          successful_transitions: number
+          total_transitions: number
+          transition_type: string
         }[]
       }
       get_user_family_role: {
