@@ -22,6 +22,9 @@ export default function AdminContentManager() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { data: isSuperAdmin, isLoading: isCheckingRole } = useIsSuperAdmin();
+  
+  console.log('🔐 [ContentManager] Access check:', { isSuperAdmin, isCheckingRole });
+  
   const [selectedArticle, setSelectedArticle] = useState<any>(null);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [isGeneratorOpen, setIsGeneratorOpen] = useState(false);
@@ -160,6 +163,7 @@ export default function AdminContentManager() {
 
   // Check super admin access
   if (isCheckingRole) {
+    console.log('🔐 [ContentManager] Still checking role...');
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center space-y-4">
@@ -171,8 +175,11 @@ export default function AdminContentManager() {
   }
 
   if (!isSuperAdmin) {
+    console.log('🔐 [ContentManager] Access denied, redirecting to overview');
     return <Navigate to="/overview" replace />;
   }
+  
+  console.log('🔐 [ContentManager] Access granted, rendering page');
 
   return (
     <div className="container mx-auto p-6 space-y-6">

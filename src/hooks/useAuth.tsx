@@ -153,10 +153,12 @@ export const useIsSuperAdmin = () => {
         return false;
       }
       
+      console.log('✅ [useIsSuperAdmin] RPC result:', data);
       return data;
     },
     enabled: !!user,
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
     retry: 2,
+    initialData: undefined, // Explicitly set initial data
   });
 };
