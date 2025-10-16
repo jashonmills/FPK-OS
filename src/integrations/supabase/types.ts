@@ -2748,6 +2748,127 @@ export type Database = {
           },
         ]
       }
+      wizard_completions: {
+        Row: {
+          completed_at: string
+          created_at: string
+          family_id: string
+          generated_report: Json
+          id: string
+          pdf_url: string | null
+          session_id: string
+          student_id: string
+          wizard_type: string
+        }
+        Insert: {
+          completed_at?: string
+          created_at?: string
+          family_id: string
+          generated_report: Json
+          id?: string
+          pdf_url?: string | null
+          session_id: string
+          student_id: string
+          wizard_type: string
+        }
+        Update: {
+          completed_at?: string
+          created_at?: string
+          family_id?: string
+          generated_report?: Json
+          id?: string
+          pdf_url?: string | null
+          session_id?: string
+          student_id?: string
+          wizard_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wizard_completions_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wizard_completions_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "wizard_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wizard_completions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wizard_sessions: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          created_by: string
+          current_step: number
+          family_id: string
+          id: string
+          last_updated: string
+          session_data: Json
+          started_at: string
+          status: string
+          student_id: string
+          total_steps: number
+          wizard_type: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          created_by: string
+          current_step?: number
+          family_id: string
+          id?: string
+          last_updated?: string
+          session_data?: Json
+          started_at?: string
+          status?: string
+          student_id: string
+          total_steps: number
+          wizard_type: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string
+          current_step?: number
+          family_id?: string
+          id?: string
+          last_updated?: string
+          session_data?: Json
+          started_at?: string
+          status?: string
+          student_id?: string
+          total_steps?: number
+          wizard_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wizard_sessions_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wizard_sessions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

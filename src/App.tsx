@@ -43,6 +43,7 @@ import About from "./pages/About";
 import Authors from "./pages/Authors";
 import AuthorProfile from "./pages/AuthorProfile";
 import AdminContentManager from "./pages/AdminContentManager";
+import AssessmentHub from "./pages/AssessmentHub";
 import { CookieConsent } from "./components/legal/CookieConsent";
 import { useFeatureFlags } from "@/hooks/useFeatureFlags";
 
@@ -174,6 +175,18 @@ const App = () => (
                   <AppLayout>
                     <Goals />
                   </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/assessments"
+              element={
+                <ProtectedRoute>
+                  <FeatureFlaggedRoute flag="enable-assessment-hub">
+                    <AppLayout>
+                      <AssessmentHub />
+                    </AppLayout>
+                  </FeatureFlaggedRoute>
                 </ProtectedRoute>
               }
             />

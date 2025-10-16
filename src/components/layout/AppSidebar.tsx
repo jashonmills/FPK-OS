@@ -1,4 +1,4 @@
-import { Home, FileText, BarChart3, Settings, FolderOpen, Database, TrendingUp, Target } from 'lucide-react';
+import { Home, FileText, BarChart3, Settings, FolderOpen, Database, TrendingUp, Target, ClipboardCheck } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useFamily } from '@/contexts/FamilyContext';
 import { useAuth } from '@/hooks/useAuth';
@@ -29,6 +29,12 @@ const navItems = [{
   icon: Target,
   dataTour: undefined
 }, {
+  title: 'Assessments',
+  url: '/assessments',
+  icon: ClipboardCheck,
+  dataTour: 'assessments',
+  flagKey: 'enable-assessment-hub'
+}, {
   title: 'Analytics',
   url: '/analytics',
   icon: BarChart3,
@@ -53,7 +59,8 @@ export const AppSidebar = () => {
   
   const { flags } = useFeatureFlags([
     'enable-chart-library-access',
-    'enable-knowledge-base-manager'
+    'enable-knowledge-base-manager',
+    'enable-assessment-hub'
   ]);
 
   // Check if user is admin
@@ -155,7 +162,7 @@ export const AppSidebar = () => {
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navItems.map(item => <SidebarMenuItem key={item.title}>
+              {navItems.filter(item => !item.flagKey || flags[item.flagKey]).map(item => <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink 
                       to={item.url} 
