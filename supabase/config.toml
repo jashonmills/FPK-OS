@@ -164,3 +164,6 @@ verify_jwt = true
 
 [functions.synthesize-progress-trends]
 verify_jwt = true
+
+[functions.re-analyze-all-documents]
+verify_jwt = true
