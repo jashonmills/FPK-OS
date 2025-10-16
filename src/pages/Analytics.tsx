@@ -49,6 +49,20 @@ const Analytics = () => {
   const [dateRange, setDateRange] = useState<"30" | "60" | "90">("30");
   const { shouldRunTour, markTourAsSeen } = useTourProgress('has_seen_analytics_tour');
 
+  // Early return if no student selected - BEFORE defining CHART_COMPONENT_MAP
+  if (!selectedStudent) {
+    return (
+      <div className="container mx-auto p-6">
+        <Alert>
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Please select a student to view analytics.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
   // Fetch AI-unlocked specialized charts based on document analysis
   const { data: unlockedCharts, isLoading: isLoadingCharts } = useQuery({
     queryKey: ["unlocked-charts", selectedFamily?.id],
@@ -299,18 +313,7 @@ const Analytics = () => {
     ),
   };
 
-  if (!selectedStudent) {
-    return (
-      <div className="container mx-auto p-6">
-        <Alert>
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            Please select a student to view analytics.
-          </AlertDescription>
-        </Alert>
-      </div>
-    );
-  }
+  // Student check now happens at top of component - remove duplicate
 
   // Aggregate ALL loading states - CRITICAL for preventing race conditions
   const isPageLoading = isCheckingData || isLoadingCharts;
