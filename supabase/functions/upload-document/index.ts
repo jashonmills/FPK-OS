@@ -1,5 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.75.0";
+// Import PDF.js for proper PDF text extraction via esm.sh
+import * as pdfjsLib from "https://esm.sh/pdfjs-dist@4.0.379/build/pdf.min.mjs";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -33,29 +35,38 @@ serve(async (req) => {
     const fileBuffer = await file.arrayBuffer();
     const uint8Array = new Uint8Array(fileBuffer);
     
-    // Extract text from PDF using pdf-parse equivalent
+    // Extract text from PDF using pdfjs-dist
     let extractedContent = '';
     
-    // Simple PDF text extraction (note: this is simplified, production would use pdf-parse)
-    const decoder = new TextDecoder('utf-8');
-    const text = decoder.decode(uint8Array);
-    
-    // Basic text extraction from PDF structure
-    const matches = text.match(/\(([^)]+)\)/g);
-    if (matches) {
-      extractedContent = matches
-        .map(match => match.slice(1, -1))
-        .join(' ')
-        .replace(/\\[rn]/g, ' ')
+    try {
+      // Load the PDF document
+      const loadingTask = pdfjsLib.getDocument({ data: uint8Array });
+      const pdf = await loadingTask.promise;
+      
+      // Extract text from all pages
+      const textParts: string[] = [];
+      for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+        const page = await pdf.getPage(pageNum);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items
+          .map((item: any) => item.str)
+          .join(' ');
+        textParts.push(pageText);
+      }
+      
+      extractedContent = textParts.join('\n\n').trim();
+      
+      // Sanitize extracted content to remove null bytes and problematic characters
+      extractedContent = extractedContent
+        .replace(/\u0000/g, '') // Remove null bytes
+        .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '') // Remove control characters
+        .replace(/\s+/g, ' ') // Normalize whitespace
         .trim();
+        
+    } catch (pdfError) {
+      console.error('PDF extraction error:', pdfError);
+      throw new Error('Failed to extract text from PDF. The file may be corrupted or password-protected.');
     }
-
-    // Sanitize extracted content to remove null bytes and other problematic characters
-    // PostgreSQL text fields cannot store null bytes (\u0000)
-    extractedContent = extractedContent
-      .replace(/\u0000/g, '') // Remove null bytes
-      .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '') // Remove other control characters except \n, \r, \t
-      .trim();
 
     // Quality validation
     if (!extractedContent || extractedContent.length === 0) {
