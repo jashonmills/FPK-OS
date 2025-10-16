@@ -213,6 +213,28 @@ export default function AdminContentManager() {
         </TabsList>
 
         <TabsContent value="articles">
+          <div className="grid md:grid-cols-4 gap-6 mb-6">
+            <Card className="md:col-span-1">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Sparkles className="w-5 h-5" />
+                  AI Generator
+                </CardTitle>
+                <CardDescription className="text-xs">Generate from knowledge base</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button 
+                  onClick={() => setIsGeneratorOpen(true)}
+                  className="w-full"
+                  variant="outline"
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Generate Articles
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+
           <Card>
             <CardHeader>
               <CardTitle>All Articles</CardTitle>
