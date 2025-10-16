@@ -12,3 +12,6 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+# Sitemap
+Sitemap: https://id-preview--761aedbe-4e02-497f-b3ed-780208aaf069.lovable.app/api/generate-sitemap

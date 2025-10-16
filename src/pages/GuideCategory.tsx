@@ -96,9 +96,10 @@ export default function GuideCategory() {
                     {article.featured_image_url && (
                       <img
                         src={article.featured_image_url}
-                        alt={article.title}
+                        alt={`${article.title} - Comprehensive guide on neurodiversity support`}
                         className="w-full h-48 object-cover rounded-t-lg"
                         loading="lazy"
+                        decoding="async"
                       />
                     )}
                     <CardHeader>

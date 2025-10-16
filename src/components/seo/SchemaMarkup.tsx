@@ -59,7 +59,30 @@ interface OrganizationSchema {
   sameAs?: string[];
 }
 
-type SchemaType = ArticleSchema | FAQSchema | SoftwareApplicationSchema | BreadcrumbSchema | OrganizationSchema;
+interface VideoObjectSchema {
+  type: 'VideoObject';
+  name: string;
+  description: string;
+  thumbnailUrl?: string;
+  uploadDate?: string;
+  duration?: string;
+  contentUrl?: string;
+  embedUrl?: string;
+}
+
+interface HowToSchema {
+  type: 'HowTo';
+  name: string;
+  description: string;
+  steps: {
+    name: string;
+    text: string;
+    image?: string;
+  }[];
+  totalTime?: string;
+}
+
+type SchemaType = ArticleSchema | FAQSchema | SoftwareApplicationSchema | BreadcrumbSchema | OrganizationSchema | VideoObjectSchema | HowToSchema;
 
 interface SchemaMarkupProps {
   schema: SchemaType | SchemaType[];
@@ -154,6 +177,35 @@ export const SchemaMarkup = ({ schema }: SchemaMarkupProps) => {
           ...(schemaData.logo && { logo: schemaData.logo }),
           ...(schemaData.description && { description: schemaData.description }),
           ...(schemaData.sameAs && { sameAs: schemaData.sameAs }),
+        };
+        
+      case 'VideoObject':
+        return {
+          '@context': 'https://schema.org',
+          '@type': 'VideoObject',
+          name: schemaData.name,
+          description: schemaData.description,
+          ...(schemaData.thumbnailUrl && { thumbnailUrl: schemaData.thumbnailUrl }),
+          ...(schemaData.uploadDate && { uploadDate: schemaData.uploadDate }),
+          ...(schemaData.duration && { duration: schemaData.duration }),
+          ...(schemaData.contentUrl && { contentUrl: schemaData.contentUrl }),
+          ...(schemaData.embedUrl && { embedUrl: schemaData.embedUrl }),
+        };
+        
+      case 'HowTo':
+        return {
+          '@context': 'https://schema.org',
+          '@type': 'HowTo',
+          name: schemaData.name,
+          description: schemaData.description,
+          ...(schemaData.totalTime && { totalTime: schemaData.totalTime }),
+          step: schemaData.steps.map((step, index) => ({
+            '@type': 'HowToStep',
+            position: index + 1,
+            name: step.name,
+            text: step.text,
+            ...(step.image && { image: step.image }),
+          })),
         };
         
       default:

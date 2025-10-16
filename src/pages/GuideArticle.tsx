@@ -195,9 +195,12 @@ export default function GuideArticle() {
           {article.featured_image_url && (
             <img
               src={article.featured_image_url}
-              alt={article.title}
+              alt={`${article.title} - Featured image for neurodiversity guide`}
               className="w-full rounded-lg mb-12 shadow-elegant"
               loading="eager"
+              decoding="async"
+              width="800"
+              height="450"
             />
           )}
 
