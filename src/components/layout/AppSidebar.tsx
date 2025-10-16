@@ -85,7 +85,8 @@ export const AppSidebar = () => {
 
   // Check if user is super admin
   const {
-    data: isSuperAdmin
+    data: isSuperAdmin,
+    isLoading: isSuperAdminLoading
   } = useQuery({
     queryKey: ["is-super-admin", user?.id],
     queryFn: async () => {
@@ -105,7 +106,7 @@ export const AppSidebar = () => {
     },
     enabled: !!user?.id,
     retry: 2,
-    staleTime: 0, // Don't cache
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
   // Check if user is family owner
@@ -228,7 +229,14 @@ export const AppSidebar = () => {
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-                {isSuperAdmin && (
+                {isSuperAdminLoading ? (
+                  <SidebarMenuItem>
+                    <SidebarMenuButton disabled>
+                      <FileText className="h-4 w-4 animate-pulse" />
+                      <span className="text-muted-foreground">Loading...</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ) : isSuperAdmin ? (
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild>
                       <NavLink to="/admin/content-manager" className={({
@@ -239,7 +247,7 @@ export const AppSidebar = () => {
                       </NavLink>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
-                )}
+                ) : null}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>}
