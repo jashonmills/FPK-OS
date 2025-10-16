@@ -7,10 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Upload } from "lucide-react";
+import { Upload, FileText, File, X } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
-import * as pdfjs from "pdfjs-dist";
+import { Card } from "@/components/ui/card";
 
 interface DocumentUploadModalProps {
   open: boolean;
@@ -21,85 +21,79 @@ export function DocumentUploadModal({ open, onOpenChange }: DocumentUploadModalP
   const { selectedFamily, selectedStudent } = useFamily();
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
   const [category, setCategory] = useState("general");
   const [documentDate, setDocumentDate] = useState("");
+  const [uploadProgress, setUploadProgress] = useState<{ current: number; total: number } | null>(null);
 
-  const extractTextFromPDF = async (file: File): Promise<string> => {
-    try {
-      // Configure worker with reliable CDN
-      pdfjs.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+  const MAX_FILES = 10;
 
-      const arrayBuffer = await file.arrayBuffer();
-      const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
-      
-      let fullText = '';
-      for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i);
-        const textContent = await page.getTextContent();
-        const pageText = textContent.items
-          .map((item: any) => item.str)
-          .join(' ');
-        fullText += pageText + '\n\n';
-      }
-      
-      return fullText.trim();
-    } catch (error) {
-      console.error("PDF text extraction error:", error);
-      return "";
-    }
+  const removeFile = (index: number) => {
+    setFiles(files.filter((_, i) => i !== index));
   };
 
   const uploadMutation = useMutation({
     mutationFn: async () => {
-      if (!file || !selectedFamily?.id || !user?.id) {
+      if (files.length === 0 || !selectedFamily?.id || !user?.id || !selectedStudent?.id) {
         throw new Error("Missing required data");
       }
 
-      if (!selectedStudent?.id) {
-        throw new Error("Please select a student before uploading documents");
+      const results = { success: 0, failed: 0, failedFiles: [] as string[] };
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        setUploadProgress({ current: i + 1, total: files.length });
+
+        try {
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('family_id', selectedFamily.id);
+          formData.append('student_id', selectedStudent.id);
+          formData.append('category', category);
+          formData.append('document_date', documentDate || '');
+          formData.append('uploaded_by', user.id);
+
+          const { data, error } = await supabase.functions.invoke('upload-document', {
+            body: formData,
+          });
+
+          if (error) throw error;
+          if (!data?.success) throw new Error(data?.error || 'Upload failed');
+
+          results.success++;
+        } catch (error: any) {
+          console.error(`Failed to upload ${file.name}:`, error);
+          results.failed++;
+          results.failedFiles.push(file.name);
+        }
       }
 
-      // Use the upload-document edge function
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('family_id', selectedFamily.id);
-      formData.append('student_id', selectedStudent.id);
-      formData.append('category', category);
-      formData.append('document_date', documentDate || '');
-      formData.append('uploaded_by', user.id);
-
-      const { data, error } = await supabase.functions.invoke('upload-document', {
-        body: formData,
-      });
-
-      if (error) throw error;
-      if (!data?.success) throw new Error(data?.error || 'Upload failed');
-
-      return { familyId: selectedFamily.id, document: data.document };
+      return { familyId: selectedFamily.id, results };
     },
-    onSuccess: async (data) => {
+    onSuccess: async ({ familyId, results }) => {
+      setUploadProgress(null);
       queryClient.invalidateQueries({ queryKey: ["documents"] });
       
-      // Show success with extraction stats
-      if (data.document?.extraction_stats) {
-        const stats = data.document.extraction_stats;
-        toast.success(`Document uploaded! Extracted ${stats.words} words. Analysis starting in background.`);
+      // Show comprehensive results toast
+      if (results.failed === 0) {
+        toast.success(`✅ ${results.success} document${results.success > 1 ? 's' : ''} uploaded successfully. Analysis starting in background.`);
+      } else if (results.success === 0) {
+        toast.error(`❌ All ${results.failed} uploads failed.`);
       } else {
-        toast.success("Document uploaded successfully. Analysis starting in background.");
+        toast.warning(`✅ ${results.success} uploaded, ⚠️ ${results.failed} failed: ${results.failedFiles.join(', ')}`);
       }
       
       // Check if we now have 3+ documents and should show analysis button
       const { count } = await supabase
         .from("documents")
         .select("*", { count: "exact", head: true })
-        .eq("family_id", data.familyId);
+        .eq("family_id", familyId);
 
       if (count && count >= 3) {
         const { data: familyData } = await supabase
           .from("families")
           .select("initial_doc_analysis_status")
-          .eq("id", data.familyId)
+          .eq("id", familyId)
           .single();
 
         if (familyData?.initial_doc_analysis_status === "pending") {
@@ -108,19 +102,52 @@ export function DocumentUploadModal({ open, onOpenChange }: DocumentUploadModalP
       }
 
       onOpenChange(false);
-      setFile(null);
+      setFiles([]);
       setCategory("general");
       setDocumentDate("");
     },
     onError: (error: any) => {
+      setUploadProgress(null);
       toast.error("Upload failed: " + error.message);
     },
   });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
+    if (e.target.files) {
+      const newFiles = Array.from(e.target.files);
+      const validFiles = newFiles.filter(file => {
+        const isValidType = file.type === 'application/pdf' || 
+                           file.type === 'application/msword' ||
+                           file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        const isValidSize = file.size <= 20 * 1024 * 1024; // 20MB
+        
+        if (!isValidType) {
+          toast.error(`${file.name}: Invalid file type. Please upload PDF or DOC files.`);
+          return false;
+        }
+        if (!isValidSize) {
+          toast.error(`${file.name}: File too large. Max size is 20MB.`);
+          return false;
+        }
+        return true;
+      });
+
+      const totalFiles = files.length + validFiles.length;
+      if (totalFiles > MAX_FILES) {
+        toast.error(`Maximum ${MAX_FILES} files allowed. Selecting first ${MAX_FILES - files.length} files.`);
+        setFiles([...files, ...validFiles.slice(0, MAX_FILES - files.length)]);
+      } else {
+        setFiles([...files, ...validFiles]);
+      }
     }
+    // Reset input value to allow selecting the same file again
+    e.target.value = '';
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   };
 
   return (
@@ -137,25 +164,74 @@ export function DocumentUploadModal({ open, onOpenChange }: DocumentUploadModalP
 
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="file">Select File</Label>
-            <div className="border-2 border-dashed rounded-lg p-6 text-center">
-              <Input
-                id="file"
-                type="file"
-                accept=".pdf,.doc,.docx"
-                onChange={handleFileChange}
-                className="hidden"
-              />
-              <label htmlFor="file" className="cursor-pointer">
-                <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-2" />
-                <p className="text-sm text-muted-foreground">
-                  {file ? file.name : "Click to select a file"}
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  PDF, DOC, or DOCX (max 20MB)
-                </p>
-              </label>
-            </div>
+            <Label htmlFor="file">Select Files</Label>
+            {files.length === 0 ? (
+              <div className="border-2 border-dashed rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
+                <Input
+                  id="file"
+                  type="file"
+                  accept=".pdf,.doc,.docx"
+                  onChange={handleFileChange}
+                  className="hidden"
+                  multiple
+                />
+                <label htmlFor="file" className="cursor-pointer">
+                  <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-2" />
+                  <p className="text-sm text-muted-foreground">
+                    Click to select files
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    PDF, DOC, or DOCX • Max 20MB each • Up to {MAX_FILES} files
+                  </p>
+                </label>
+              </div>
+            ) : (
+              <>
+                <div className="space-y-2 max-h-64 overflow-y-auto">
+                  {files.map((file, index) => (
+                    <Card key={index} className="p-3">
+                      <div className="flex items-center gap-3">
+                        {file.type === 'application/pdf' ? (
+                          <FileText className="h-8 w-8 text-destructive flex-shrink-0" />
+                        ) : (
+                          <File className="h-8 w-8 text-primary flex-shrink-0" />
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{file.name}</p>
+                          <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeFile(index)}
+                          className="flex-shrink-0"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+                {files.length < MAX_FILES && (
+                  <div className="border-2 border-dashed rounded-lg p-4 text-center hover:border-primary/50 transition-colors">
+                    <Input
+                      id="file-more"
+                      type="file"
+                      accept=".pdf,.doc,.docx"
+                      onChange={handleFileChange}
+                      className="hidden"
+                      multiple
+                    />
+                    <label htmlFor="file-more" className="cursor-pointer">
+                      <Upload className="mx-auto h-8 w-8 text-muted-foreground mb-1" />
+                      <p className="text-xs text-muted-foreground">
+                        Add more files ({files.length}/{MAX_FILES})
+                      </p>
+                    </label>
+                  </div>
+                )}
+              </>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -191,9 +267,13 @@ export function DocumentUploadModal({ open, onOpenChange }: DocumentUploadModalP
           </Button>
           <Button
             onClick={() => uploadMutation.mutate()}
-            disabled={!file || !selectedStudent || uploadMutation.isPending}
+            disabled={files.length === 0 || !selectedStudent || uploadMutation.isPending}
           >
-            {uploadMutation.isPending ? "Uploading..." : "Upload"}
+            {uploadMutation.isPending && uploadProgress
+              ? `Uploading ${uploadProgress.current} of ${uploadProgress.total}...`
+              : uploadMutation.isPending
+              ? "Uploading..."
+              : `Upload ${files.length > 0 ? `(${files.length})` : ''}`}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Upload, FileText, Eye, Trash2, Download, Sparkles, HelpCircle } from "lucide-react";
@@ -24,6 +25,8 @@ import * as pdfjs from "pdfjs-dist";
 import { ProductTour } from "@/components/onboarding/ProductTour";
 import { documentsTourSteps } from "@/components/onboarding/tourConfigs";
 import { useTourProgress } from "@/hooks/useTourProgress";
+import JSZip from "jszip";
+import { saveAs } from "file-saver";
 
 export default function Documents() {
   const { selectedFamily, selectedStudent, currentUserRole } = useFamily();
@@ -39,6 +42,8 @@ export default function Documents() {
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
   const [reportData, setReportData] = useState<any>(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [selectedDocIds, setSelectedDocIds] = useState<string[]>([]);
+  const [isBulkDownloading, setIsBulkDownloading] = useState(false);
 
   const { data: documents, isLoading } = useQuery({
     queryKey: ["documents", selectedFamily?.id, selectedStudent?.id],
@@ -128,6 +133,102 @@ export default function Documents() {
     } catch (error: any) {
       toast.error("Failed to download: " + error.message);
     }
+  };
+
+  const handleBulkDownload = async () => {
+    if (selectedDocIds.length === 0) return;
+    
+    setIsBulkDownloading(true);
+    const toastId = toast.loading(`Preparing ${selectedDocIds.length} document${selectedDocIds.length > 1 ? 's' : ''} for download...`);
+    
+    try {
+      const zip = new JSZip();
+      const selectedDocs = documents?.filter(doc => selectedDocIds.includes(doc.id)) || [];
+      
+      for (let i = 0; i < selectedDocs.length; i++) {
+        const doc = selectedDocs[i];
+        toast.loading(`Downloading ${i + 1} of ${selectedDocs.length}...`, { id: toastId });
+        
+        try {
+          const { data, error } = await supabase.storage
+            .from("family-documents")
+            .download(doc.file_path);
+
+          if (error) throw error;
+          if (data) {
+            zip.file(doc.file_name, data);
+          }
+        } catch (error) {
+          console.error(`Failed to download ${doc.file_name}:`, error);
+          toast.warning(`Skipped ${doc.file_name} due to error`, { id: toastId });
+        }
+      }
+
+      toast.loading("Creating ZIP archive...", { id: toastId });
+      const content = await zip.generateAsync({ type: "blob" });
+      
+      const timestamp = format(new Date(), "yyyy-MM-dd-HH-mm-ss");
+      saveAs(content, `documents-${timestamp}.zip`);
+      
+      toast.success(`✅ Downloaded ${selectedDocs.length} document${selectedDocs.length > 1 ? 's' : ''} as ZIP`, { id: toastId });
+      setSelectedDocIds([]);
+    } catch (error: any) {
+      toast.error("Failed to create ZIP: " + error.message, { id: toastId });
+    } finally {
+      setIsBulkDownloading(false);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedDocIds.length === 0) return;
+    
+    const confirmDelete = window.confirm(
+      `Are you sure you want to delete ${selectedDocIds.length} document${selectedDocIds.length > 1 ? 's' : ''}? This action cannot be undone.`
+    );
+    
+    if (!confirmDelete) return;
+
+    const toastId = toast.loading(`Deleting ${selectedDocIds.length} document${selectedDocIds.length > 1 ? 's' : ''}...`);
+    
+    try {
+      let successCount = 0;
+      let failCount = 0;
+
+      for (const docId of selectedDocIds) {
+        try {
+          await deleteMutation.mutateAsync(docId);
+          successCount++;
+        } catch (error) {
+          failCount++;
+        }
+      }
+
+      if (failCount === 0) {
+        toast.success(`✅ Deleted ${successCount} document${successCount > 1 ? 's' : ''}`, { id: toastId });
+      } else {
+        toast.warning(`✅ ${successCount} deleted, ⚠️ ${failCount} failed`, { id: toastId });
+      }
+      
+      setSelectedDocIds([]);
+    } catch (error: any) {
+      toast.error("Bulk delete failed: " + error.message, { id: toastId });
+    }
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedDocIds.length === documents?.length) {
+      setSelectedDocIds([]);
+    } else {
+      setSelectedDocIds(documents?.map(doc => doc.id) || []);
+    }
+  };
+
+  const toggleSelectDoc = (docId: string) => {
+    setSelectedDocIds(prev =>
+      prev.includes(docId)
+        ? prev.filter(id => id !== docId)
+        : [...prev, docId]
+    );
   };
 
   const extractTextFromPDF = async (fileBlob: Blob): Promise<string> => {
@@ -446,6 +547,13 @@ export default function Documents() {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead className="w-12">
+                      <Checkbox
+                        checked={selectedDocIds.length === documents.length && documents.length > 0}
+                        onCheckedChange={toggleSelectAll}
+                        aria-label="Select all documents"
+                      />
+                    </TableHead>
                     <TableHead>File Name</TableHead>
                     <TableHead>Category</TableHead>
                     <TableHead>Document Date</TableHead>
@@ -457,6 +565,13 @@ export default function Documents() {
                 <TableBody>
                   {documents.map((doc) => (
                     <TableRow key={doc.id}>
+                      <TableCell>
+                        <Checkbox
+                          checked={selectedDocIds.includes(doc.id)}
+                          onCheckedChange={() => toggleSelectDoc(doc.id)}
+                          aria-label={`Select ${doc.file_name}`}
+                        />
+                      </TableCell>
                       <TableCell className="font-medium">{doc.file_name}</TableCell>
                       <TableCell>
                         <Badge variant="outline">{doc.category}</Badge>
@@ -541,6 +656,48 @@ export default function Documents() {
             familyId={selectedFamily.id}
             studentId={selectedStudent.id}
           />
+        )}
+
+        {/* Floating Action Bar */}
+        {selectedDocIds.length > 0 && (
+          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-4">
+            <Card className="shadow-lg border-primary/20 bg-gradient-to-r from-primary/10 to-primary/5">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-4">
+                  <span className="text-sm font-medium">
+                    {selectedDocIds.length} document{selectedDocIds.length > 1 ? 's' : ''} selected
+                  </span>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={handleBulkDownload}
+                      disabled={isBulkDownloading}
+                      size="sm"
+                    >
+                      <Download className="mr-2 h-4 w-4" />
+                      {isBulkDownloading ? "Downloading..." : "Download Selected"}
+                    </Button>
+                    {currentUserRole === 'owner' && (
+                      <Button
+                        onClick={handleBulkDelete}
+                        variant="destructive"
+                        size="sm"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete Selected
+                      </Button>
+                    )}
+                    <Button
+                      onClick={() => setSelectedDocIds([])}
+                      variant="outline"
+                      size="sm"
+                    >
+                      Clear
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         )}
       </div>
 
