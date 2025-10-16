@@ -4,6 +4,7 @@ import { ProfileTab } from "@/components/settings/ProfileTab";
 import { SubscriptionTab } from "@/components/settings/SubscriptionTab";
 import { IntegrationsTab } from "@/components/settings/IntegrationsTab";
 import { CreditsTab } from "@/components/settings/CreditsTab";
+import { ResetAnalysisCard } from "@/components/settings/ResetAnalysisCard";
 import { Users, UserCircle, CreditCard, Plug, Zap } from "lucide-react";
 import { useFamily } from "@/contexts/FamilyContext";
 import { ProductTour } from "@/components/onboarding/ProductTour";
@@ -64,8 +65,9 @@ const Settings = () => {
             )}
           </TabsList>
 
-        <TabsContent value="profile">
+        <TabsContent value="profile" className="space-y-6">
           <ProfileTab />
+          {isOwner && <ResetAnalysisCard />}
         </TabsContent>
 
         <TabsContent value="members">

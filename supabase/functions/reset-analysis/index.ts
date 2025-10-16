@@ -35,6 +35,18 @@ serve(async (req) => {
       })
       .eq("id", family_id);
 
+    // Delete AI insights
+    await supabase
+      .from("ai_insights")
+      .delete()
+      .eq("family_id", family_id);
+
+    // Delete document chart mappings
+    await supabase
+      .from("document_chart_mapping")
+      .delete()
+      .eq("family_id", family_id);
+
     // Delete imported goals
     await supabase
       .from("goals")
