@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Edit, Trash2, Eye, FileText, Users, FolderTree } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, FileText, Users, FolderTree, Sparkles } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { format } from 'date-fns';
 
@@ -21,6 +21,7 @@ export default function AdminContentManager() {
   const queryClient = useQueryClient();
   const [selectedArticle, setSelectedArticle] = useState<any>(null);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const [isGeneratorOpen, setIsGeneratorOpen] = useState(false);
 
   // Fetch articles
   const { data: articles } = useQuery({
@@ -104,6 +105,36 @@ export default function AdminContentManager() {
     },
   });
 
+  // Generate articles from knowledge base
+  const generateArticles = useMutation({
+    mutationFn: async ({ topic, categorySlug, count }: { topic: string; categorySlug: string; count: number }) => {
+      const author = authors?.[0];
+      if (!author) throw new Error('No authors found');
+
+      const { data, error } = await supabase.functions.invoke('generate-articles-from-kb', {
+        body: { topic, categorySlug, authorId: author.id, count }
+      });
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['admin-articles'] });
+      toast({
+        title: 'Articles generated',
+        description: `Successfully generated ${data.count} article(s) from knowledge base.`,
+      });
+      setIsGeneratorOpen(false);
+    },
+    onError: (error: any) => {
+      toast({
+        variant: 'destructive',
+        title: 'Generation failed',
+        description: error.message || 'Failed to generate articles',
+      });
+    },
+  });
+
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
@@ -111,10 +142,16 @@ export default function AdminContentManager() {
           <h1 className="text-3xl font-bold text-primary">Content Manager</h1>
           <p className="text-muted-foreground">Manage articles, categories, and authors</p>
         </div>
-        <Button onClick={() => { setSelectedArticle(null); setIsEditorOpen(true); }}>
-          <Plus className="w-4 h-4 mr-2" />
-          New Article
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setIsGeneratorOpen(true)}>
+            <Sparkles className="w-4 h-4 mr-2" />
+            Generate from KB
+          </Button>
+          <Button onClick={() => { setSelectedArticle(null); setIsEditorOpen(true); }}>
+            <Plus className="w-4 h-4 mr-2" />
+            New Article
+          </Button>
+        </div>
       </div>
 
       <Tabs defaultValue="articles" className="space-y-4">
@@ -275,6 +312,14 @@ export default function AdminContentManager() {
         onClose={() => { setIsEditorOpen(false); setSelectedArticle(null); }}
         categories={categories || []}
         authors={authors || []}
+      />
+
+      <ArticleGeneratorDialog
+        isOpen={isGeneratorOpen}
+        onClose={() => setIsGeneratorOpen(false)}
+        onGenerate={generateArticles.mutate}
+        categories={categories || []}
+        isLoading={generateArticles.isPending}
       />
     </div>
   );
@@ -469,6 +514,94 @@ function ArticleEditorDialog({ article, isOpen, onClose, categories, authors }: 
           <Button variant="outline" onClick={onClose}>Cancel</Button>
           <Button onClick={() => saveArticle.mutate(formData)} disabled={!formData.title || !formData.content}>
             {article ? 'Update Article' : 'Create Article'}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+interface ArticleGeneratorDialogProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onGenerate: (params: { topic: string; categorySlug: string; count: number }) => void;
+  categories: any[];
+  isLoading: boolean;
+}
+
+function ArticleGeneratorDialog({ isOpen, onClose, onGenerate, categories, isLoading }: ArticleGeneratorDialogProps) {
+  const [topic, setTopic] = useState('');
+  const [categorySlug, setCategorySlug] = useState('');
+  const [count, setCount] = useState(1);
+
+  const handleGenerate = () => {
+    if (!topic || !categorySlug) return;
+    onGenerate({ topic, categorySlug, count });
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>
+            <Sparkles className="w-5 h-5 inline mr-2" />
+            Generate Articles from Knowledge Base
+          </DialogTitle>
+          <DialogDescription>
+            AI will synthesize your knowledge base content into SEO-optimized guide articles
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="topic">Topic *</Label>
+            <Input
+              id="topic"
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              placeholder="e.g., IEP planning, autism communication strategies"
+            />
+            <p className="text-xs text-muted-foreground">
+              The AI will search the knowledge base for relevant content on this topic
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="category">Category *</Label>
+            <Select value={categorySlug} onValueChange={setCategorySlug}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((cat) => (
+                  <SelectItem key={cat.id} value={cat.slug}>{cat.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="count">Number of Articles</Label>
+            <Input
+              id="count"
+              type="number"
+              min={1}
+              max={5}
+              value={count}
+              onChange={(e) => setCount(parseInt(e.target.value) || 1)}
+            />
+            <p className="text-xs text-muted-foreground">
+              Generate 1-5 articles with different angles on the same topic
+            </p>
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose} disabled={isLoading}>
+            Cancel
+          </Button>
+          <Button onClick={handleGenerate} disabled={!topic || !categorySlug || isLoading}>
+            {isLoading ? 'Generating...' : 'Generate Articles'}
           </Button>
         </DialogFooter>
       </DialogContent>

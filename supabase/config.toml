@@ -146,3 +146,6 @@ verify_jwt = false
 
 [functions.test-embedding]
 verify_jwt = true
+
+[functions.generate-articles-from-kb]
+verify_jwt = true
