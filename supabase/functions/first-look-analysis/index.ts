@@ -354,18 +354,9 @@ Format your response as a single JSON object:
       );
     }
 
-    // Store deterministic chart recommendations
+    // Store deterministic chart recommendations AFTER successful data insertion
     const trialEndsAt = new Date();
     trialEndsAt.setDate(trialEndsAt.getDate() + 30); // 30 day trial
-
-    await supabase
-      .from("families")
-      .update({
-        suggested_charts_config: chartRecommendations, // Store the detailed recommendations
-        special_chart_trial_ends_at: trialEndsAt.toISOString(),
-        initial_doc_analysis_status: "complete",
-      })
-      .eq("id", family_id);
 
     console.log("Stored chart recommendations:", chartRecommendations);
 
@@ -395,6 +386,7 @@ Format your response as a single JSON object:
 
     // Insert IEP goals if any
     if (analysisResult.baseline_data?.iep_goals?.length > 0) {
+      console.log("📌 Inserting IEP goals...");
       // Map goal types to allowed values
       const goalTypeMap: Record<string, string> = {
         'communication': 'social',
@@ -433,13 +425,18 @@ Format your response as a single JSON object:
 
       if (goals.length > 0) {
         const { error: goalsError } = await supabase.from("goals").insert(goals);
-        if (!goalsError) importedCounts.goals = goals.length;
-        else console.error("Error inserting goals:", goalsError);
+        if (goalsError) {
+          console.error("❌ Error inserting goals:", goalsError);
+        } else {
+          importedCounts.goals = goals.length;
+          console.log(`✅ Inserted ${goals.length} goals successfully`);
+        }
       }
     }
 
     // Insert behavioral metrics
     if (analysisResult.baseline_data?.behavioral_metrics?.length > 0) {
+      console.log("📊 Inserting behavioral metrics...");
       const behavioralMetrics = analysisResult.baseline_data.behavioral_metrics
         .filter((metric: any) => {
           // Parse metric_value - handle ranges like "2-3" by taking the average
@@ -451,6 +448,7 @@ Format your response as a single JSON object:
               if (parts.every((p: number) => !isNaN(p))) {
                 value = parts.reduce((sum: number, p: number) => sum + p, 0) / parts.length;
               } else {
+                console.warn(`⚠️ Skipping invalid range: ${metric.metric_value}`);
                 return false; // Skip invalid ranges
               }
             } else {
@@ -485,13 +483,18 @@ Format your response as a single JSON object:
 
       if (behavioralMetrics.length > 0) {
         const { error: behavioralError } = await supabase.from("document_metrics").insert(behavioralMetrics);
-        if (!behavioralError) importedCounts.behavioral_metrics = behavioralMetrics.length;
-        else console.error("Error inserting behavioral metrics:", behavioralError);
+        if (behavioralError) {
+          console.error("❌ Error inserting behavioral metrics:", behavioralError);
+        } else {
+          importedCounts.behavioral_metrics = behavioralMetrics.length;
+          console.log(`✅ Inserted ${behavioralMetrics.length} behavioral metrics successfully`);
+        }
       }
     }
 
     // Insert academic fluency data
     if (analysisResult.baseline_data?.academic_fluency?.length > 0) {
+      console.log("📈 Inserting academic fluency...");
       const academicMetrics = analysisResult.baseline_data.academic_fluency.map((metric: any) => ({
         family_id,
         student_id: student.id,
@@ -506,12 +509,17 @@ Format your response as a single JSON object:
       }));
 
       const { error: academicError } = await supabase.from("document_metrics").insert(academicMetrics);
-      if (!academicError) importedCounts.academic_metrics = academicMetrics.length;
-      else console.error("Error inserting academic metrics:", academicError);
+      if (academicError) {
+        console.error("❌ Error inserting academic metrics:", academicError);
+      } else {
+        importedCounts.academic_metrics = academicMetrics.length;
+        console.log(`✅ Inserted ${academicMetrics.length} academic metrics successfully`);
+      }
     }
 
     // Insert social skills data
     if (analysisResult.baseline_data?.social_skills?.length > 0) {
+      console.log("👥 Inserting social skills...");
       const socialMetrics = analysisResult.baseline_data.social_skills.map((metric: any) => ({
         family_id,
         student_id: student.id,
@@ -526,12 +534,17 @@ Format your response as a single JSON object:
       }));
 
       const { error: socialError } = await supabase.from("document_metrics").insert(socialMetrics);
-      if (!socialError) importedCounts.social_skills = socialMetrics.length;
-      else console.error("Error inserting social skills:", socialError);
+      if (socialError) {
+        console.error("❌ Error inserting social skills:", socialError);
+      } else {
+        importedCounts.social_skills = socialMetrics.length;
+        console.log(`✅ Inserted ${socialMetrics.length} social skills successfully`);
+      }
     }
 
     // Insert progress tracking data
     if (analysisResult.baseline_data?.progress_tracking?.length > 0) {
+      console.log("📊 Inserting progress tracking...");
       const progressData = analysisResult.baseline_data.progress_tracking
         .filter((progress: any) => {
           // Only include if values are numeric or null
@@ -552,10 +565,26 @@ Format your response as a single JSON object:
 
       if (progressData.length > 0) {
         const { error: progressError } = await supabase.from("progress_tracking").insert(progressData);
-        if (!progressError) importedCounts.progress_tracking = progressData.length;
-        else console.error("Error inserting progress tracking:", progressError);
+        if (progressError) {
+          console.error("❌ Error inserting progress tracking:", progressError);
+        } else {
+          importedCounts.progress_tracking = progressData.length;
+          console.log(`✅ Inserted ${progressData.length} progress tracking items successfully`);
+        }
       }
     }
+
+    // Update family status to complete AFTER all data is successfully inserted
+    await supabase
+      .from("families")
+      .update({
+        suggested_charts_config: chartRecommendations,
+        special_chart_trial_ends_at: trialEndsAt.toISOString(),
+        initial_doc_analysis_status: "complete",
+      })
+      .eq("id", family_id);
+
+    console.log("✅ First-look analysis complete! Imported data:", importedCounts);
 
     return new Response(
       JSON.stringify({

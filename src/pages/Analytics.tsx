@@ -58,7 +58,7 @@ const Analytics = () => {
     queryFn: async () => {
       if (!selectedFamily?.id || !selectedStudent?.id) return false;
       
-      // Check if there's at least one log entry
+      // Check if there's at least one log entry OR document-based data
       const { count: parentLogCount } = await supabase
         .from("parent_logs")
         .select("*", { count: "exact", head: true })
@@ -77,7 +77,29 @@ const Analytics = () => {
         .eq("family_id", selectedFamily.id)
         .eq("student_id", selectedStudent.id);
 
-      return (parentLogCount || 0) + (educatorLogCount || 0) + (incidentLogCount || 0) > 0;
+      // ALSO check for document-based data
+      const { count: documentMetricsCount } = await supabase
+        .from("document_metrics")
+        .select("*", { count: "exact", head: true })
+        .eq("family_id", selectedFamily.id)
+        .eq("student_id", selectedStudent.id);
+
+      const { count: progressTrackingCount } = await supabase
+        .from("progress_tracking")
+        .select("*", { count: "exact", head: true })
+        .eq("family_id", selectedFamily.id)
+        .eq("student_id", selectedStudent.id);
+
+      const { count: goalsCount } = await supabase
+        .from("goals")
+        .select("*", { count: "exact", head: true })
+        .eq("family_id", selectedFamily.id)
+        .eq("student_id", selectedStudent.id);
+
+      const totalCount = (parentLogCount || 0) + (educatorLogCount || 0) + (incidentLogCount || 0) + 
+                        (documentMetricsCount || 0) + (progressTrackingCount || 0) + (goalsCount || 0);
+      
+      return totalCount > 0;
     },
     enabled: !!selectedFamily?.id && !!selectedStudent?.id,
   });
