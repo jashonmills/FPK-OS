@@ -17,6 +17,7 @@ import { DocumentUploadModal } from "@/components/documents/DocumentUploadModal"
 import { DocumentViewerModal } from "@/components/documents/DocumentViewerModal";
 import { DocumentGuide } from "@/components/documents/DocumentGuide";
 import { DocumentsEmptyState } from "@/components/documents/DocumentsEmptyState";
+import { DocumentReportModal } from "@/components/documents/DocumentReportModal";
 import * as pdfjs from "pdfjs-dist";
 import { ProductTour } from "@/components/onboarding/ProductTour";
 import { documentsTourSteps } from "@/components/onboarding/tourConfigs";
@@ -33,6 +34,9 @@ export default function Documents() {
   const [analyzingDocId, setAnalyzingDocId] = useState<string | null>(null);
   const [isAnalyzingAll, setIsAnalyzingAll] = useState(false);
   const [guideOpen, setGuideOpen] = useState(false);
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+  const [reportData, setReportData] = useState<any>(null);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
   const { data: documents, isLoading } = useQuery({
     queryKey: ["documents", selectedFamily?.id, selectedStudent?.id],
@@ -248,7 +252,33 @@ export default function Documents() {
     }
   };
 
-  const shouldShowAnalyzeButtons = documents && documents.length >= 5;
+  const shouldShowAnalyzeButtons = documents && documents.length >= 3 && 
+    familyData?.initial_doc_analysis_status === 'pending';
+
+  const handleGenerateReport = async () => {
+    if (!selectedFamily?.id || !selectedStudent?.id) return;
+
+    setIsGeneratingReport(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-document-report', {
+        body: { 
+          family_id: selectedFamily.id,
+          student_id: selectedStudent.id
+        }
+      });
+
+      if (error) throw error;
+
+      setReportData(data);
+      setIsReportModalOpen(true);
+      toast.success(`Comprehensive report created for ${selectedStudent.student_name}`);
+    } catch (error: any) {
+      console.error('Report generation error:', error);
+      toast.error(error.message || "Failed to generate report");
+    } finally {
+      setIsGeneratingReport(false);
+    }
+  };
 
   // Show empty state if no documents
   if (!isLoading && (!documents || documents.length === 0)) {
@@ -309,6 +339,20 @@ export default function Documents() {
                   Reset
                 </Button>
               </>
+            )}
+
+            {documents && documents.length > 0 && (
+              <Button 
+                onClick={handleGenerateReport}
+                disabled={isGeneratingReport}
+                variant="default"
+                size="sm"
+                className="text-xs sm:text-sm"
+              >
+                <FileText className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">{isGeneratingReport ? "Generating..." : "Generate Report"}</span>
+                <span className="sm:hidden">{isGeneratingReport ? "Gen..." : "Report"}</span>
+              </Button>
             )}
             
             <Sheet open={guideOpen} onOpenChange={setGuideOpen}>
@@ -446,6 +490,13 @@ export default function Documents() {
         open={viewerModalOpen}
         onOpenChange={setViewerModalOpen}
         document={selectedDocument}
+      />
+
+      <DocumentReportModal
+        open={isReportModalOpen}
+        onOpenChange={setIsReportModalOpen}
+        reportData={reportData}
+        documents={documents}
       />
     </>
   );

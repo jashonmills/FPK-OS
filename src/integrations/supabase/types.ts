@@ -779,6 +779,69 @@ export type Database = {
           },
         ]
       }
+      document_reports: {
+        Row: {
+          created_at: string
+          document_ids: Json
+          family_id: string
+          generated_at: string
+          generated_by: string | null
+          id: string
+          insights_count: number
+          metrics_count: number
+          progress_records_count: number
+          report_content: string
+          report_format: string | null
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          document_ids: Json
+          family_id: string
+          generated_at?: string
+          generated_by?: string | null
+          id?: string
+          insights_count?: number
+          metrics_count?: number
+          progress_records_count?: number
+          report_content: string
+          report_format?: string | null
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          document_ids?: Json
+          family_id?: string
+          generated_at?: string
+          generated_by?: string | null
+          id?: string
+          insights_count?: number
+          metrics_count?: number
+          progress_records_count?: number
+          report_content?: string
+          report_format?: string | null
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_reports_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_reports_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       documents: {
         Row: {
           category: string | null
