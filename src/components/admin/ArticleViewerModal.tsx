@@ -15,34 +15,38 @@ export function ArticleViewerModal({ article, onClose }: ArticleViewerModalProps
 
   return (
     <Dialog open onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
-        <DialogHeader>
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <DialogTitle className="flex-1">{article.title}</DialogTitle>
-              <Badge variant={article.is_published ? 'default' : 'secondary'}>
-                {article.is_published ? 'Published' : 'Draft'}
-              </Badge>
-            </div>
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
-              {article.author?.name && <span>{article.author.name}</span>}
-              {article.category?.name && <span>{article.category.name}</span>}
-              {article.reading_time_minutes && <span>{article.reading_time_minutes} min read</span>}
-              {article.updated_at && <span>Updated {format(new Date(article.updated_at), 'MMM d, yyyy')}</span>}
-            </div>
-          </div>
-        </DialogHeader>
-
-        <ScrollArea className="flex-1 mt-4">
-          <div className="prose prose-sm max-w-none dark:prose-invert">
-            {article.description && (
-              <div className="text-muted-foreground italic mb-4">
-                {article.description}
+      <DialogContent className="max-w-4xl h-[90vh] flex flex-col p-0">
+        <div className="px-6 pt-6 pb-4 border-b">
+          <DialogHeader>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <DialogTitle className="flex-1">{article.title}</DialogTitle>
+                <Badge variant={article.is_published ? 'default' : 'secondary'}>
+                  {article.is_published ? 'Published' : 'Draft'}
+                </Badge>
               </div>
-            )}
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {article.content || 'No content available'}
-            </ReactMarkdown>
+              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                {article.author?.name && <span>{article.author.name}</span>}
+                {article.category?.name && <span>{article.category.name}</span>}
+                {article.reading_time_minutes && <span>{article.reading_time_minutes} min read</span>}
+                {article.updated_at && <span>Updated {format(new Date(article.updated_at), 'MMM d, yyyy')}</span>}
+              </div>
+            </div>
+          </DialogHeader>
+        </div>
+
+        <ScrollArea className="flex-1 overflow-auto">
+          <div className="px-6 py-4">
+            <div className="prose prose-sm max-w-none dark:prose-invert">
+              {article.description && (
+                <div className="text-muted-foreground italic mb-4">
+                  {article.description}
+                </div>
+              )}
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {article.content || 'No content available'}
+              </ReactMarkdown>
+            </div>
           </div>
         </ScrollArea>
       </DialogContent>
