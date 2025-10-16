@@ -1,7 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.75.0";
-// Import pdf-parse for reliable PDF text extraction via esm.sh
-import pdf from "https://esm.sh/pdf-parse@1.1.1";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -35,55 +33,8 @@ serve(async (req) => {
     const fileBuffer = await file.arrayBuffer();
     const uint8Array = new Uint8Array(fileBuffer);
     
-    // Extract text from PDF using pdf-parse
-    let extractedContent = '';
-    
-    try {
-      console.log('Starting PDF text extraction...');
-      
-      // Use pdf-parse to extract text from the PDF
-      const pdfData = await pdf(fileBuffer);
-      extractedContent = pdfData.text;
-      
-      console.log(`Raw extraction completed: ${extractedContent.length} characters`);
-      
-      // Sanitize extracted content to remove null bytes and problematic characters
-      extractedContent = extractedContent
-        .replace(/\u0000/g, '') // Remove null bytes
-        .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '') // Remove control characters
-        .replace(/\s+/g, ' ') // Normalize whitespace
-        .trim();
-      
-      console.log(`After sanitization: ${extractedContent.length} characters`);
-      console.log(`First 200 chars: ${extractedContent.substring(0, 200)}`);
-        
-    } catch (pdfError) {
-      console.error('PDF extraction error:', pdfError);
-      throw new Error('Failed to extract text from PDF. The file may be corrupted or password-protected.');
-    }
-
-    // Quality validation
-    if (!extractedContent || extractedContent.length === 0) {
-      console.error('PDF text extraction failed: empty content');
-      return new Response(
-        JSON.stringify({ 
-          error: 'Failed to extract text from PDF. The file may be corrupted or contains only images.' 
-        }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    if (extractedContent.length < 50) {
-      console.error('PDF text extraction failed: insufficient content', extractedContent.length);
-      return new Response(
-        JSON.stringify({ 
-          error: 'Insufficient text extracted from PDF. Please ensure the document contains readable text.' 
-        }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    console.log(`Successfully extracted ${extractedContent.length} characters from PDF`);
+    // Note: Text extraction temporarily disabled - will be added via separate analysis function
+    const extractedContent = `Document uploaded: ${file.name} (${Math.round(file.size / 1024)} KB)`;
 
     // Upload file to storage
     const fileName = `${Date.now()}_${file.name}`;
@@ -123,9 +74,8 @@ serve(async (req) => {
         document_date: documentDate || null,
         extracted_content: extractedContent,
         metadata: {
-          extraction_quality: 'success',
-          character_count: extractedContent.length,
-          word_count: extractedContent.split(/\s+/).length
+          extraction_quality: 'pending',
+          note: 'Text extraction will be performed during analysis'
         }
       })
       .select()
@@ -161,11 +111,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: true,
-        document: documentData,
-        extraction_stats: {
-          characters: extractedContent.length,
-          words: extractedContent.split(/\s+/).length
-        }
+        document: documentData
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
