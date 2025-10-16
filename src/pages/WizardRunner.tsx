@@ -11,7 +11,13 @@ export default function WizardRunner() {
   console.log('🎯 WizardRunner:', { wizardType, sessionId, selectedFamily: selectedFamily?.id, selectedStudent: selectedStudent?.id });
 
   const wizard = wizardType ? getWizardByType(wizardType) : undefined;
-  console.log('🎯 Found wizard:', { wizard: wizard?.name, type: wizard?.type, stepsCount: wizard?.steps?.length });
+  console.log('🎯 Found wizard:', { 
+    wizard: wizard?.name, 
+    type: wizard?.type, 
+    stepsCount: wizard?.steps?.length,
+    hasSteps: !!wizard?.steps,
+    steps: wizard?.steps?.map(s => ({ id: s.id, hasComponent: !!s.component }))
+  });
   
   const { flags, loading } = useFeatureFlags(wizard ? [wizard.flagKey] : []);
   console.log('🎯 Feature flags:', { flags, loading, flagKey: wizard?.flagKey });

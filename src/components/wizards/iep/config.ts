@@ -7,6 +7,15 @@ import { ConcernsReferralStep } from './steps/ConcernsReferralStep';
 import { AcademicStrengthsStep } from './steps/AcademicStrengthsStep';
 import { AcademicPerformanceStep } from './steps/AcademicPerformanceStep';
 
+console.log('📚 IEP Config Loading - Components:', {
+  JurisdictionConsentStep: !!JurisdictionConsentStep,
+  StudentOverviewStep: !!StudentOverviewStep,
+  TeamMembersStep: !!TeamMembersStep,
+  ConcernsReferralStep: !!ConcernsReferralStep,
+  AcademicStrengthsStep: !!AcademicStrengthsStep,
+  AcademicPerformanceStep: !!AcademicPerformanceStep,
+});
+
 export const iepWizardConfig: WizardConfig = {
   type: 'iep-blueprint',
   name: 'FPX-IEP Blueprint™',
