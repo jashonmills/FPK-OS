@@ -12,16 +12,13 @@ interface PromptingLevelFadingProps {
 
 export const PromptingLevelFading = ({ familyId, studentId, sampleData }: PromptingLevelFadingProps) => {
   const { data, isLoading } = useQuery({
-    queryKey: ["prompting-levels", familyId, studentId],
+    queryKey: ["prompting-trend-data", familyId, studentId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("educator_logs")
-        .select("log_date, prompting_level")
-        .eq("family_id", familyId)
-        .eq("student_id", studentId)
-        .not("prompting_level", "is", null)
-        .order("log_date", { ascending: true })
-        .limit(30);
+      const { data, error } = await supabase.rpc("get_prompting_trend_data", {
+        p_family_id: familyId,
+        p_student_id: studentId,
+        p_days: 30
+      });
 
       if (error) throw error;
       return data;
@@ -44,33 +41,16 @@ export const PromptingLevelFading = ({ familyId, studentId, sampleData }: Prompt
     );
   }
 
-  // Process data to show prompting level distribution over time
-  const processedData = displayData.reduce((acc: any[], log: any) => {
-    // Skip logs with invalid dates
-    if (!log.log_date) return acc;
-    
-    const dateObj = new Date(log.log_date);
-    if (isNaN(dateObj.getTime())) return acc;
-    
-    const date = format(dateObj, "MMM dd");
-    const existing = acc.find(item => item.date === date);
-    
-    if (existing) {
-      existing[log.prompting_level] = (existing[log.prompting_level] || 0) + 1;
-    } else {
-      acc.push({
-        date,
-        [log.prompting_level]: 1,
-        "Hand-over-Hand": 0,
-        "Physical": 0,
-        "Model": 0,
-        "Verbal": 0,
-        "Gestural": 0,
-        "Independent": 0,
-      });
-    }
-    return acc;
-  }, []);
+  const processedData = Array.isArray(displayData)
+    ? displayData.map((item: any) => ({
+        date: format(new Date(item.log_date), "MMM dd"),
+        "Independent": Number(item.independent_count),
+        "Gestural": Number(item.gestural_count),
+        "Verbal": Number(item.verbal_count),
+        "Physical": Number(item.physical_count),
+        "Full Prompt": Number(item.full_prompt_count),
+      }))
+    : [];
 
   return (
     <ResponsiveContainer width="100%" height={300}>
@@ -95,7 +75,7 @@ export const PromptingLevelFading = ({ familyId, studentId, sampleData }: Prompt
         <Legend />
         <Area 
           type="monotone" 
-          dataKey="Hand-over-Hand" 
+          dataKey="Full Prompt" 
           stackId="1"
           stroke="hsl(var(--destructive))" 
           fill="hsl(var(--destructive))" 
@@ -107,14 +87,6 @@ export const PromptingLevelFading = ({ familyId, studentId, sampleData }: Prompt
           stackId="1"
           stroke="hsl(var(--chart-1))" 
           fill="hsl(var(--chart-1))" 
-          fillOpacity={0.6}
-        />
-        <Area 
-          type="monotone" 
-          dataKey="Model" 
-          stackId="1"
-          stroke="hsl(var(--chart-2))" 
-          fill="hsl(var(--chart-2))" 
           fillOpacity={0.6}
         />
         <Area 

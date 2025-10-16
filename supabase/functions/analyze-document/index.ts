@@ -303,6 +303,93 @@ Format your entire response as a single, valid JSON object with the following st
       }
     }
 
+    // ========================================================================
+    // PHASE 2: AI Chart Recommendation System
+    // ========================================================================
+    console.log('🧠 Requesting chart recommendations from AI...');
+    
+    const chartRecommendationPrompt = `Based on the analysis you just performed, determine which specialized analytics charts this document should populate.
+
+Available chart identifiers (return ONLY identifiers with direct data support):
+- "iep_goal_service_tracker" - IEP goals, annual reviews, service logs, present levels
+- "academic_fluency_trends" - Reading fluency (WPM), math fact fluency, curriculum-based measurements
+- "behavior_function_analysis" - ABC data, behavioral incidents, antecedents, consequences
+- "sensory_profile_heatmap" - Sensory seeking/avoiding, sensory processing patterns
+- "social_interaction_funnel" - Social skills data, peer interaction success rates
+- "prompting_level_fading" - Prompt hierarchy data, independence levels
+- "intervention_effectiveness" - Strategy success rates, intervention outcomes
+
+Return ONLY a JSON object in this exact format:
+{ "recommended_charts": ["identifier1", "identifier2"] }
+
+Rules:
+- Only include identifiers where this document provides QUANTIFIABLE data
+- Minimum 3 data points per chart to recommend it
+- If uncertain, do NOT recommend the chart`;
+
+    try {
+      const chartRecommendationResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${lovableApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'google/gemini-2.5-flash',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: document.extracted_content },
+            { role: 'assistant', content: JSON.stringify(analysisResult) },
+            { role: 'user', content: chartRecommendationPrompt }
+          ],
+          temperature: 0.3,
+        }),
+      });
+
+      if (!chartRecommendationResponse.ok) {
+        const errorText = await chartRecommendationResponse.text();
+        console.error('Chart recommendation AI error:', chartRecommendationResponse.status, errorText);
+      } else {
+        const chartData = await chartRecommendationResponse.json();
+        const chartContent = chartData.choices?.[0]?.message?.content || '{}';
+        
+        console.log('Raw chart recommendation response:', chartContent);
+        
+        const cleanedChartContent = chartContent
+          .replace(/```json\n?/g, '')
+          .replace(/```\n?/g, '')
+          .trim();
+        
+        const chartRecommendations = JSON.parse(cleanedChartContent);
+        
+        if (chartRecommendations.recommended_charts && Array.isArray(chartRecommendations.recommended_charts)) {
+          console.log(`📊 AI recommended ${chartRecommendations.recommended_charts.length} charts:`, chartRecommendations.recommended_charts);
+          
+          const chartMappings = chartRecommendations.recommended_charts.map((chartId: string) => ({
+            document_id: document.id,
+            family_id: document.family_id,
+            chart_identifier: chartId,
+            confidence_score: 1.0
+          }));
+          
+          if (chartMappings.length > 0) {
+            const { error: mappingError } = await supabase
+              .from('document_chart_mapping')
+              .insert(chartMappings);
+            
+            if (mappingError) {
+              console.error('Error inserting chart mappings:', mappingError);
+            } else {
+              console.log(`✅ Successfully created ${chartMappings.length} chart mappings`);
+            }
+          }
+        }
+      }
+    } catch (chartError) {
+      console.error('Error in chart recommendation system:', chartError);
+      // Continue with analysis even if chart recommendation fails
+    }
+
     // Update document with last_analyzed_at timestamp
     const { error: updateError } = await supabase
       .from("documents")

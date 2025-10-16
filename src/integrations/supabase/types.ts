@@ -641,6 +641,48 @@ export type Database = {
           },
         ]
       }
+      document_chart_mapping: {
+        Row: {
+          chart_identifier: string
+          confidence_score: number | null
+          created_at: string | null
+          document_id: string
+          family_id: string
+          id: string
+        }
+        Insert: {
+          chart_identifier: string
+          confidence_score?: number | null
+          created_at?: string | null
+          document_id: string
+          family_id: string
+          id?: string
+        }
+        Update: {
+          chart_identifier?: string
+          confidence_score?: number | null
+          created_at?: string | null
+          document_id?: string
+          family_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_chart_mapping_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_chart_mapping_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       document_comparisons: {
         Row: {
           comparison_summary: string | null
@@ -2977,6 +3019,39 @@ export type Database = {
         Args: { user_id_to_delete: string }
         Returns: undefined
       }
+      get_academic_fluency_data: {
+        Args: {
+          p_end_date?: string
+          p_family_id: string
+          p_start_date?: string
+          p_student_id: string
+        }
+        Returns: {
+          math_fluency: number
+          math_target: number
+          measurement_date: string
+          reading_fluency: number
+          reading_target: number
+        }[]
+      }
+      get_available_specialized_charts: {
+        Args: { p_family_id: string }
+        Returns: {
+          chart_identifier: string
+          document_count: number
+          last_updated: string
+        }[]
+      }
+      get_behavior_function_data: {
+        Args: { p_days?: number; p_family_id: string; p_student_id: string }
+        Returns: {
+          avg_duration: number
+          behavior_type: string
+          common_antecedent: string
+          common_consequence: string
+          frequency: number
+        }[]
+      }
       get_daily_log_counts: {
         Args: { p_days?: number; p_family_id: string; p_student_id: string }
         Returns: {
@@ -2985,6 +3060,15 @@ export type Database = {
           log_date: string
           parent_count: number
           total_count: number
+        }[]
+      }
+      get_iep_goal_progress: {
+        Args: { p_family_id: string; p_student_id: string }
+        Returns: {
+          active_goals: number
+          avg_progress: number
+          goal_category: string
+          goal_count: number
         }[]
       }
       get_intervention_effectiveness_data: {
@@ -3003,6 +3087,36 @@ export type Database = {
         Args: { tier: string }
         Returns: number
       }
+      get_prompting_trend_data: {
+        Args: { p_days?: number; p_family_id: string; p_student_id: string }
+        Returns: {
+          full_prompt_count: number
+          gestural_count: number
+          independent_count: number
+          log_date: string
+          physical_count: number
+          verbal_count: number
+        }[]
+      }
+      get_sensory_profile_data: {
+        Args: { p_family_id: string; p_student_id: string }
+        Returns: {
+          avg_value: number
+          frequency: number
+          intensity_level: string
+          sensory_category: string
+        }[]
+      }
+      get_skill_mastery_data: {
+        Args: { p_family_id: string; p_student_id: string }
+        Returns: {
+          current_level: number
+          mastery_percentage: number
+          skill_domain: string
+          target_level: number
+          trend: string
+        }[]
+      }
       get_sleep_summary_data: {
         Args: { p_days?: number; p_family_id: string; p_student_id: string }
         Returns: {
@@ -3010,6 +3124,14 @@ export type Database = {
           sleep_date: string
           sleep_quality_rating: number
           total_sleep_hours: number
+        }[]
+      }
+      get_social_skills_data: {
+        Args: { p_family_id: string; p_student_id: string }
+        Returns: {
+          skill_name: string
+          success_rate: number
+          total_attempts: number
         }[]
       }
       get_subscription_tier_details: {

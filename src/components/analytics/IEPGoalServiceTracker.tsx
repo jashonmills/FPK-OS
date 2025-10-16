@@ -12,64 +12,26 @@ interface IEPGoalServiceTrackerProps {
 }
 
 export const IEPGoalServiceTracker = ({ studentId, familyId, sampleData }: IEPGoalServiceTrackerProps) => {
-  const { data: goals, isLoading: goalsLoading } = useQuery({
-    queryKey: ["goals_active", studentId],
+  const { data: goalProgress, isLoading } = useQuery({
+    queryKey: ["iep-goal-progress", studentId, familyId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("goals")
-        .select("*")
-        .eq("student_id", studentId)
-        .eq("family_id", familyId)
-        .eq("is_active", true);
+      const { data, error } = await supabase.rpc("get_iep_goal_progress", {
+        p_family_id: familyId,
+        p_student_id: studentId
+      });
       if (error) throw error;
       return data;
     },
     enabled: !sampleData,
   });
 
-  const { data: progressData, isLoading: progressLoading } = useQuery({
-    queryKey: ["progress_tracking", studentId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("progress_tracking")
-        .select("*")
-        .eq("student_id", studentId)
-        .eq("family_id", familyId);
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  const isLoading = goalsLoading || progressLoading;
-
-  const processGoalData = () => {
-    const displayGoals = sampleData || goals;
-    if (!displayGoals || !progressData) return [];
-
-    const goalCategories: Record<string, { goals: number; avgProgress: number; services: string[] }> = {};
-
-    displayGoals.forEach((goal) => {
-      const category = goal.goal_type || "Other";
-      if (!goalCategories[category]) {
-        goalCategories[category] = { goals: 0, avgProgress: 0, services: [] };
-      }
-      goalCategories[category].goals++;
-
-      const relatedProgress = progressData.filter((p) => p.metric_type === category);
-      if (relatedProgress.length > 0) {
-        const avgProg = relatedProgress.reduce((sum, p) => sum + (p.progress_percentage || 0), 0) / relatedProgress.length;
-        goalCategories[category].avgProgress = avgProg;
-      }
-    });
-
-    return Object.entries(goalCategories).map(([category, data]) => ({
-      category,
-      progress: Math.round(data.avgProgress),
-      goalCount: data.goals,
-    }));
-  };
-
-  const categoryData = processGoalData();
+  const categoryData = Array.isArray(sampleData || goalProgress)
+    ? (sampleData || goalProgress).map((item: any) => ({
+        category: item.goal_category,
+        progress: Math.round(Number(item.avg_progress)),
+        goalCount: Number(item.goal_count),
+      }))
+    : [];
 
   if (isLoading) {
     return (

@@ -13,77 +13,40 @@ interface BehaviorFunctionAnalysisProps {
 }
 
 export const BehaviorFunctionAnalysis = ({ studentId, familyId, sampleData }: BehaviorFunctionAnalysisProps) => {
-  const { data: incidents, isLoading: incidentsLoading } = useQuery({
-    queryKey: ["incident_logs", studentId],
+  const { data: behaviorData, isLoading } = useQuery({
+    queryKey: ["behavior-function-data", studentId, familyId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("incident_logs")
-        .select("*")
-        .eq("student_id", studentId)
-        .eq("family_id", familyId);
+      const { data, error } = await supabase.rpc("get_behavior_function_data", {
+        p_family_id: familyId,
+        p_student_id: studentId,
+        p_days: 30
+      });
       if (error) throw error;
       return data;
     },
     enabled: !sampleData,
   });
 
-  const { data: behavioralMetrics, isLoading: metricsLoading } = useQuery({
-    queryKey: ["document_metrics_behavioral", studentId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("document_metrics")
-        .select("*")
-        .eq("student_id", studentId)
-        .eq("family_id", familyId)
-        .eq("metric_type", "behavioral_incident");
-      if (error) throw error;
-      return data;
-    },
-    enabled: !sampleData,
-  });
+  // Transform RPC data for bubble chart format
+  const chartData = Array.isArray(sampleData || behaviorData)
+    ? (sampleData || behaviorData).map((item: any, index: number) => ({
+        name: item.behavior_type,
+        frequency: Number(item.frequency),
+        function: determineBehaviorFunction(item.common_antecedent, item.common_consequence),
+        x: (index * 20) + Math.random() * 15,
+        y: 50 + Math.random() * 40,
+      }))
+    : [];
 
-  const isLoading = incidentsLoading || metricsLoading;
-
-  // Process data to create bubble chart
-  const processBehaviorData = () => {
-    const displayIncidents = sampleData || incidents;
-    if (!displayIncidents) return [];
-
-    const behaviorCounts: Record<string, { count: number; functions: Record<string, number> }> = {};
-
-    displayIncidents.forEach((incident) => {
-      const behavior = incident.incident_type;
-      if (!behaviorCounts[behavior]) {
-        behaviorCounts[behavior] = { count: 0, functions: {} };
-      }
-      behaviorCounts[behavior].count++;
-
-      // Extract function from potential_triggers if available
-      if (incident.potential_triggers && typeof incident.potential_triggers === 'object' && 'hypothesized_function' in incident.potential_triggers) {
-        const func = String(incident.potential_triggers.hypothesized_function);
-        behaviorCounts[behavior].functions[func] = (behaviorCounts[behavior].functions[func] || 0) + 1;
-      }
-    });
-
-    // Convert to array and get top 5
-    const behaviors = Object.entries(behaviorCounts)
-      .map(([name, data]) => {
-        const primaryFunction = Object.entries(data.functions).sort((a, b) => b[1] - a[1])[0]?.[0] || "Unknown";
-        return {
-          name,
-          frequency: data.count,
-          function: primaryFunction,
-          x: Math.random() * 100,
-          y: Math.random() * 100,
-        };
-      })
-      .sort((a, b) => b.frequency - a.frequency)
-      .slice(0, 5);
-
-    return behaviors;
-  };
-
-  const behaviorData = processBehaviorData();
+  // Helper to infer function from antecedents/consequences
+  function determineBehaviorFunction(antecedent: string | null, consequence: string | null): string {
+    const text = `${antecedent || ''} ${consequence || ''}`.toLowerCase();
+    if (text.includes('escape') || text.includes('avoid')) return 'Escape';
+    if (text.includes('tangible') || text.includes('obtain')) return 'Tangible';
+    if (text.includes('sensory') || text.includes('stimulation')) return 'Sensory';
+    if (text.includes('attention') || text.includes('social')) return 'Attention';
+    return 'Unknown';
+  }
 
   const getFunctionColor = (func: string) => {
     const colorMap: Record<string, string> = {
@@ -115,7 +78,7 @@ export const BehaviorFunctionAnalysis = ({ studentId, familyId, sampleData }: Be
     );
   }
 
-  if (behaviorData.length === 0) {
+  if (chartData.length === 0) {
     return (
       <Card className="border-2 border-primary/20">
         <CardHeader>
@@ -171,8 +134,8 @@ export const BehaviorFunctionAnalysis = ({ studentId, familyId, sampleData }: Be
                 return null;
               }}
             />
-            <Scatter data={behaviorData} fill="hsl(var(--primary))">
-              {behaviorData.map((entry, index) => (
+            <Scatter data={chartData} fill="hsl(var(--primary))">
+              {chartData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={getFunctionColor(entry.function)} r={entry.frequency * 8} />
               ))}
             </Scatter>

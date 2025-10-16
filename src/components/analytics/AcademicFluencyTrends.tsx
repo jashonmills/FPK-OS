@@ -14,18 +14,15 @@ interface AcademicFluencyTrendsProps {
 }
 
 export const AcademicFluencyTrends = ({ studentId, familyId, dateRange, sampleData }: AcademicFluencyTrendsProps) => {
-  const { data: metrics, isLoading } = useQuery({
-    queryKey: ["document_metrics_fluency", studentId, dateRange],
+  const { data: fluencyData, isLoading } = useQuery({
+    queryKey: ["academic-fluency-data", studentId, familyId, dateRange],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("document_metrics")
-        .select("*")
-        .eq("student_id", studentId)
-        .eq("family_id", familyId)
-        .in("metric_name", ["Reading Fluency", "Math Fact Fluency"])
-        .gte("measurement_date", format(dateRange.from, "yyyy-MM-dd"))
-        .lte("measurement_date", format(dateRange.to, "yyyy-MM-dd"))
-        .order("measurement_date", { ascending: true });
+      const { data, error } = await supabase.rpc("get_academic_fluency_data", {
+        p_family_id: familyId,
+        p_student_id: studentId,
+        p_start_date: format(dateRange.from, "yyyy-MM-dd"),
+        p_end_date: format(dateRange.to, "yyyy-MM-dd")
+      });
       if (error) throw error;
       return data;
     },
@@ -33,34 +30,21 @@ export const AcademicFluencyTrends = ({ studentId, familyId, dateRange, sampleDa
   });
 
   const processChartData = () => {
-    const displayMetrics = sampleData || metrics;
-    if (!displayMetrics) return { data: [], readingTarget: 0, mathTarget: 0 };
+    const rawData = sampleData || fluencyData;
+    if (!Array.isArray(rawData) || rawData.length === 0) {
+      return { data: [], readingTarget: 0, mathTarget: 0 };
+    }
 
-    const grouped: Record<string, { reading?: number; math?: number; date: string }> = {};
-    let readingTarget = 0;
-    let mathTarget = 0;
-
-    displayMetrics.forEach((metric) => {
-      const date = metric.measurement_date || "";
-      if (!grouped[date]) {
-        grouped[date] = { date };
-      }
-
-      if (metric.metric_name === "Reading Fluency") {
-        grouped[date].reading = metric.metric_value;
-        if (metric.target_value && !readingTarget) readingTarget = metric.target_value;
-      } else if (metric.metric_name === "Math Fact Fluency") {
-        grouped[date].math = metric.metric_value;
-        if (metric.target_value && !mathTarget) mathTarget = metric.target_value;
-      }
-    });
-
-    const data = Object.values(grouped).map((item) => ({
-      ...item,
-      formattedDate: item.date ? format(new Date(item.date), "MMM dd") : "",
+    const chartData = rawData.map((item: any) => ({
+      formattedDate: format(new Date(item.measurement_date), "MMM dd"),
+      reading: item.reading_fluency ? Number(item.reading_fluency) : undefined,
+      math: item.math_fluency ? Number(item.math_fluency) : undefined,
     }));
 
-    return { data, readingTarget, mathTarget };
+    const readingTarget = rawData.find((d: any) => d.reading_target)?.reading_target || 0;
+    const mathTarget = rawData.find((d: any) => d.math_target)?.math_target || 0;
+
+    return { data: chartData, readingTarget: Number(readingTarget), mathTarget: Number(mathTarget) };
   };
 
   const { data: chartData, readingTarget, mathTarget } = processChartData();

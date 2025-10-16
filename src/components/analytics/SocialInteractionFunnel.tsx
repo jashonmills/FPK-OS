@@ -11,50 +11,26 @@ interface SocialInteractionFunnelProps {
 }
 
 export const SocialInteractionFunnel = ({ studentId, familyId, sampleData }: SocialInteractionFunnelProps) => {
-  const { data: metrics, isLoading } = useQuery({
-    queryKey: ["document_metrics_social", studentId],
+  const { data: socialData, isLoading } = useQuery({
+    queryKey: ["social-skills-data", studentId, familyId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("document_metrics")
-        .select("*")
-        .eq("student_id", studentId)
-        .eq("family_id", familyId)
-        .eq("metric_type", "social_skill");
+      const { data, error } = await supabase.rpc("get_social_skills_data", {
+        p_family_id: familyId,
+        p_student_id: studentId
+      });
       if (error) throw error;
       return data;
     },
     enabled: !sampleData,
   });
 
-  const processFunnelData = () => {
-    const displayMetrics = sampleData || metrics;
-    if (!displayMetrics) return [];
-
-    const skillStats: Record<string, { total: number; success: number }> = {};
-
-    displayMetrics.forEach((metric) => {
-      const skillName = metric.metric_name;
-      if (!skillStats[skillName]) {
-        skillStats[skillName] = { total: 0, success: 0 };
-      }
-      skillStats[skillName].total++;
-      if (metric.metric_value >= (metric.target_value || 0.8)) {
-        skillStats[skillName].success++;
-      }
-    });
-
-    const funnelData = Object.entries(skillStats)
-      .map(([skill, stats]) => ({
-        skill,
-        successRate: stats.total > 0 ? (stats.success / stats.total) * 100 : 0,
-        totalAttempts: stats.total,
+  const funnelData = Array.isArray(sampleData || socialData)
+    ? (sampleData || socialData).map((item: any) => ({
+        skill: item.skill_name,
+        successRate: Number(item.success_rate),
+        totalAttempts: Number(item.total_attempts),
       }))
-      .sort((a, b) => b.successRate - a.successRate);
-
-    return funnelData;
-  };
-
-  const funnelData = processFunnelData();
+    : [];
 
   const getBarColor = (index: number): string => {
     const colors = ["bg-primary", "bg-chart-2", "bg-chart-3", "bg-chart-4", "bg-muted-foreground"];

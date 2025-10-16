@@ -11,85 +11,42 @@ interface SensoryProfileHeatmapProps {
 }
 
 export const SensoryProfileHeatmap = ({ studentId, familyId, sampleData }: SensoryProfileHeatmapProps) => {
-  const { data: parentLogs, isLoading: logsLoading } = useQuery({
-    queryKey: ["parent_logs_sensory", studentId],
+  const { data: sensoryData, isLoading } = useQuery({
+    queryKey: ["sensory-profile-data", studentId, familyId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("parent_logs")
-        .select("*")
-        .eq("student_id", studentId)
-        .eq("family_id", familyId);
+      const { data, error } = await supabase.rpc("get_sensory_profile_data", {
+        p_family_id: familyId,
+        p_student_id: studentId
+      });
       if (error) throw error;
       return data;
     },
     enabled: !sampleData,
   });
-
-  const { data: incidents, isLoading: incidentsLoading } = useQuery({
-    queryKey: ["incident_logs_sensory", studentId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("incident_logs")
-        .select("*")
-        .eq("student_id", studentId)
-        .eq("family_id", familyId);
-      if (error) throw error;
-      return data;
-    },
-    enabled: !sampleData,
-  });
-
-  const isLoading = logsLoading || incidentsLoading;
 
   const processHeatmapData = () => {
-    const displayParentLogs = sampleData?.parentLogs || parentLogs;
-    const displayIncidents = sampleData?.incidents || incidents;
-    
-    const triggers = ["Loud Noises", "Bright Lights", "Crowded Spaces", "Textures", "Transitions"];
-    const times = ["Morning", "Afternoon", "Evening"];
+    const rawData = sampleData || sensoryData;
+    if (!Array.isArray(rawData) || rawData.length === 0) {
+      return { triggers: [], intensityLevels: [], heatmap: {}, maxCount: 0 };
+    }
+
+    const triggers = [...new Set(rawData.map((d: any) => d.sensory_category))];
+    const intensityLevels = ["Low", "Moderate", "High"];
     const heatmap: Record<string, Record<string, number>> = {};
 
     triggers.forEach((trigger) => {
-      heatmap[trigger] = { Morning: 0, Afternoon: 0, Evening: 0 };
+      heatmap[trigger] = { Low: 0, Moderate: 0, High: 0 };
     });
 
-    // Process parent logs
-    displayParentLogs?.forEach((log) => {
-      const sensoryFactors = log.sensory_factors || [];
-      const logTime = log.log_time || "";
-      const timeOfDay = getTimeOfDay(logTime);
-
-      sensoryFactors.forEach((factor: string) => {
-        const matchedTrigger = triggers.find((t) => factor.toLowerCase().includes(t.toLowerCase()));
-        if (matchedTrigger) {
-          heatmap[matchedTrigger][timeOfDay]++;
-        }
-      });
+    rawData.forEach((item: any) => {
+      if (heatmap[item.sensory_category]) {
+        heatmap[item.sensory_category][item.intensity_level] = Number(item.frequency);
+      }
     });
 
-    // Process incidents
-    displayIncidents?.forEach((incident) => {
-      const incidentTime = incident.incident_time || "";
-      const timeOfDay = getTimeOfDay(incidentTime);
-      const envFactors = incident.environmental_factors || [];
+    const maxCount = Math.max(...triggers.flatMap((t) => intensityLevels.map((level) => heatmap[t][level])), 0);
 
-      envFactors.forEach((factor: string) => {
-        const matchedTrigger = triggers.find((t) => factor.toLowerCase().includes(t.toLowerCase()));
-        if (matchedTrigger) {
-          heatmap[matchedTrigger][timeOfDay]++;
-        }
-      });
-    });
-
-    return { triggers, times, heatmap };
-  };
-
-  const getTimeOfDay = (time: string): string => {
-    if (!time) return "Afternoon";
-    const hour = parseInt(time.split(":")[0]);
-    if (hour < 12) return "Morning";
-    if (hour < 17) return "Afternoon";
-    return "Evening";
+    return { triggers, intensityLevels, heatmap, maxCount };
   };
 
   const getIntensityColor = (count: number, max: number): string => {
@@ -100,8 +57,7 @@ export const SensoryProfileHeatmap = ({ studentId, familyId, sampleData }: Senso
     return "bg-chart-1";
   };
 
-  const { triggers, times, heatmap } = processHeatmapData();
-  const maxCount = Math.max(...triggers.flatMap((t) => times.map((time) => heatmap[t][time])));
+  const { triggers, intensityLevels, heatmap, maxCount } = processHeatmapData();
 
   if (isLoading) {
     return (
@@ -159,10 +115,10 @@ export const SensoryProfileHeatmap = ({ studentId, familyId, sampleData }: Senso
           <table className="w-full border-collapse">
             <thead>
               <tr>
-                <th className="border p-2 text-left font-semibold">Trigger</th>
-                {times.map((time) => (
-                  <th key={time} className="border p-2 text-center font-semibold">
-                    {time}
+                <th className="border p-2 text-left font-semibold">Category</th>
+                {intensityLevels.map((level) => (
+                  <th key={level} className="border p-2 text-center font-semibold">
+                    {level}
                   </th>
                 ))}
               </tr>
@@ -171,10 +127,10 @@ export const SensoryProfileHeatmap = ({ studentId, familyId, sampleData }: Senso
               {triggers.map((trigger) => (
                 <tr key={trigger}>
                   <td className="border p-2 font-medium">{trigger}</td>
-                  {times.map((time) => {
-                    const count = heatmap[trigger][time];
+                  {intensityLevels.map((level) => {
+                    const count = heatmap[trigger][level];
                     return (
-                      <td key={time} className="border p-0">
+                      <td key={level} className="border p-0">
                         <div className={`h-12 flex items-center justify-center ${getIntensityColor(count, maxCount)} transition-colors`}>
                           <span className="font-semibold">{count > 0 ? count : ""}</span>
                         </div>
