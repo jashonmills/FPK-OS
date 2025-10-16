@@ -91,7 +91,28 @@ export const WizardEngine = ({ config, sessionId, familyId, studentId }: WizardE
     );
   }
 
+  // Safety check: ensure we have a valid step
+  if (!config.steps || config.steps.length === 0 || currentStep >= config.steps.length) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <p className="text-muted-foreground">No steps configured for this assessment.</p>
+        </div>
+      </div>
+    );
+  }
+
   const currentStepConfig = config.steps[currentStep];
+  if (!currentStepConfig || !currentStepConfig.component) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <p className="text-muted-foreground">Step configuration error.</p>
+        </div>
+      </div>
+    );
+  }
+  
   const CurrentStepComponent = currentStepConfig.component;
 
   return (
