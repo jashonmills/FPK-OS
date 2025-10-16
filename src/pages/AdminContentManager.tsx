@@ -17,13 +17,15 @@ import { Plus, Edit, Trash2, Eye, FileText, Users, FolderTree, Sparkles, Shield 
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { format } from 'date-fns';
 import { useIsSuperAdmin } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function AdminContentManager() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   const { data: isSuperAdmin, isLoading: isCheckingRole } = useIsSuperAdmin();
   
-  console.log('🔐 [ContentManager] Access check:', { isSuperAdmin, isCheckingRole });
+  console.log('🔐 [ContentManager] Access check:', { user: !!user, isSuperAdmin, isCheckingRole });
   
   const [selectedArticle, setSelectedArticle] = useState<any>(null);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
@@ -161,9 +163,9 @@ export default function AdminContentManager() {
     },
   });
 
-  // Check super admin access
-  if (isCheckingRole) {
-    console.log('🔐 [ContentManager] Still checking role...');
+  // Check super admin access - wait for both user and query to load
+  if (!user || isCheckingRole || isSuperAdmin === undefined) {
+    console.log('🔐 [ContentManager] Still loading...', { user: !!user, isCheckingRole, isSuperAdmin });
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center space-y-4">
