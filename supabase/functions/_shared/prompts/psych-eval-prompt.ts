@@ -37,6 +37,8 @@ export const PSYCH_EVAL_EXTRACTION_PROMPT = `You are analyzing a **Psychoeducati
 - age_equivalent (if provided)
 - descriptor (e.g., "Below Average," "Average," "Superior")
 
+**CRITICAL:** Use metric_type "academic_fluency" for all academic achievement scores
+
 **Academic areas to look for:**
 - Reading: Basic Reading, Reading Comprehension, Reading Fluency
 - Math: Math Calculation, Math Problem Solving, Math Fluency
@@ -107,7 +109,7 @@ export const PSYCH_EVAL_EXTRACTION_PROMPT = `You are analyzing a **Psychoeducati
     },
     {
       "metric_name": "Reading Comprehension (WIAT-III)",
-      "metric_type": "academic_achievement",
+      "metric_type": "academic_fluency",
       "metric_value": 82,
       "metric_unit": "standard score",
       "measurement_date": "2025-01-10",
@@ -116,7 +118,7 @@ export const PSYCH_EVAL_EXTRACTION_PROMPT = `You are analyzing a **Psychoeducati
     },
     {
       "metric_name": "Math Calculation (WIAT-III)",
-      "metric_type": "academic_achievement",
+      "metric_type": "academic_fluency",
       "metric_value": 91,
       "metric_unit": "standard score",
       "measurement_date": "2025-01-10",

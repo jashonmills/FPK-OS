@@ -317,25 +317,46 @@ Format your entire response as a single, valid JSON object with the following st
     }
 
     // ========================================================================
-    // PHASE 2: AI Chart Recommendation System
+    // PHASE 2: AI Chart Recommendation System with Data Validation
     // ========================================================================
     console.log('🧠 Requesting chart recommendations from AI...');
     
+    // Extract available metric types from the analysis
+    const availableMetricTypes = new Set(
+      (analysisResult.metrics || []).map((m: any) => m.metric_type)
+    );
+    
+    console.log('📊 Available metric types:', Array.from(availableMetricTypes));
+    
+    // Define chart requirements
+    const chartRequirements: Record<string, string[]> = {
+      "iep_goal_service_tracker": ["academic_fluency", "social_skill", "behavioral_incident"],
+      "academic_fluency_trends": ["academic_fluency", "academic_performance"],
+      "behavior_function_analysis": ["behavioral_incident", "behavior_frequency"],
+      "sensory_profile_heatmap": ["sensory_profile"],
+      "social_interaction_funnel": ["social_skill"],
+      "intervention_effectiveness": ["behavioral_incident"],
+    };
+    
+    // Filter charts to only include those with supporting data
+    const eligibleCharts = Object.entries(chartRequirements)
+      .filter(([_chartId, requiredTypes]) => 
+        requiredTypes.some(reqType => availableMetricTypes.has(reqType))
+      )
+      .map(([chartId]) => chartId);
+    
+    console.log('✅ Eligible charts based on data:', eligibleCharts);
+    
     const chartRecommendationPrompt = `Based on the analysis you just performed, determine which specialized analytics charts this document should populate.
 
-Available chart identifiers (return ONLY identifiers with direct data support):
-- "iep_goal_service_tracker" - IEP goals, annual reviews, service logs, present levels
-- "academic_fluency_trends" - Reading fluency (WPM), math fact fluency, curriculum-based measurements
-- "behavior_function_analysis" - ABC data, behavioral incidents, antecedents, consequences
-- "sensory_profile_heatmap" - Sensory seeking/avoiding, sensory processing patterns
-- "social_interaction_funnel" - Social skills data, peer interaction success rates
-- "prompting_level_fading" - Prompt hierarchy data, independence levels
-- "intervention_effectiveness" - Strategy success rates, intervention outcomes
+Available chart identifiers (ONLY recommend from this filtered list based on available data):
+${eligibleCharts.map(id => `- "${id}"`).join('\n')}
 
 Return ONLY a JSON object in this exact format:
 { "recommended_charts": ["identifier1", "identifier2"] }
 
 Rules:
+- ONLY recommend charts from the list above
 - Only include identifiers where this document provides QUANTIFIABLE data
 - Minimum 3 data points per chart to recommend it
 - If uncertain, do NOT recommend the chart`;

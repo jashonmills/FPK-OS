@@ -7,20 +7,27 @@ export const IEP_EXTRACTION_PROMPT = `You are analyzing an **Individualized Educ
 
 ## MANDATORY EXTRACTION SECTIONS
 
-### SECTION 1: Annual Goals (EXTRACT EVERY SINGLE GOAL)
+### SECTION 1: Annual Goals (EXTRACT EVERY SINGLE GOAL AS METRICS)
 **Location:** "Annual Goals," "IEP Goals," "Measurable Goals"
-**For EACH goal, extract:**
-- goal_title (e.g., "Reading Comprehension," "Math Problem Solving," "Social Communication")
-- goal_description (full text of the goal)
-- baseline_value (e.g., "Currently reads at 45 WPM")
-- current_value (if different from baseline)
-- target_value (e.g., "Will read at 80 WPM")
-- measurement_method (e.g., "CBM probes," "Teacher observation," "Work samples")
-- evaluation_criteria (e.g., "4 out of 5 trials," "80% accuracy")
-- goal_area (e.g., "Reading," "Math," "Communication," "Behavior," "Social Skills")
-- target_date (when goal should be met)
 
-**CRITICAL:** If an IEP lists 12 goals, you MUST extract all 12 as separate entries.
+**CRITICAL INSTRUCTION:** Extract each IEP goal as a METRIC with the correct metric_type based on goal domain:
+- **Academic goals** (reading, math, writing) → metric_type: "academic_fluency"
+- **Social/Communication goals** → metric_type: "social_skill"  
+- **Behavioral goals** → metric_type: "behavioral_incident"
+- **Motor skills goals** → metric_type: "fine_motor" or "gross_motor"
+- **Daily living goals** → metric_type: "daily_living"
+
+**For EACH goal, create a metric with:**
+- metric_name: The goal title
+- metric_type: One of the types listed above based on goal domain
+- baseline_value: Starting point (e.g., 45 for "45 WPM")
+- current_value: Current performance if mentioned
+- target_value: Expected outcome (e.g., 80 for "80 WPM")
+- metric_unit: Unit of measurement (e.g., "words per minute", "correct responses", "times per day")
+- measurement_date: The IEP date or assessment date
+- context: Include measurement method, evaluation criteria, and any additional details
+
+**CRITICAL:** If an IEP lists 12 goals, you MUST extract all 12 as separate metric entries.
 
 ### SECTION 2: Present Levels of Academic Achievement and Functional Performance (PLOP/PLAAFP)
 **Extract current performance data:**
@@ -62,23 +69,36 @@ Return a single JSON object:
   "metrics": [
     {
       "metric_name": "Reading Fluency (Words Per Minute)",
-      "metric_type": "academic_performance",
+      "metric_type": "academic_fluency",
+      "baseline_value": 45,
       "metric_value": 55,
       "metric_unit": "words per minute",
       "measurement_date": "2025-01-15",
-      "context": "Grade-level text, measured via CBM probes",
+      "context": "Grade-level text, measured via CBM probes. Baseline: 45 WPM",
       "target_value": 80,
       "intervention_used": "Daily fluency practice with resource teacher"
     },
     {
       "metric_name": "Math Problem Solving (Multi-Step Problems)",
-      "metric_type": "academic_performance",
+      "metric_type": "academic_fluency",
+      "baseline_value": 2,
       "metric_value": 3,
       "metric_unit": "correct out of 10",
       "measurement_date": "2025-01-15",
-      "context": "2-step word problems requiring computation and reasoning",
+      "context": "2-step word problems requiring computation and reasoning. Baseline: 2/10 correct",
       "target_value": 8,
       "intervention_used": "Explicit instruction with visual aids"
+    },
+    {
+      "metric_name": "Peer Interaction Initiation",
+      "metric_type": "social_skill",
+      "baseline_value": 2,
+      "metric_value": 3,
+      "metric_unit": "times per week",
+      "measurement_date": "2025-01-15",
+      "context": "During unstructured activities. Measured via direct observation. Baseline: 2 initiations per week",
+      "target_value": 5,
+      "intervention_used": "Social skills instruction and visual cue cards"
     }
   ],
   "insights": [

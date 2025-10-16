@@ -46,8 +46,33 @@ import { FeatureFlag } from "@/components/shared/FeatureFlag";
 
 const Analytics = () => {
   const { selectedFamily, selectedStudent } = useFamily();
-  const [dateRange, setDateRange] = useState<"30" | "60" | "90">("30");
+  const [dateRange, setDateRange] = useState<"30" | "60" | "90" | "all">("30");
   const { shouldRunTour, markTourAsSeen } = useTourProgress('has_seen_analytics_tour');
+
+  // Auto-detect date range from document data
+  const { data: documentDateRange } = useQuery({
+    queryKey: ["document-date-range", selectedFamily?.id, selectedStudent?.id],
+    queryFn: async () => {
+      if (!selectedFamily?.id || !selectedStudent?.id) return null;
+      
+      const { data, error } = await supabase
+        .from("document_metrics")
+        .select("measurement_date")
+        .eq("family_id", selectedFamily.id)
+        .eq("student_id", selectedStudent.id)
+        .not("measurement_date", "is", null)
+        .order("measurement_date", { ascending: true });
+
+      if (error || !data || data.length === 0) return null;
+
+      const dates = data.map(d => new Date(d.measurement_date));
+      return {
+        earliest: dates[0],
+        latest: dates[dates.length - 1]
+      };
+    },
+    enabled: !!selectedFamily?.id && !!selectedStudent?.id,
+  });
 
   // Early return if no student selected - BEFORE defining CHART_COMPONENT_MAP
   if (!selectedStudent) {
@@ -217,7 +242,10 @@ const Analytics = () => {
       <AcademicFluencyTrends 
         studentId={selectedStudent!.id} 
         familyId={selectedFamily!.id} 
-        dateRange={{ 
+        dateRange={dateRange === "all" && documentDateRange ? {
+          from: documentDateRange.earliest,
+          to: documentDateRange.latest
+        } : { 
           from: new Date(Date.now() - parseInt(dateRange) * 24 * 60 * 60 * 1000), 
           to: new Date() 
         }} 
@@ -363,7 +391,7 @@ const Analytics = () => {
           </p>
         </div>
         
-        <Select value={dateRange} onValueChange={(value: "30" | "60" | "90") => setDateRange(value)}>
+        <Select value={dateRange} onValueChange={(value: "30" | "60" | "90" | "all") => setDateRange(value)}>
           <SelectTrigger className="w-full sm:w-[180px] text-xs sm:text-sm">
             <SelectValue />
           </SelectTrigger>
@@ -371,6 +399,7 @@ const Analytics = () => {
             <SelectItem value="30">Last 30 Days</SelectItem>
             <SelectItem value="60">Last 60 Days</SelectItem>
             <SelectItem value="90">Last 90 Days</SelectItem>
+            <SelectItem value="all">All Time</SelectItem>
           </SelectContent>
         </Select>
       </div>
