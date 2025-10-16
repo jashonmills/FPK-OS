@@ -312,21 +312,27 @@ const Analytics = () => {
     );
   }
 
-  // Show loading state while checking
-  if (isCheckingData || isLoadingCharts) {
+  // Aggregate ALL loading states - CRITICAL for preventing race conditions
+  const isPageLoading = isCheckingData || isLoadingCharts;
+
+  // Show page-level loader while ALL initial queries complete
+  if (isPageLoading) {
     return (
       <div className="container mx-auto p-6">
         <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
           <p className="text-muted-foreground">
-            {isLoadingCharts ? 'Loading your personalized analytics...' : 'Checking available data...'}
+            Loading analytics dashboard...
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Analyzing your data and unlocking personalized insights
           </p>
         </div>
       </div>
     );
   }
 
-  // Show empty state if no data (but wait for the query to complete)
+  // Only check for data AFTER all queries complete
   if (hasData === false) {
     return (
       <div className="container mx-auto p-6">
