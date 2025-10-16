@@ -53,31 +53,12 @@ const Analytics = () => {
   const suggestedCharts = (familyData?.suggested_charts_config as any[]) || [];
 
   // Check if there's enough data to show analytics
-  const { data: hasData } = useQuery({
+  const { data: hasData, isLoading: isCheckingData } = useQuery({
     queryKey: ["analytics-data", selectedFamily?.id, selectedStudent?.id],
     queryFn: async () => {
       if (!selectedFamily?.id || !selectedStudent?.id) return false;
       
-      // Check if there's at least one log entry OR document-based data
-      const { count: parentLogCount } = await supabase
-        .from("parent_logs")
-        .select("*", { count: "exact", head: true })
-        .eq("family_id", selectedFamily.id)
-        .eq("student_id", selectedStudent.id);
-
-      const { count: educatorLogCount } = await supabase
-        .from("educator_logs")
-        .select("*", { count: "exact", head: true })
-        .eq("family_id", selectedFamily.id)
-        .eq("student_id", selectedStudent.id);
-
-      const { count: incidentLogCount } = await supabase
-        .from("incident_logs")
-        .select("*", { count: "exact", head: true })
-        .eq("family_id", selectedFamily.id)
-        .eq("student_id", selectedStudent.id);
-
-      // ALSO check for document-based data
+      // Check for document-based data FIRST (primary data source)
       const { count: documentMetricsCount } = await supabase
         .from("document_metrics")
         .select("*", { count: "exact", head: true })
@@ -90,16 +71,34 @@ const Analytics = () => {
         .eq("family_id", selectedFamily.id)
         .eq("student_id", selectedStudent.id);
 
-      const { count: goalsCount } = await supabase
-        .from("goals")
+      // Document-based data alone is sufficient to show analytics
+      if ((documentMetricsCount || 0) > 0 || (progressTrackingCount || 0) > 0) {
+        return true;
+      }
+
+      // Fallback: Check for daily log entries
+      const { count: parentLogCount } = await supabase
+        .from("parent_logs")
         .select("*", { count: "exact", head: true })
         .eq("family_id", selectedFamily.id)
         .eq("student_id", selectedStudent.id);
 
-      const totalCount = (parentLogCount || 0) + (educatorLogCount || 0) + (incidentLogCount || 0) + 
-                        (documentMetricsCount || 0) + (progressTrackingCount || 0) + (goalsCount || 0);
+      const { count: educatorLogCount } = await supabase
+        .from("educator_logs")
+        .select("*", { count: "exact", head: true })
+        .eq("family_id", selectedFamily.id)
+        .eq("student_id", selectedStudent.id);
+
+      const { count: goalsCount } = await supabase
+        .from("goals")
+        .select("*", { count: "exact", head: true })
+        .eq("family_id", selectedFamily.id)
+        .eq("student_id", selectedStudent.id)
+        .eq("is_active", true);
+
+      const logCount = (parentLogCount || 0) + (educatorLogCount || 0) + (goalsCount || 0);
       
-      return totalCount > 0;
+      return logCount > 0;
     },
     enabled: !!selectedFamily?.id && !!selectedStudent?.id,
   });
@@ -160,8 +159,8 @@ const Analytics = () => {
     );
   }
 
-  // Show empty state if no data
-  if (hasData === false) {
+  // Show empty state if no data (but wait for the query to complete)
+  if (!isCheckingData && hasData === false) {
     return (
       <div className="container mx-auto p-6">
         <AnalyticsEmptyState />
