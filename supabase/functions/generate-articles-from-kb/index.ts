@@ -184,15 +184,7 @@ Focus on providing actionable insights that parents and educators can implement 
           is_published: true,
           published_at: new Date().toISOString(),
           reading_time_minutes: articleData.reading_time_minutes,
-          keywords: articleData.keywords,
-          metadata: {
-            generated_from_kb: true,
-            sources: kbDocs.slice(0, 3).map(d => {
-              const kb = Array.isArray(d.knowledge_base) ? d.knowledge_base[0] : d.knowledge_base;
-              return { name: kb?.source_name || 'Unknown', url: kb?.source_url || '' };
-            }),
-            topic: topic
-          }
+          keywords: articleData.keywords
         })
         .select()
         .single();
