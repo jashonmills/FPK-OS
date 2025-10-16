@@ -233,9 +233,9 @@ const getGA4MeasurementId = (): string => {
   if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
     
-    // Production environments - configure actual analytics when needed
+    // Production environments - use actual GA4 Measurement ID
     if (hostname.includes('lovableproject.com') || hostname.includes('lovable.app')) {
-      return process.env.GA4_MEASUREMENT_ID || 'G-DISABLED'; // Disabled until configured
+      return 'G-RFMWCWD8CV'; // FPK University GA4 Measurement ID
     }
     
     // Development environment - disable analytics to avoid noise
@@ -243,7 +243,7 @@ const getGA4MeasurementId = (): string => {
       return 'G-DISABLED'; // Disabled in development
     }
     
-    return 'G-DISABLED'; // Disabled by default until properly configured
+    return 'G-DISABLED'; // Disabled by default for other environments
   }
   
   return 'G-DISABLED';
