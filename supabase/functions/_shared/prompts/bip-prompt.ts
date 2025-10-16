@@ -5,6 +5,30 @@
 
 export const BIP_EXTRACTION_PROMPT = `You are analyzing a **Behavior Intervention Plan (BIP)**. This document type requires SURGICAL precision in data extraction.
 
+## CRITICAL: MEASUREMENT DATE EXTRACTION (NON-NEGOTIABLE)
+
+**RULE #1: Every metric MUST have a measurement_date**
+
+The \`measurement_date\` is the date the data was ACTUALLY MEASURED, not the date the document was uploaded.
+
+**How to find it:**
+1. **Primary Source:** Look for dates in baseline data tables (e.g., "| 1/5/23 | Elopement: 4 |")
+2. **Secondary Source:** Use the BIP creation date (e.g., "BIP developed on August 15, 2023")
+3. **Baseline Period:** Use the end date of the baseline observation period
+4. **Default:** If no specific date can be found, use the BIP document's date
+
+**Examples:**
+- "Baseline data collected 8/1/2023 - 8/15/2023" → measurement_date: "2023-08-15" (end date)
+- "BIP Meeting Date: September 20, 2023" → measurement_date: "2023-09-20"
+- Table row: "| 1/5/23 | Elopement: 4 |" → measurement_date: "2023-01-05"
+
+**NEVER:**
+- Use today's date
+- Use null or omit the field
+- Use "unknown" or placeholder values
+
+This field enables the system to build a longitudinal history. Without it, the data is worthless.
+
 ## MANDATORY EXTRACTION SECTIONS
 
 ### SECTION 1: Target Behaviors (HIGHEST PRIORITY)

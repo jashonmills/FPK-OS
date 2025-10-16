@@ -3244,7 +3244,7 @@ export type Database = {
         }[]
       }
       get_social_skills_data: {
-        Args: { p_family_id: string; p_student_id: string }
+        Args: { p_days?: number; p_family_id: string; p_student_id: string }
         Returns: {
           skill_name: string
           success_rate: number
