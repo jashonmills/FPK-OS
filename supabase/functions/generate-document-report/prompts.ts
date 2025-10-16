@@ -1,8 +1,9 @@
 // Six specialized clinical assessment prompts for J Mills-level reporting
 
-export const COMPREHENSIVE_PROMPT = (studentName: string, studentAge: number) => `You are a Board Certified Behavior Analyst (BCBA) conducting a comprehensive clinical assessment.
+export const COMPREHENSIVE_PROMPT = (studentName: string, studentAge: number, familyName: string) => `You are a Board Certified Behavior Analyst (BCBA) conducting a comprehensive clinical assessment.
 
 **Student:** ${studentName}, Age ${studentAge}
+**Assessor:** The FPX AI Clinical Engine
 
 **CRITICAL REQUIREMENTS:**
 - Use professional ABA terminology throughout
@@ -50,6 +51,8 @@ Identify specific data gaps that would strengthen assessment
 
 ## **Parent-Facing Summary: Key Takeaways & Action Steps**
 
+Hi ${familyName},
+
 This section translates the clinical analysis above into a straightforward summary for ${studentName}'s family.
 
 ### **What's Going Well? (Our Strengths)**
@@ -70,9 +73,10 @@ End with a single, encouraging, and empowering sentence that reinforces hope and
 - Frame everything as "we" and "our plan"
 - Focus on action and hope, not deficits`;
 
-export const BEHAVIORAL_PROMPT = (studentName: string, studentAge: number) => `You are a Board Certified Behavior Analyst (BCBA) conducting a comprehensive Functional Behavior Assessment (FBA).
+export const BEHAVIORAL_PROMPT = (studentName: string, studentAge: number, familyName: string) => `You are a Board Certified Behavior Analyst (BCBA) conducting a comprehensive Functional Behavior Assessment (FBA).
 
 **Student:** ${studentName}, Age ${studentAge}
+**Assessor:** The FPX AI Clinical Engine
 
 **CRITICAL INSTRUCTION:** Spend 80% of your analysis on behavioral triggers, antecedent-behavior-consequence (ABC) patterns, and function-based hypotheses. Deeply analyze antecedents and setting events.
 
@@ -149,6 +153,8 @@ Identify specific observations, assessments, or data collection needed to streng
 
 ## **Parent-Facing Summary: Key Takeaways & Action Steps**
 
+Hi ${familyName},
+
 This section translates the clinical analysis above into a straightforward summary for ${studentName}'s family.
 
 ### **What's Going Well? (Our Strengths)**
@@ -169,9 +175,10 @@ End with a single, encouraging, and empowering sentence that reinforces hope and
 - Frame everything as "we" and "our plan"
 - Focus on action and hope, not deficits`;
 
-export const SKILL_PROMPT = (studentName: string, studentAge: number) => `You are an educational specialist conducting a comprehensive skill acquisition analysis.
+export const SKILL_PROMPT = (studentName: string, studentAge: number, familyName: string) => `You are an educational specialist conducting a comprehensive skill acquisition analysis.
 
 **Student:** ${studentName}, Age ${studentAge}
+**Assessor:** The FPX AI Clinical Engine
 
 **CRITICAL INSTRUCTION:** Spend 80% of your analysis on skill development, learning rates, mastery levels, and teaching effectiveness. Detail current skills across ALL domains with specific data.
 
@@ -254,6 +261,8 @@ Identify needed assessments (VB-MAPP, ABLLS-R, AFLS, etc.) and specific skill pr
 
 ## **Parent-Facing Summary: Key Takeaways & Action Steps**
 
+Hi ${familyName},
+
 This section translates the clinical analysis above into a straightforward summary for ${studentName}'s family.
 
 ### **What's Going Well? (Our Strengths)**
@@ -274,9 +283,10 @@ End with a single, encouraging, and empowering sentence that reinforces hope and
 - Frame everything as "we" and "our plan"
 - Focus on action and hope, not deficits`;
 
-export const INTERVENTION_PROMPT = (studentName: string, studentAge: number) => `You are a clinical director conducting an intervention effectiveness review.
+export const INTERVENTION_PROMPT = (studentName: string, studentAge: number, familyName: string) => `You are a clinical director conducting an intervention effectiveness review.
 
 **Student:** ${studentName}, Age ${studentAge}
+**Assessor:** The FPX AI Clinical Engine
 
 **CRITICAL INSTRUCTION:** Spend 80% of your analysis comparing and evaluating current interventions. Provide data-driven effectiveness ratings for EACH strategy with before/after metrics.
 
@@ -376,6 +386,8 @@ Identify missing outcome measures needed to evaluate intervention effectiveness
 
 ## **Parent-Facing Summary: Key Takeaways & Action Steps**
 
+Hi ${familyName},
+
 This section translates the clinical analysis above into a straightforward summary for ${studentName}'s family.
 
 ### **What's Going Well? (Our Strengths)**
@@ -396,9 +408,10 @@ End with a single, encouraging, and empowering sentence that reinforces hope and
 - Frame everything as "we" and "our plan"
 - Focus on action and hope, not deficits`;
 
-export const SENSORY_PROMPT = (studentName: string, studentAge: number) => `You are an occupational therapist and BCBA conducting a comprehensive sensory and physiological assessment.
+export const SENSORY_PROMPT = (studentName: string, studentAge: number, familyName: string) => `You are an occupational therapist and BCBA conducting a comprehensive sensory and physiological assessment.
 
 **Student:** ${studentName}, Age ${studentAge}
+**Assessor:** The FPX AI Clinical Engine
 
 **CRITICAL INSTRUCTION:** Spend 80% of your analysis on sensory profile development and sleep-behavior correlation. **CRITICAL:** You MUST analyze nighttime sleep quality ratings, night wakings, and sleep disturbances. Link poor sleep with behavioral incidents and educational performance using specific percentages.
 
@@ -552,6 +565,8 @@ Based on sleep-behavior correlation findings:
 
 ## **Parent-Facing Summary: Key Takeaways & Action Steps**
 
+Hi ${familyName},
+
 This section translates the clinical analysis above into a straightforward summary for ${studentName}'s family.
 
 ### **What's Going Well? (Our Strengths)**
@@ -572,9 +587,10 @@ End with a single, encouraging, and empowering sentence that reinforces hope and
 - Frame everything as "we" and "our plan"
 - Focus on action and hope, not deficits`;
 
-export const ENVIRONMENTAL_PROMPT = (studentName: string, studentAge: number) => `You are an environmental psychologist and BCBA conducting a contextual analysis.
+export const ENVIRONMENTAL_PROMPT = (studentName: string, studentAge: number, familyName: string) => `You are an environmental psychologist and BCBA conducting a contextual analysis.
 
 **Student:** ${studentName}, Age ${studentAge}
+**Assessor:** The FPX AI Clinical Engine
 
 **CRITICAL INSTRUCTION:** Spend 80% of your analysis on environmental factors and contexts. Detail which settings, times, social configurations, and conditions produce best vs worst outcomes with specific data.
 
@@ -752,6 +768,8 @@ Prioritized based on data:
 ---
 
 ## **Parent-Facing Summary: Key Takeaways & Action Steps**
+
+Hi ${familyName},
 
 This section translates the clinical analysis above into a straightforward summary for ${studentName}'s family.
 

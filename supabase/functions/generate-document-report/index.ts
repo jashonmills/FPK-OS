@@ -66,6 +66,17 @@ serve(async (req) => {
       ? Math.floor((Date.now() - new Date(student.date_of_birth).getTime()) / (365.25 * 24 * 60 * 60 * 1000))
       : 0;
 
+    // Fetch family name for personalization
+    const { data: family, error: familyError } = await supabase
+      .from('families')
+      .select('family_name')
+      .eq('id', family_id)
+      .single();
+
+    if (familyError) throw familyError;
+
+    const familyName = family.family_name;
+
     // Fetch all documents for the student
     const { data: documents, error: docsError } = await supabase
       .from('documents')
@@ -213,22 +224,22 @@ Priority Breakdown:
     let promptTemplate: string;
     switch (focusArea) {
       case 'behavioral':
-        promptTemplate = BEHAVIORAL_PROMPT(studentName, studentAge);
+        promptTemplate = BEHAVIORAL_PROMPT(studentName, studentAge, familyName);
         break;
       case 'skill':
-        promptTemplate = SKILL_PROMPT(studentName, studentAge);
+        promptTemplate = SKILL_PROMPT(studentName, studentAge, familyName);
         break;
       case 'intervention':
-        promptTemplate = INTERVENTION_PROMPT(studentName, studentAge);
+        promptTemplate = INTERVENTION_PROMPT(studentName, studentAge, familyName);
         break;
       case 'sensory':
-        promptTemplate = SENSORY_PROMPT(studentName, studentAge);
+        promptTemplate = SENSORY_PROMPT(studentName, studentAge, familyName);
         break;
       case 'environmental':
-        promptTemplate = ENVIRONMENTAL_PROMPT(studentName, studentAge);
+        promptTemplate = ENVIRONMENTAL_PROMPT(studentName, studentAge, familyName);
         break;
       default:
-        promptTemplate = COMPREHENSIVE_PROMPT(studentName, studentAge);
+        promptTemplate = COMPREHENSIVE_PROMPT(studentName, studentAge, familyName);
     }
 
     // Build context data object
