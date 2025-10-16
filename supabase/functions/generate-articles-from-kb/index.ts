@@ -120,7 +120,8 @@ Focus on providing actionable insights that parents and educators can implement 
         articleData = JSON.parse(cleanedContent);
       } catch (parseError) {
         console.error('Failed to parse AI response:', articleContent);
-        throw new Error(`Failed to parse article JSON: ${parseError.message}`);
+        const errorMessage = parseError instanceof Error ? parseError.message : String(parseError);
+        throw new Error(`Failed to parse article JSON: ${errorMessage}`);
       }
 
       // Insert article
@@ -164,10 +165,11 @@ Focus on providing actionable insights that parents and educators can implement 
 
   } catch (error) {
     console.error('Error generating articles:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return new Response(
       JSON.stringify({ 
         success: false,
-        error: error.message 
+        error: errorMessage 
       }),
       { 
         status: 500, 
