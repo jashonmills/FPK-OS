@@ -34,7 +34,7 @@ export default function AdminContentManager() {
   const [isAuthorEditorOpen, setIsAuthorEditorOpen] = useState(false);
 
   // Fetch articles
-  const { data: articles } = useQuery({
+  const { data: articles, refetch: refetchArticles } = useQuery({
     queryKey: ['admin-articles'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -42,12 +42,14 @@ export default function AdminContentManager() {
         .select(`
           *,
           author:article_authors(name),
-          category:article_categories(name)
+          category:article_categories(name, slug)
         `)
         .order('created_at', { ascending: false });
       if (error) throw error;
       return data;
     },
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 
   // Fetch categories
