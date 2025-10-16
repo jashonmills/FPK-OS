@@ -2,11 +2,14 @@ import { WizardConfig } from '@/lib/wizards/types';
 import { Brain } from 'lucide-react';
 import { BehaviorDefinitionStep } from './steps/BehaviorDefinitionStep';
 import { IndirectAssessmentStep } from './steps/IndirectAssessmentStep';
+import { DirectObservationStep } from './steps/DirectObservationStep';
+import { HypothesisStep } from './steps/HypothesisStep';
+import { SummaryReportStep } from './steps/SummaryReportStep';
 
 export const bfaWizardConfig: WizardConfig = {
   type: 'bfa',
   name: 'FPX-BFA™',
-  description: 'Behavioral Function Analysis - Gold Standard clinical assessment with AI-powered data synthesis',
+  description: 'Gold Standard Behavioral Function Analysis with AI-powered data synthesis',
   icon: Brain,
   flagKey: 'enable-assessment-fba',
   steps: [
@@ -29,7 +32,6 @@ export const bfaWizardConfig: WizardConfig = {
       description: 'Structured interview and checklists',
       component: IndirectAssessmentStep,
       validation: (data) => {
-        // Must have selections in antecedents and consequences
         const hasAntecedents = (
           (data?.antecedentDemands?.length || 0) +
           (data?.antecedentSocial?.length || 0) +
@@ -44,11 +46,29 @@ export const bfaWizardConfig: WizardConfig = {
           (data?.consequenceSensory?.length || 0)
         ) >= 2;
 
-        // Check that all skills have been assessed
         const skillsAssessed = data?.skillsDeficit && Object.keys(data.skillsDeficit).length >= 8;
 
         return hasAntecedents && hasConsequences && skillsAssessed;
       },
+    },
+    {
+      id: 'direct-observation',
+      title: 'Direct Observation',
+      description: 'AI-powered data synthesis from incident logs',
+      component: DirectObservationStep,
+    },
+    {
+      id: 'hypothesis',
+      title: 'Functional Hypothesis',
+      description: 'Synthesized ABC analysis',
+      component: HypothesisStep,
+      validation: (data) => !!data?.hypothesisConfirmed,
+    },
+    {
+      id: 'summary-report',
+      title: 'Summary & Report',
+      description: 'Generate professional PDF report',
+      component: SummaryReportStep,
     },
   ],
   estimatedMinutes: 45,
