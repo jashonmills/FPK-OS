@@ -6,7 +6,7 @@ import confetti from "canvas-confetti";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, Sparkles } from "lucide-react";
+import { AlertCircle, Sparkles, Lock } from "lucide-react";
 import { ActivityLogChart } from "@/components/analytics/ActivityLogChart";
 import { SleepChart } from "@/components/analytics/SleepChart";
 import { MoodDistributionChart } from "@/components/analytics/MoodDistributionChart";
@@ -19,6 +19,8 @@ import { AcademicFluencyTrends } from "@/components/analytics/AcademicFluencyTre
 import { SensoryProfileHeatmap } from "@/components/analytics/SensoryProfileHeatmap";
 import { SocialInteractionFunnel } from "@/components/analytics/SocialInteractionFunnel";
 import { StrategyEffectiveness } from "@/components/analytics/StrategyEffectiveness";
+import { PromptingLevelFading } from "@/components/analytics/PromptingLevelFading";
+import { SleepBehaviorCorrelation } from "@/components/analytics/SleepBehaviorCorrelation";
 import { AnalyticsEmptyState } from "@/components/analytics/AnalyticsEmptyState";
 import { ProductTour } from "@/components/onboarding/ProductTour";
 import { analyticsTourSteps } from "@/components/onboarding/tourConfigs";
@@ -30,27 +32,28 @@ const Analytics = () => {
   const [dateRange, setDateRange] = useState<"30" | "60" | "90">("30");
   const { shouldRunTour, markTourAsSeen } = useTourProgress('has_seen_analytics_tour');
 
-  // Fetch family data to check for trial charts
-  const { data: familyData } = useQuery({
-    queryKey: ["family-trial", selectedFamily?.id],
+  // Fetch AI-unlocked specialized charts based on document analysis
+  const { data: unlockedCharts, isLoading: isLoadingCharts } = useQuery({
+    queryKey: ["unlocked-charts", selectedFamily?.id],
     queryFn: async () => {
-      if (!selectedFamily?.id) return null;
-      const { data, error } = await supabase
-        .from("families")
-        .select("suggested_charts_config, special_chart_trial_ends_at")
-        .eq("id", selectedFamily.id)
-        .maybeSingle();
+      if (!selectedFamily?.id) return [];
       
-      if (error) throw error;
-      return data;
+      console.log('🔍 Fetching unlocked charts for family:', selectedFamily.id);
+      
+      const { data, error } = await supabase.rpc("get_available_specialized_charts", {
+        p_family_id: selectedFamily.id,
+      });
+      
+      if (error) {
+        console.error('Error fetching unlocked charts:', error);
+        throw error;
+      }
+      
+      console.log('✅ Unlocked charts:', data);
+      return data || [];
     },
     enabled: !!selectedFamily?.id,
   });
-
-  const hasActiveTrial = familyData?.special_chart_trial_ends_at 
-    && new Date(familyData.special_chart_trial_ends_at) > new Date();
-
-  const suggestedCharts = (familyData?.suggested_charts_config as any[]) || [];
 
   // Check if there's enough data to show analytics - MUST wait for all queries to complete
   const { data: hasData, isLoading: isCheckingData } = useQuery({
@@ -114,19 +117,11 @@ const Analytics = () => {
     enabled: !!selectedFamily?.id && !!selectedStudent?.id,
   });
 
-  const getDaysUntilTrialEnds = () => {
-    if (!familyData?.special_chart_trial_ends_at) return 0;
-    const endDate = new Date(familyData.special_chart_trial_ends_at);
-    const today = new Date();
-    const diffTime = endDate.getTime() - today.getTime();
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  };
-
   // Confetti celebration effect when charts are unlocked
   useEffect(() => {
     const shouldCelebrate = sessionStorage.getItem('showChartsCelebration') === 'true';
     
-    if (shouldCelebrate && hasActiveTrial && suggestedCharts.length > 0) {
+    if (shouldCelebrate && unlockedCharts && unlockedCharts.length > 0) {
       sessionStorage.removeItem('showChartsCelebration');
       
       const duration = 3000;
@@ -155,7 +150,58 @@ const Analytics = () => {
         }
       }());
     }
-  }, [hasActiveTrial, suggestedCharts]);
+  }, [unlockedCharts]);
+  
+  // Dynamic chart component mapping
+  const CHART_COMPONENT_MAP: Record<string, React.ReactNode> = {
+    // Tier 2: Specialized Domain Charts
+    behavior_function_analysis: (
+      <BehaviorFunctionAnalysis 
+        studentId={selectedStudent!.id} 
+        familyId={selectedFamily!.id} 
+      />
+    ),
+    iep_goal_service_tracker: (
+      <IEPGoalServiceTracker 
+        studentId={selectedStudent!.id} 
+        familyId={selectedFamily!.id} 
+      />
+    ),
+    academic_fluency_trends: (
+      <AcademicFluencyTrends 
+        studentId={selectedStudent!.id} 
+        familyId={selectedFamily!.id} 
+        dateRange={{ 
+          from: new Date(Date.now() - parseInt(dateRange) * 24 * 60 * 60 * 1000), 
+          to: new Date() 
+        }} 
+      />
+    ),
+    sensory_profile_heatmap: (
+      <SensoryProfileHeatmap 
+        studentId={selectedStudent!.id} 
+        familyId={selectedFamily!.id} 
+      />
+    ),
+    social_interaction_funnel: (
+      <SocialInteractionFunnel 
+        studentId={selectedStudent!.id} 
+        familyId={selectedFamily!.id} 
+      />
+    ),
+    prompting_level_fading: (
+      <PromptingLevelFading 
+        familyId={selectedFamily!.id} 
+        studentId={selectedStudent!.id} 
+      />
+    ),
+    sleep_behavior_correlation: (
+      <SleepBehaviorCorrelation 
+        familyId={selectedFamily!.id} 
+        studentId={selectedStudent!.id} 
+      />
+    ),
+  };
 
   if (!selectedStudent) {
     return (
@@ -171,12 +217,14 @@ const Analytics = () => {
   }
 
   // Show loading state while checking
-  if (isCheckingData) {
+  if (isCheckingData || isLoadingCharts) {
     return (
       <div className="container mx-auto p-6">
         <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-          <p className="text-muted-foreground">Checking available data...</p>
+          <p className="text-muted-foreground">
+            {isLoadingCharts ? 'Loading your personalized analytics...' : 'Checking available data...'}
+          </p>
         </div>
       </div>
     );
@@ -222,13 +270,12 @@ const Analytics = () => {
         </Select>
       </div>
 
-      {/* Trial Banner */}
-      {hasActiveTrial && suggestedCharts.length > 0 && (
-        <Alert className="border-2 border-primary bg-primary/5 shadow-[0_0_20px_hsl(var(--primary)/0.5)] animate-pulse">
+      {/* AI Discovery Banner */}
+      {unlockedCharts && unlockedCharts.length > 0 && (
+        <Alert className="border-2 border-primary bg-primary/5 shadow-[0_0_20px_hsl(var(--primary)/0.5)]">
           <Sparkles className="h-4 w-4" />
           <AlertDescription>
-            <strong>🎉 AI Discovery!</strong> We've unlocked {suggestedCharts.length} specialized charts for you based on your documents. 
-            This free preview ends in {getDaysUntilTrialEnds()} days.
+            <strong>🎉 AI Discovery!</strong> We've analyzed your documents and unlocked {unlockedCharts.length} specialized chart{unlockedCharts.length !== 1 ? 's' : ''} tailored to your data.
           </AlertDescription>
         </Alert>
       )}
@@ -329,24 +376,30 @@ const Analytics = () => {
         <StrategyEffectiveness />
       </FeatureFlag>
 
-      {/* Specialized Trial Charts */}
-      {hasActiveTrial && suggestedCharts.length > 0 && (
+      {/* AI-Unlocked Specialized Charts */}
+      {unlockedCharts && unlockedCharts.length > 0 && (
         <div className="space-y-6">
           <div className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
-            <h2 className="text-2xl font-bold">AI-Recommended Specialized Charts</h2>
+            <h2 className="text-2xl font-bold">Specialized Analytics</h2>
+            <span className="text-sm text-muted-foreground">
+              ({unlockedCharts.length} chart{unlockedCharts.length !== 1 ? 's' : ''} unlocked)
+            </span>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {suggestedCharts.map((chart: any, index: number) => {
-              const chartMap: Record<string, React.ReactNode> = {
-                behavior_function_analysis: <BehaviorFunctionAnalysis studentId={selectedStudent.id} familyId={selectedFamily!.id} />,
-                iep_goal_service_tracker: <IEPGoalServiceTracker studentId={selectedStudent.id} familyId={selectedFamily!.id} />,
-                academic_fluency_trends: <AcademicFluencyTrends studentId={selectedStudent.id} familyId={selectedFamily!.id} dateRange={{ from: new Date(Date.now() - parseInt(dateRange) * 24 * 60 * 60 * 1000), to: new Date() }} />,
-                sensory_profile_heatmap: <SensoryProfileHeatmap studentId={selectedStudent.id} familyId={selectedFamily!.id} />,
-                social_interaction_funnel: <SocialInteractionFunnel studentId={selectedStudent.id} familyId={selectedFamily!.id} />,
-              };
+            {unlockedCharts.map((chartData: any, index: number) => {
+              const component = CHART_COMPONENT_MAP[chartData.chart_identifier];
               
-              return chartMap[chart.chart_type] ? <div key={index}>{chartMap[chart.chart_type]}</div> : null;
+              if (!component) {
+                console.warn('No component found for chart:', chartData.chart_identifier);
+                return null;
+              }
+              
+              return (
+                <div key={`${chartData.chart_identifier}-${index}`}>
+                  {component}
+                </div>
+              );
             })}
           </div>
         </div>
