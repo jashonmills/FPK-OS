@@ -269,7 +269,10 @@ export default function AdminContentManager() {
                       <TableCell>{article.category?.name || '-'}</TableCell>
                       <TableCell>{article.author?.name || '-'}</TableCell>
                       <TableCell>
-                        <Badge variant={article.is_published ? 'default' : 'secondary'}>
+                        <Badge 
+                          variant={article.is_published ? 'default' : 'secondary'}
+                          className={article.is_published ? 'bg-green-500 hover:bg-green-600' : 'bg-yellow-500 hover:bg-yellow-600'}
+                        >
                           {article.is_published ? 'Published' : 'Draft'}
                         </Badge>
                       </TableCell>
