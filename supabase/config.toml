@@ -1,5 +1,11 @@
 project_id = "pnxwemmpxldriwaomiey"
 
+[functions.generate-iep-content]
+verify_jwt = true
+
+[functions.iep-ai-assist]
+verify_jwt = true
+
 [functions.send-invitation]
 verify_jwt = true
 

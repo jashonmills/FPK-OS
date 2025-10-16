@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { WizardStepProps } from '@/lib/wizards/types';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -5,7 +6,11 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AdvocateCommentary } from '@/components/wizards/shared/AdvocateCommentary';
-import { Plus, Trash2, Sparkles } from 'lucide-react';
+import { AIAssistMenu } from '@/components/wizards/shared/AIAssistMenu';
+import { Plus, Trash2, Sparkles, Loader2 } from 'lucide-react';
+import { useFamily } from '@/contexts/FamilyContext';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 const GOAL_DOMAINS = [
   'Reading',
@@ -20,7 +25,74 @@ const GOAL_DOMAINS = [
 ];
 
 export const GoalsObjectivesStep = ({ data, onUpdate }: WizardStepProps) => {
+  const { selectedFamily, selectedStudent } = useFamily();
+  const { toast } = useToast();
+  const [isGenerating, setIsGenerating] = useState(false);
   const goals = data.goals || [];
+
+  const handleGenerateGoals = async () => {
+    if (!selectedFamily || !selectedStudent) {
+      toast({
+        title: "Missing Information",
+        description: "Please select a family and student first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsGenerating(true);
+    try {
+      const { data: result, error } = await supabase.functions.invoke('generate-iep-content', {
+        body: {
+          familyId: selectedFamily.id,
+          studentId: selectedStudent.id,
+          contentType: 'goals',
+        },
+      });
+
+      if (error) throw error;
+
+      if (result?.goals) {
+        onUpdate({ ...data, goals: result.goals });
+        toast({
+          title: "Goals Generated",
+          description: `Generated ${result.goals.length} IEP goals from student data`,
+        });
+      }
+    } catch (error) {
+      console.error('Error generating goals:', error);
+      toast({
+        title: "Generation Failed",
+        description: error instanceof Error ? error.message : "Failed to generate goals",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleAIAssist = async (action: 'rewrite' | 'expand' | 'suggest', currentText: string) => {
+    try {
+      const { data: result, error } = await supabase.functions.invoke('iep-ai-assist', {
+        body: {
+          action,
+          currentText,
+          context: {
+            familyId: selectedFamily?.id,
+            studentId: selectedStudent?.id,
+            fieldContext: 'IEP Goal',
+          },
+        },
+      });
+
+      if (error) throw error;
+
+      return result.enhancedText;
+    } catch (error) {
+      console.error('Error with AI assist:', error);
+      throw error;
+    }
+  };
 
   const addGoal = () => {
     onUpdate({
@@ -78,10 +150,14 @@ export const GoalsObjectivesStep = ({ data, onUpdate }: WizardStepProps) => {
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => {}}
-            disabled
+            onClick={handleGenerateGoals}
+            disabled={isGenerating}
           >
-            <Sparkles className="h-4 w-4 mr-2" />
+            {isGenerating ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <Sparkles className="h-4 w-4 mr-2" />
+            )}
             AI Generate Goals
           </Button>
           <Button type="button" onClick={addGoal} size="sm">
@@ -133,7 +209,14 @@ export const GoalsObjectivesStep = ({ data, onUpdate }: WizardStepProps) => {
               </div>
 
               <div>
-                <Label>Measurable Annual Goal *</Label>
+                <div className="flex justify-between items-center mb-2">
+                  <Label>Measurable Annual Goal *</Label>
+                  <AIAssistMenu
+                    currentText={goal.goal || ''}
+                    onAssist={handleAIAssist}
+                    onUpdate={(text) => updateGoal(goalIndex, 'goal', text)}
+                  />
+                </div>
                 <Textarea
                   value={goal.goal || ''}
                   onChange={(e) => updateGoal(goalIndex, 'goal', e.target.value)}
