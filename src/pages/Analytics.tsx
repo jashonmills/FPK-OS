@@ -52,12 +52,18 @@ const Analytics = () => {
 
   const suggestedCharts = (familyData?.suggested_charts_config as any[]) || [];
 
-  // Check if there's enough data to show analytics
+  // Check if there's enough data to show analytics - MUST wait for all queries to complete
   const { data: hasData, isLoading: isCheckingData } = useQuery({
     queryKey: ["analytics-data", selectedFamily?.id, selectedStudent?.id],
     queryFn: async () => {
       if (!selectedFamily?.id || !selectedStudent?.id) return false;
       
+      console.log('🔍 Checking analytics data for:', { 
+        family: selectedFamily.id, 
+        student: selectedStudent.id,
+        studentName: selectedStudent.student_name 
+      });
+
       // Check for document-based data FIRST (primary data source)
       const { count: documentMetricsCount } = await supabase
         .from("document_metrics")
@@ -65,14 +71,19 @@ const Analytics = () => {
         .eq("family_id", selectedFamily.id)
         .eq("student_id", selectedStudent.id);
 
+      console.log('📊 Document metrics count:', documentMetricsCount);
+
       const { count: progressTrackingCount } = await supabase
         .from("progress_tracking")
         .select("*", { count: "exact", head: true })
         .eq("family_id", selectedFamily.id)
         .eq("student_id", selectedStudent.id);
 
+      console.log('📈 Progress tracking count:', progressTrackingCount);
+
       // Document-based data alone is sufficient to show analytics
       if ((documentMetricsCount || 0) > 0 || (progressTrackingCount || 0) > 0) {
+        console.log('✅ Found document-based data, showing analytics');
         return true;
       }
 
@@ -159,8 +170,20 @@ const Analytics = () => {
     );
   }
 
+  // Show loading state while checking
+  if (isCheckingData) {
+    return (
+      <div className="container mx-auto p-6">
+        <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          <p className="text-muted-foreground">Checking available data...</p>
+        </div>
+      </div>
+    );
+  }
+
   // Show empty state if no data (but wait for the query to complete)
-  if (!isCheckingData && hasData === false) {
+  if (hasData === false) {
     return (
       <div className="container mx-auto p-6">
         <AnalyticsEmptyState />

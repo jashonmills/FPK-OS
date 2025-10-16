@@ -53,11 +53,17 @@ export const DocumentMetricsSection = () => {
       <Card>
         <CardHeader>
           <CardTitle>Document Metrics</CardTitle>
-          <CardDescription>No metrics data yet</CardDescription>
+          <CardDescription>No metrics data for {selectedStudent.student_name}</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-8 text-muted-foreground">
-            Upload and analyze documents to see metrics here
+          <div className="text-center py-8 space-y-3">
+            <p className="text-muted-foreground">
+              No metrics have been extracted from documents for this student yet.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Upload and analyze documents for {selectedStudent.student_name} to see metrics here, 
+              or switch to a different student who has documents analyzed.
+            </p>
           </div>
         </CardContent>
       </Card>
