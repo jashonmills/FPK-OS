@@ -1,5 +1,13 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.75.0";
+import { 
+  COMPREHENSIVE_PROMPT, 
+  BEHAVIORAL_PROMPT, 
+  SKILL_PROMPT, 
+  INTERVENTION_PROMPT, 
+  SENSORY_PROMPT, 
+  ENVIRONMENTAL_PROMPT 
+} from './prompts.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -12,10 +20,15 @@ serve(async (req) => {
   }
 
   try {
-    const { family_id, student_id } = await req.json();
+    const { family_id, student_id, focusArea = 'comprehensive' } = await req.json();
 
     if (!family_id || !student_id) {
       throw new Error('family_id and student_id are required');
+    }
+
+    const validFocusAreas = ['comprehensive', 'behavioral', 'skill', 'intervention', 'sensory', 'environmental'];
+    if (!validFocusAreas.includes(focusArea)) {
+      throw new Error('Invalid focus area');
     }
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -35,6 +48,24 @@ serve(async (req) => {
       throw new Error(creditResult?.error || 'Insufficient credits');
     }
 
+    const sixtyDaysAgo = new Date();
+    sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+    const sixtyDaysAgoStr = sixtyDaysAgo.toISOString().split('T')[0];
+
+    // Fetch student data for prompts
+    const { data: student, error: studentError } = await supabase
+      .from('students')
+      .select('first_name, last_name, date_of_birth')
+      .eq('id', student_id)
+      .single();
+
+    if (studentError) throw studentError;
+
+    const studentName = `${student.first_name} ${student.last_name}`;
+    const studentAge = student.date_of_birth 
+      ? Math.floor((Date.now() - new Date(student.date_of_birth).getTime()) / (365.25 * 24 * 60 * 60 * 1000))
+      : 0;
+
     // Fetch all documents for the student
     const { data: documents, error: docsError } = await supabase
       .from('documents')
@@ -49,38 +80,108 @@ serve(async (req) => {
       throw new Error('No documents found for this student');
     }
 
-    // Fetch all metrics
+    // Fetch metrics (last 60 days)
     const { data: metrics, error: metricsError } = await supabase
       .from('document_metrics')
       .select('*')
       .eq('family_id', family_id)
       .eq('student_id', student_id)
+      .gte('measurement_date', sixtyDaysAgoStr)
       .order('measurement_date', { ascending: false });
 
     if (metricsError) throw metricsError;
 
-    // Fetch all insights
+    // Fetch insights (last 60 days)
     const { data: insights, error: insightsError } = await supabase
       .from('ai_insights')
       .select('*')
       .eq('family_id', family_id)
       .eq('student_id', student_id)
       .eq('is_active', true)
+      .gte('generated_at', sixtyDaysAgo.toISOString())
       .order('generated_at', { ascending: false });
 
     if (insightsError) throw insightsError;
 
-    // Fetch all progress tracking
+    // Fetch progress tracking (last 60 days)
     const { data: progress, error: progressError } = await supabase
       .from('progress_tracking')
       .select('*')
       .eq('family_id', family_id)
       .eq('student_id', student_id)
+      .gte('created_at', sixtyDaysAgo.toISOString())
       .order('created_at', { ascending: false });
 
     if (progressError) throw progressError;
 
-    // Prepare AI prompt
+    // Fetch educator logs (last 60 days, limit 50)
+    const { data: educatorLogs, error: educatorError } = await supabase
+      .from('educator_logs')
+      .select('*')
+      .eq('family_id', family_id)
+      .eq('student_id', student_id)
+      .gte('log_date', sixtyDaysAgoStr)
+      .order('log_date', { ascending: false })
+      .limit(50);
+
+    if (educatorError) throw educatorError;
+
+    // Fetch sleep records (last 60 days for correlation)
+    const { data: sleepRecords, error: sleepError } = await supabase
+      .from('sleep_records')
+      .select('*')
+      .eq('family_id', family_id)
+      .eq('student_id', student_id)
+      .gte('sleep_date', sixtyDaysAgoStr)
+      .order('sleep_date', { ascending: false });
+
+    if (sleepError) throw sleepError;
+
+    // Fetch incident logs (last 60 days for correlation)
+    const { data: incidentLogs, error: incidentError } = await supabase
+      .from('incident_logs')
+      .select('*')
+      .eq('family_id', family_id)
+      .eq('student_id', student_id)
+      .gte('incident_date', sixtyDaysAgoStr)
+      .order('incident_date', { ascending: false });
+
+    if (incidentError) throw incidentError;
+
+    // Calculate sleep-behavior correlation
+    let sleepBehaviorCorrelation = null;
+    if (sleepRecords && sleepRecords.length > 0 && incidentLogs && incidentLogs.length > 0) {
+      const sleepDateMap = new Map(
+        sleepRecords.map(s => [s.sleep_date, s.total_sleep_hours || 0])
+      );
+      
+      let incidentsAfterPoorSleep = 0;
+      let incidentsAfterGoodSleep = 0;
+      
+      incidentLogs.forEach(incident => {
+        const prevDaySleep = sleepDateMap.get(
+          new Date(new Date(incident.incident_date).getTime() - 86400000)
+            .toISOString().split('T')[0]
+        );
+        
+        if (prevDaySleep !== undefined) {
+          if (prevDaySleep < 7) incidentsAfterPoorSleep++;
+          else incidentsAfterGoodSleep++;
+        }
+      });
+      
+      const totalCorrelated = incidentsAfterPoorSleep + incidentsAfterGoodSleep;
+      if (totalCorrelated > 0) {
+        sleepBehaviorCorrelation = {
+          poorSleepIncidents: incidentsAfterPoorSleep,
+          goodSleepIncidents: incidentsAfterGoodSleep,
+          poorSleepPercentage: Math.round((incidentsAfterPoorSleep / totalCorrelated) * 100),
+          totalNights: totalCorrelated
+        };
+      }
+    }
+
+    // Prepare data summaries
     const documentList = documents.map(d => 
       `- ${d.file_name} (${d.category}, ${d.document_date})`
     ).join('\n');
@@ -94,68 +195,65 @@ Priority Breakdown:
 - High: ${insights?.filter(i => i.priority === 'high').length || 0}
 - Medium: ${insights?.filter(i => i.priority === 'medium').length || 0}`;
 
-    const prompt = `You are an expert educational consultant creating a comprehensive report for a student with special needs.
+    const educatorSummary = educatorLogs && educatorLogs.length > 0
+      ? `Educator Session Logs (${educatorLogs.length} sessions):\n${educatorLogs.slice(0, 10).map(log => 
+          `- ${log.log_date}: ${log.log_type} - ${log.session_duration_minutes || 'N/A'} min, Engagement: ${log.engagement_level || 'N/A'}, ${log.progress_notes?.substring(0, 100) || 'No notes'}`
+        ).join('\n')}`
+      : 'No educator session logs available.';
 
-**Student Context:**
-- Total Documents Analyzed: ${documents.length}
-- Document Types: ${[...new Set(documents.map(d => d.category))].join(', ')}
-- Date Range: ${documents[documents.length - 1]?.document_date} to ${documents[0]?.document_date}
+    const sleepSummary = sleepRecords && sleepRecords.length > 0
+      ? `Sleep Records (${sleepRecords.length} nights):\nAverage: ${(sleepRecords.reduce((sum, s) => sum + (s.total_sleep_hours || 0), 0) / sleepRecords.length).toFixed(1)} hours/night`
+      : 'No sleep data available.';
 
-**Documents:**
-${documentList}
+    const sleepCorrelationText = sleepBehaviorCorrelation
+      ? `Sleep-Behavior Correlation: ${sleepBehaviorCorrelation.poorSleepPercentage}% of incidents occurred after poor sleep (<7 hrs), n=${sleepBehaviorCorrelation.totalNights} nights with data.`
+      : 'Insufficient data for sleep-behavior correlation.';
 
-**Extracted Data:**
-${metricsSummary}
+    // Select prompt template based on focus area
+    let promptTemplate: string;
+    switch (focusArea) {
+      case 'behavioral':
+        promptTemplate = BEHAVIORAL_PROMPT(studentName, studentAge);
+        break;
+      case 'skill':
+        promptTemplate = SKILL_PROMPT(studentName, studentAge);
+        break;
+      case 'intervention':
+        promptTemplate = INTERVENTION_PROMPT(studentName, studentAge);
+        break;
+      case 'sensory':
+        promptTemplate = SENSORY_PROMPT(studentName, studentAge);
+        break;
+      case 'environmental':
+        promptTemplate = ENVIRONMENTAL_PROMPT(studentName, studentAge);
+        break;
+      default:
+        promptTemplate = COMPREHENSIVE_PROMPT(studentName, studentAge);
+    }
 
-${insightsSummary}
+    // Build context data object
+    const contextData = {
+      documentCount: documents.length,
+      documentTypes: [...new Set(documents.map(d => d.category))].join(', '),
+      dateRange: `${documents[documents.length - 1]?.document_date} to ${documents[0]?.document_date}`,
+      documentList,
+      metricsSummary,
+      insightsSummary,
+      progressRecords: progress?.length || 0,
+      educatorSummary,
+      sleepSummary,
+      sleepCorrelationText,
+      incidentCount: incidentLogs?.length || 0,
+      reportDate: new Date().toISOString().split('T')[0]
+    };
 
-**Progress Tracking Records:** ${progress?.length || 0}
+    // Replace placeholders in prompt template
+    let finalPrompt = promptTemplate;
+    Object.entries(contextData).forEach(([key, value]) => {
+      finalPrompt = finalPrompt.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'g'), String(value));
+    });
 
-Generate a comprehensive, professional report with these sections:
-
-# Comprehensive Student Report
-
-## Executive Summary
-(2-3 paragraphs summarizing overall student profile and key findings)
-
-## Current Strengths
-- [Bullet list of observed strengths]
-
-## Areas of Concern
-- [Bullet list with priority level - Critical, High, or Medium]
-
-## IEP Goals Progress
-| Goal | Baseline | Current | Target | Progress % | Status |
-|------|----------|---------|--------|------------|--------|
-[Table format with specific data from metrics]
-
-## Behavioral Patterns
-[Analysis of behavioral incident data, frequencies, and trends]
-
-## Intervention Effectiveness
-[What interventions are working vs not working, based on data]
-
-## Recommendations for Parents
-1. [Actionable item with specific rationale]
-2. [Actionable item with specific rationale]
-3. [Actionable item with specific rationale]
-
-## Recommendations for Educators
-1. [Actionable item with specific rationale]
-2. [Actionable item with specific rationale]
-3. [Actionable item with specific rationale]
-
-## Next Steps (30-day Timeline)
-- Week 1: [Specific actions]
-- Week 2: [Specific actions]
-- Week 3-4: [Specific actions]
-
----
-*Report generated: ${new Date().toISOString().split('T')[0]}*
-
-Format: Professional markdown for easy reading and printing. Use specific data points and avoid generalizations.`;
-
-    // Call Lovable AI
+    // Call Lovable AI with Gemini 2.5 Pro
     const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -163,10 +261,10 @@ Format: Professional markdown for easy reading and printing. Use specific data p
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-2.5-pro',
         messages: [
-          { role: 'system', content: 'You are an expert educational consultant specializing in special education and IEP documentation.' },
-          { role: 'user', content: prompt }
+          { role: 'system', content: 'You are a Board Certified Behavior Analyst (BCBA) and special education consultant with expertise in autism spectrum disorder, ADHD, and evidence-based interventions. You write clinical reports with professional ABA terminology, cite specific data points, and provide actionable recommendations.' },
+          { role: 'user', content: finalPrompt }
         ],
       }),
     });
@@ -188,6 +286,7 @@ Format: Professional markdown for easy reading and printing. Use specific data p
         student_id,
         report_content: reportContent,
         report_format: 'markdown',
+        focus_area: focusArea,
         document_ids: documents.map(d => d.id),
         metrics_count: metrics?.length || 0,
         insights_count: insights?.length || 0,

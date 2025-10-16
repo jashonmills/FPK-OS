@@ -2,6 +2,47 @@
 @tailwind components;
 @tailwind utilities;
 
+@media print {
+  .print-content h1 {
+    font-size: 24pt;
+    border-bottom: 2px solid #000;
+    padding-bottom: 10px;
+    page-break-after: avoid;
+  }
+  
+  .print-content h2 {
+    font-size: 18pt;
+    margin-top: 20pt;
+    color: #333;
+    page-break-after: avoid;
+  }
+  
+  .print-content h3 {
+    font-size: 14pt;
+    color: #555;
+    page-break-after: avoid;
+  }
+  
+  .print-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+    page-break-inside: avoid;
+  }
+  
+  .print-content th,
+  .print-content td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+  }
+  
+  .print-content th {
+    background-color: #f0f0f0;
+    font-weight: bold;
+  }
+}
+
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
 All colors MUST be HSL.
 */

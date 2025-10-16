@@ -18,6 +18,8 @@ import { DocumentViewerModal } from "@/components/documents/DocumentViewerModal"
 import { DocumentGuide } from "@/components/documents/DocumentGuide";
 import { DocumentsEmptyState } from "@/components/documents/DocumentsEmptyState";
 import { DocumentReportModal } from "@/components/documents/DocumentReportModal";
+import { FocusAreaSelector, type FocusArea } from "@/components/documents/FocusAreaSelector";
+import { HistoricalReportsAccordion } from "@/components/documents/HistoricalReportsAccordion";
 import * as pdfjs from "pdfjs-dist";
 import { ProductTour } from "@/components/onboarding/ProductTour";
 import { documentsTourSteps } from "@/components/onboarding/tourConfigs";
@@ -255,6 +257,8 @@ export default function Documents() {
   const shouldShowAnalyzeButtons = documents && documents.length >= 3 && 
     familyData?.initial_doc_analysis_status === 'pending';
 
+  const [selectedFocusArea, setSelectedFocusArea] = useState<FocusArea>('comprehensive');
+
   const handleGenerateReport = async () => {
     if (!selectedFamily?.id || !selectedStudent?.id) {
       toast.error("Please select a family and student");
@@ -271,7 +275,8 @@ export default function Documents() {
       const { data, error } = await supabase.functions.invoke('generate-document-report', {
         body: { 
           family_id: selectedFamily.id,
-          student_id: selectedStudent.id
+          student_id: selectedStudent.id,
+          focusArea: selectedFocusArea
         }
       });
 
@@ -391,6 +396,36 @@ export default function Documents() {
           </div>
         </div>
 
+        {documents && documents.length > 0 && (
+          <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-primary" />
+                Generate Clinical Report
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <FocusAreaSelector 
+                value={selectedFocusArea}
+                onChange={setSelectedFocusArea}
+              />
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-muted-foreground">
+                  250 AI credits • Comprehensive {selectedFocusArea} analysis
+                </p>
+                <Button 
+                  onClick={handleGenerateReport}
+                  disabled={isGeneratingReport}
+                  size="lg"
+                >
+                  <FileText className="mr-2 h-4 w-4" />
+                  {isGeneratingReport ? "Generating..." : "Generate Report"}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         <Card>
           <CardHeader>
             <CardTitle>All Documents</CardTitle>
@@ -491,6 +526,13 @@ export default function Documents() {
             )}
           </CardContent>
         </Card>
+
+        {selectedFamily?.id && selectedStudent?.id && (
+          <HistoricalReportsAccordion 
+            familyId={selectedFamily.id}
+            studentId={selectedStudent.id}
+          />
+        )}
       </div>
 
       <DocumentUploadModal
