@@ -443,66 +443,74 @@ export default function Documents() {
               </p>
             )}
           </div>
-          <div className="flex gap-2 flex-wrap">
-            {shouldShowAnalyzeButtons && (
-              <>
-                <Button 
-                  onClick={handleAnalyzeAllDocuments}
-                  disabled={isAnalyzingAll}
-                  variant="default"
-                  size="sm"
-                  className="text-xs sm:text-sm"
-                >
-                  <Sparkles className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-                  <span className="hidden sm:inline">{isAnalyzingAll ? "Analyzing..." : "Analyze My Documents"}</span>
-                  <span className="sm:hidden">{isAnalyzingAll ? "Analyzing..." : "Analyze"}</span>
-                </Button>
-                <Button 
-                  onClick={handleResetAnalysis}
-                  variant="outline"
-                  size="sm"
-                  className="text-xs sm:text-sm"
-                >
-                  Reset
-                </Button>
-              </>
-            )}
+          <div className="flex gap-4 flex-wrap items-center">
+            {/* Analysis & Reporting Group - Warning colors */}
+            {(shouldShowAnalyzeButtons || (documents && documents.length > 0)) && (
+              <div className="flex gap-2 flex-wrap items-center border-l-2 border-amber-500/30 pl-3">
+                {shouldShowAnalyzeButtons && (
+                  <>
+                    <Button 
+                      onClick={handleAnalyzeAllDocuments}
+                      disabled={isAnalyzingAll}
+                      variant="secondary"
+                      size="sm"
+                      className="text-xs sm:text-sm"
+                    >
+                      <Sparkles className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                      <span className="hidden sm:inline">{isAnalyzingAll ? "Analyzing..." : "Analyze My Documents"}</span>
+                      <span className="sm:hidden">{isAnalyzingAll ? "Analyzing..." : "Analyze"}</span>
+                    </Button>
+                    <Button 
+                      onClick={handleResetAnalysis}
+                      variant="outline"
+                      size="sm"
+                      className="text-xs sm:text-sm border-amber-200 hover:bg-amber-50 dark:border-amber-800 dark:hover:bg-amber-950"
+                    >
+                      Reset
+                    </Button>
+                  </>
+                )}
 
-            {documents && documents.length > 0 && (
-              <Button 
-                onClick={handleGenerateReport}
-                disabled={isGeneratingReport}
-                variant="default"
-                size="sm"
-                className="text-xs sm:text-sm"
-              >
-                <FileText className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden sm:inline">{isGeneratingReport ? "Generating..." : "Generate Report"}</span>
-                <span className="sm:hidden">{isGeneratingReport ? "Gen..." : "Report"}</span>
-              </Button>
+                {documents && documents.length > 0 && (
+                  <Button 
+                    onClick={handleGenerateReport}
+                    disabled={isGeneratingReport}
+                    variant="secondary"
+                    size="sm"
+                    className="text-xs sm:text-sm"
+                  >
+                    <FileText className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                    <span className="hidden sm:inline">{isGeneratingReport ? "Generating..." : "Generate Report"}</span>
+                    <span className="sm:hidden">{isGeneratingReport ? "Gen..." : "Report"}</span>
+                  </Button>
+                )}
+              </div>
             )}
             
-            <Sheet open={guideOpen} onOpenChange={setGuideOpen}>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="sm" className="text-xs sm:text-sm">
-                  <HelpCircle className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-                  <span className="hidden sm:inline">Document </span>Guide
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-full sm:max-w-2xl overflow-y-auto">
-                <SheetHeader>
-                  <SheetTitle>What Should I Upload?</SheetTitle>
-                </SheetHeader>
-                <div className="mt-6">
-                  <DocumentGuide />
-                </div>
-              </SheetContent>
-            </Sheet>
-            
-            <Button onClick={() => setUploadModalOpen(true)} size="sm" className="text-xs sm:text-sm">
-              <Upload className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-              <span className="hidden sm:inline">Upload </span>Document
-            </Button>
+            {/* Document Management Group - Primary colors */}
+            <div className="flex gap-2 flex-wrap">
+              <Button onClick={() => setUploadModalOpen(true)} size="sm" className="text-xs sm:text-sm">
+                <Upload className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Upload </span>Document
+              </Button>
+              
+              <Sheet open={guideOpen} onOpenChange={setGuideOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="outline" size="sm" className="text-xs sm:text-sm">
+                    <HelpCircle className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                    <span className="hidden sm:inline">Document </span>Guide
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-full sm:max-w-2xl overflow-y-auto">
+                  <SheetHeader>
+                    <SheetTitle>What Should I Upload?</SheetTitle>
+                  </SheetHeader>
+                  <div className="mt-6">
+                    <DocumentGuide />
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </div>
           </div>
         </div>
 
