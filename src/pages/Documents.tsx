@@ -313,6 +313,34 @@ export default function Documents() {
     }
   };
 
+  const handleDeepReAnalysis = async () => {
+    if (!selectedFamily?.id) return;
+    
+    const toastId = toast.loading("Re-analyzing all documents with specialized Deep Read prompts...");
+    try {
+      const { data, error } = await supabase.functions.invoke("re-analyze-all-documents", {
+        body: { family_id: selectedFamily.id },
+      });
+
+      if (error) throw error;
+
+      toast.success(
+        `✨ ${data.successful} documents re-analyzed! Extracted 5-10x more data points. View Analytics to see new charts.`, 
+        { id: toastId, duration: 6000 }
+      );
+      queryClient.invalidateQueries({ queryKey: ["documents"] });
+      queryClient.invalidateQueries({ queryKey: ["unlocked-charts"] });
+      
+      // Redirect to analytics after 2 seconds
+      setTimeout(() => {
+        navigate("/analytics");
+      }, 2000);
+    } catch (error: any) {
+      console.error("Re-analysis error:", error);
+      toast.error("Re-analysis failed: " + error.message, { id: toastId });
+    }
+  };
+
   const handleResetAnalysis = async () => {
     if (!selectedFamily?.id) return;
     
@@ -472,17 +500,30 @@ export default function Documents() {
                 )}
 
                 {documents && documents.length > 0 && (
-                  <Button 
-                    onClick={handleGenerateReport}
-                    disabled={isGeneratingReport}
-                    variant="secondary"
-                    size="sm"
-                    className="text-xs sm:text-sm"
-                  >
-                    <FileText className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-                    <span className="hidden sm:inline">{isGeneratingReport ? "Generating..." : "Generate Report"}</span>
-                    <span className="sm:hidden">{isGeneratingReport ? "Gen..." : "Report"}</span>
-                  </Button>
+                  <>
+                    <Button 
+                      onClick={handleGenerateReport}
+                      disabled={isGeneratingReport}
+                      variant="secondary"
+                      size="sm"
+                      className="text-xs sm:text-sm"
+                    >
+                      <FileText className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                      <span className="hidden sm:inline">{isGeneratingReport ? "Generating..." : "Generate Report"}</span>
+                      <span className="sm:hidden">{isGeneratingReport ? "Gen..." : "Report"}</span>
+                    </Button>
+                    
+                    <Button 
+                      onClick={handleDeepReAnalysis}
+                      variant="outline"
+                      size="sm"
+                      className="text-xs sm:text-sm bg-gradient-to-r from-violet-500/10 to-purple-500/10 border-violet-500/30 hover:from-violet-500/20 hover:to-purple-500/20"
+                    >
+                      <Sparkles className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4 text-violet-600" />
+                      <span className="hidden sm:inline">Deep Re-Analysis</span>
+                      <span className="sm:hidden">Re-Analyze</span>
+                    </Button>
+                  </>
                 )}
               </div>
             )}
