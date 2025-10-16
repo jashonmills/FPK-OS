@@ -288,6 +288,7 @@ export default function Documents() {
 
       setReportData(data);
       setIsReportModalOpen(true);
+      queryClient.invalidateQueries({ queryKey: ['historical-reports'] });
       toast.success(`Report generated! Analyzed ${data.document_count} documents with ${data.metrics_analyzed} metrics.`);
     } catch (error: any) {
       console.error('Report generation error:', error);
