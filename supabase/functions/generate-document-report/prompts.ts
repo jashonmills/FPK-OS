@@ -44,7 +44,31 @@ Assess current intervention framework:
 Synthesize findings into actionable clinical profile
 
 ## Section VI: Analysis of Missing Data
-Identify specific data gaps that would strengthen assessment`;
+Identify specific data gaps that would strengthen assessment
+
+---
+
+## **Parent-Facing Summary: Key Takeaways & Action Steps**
+
+This section translates the clinical analysis above into a straightforward summary for ${studentName}'s family.
+
+### **What's Going Well? (Our Strengths)**
+In 2-3 encouraging bullet points, summarize ${studentName}'s biggest strengths and recent gains. Use positive, asset-based language.
+
+### **Where Do We Focus Next? (Our Top 3 Priorities)**
+In 3 clear, numbered points, identify the top skill-building priorities from the report. Explain in simple terms WHY each one is important.
+
+### **What's Our Game Plan? (Simple Strategies to Start Now)**
+In 2-3 bullet points, provide simple, practical strategies that a parent can understand and use immediately. These should be layman's terms versions of the clinical recommendations.
+
+### **A Final Thought**
+End with a single, encouraging, and empowering sentence that reinforces hope and teamwork.
+
+**TONE FOR PARENT SUMMARY:**
+- Use simple, everyday language (avoid jargon: say "asking for things" not "manding")
+- Be warm, encouraging, and empowering
+- Frame everything as "we" and "our plan"
+- Focus on action and hope, not deficits`;
 
 export const BEHAVIORAL_PROMPT = (studentName: string, studentAge: number) => `You are a Board Certified Behavior Analyst (BCBA) conducting a comprehensive Functional Behavior Assessment (FBA).
 
@@ -119,7 +143,31 @@ Based on function hypotheses:
 - Schedule modifications
 
 ## Section VI: Data Gaps
-Identify specific observations, assessments, or data collection needed to strengthen FBA`;
+Identify specific observations, assessments, or data collection needed to strengthen FBA
+
+---
+
+## **Parent-Facing Summary: Key Takeaways & Action Steps**
+
+This section translates the clinical analysis above into a straightforward summary for ${studentName}'s family.
+
+### **What's Going Well? (Our Strengths)**
+In 2-3 encouraging bullet points, summarize ${studentName}'s biggest strengths and recent gains. Use positive, asset-based language.
+
+### **Where Do We Focus Next? (Our Top 3 Priorities)**
+In 3 clear, numbered points, identify the top skill-building priorities from the report. Explain in simple terms WHY each one is important.
+
+### **What's Our Game Plan? (Simple Strategies to Start Now)**
+In 2-3 bullet points, provide simple, practical strategies that a parent can understand and use immediately. These should be layman's terms versions of the clinical recommendations.
+
+### **A Final Thought**
+End with a single, encouraging, and empowering sentence that reinforces hope and teamwork.
+
+**TONE FOR PARENT SUMMARY:**
+- Use simple, everyday language (avoid jargon: say "asking for things" not "manding")
+- Be warm, encouraging, and empowering
+- Frame everything as "we" and "our plan"
+- Focus on action and hope, not deficits`;
 
 export const SKILL_PROMPT = (studentName: string, studentAge: number) => `You are an educational specialist conducting a comprehensive skill acquisition analysis.
 
@@ -200,7 +248,31 @@ Prioritize next teaching targets based on:
 4. Likelihood of success (success builds momentum)
 
 ## Section VI: Missing Data
-Identify needed assessments (VB-MAPP, ABLLS-R, AFLS, etc.) and specific skill probes`;
+Identify needed assessments (VB-MAPP, ABLLS-R, AFLS, etc.) and specific skill probes
+
+---
+
+## **Parent-Facing Summary: Key Takeaways & Action Steps**
+
+This section translates the clinical analysis above into a straightforward summary for ${studentName}'s family.
+
+### **What's Going Well? (Our Strengths)**
+In 2-3 encouraging bullet points, summarize ${studentName}'s biggest strengths and recent gains. Use positive, asset-based language.
+
+### **Where Do We Focus Next? (Our Top 3 Priorities)**
+In 3 clear, numbered points, identify the top skill-building priorities from the report. Explain in simple terms WHY each one is important.
+
+### **What's Our Game Plan? (Simple Strategies to Start Now)**
+In 2-3 bullet points, provide simple, practical strategies that a parent can understand and use immediately. These should be layman's terms versions of the clinical recommendations.
+
+### **A Final Thought**
+End with a single, encouraging, and empowering sentence that reinforces hope and teamwork.
+
+**TONE FOR PARENT SUMMARY:**
+- Use simple, everyday language (avoid jargon: say "asking for things" not "manding")
+- Be warm, encouraging, and empowering
+- Frame everything as "we" and "our plan"
+- Focus on action and hope, not deficits`;
 
 export const INTERVENTION_PROMPT = (studentName: string, studentAge: number) => `You are a clinical director conducting an intervention effectiveness review.
 
@@ -298,7 +370,31 @@ For resource-intensive interventions:
 - **Recommendation:** Continue/modify/discontinue with rationale
 
 ## Section VII: Data Gaps
-Identify missing outcome measures needed to evaluate intervention effectiveness`;
+Identify missing outcome measures needed to evaluate intervention effectiveness
+
+---
+
+## **Parent-Facing Summary: Key Takeaways & Action Steps**
+
+This section translates the clinical analysis above into a straightforward summary for ${studentName}'s family.
+
+### **What's Going Well? (Our Strengths)**
+In 2-3 encouraging bullet points, summarize ${studentName}'s biggest strengths and recent gains. Use positive, asset-based language.
+
+### **Where Do We Focus Next? (Our Top 3 Priorities)**
+In 3 clear, numbered points, identify the top skill-building priorities from the report. Explain in simple terms WHY each one is important.
+
+### **What's Our Game Plan? (Simple Strategies to Start Now)**
+In 2-3 bullet points, provide simple, practical strategies that a parent can understand and use immediately. These should be layman's terms versions of the clinical recommendations.
+
+### **A Final Thought**
+End with a single, encouraging, and empowering sentence that reinforces hope and teamwork.
+
+**TONE FOR PARENT SUMMARY:**
+- Use simple, everyday language (avoid jargon: say "asking for things" not "manding")
+- Be warm, encouraging, and empowering
+- Frame everything as "we" and "our plan"
+- Focus on action and hope, not deficits`;
 
 export const SENSORY_PROMPT = (studentName: string, studentAge: number) => `You are an occupational therapist and BCBA conducting a comprehensive sensory and physiological assessment.
 
@@ -450,7 +546,31 @@ Based on sleep-behavior correlation findings:
 ## Section VII: Missing Data
 - Sleep assessments needed (sleep study, pediatrician consult)
 - Sensory assessments (SIPT, SPM-2, Sensory Profile)
-- Environmental audits needed`;
+- Environmental audits needed
+
+---
+
+## **Parent-Facing Summary: Key Takeaways & Action Steps**
+
+This section translates the clinical analysis above into a straightforward summary for ${studentName}'s family.
+
+### **What's Going Well? (Our Strengths)**
+In 2-3 encouraging bullet points, summarize ${studentName}'s biggest strengths and recent gains. Use positive, asset-based language.
+
+### **Where Do We Focus Next? (Our Top 3 Priorities)**
+In 3 clear, numbered points, identify the top skill-building priorities from the report. Explain in simple terms WHY each one is important.
+
+### **What's Our Game Plan? (Simple Strategies to Start Now)**
+In 2-3 bullet points, provide simple, practical strategies that a parent can understand and use immediately. These should be layman's terms versions of the clinical recommendations.
+
+### **A Final Thought**
+End with a single, encouraging, and empowering sentence that reinforces hope and teamwork.
+
+**TONE FOR PARENT SUMMARY:**
+- Use simple, everyday language (avoid jargon: say "asking for things" not "manding")
+- Be warm, encouraging, and empowering
+- Frame everything as "we" and "our plan"
+- Focus on action and hope, not deficits`;
 
 export const ENVIRONMENTAL_PROMPT = (studentName: string, studentAge: number) => `You are an environmental psychologist and BCBA conducting a contextual analysis.
 
@@ -627,4 +747,28 @@ Prioritized based on data:
 - Settings not yet assessed
 - Times of day with insufficient data
 - Social configurations not yet observed
-- Environmental variables not yet measured (noise levels, lighting lux, etc.)`;
+- Environmental variables not yet measured (noise levels, lighting lux, etc.)
+
+---
+
+## **Parent-Facing Summary: Key Takeaways & Action Steps**
+
+This section translates the clinical analysis above into a straightforward summary for ${studentName}'s family.
+
+### **What's Going Well? (Our Strengths)**
+In 2-3 encouraging bullet points, summarize ${studentName}'s biggest strengths and recent gains. Use positive, asset-based language.
+
+### **Where Do We Focus Next? (Our Top 3 Priorities)**
+In 3 clear, numbered points, identify the top skill-building priorities from the report. Explain in simple terms WHY each one is important.
+
+### **What's Our Game Plan? (Simple Strategies to Start Now)**
+In 2-3 bullet points, provide simple, practical strategies that a parent can understand and use immediately. These should be layman's terms versions of the clinical recommendations.
+
+### **A Final Thought**
+End with a single, encouraging, and empowering sentence that reinforces hope and teamwork.
+
+**TONE FOR PARENT SUMMARY:**
+- Use simple, everyday language (avoid jargon: say "asking for things" not "manding")
+- Be warm, encouraging, and empowering
+- Frame everything as "we" and "our plan"
+- Focus on action and hope, not deficits`;
