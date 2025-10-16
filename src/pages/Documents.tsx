@@ -115,7 +115,9 @@ export default function Documents() {
 
       if (error) throw error;
       if (data?.signedUrl) {
-        window.open(data.signedUrl, "_blank");
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+        const fullUrl = `${supabaseUrl}/storage/v1${data.signedUrl}`;
+        window.open(fullUrl, "_blank");
       }
     } catch (error: any) {
       toast.error("Failed to download: " + error.message);
