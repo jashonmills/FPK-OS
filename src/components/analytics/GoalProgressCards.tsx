@@ -76,37 +76,39 @@ export const GoalProgressCards = ({ familyId, studentId, sampleData }: GoalProgr
             : 0;
 
           return (
-            <Card key={goal.id}>
+            <Card key={goal.id} className="flex flex-col">
               <CardHeader>
                 <CardTitle className="text-lg">{goal.goal_title}</CardTitle>
                 <CardDescription className="capitalize">{goal.goal_type}</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                {goal.goal_description && (
-                  <p className="text-sm text-muted-foreground">{goal.goal_description}</p>
-                )}
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Progress</span>
-                    <span className="font-semibold">{progress}%</span>
-                  </div>
-                  <Progress value={progress} className="h-2" />
-                  {goal.target_value && (
-                    <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>Current: {goal.current_value} {goal.unit}</span>
-                      <span>Target: {goal.target_value} {goal.unit}</span>
+              <CardContent className="flex flex-col flex-grow space-y-4">
+                <div className="flex-grow space-y-4">
+                  {goal.goal_description && (
+                    <p className="text-sm text-muted-foreground">{goal.goal_description}</p>
+                  )}
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>Progress</span>
+                      <span className="font-semibold">{progress}%</span>
                     </div>
+                    <Progress value={progress} className="h-2" />
+                    {goal.target_value && (
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>Current: {goal.current_value} {goal.unit}</span>
+                        <span>Target: {goal.target_value} {goal.unit}</span>
+                      </div>
+                    )}
+                  </div>
+                  {goal.target_date && (
+                    <p className="text-xs text-muted-foreground">
+                      Target Date: {new Date(goal.target_date).toLocaleDateString()}
+                    </p>
                   )}
                 </div>
-                {goal.target_date && (
-                  <p className="text-xs text-muted-foreground">
-                    Target Date: {new Date(goal.target_date).toLocaleDateString()}
-                  </p>
-                )}
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  className="w-full"
+                  className="w-full mt-auto"
                   onClick={() => setSelectedGoal({ id: goal.id, title: goal.goal_title })}
                 >
                   <Lightbulb className="h-4 w-4 mr-2" />
