@@ -4,6 +4,7 @@ import { Download, Share2, FileText } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useToast } from "@/hooks/use-toast";
+import { AIAttribution } from "@/components/shared/AIAttribution";
 
 interface DocumentReportModalProps {
   open: boolean;
@@ -67,10 +68,13 @@ export const DocumentReportModal = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5" />
-            Comprehensive Student Report
-          </DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Comprehensive Student Report
+            </DialogTitle>
+            <AIAttribution variant="badge" />
+          </div>
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto">

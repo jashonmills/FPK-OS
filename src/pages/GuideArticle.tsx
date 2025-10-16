@@ -11,6 +11,7 @@ import { format } from 'date-fns';
 import { useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { AIAttribution } from '@/components/shared/AIAttribution';
 
 export default function GuideArticle() {
   const { categorySlug, articleSlug } = useParams<{ categorySlug: string; articleSlug: string }>();
@@ -155,18 +156,30 @@ export default function GuideArticle() {
           <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
             <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
               {article.author && (
-                <Link
-                  to={`/authors/${article.author.slug}`}
-                  className="flex items-center hover:text-primary transition-colors"
-                >
-                  <User className="w-4 h-4 mr-2" />
-                  <span className="font-medium text-foreground">
-                    {article.author.name}
-                  </span>
-                  {article.author.credentials && (
-                    <span className="ml-1">, {article.author.credentials}</span>
+                <>
+                  {article.author.slug === 'fpx-ai-assistant' ? (
+                    <div className="flex items-center gap-2">
+                      <User className="w-4 h-4" />
+                      <span className="font-medium text-foreground">
+                        {article.author.name}
+                      </span>
+                      <AIAttribution variant="icon" />
+                    </div>
+                  ) : (
+                    <Link
+                      to={`/authors/${article.author.slug}`}
+                      className="flex items-center hover:text-primary transition-colors"
+                    >
+                      <User className="w-4 h-4 mr-2" />
+                      <span className="font-medium text-foreground">
+                        {article.author.name}
+                      </span>
+                      {article.author.credentials && (
+                        <span className="ml-1">, {article.author.credentials}</span>
+                      )}
+                    </Link>
                   )}
-                </Link>
+                </>
               )}
               
               {article.published_at && (

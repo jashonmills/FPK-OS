@@ -15,6 +15,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { consumeCredits, getChatCredits } from "@/lib/creditUtils";
+import { AIAttribution } from "@/components/shared/AIAttribution";
 
 interface Message {
   id: string;
@@ -248,7 +249,14 @@ export function AIChatWidget() {
                     }`}
                   >
                     <div className="flex items-start justify-between gap-2">
-                      <p className="text-sm whitespace-pre-wrap flex-1">{message.content}</p>
+                      <div className="flex-1">
+                        {message.role === "assistant" && (
+                          <div className="flex items-center gap-1 mb-1">
+                            <AIAttribution variant="icon" />
+                          </div>
+                        )}
+                        <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                      </div>
                       
                       {/* Text-to-speech button for assistant messages */}
                       {message.role === "assistant" && flags['enable-ai-text-to-speech'] && (

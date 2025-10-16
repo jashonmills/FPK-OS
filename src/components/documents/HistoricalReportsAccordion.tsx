@@ -8,6 +8,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import { AIAttribution } from "@/components/shared/AIAttribution";
 
 interface HistoricalReportsAccordionProps {
   familyId: string;
@@ -114,6 +115,7 @@ export const HistoricalReportsAccordion = ({ familyId, studentId }: HistoricalRe
                   <Badge variant="outline" className="capitalize">
                     {focusAreaLabels[report.focus_area || 'comprehensive']}
                   </Badge>
+                  <AIAttribution variant="icon" />
                   <span className="flex items-center gap-1 text-sm text-muted-foreground">
                     <Calendar className="h-3 w-3" />
                     {new Date(report.generated_at).toLocaleDateString()}

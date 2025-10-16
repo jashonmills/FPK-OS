@@ -4,6 +4,7 @@ import { useFamily } from "@/contexts/FamilyContext";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Lightbulb, AlertCircle, CheckCircle, Info } from "lucide-react";
+import { AIAttribution } from "@/components/shared/AIAttribution";
 
 export const AIInsightsWidget = () => {
   const { selectedStudent } = useFamily();
@@ -79,12 +80,17 @@ export const AIInsightsWidget = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>AI Insights</CardTitle>
-        <CardDescription>
-          {insights && insights.length > 0
-            ? "AI-generated recommendations from analyzed documents"
-            : "No insights yet"}
-        </CardDescription>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle>AI Insights</CardTitle>
+            <CardDescription>
+              {insights && insights.length > 0
+                ? "AI-generated recommendations from analyzed documents"
+                : "No insights yet"}
+            </CardDescription>
+          </div>
+          <AIAttribution variant="icon" />
+        </div>
       </CardHeader>
       <CardContent>
         {insights && insights.length > 0 ? (
@@ -96,7 +102,10 @@ export const AIInsightsWidget = () => {
                     {getInsightIcon(insight.insight_type)}
                     <div className="flex-1 space-y-2">
                       <div className="flex items-start justify-between gap-2">
-                        <h4 className="font-semibold">{insight.title}</h4>
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-semibold">{insight.title}</h4>
+                          <AIAttribution variant="icon" />
+                        </div>
                         <Badge variant={getPriorityColor(insight.priority)} className="shrink-0">
                           {insight.priority}
                         </Badge>
