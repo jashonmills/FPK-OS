@@ -17,6 +17,8 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
+    const lovableApiKey = Deno.env.get("LOVABLE_API_KEY") ?? "";
+
     const { family_id, student_id, behavior_name, operational_definition } = await req.json();
 
     // Fetch all incident logs for this student
@@ -141,20 +143,25 @@ Return ONLY a valid JSON object (no markdown, no code blocks) in this exact form
 Categories must be one of: temporal, antecedent, consequence, environmental
 Confidence must be one of: high, medium, low`;
 
-    const { data: aiData, error: aiError } = await supabase.functions.invoke("chat-with-data", {
-      body: {
+    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${lovableApiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash",
         messages: [
           {
             role: "user",
             content: aiPrompt,
           },
         ],
-        model: "google/gemini-2.5-flash",
-      },
+      }),
     });
 
-    if (aiError) {
-      console.error("AI error:", aiError);
+    if (!aiResponse.ok) {
+      console.error("AI API error:", await aiResponse.text());
       // Fallback to basic findings if AI fails
       const basicFindings = [];
       
@@ -188,16 +195,16 @@ Confidence must be one of: high, medium, low`;
       );
     }
 
+    const aiData = await aiResponse.json();
+    const aiContent = aiData.choices?.[0]?.message?.content || "";
+
     // Parse AI response
     let parsedResponse;
     try {
-      const aiContent = aiData.response || aiData.content || aiData;
-      const cleanedContent = typeof aiContent === 'string' 
-        ? aiContent.replace(/```json\n?|\n?```/g, '').trim()
-        : JSON.stringify(aiContent);
+      const cleanedContent = aiContent.replace(/```json\n?|\n?```/g, '').trim();
       parsedResponse = JSON.parse(cleanedContent);
     } catch (parseError) {
-      console.error("Failed to parse AI response:", aiData);
+      console.error("Failed to parse AI response:", aiContent);
       throw new Error("AI returned invalid JSON");
     }
 
@@ -211,7 +218,8 @@ Confidence must be one of: high, medium, low`;
     );
   } catch (error) {
     console.error("Error in analyze-bfa-patterns:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+    return new Response(JSON.stringify({ error: errorMessage }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

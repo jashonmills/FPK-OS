@@ -17,6 +17,8 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
+    const lovableApiKey = Deno.env.get("LOVABLE_API_KEY") ?? "";
+
     const { family_id, student_id, wizard_data } = await req.json();
 
     // Get student details
@@ -75,25 +77,33 @@ Return ONLY valid HTML (no markdown, no code blocks) with professional styling f
 Use semantic HTML tags and inline CSS for formatting.
 Make it look clinical and professional.`;
 
-    const { data: aiData, error: aiError } = await supabase.functions.invoke("chat-with-data", {
-      body: {
+    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${lovableApiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash",
         messages: [
           {
             role: "user",
             content: reportPrompt,
           },
         ],
-        model: "google/gemini-2.5-flash",
-      },
+      }),
     });
 
-    if (aiError) throw aiError;
+    if (!aiResponse.ok) {
+      throw new Error(`AI API error: ${await aiResponse.text()}`);
+    }
 
-    const htmlContent = aiData.response || aiData.content || aiData;
+    const aiData = await aiResponse.json();
+    const htmlContent = aiData.choices?.[0]?.message?.content || "";
 
     // For now, we'll store the HTML content as text
     // In a production system, you'd convert this to PDF using a library
-    const reportContent = typeof htmlContent === 'string' ? htmlContent : JSON.stringify(htmlContent);
+    const reportContent = htmlContent.replace(/```html\n?|\n?```/g, '').trim();
 
     // Create a text file with the report content
     const fileName = `BFA_Report_${studentName.replace(/\s+/g, '_')}_${Date.now()}.html`;
@@ -146,7 +156,8 @@ Make it look clinical and professional.`;
     );
   } catch (error) {
     console.error("Error in generate-bfa-report:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+    return new Response(JSON.stringify({ error: errorMessage }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
