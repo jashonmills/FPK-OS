@@ -440,21 +440,54 @@ Format your response as a single JSON object:
 
     // Insert behavioral metrics
     if (analysisResult.baseline_data?.behavioral_metrics?.length > 0) {
-      const behavioralMetrics = analysisResult.baseline_data.behavioral_metrics.map((metric: any) => ({
-        family_id,
-        student_id: student.id,
-        document_id: null,
-        metric_type: metric.metric_type || "behavioral_incident",
-        metric_name: metric.metric_name,
-        metric_value: metric.metric_value,
-        metric_unit: metric.metric_unit || null,
-        measurement_date: metric.measurement_date || null,
-        context: metric.context || "AI Import from document analysis",
-      }));
+      const behavioralMetrics = analysisResult.baseline_data.behavioral_metrics
+        .filter((metric: any) => {
+          // Parse metric_value - handle ranges like "2-3" by taking the average
+          let value = metric.metric_value;
+          if (typeof value === 'string') {
+            // Check if it's a range like "2-3"
+            if (value.includes('-')) {
+              const parts = value.split('-').map((p: string) => parseFloat(p.trim()));
+              if (parts.every((p: number) => !isNaN(p))) {
+                value = parts.reduce((sum: number, p: number) => sum + p, 0) / parts.length;
+              } else {
+                return false; // Skip invalid ranges
+              }
+            } else {
+              value = parseFloat(value);
+            }
+          }
+          return !isNaN(value) && value !== null && value !== undefined;
+        })
+        .map((metric: any) => {
+          let value = metric.metric_value;
+          if (typeof value === 'string') {
+            if (value.includes('-')) {
+              const parts = value.split('-').map((p: string) => parseFloat(p.trim()));
+              value = parts.reduce((sum: number, p: number) => sum + p, 0) / parts.length;
+            } else {
+              value = parseFloat(value);
+            }
+          }
+          
+          return {
+            family_id,
+            student_id: student.id,
+            document_id: null,
+            metric_type: metric.metric_type || "behavioral_incident",
+            metric_name: metric.metric_name,
+            metric_value: value,
+            metric_unit: metric.metric_unit || null,
+            measurement_date: metric.measurement_date || null,
+            context: metric.context || "AI Import from document analysis",
+          };
+        });
 
-      const { error: behavioralError } = await supabase.from("document_metrics").insert(behavioralMetrics);
-      if (!behavioralError) importedCounts.behavioral_metrics = behavioralMetrics.length;
-      else console.error("Error inserting behavioral metrics:", behavioralError);
+      if (behavioralMetrics.length > 0) {
+        const { error: behavioralError } = await supabase.from("document_metrics").insert(behavioralMetrics);
+        if (!behavioralError) importedCounts.behavioral_metrics = behavioralMetrics.length;
+        else console.error("Error inserting behavioral metrics:", behavioralError);
+      }
     }
 
     // Insert academic fluency data
