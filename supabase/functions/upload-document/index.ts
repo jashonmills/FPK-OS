@@ -50,6 +50,13 @@ serve(async (req) => {
         .trim();
     }
 
+    // Sanitize extracted content to remove null bytes and other problematic characters
+    // PostgreSQL text fields cannot store null bytes (\u0000)
+    extractedContent = extractedContent
+      .replace(/\u0000/g, '') // Remove null bytes
+      .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '') // Remove other control characters except \n, \r, \t
+      .trim();
+
     // Quality validation
     if (!extractedContent || extractedContent.length === 0) {
       console.error('PDF text extraction failed: empty content');
