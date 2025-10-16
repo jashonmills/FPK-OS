@@ -200,17 +200,16 @@ export default function AssessmentHub() {
       <div>
         <h2 className="text-2xl font-bold mb-6">Assessment Library</h2>
         <Tabs defaultValue="all" className="space-y-6">
-          <TabsList className="gap-2 mb-8">
+          <TabsList>
             {categories.map(cat => {
               const Icon = cat.icon;
               return (
                 <TabsTrigger 
                   key={cat.id} 
-                  value={cat.id} 
-                  className="flex items-center gap-2"
+                  value={cat.id}
                 >
-                  <Icon className="h-4 w-4 flex-shrink-0" />
-                  <span>{cat.label}</span>
+                  <Icon className="h-4 w-4 mr-2" />
+                  {cat.label}
                 </TabsTrigger>
               );
             })}
