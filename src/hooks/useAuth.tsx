@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { User, Session } from '@supabase/supabase-js';
+import { useQuery } from '@tanstack/react-query';
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -134,4 +135,26 @@ export const useAuth = () => {
     loading,
     signOut,
   };
+};
+
+export const useIsSuperAdmin = () => {
+  const { user } = useAuth();
+  
+  return useQuery({
+    queryKey: ['is-super-admin', user?.id],
+    queryFn: async () => {
+      if (!user) return false;
+      
+      const { data, error } = await supabase
+        .rpc('has_super_admin_role', { _user_id: user.id });
+      
+      if (error) {
+        console.error('Error checking super admin status:', error);
+        return false;
+      }
+      
+      return data;
+    },
+    enabled: !!user,
+  });
 };

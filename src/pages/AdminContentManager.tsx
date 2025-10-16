@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Navigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,13 +13,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Edit, Trash2, Eye, FileText, Users, FolderTree, Sparkles } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, FileText, Users, FolderTree, Sparkles, Shield } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { format } from 'date-fns';
+import { useIsSuperAdmin } from '@/hooks/useAuth';
 
 export default function AdminContentManager() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { data: isSuperAdmin, isLoading: isCheckingRole } = useIsSuperAdmin();
   const [selectedArticle, setSelectedArticle] = useState<any>(null);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [isGeneratorOpen, setIsGeneratorOpen] = useState(false);
@@ -155,12 +158,31 @@ export default function AdminContentManager() {
     },
   });
 
+  // Check super admin access
+  if (isCheckingRole) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center space-y-4">
+          <Shield className="w-12 h-12 mx-auto text-primary animate-pulse" />
+          <p className="text-muted-foreground">Verifying access permissions...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isSuperAdmin) {
+    return <Navigate to="/overview" replace />;
+  }
+
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-primary">Content Manager</h1>
-          <p className="text-muted-foreground">Manage articles, categories, and authors</p>
+        <div className="flex items-center gap-3">
+          <Shield className="w-8 h-8 text-primary" />
+          <div>
+            <h1 className="text-3xl font-bold text-primary">Content Manager</h1>
+            <p className="text-muted-foreground">Manage articles, categories, and authors • Super Admin Only</p>
+          </div>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => setIsGeneratorOpen(true)}>
