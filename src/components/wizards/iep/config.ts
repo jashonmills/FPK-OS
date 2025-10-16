@@ -105,3 +105,16 @@ export const iepWizardConfig: WizardConfig = {
   requiresSubscription: 'team',
   category: 'educational',
 };
+
+console.log('📚 IEP Config Created:', {
+  type: iepWizardConfig.type,
+  stepsCount: iepWizardConfig.steps.length,
+  steps: iepWizardConfig.steps.map((s, i) => ({
+    index: i,
+    id: s.id,
+    title: s.title,
+    hasComponent: !!s.component,
+    componentName: s.component?.name,
+    componentType: typeof s.component,
+  }))
+});
