@@ -54,13 +54,67 @@ serve(async (req) => {
     const activeStudentIds = activeStudents?.map(s => s.id) || [];
     console.log(`✅ Found ${activeStudentIds.length} active students`);
 
-    // Find orphaned documents (documents whose student_id is not in active students)
-    const { data: orphanedDocs } = await supabase
+    // Find orphaned documents in two ways:
+    // 1. Documents whose student_id is not in active students
+    // 2. Documents whose filename suggests they belong to a different student
+    
+    const { data: allFamilyDocs } = await supabase
       .from('documents')
       .select('id, file_name, file_path, student_id')
-      .eq('family_id', family_id)
-      .not('student_id', 'in', `(${activeStudentIds.map(id => `'${id}'`).join(',')})`);
+      .eq('family_id', family_id);
+    
+    if (!allFamilyDocs) {
+      return new Response(
+        JSON.stringify({ success: true, message: 'No documents found', deleted: 0 }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
+    // Get active student names to cross-reference
+    const { data: activeStudentNames } = await supabase
+      .from('students')
+      .select('id, first_name, last_name')
+      .eq('family_id', family_id)
+      .eq('is_active', true);
+
+    const activeStudentNameMap = new Map(
+      activeStudentNames?.map(s => [s.id, `${s.first_name} ${s.last_name}`.toLowerCase()]) || []
+    );
+
+    // Identify orphaned documents
+    const orphanedDocs = allFamilyDocs.filter(doc => {
+      // Case 1: student_id not in active students
+      if (!activeStudentIds.includes(doc.student_id)) {
+        console.log(`Found orphaned doc (inactive student): ${doc.file_name}`);
+        return true;
+      }
+
+      // Case 2: filename contains a name that doesn't match the assigned student
+      const fileName = doc.file_name.toLowerCase();
+      const assignedStudentName = activeStudentNameMap.get(doc.student_id);
+      
+      // Check if filename contains common name patterns that don't match assigned student
+      // e.g., "Jace Mills IEP.pdf" assigned to Bobby
+      if (assignedStudentName) {
+        // Extract potential names from filename (common patterns: FirstLast, First_Last, First Last)
+        const namePattern = /([a-z]+)[_\s]?([a-z]+)/gi;
+        const matches = [...fileName.matchAll(namePattern)];
+        
+        for (const match of matches) {
+          const potentialName = `${match[1]} ${match[2]}`.toLowerCase();
+          // If we find a name in the filename that doesn't match the assigned student
+          if (potentialName !== assignedStudentName && 
+              potentialName.length > 5 && // Avoid short false positives
+              !assignedStudentName.includes(potentialName) &&
+              !potentialName.includes(assignedStudentName.split(' ')[0])) {
+            console.log(`Found mismatched doc: "${doc.file_name}" assigned to ${assignedStudentName} but contains "${potentialName}"`);
+            return true;
+          }
+        }
+      }
+
+      return false;
+    });
     if (!orphanedDocs || orphanedDocs.length === 0) {
       return new Response(
         JSON.stringify({ success: true, message: 'No orphaned documents found', deleted: 0 }),
