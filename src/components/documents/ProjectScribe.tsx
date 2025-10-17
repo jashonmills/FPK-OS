@@ -3,7 +3,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Progress } from '@/components/ui/progress';
-import { Loader2, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Loader2, CheckCircle2, XCircle, AlertCircle, RotateCcw } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface ProjectScribeProps {
   jobId: string;
@@ -36,6 +38,7 @@ export const ProjectScribe = ({ jobId, onComplete }: ProjectScribeProps) => {
   const [job, setJob] = useState<JobStatus | null>(null);
   const [documents, setDocuments] = useState<DocumentStatus[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isResetting, setIsResetting] = useState(false);
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -133,6 +136,60 @@ export const ProjectScribe = ({ jobId, onComplete }: ProjectScribeProps) => {
   const progress = job.total_documents > 0
     ? (job.processed_documents / job.total_documents) * 100
     : 0;
+  
+  // Check if job appears stuck (processing for >2 minutes with no progress)
+  const isJobStuck = job.status === 'processing' && 
+    job.started_at && 
+    job.processed_documents === 0 &&
+    (Date.now() - new Date(job.started_at).getTime()) > 120000; // 2 minutes
+  
+  const handleResetJob = async () => {
+    if (!job) return;
+    
+    setIsResetting(true);
+    const toastId = toast.loading('Resetting stuck analysis job...');
+    
+    try {
+      const { error } = await supabase.functions.invoke('reset-stuck-analysis-job', {
+        body: { job_id: job.id }
+      });
+      
+      if (error) throw error;
+      
+      toast.success('Job reset! You can now retry the analysis.', { id: toastId });
+      
+      // Refresh job status
+      const { data: jobData } = await supabase
+        .from('analysis_jobs')
+        .select('*')
+        .eq('id', jobId)
+        .single();
+      
+      if (jobData) {
+        setJob(jobData);
+      }
+      
+      // Refresh document statuses
+      const { data: docsData } = await supabase
+        .from('document_analysis_status')
+        .select('*')
+        .eq('job_id', jobId)
+        .order('started_at', { ascending: true });
+      
+      if (docsData) {
+        setDocuments(docsData);
+      }
+      
+      if (onComplete) {
+        onComplete();
+      }
+    } catch (error: any) {
+      console.error('Reset error:', error);
+      toast.error('Failed to reset job: ' + error.message, { id: toastId });
+    } finally {
+      setIsResetting(false);
+    }
+  };
 
   const getStatusIcon = (status: DocumentStatus['status']) => {
     switch (status) {
@@ -205,14 +262,46 @@ export const ProjectScribe = ({ jobId, onComplete }: ProjectScribeProps) => {
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold">Project Scribe - Live Analysis Log</h3>
-          <span className="text-sm text-muted-foreground">
-            {job.processed_documents} of {job.total_documents} documents
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">
+              {job.processed_documents} of {job.total_documents} documents
+            </span>
+            {isJobStuck && (
+              <Button
+                onClick={handleResetJob}
+                variant="destructive"
+                size="sm"
+                disabled={isResetting}
+              >
+                {isResetting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    Resetting...
+                  </>
+                ) : (
+                  <>
+                    <RotateCcw className="h-4 w-4 mr-2" />
+                    Reset Stuck Job
+                  </>
+                )}
+              </Button>
+            )}
+          </div>
         </div>
+        {isJobStuck && (
+          <p className="text-sm text-amber-600 dark:text-amber-400">
+            ⚠️ This job appears to be stuck. Click "Reset Stuck Job" to clear it and try again.
+          </p>
+        )}
         <Progress value={progress} className="h-2" />
         {job.status === 'completed' && (
           <p className="text-sm text-green-600">
             ✅ Analysis complete! {job.failed_documents > 0 && `(${job.failed_documents} failed)`}
+          </p>
+        )}
+        {job.status === 'failed' && (
+          <p className="text-sm text-red-600">
+            ❌ Job failed. Please try again.
           </p>
         )}
       </div>

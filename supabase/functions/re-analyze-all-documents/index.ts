@@ -143,31 +143,52 @@ serve(async (req) => {
                   await new Promise(resolve => setTimeout(resolve, 5000)); // 5s delay before retry
                 }
                 
-                const { data, error } = await supabase.functions.invoke(
-                  'analyze-document',
-                  {
-                    body: { 
-                      document_id: doc.id,
-                      bypass_limit: true
+                try {
+                  // Wrap the invoke call in a timeout to prevent it from hanging indefinitely
+                  const invokePromise = supabase.functions.invoke(
+                    'analyze-document',
+                    {
+                      body: { 
+                        document_id: doc.id,
+                        bypass_limit: true
+                      }
                     }
-                  }
-                );
+                  );
+                  
+                  // Set a 120-second timeout for the entire invoke operation
+                  const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Function invoke timed out after 120s')), 120000)
+                  );
+                  
+                  const { data, error } = await Promise.race([invokePromise, timeoutPromise]) as any;
 
-                if (error) {
-                  lastAnalysisError = error;
-                  const isTimeout = error.message?.includes('timeout') || 
-                                   error.message?.includes('Timeout') ||
-                                   data?.can_retry === true;
+                  if (error) {
+                    lastAnalysisError = error;
+                    const isTimeout = error.message?.includes('timeout') || 
+                                     error.message?.includes('Timeout') ||
+                                     data?.can_retry === true;
+                    
+                    if (isTimeout && retryCount < maxAnalysisRetries - 1) {
+                      console.log(`  ⏱️ Analysis timeout for ${doc.file_name}, will retry...`);
+                      continue; // Retry on timeout
+                    }
+                    
+                    throw new Error(`Analysis failed: ${error.message}`);
+                  } else {
+                    analysisSuccess = true;
+                    analysisData = data;
+                  }
+                } catch (invokeError: any) {
+                  lastAnalysisError = invokeError;
+                  const isTimeout = invokeError.message?.includes('timeout') || 
+                                   invokeError.message?.includes('Timeout');
                   
                   if (isTimeout && retryCount < maxAnalysisRetries - 1) {
-                    console.log(`  ⏱️ Analysis timeout for ${doc.file_name}, will retry...`);
+                    console.log(`  ⏱️ Invoke timeout for ${doc.file_name}, will retry...`);
                     continue; // Retry on timeout
                   }
                   
-                  throw new Error(`Analysis failed: ${error.message}`);
-                } else {
-                  analysisSuccess = true;
-                  analysisData = data;
+                  throw invokeError;
                 }
               }
               
