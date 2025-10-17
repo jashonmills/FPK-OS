@@ -16,6 +16,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Settings, Plus, Edit, Trash2 } from "lucide-react";
+import { CleanupDuplicateStudentsButton } from "@/components/admin/CleanupDuplicateStudentsButton";
 
 interface FeatureFlag {
   id: string;
@@ -174,6 +175,19 @@ const PlatformAdmin = () => {
             </DialogContent>
           </Dialog>
         </div>
+
+        {/* Data Cleanup Tools */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Data Cleanup Tools</CardTitle>
+            <CardDescription>
+              Administrative tools for cleaning up duplicate or test data
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <CleanupDuplicateStudentsButton />
+          </CardContent>
+        </Card>
 
         {/* Overview Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
