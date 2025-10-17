@@ -3032,12 +3032,20 @@ export type Database = {
         Returns: undefined
       }
       get_academic_fluency_data: {
-        Args: {
-          p_end_date?: string
-          p_family_id: string
-          p_start_date?: string
-          p_student_id: string
-        }
+        Args:
+          | {
+              p_days?: number
+              p_end_date?: string
+              p_family_id: string
+              p_start_date?: string
+              p_student_id: string
+            }
+          | {
+              p_end_date?: string
+              p_family_id: string
+              p_start_date?: string
+              p_student_id: string
+            }
         Returns: {
           math_fluency: number
           math_target: number
@@ -3144,7 +3152,9 @@ export type Database = {
         }[]
       }
       get_iep_goal_progress: {
-        Args: { p_family_id: string; p_student_id: string }
+        Args:
+          | { p_days?: number; p_family_id: string; p_student_id: string }
+          | { p_family_id: string; p_student_id: string }
         Returns: {
           active_goals: number
           avg_progress: number
@@ -3293,7 +3303,9 @@ export type Database = {
         }[]
       }
       get_top_priority_goals_data: {
-        Args: { p_family_id: string; p_student_id: string }
+        Args:
+          | { p_days?: number; p_family_id: string; p_student_id: string }
+          | { p_family_id: string; p_student_id: string }
         Returns: {
           current_value: number
           goal_title: string
@@ -3319,7 +3331,9 @@ export type Database = {
         Returns: string
       }
       get_weekly_mood_counts: {
-        Args: { p_family_id: string; p_student_id: string }
+        Args:
+          | { p_days?: number; p_family_id: string; p_student_id: string }
+          | { p_family_id: string; p_student_id: string }
         Returns: {
           count: number
           day_of_week: string
