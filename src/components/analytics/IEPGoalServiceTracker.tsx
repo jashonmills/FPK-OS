@@ -9,9 +9,10 @@ interface IEPGoalServiceTrackerProps {
   studentId: string;
   familyId: string;
   sampleData?: any;
+  mode?: 'live' | 'demo';
 }
 
-export const IEPGoalServiceTracker = ({ studentId, familyId, sampleData }: IEPGoalServiceTrackerProps) => {
+export const IEPGoalServiceTracker = ({ studentId, familyId, sampleData, mode }: IEPGoalServiceTrackerProps) => {
   const { data: goalProgress, isLoading } = useQuery({
     queryKey: ["iep-goal-progress", studentId, familyId],
     queryFn: async () => {
@@ -22,84 +23,43 @@ export const IEPGoalServiceTracker = ({ studentId, familyId, sampleData }: IEPGo
       if (error) throw error;
       return data;
     },
-    enabled: !sampleData,
+    enabled: !sampleData && mode !== 'demo',
   });
 
   const categoryData = Array.isArray(sampleData || goalProgress)
     ? (sampleData || goalProgress).map((item: any) => ({
-        category: item.goal_category,
-        progress: Math.round(Number(item.avg_progress)),
-        goalCount: Number(item.goal_count),
+        category: item.goal_category || item.category,
+        progress: Math.round(Number(item.avg_progress || item.progress)),
+        goalCount: Number(item.goal_count || item.goalCount || 1),
       }))
     : [];
 
-  if (isLoading) {
+  if (isLoading && !sampleData) {
     return (
-      <Card className="border-2 border-primary/20">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>IEP Goal & Service Tracker</CardTitle>
-              <CardDescription>Progress toward goals and service delivery</CardDescription>
-            </div>
-            <Badge variant="secondary">AI Recommended</Badge>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <Skeleton className="h-64 w-full" />
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (categoryData.length === 0) {
-    return (
-      <Card className="border-2 border-primary/20">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>IEP Goal & Service Tracker</CardTitle>
-              <CardDescription>Progress toward goals and service delivery</CardDescription>
-            </div>
-            <Badge variant="secondary">AI Recommended</Badge>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="h-64 flex items-center justify-center bg-muted/30 rounded-lg">
-            <p className="text-muted-foreground">No active goals found</p>
-          </div>
+      <Card className="bg-transparent border-0">
+        <CardContent className="p-4">
+          <Skeleton className="h-full w-full bg-cyan-900/20" />
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <Card className="border-2 border-primary/20">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle>IEP Goal & Service Tracker</CardTitle>
-            <CardDescription>Progress toward goals and service delivery</CardDescription>
-          </div>
-          <Badge variant="secondary">AI Recommended</Badge>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-6">
-          {categoryData.map((item, index) => (
-            <div key={index} className="space-y-2">
-              <div className="flex justify-between items-center">
-                <div>
-                  <h4 className="font-semibold">{item.category}</h4>
-                  <p className="text-sm text-muted-foreground">{item.goalCount} active {item.goalCount === 1 ? 'goal' : 'goals'}</p>
-                </div>
-                <span className="text-2xl font-bold text-primary">{item.progress}%</span>
+    <div className="h-full w-full p-3">
+      <div className="space-y-4">
+        {categoryData.map((item, index) => (
+          <div key={index} className="space-y-2">
+            <div className="flex justify-between items-center">
+              <div>
+                <h4 className="font-semibold text-cyan-100 text-sm">{item.category}</h4>
+                <p className="text-xs text-cyan-300/60">{item.goalCount} {item.goalCount === 1 ? 'goal' : 'goals'}</p>
               </div>
-              <Progress value={item.progress} className="h-3" />
+              <span className="text-xl font-bold text-cyan-400">{item.progress}%</span>
             </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+            <Progress value={item.progress} className="h-2" />
+          </div>
+        ))}
+      </div>
+    </div>
   );
 };

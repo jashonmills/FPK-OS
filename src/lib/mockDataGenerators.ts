@@ -115,9 +115,12 @@ export const generateWorkingMemoryMock = (studentName: string) => [
 ];
 
 export const generateDailyLivingMock = (studentName: string) => [
-  { skill_category: "Self-Care", independence_level: 7, target_level: 9 },
-  { skill_category: "Meal Prep", independence_level: 5, target_level: 8 },
-  { skill_category: "Organization", independence_level: 6, target_level: 9 },
+  { log_date: "2025-01-10", date: "Jan 10", teeth_brushing: 75, dressing: 80, toileting: 90, hand_washing: 85, meal_prep: 60 },
+  { log_date: "2025-01-11", date: "Jan 11", teeth_brushing: 78, dressing: 82, toileting: 92, hand_washing: 88, meal_prep: 65 },
+  { log_date: "2025-01-12", date: "Jan 12", teeth_brushing: 80, dressing: 85, toileting: 90, hand_washing: 90, meal_prep: 68 },
+  { log_date: "2025-01-13", date: "Jan 13", teeth_brushing: 85, dressing: 88, toileting: 95, hand_washing: 92, meal_prep: 72 },
+  { log_date: "2025-01-14", date: "Jan 14", teeth_brushing: 88, dressing: 90, toileting: 95, hand_washing: 95, meal_prep: 75 },
+  { log_date: "2025-01-15", date: "Jan 15", teeth_brushing: 90, dressing: 92, toileting: 98, hand_washing: 95, meal_prep: 78 },
 ];
 
 export const generateSocialFunnelMock = (studentName: string) => [

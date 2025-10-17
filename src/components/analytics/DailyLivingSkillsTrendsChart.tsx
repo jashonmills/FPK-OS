@@ -10,9 +10,11 @@ interface DailyLivingSkillsTrendsChartProps {
   familyId: string;
   studentId: string;
   days?: number;
+  sampleData?: any;
+  mode?: 'live' | 'demo';
 }
 
-export const DailyLivingSkillsTrendsChart = ({ familyId, studentId, days = 30 }: DailyLivingSkillsTrendsChartProps) => {
+export const DailyLivingSkillsTrendsChart = ({ familyId, studentId, days = 30, sampleData, mode }: DailyLivingSkillsTrendsChartProps) => {
   const { data, isLoading } = useQuery({
     queryKey: ["dls-trends", familyId, studentId, days],
     queryFn: async () => {
@@ -25,130 +27,104 @@ export const DailyLivingSkillsTrendsChart = ({ familyId, studentId, days = 30 }:
       if (error) throw error;
       return data;
     },
+    enabled: !sampleData && mode !== 'demo',
     staleTime: 5 * 60 * 1000,
   });
 
-  if (isLoading) {
+  // Use sample data if provided, otherwise use live data
+  const displayData = sampleData || data;
+
+  if (isLoading && !sampleData) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Home className="h-5 w-5" />
-            Daily Living Skills Trends
-          </CardTitle>
-          <CardDescription>Independence in self-care routines</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Skeleton className="h-[300px] w-full" />
+      <Card className="bg-transparent border-0">
+        <CardContent className="p-4">
+          <Skeleton className="h-full w-full bg-cyan-900/20" />
         </CardContent>
       </Card>
     );
   }
 
-  if (!data || data.length === 0) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Home className="h-5 w-5" />
-            Daily Living Skills Trends
-          </CardTitle>
-          <CardDescription>Independence in self-care routines</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-center h-[300px] text-muted-foreground">
-            No daily living skills data available. Data appears when adaptive behavior assessments are analyzed.
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  const chartData = data.map((item: any) => ({
-    date: format(new Date(item.log_date), "MMM dd"),
+  // ALWAYS render chart if we have sampleData (demo mode)
+  const chartData = displayData?.map((item: any) => ({
+    date: item.log_date ? format(new Date(item.log_date), "MMM dd") : item.date,
     teethBrushing: item.teeth_brushing ? Number(item.teeth_brushing) : null,
     dressing: item.dressing ? Number(item.dressing) : null,
     toileting: item.toileting ? Number(item.toileting) : null,
     handWashing: item.hand_washing ? Number(item.hand_washing) : null,
     mealPrep: item.meal_prep ? Number(item.meal_prep) : null,
-  }));
+  })) || [];
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Home className="h-5 w-5" />
-          Daily Living Skills Trends
-        </CardTitle>
-        <CardDescription>
-          Self-care independence over the last {days} days
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-            <XAxis 
-              dataKey="date" 
-              className="text-xs"
-              tick={{ fill: "hsl(var(--foreground))" }}
-            />
-            <YAxis 
-              label={{ value: 'Success Rate (%)', angle: -90, position: 'insideLeft' }}
-              tick={{ fill: "hsl(var(--foreground))" }}
-              domain={[0, 100]}
-            />
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: "hsl(var(--background))",
-                border: "1px solid hsl(var(--border))",
-                borderRadius: "var(--radius)"
-              }}
-            />
-            <Legend />
-            <Line 
-              type="monotone" 
-              dataKey="teethBrushing" 
-              stroke="hsl(var(--chart-1))" 
-              name="Teeth Brushing"
-              strokeWidth={2}
-              connectNulls
-            />
-            <Line 
-              type="monotone" 
-              dataKey="dressing" 
-              stroke="hsl(var(--chart-2))" 
-              name="Dressing"
-              strokeWidth={2}
-              connectNulls
-            />
-            <Line 
-              type="monotone" 
-              dataKey="toileting" 
-              stroke="hsl(var(--chart-3))" 
-              name="Toileting"
-              strokeWidth={2}
-              connectNulls
-            />
-            <Line 
-              type="monotone" 
-              dataKey="handWashing" 
-              stroke="hsl(var(--chart-4))" 
-              name="Hand Washing"
-              strokeWidth={2}
-              connectNulls
-            />
-            <Line 
-              type="monotone" 
-              dataKey="mealPrep" 
-              stroke="hsl(var(--chart-5))" 
-              name="Meal Prep"
-              strokeWidth={2}
-              connectNulls
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </CardContent>
-    </Card>
+    <div className="h-full w-full p-2">
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={chartData}>
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(6, 182, 212, 0.1)" />
+          <XAxis 
+            dataKey="date" 
+            tick={{ fill: "#E0E0E0", fontSize: 10 }}
+            stroke="rgba(6, 182, 212, 0.3)"
+          />
+          <YAxis 
+            tick={{ fill: "#E0E0E0", fontSize: 10 }}
+            stroke="rgba(6, 182, 212, 0.3)"
+            domain={[0, 100]}
+          />
+          <Tooltip 
+            contentStyle={{ 
+              backgroundColor: "rgba(10, 25, 47, 0.95)",
+              border: "1px solid rgba(6, 182, 212, 0.3)",
+              borderRadius: "8px",
+              color: "#E0E0E0"
+            }}
+          />
+          <Legend wrapperStyle={{ color: "#E0E0E0", fontSize: 10 }} />
+          <Line 
+            type="monotone" 
+            dataKey="teethBrushing" 
+            stroke="#06B6D4" 
+            name="Teeth"
+            strokeWidth={2}
+            connectNulls
+            dot={{ fill: "#06B6D4", r: 3 }}
+          />
+          <Line 
+            type="monotone" 
+            dataKey="dressing" 
+            stroke="#8B5CF6" 
+            name="Dressing"
+            strokeWidth={2}
+            connectNulls
+            dot={{ fill: "#8B5CF6", r: 3 }}
+          />
+          <Line 
+            type="monotone" 
+            dataKey="toileting" 
+            stroke="#F59E0B" 
+            name="Toileting"
+            strokeWidth={2}
+            connectNulls
+            dot={{ fill: "#F59E0B", r: 3 }}
+          />
+          <Line 
+            type="monotone" 
+            dataKey="handWashing" 
+            stroke="#10B981" 
+            name="Hand Wash"
+            strokeWidth={2}
+            connectNulls
+            dot={{ fill: "#10B981", r: 3 }}
+          />
+          <Line 
+            type="monotone" 
+            dataKey="mealPrep" 
+            stroke="#EC4899" 
+            name="Meal Prep"
+            strokeWidth={2}
+            connectNulls
+            dot={{ fill: "#EC4899", r: 3 }}
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
   );
 };

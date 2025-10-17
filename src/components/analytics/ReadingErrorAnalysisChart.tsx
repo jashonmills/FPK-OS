@@ -9,6 +9,8 @@ interface ReadingErrorAnalysisChartProps {
   familyId: string;
   studentId: string;
   days?: number;
+  sampleData?: any;
+  mode?: 'live' | 'demo';
 }
 
 const ERROR_COLORS = [
@@ -19,7 +21,7 @@ const ERROR_COLORS = [
   "hsl(var(--chart-5))",
 ];
 
-export const ReadingErrorAnalysisChart = ({ familyId, studentId, days = 90 }: ReadingErrorAnalysisChartProps) => {
+export const ReadingErrorAnalysisChart = ({ familyId, studentId, days = 90, sampleData, mode }: ReadingErrorAnalysisChartProps) => {
   const { data, isLoading } = useQuery({
     queryKey: ["reading-errors", familyId, studentId, days],
     queryFn: async () => {
@@ -32,97 +34,57 @@ export const ReadingErrorAnalysisChart = ({ familyId, studentId, days = 90 }: Re
       if (error) throw error;
       return data;
     },
+    enabled: !sampleData && mode !== 'demo',
     staleTime: 5 * 60 * 1000,
   });
 
-  if (isLoading) {
+  const displayData = sampleData || data;
+
+  if (isLoading && !sampleData) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <BookOpen className="h-5 w-5" />
-            Reading Error Analysis
-          </CardTitle>
-          <CardDescription>Categorized reading mistake patterns</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Skeleton className="h-[300px] w-full" />
+      <Card className="bg-transparent border-0">
+        <CardContent className="p-4">
+          <Skeleton className="h-full w-full bg-cyan-900/20" />
         </CardContent>
       </Card>
     );
   }
 
-  if (!data || data.length === 0) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <BookOpen className="h-5 w-5" />
-            Reading Error Analysis
-          </CardTitle>
-          <CardDescription>Categorized reading mistake patterns</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-center h-[300px] text-muted-foreground">
-            No reading error data available. Data appears when reading assessments are analyzed.
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  const chartData = data.map((item: any) => ({
+  const chartData = displayData?.map((item: any) => ({
     name: item.error_type,
-    value: Number(item.frequency),
+    value: Number(item.frequency || item.value),
     percentage: Number(item.percentage),
-  }));
+  })) || [];
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <BookOpen className="h-5 w-5" />
-          Reading Error Analysis
-        </CardTitle>
-        <CardDescription>
-          Distribution of reading error types over the last {days} days
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <ResponsiveContainer width="100%" height={300}>
-          <PieChart>
-            <Pie
-              data={chartData}
-              cx="50%"
-              cy="50%"
-              labelLine={false}
-              label={({ name, percentage }) => `${name}: ${percentage}%`}
-              outerRadius={80}
-              fill="hsl(var(--chart-1))"
-              dataKey="value"
-            >
-              {chartData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={ERROR_COLORS[index % ERROR_COLORS.length]} />
-              ))}
-            </Pie>
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: "hsl(var(--background))",
-                border: "1px solid hsl(var(--border))",
-                borderRadius: "var(--radius)"
-              }}
-              formatter={(value: any, name: string, props: any) => [
-                <div key="tooltip">
-                  <div>{props.payload.name}</div>
-                  <div className="font-semibold">{value} errors ({props.payload.percentage}%)</div>
-                </div>,
-                ''
-              ]}
-            />
-            <Legend />
-          </PieChart>
-        </ResponsiveContainer>
-      </CardContent>
-    </Card>
+    <div className="h-full w-full p-2">
+      <ResponsiveContainer width="100%" height="100%">
+        <PieChart>
+          <Pie
+            data={chartData}
+            cx="50%"
+            cy="50%"
+            labelLine={false}
+            label={({ name, percentage }) => `${name}: ${percentage}%`}
+            outerRadius="70%"
+            fill="#06B6D4"
+            dataKey="value"
+          >
+            {chartData.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={ERROR_COLORS[index % ERROR_COLORS.length]} />
+            ))}
+          </Pie>
+          <Tooltip 
+            contentStyle={{ 
+              backgroundColor: "rgba(10, 25, 47, 0.95)",
+              border: "1px solid rgba(6, 182, 212, 0.3)",
+              borderRadius: "8px",
+              color: "#E0E0E0"
+            }}
+          />
+          <Legend wrapperStyle={{ color: "#E0E0E0", fontSize: 10 }} />
+        </PieChart>
+      </ResponsiveContainer>
+    </div>
   );
 };
