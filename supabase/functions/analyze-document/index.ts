@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { masterAnalyzeDocument } from "./ai-helpers.ts";
+import { classifyDocument } from "./classification-helpers.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -138,51 +139,176 @@ serve(async (req) => {
 
     const startTime = Date.now();
     
-    console.log('🚀 Invoking Master Analysis (unified AI call)...');
+    console.log('🚀 Starting checkpoint-based analysis...');
     
+    // =============================================================================
+    // CHECKPOINT SYSTEM: Check for existing progress and resume if needed
+    // =============================================================================
+    const { data: existingCheckpoints } = await supabase
+      .from('analysis_checkpoints')
+      .select('*')
+      .eq('document_id', document_id)
+      .order('created_at', { ascending: false });
+
+    const completedPhases = new Set(
+      existingCheckpoints?.filter(cp => cp.completed).map(cp => cp.phase) || []
+    );
+
+    console.log('📋 Checkpoint status:', {
+      total: existingCheckpoints?.length || 0,
+      completed: completedPhases.size,
+      phases: Array.from(completedPhases)
+    });
+
     // Update status with granular stage tracking
     await supabase
       .from('document_analysis_status')
       .update({ 
         status: 'analyzing',
+        current_phase: 'classification',
+        progress_percent: 10,
         started_at: new Date().toISOString()
       })
       .eq('document_id', document_id);
+
+    // =============================================================================
+    // PHASE 1: CLASSIFICATION (with hybrid keyword + AI approach)
+    // =============================================================================
+    let classificationResult;
     
+    if (completedPhases.has('classification')) {
+      console.log('✅ Classification already completed, loading from checkpoint...');
+      const checkpoint = existingCheckpoints?.find(cp => cp.phase === 'classification' && cp.completed);
+      classificationResult = checkpoint?.data;
+    } else {
+      console.log('🔍 Running hybrid classification...');
+      
+      try {
+        classificationResult = await classifyDocument(
+          document.extracted_content,
+          document_id,
+          anthropicApiKey
+        );
+
+        // Save classification checkpoint
+        await supabase
+          .from('analysis_checkpoints')
+          .insert({
+            document_id: document_id,
+            family_id: document.family_id,
+            phase: 'classification',
+            completed: true,
+            data: classificationResult,
+            completed_at: new Date().toISOString()
+          });
+
+        console.log('✅ Classification checkpoint saved');
+      } catch (classifyError: any) {
+        console.error('❌ Classification failed:', classifyError);
+        
+        // Save failed checkpoint
+        await supabase
+          .from('analysis_checkpoints')
+          .insert({
+            document_id: document_id,
+            family_id: document.family_id,
+            phase: 'classification',
+            completed: false,
+            error_message: classifyError.message
+          });
+
+        throw classifyError;
+      }
+    }
+
+    // Update progress
+    await supabase
+      .from('document_analysis_status')
+      .update({ 
+        current_phase: 'data_extraction',
+        progress_percent: 30,
+        status_message: `Classified as: ${classificationResult.document_type}`
+      })
+      .eq('document_id', document_id);
+    
+    // =============================================================================
+    // PHASE 2: DATA EXTRACTION (Master Analysis)
+    // =============================================================================
     let analysisResult;
     let analysisRetryCount = 0;
     
-    try {
-      const analysisData = await masterAnalyzeDocument(
-        document.extracted_content,
-        anthropicApiKey,
-        async (stage: string) => {
-          // Progress callback for granular status updates
-          await supabase
-            .from('document_analysis_status')
-            .update({ 
-              error_message: JSON.stringify({ stage, elapsed_ms: Date.now() - startTime })
-            })
-            .eq('document_id', document_id);
-        }
-      );
-      analysisResult = analysisData.result;
-      analysisRetryCount = analysisData.retryCount;
-    } catch (analysisError: any) {
-      console.error('❌ Master Analysis failed:', analysisError);
+    if (completedPhases.has('data_extraction')) {
+      console.log('✅ Data extraction already completed, loading from checkpoint...');
+      const checkpoint = existingCheckpoints?.find(cp => cp.phase === 'data_extraction' && cp.completed);
+      analysisResult = checkpoint?.data;
+      analysisRetryCount = 0;
+    } else {
+      console.log('📊 Running master data extraction...');
       
-      const isTimeout = analysisError.message?.includes('timed out') || analysisError.name === 'AbortError';
-      const errorType = isTimeout ? 'timeout' : 'analysis_error';
-      
-      // Update document_analysis_status with failure
-      await supabase
-        .from('document_analysis_status')
-        .update({
-          status: 'failed',
-          error_message: `${errorType}: ${analysisError.message || 'AI analysis failed'}`,
-          completed_at: new Date().toISOString()
-        })
-        .eq('document_id', document_id);
+      try {
+        const analysisData = await masterAnalyzeDocument(
+          document.extracted_content,
+          anthropicApiKey,
+          async (stage: string) => {
+            const progressMap: Record<string, number> = {
+              'calling_ai_model': 40,
+              'processing_response': 60,
+              'distributing_data': 80
+            };
+            
+            await supabase
+              .from('document_analysis_status')
+              .update({ 
+                progress_percent: progressMap[stage] || 50,
+                status_message: stage.replace(/_/g, ' ')
+              })
+              .eq('document_id', document_id);
+          }
+        );
+        
+        analysisResult = analysisData.result;
+        analysisRetryCount = analysisData.retryCount;
+
+        // Save data extraction checkpoint
+        await supabase
+          .from('analysis_checkpoints')
+          .insert({
+            document_id: document_id,
+            family_id: document.family_id,
+            phase: 'data_extraction',
+            completed: true,
+            data: analysisResult,
+            completed_at: new Date().toISOString()
+          });
+
+        console.log('✅ Data extraction checkpoint saved');
+      } catch (analysisError: any) {
+        console.error('❌ Data extraction failed:', analysisError);
+        
+        const isTimeout = analysisError.message?.includes('timed out') || analysisError.name === 'AbortError';
+        const errorType = isTimeout ? 'timeout' : 'extraction_error';
+        
+        // Save failed checkpoint
+        await supabase
+          .from('analysis_checkpoints')
+          .insert({
+            document_id: document_id,
+            family_id: document.family_id,
+            phase: 'data_extraction',
+            completed: false,
+            error_message: analysisError.message
+          });
+        
+        // Update document_analysis_status with failure
+        await supabase
+          .from('document_analysis_status')
+          .update({
+            status: 'failed',
+            current_phase: 'data_extraction',
+            error_message: `${errorType}: ${analysisError.message || 'AI analysis failed'}`,
+            completed_at: new Date().toISOString()
+          })
+          .eq('document_id', document_id);
       
       // Update document with FAILED analysis status
       await supabase
@@ -196,44 +322,65 @@ serve(async (req) => {
         })
         .eq('id', document_id);
 
-      return new Response(
-        JSON.stringify({ 
-          error: isTimeout ? 'Analysis Timeout' : 'Critical Error: AI analysis failed',
-          details: analysisError.message || 'Unable to analyze document. Please try again later.',
-          document_id: document_id,
-          can_retry: isTimeout // Timeouts are retryable
-        }),
-        { status: isTimeout ? 504 : 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+        return new Response(
+          JSON.stringify({ 
+            error: isTimeout ? 'Analysis Timeout' : 'Critical Error: AI analysis failed',
+            details: analysisError.message || 'Unable to analyze document. Please try again later.',
+            document_id: document_id,
+            can_retry: isTimeout, // Timeouts are retryable
+            checkpoint_available: true // Can resume from last checkpoint
+          }),
+          { status: isTimeout ? 504 : 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
     }
 
-    // ========================================================================
-    // DATA DISTRIBUTION: Populate all target tables from Master JSON
-    // ========================================================================
-    const documentUploadDate = document.created_at ? 
-      new Date(document.created_at).toISOString().split('T')[0] : 
-      new Date().toISOString().split('T')[0];
-
-    // Update document category with identified type
+    // Update progress
     await supabase
-      .from('documents')
+      .from('document_analysis_status')
       .update({ 
-        category: analysisResult.identified_document_type,
-        last_analyzed_at: new Date().toISOString(),
-        analysis_model: 'claude-sonnet-4-20250514',
-        metadata: {
-          ...document.metadata,
-          analysis_status: 'completed',
-          identified_type: analysisResult.identified_document_type,
-          confidence_score: analysisResult.confidence_score,
-          analysis_completed_at: new Date().toISOString(),
-          analysis_model: 'claude-sonnet-4-20250514'
-        }
+        current_phase: 'data_distribution',
+        progress_percent: 85,
+        status_message: 'Distributing extracted data'
       })
-      .eq('id', document_id);
+      .eq('document_id', document_id);
 
-    // Insert metrics
-    if (analysisResult.metrics && analysisResult.metrics.length > 0) {
+    // =============================================================================
+    // PHASE 3: DATA DISTRIBUTION (Populate all target tables)
+    // =============================================================================
+    if (!completedPhases.has('data_distribution')) {
+      console.log('💾 Distributing data to target tables...');
+      
+      const documentUploadDate = document.created_at ? 
+        new Date(document.created_at).toISOString().split('T')[0] : 
+        new Date().toISOString().split('T')[0];
+
+      // Update document with both classification and analysis results
+      await supabase
+        .from('documents')
+        .update({ 
+          category: classificationResult.document_type,
+          last_analyzed_at: new Date().toISOString(),
+          metadata: {
+            ...document.metadata,
+            analysis_status: 'completed',
+            // Classification metadata
+            identified_type: classificationResult.document_type,
+            classification_confidence: classificationResult.confidence,
+            classification_method: classificationResult.pre_classification_match ? 'keyword+ai' : 'ai_only',
+            requires_manual_review: classificationResult.requires_manual_review,
+            keywords_found: classificationResult.classification_metadata.keywords_found,
+            // Analysis metadata
+            ai_identified_type: analysisResult.identified_document_type,
+            ai_confidence_score: analysisResult.confidence_score,
+            analysis_completed_at: new Date().toISOString(),
+            analysis_model: 'claude-sonnet-4-20250514'
+          }
+        })
+        .eq('id', document_id);
+
+      // Insert metrics
+      if (analysisResult.metrics && analysisResult.metrics.length > 0) {
       const metricsToInsert = analysisResult.metrics.map((metric: any) => ({
         document_id: document.id,
         family_id: document.family_id,
@@ -257,13 +404,13 @@ serve(async (req) => {
         .from("document_metrics")
         .insert(metricsToInsert);
 
-      if (metricsError) {
-        console.error("Error inserting metrics:", metricsError);
+        if (metricsError) {
+          console.error("Error inserting metrics:", metricsError);
+        }
       }
-    }
 
-    // Insert insights
-    if (analysisResult.insights && analysisResult.insights.length > 0) {
+      // Insert insights
+      if (analysisResult.insights && analysisResult.insights.length > 0) {
       const insightsToInsert = analysisResult.insights.map((insight: any) => ({
         family_id: document.family_id,
         student_id: document.student_id,
@@ -280,13 +427,13 @@ serve(async (req) => {
         .from("ai_insights")
         .insert(insightsToInsert);
 
-      if (insightsError) {
-        console.error("Error inserting insights:", insightsError);
+        if (insightsError) {
+          console.error("Error inserting insights:", insightsError);
+        }
       }
-    }
 
-    // Insert progress tracking
-    if (analysisResult.progress_tracking && analysisResult.progress_tracking.length > 0) {
+      // Insert progress tracking
+      if (analysisResult.progress_tracking && analysisResult.progress_tracking.length > 0) {
       const progressToInsert = analysisResult.progress_tracking.map((prog: any) => ({
         family_id: document.family_id,
         student_id: document.student_id,
@@ -308,13 +455,13 @@ serve(async (req) => {
         .from("progress_tracking")
         .insert(progressToInsert);
 
-      if (progressError) {
-        console.error("Error inserting progress:", progressError);
+        if (progressError) {
+          console.error("Error inserting progress:", progressError);
+        }
       }
-    }
 
-    // Insert chart recommendations directly from Master JSON
-    if (analysisResult.recommended_charts && analysisResult.recommended_charts.length > 0) {
+      // Insert chart recommendations directly from Master JSON
+      if (analysisResult.recommended_charts && analysisResult.recommended_charts.length > 0) {
       const chartMappings = analysisResult.recommended_charts.map((chartId: string) => ({
         document_id: document.id,
         family_id: document.family_id,
@@ -328,9 +475,25 @@ serve(async (req) => {
         .from('document_chart_mapping')
         .insert(chartMappings);
 
-      if (mappingError) {
-        console.error('Error inserting chart mappings:', mappingError);
+        if (mappingError) {
+          console.error('Error inserting chart mappings:', mappingError);
+        }
       }
+
+      // Save data distribution checkpoint
+      await supabase
+        .from('analysis_checkpoints')
+        .insert({
+          document_id: document_id,
+          family_id: document.family_id,
+          phase: 'data_distribution',
+          completed: true,
+          completed_at: new Date().toISOString()
+        });
+
+      console.log('✅ Data distribution checkpoint saved');
+    } else {
+      console.log('✅ Data distribution already completed, skipping...');
     }
 
     const totalTime = Date.now() - startTime;
@@ -342,6 +505,9 @@ serve(async (req) => {
       .from('document_analysis_status')
       .update({
         status: 'complete',
+        current_phase: 'completed',
+        progress_percent: 100,
+        status_message: 'Analysis complete',
         completed_at: new Date().toISOString(),
         metrics_extracted: analysisResult.metrics?.length || 0,
         insights_extracted: analysisResult.insights?.length || 0,
@@ -353,14 +519,22 @@ serve(async (req) => {
       JSON.stringify({
         success: true,
         document_id: document.id,
-        identified_type: analysisResult.identified_document_type,
-        confidence_score: analysisResult.confidence_score,
+        // Classification results
+        classified_type: classificationResult.document_type,
+        classification_confidence: classificationResult.confidence,
+        classification_method: classificationResult.pre_classification_match ? 'hybrid' : 'ai',
+        requires_review: classificationResult.requires_manual_review,
+        // Analysis results
+        ai_identified_type: analysisResult.identified_document_type,
+        ai_confidence: analysisResult.confidence_score,
         metrics_extracted: analysisResult.metrics?.length || 0,
         insights_generated: analysisResult.insights?.length || 0,
         progress_records: analysisResult.progress_tracking?.length || 0,
         charts_recommended: analysisResult.recommended_charts?.length || 0,
+        // Performance metrics
         retries: analysisRetryCount,
-        processing_time_ms: totalTime
+        processing_time_ms: totalTime,
+        checkpoints_used: completedPhases.size > 0
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
