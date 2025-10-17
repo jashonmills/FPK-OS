@@ -211,68 +211,66 @@ serve(async (req) => {
 });
 
 async function extractPdfText(pdfData: Uint8Array): Promise<string> {
-  console.log('📄 Starting PDF text extraction using Gemini AI...');
+  console.log('📄 Starting PDF text extraction...');
   
   try {
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY is not configured');
+    // Basic text extraction - look for text streams in PDF
+    const pdfString = new TextDecoder('latin1').decode(pdfData);
+    
+    // Extract text between stream markers
+    const streamPattern = /stream\s*([\s\S]*?)\s*endstream/g;
+    let matches;
+    let extractedText = '';
+    
+    while ((matches = streamPattern.exec(pdfString)) !== null) {
+      const streamContent = matches[1];
+      
+      // Try to extract readable text
+      const textContent = streamContent
+        .replace(/[^\x20-\x7E\n]/g, ' ') // Keep only printable ASCII + newlines
+        .replace(/\s+/g, ' ')
+        .trim();
+      
+      if (textContent.length > 10) {
+        extractedText += textContent + '\n';
+      }
     }
-
-    // Convert PDF bytes to base64 for AI processing
-    const base64Pdf = btoa(String.fromCharCode(...pdfData));
     
-    console.log(`📤 Sending ${pdfData.length} bytes (${base64Pdf.length} base64 chars) to AI for extraction...`);
-
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          {
-            role: 'user',
-            content: [
-              {
-                type: 'text',
-                text: 'Extract all text content from this PDF document. Return ONLY the extracted text, no explanations or formatting. Preserve the structure and order of information as it appears in the document.'
-              },
-              {
-                type: 'image_url',
-                image_url: {
-                  url: `data:application/pdf;base64,${base64Pdf}`
-                }
-              }
-            ]
-          }
-        ],
-        max_tokens: 8000
-      }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('AI extraction failed:', response.status, errorText);
-      throw new Error(`AI extraction failed: ${response.status} ${errorText}`);
+    // Also try to find text in parentheses (common PDF text encoding)
+    const textPattern = /\(((?:[^()\\]|\\[()\\])*)\)/g;
+    let textMatches;
+    let parenthesisText = '';
+    
+    while ((textMatches = textPattern.exec(pdfString)) !== null) {
+      const text = textMatches[1]
+        .replace(/\\n/g, '\n')
+        .replace(/\\r/g, '\r')
+        .replace(/\\t/g, '\t')
+        .replace(/\\(.)/g, '$1');
+      
+      if (text.length > 2) {
+        parenthesisText += text + ' ';
+      }
     }
-
-    const result = await response.json();
-    const extractedText = result.choices[0]?.message?.content || '';
     
-    console.log(`✅ Extracted ${extractedText.length} characters via AI`);
+    // Combine both extraction methods
+    let finalText = extractedText + '\n' + parenthesisText;
     
-    // Clean up the extracted text
-    const cleanedText = extractedText
+    // Clean up the text
+    finalText = finalText
       .replace(/\r\n/g, '\n')
       .replace(/\t/g, ' ')
       .replace(/ {2,}/g, ' ')
       .replace(/\n{3,}/g, '\n\n')
       .trim();
     
-    return cleanedText;
+    if (!finalText || finalText.length < 50) {
+      throw new Error('Could not extract sufficient text from PDF');
+    }
+    
+    console.log(`✅ Extracted ${finalText.length} characters from PDF`);
+    return finalText;
+    
   } catch (error) {
     console.error('❌ PDF text extraction failed:', error);
     throw new Error(`Failed to extract text from PDF: ${error instanceof Error ? error.message : 'Unknown error'}`);
