@@ -1,4 +1,25 @@
 // AI-powered document classification helper
+// Pattern matching for structured log documents
+function detectLogTypePattern(content: string): { doc_type: string; confidence: number } | null {
+  const patterns = [
+    { regex: /sleep\s+(log|tracking|record|diary)/i, type: "Sleep Log", confidence: 0.85 },
+    { regex: /incident\s+(report|log|record)/i, type: "Incident Report Log", confidence: 0.85 },
+    { regex: /parent\s+(log|notes|home\s+log|daily\s+log)/i, type: "Parent Home Log", confidence: 0.85 },
+    { regex: /educator\s+(log|session\s+log|classroom\s+log)/i, type: "Educator Session Log", confidence: 0.85 },
+    { regex: /(bedtime|wake\s+time|sleep\s+hours|sleep\s+quality)/i, type: "Sleep Log", confidence: 0.75 },
+    { regex: /(antecedent|behavior|consequence|ABC\s+data)/i, type: "Incident Report Log", confidence: 0.75 },
+  ];
+
+  for (const pattern of patterns) {
+    if (pattern.regex.test(content)) {
+      console.log(`✅ Pattern match detected: ${pattern.type} (confidence: ${pattern.confidence})`);
+      return { doc_type: pattern.type, confidence: pattern.confidence };
+    }
+  }
+
+  return null;
+}
+
 export async function aiIdentifyDocumentType(
   extractedContent: string, 
   lovableApiKey: string
@@ -7,9 +28,23 @@ export async function aiIdentifyDocumentType(
     console.log('🔍 Starting document type identification...');
     const startTime = Date.now();
     
+    // PHASE 1: Try pattern matching first (fast, no AI call needed)
+    const patternMatch = detectLogTypePattern(extractedContent);
+    if (patternMatch && patternMatch.confidence >= 0.8) {
+      const elapsed = Date.now() - startTime;
+      console.log(`✅ Pattern-based classification completed in ${elapsed}ms: ${patternMatch.doc_type}`);
+      return patternMatch;
+    }
+    
+    // PHASE 2: Use AI with enhanced context window
     // Create abort controller for 60s timeout
     const abortController = new AbortController();
     const timeoutId = setTimeout(() => abortController.abort(), 60000);
+    
+    // Sample from beginning AND middle (to catch table data that comes after headers)
+    const beginningChunk = extractedContent.slice(0, 3000);
+    const middleChunk = extractedContent.slice(3000, 6000);
+    const contextSample = `=== BEGINNING OF DOCUMENT ===\n${beginningChunk}\n\n=== MIDDLE SECTION ===\n${middleChunk}`;
     
     try {
       const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
@@ -36,6 +71,10 @@ Classify the document into ONE of these types:
 - "Evaluation Team Report (ETR)"
 - "Occupational Therapy Evaluation"
 - "Sensory Profile"
+- "Sleep Log"
+- "Incident Report Log"
+- "Parent Home Log"
+- "Educator Session Log"
 - "Communication Log (Parent-Teacher)"
 - "Teacher Progress Notes"
 - "Unknown"
@@ -51,7 +90,7 @@ Confidence scoring:
             },
             {
               role: 'user',
-              content: `Classify this document based on the first 3000 characters:\n\n${extractedContent.slice(0, 3000)}`
+              content: `Classify this document:\n\n${contextSample}`
             }
           ],
         }),
@@ -134,6 +173,9 @@ export async function analyzeWithRetry(
           role: "user", 
           content: attempt === 1 
             ? `You are provided with the full text content of a document below. Analyze this content and extract structured data according to the instructions in your system prompt.
+
+**CRITICAL: LOOK FOR STRUCTURED TABLES WITH DATES**
+If this document contains a table with multiple rows of data (e.g., daily entries, nightly records, session logs), you MUST extract EACH ROW as a separate metric entry. Do NOT summarize tables - extract every single row individually.
 
 **DOCUMENT CONTENT:**
 ---
