@@ -10,122 +10,64 @@ export interface GridPosition {
 }
 
 export const useConstellationLayout = (chartCount: number): GridPosition[] => {
-  // 12-column × 8-row grid system
-  // Central "brain zone" should remain relatively clear (cols 5-9, rows 3-6)
+  // All layouts designed to preserve the central "brain video" reveal
+  // Grid: 12 columns × 8 rows
   
   if (chartCount === 0) return [];
   
-  // Layout recipes for different chart counts
-  if (chartCount <= 2) {
-    return [
-      { gridColumn: '1 / 7', gridRow: '1 / 5' },
-      { gridColumn: '7 / 13', gridRow: '1 / 5' }
-    ].slice(0, chartCount);
-  }
-  
-  if (chartCount === 3) {
-    return [
-      { gridColumn: '1 / 7', gridRow: '1 / 5' },
-      { gridColumn: '7 / 13', gridRow: '1 / 5' },
-      { gridColumn: '1 / 13', gridRow: '5 / 9' }
-    ];
-  }
-  
-  if (chartCount === 4) {
-    return [
-      { gridColumn: '1 / 7', gridRow: '1 / 5' },
-      { gridColumn: '7 / 13', gridRow: '1 / 5' },
-      { gridColumn: '1 / 7', gridRow: '5 / 9' },
-      { gridColumn: '7 / 13', gridRow: '5 / 9' }
-    ];
-  }
-  
+  // 5 CHARTS - Behavioral, Social, Sensory/Executive
   if (chartCount === 5) {
     return [
-      { gridColumn: '1 / 7', gridRow: '1 / 5' },
-      { gridColumn: '7 / 13', gridRow: '1 / 5' },
-      { gridColumn: '1 / 5', gridRow: '5 / 9' },
-      { gridColumn: '5 / 9', gridRow: '5 / 9' },
-      { gridColumn: '9 / 13', gridRow: '5 / 9' }
+      { gridColumn: '1 / 4', gridRow: '1 / 4' },     // Top-left
+      { gridColumn: '10 / 13', gridRow: '1 / 4' },   // Top-right
+      { gridColumn: '1 / 4', gridRow: '5 / 9' },     // Bottom-left
+      { gridColumn: '5 / 9', gridRow: '6 / 9' },     // Bottom-center
+      { gridColumn: '10 / 13', gridRow: '5 / 9' }    // Bottom-right
     ];
   }
   
+  // 6 CHARTS - Academic tab
   if (chartCount === 6) {
-    // The "reference image" layout - balanced constellation
     return [
-      { gridColumn: '1 / 5', gridRow: '1 / 4' },
-      { gridColumn: '9 / 13', gridRow: '1 / 4' },
-      { gridColumn: '1 / 5', gridRow: '4 / 7' },
-      { gridColumn: '9 / 13', gridRow: '4 / 7' },
-      { gridColumn: '1 / 7', gridRow: '7 / 9' },
-      { gridColumn: '7 / 13', gridRow: '7 / 9' }
+      { gridColumn: '1 / 4', gridRow: '1 / 4' },     // Top-left
+      { gridColumn: '10 / 13', gridRow: '1 / 4' },   // Top-right
+      { gridColumn: '1 / 4', gridRow: '5 / 9' },     // Bottom-left
+      { gridColumn: '5 / 8', gridRow: '6 / 9' },     // Bottom-center-left
+      { gridColumn: '9 / 12', gridRow: '6 / 9' },    // Bottom-center-right
+      { gridColumn: '1 / 7', gridRow: '4 / 6' }      // Middle-left (small)
     ];
   }
   
+  // 7 CHARTS - Overall tab
   if (chartCount === 7) {
     return [
-      { gridColumn: '1 / 4', gridRow: '1 / 4' },
-      { gridColumn: '4 / 7', gridRow: '1 / 3' },
-      { gridColumn: '10 / 13', gridRow: '1 / 4' },
-      { gridColumn: '1 / 4', gridRow: '4 / 7' },
-      { gridColumn: '10 / 13', gridRow: '4 / 7' },
-      { gridColumn: '1 / 7', gridRow: '7 / 9' },
-      { gridColumn: '7 / 13', gridRow: '7 / 9' }
+      { gridColumn: '1 / 4', gridRow: '1 / 4' },     // Top-left (Daily Activity)
+      { gridColumn: '10 / 13', gridRow: '1 / 4' },   // Top-right (Mood)
+      { gridColumn: '5 / 9', gridRow: '2 / 5' },     // Center (Sleep Quality)
+      { gridColumn: '1 / 4', gridRow: '5 / 8' },     // Mid-left (Incident)
+      { gridColumn: '10 / 13', gridRow: '5 / 8' },   // Mid-right (Intervention)
+      { gridColumn: '1 / 7', gridRow: '8 / 9' },     // Bottom-left (Top Goals)
+      { gridColumn: '7 / 13', gridRow: '8 / 9' }     // Bottom-right (Strategy)
     ];
   }
   
-  if (chartCount === 8) {
-    return [
-      { gridColumn: '1 / 4', gridRow: '1 / 4' },
-      { gridColumn: '4 / 7', gridRow: '1 / 3' },
-      { gridColumn: '7 / 10', gridRow: '1 / 3' },
-      { gridColumn: '10 / 13', gridRow: '1 / 4' },
-      { gridColumn: '1 / 4', gridRow: '4 / 7' },
-      { gridColumn: '10 / 13', gridRow: '4 / 7' },
-      { gridColumn: '1 / 7', gridRow: '7 / 9' },
-      { gridColumn: '7 / 13', gridRow: '7 / 9' }
-    ];
+  // Fallback for other counts - use a balanced grid
+  const cols = Math.min(Math.ceil(Math.sqrt(chartCount * 1.5)), 4);
+  const positions: GridPosition[] = [];
+  
+  for (let i = 0; i < chartCount; i++) {
+    const col = i % cols;
+    const row = Math.floor(i / cols);
+    const colStart = 1 + (col * 3);
+    const colEnd = colStart + 3;
+    const rowStart = 1 + (row * 2);
+    const rowEnd = rowStart + 2;
+    
+    positions.push({
+      gridColumn: `${colStart} / ${colEnd}`,
+      gridRow: `${rowStart} / ${rowEnd}`
+    });
   }
   
-  if (chartCount === 9) {
-    // Dense mosaic layout
-    return [
-      { gridColumn: '1 / 4', gridRow: '1 / 3' },
-      { gridColumn: '4 / 7', gridRow: '1 / 3' },
-      { gridColumn: '10 / 13', gridRow: '1 / 3' },
-      { gridColumn: '1 / 4', gridRow: '3 / 5' },
-      { gridColumn: '10 / 13', gridRow: '3 / 5' },
-      { gridColumn: '1 / 4', gridRow: '5 / 7' },
-      { gridColumn: '10 / 13', gridRow: '5 / 7' },
-      { gridColumn: '1 / 7', gridRow: '7 / 9' },
-      { gridColumn: '7 / 13', gridRow: '7 / 9' }
-    ];
-  }
-  
-  if (chartCount >= 10) {
-    // Ultra-dense layout for 10+ charts
-    const positions: GridPosition[] = [
-      { gridColumn: '1 / 3', gridRow: '1 / 3' },
-      { gridColumn: '3 / 5', gridRow: '1 / 3' },
-      { gridColumn: '5 / 7', gridRow: '1 / 2' },
-      { gridColumn: '7 / 9', gridRow: '1 / 2' },
-      { gridColumn: '9 / 11', gridRow: '1 / 3' },
-      { gridColumn: '11 / 13', gridRow: '1 / 3' },
-      { gridColumn: '1 / 3', gridRow: '3 / 5' },
-      { gridColumn: '11 / 13', gridRow: '3 / 5' },
-      { gridColumn: '1 / 3', gridRow: '5 / 7' },
-      { gridColumn: '11 / 13', gridRow: '5 / 7' },
-      { gridColumn: '1 / 4', gridRow: '7 / 9' },
-      { gridColumn: '4 / 7', gridRow: '7 / 9' },
-      { gridColumn: '7 / 10', gridRow: '7 / 9' },
-      { gridColumn: '10 / 13', gridRow: '7 / 9' }
-    ];
-    return positions.slice(0, chartCount);
-  }
-  
-  // Fallback: simple grid
-  return Array.from({ length: chartCount }, (_, i) => ({
-    gridColumn: `${(i % 3) * 4 + 1} / ${(i % 3) * 4 + 5}`,
-    gridRow: `${Math.floor(i / 3) * 2 + 1} / ${Math.floor(i / 3) * 2 + 3}`
-  }));
+  return positions;
 };

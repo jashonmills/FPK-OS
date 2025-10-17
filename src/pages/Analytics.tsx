@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, AlertCircle, Activity, Brain, BookOpen, Users, Waves, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ChartGrid } from "@/components/analytics/ChartGrid";
+import { DraggableChartGrid } from "@/components/analytics/DraggableChartGrid";
 import { VideoBackground } from "@/components/analytics/VideoBackground";
 import { TAB_ORDER, TAB_MANIFEST } from "@/config/tabManifest";
 
@@ -150,7 +150,7 @@ const Analytics = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full">
           {TAB_ORDER.map((tabId) => (
             <TabsContent key={tabId} value={tabId} className="h-full mt-0 data-[state=active]:flex data-[state=active]:flex-col">
-              <ChartGrid
+              <DraggableChartGrid
                 tabId={tabId}
                 familyId={selectedFamily!.id}
                 studentId={selectedStudent.id}
