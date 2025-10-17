@@ -88,73 +88,94 @@ serve(async (req) => {
       throw dbError;
     }
 
-    // Trigger extraction and analysis pipeline in the background
-    console.log('🔄 Triggering extraction and analysis pipeline...');
-    
-    const processPipeline = (async () => {
-      const maxRetries = 3;
-      let retryCount = 0;
-      
-      // Step 1: Extract text from PDF
-      console.log('📄 Step 1: Extracting text from PDF...');
-      while (retryCount < maxRetries) {
-        try {
-          const { data: extractData, error: extractError } = await supabase.functions.invoke(
-            'extract-document-text',
-            { body: { document_id: documentData.id } }
-          );
-          
-          if (extractError) {
-            throw extractError;
-          }
-          
-          console.log('✅ Text extraction completed:', extractData);
-          break;
-        } catch (error) {
-          retryCount++;
-          console.error(`Extraction attempt ${retryCount} failed:`, error);
-          
-          if (retryCount >= maxRetries) {
-            console.error('❌ Text extraction failed after max retries');
-            return;
-          }
-          
-          await new Promise(resolve => setTimeout(resolve, 2000 * retryCount));
-        }
-      }
-      
-      // Step 2: Analyze document with real content
-      console.log('🧠 Step 2: Analyzing document...');
-      retryCount = 0;
-      
-      while (retryCount < maxRetries) {
-        try {
-          const { error: analyzeError } = await supabase.functions.invoke(
-            'analyze-document',
-            { body: { document_id: documentData.id } }
-          );
-          
-          if (analyzeError) {
-            throw analyzeError;
-          }
-          
-          console.log('✅ Analysis completed successfully');
-          break;
-        } catch (error) {
-          retryCount++;
-          console.error(`Analysis attempt ${retryCount} failed:`, error);
-          
-          if (retryCount >= maxRetries) {
-            console.error('❌ Analysis failed after max retries');
-            return;
-          }
-          
-          await new Promise(resolve => setTimeout(resolve, 2000 * retryCount));
-        }
-      }
-    })();
+    // Check if AI analysis pipeline is enabled
+    const { data: aiPipelineFlag } = await supabase
+      .from('feature_flags')
+      .select('is_enabled')
+      .eq('flag_key', 'enable-ai-analysis-pipeline')
+      .single();
 
-    // Note: Pipeline runs in background via the Promise
+    if (aiPipelineFlag?.is_enabled) {
+      console.log('🔄 AI analysis pipeline enabled - triggering extraction and analysis...');
+      
+      const processPipeline = (async () => {
+        const maxRetries = 3;
+        let retryCount = 0;
+        
+        // Check which extraction engine to use
+        const { data: extractionFlag } = await supabase
+          .from('feature_flags')
+          .select('is_enabled')
+          .eq('flag_key', 'use-document-ai-extraction')
+          .single();
+        
+        const extractionFunction = extractionFlag?.is_enabled
+          ? 'extract-text-with-document-ai'
+          : 'extract-document-text';
+        
+        // Step 1: Extract text from PDF
+        console.log(`📄 Step 1: Extracting text using ${extractionFunction}...`);
+        while (retryCount < maxRetries) {
+          try {
+            const { data: extractData, error: extractError } = await supabase.functions.invoke(
+              extractionFunction,
+              { body: { document_id: documentData.id } }
+            );
+            
+            if (extractError) {
+              throw extractError;
+            }
+            
+            console.log('✅ Text extraction completed:', extractData);
+            break;
+          } catch (error) {
+            retryCount++;
+            console.error(`Extraction attempt ${retryCount} failed:`, error);
+            
+            if (retryCount >= maxRetries) {
+              console.error('❌ Text extraction failed after max retries');
+              return;
+            }
+            
+            await new Promise(resolve => setTimeout(resolve, 2000 * retryCount));
+          }
+        }
+        
+        // Step 2: Analyze document with real content
+        console.log('🧠 Step 2: Analyzing document...');
+        retryCount = 0;
+        
+        while (retryCount < maxRetries) {
+          try {
+            const { error: analyzeError } = await supabase.functions.invoke(
+              'analyze-document',
+              { body: { document_id: documentData.id } }
+            );
+            
+            if (analyzeError) {
+              throw analyzeError;
+            }
+            
+            console.log('✅ Analysis completed successfully');
+            break;
+          } catch (error) {
+            retryCount++;
+            console.error(`Analysis attempt ${retryCount} failed:`, error);
+            
+            if (retryCount >= maxRetries) {
+              console.error('❌ Analysis failed after max retries');
+              return;
+            }
+            
+            await new Promise(resolve => setTimeout(resolve, 2000 * retryCount));
+          }
+        }
+      })();
+
+      // Pipeline runs in background
+    } else {
+      console.log('✅ Document uploaded successfully (AI analysis pipeline disabled)');
+    }
 
     return new Response(
       JSON.stringify({

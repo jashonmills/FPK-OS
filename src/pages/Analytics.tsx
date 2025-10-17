@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { DraggableChartGrid } from "@/components/analytics/DraggableChartGrid";
 import { VideoBackground } from "@/components/analytics/VideoBackground";
 import { TAB_ORDER, TAB_MANIFEST } from "@/config/tabManifest";
+import { AnalyticsDashboardPlaceholder } from "@/components/analytics/AnalyticsDashboardPlaceholder";
+import { useFeatureFlags } from "@/hooks/useFeatureFlags";
 
 const TAB_ICONS = {
   overall: Activity,
@@ -24,6 +26,9 @@ const Analytics = () => {
   const { selectedFamily, selectedStudent } = useFamily();
   const [activeTab, setActiveTab] = useState("overall");
   const [isExiting, setIsExiting] = useState(false);
+  
+  // Check if AI analysis pipeline is enabled
+  const { flags: featureFlags, loading: flagsLoading } = useFeatureFlags(['enable-ai-analysis-pipeline']);
 
   const handleExit = () => {
     setIsExiting(true);
@@ -77,8 +82,13 @@ const Analytics = () => {
     );
   }
 
+  // Check if AI pipeline is disabled - show placeholder
+  if (!flagsLoading && !featureFlags['enable-ai-analysis-pipeline']) {
+    return <AnalyticsDashboardPlaceholder />;
+  }
+
   // Show single page loader until metadata ready
-  if (isLoadingMeta || !userMeta) {
+  if (isLoadingMeta || !userMeta || flagsLoading) {
     return (
       <div className="flex items-center justify-center min-h-[600px]">
         <div className="text-center space-y-4">
