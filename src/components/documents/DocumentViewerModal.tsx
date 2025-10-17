@@ -44,15 +44,26 @@ export function DocumentViewerModal({ open, onOpenChange, document }: DocumentVi
       // If it's a full URL, extract just the path portion
       if (storagePath.includes('/storage/v1/object/public/family-documents/')) {
         storagePath = storagePath.split('/storage/v1/object/public/family-documents/')[1];
+      } else if (storagePath.includes('/storage/v1/object/family-documents/')) {
+        // Handle private URLs without 'public'
+        storagePath = storagePath.split('/storage/v1/object/family-documents/')[1];
       }
+
+      console.log('Fetching signed URL for storage path:', storagePath);
 
       const { data, error } = await supabase.storage
         .from("family-documents")
         .createSignedUrl(storagePath, 3600); // 1 hour
 
-      if (error) throw error;
+      if (error) {
+        console.error('Signed URL error:', error);
+        throw error;
+      }
+      
+      console.log('Successfully fetched signed URL');
       setSignedUrl(data.signedUrl);
     } catch (error: any) {
+      console.error('Document viewer error:', error);
       toast.error("Failed to load document: " + error.message);
       onOpenChange(false);
     } finally {
