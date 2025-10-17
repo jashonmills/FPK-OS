@@ -192,13 +192,33 @@ Format your entire response as a single, valid JSON object with the following st
     }
 
     // Use retry logic for robust analysis
-    const { result: analysisResult, retryCount: analysisRetryCount } = await analyzeWithRetry(
-      document,
-      document.extracted_content,
-      identifiedType,
-      lovableApiKey,
-      systemPrompt
-    );
+    console.log('🔬 Starting AI analysis...');
+    let analysisResult;
+    let analysisRetryCount = 0;
+    
+    try {
+      const analysisData = await analyzeWithRetry(
+        document,
+        document.extracted_content,
+        identifiedType,
+        lovableApiKey,
+        systemPrompt
+      );
+      analysisResult = analysisData.result;
+      analysisRetryCount = analysisData.retryCount;
+    } catch (analysisError: any) {
+      console.error('❌ Analysis failed:', analysisError);
+      
+      // Return user-friendly error
+      return new Response(
+        JSON.stringify({ 
+          error: analysisError.message || "Analysis failed",
+          details: "Unable to analyze document. Please try again later.",
+          document_id: document_id
+        }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     // Insert metrics
     if (analysisResult.metrics && analysisResult.metrics.length > 0) {

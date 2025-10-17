@@ -133,8 +133,18 @@ Return your analysis as a valid JSON object.`
 
   if (!aiResponse.ok) {
     const errorText = await aiResponse.text();
-    console.error("AI API error:", aiResponse.status, errorText);
-    throw new Error("AI analysis failed");
+    console.error("❌ AI API error:", {
+      status: aiResponse.status,
+      statusText: aiResponse.statusText,
+      error: errorText
+    });
+    
+    // Return more specific error for rate limiting
+    if (aiResponse.status === 429) {
+      throw new Error("Rate limit exceeded. Please wait a moment and try again.");
+    }
+    
+    throw new Error(`AI analysis failed with status ${aiResponse.status}: ${errorText}`);
   }
 
   const aiData = await aiResponse.json();
