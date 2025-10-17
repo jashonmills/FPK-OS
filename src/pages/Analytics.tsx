@@ -71,22 +71,24 @@ const Analytics = () => {
   };
 
   return (
-    <div className="dark min-h-screen bg-gradient-to-br from-[#0A192F] via-[#112240] to-[#0A192F]">
-      <div className="container mx-auto p-4 space-y-4">
-        {/* Mission Control Header */}
-        <div className="space-y-2 mb-6">
-          <h1 className="text-4xl font-bold tracking-tight glow-text bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-            Analytics Mission Control
-          </h1>
-          <p className="text-cyan-300/70 text-sm">
-            Comprehensive progress tracking for {selectedStudent.student_name}
-          </p>
+    <div className="dark h-screen overflow-hidden bg-gradient-to-br from-[#0A192F] via-[#112240] to-[#0A192F] flex flex-col">
+      <div className="flex-none px-4 pt-3 pb-2">
+        {/* Compact Mission Control Header */}
+        <div className="flex items-center justify-between mb-2">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight glow-text bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+              Mission Control
+            </h1>
+            <p className="text-cyan-300/50 text-[10px]">
+              {selectedStudent.student_name}
+            </p>
+          </div>
         </div>
 
-        {/* Tabbed Cockpit */}
+        {/* Compact Tabbed Navigation */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="glass-card mb-4 h-auto p-2 bg-transparent border border-cyan-500/20">
-            <div className="grid grid-cols-5 w-full gap-1">
+          <TabsList className="glass-card h-auto p-1 bg-transparent border border-cyan-500/20 w-full">
+            <div className="grid grid-cols-5 w-full gap-0.5">
               {TAB_ORDER.map((tabId) => {
                 const tab = TAB_MANIFEST[tabId];
                 const Icon = TAB_ICONS[tabId as keyof typeof TAB_ICONS];
@@ -94,18 +96,23 @@ const Analytics = () => {
                   <TabsTrigger
                     key={tabId}
                     value={tabId}
-                    className="flex flex-col items-center gap-1 py-2 px-2 data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_15px_rgba(6,182,212,0.3)] rounded-md transition-all"
+                    className="flex flex-col items-center gap-0.5 py-1.5 px-1 data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_10px_rgba(6,182,212,0.3)] rounded text-cyan-300/60 data-[state=active]:font-semibold transition-all"
                   >
-                    <Icon className="h-4 w-4" />
-                    <span className="text-[10px] font-medium">{tab.title}</span>
+                    <Icon className="h-3.5 w-3.5" />
+                    <span className="text-[9px]">{tab.title.split(' ')[0]}</span>
                   </TabsTrigger>
                 );
               })}
             </div>
           </TabsList>
+        </Tabs>
+      </div>
 
+      {/* Tab Content - fills remaining space */}
+      <div className="flex-1 overflow-hidden px-4 pb-4">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full">
           {TAB_ORDER.map((tabId) => (
-            <TabsContent key={tabId} value={tabId} className="mt-0">
+            <TabsContent key={tabId} value={tabId} className="h-full mt-0 data-[state=active]:flex data-[state=active]:flex-col">
               <ChartGrid
                 tabId={tabId}
                 familyId={selectedFamily!.id}
