@@ -211,14 +211,72 @@ serve(async (req) => {
 });
 
 async function extractPdfText(pdfData: Uint8Array): Promise<string> {
-  // TEMPORARY SOLUTION: Return placeholder indicating successful download but pending extraction
-  // The download path bug is now fixed - we can successfully download PDFs
-  // Text extraction will be implemented in a follow-up using a proper server-side PDF library
+  console.log('📄 Starting PDF text extraction using Gemini AI...');
   
-  console.log('📄 PDF downloaded successfully. Text extraction pending proper implementation.');
-  
-  // For now, return a placeholder that will pass validation
-  return `[PDF Document - ${pdfData.length} bytes downloaded successfully. Text extraction implementation pending.]`;
+  try {
+    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    if (!LOVABLE_API_KEY) {
+      throw new Error('LOVABLE_API_KEY is not configured');
+    }
+
+    // Convert PDF bytes to base64 for AI processing
+    const base64Pdf = btoa(String.fromCharCode(...pdfData));
+    
+    console.log(`📤 Sending ${pdfData.length} bytes (${base64Pdf.length} base64 chars) to AI for extraction...`);
+
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-flash',
+        messages: [
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'text',
+                text: 'Extract all text content from this PDF document. Return ONLY the extracted text, no explanations or formatting. Preserve the structure and order of information as it appears in the document.'
+              },
+              {
+                type: 'image_url',
+                image_url: {
+                  url: `data:application/pdf;base64,${base64Pdf}`
+                }
+              }
+            ]
+          }
+        ],
+        max_tokens: 8000
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('AI extraction failed:', response.status, errorText);
+      throw new Error(`AI extraction failed: ${response.status} ${errorText}`);
+    }
+
+    const result = await response.json();
+    const extractedText = result.choices[0]?.message?.content || '';
+    
+    console.log(`✅ Extracted ${extractedText.length} characters via AI`);
+    
+    // Clean up the extracted text
+    const cleanedText = extractedText
+      .replace(/\r\n/g, '\n')
+      .replace(/\t/g, ' ')
+      .replace(/ {2,}/g, ' ')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
+    
+    return cleanedText;
+  } catch (error) {
+    console.error('❌ PDF text extraction failed:', error);
+    throw new Error(`Failed to extract text from PDF: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
 }
 
 async function performOCR(pdfData: Uint8Array): Promise<string> {
