@@ -87,160 +87,154 @@ serve(async (req) => {
       let failedCount = 0;
 
       // Process documents ONE AT A TIME to avoid rate limits with Vision API
-      const batchSize = 1;
-      for (let i = 0; i < documents.length; i += batchSize) {
-        const batch = documents.slice(i, i + batchSize);
-        
-        await Promise.all(
-          batch.map(async (doc) => {
+      for (let i = 0; i < documents.length; i++) {
+        const doc = documents[i];
+        try {
+          console.log(`🔍 Processing ${doc.file_name} (${processedCount + 1}/${documents.length})`);
+
+          // Update status to extracting
+          await supabase
+            .from('document_analysis_status')
+            .update({ 
+              status: 'extracting',
+              started_at: new Date().toISOString()
+            })
+            .eq('job_id', job.id)
+            .eq('document_id', doc.id);
+
+          // Step 1: Extract text with Claude Vision (UNIFIED PATHWAY)
+          console.log(`  📄 Extracting text for ${doc.file_name} via Claude Vision...`);
+          const { error: extractError } = await supabase.functions.invoke(
+            'extract-text-with-vision',
+            {
+              body: { 
+                document_id: doc.id,
+                force_re_extract: true
+              }
+            }
+          );
+
+          if (extractError) {
+            throw new Error(`Extraction failed: ${extractError.message}`);
+          }
+
+          // Update status to analyzing
+          await supabase
+            .from('document_analysis_status')
+            .update({ status: 'analyzing' })
+            .eq('job_id', job.id)
+            .eq('document_id', doc.id);
+
+          // Step 2: Analyze document with Master Prompt (UNIFIED AI CALL) with retry on timeout
+          console.log(`  🧠 Analyzing ${doc.file_name} with Master Prompt...`);
+          
+          let analysisSuccess = false;
+          let analysisData = null;
+          let lastAnalysisError = null;
+          const maxAnalysisRetries = 2; // One initial attempt + one retry on timeout
+          
+          for (let retryCount = 0; retryCount < maxAnalysisRetries && !analysisSuccess; retryCount++) {
+            if (retryCount > 0) {
+              console.log(`  🔄 Retrying analysis for ${doc.file_name} (attempt ${retryCount + 1}/${maxAnalysisRetries})...`);
+              await new Promise(resolve => setTimeout(resolve, 5000)); // 5s delay before retry
+            }
+            
             try {
-              console.log(`🔍 Processing ${doc.file_name} (${processedCount + 1}/${documents.length})`);
-
-              // Update status to extracting
-              await supabase
-                .from('document_analysis_status')
-                .update({ 
-                  status: 'extracting',
-                  started_at: new Date().toISOString()
-                })
-                .eq('job_id', job.id)
-                .eq('document_id', doc.id);
-
-              // Step 1: Extract text with Claude Vision (UNIFIED PATHWAY)
-              console.log(`  📄 Extracting text for ${doc.file_name} via Claude Vision...`);
-              const { error: extractError } = await supabase.functions.invoke(
-                'extract-text-with-vision',
+              // Wrap the invoke call in a timeout to prevent it from hanging indefinitely
+              const invokePromise = supabase.functions.invoke(
+                'analyze-document',
                 {
                   body: { 
                     document_id: doc.id,
-                    force_re_extract: true
+                    bypass_limit: true
                   }
                 }
               );
-
-              if (extractError) {
-                throw new Error(`Extraction failed: ${extractError.message}`);
-              }
-
-              // Update status to analyzing
-              await supabase
-                .from('document_analysis_status')
-                .update({ status: 'analyzing' })
-                .eq('job_id', job.id)
-                .eq('document_id', doc.id);
-
-              // Step 2: Analyze document with Master Prompt (UNIFIED AI CALL) with retry on timeout
-              console.log(`  🧠 Analyzing ${doc.file_name} with Master Prompt...`);
               
-              let analysisSuccess = false;
-              let analysisData = null;
-              let lastAnalysisError = null;
-              const maxAnalysisRetries = 2; // One initial attempt + one retry on timeout
+              // Set a 120-second timeout for the entire invoke operation
+              const timeoutPromise = new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('Function invoke timed out after 120s')), 120000)
+              );
               
-              for (let retryCount = 0; retryCount < maxAnalysisRetries && !analysisSuccess; retryCount++) {
-                if (retryCount > 0) {
-                  console.log(`  🔄 Retrying analysis for ${doc.file_name} (attempt ${retryCount + 1}/${maxAnalysisRetries})...`);
-                  await new Promise(resolve => setTimeout(resolve, 5000)); // 5s delay before retry
+              const { data, error } = await Promise.race([invokePromise, timeoutPromise]) as any;
+
+              if (error) {
+                lastAnalysisError = error;
+                const isTimeout = error.message?.includes('timeout') || 
+                                 error.message?.includes('Timeout') ||
+                                 data?.can_retry === true;
+                
+                if (isTimeout && retryCount < maxAnalysisRetries - 1) {
+                  console.log(`  ⏱️ Analysis timeout for ${doc.file_name}, will retry...`);
+                  continue; // Retry on timeout
                 }
                 
-                try {
-                  // Wrap the invoke call in a timeout to prevent it from hanging indefinitely
-                  const invokePromise = supabase.functions.invoke(
-                    'analyze-document',
-                    {
-                      body: { 
-                        document_id: doc.id,
-                        bypass_limit: true
-                      }
-                    }
-                  );
-                  
-                  // Set a 120-second timeout for the entire invoke operation
-                  const timeoutPromise = new Promise((_, reject) => 
-                    setTimeout(() => reject(new Error('Function invoke timed out after 120s')), 120000)
-                  );
-                  
-                  const { data, error } = await Promise.race([invokePromise, timeoutPromise]) as any;
-
-                  if (error) {
-                    lastAnalysisError = error;
-                    const isTimeout = error.message?.includes('timeout') || 
-                                     error.message?.includes('Timeout') ||
-                                     data?.can_retry === true;
-                    
-                    if (isTimeout && retryCount < maxAnalysisRetries - 1) {
-                      console.log(`  ⏱️ Analysis timeout for ${doc.file_name}, will retry...`);
-                      continue; // Retry on timeout
-                    }
-                    
-                    throw new Error(`Analysis failed: ${error.message}`);
-                  } else {
-                    analysisSuccess = true;
-                    analysisData = data;
-                  }
-                } catch (invokeError: any) {
-                  lastAnalysisError = invokeError;
-                  const isTimeout = invokeError.message?.includes('timeout') || 
-                                   invokeError.message?.includes('Timeout');
-                  
-                  if (isTimeout && retryCount < maxAnalysisRetries - 1) {
-                    console.log(`  ⏱️ Invoke timeout for ${doc.file_name}, will retry...`);
-                    continue; // Retry on timeout
-                  }
-                  
-                  throw invokeError;
-                }
+                throw new Error(`Analysis failed: ${error.message}`);
+              } else {
+                analysisSuccess = true;
+                analysisData = data;
+              }
+            } catch (invokeError: any) {
+              lastAnalysisError = invokeError;
+              const isTimeout = invokeError.message?.includes('timeout') || 
+                               invokeError.message?.includes('Timeout');
+              
+              if (isTimeout && retryCount < maxAnalysisRetries - 1) {
+                console.log(`  ⏱️ Invoke timeout for ${doc.file_name}, will retry...`);
+                continue; // Retry on timeout
               }
               
-              if (!analysisSuccess) {
-                throw new Error(`Analysis failed after ${maxAnalysisRetries} attempts: ${lastAnalysisError?.message || 'Unknown error'}`);
-              }
-
-              // Update status to complete with Master Prompt results
-              await supabase
-                .from('document_analysis_status')
-                .update({ 
-                  status: 'complete',
-                  metrics_extracted: analysisData?.metrics_extracted || 0,
-                  insights_extracted: analysisData?.insights_generated || 0,
-                  completed_at: new Date().toISOString()
-                })
-                .eq('job_id', job.id)
-                .eq('document_id', doc.id);
-
-              processedCount++;
-              console.log(`✅ Completed ${doc.file_name} (${processedCount}/${documents.length})`);
-
-            } catch (error) {
-              console.error(`❌ Failed to process ${doc.file_name}:`, error);
-              failedCount++;
-
-              // Update status to failed
-              await supabase
-                .from('document_analysis_status')
-                .update({ 
-                  status: 'failed',
-                  error_message: error instanceof Error ? error.message : 'Unknown error',
-                  completed_at: new Date().toISOString()
-                })
-                .eq('job_id', job.id)
-                .eq('document_id', doc.id);
+              throw invokeError;
             }
+          }
+          
+          if (!analysisSuccess) {
+            throw new Error(`Analysis failed after ${maxAnalysisRetries} attempts: ${lastAnalysisError?.message || 'Unknown error'}`);
+          }
 
-            // Update job progress
-            await supabase
-              .from('analysis_jobs')
-              .update({
-                processed_documents: processedCount,
-                failed_documents: failedCount
-              })
-              .eq('id', job.id);
+          // Update status to complete with Master Prompt results
+          await supabase
+            .from('document_analysis_status')
+            .update({ 
+              status: 'complete',
+              metrics_extracted: analysisData?.metrics_extracted || 0,
+              insights_extracted: analysisData?.insights_generated || 0,
+              completed_at: new Date().toISOString()
+            })
+            .eq('job_id', job.id)
+            .eq('document_id', doc.id);
+
+          processedCount++;
+          console.log(`✅ Completed ${doc.file_name} (${processedCount}/${documents.length})`);
+
+        } catch (error) {
+          console.error(`❌ Failed to process ${doc.file_name}:`, error);
+          failedCount++;
+
+          // Update status to failed
+          await supabase
+            .from('document_analysis_status')
+            .update({ 
+              status: 'failed',
+              error_message: error instanceof Error ? error.message : 'Unknown error',
+              completed_at: new Date().toISOString()
+            })
+            .eq('job_id', job.id)
+            .eq('document_id', doc.id);
+        }
+
+        // Update job progress
+        await supabase
+          .from('analysis_jobs')
+          .update({
+            processed_documents: processedCount,
+            failed_documents: failedCount
           })
-        );
+          .eq('id', job.id);
 
         // Critical delay to respect Anthropic's 10k tokens/minute rate limit
         // 20 seconds between documents ensures we stay well under the limit
-        if (i + batchSize < documents.length) {
+        if (i < documents.length - 1) {
           console.log('⏸️ Waiting 20 seconds before next document to respect rate limits...');
           await new Promise(resolve => setTimeout(resolve, 20000));
         }

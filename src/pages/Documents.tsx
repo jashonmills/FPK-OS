@@ -288,12 +288,23 @@ export default function Documents() {
       if (!doc?.extracted_content && doc?.file_type === 'application/pdf') {
         toast.loading("Extracting text from PDF...", { id: toastId });
         
+        // Extract storage path from full URL if needed
+        let storagePath = doc.file_path;
+        if (storagePath.includes('/storage/v1/object/public/family-documents/')) {
+          // Extract path after the bucket name
+          const match = storagePath.match(/\/family-documents\/(.+)$/);
+          storagePath = match ? match[1] : storagePath;
+        }
+        
+        console.log('📥 Downloading document from storage path:', storagePath);
+        
         // Download the PDF from storage
         const { data: fileData, error: downloadError } = await supabase.storage
           .from('family-documents')
-          .download(doc.file_path);
+          .download(storagePath);
 
         if (downloadError || !fileData) {
+          console.error('❌ Download error:', downloadError);
           throw new Error("Failed to download document");
         }
 
