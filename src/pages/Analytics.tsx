@@ -7,6 +7,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, AlertCircle, Activity, Brain, BookOpen, Users, Waves, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ChartGrid } from "@/components/analytics/ChartGrid";
+import { VideoBackground } from "@/components/analytics/VideoBackground";
 import { TAB_ORDER, TAB_MANIFEST } from "@/config/tabManifest";
 
 const TAB_ICONS = {
@@ -92,18 +93,23 @@ const Analytics = () => {
   };
 
   return (
-    <div className={`fixed inset-0 dark bg-gradient-to-br from-[#0A192F] via-[#112240] to-[#0A192F] flex flex-col transition-opacity duration-300 ${isExiting ? 'opacity-0' : 'opacity-100'}`} style={{ zIndex: 9999 }}>
+    <div className={`fixed inset-0 dark flex flex-col transition-opacity duration-300 ${isExiting ? 'opacity-0' : 'opacity-100'}`} style={{ zIndex: 9999 }}>
+      {/* Layer 1: Full-Screen Video Background */}
+      <VideoBackground opacity={0.25} />
+      
+      {/* Layer 2: UI Content */}
       {/* Exit Button */}
       <Button
         variant="ghost"
         size="icon"
-        className="absolute top-4 right-4 z-50 text-cyan-400/60 hover:text-cyan-400 hover:bg-cyan-500/10"
+        className="absolute top-4 right-4 text-cyan-400/60 hover:text-cyan-400 hover:bg-cyan-500/10"
+        style={{ zIndex: 100 }}
         onClick={handleExit}
       >
         <X className="h-5 w-5" />
       </Button>
 
-      <div className="flex-none px-4 pt-3 pb-2">
+      <div className="flex-none px-4 pt-3 pb-2 relative" style={{ zIndex: 10 }}>
         {/* Compact Mission Control Header */}
         <div className="flex items-center justify-between mb-2">
           <div>
@@ -140,7 +146,7 @@ const Analytics = () => {
       </div>
 
       {/* Tab Content - fills remaining space */}
-      <div className="flex-1 overflow-hidden px-4 pb-4">
+      <div className="flex-1 overflow-hidden px-4 pb-4 relative" style={{ zIndex: 10 }}>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full">
           {TAB_ORDER.map((tabId) => (
             <TabsContent key={tabId} value={tabId} className="h-full mt-0 data-[state=active]:flex data-[state=active]:flex-col">

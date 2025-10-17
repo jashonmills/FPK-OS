@@ -73,9 +73,16 @@ export const SmartChartWidget = ({
   // Render chart component
   const ChartComponent = config.component;
 
-  // Frameless container - no card wrapper
+  // Frameless container with glassmorphism
   return (
-    <div className="relative h-full w-full overflow-hidden">
+    <div 
+      className="relative h-full w-full overflow-hidden rounded-2xl border border-cyan-500/20"
+      style={{
+        backgroundColor: 'rgba(10, 25, 47, 0.7)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)'
+      }}
+    >
       {/* Status badges - top right corner */}
       <div className="absolute top-2 right-2 z-20 flex gap-1">
         {finalMode === "live" && (
