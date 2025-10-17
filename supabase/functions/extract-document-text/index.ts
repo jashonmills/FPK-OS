@@ -256,8 +256,9 @@ async function extractPdfText(pdfData: Uint8Array): Promise<string> {
     // Combine both extraction methods
     let finalText = extractedText + '\n' + parenthesisText;
     
-    // Clean up the text
+    // Clean up the text - CRITICAL: Remove null bytes that break PostgreSQL
     finalText = finalText
+      .replace(/\0/g, '') // Remove null bytes - PostgreSQL TEXT columns cannot store these
       .replace(/\r\n/g, '\n')
       .replace(/\t/g, ' ')
       .replace(/ {2,}/g, ' ')
