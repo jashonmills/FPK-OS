@@ -51,6 +51,12 @@ export const SleepChart = ({ familyId, studentId, days, sampleData }: SleepChart
   return (
     <ResponsiveContainer width="100%" height={300}>
       <ComposedChart data={chartData}>
+        <defs>
+          <linearGradient id="sleepQualityGradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="rgb(6, 182, 212)" stopOpacity={1} />
+            <stop offset="100%" stopColor="rgb(139, 92, 246)" stopOpacity={0.8} />
+          </linearGradient>
+        </defs>
         <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
         <XAxis 
           dataKey="date" 
@@ -71,26 +77,29 @@ export const SleepChart = ({ familyId, studentId, days, sampleData }: SleepChart
         />
         <Tooltip 
           contentStyle={{ 
-            backgroundColor: "hsl(var(--background))",
-            border: "1px solid hsl(var(--border))",
-            borderRadius: "var(--radius)"
+            backgroundColor: "rgba(10, 25, 47, 0.8)",
+            backdropFilter: "blur(5px)",
+            border: "1px solid rgba(0, 180, 255, 0.3)",
+            borderRadius: "8px",
+            boxShadow: "0 0 15px rgba(0, 180, 255, 0.2)"
           }}
+          labelStyle={{ color: "#E0E0E0", fontSize: "0.8rem" }}
+          itemStyle={{ color: "#FFFFFF", fontWeight: 600 }}
         />
         <Legend />
         <Line 
           yAxisId="left"
           type="monotone" 
           dataKey="hours" 
-          stroke="hsl(var(--chart-1))" 
+          stroke="rgb(239, 68, 68)" 
           name="Sleep Hours"
           strokeWidth={2}
         />
         <Bar 
           yAxisId="right"
           dataKey="quality" 
-          fill="hsl(var(--chart-2))" 
+          fill="url(#sleepQualityGradient)" 
           name="Quality (1-5)"
-          opacity={0.6}
         />
       </ComposedChart>
     </ResponsiveContainer>

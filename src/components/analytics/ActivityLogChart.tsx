@@ -76,10 +76,14 @@ export const ActivityLogChart = ({ familyId, studentId, days, sampleData }: Acti
         <YAxis tick={{ fill: "hsl(var(--foreground))" }} />
         <Tooltip 
           contentStyle={{ 
-            backgroundColor: "hsl(var(--background))",
-            border: "1px solid hsl(var(--border))",
-            borderRadius: "var(--radius)"
+            backgroundColor: "rgba(10, 25, 47, 0.8)",
+            backdropFilter: "blur(5px)",
+            border: "1px solid rgba(0, 180, 255, 0.3)",
+            borderRadius: "8px",
+            boxShadow: "0 0 15px rgba(0, 180, 255, 0.2)"
           }}
+          labelStyle={{ color: "#E0E0E0", fontSize: "0.8rem" }}
+          itemStyle={{ color: "#FFFFFF", fontWeight: 600 }}
         />
         <Legend />
         <Bar dataKey="Parent" stackId="a" fill="url(#parentGradient)" />

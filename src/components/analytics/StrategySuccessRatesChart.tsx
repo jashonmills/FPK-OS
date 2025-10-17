@@ -29,37 +29,37 @@ export const StrategySuccessRatesChart = ({ familyId, studentId, days = 30 }: St
 
   if (isLoading) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Lightbulb className="h-5 w-5" />
-            Strategy Success Rates
-          </CardTitle>
-          <CardDescription>How often each intervention leads to positive outcomes</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Skeleton className="h-[300px] w-full" />
-        </CardContent>
-      </Card>
+      <div 
+        className="relative overflow-hidden rounded-xl border h-full"
+        style={{
+          backgroundColor: 'rgba(10, 25, 47, 0.15)',
+          backdropFilter: 'blur(5px)',
+          WebkitBackdropFilter: 'blur(5px)',
+          borderColor: 'rgba(6, 182, 212, 0.4)',
+          boxShadow: '0 0 15px rgba(0, 180, 255, 0.15)'
+        }}
+      >
+        <Skeleton className="h-full w-full bg-cyan-900/20" />
+      </div>
     );
   }
 
   if (!data || data.length === 0) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Lightbulb className="h-5 w-5" />
-            Strategy Success Rates
-          </CardTitle>
-          <CardDescription>How often each intervention leads to positive outcomes</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-center h-[300px] text-muted-foreground">
-            No intervention data available. Log incidents with interventions to see success rates!
-          </div>
-        </CardContent>
-      </Card>
+      <div 
+        className="relative overflow-hidden rounded-xl border h-full flex items-center justify-center"
+        style={{
+          backgroundColor: 'rgba(10, 25, 47, 0.15)',
+          backdropFilter: 'blur(5px)',
+          WebkitBackdropFilter: 'blur(5px)',
+          borderColor: 'rgba(6, 182, 212, 0.4)',
+          boxShadow: '0 0 15px rgba(0, 180, 255, 0.15)'
+        }}
+      >
+        <div className="text-muted-foreground text-xs">
+          No intervention data available. Log incidents with interventions to see success rates!
+        </div>
+      </div>
     );
   }
 
@@ -80,18 +80,26 @@ export const StrategySuccessRatesChart = ({ familyId, studentId, days = 30 }: St
   }));
 
   return (
-    <Card className="glass">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Lightbulb className="h-5 w-5" />
+    <div 
+      className="relative overflow-hidden rounded-xl border h-full"
+      style={{
+        backgroundColor: 'rgba(10, 25, 47, 0.15)',
+        backdropFilter: 'blur(5px)',
+        WebkitBackdropFilter: 'blur(5px)',
+        borderColor: 'rgba(6, 182, 212, 0.4)',
+        boxShadow: '0 0 15px rgba(0, 180, 255, 0.15)'
+      }}
+    >
+      <div className="absolute top-1 left-1.5 z-20">
+        <h3 
+          className="text-[9px] font-bold text-cyan-400/90"
+          style={{ textShadow: '0 0 8px rgba(6, 182, 212, 0.4)' }}
+        >
           Strategy Success Rates
-        </CardTitle>
-        <CardDescription>
-          Ranked by effectiveness over the last {days} days
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <ResponsiveContainer width="100%" height={300}>
+        </h3>
+      </div>
+      <div className="pt-5 px-1 pb-1 h-full">
+        <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData}>
             <defs>
               <linearGradient id="greenGradient" x1="0" y1="0" x2="0" y2="1">
@@ -111,29 +119,32 @@ export const StrategySuccessRatesChart = ({ familyId, studentId, days = 30 }: St
             <XAxis 
               dataKey="strategy" 
               className="text-xs"
-              tick={{ fill: "hsl(var(--foreground))" }}
+              tick={{ fill: "hsl(var(--foreground))", fontSize: 8 }}
               angle={-45}
               textAnchor="end"
-              height={80}
+              height={60}
             />
             <YAxis 
-              label={{ value: 'Success Rate (%)', angle: -90, position: 'insideLeft' }}
-              tick={{ fill: "hsl(var(--foreground))" }}
+              tick={{ fill: "hsl(var(--foreground))", fontSize: 8 }}
               domain={[0, 100]}
             />
             <Tooltip 
               contentStyle={{ 
-                backgroundColor: "hsl(var(--background))",
-                border: "1px solid hsl(var(--border))",
-                borderRadius: "var(--radius)"
+                backgroundColor: "rgba(10, 25, 47, 0.8)",
+                backdropFilter: "blur(5px)",
+                border: "1px solid rgba(0, 180, 255, 0.3)",
+                borderRadius: "8px",
+                boxShadow: "0 0 15px rgba(0, 180, 255, 0.2)"
               }}
+              labelStyle={{ color: "#E0E0E0", fontSize: "0.8rem" }}
+              itemStyle={{ color: "#FFFFFF", fontWeight: 600 }}
               formatter={(value: any, name: string, props: any) => {
                 if (name === 'successRate') {
                   return [
                     <div key="tooltip" className="space-y-1">
                       <div>{props.payload.fullStrategy}</div>
                       <div>Success Rate: {value}%</div>
-                      <div className="text-xs text-muted-foreground">
+                      <div className="text-xs" style={{ color: "#E0E0E0" }}>
                         {props.payload.successfulUses} / {props.payload.totalUses} uses
                       </div>
                     </div>,
@@ -150,7 +161,7 @@ export const StrategySuccessRatesChart = ({ familyId, studentId, days = 30 }: St
             </Bar>
           </BarChart>
         </ResponsiveContainer>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
