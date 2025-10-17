@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { DOCUMENT_INTELLIGENCE_MATRIX, identifyDocumentType } from "../_shared/document-matrix.ts";
 import { getSpecializedPrompt } from "../_shared/prompts/index.ts";
+import { aiIdentifyDocumentType, analyzeWithRetry } from "./ai-helpers.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -100,11 +101,17 @@ serve(async (req) => {
       }
     }
 
-    // Stage 1: Identify document type using the matrix
-    const identifiedType = identifyDocumentType(document.extracted_content);
+    const startTime = Date.now();
+    
+    // Stage 1: Identify document type using AI-powered classification
+    console.log('🔍 Identifying document type...');
+    const identifiedType = await aiIdentifyDocumentType(
+      document.extracted_content, 
+      lovableApiKey
+    );
     
     if (identifiedType) {
-      console.log(`✅ Document identified as: ${identifiedType.doc_type}`);
+      console.log(`✅ Document identified as: ${identifiedType.doc_type} (confidence: ${identifiedType.confidence})`);
     } else {
       console.log("⚠️ Could not identify document type, using generic analysis");
     }
@@ -122,18 +129,12 @@ serve(async (req) => {
         console.log(`⚠️ No specialized prompt found for ${identifiedType.doc_type}, using enhanced generic prompt`);
         systemPrompt = `You are analyzing a **${identifiedType.doc_type}** document.
 
-**Expected Data to Extract:**
-${identifiedType.expected_data}
-
 **CRITICAL INSTRUCTIONS:**
-1. This document should contain: ${identifiedType.expected_data}
-2. ONLY extract data that is explicitly present in the text - DO NOT INFER OR HALLUCINATE
-3. If the expected data is not found, return empty arrays
-4. For metrics: Extract exact values, dates, times, and units
-5. For insights: Only create insights based on explicit recommendations in the document
-6. PRIORITIZE TIME-BASED DATA: Extract exact timestamps, start/end times, and durations
-
-${identifiedType.generates_chart ? `**Chart Generation:** This document type typically populates the "${identifiedType.generates_chart}" chart.` : ''}
+1. Extract ONLY data that is explicitly present in the text - DO NOT INFER OR HALLUCINATE
+2. If expected data is not found, return empty arrays
+3. For metrics: Extract exact values, dates, times, and units
+4. For insights: Only create insights based on explicit recommendations in the document
+5. PRIORITIZE TIME-BASED DATA: Extract exact timestamps, start/end times, and durations
 
 Format your response as a single, valid JSON object with the following structure:`;
       }
@@ -190,67 +191,14 @@ Format your entire response as a single, valid JSON object with the following st
 }`;
     }
 
-    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${lovableApiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { 
-            role: "user", 
-            content: `You are provided with the full text content of a document below. Analyze this content and extract structured data according to the instructions in your system prompt.
-
-**DOCUMENT CONTENT:**
----
-${document.extracted_content}
----
-
-Extract all relevant data from the above document content and return your analysis as a valid JSON object matching the schema in your system prompt.` 
-          },
-        ],
-      }),
-    });
-
-    if (!aiResponse.ok) {
-      const errorText = await aiResponse.text();
-      console.error("AI API error:", aiResponse.status, errorText);
-      return new Response(
-        JSON.stringify({ error: "AI analysis failed" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    const aiData = await aiResponse.json();
-    const aiContent = aiData.choices?.[0]?.message?.content;
-
-    if (!aiContent) {
-      console.error("No content in AI response");
-      return new Response(
-        JSON.stringify({ error: "AI returned no content" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    // Parse the AI response - strip markdown code blocks if present
-    let analysisResult;
-    try {
-      let cleanContent = aiContent.trim();
-      
-      // Remove markdown code blocks (handles both ```json and ``` formats)
-      cleanContent = cleanContent.replace(/^```(?:json)?\s*/g, '').replace(/\s*```$/g, '');
-      
-      analysisResult = JSON.parse(cleanContent);
-    } catch (parseError) {
-      console.error("Failed to parse AI response:", parseError, aiContent);
-      return new Response(
-        JSON.stringify({ error: "Failed to parse AI response" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
+    // Use retry logic for robust analysis
+    const { result: analysisResult, retryCount: analysisRetryCount } = await analyzeWithRetry(
+      document,
+      document.extracted_content,
+      identifiedType,
+      lovableApiKey,
+      systemPrompt
+    );
 
     // Insert metrics
     if (analysisResult.metrics && analysisResult.metrics.length > 0) {
@@ -451,10 +399,40 @@ Rules:
       console.error("Error updating document:", updateError);
     }
 
+    // Log comprehensive diagnostics
+    const processingTime = Date.now() - startTime;
+    
+    // Get chart mapping count from database
+    const { count: chartMappingCount } = await supabase
+      .from('document_chart_mapping')
+      .select('*', { count: 'exact', head: true })
+      .eq('document_id', document_id);
+    
+    await supabase
+      .from('document_extraction_diagnostics')
+      .update({
+        identified_type: identifiedType?.doc_type || 'Unknown',
+        type_confidence: identifiedType?.confidence || null,
+        classification_method: 'ai',
+        metrics_extracted: analysisResult.metrics?.length || 0,
+        insights_generated: analysisResult.insights?.length || 0,
+        progress_records: analysisResult.progress?.length || 0,
+        charts_mapped: chartMappingCount || 0,
+        ai_model_used: 'google/gemini-2.5-flash',
+        retry_count: analysisRetryCount,
+        processing_time_ms: processingTime
+      })
+      .eq('document_id', document_id)
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    console.log(`✅ Analysis complete in ${processingTime}ms (${analysisRetryCount} retries)`);
+
     return new Response(
       JSON.stringify({ 
         success: true,
         identified_doc_type: identifiedType?.doc_type || "Unknown",
+        confidence: identifiedType?.confidence || null,
         metrics_count: analysisResult.metrics?.length || 0,
         insights_count: analysisResult.insights?.length || 0,
         progress_count: analysisResult.progress?.length || 0,

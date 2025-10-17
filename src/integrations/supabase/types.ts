@@ -742,6 +742,93 @@ export type Database = {
           },
         ]
       }
+      document_extraction_diagnostics: {
+        Row: {
+          ai_model_used: string | null
+          charts_mapped: number | null
+          classification_method: string | null
+          created_at: string | null
+          document_id: string
+          errors: Json | null
+          extraction_method: string
+          family_id: string
+          id: string
+          identified_type: string | null
+          insights_generated: number | null
+          metrics_extracted: number | null
+          processing_time_ms: number | null
+          progress_records: number | null
+          quality_score: string
+          retry_count: number | null
+          text_length: number
+          type_confidence: number | null
+          validation_passed: boolean
+          validation_reason: string | null
+          word_count: number
+        }
+        Insert: {
+          ai_model_used?: string | null
+          charts_mapped?: number | null
+          classification_method?: string | null
+          created_at?: string | null
+          document_id: string
+          errors?: Json | null
+          extraction_method: string
+          family_id: string
+          id?: string
+          identified_type?: string | null
+          insights_generated?: number | null
+          metrics_extracted?: number | null
+          processing_time_ms?: number | null
+          progress_records?: number | null
+          quality_score: string
+          retry_count?: number | null
+          text_length: number
+          type_confidence?: number | null
+          validation_passed: boolean
+          validation_reason?: string | null
+          word_count: number
+        }
+        Update: {
+          ai_model_used?: string | null
+          charts_mapped?: number | null
+          classification_method?: string | null
+          created_at?: string | null
+          document_id?: string
+          errors?: Json | null
+          extraction_method?: string
+          family_id?: string
+          id?: string
+          identified_type?: string | null
+          insights_generated?: number | null
+          metrics_extracted?: number | null
+          processing_time_ms?: number | null
+          progress_records?: number | null
+          quality_score?: string
+          retry_count?: number | null
+          text_length?: number
+          type_confidence?: number | null
+          validation_passed?: boolean
+          validation_reason?: string | null
+          word_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_extraction_diagnostics_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_extraction_diagnostics_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       document_metrics: {
         Row: {
           context: string | null
