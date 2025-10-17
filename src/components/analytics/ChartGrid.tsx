@@ -26,13 +26,13 @@ export const ChartGrid = ({
 
   return (
     <div className="relative">
-      {/* Grid layout with centerpiece */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* First chart */}
-        {chartsForTab[0] && (
+      {/* Dense Grid layout with centerpiece */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+        {/* First 2 charts */}
+        {chartsForTab.slice(0, 2).map((chart) => (
           <SmartChartWidget
-            key={chartsForTab[0].chartId}
-            config={chartsForTab[0]}
+            key={chart.chartId}
+            config={chart}
             familyId={familyId}
             studentId={studentId}
             dateRange={dateRange}
@@ -40,31 +40,17 @@ export const ChartGrid = ({
             subscriptionTier={subscriptionTier}
             studentName={studentName}
           />
-        )}
+        ))}
 
-        {/* Second chart */}
-        {chartsForTab[1] && (
-          <SmartChartWidget
-            key={chartsForTab[1].chartId}
-            config={chartsForTab[1]}
-            familyId={familyId}
-            studentId={studentId}
-            dateRange={dateRange}
-            unlockedCharts={unlockedCharts}
-            subscriptionTier={subscriptionTier}
-            studentName={studentName}
-          />
-        )}
-
-        {/* Centerpiece Video */}
-        <div className="flex items-center justify-center">
+        {/* Centerpiece Video - takes 2 columns on large screens */}
+        <div className="lg:col-span-2 flex items-center justify-center p-4">
           <video
             src={tabConfig.centerpieceVideoUrl}
             autoPlay
             loop
             muted
             playsInline
-            className="w-[400px] h-[400px] centerpiece-video object-cover"
+            className="w-full max-w-[400px] h-auto aspect-square centerpiece-video object-cover rounded-xl"
           />
         </div>
 

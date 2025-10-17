@@ -76,10 +76,10 @@ export const SmartChartWidget = ({
   const ChartComponent = config.component;
 
   const cardClassName = cn(
-    "glass-card rounded-lg transition-all duration-300 relative overflow-hidden",
-    finalMode === "live" && "chart-live border-primary shadow-[0_0_15px_hsl(var(--primary)/0.3)]",
-    finalMode === "demo" && "border-amber-500/50 shadow-[0_0_15px_hsl(45_100%_50%/0.2)]",
-    finalMode === "locked" && "border-purple-500/50 shadow-[0_0_15px_hsl(270_80%_65%/0.2)]"
+    "glass-card rounded-lg transition-all duration-300 relative overflow-hidden h-full",
+    finalMode === "live" && "chart-live border-cyan-500/30",
+    finalMode === "demo" && "border-amber-400/30 shadow-[0_0_15px_rgba(251,191,36,0.2)]",
+    finalMode === "locked" && "border-purple-500/30 shadow-[0_0_15px_rgba(168,85,247,0.2)]"
   );
 
   const gridColSpan = config.gridSpan?.cols || 1;
@@ -94,41 +94,41 @@ export const SmartChartWidget = ({
       })}
     >
       <Card className={cardClassName}>
-        <CardHeader className="pb-3">
+        <CardHeader className="pb-2">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <CardTitle className="text-lg flex items-center gap-2">
+              <CardTitle className="text-sm font-semibold flex items-center gap-2 text-cyan-100">
                 {config.title}
                 {finalMode === "live" && (
-                  <Badge variant="default" className="bg-primary/20 text-primary border-primary/30 animate-pulse">
-                    <TrendingUp className="h-3 w-3 mr-1" />
-                    Live Data
+                  <Badge variant="default" className="bg-cyan-500/20 text-cyan-400 border-cyan-500/30 animate-pulse text-[10px] px-1.5 py-0">
+                    <TrendingUp className="h-2.5 w-2.5 mr-0.5" />
+                    Live
                   </Badge>
                 )}
                 {finalMode === "demo" && (
-                  <Badge variant="outline" className="border-amber-500/50 text-amber-600 dark:text-amber-400">
-                    <Sparkles className="h-3 w-3 mr-1" />
-                    Sample Data
+                  <Badge variant="outline" className="border-amber-400/50 text-amber-400 text-[10px] px-1.5 py-0">
+                    <Sparkles className="h-2.5 w-2.5 mr-0.5" />
+                    Sample
                   </Badge>
                 )}
                 {finalMode === "locked" && (
-                  <Badge variant="outline" className="border-purple-500/50 text-purple-600 dark:text-purple-400">
-                    <Lock className="h-3 w-3 mr-1" />
+                  <Badge className="badge-premium text-gray-900 text-[10px] px-1.5 py-0 border-0">
+                    <Lock className="h-2.5 w-2.5 mr-0.5" />
                     Premium
                   </Badge>
                 )}
               </CardTitle>
-              <CardDescription className="text-sm mt-1">
+              <CardDescription className="text-[11px] mt-0.5 text-cyan-300/50">
                 {config.description}
               </CardDescription>
             </div>
           </div>
         </CardHeader>
 
-        <CardContent>
+        <CardContent className="pb-3">
           {isLoading && hasSubscription ? (
-            <div className="space-y-3">
-              <Skeleton className="h-[200px] w-full" />
+            <div className="space-y-2">
+              <Skeleton className="h-[150px] w-full bg-cyan-900/20" />
             </div>
           ) : finalMode === "locked" ? (
             // LOCKED MODE: Show blurred preview with upgrade CTA

@@ -117,58 +117,66 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 215 30% 12%;
-    --foreground: 210 25% 95%;
+    /* Mission Control Deep Navy Background */
+    --background: 220 45% 8%;
+    --foreground: 210 20% 98%;
 
-    --card: 215 28% 16%;
-    --card-foreground: 210 25% 95%;
+    /* Glassmorphism Card */
+    --card: 220 40% 15%;
+    --card-foreground: 210 20% 98%;
 
-    --popover: 215 28% 16%;
-    --popover-foreground: 210 25% 95%;
+    --popover: 220 40% 15%;
+    --popover-foreground: 210 20% 98%;
 
-    --primary: 187 75% 55%;
-    --primary-foreground: 0 0% 100%;
-    --primary-hover: 187 75% 48%;
+    /* Neon Cyan Primary */
+    --primary: 187 95% 55%;
+    --primary-foreground: 220 45% 8%;
+    --primary-hover: 187 95% 48%;
 
-    --secondary: 45 90% 65%;
-    --secondary-foreground: 215 25% 15%;
-    --secondary-hover: 45 90% 57%;
+    /* Electric Purple Secondary */
+    --secondary: 270 80% 65%;
+    --secondary-foreground: 220 45% 8%;
+    --secondary-hover: 270 80% 57%;
 
-    --muted: 215 20% 22%;
-    --muted-foreground: 215 15% 65%;
+    --muted: 220 30% 20%;
+    --muted-foreground: 220 15% 65%;
 
-    --accent: 250 40% 25%;
-    --accent-foreground: 250 65% 85%;
+    /* Neon Accent */
+    --accent: 187 95% 55%;
+    --accent-foreground: 220 45% 8%;
 
-    --destructive: 0 70% 50%;
+    --destructive: 0 80% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 215 20% 24%;
-    --input: 215 20% 22%;
-    --ring: 187 75% 55%;
+    /* Glowing Borders */
+    --border: 187 95% 55% / 0.2;
+    --input: 220 30% 20%;
+    --ring: 187 95% 55%;
 
-    --gradient-hero: linear-gradient(135deg, hsl(187 75% 45%) 0%, hsl(205 75% 42%) 100%);
-    --gradient-card: linear-gradient(to bottom, hsl(215 28% 16%), hsl(215 28% 18%));
-    --gradient-subtle: linear-gradient(135deg, hsl(187 75% 20%) 0%, hsl(250 40% 20%) 100%);
+    /* Mission Control Gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(220 45% 10%) 0%, hsl(270 50% 15%) 100%);
+    --gradient-card: linear-gradient(to bottom, hsl(220 40% 14% / 0.5), hsl(220 40% 16% / 0.5));
+    --gradient-subtle: linear-gradient(135deg, hsl(187 95% 15%) 0%, hsl(270 80% 20%) 100%);
 
-    --shadow-soft: 0 2px 8px -2px hsl(0 0% 0% / 0.3);
-    --shadow-medium: 0 4px 16px -4px hsl(0 0% 0% / 0.4);
-    --shadow-strong: 0 8px 24px -8px hsl(0 0% 0% / 0.5);
+    /* Neon Glow Shadows */
+    --shadow-soft: 0 0 10px hsl(187 95% 55% / 0.3);
+    --shadow-medium: 0 0 20px hsl(187 95% 55% / 0.4);
+    --shadow-strong: 0 0 40px hsl(187 95% 55% / 0.5);
 
-    /* Glassmorphism effects (dark) */
-    --glass-background: 215 28% 16% / 0.8;
-    --glass-border: 215 20% 40% / 0.2;
-    --glass-shadow: 0 8px 32px 0 hsl(0 0% 0% / 0.3);
+    /* Glassmorphism effects */
+    --glass-background: 220 40% 15% / 0.4;
+    --glass-border: 187 95% 55% / 0.2;
+    --glass-shadow: 0 8px 32px 0 hsl(187 95% 55% / 0.15);
 
-    /* Sidebar colors (dark mode) */
-    --sidebar-background: 215 28% 16%;
-    --sidebar-foreground: 210 25% 95%;
-    --sidebar-primary: 187 75% 55%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 215 20% 22%;
-    --sidebar-accent-foreground: 210 25% 95%;
-    --sidebar-border: 215 20% 24%;
-    --sidebar-ring: 187 75% 55%;
+    /* Sidebar colors */
+    --sidebar-background: 220 40% 12%;
+    --sidebar-foreground: 210 20% 98%;
+    --sidebar-primary: 187 95% 55%;
+    --sidebar-primary-foreground: 220 45% 8%;
+    --sidebar-accent: 220 30% 18%;
+    --sidebar-accent-foreground: 210 20% 98%;
+    --sidebar-border: 187 95% 55% / 0.2;
+    --sidebar-ring: 187 95% 55%;
   }
 }
 
@@ -208,17 +216,62 @@ All colors MUST be HSL.
 
   @keyframes pulse-glow {
     0%, 100% { 
-      box-shadow: 0 0 15px hsl(var(--primary) / 0.3);
+      box-shadow: 0 0 15px hsl(187 95% 55% / 0.3),
+                  inset 0 0 20px hsl(187 95% 55% / 0.05);
     }
     50% { 
-      box-shadow: 0 0 30px hsl(var(--primary) / 0.6);
+      box-shadow: 0 0 30px hsl(187 95% 55% / 0.6),
+                  inset 0 0 30px hsl(187 95% 55% / 0.1);
     }
   }
 
   /* Mission Control - Video Centerpiece */
   .centerpiece-video {
     border-radius: 1rem;
-    box-shadow: 0 0 40px hsl(var(--primary) / 0.4);
-    border: 2px solid hsl(var(--primary) / 0.3);
+    box-shadow: 0 0 60px hsl(187 95% 55% / 0.5);
+    border: 2px solid hsl(187 95% 55% / 0.4);
+  }
+
+  /* Mission Control - Glowing Text */
+  .glow-text {
+    text-shadow: 0 0 10px hsl(187 95% 55% / 0.5),
+                 0 0 20px hsl(187 95% 55% / 0.3);
+  }
+
+  /* Mission Control - Dense Grid */
+  .mission-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 0.75rem;
+  }
+
+  /* Neon Badge Glow */
+  .badge-premium {
+    background: linear-gradient(135deg, hsl(45 100% 50%), hsl(35 100% 50%));
+    box-shadow: 0 0 15px hsl(45 100% 50% / 0.6);
+    animation: badge-glow 2s ease-in-out infinite;
+  }
+
+  @keyframes badge-glow {
+    0%, 100% { 
+      box-shadow: 0 0 10px hsl(45 100% 50% / 0.4);
+    }
+    50% { 
+      box-shadow: 0 0 20px hsl(45 100% 50% / 0.8);
+    }
+  }
+
+  /* Glassmorphism enhancements for Mission Control */
+  .glass-card {
+    background: linear-gradient(
+      135deg,
+      hsl(220 40% 15% / 0.5) 0%,
+      hsl(220 40% 12% / 0.3) 100%
+    );
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid hsl(187 95% 55% / 0.2);
+    box-shadow: 0 8px 32px 0 hsl(0 0% 0% / 0.4),
+                0 0 0 1px hsl(187 95% 55% / 0.1) inset;
   }
 }

@@ -71,50 +71,54 @@ const Analytics = () => {
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      {/* Mission Control Header */}
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">
-          Analytics Mission Control
-        </h1>
-        <p className="text-muted-foreground">
-          Comprehensive progress tracking for {selectedStudent.student_name}
-        </p>
+    <div className="dark min-h-screen bg-gradient-to-br from-[#0A192F] via-[#112240] to-[#0A192F]">
+      <div className="container mx-auto p-4 space-y-4">
+        {/* Mission Control Header */}
+        <div className="space-y-2 mb-6">
+          <h1 className="text-4xl font-bold tracking-tight glow-text bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+            Analytics Mission Control
+          </h1>
+          <p className="text-cyan-300/70 text-sm">
+            Comprehensive progress tracking for {selectedStudent.student_name}
+          </p>
+        </div>
+
+        {/* Tabbed Cockpit */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="glass-card mb-4 h-auto p-2 bg-transparent border border-cyan-500/20">
+            <div className="grid grid-cols-5 w-full gap-1">
+              {TAB_ORDER.map((tabId) => {
+                const tab = TAB_MANIFEST[tabId];
+                const Icon = TAB_ICONS[tabId as keyof typeof TAB_ICONS];
+                return (
+                  <TabsTrigger
+                    key={tabId}
+                    value={tabId}
+                    className="flex flex-col items-center gap-1 py-2 px-2 data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_15px_rgba(6,182,212,0.3)] rounded-md transition-all"
+                  >
+                    <Icon className="h-4 w-4" />
+                    <span className="text-[10px] font-medium">{tab.title}</span>
+                  </TabsTrigger>
+                );
+              })}
+            </div>
+          </TabsList>
+
+          {TAB_ORDER.map((tabId) => (
+            <TabsContent key={tabId} value={tabId} className="mt-0">
+              <ChartGrid
+                tabId={tabId}
+                familyId={selectedFamily!.id}
+                studentId={selectedStudent.id}
+                dateRange={dateRange}
+                unlockedCharts={userMeta.unlockedCharts}
+                subscriptionTier={userMeta.subscriptionTier}
+                studentName={selectedStudent.student_name}
+              />
+            </TabsContent>
+          ))}
+        </Tabs>
       </div>
-
-      {/* Tabbed Cockpit */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-5 glass-card mb-6 h-auto p-2">
-          {TAB_ORDER.map((tabId) => {
-            const tab = TAB_MANIFEST[tabId];
-            const Icon = TAB_ICONS[tabId as keyof typeof TAB_ICONS];
-            return (
-              <TabsTrigger
-                key={tabId}
-                value={tabId}
-                className="flex flex-col items-center gap-1 py-3 data-[state=active]:bg-primary/10 data-[state=active]:text-primary"
-              >
-                <Icon className="h-5 w-5" />
-                <span className="text-xs font-medium">{tab.title}</span>
-              </TabsTrigger>
-            );
-          })}
-        </TabsList>
-
-        {TAB_ORDER.map((tabId) => (
-          <TabsContent key={tabId} value={tabId} className="mt-6">
-            <ChartGrid
-              tabId={tabId}
-              familyId={selectedFamily!.id}
-              studentId={selectedStudent.id}
-              dateRange={dateRange}
-              unlockedCharts={userMeta.unlockedCharts}
-              subscriptionTier={userMeta.subscriptionTier}
-              studentName={selectedStudent.student_name}
-            />
-          </TabsContent>
-        ))}
-      </Tabs>
     </div>
   );
 };
