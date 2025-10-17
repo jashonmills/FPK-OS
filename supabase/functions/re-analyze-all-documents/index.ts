@@ -131,12 +131,14 @@ serve(async (req) => {
           let analysisSuccess = false;
           let analysisData = null;
           let lastAnalysisError = null;
-          const maxAnalysisRetries = 2; // One initial attempt + one retry on timeout
+          const maxAnalysisRetries = 3; // Increased retries for rate limits
           
           for (let retryCount = 0; retryCount < maxAnalysisRetries && !analysisSuccess; retryCount++) {
             if (retryCount > 0) {
-              console.log(`  🔄 Retrying analysis for ${doc.file_name} (attempt ${retryCount + 1}/${maxAnalysisRetries})...`);
-              await new Promise(resolve => setTimeout(resolve, 5000)); // 5s delay before retry
+              // Exponential backoff: 15s, 30s, 60s
+              const delay = Math.min(15000 * Math.pow(2, retryCount - 1), 60000);
+              console.log(`  🔄 Retrying analysis for ${doc.file_name} (attempt ${retryCount + 1}/${maxAnalysisRetries}) after ${delay/1000}s...`);
+              await new Promise(resolve => setTimeout(resolve, delay));
             }
             
             try {
@@ -163,10 +165,18 @@ serve(async (req) => {
                 const isTimeout = error.message?.includes('timeout') || 
                                  error.message?.includes('Timeout') ||
                                  data?.can_retry === true;
+                const isRateLimit = error.message?.includes('rate limit') ||
+                                   error.message?.includes('Rate limit') ||
+                                   error.message?.includes('429');
                 
-                if (isTimeout && retryCount < maxAnalysisRetries - 1) {
-                  console.log(`  ⏱️ Analysis timeout for ${doc.file_name}, will retry...`);
-                  continue; // Retry on timeout
+                if ((isTimeout || isRateLimit) && retryCount < maxAnalysisRetries - 1) {
+                  console.log(`  ⏱️ ${isRateLimit ? 'Rate limit' : 'Timeout'} for ${doc.file_name}, will retry...`);
+                  // Extra delay for rate limits
+                  if (isRateLimit) {
+                    console.log('  ⏸️ Adding extra 30s delay for rate limit recovery...');
+                    await new Promise(resolve => setTimeout(resolve, 30000));
+                  }
+                  continue; // Retry on timeout or rate limit
                 }
                 
                 throw new Error(`Analysis failed: ${error.message}`);
@@ -178,10 +188,18 @@ serve(async (req) => {
               lastAnalysisError = invokeError;
               const isTimeout = invokeError.message?.includes('timeout') || 
                                invokeError.message?.includes('Timeout');
+              const isRateLimit = invokeError.message?.includes('rate limit') ||
+                                 invokeError.message?.includes('Rate limit') ||
+                                 invokeError.message?.includes('429');
               
-              if (isTimeout && retryCount < maxAnalysisRetries - 1) {
-                console.log(`  ⏱️ Invoke timeout for ${doc.file_name}, will retry...`);
-                continue; // Retry on timeout
+              if ((isTimeout || isRateLimit) && retryCount < maxAnalysisRetries - 1) {
+                console.log(`  ⏱️ ${isRateLimit ? 'Rate limit' : 'Timeout'} invoke error for ${doc.file_name}, will retry...`);
+                // Extra delay for rate limits
+                if (isRateLimit) {
+                  console.log('  ⏸️ Adding extra 30s delay for rate limit recovery...');
+                  await new Promise(resolve => setTimeout(resolve, 30000));
+                }
+                continue; // Retry on timeout or rate limit
               }
               
               throw invokeError;
@@ -232,11 +250,11 @@ serve(async (req) => {
           })
           .eq('id', job.id);
 
-        // Critical delay to respect Anthropic's 10k tokens/minute rate limit
-        // 20 seconds between documents ensures we stay well under the limit
+        // Critical delay to respect Anthropic's 30k tokens/minute rate limit
+        // 30 seconds between documents ensures we stay well under the limit
         if (i < documents.length - 1) {
-          console.log('⏸️ Waiting 20 seconds before next document to respect rate limits...');
-          await new Promise(resolve => setTimeout(resolve, 20000));
+          console.log('⏸️ Waiting 30 seconds before next document to respect rate limits...');
+          await new Promise(resolve => setTimeout(resolve, 30000));
         }
       }
 

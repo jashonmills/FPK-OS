@@ -106,13 +106,20 @@ Your final response MUST be a single JSON object matching this exact schema. Do 
   console.log(`🔬 Starting Master Analysis ${promptInfo}...`);
   const startTime = Date.now();
   
-  const maxRetries = 2;
+  const maxRetries = 3; // Increased for better rate limit handling
   let attempt = 0;
   let lastError = null;
 
   while (attempt < maxRetries) {
     attempt++;
     console.log(`📊 Master Analysis attempt ${attempt}/${maxRetries}...`);
+
+    // Exponential backoff delay: 0s, 15s, 45s
+    if (attempt > 1) {
+      const delay = 15000 * Math.pow(2, attempt - 2);
+      console.log(`⏸️ Waiting ${delay/1000}s before retry (rate limit recovery)...`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
 
     try {
       const abortController = new AbortController();
@@ -162,7 +169,17 @@ Your final response MUST be a single JSON object matching this exact schema. Do 
         }
 
         if (response.status === 429) {
-          throw new Error('Rate limit exceeded. Please wait and try again.');
+          const retryAfter = response.headers.get('retry-after');
+          const waitTime = retryAfter ? parseInt(retryAfter) * 1000 : 60000;
+          console.log(`⏱️ Rate limited. Retry after ${waitTime/1000}s (attempt ${attempt}/${maxRetries})`);
+          
+          if (attempt < maxRetries) {
+            lastError = new Error(`Rate limit (429) - will retry after ${waitTime/1000}s`);
+            await new Promise(resolve => setTimeout(resolve, waitTime));
+            continue; // Retry with exponential backoff
+          }
+          
+          throw new Error('Rate limit exceeded after all retries. Please try again later.');
         }
 
         throw new Error(`Master Analysis API failed with status ${response.status}`);
@@ -230,8 +247,7 @@ Your final response MUST be a single JSON object matching this exact schema. Do 
         throw lastError;
       }
 
-      // Wait before retry
-      await new Promise(resolve => setTimeout(resolve, 3000 * attempt));
+      // Exponential backoff handled at top of loop
     }
   }
 
