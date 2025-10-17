@@ -186,12 +186,13 @@ You MUST look for scores/levels for each of these modalities:
 ## EXTRACTION RULES
 
 1. **ALL 7 MODALITIES ARE MANDATORY**: If the document doesn't provide a score for a modality, note it in insights as "Data not available for [modality]"
-2. **EXTRACT EXACT SCORES**: T-scores, raw scores, percentiles - whatever is provided
-3. **INCLUDE SEEKING/AVOIDING DESCRIPTOR**: "Seeking," "Avoiding," "Sensitive," "Low Registration" in context
+2. **EXTRACT EXACT SCORES**: T-scores, raw scores, percentiles - whatever is provided. NUMERIC VALUES ONLY in metric_value field.
+3. **INCLUDE SEEKING/AVOIDING DESCRIPTOR**: "Seeking," "Avoiding," "Sensitive," "Low Registration" in context field ONLY
 4. **QUADRANT SCORES MATTER**: Extract Seeking, Avoiding, Sensitivity, Registration if provided
 5. **BEHAVIORAL IMPACTS**: If the report describes how sensory issues affect daily life (eating, dressing, school), extract as insights
 6. **RECOMMENDED STRATEGIES**: OT sensory profiles ALWAYS include intervention recommendations - extract these as insights
 7. **DO NOT INFER SCORES**: If the report says "Child has tactile defensiveness" but doesn't provide a numeric score, create a qualitative insight, not a fake metric
+8. **STRICT NUMERIC ENFORCEMENT**: metric_value and target_value MUST be pure numbers (integers or decimals) or NULL. Text values like "Much More Than Others" MUST go in context field only. Database will reject text in numeric fields.
 
 ## COMMON SECTION HEADERS
 - "Sensory Profile Results"

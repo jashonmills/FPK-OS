@@ -178,13 +178,14 @@ export const PSYCH_EVAL_EXTRACTION_PROMPT = `You are analyzing a **Psychoeducati
 
 ## EXTRACTION RULES
 
-1. **EXTRACT EVERY SCORE**: Do not summarize. If report shows 15 subtest scores, extract all 15
+1. **EXTRACT EVERY SCORE**: Do not summarize. If report shows 15 subtest scores, extract all 15. All scores MUST be numeric.
 2. **INCLUDE SCORE TYPE**: Standard scores (mean=100), Scaled scores (mean=10), T-scores (mean=50), Percentiles
-3. **CAPTURE CLINICAL DESCRIPTORS**: "Average," "Below Average," "Superior," "Clinically Significant"
+3. **CAPTURE CLINICAL DESCRIPTORS**: "Average," "Below Average," "Superior," "Clinically Significant" - these go in context field ONLY, never in metric_value
 4. **TEST NAMES MATTER**: "WISC-V" vs. "WISC-IV" vs. "Stanford-Binet" - include test edition
 5. **PERCENTILE RANKS = CONTEXT**: Always include in context field if provided
 6. **GRADE/AGE EQUIVALENTS**: Include in context if provided (but note they're descriptive, not prescriptive)
 7. **DIAGNOSTIC IMPRESSIONS = INSIGHTS**: Extract diagnoses and recommendations as insights
+8. **NUMBERS ONLY IN SCORE FIELDS**: metric_value, target_value, baseline_value accept ONLY numeric values (integers or decimals) or NULL. Text descriptors like "Average" cause database errors - put them in context instead.
 
 ## COMMON SECTION HEADERS TO LOOK FOR
 - "Reason for Referral"

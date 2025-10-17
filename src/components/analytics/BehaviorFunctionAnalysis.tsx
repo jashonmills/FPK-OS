@@ -19,7 +19,7 @@ export const BehaviorFunctionAnalysis = ({ studentId, familyId, sampleData }: Be
       const { data, error } = await supabase.rpc("get_behavior_function_data", {
         p_family_id: familyId,
         p_student_id: studentId,
-        p_days: 30
+        p_days: null // All time
       });
       if (error) throw error;
       return data;

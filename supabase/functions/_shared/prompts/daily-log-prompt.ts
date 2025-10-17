@@ -169,10 +169,11 @@ This is a time-series document. If the log contains 30 days of entries, you MUST
 1. **ONE ENTRY PER DATE**: If log has 30 days, create 30 separate metric entries minimum
 2. **EXACT DATES REQUIRED**: Extract dates in YYYY-MM-DD format. If only "Monday" is given, use context to infer the actual date
 3. **TIMESTAMPS MATTER**: If the note says "1:44pm - incident occurred," extract start_time: "1:44"
-4. **QUANTIFY BEHAVIORS**: "Had a few incidents" is not acceptable. Extract EXACT counts if provided. If not provided, create a qualitative insight instead
+4. **QUANTIFY BEHAVIORS**: "Had a few incidents" is not acceptable. Extract EXACT counts if provided. If not provided, create a qualitative insight instead. metric_value MUST be a number.
 5. **MOOD = METRIC**: If mood is mentioned daily (happy, frustrated, calm), extract as a numeric metric (1-5 scale) or categorical metric
 6. **ZERO COUNTS ARE DATA**: If log says "No incidents today," create a metric with metric_value: 0
 7. **IDENTIFY PATTERNS**: After extracting all daily data, create insights about weekly trends, day-of-week patterns, or time-based patterns
+8. **STRICT NUMERIC VALUES**: metric_value, target_value, duration_minutes accept ONLY numbers or NULL. Never use text like "sometimes", "improving", or descriptive words - those belong in context field.
 
 ## COMMON LOG FORMATS
 - **Narrative format:** "Today Bobby had a great day. He completed his math worksheet and participated in reading group. There were 2 incidents of elopement during transitions."

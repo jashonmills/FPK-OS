@@ -16,7 +16,7 @@ export const SelfRegulationChart = () => {
       const { data, error } = await supabase.rpc("get_self_regulation_data", {
         p_family_id: selectedFamily.id,
         p_student_id: selectedStudent.id,
-        p_days: 30
+        p_days: null // All time
       });
 
       if (error) throw error;

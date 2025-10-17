@@ -131,11 +131,12 @@ Return a single JSON object with this EXACT structure:
 ## EXTRACTION RULES (NON-NEGOTIABLE)
 
 1. **DO NOT INFER FUNCTIONS**: Only extract hypothesized functions that are EXPLICITLY stated in the document
-2. **QUANTIFY EVERYTHING**: Convert "twice daily" → 2, unit: "per day"
+2. **QUANTIFY EVERYTHING**: Convert "twice daily" → 2, unit: "per day". metric_value MUST be a pure number.
 3. **EXTRACT EVERY TABLE ROW**: Do not summarize - create one metric per data point
 4. **NO HALLUCINATIONS**: If a section is missing, return empty array for that data type
 5. **PRESERVE EXACT DATES**: Use YYYY-MM-DD format, extract from headers or table columns
 6. **CAPTURE INTERVENTION DETAILS**: Every listed strategy = one entry with full implementation details
+7. **NUMERIC FIELDS STRICT**: metric_value, target_value, duration_minutes accept ONLY numbers (integers or decimals) or NULL. Never insert text strings. Database will error on non-numeric values.
 
 ## COMMON BIP SECTION HEADERS TO LOOK FOR
 - "1.0 Target Behavior Description"

@@ -139,11 +139,12 @@ Return a single JSON object:
 ## EXTRACTION RULES
 
 1. **EXTRACT ALL GOALS**: Do not skip or summarize. Each goal = separate metric + progress entry
-2. **QUANTIFY BASELINES AND TARGETS**: Convert "Student reads below grade level" to the EXACT metric if provided (e.g., 55 WPM)
+2. **QUANTIFY BASELINES AND TARGETS**: Convert "Student reads below grade level" to the EXACT metric if provided (e.g., 55 WPM). baseline_value and target_value MUST be single numbers, never ranges.
 3. **SERVICE MINUTES ARE CRITICAL**: Extract exact minutes per week for each service (IEPs are legally required to specify this)
 4. **INCLUDE MEASUREMENT METHODS**: "Teacher observation" vs. "Standardized assessment" vs. "CBM probes" - these matter
 5. **PLOP DATA = CURRENT PERFORMANCE**: Extract current levels as metric_value entries
 6. **NO INFERENCE**: If baseline is stated as "Student struggles with transitions" but no frequency is given, don't create a numeric metric
+7. **SINGLE NUMERIC VALUES ONLY**: If a goal states "4-5 words", extract the midpoint (4.5) or upper bound (5) as a single decimal/integer. baseline_value and target_value fields accept ONLY numbers or NULL, never text or ranges like "4-5".
 
 ## COMMON IEP SECTION HEADERS
 - "Present Levels of Academic Achievement and Functional Performance (PLAAFP)"
