@@ -100,11 +100,11 @@ serve(async (req) => {
 // Production-grade PDF text extraction using pdf-parse
 async function extractPdfText(pdfData: Uint8Array): Promise<string> {
   try {
-    // Import pdf-parse from npm (Deno-compatible)
-    const pdfParse = (await import("npm:pdf-parse@1.1.1")).default;
+    // Import pdf-parse from esm.sh (Deno-compatible CDN)
+    const pdfParse = (await import("https://esm.sh/pdf-parse@1.1.1")).default;
     
     // Convert Uint8Array to Buffer for pdf-parse
-    const buffer = Buffer.from(pdfData);
+    const buffer = new Uint8Array(pdfData);
     
     // Extract text using pdf-parse
     const pdfData_parsed = await pdfParse(buffer);
