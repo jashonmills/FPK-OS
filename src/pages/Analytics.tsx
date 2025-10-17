@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useFamily } from "@/contexts/FamilyContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -19,9 +20,17 @@ const TAB_ICONS = {
 };
 
 const Analytics = () => {
+  const navigate = useNavigate();
   const { selectedFamily, selectedStudent } = useFamily();
   const [activeTab, setActiveTab] = useState("overall");
   const [isExiting, setIsExiting] = useState(false);
+
+  const handleExit = () => {
+    setIsExiting(true);
+    setTimeout(() => {
+      navigate("/dashboard");
+    }, 300);
+  };
 
   // ESC key to exit
   useEffect(() => {
@@ -33,13 +42,6 @@ const Analytics = () => {
     window.addEventListener("keydown", handleEscape);
     return () => window.removeEventListener("keydown", handleEscape);
   }, []);
-
-  const handleExit = () => {
-    setIsExiting(true);
-    setTimeout(() => {
-      window.history.back();
-    }, 300);
-  };
 
   // Fetch critical metadata: subscription tier and unlocked charts
   // MUST be called before any conditional returns (Rules of Hooks)
