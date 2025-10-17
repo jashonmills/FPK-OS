@@ -53,6 +53,20 @@ export const ActivityLogChart = ({ familyId, studentId, days, sampleData }: Acti
   return (
     <ResponsiveContainer width="100%" height={300}>
       <BarChart data={chartData}>
+        <defs>
+          <linearGradient id="parentGradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="rgb(6, 182, 212)" stopOpacity={1} />
+            <stop offset="100%" stopColor="rgb(8, 145, 178)" stopOpacity={0.8} />
+          </linearGradient>
+          <linearGradient id="educatorGradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="rgb(139, 92, 246)" stopOpacity={1} />
+            <stop offset="100%" stopColor="rgb(124, 58, 237)" stopOpacity={0.8} />
+          </linearGradient>
+          <linearGradient id="incidentGradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="rgb(236, 72, 153)" stopOpacity={1} />
+            <stop offset="100%" stopColor="rgb(219, 39, 119)" stopOpacity={0.8} />
+          </linearGradient>
+        </defs>
         <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
         <XAxis 
           dataKey="date" 
@@ -68,9 +82,9 @@ export const ActivityLogChart = ({ familyId, studentId, days, sampleData }: Acti
           }}
         />
         <Legend />
-        <Bar dataKey="Parent" stackId="a" fill="hsl(var(--chart-1))" />
-        <Bar dataKey="Educator" stackId="a" fill="hsl(var(--chart-2))" />
-        <Bar dataKey="Incidents" stackId="a" fill="hsl(var(--chart-3))" />
+        <Bar dataKey="Parent" stackId="a" fill="url(#parentGradient)" />
+        <Bar dataKey="Educator" stackId="a" fill="url(#educatorGradient)" />
+        <Bar dataKey="Incidents" stackId="a" fill="url(#incidentGradient)" />
       </BarChart>
     </ResponsiveContainer>
   );

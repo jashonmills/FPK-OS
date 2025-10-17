@@ -63,7 +63,7 @@ export const TopPriorityGoalsChart = ({ familyId, studentId }: TopPriorityGoalsC
   }
 
   return (
-    <Card>
+    <Card className="glass">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Target className="h-5 w-5" />

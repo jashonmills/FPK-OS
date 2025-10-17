@@ -64,9 +64,9 @@ export const StrategySuccessRatesChart = ({ familyId, studentId, days = 30 }: St
   }
 
   const getBarColor = (successRate: number) => {
-    if (successRate >= 70) return "hsl(var(--chart-2))"; // Green
-    if (successRate >= 50) return "hsl(var(--chart-3))"; // Yellow
-    return "hsl(var(--chart-4))"; // Red
+    if (successRate >= 70) return "url(#greenGradient)";
+    if (successRate >= 50) return "url(#yellowGradient)";
+    return "url(#redGradient)";
   };
 
   const chartData = data.map((item: any) => ({
@@ -80,7 +80,7 @@ export const StrategySuccessRatesChart = ({ familyId, studentId, days = 30 }: St
   }));
 
   return (
-    <Card>
+    <Card className="glass">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Lightbulb className="h-5 w-5" />
@@ -93,6 +93,20 @@ export const StrategySuccessRatesChart = ({ familyId, studentId, days = 30 }: St
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={chartData}>
+            <defs>
+              <linearGradient id="greenGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="rgb(34, 197, 94)" stopOpacity={1} />
+                <stop offset="100%" stopColor="rgb(22, 163, 74)" stopOpacity={0.8} />
+              </linearGradient>
+              <linearGradient id="yellowGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="rgb(234, 179, 8)" stopOpacity={1} />
+                <stop offset="100%" stopColor="rgb(202, 138, 4)" stopOpacity={0.8} />
+              </linearGradient>
+              <linearGradient id="redGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="rgb(239, 68, 68)" stopOpacity={1} />
+                <stop offset="100%" stopColor="rgb(220, 38, 38)" stopOpacity={0.8} />
+              </linearGradient>
+            </defs>
             <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
             <XAxis 
               dataKey="strategy" 

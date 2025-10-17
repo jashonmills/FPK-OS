@@ -11,12 +11,12 @@ interface MoodDistributionChartProps {
 }
 
 const MOOD_COLORS: Record<string, string> = {
-  "happy": "hsl(var(--chart-1))",
-  "calm": "hsl(var(--chart-2))",
-  "anxious": "hsl(var(--chart-3))",
-  "agitated": "hsl(var(--chart-4))",
-  "tired": "hsl(var(--chart-5))",
-  "irritable": "hsl(var(--destructive))",
+  "happy": "url(#happyGradient)",
+  "calm": "url(#calmGradient)",
+  "anxious": "url(#anxiousGradient)",
+  "agitated": "url(#agitatedGradient)",
+  "tired": "url(#tiredGradient)",
+  "irritable": "url(#irritableGradient)",
 };
 
 export const MoodDistributionChart = ({ familyId, studentId, sampleData }: MoodDistributionChartProps) => {
@@ -113,6 +113,32 @@ export const MoodDistributionChart = ({ familyId, studentId, sampleData }: MoodD
       </div>
       <ResponsiveContainer width="100%" height={300}>
       <BarChart data={chartData}>
+        <defs>
+          <linearGradient id="happyGradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="rgb(251, 191, 36)" stopOpacity={1} />
+            <stop offset="100%" stopColor="rgb(245, 158, 11)" stopOpacity={0.8} />
+          </linearGradient>
+          <linearGradient id="calmGradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="rgb(96, 165, 250)" stopOpacity={1} />
+            <stop offset="100%" stopColor="rgb(59, 130, 246)" stopOpacity={0.8} />
+          </linearGradient>
+          <linearGradient id="anxiousGradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="rgb(168, 85, 247)" stopOpacity={1} />
+            <stop offset="100%" stopColor="rgb(147, 51, 234)" stopOpacity={0.8} />
+          </linearGradient>
+          <linearGradient id="agitatedGradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="rgb(248, 113, 113)" stopOpacity={1} />
+            <stop offset="100%" stopColor="rgb(239, 68, 68)" stopOpacity={0.8} />
+          </linearGradient>
+          <linearGradient id="tiredGradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="rgb(148, 163, 184)" stopOpacity={1} />
+            <stop offset="100%" stopColor="rgb(100, 116, 139)" stopOpacity={0.8} />
+          </linearGradient>
+          <linearGradient id="irritableGradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="rgb(239, 68, 68)" stopOpacity={1} />
+            <stop offset="100%" stopColor="rgb(220, 38, 38)" stopOpacity={0.8} />
+          </linearGradient>
+        </defs>
         <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
         <XAxis 
           dataKey="day" 
