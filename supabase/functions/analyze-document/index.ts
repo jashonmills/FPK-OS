@@ -199,7 +199,17 @@ Format your entire response as a single, valid JSON object with the following st
         model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: systemPrompt },
-          { role: "user", content: `Analyze this document:\n\n${document.extracted_content}` },
+          { 
+            role: "user", 
+            content: `You are provided with the full text content of a document below. Analyze this content and extract structured data according to the instructions in your system prompt.
+
+**DOCUMENT CONTENT:**
+---
+${document.extracted_content}
+---
+
+Extract all relevant data from the above document content and return your analysis as a valid JSON object matching the schema in your system prompt.` 
+          },
         ],
       }),
     });
