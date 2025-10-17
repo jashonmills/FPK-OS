@@ -5,7 +5,8 @@
 
 export async function masterAnalyzeDocument(
   extractedContent: string,
-  lovableApiKey: string
+  lovableApiKey: string,
+  progressCallback?: (stage: string) => Promise<void>
 ): Promise<{ result: any; retryCount: number }> {
   
   const MASTER_PROMPT = `You are an elite AI data analyst for FPX MyCNS, a special education collaborative care platform. Your mission is to perform a complete analysis of a single clinical or educational document in one pass.
@@ -110,6 +111,11 @@ Your final response MUST be a single JSON object matching this exact schema. Do 
       const abortController = new AbortController();
       const timeoutId = setTimeout(() => abortController.abort(), 90000); // 90s for comprehensive analysis
 
+      if (progressCallback) {
+        await progressCallback('calling_ai_model');
+      }
+      console.log('📡 Calling AI Model (Gemini 2.5 Pro)...');
+
       const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -130,6 +136,11 @@ Your final response MUST be a single JSON object matching this exact schema. Do 
       clearTimeout(timeoutId);
       const elapsed = Date.now() - startTime;
       console.log(`⏱️ Master Analysis API call completed in ${elapsed}ms`);
+      
+      if (progressCallback) {
+        await progressCallback('processing_response');
+      }
+      console.log('🔄 Processing AI Response...');
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -162,6 +173,11 @@ Your final response MUST be a single JSON object matching this exact schema. Do 
       }
 
       const analysisResult = JSON.parse(cleanContent);
+      
+      if (progressCallback) {
+        await progressCallback('distributing_data');
+      }
+      console.log('💾 Parsing and validating extracted data...');
 
       // Validate Master JSON structure
       if (!analysisResult.identified_document_type || 

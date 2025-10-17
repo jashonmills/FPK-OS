@@ -140,18 +140,49 @@ serve(async (req) => {
     
     console.log('🚀 Invoking Master Analysis (unified AI call)...');
     
+    // Update status with granular stage tracking
+    await supabase
+      .from('document_analysis_status')
+      .update({ 
+        status: 'analyzing',
+        started_at: new Date().toISOString()
+      })
+      .eq('document_id', document_id);
+    
     let analysisResult;
     let analysisRetryCount = 0;
     
     try {
       const analysisData = await masterAnalyzeDocument(
         document.extracted_content,
-        lovableApiKey
+        lovableApiKey,
+        async (stage: string) => {
+          // Progress callback for granular status updates
+          await supabase
+            .from('document_analysis_status')
+            .update({ 
+              error_message: JSON.stringify({ stage, elapsed_ms: Date.now() - startTime })
+            })
+            .eq('document_id', document_id);
+        }
       );
       analysisResult = analysisData.result;
       analysisRetryCount = analysisData.retryCount;
     } catch (analysisError: any) {
       console.error('❌ Master Analysis failed:', analysisError);
+      
+      const isTimeout = analysisError.message?.includes('timed out') || analysisError.name === 'AbortError';
+      const errorType = isTimeout ? 'timeout' : 'analysis_error';
+      
+      // Update document_analysis_status with failure
+      await supabase
+        .from('document_analysis_status')
+        .update({
+          status: 'failed',
+          error_message: `${errorType}: ${analysisError.message || 'AI analysis failed'}`,
+          completed_at: new Date().toISOString()
+        })
+        .eq('document_id', document_id);
       
       // Update document with FAILED analysis status
       await supabase
@@ -167,11 +198,12 @@ serve(async (req) => {
 
       return new Response(
         JSON.stringify({ 
-          error: 'Critical Error: AI analysis failed to generate valid data',
+          error: isTimeout ? 'Analysis Timeout' : 'Critical Error: AI analysis failed',
           details: analysisError.message || 'Unable to analyze document. Please try again later.',
-          document_id: document_id
+          document_id: document_id,
+          can_retry: isTimeout // Timeouts are retryable
         }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: isTimeout ? 504 : 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
@@ -302,6 +334,18 @@ serve(async (req) => {
     const totalTime = Date.now() - startTime;
     console.log(`✅ Analysis complete in ${totalTime}ms (${analysisRetryCount} retries)`);
     console.log(`📊 Results: ${analysisResult.metrics?.length || 0} metrics, ${analysisResult.insights?.length || 0} insights, ${analysisResult.progress_tracking?.length || 0} progress, ${analysisResult.recommended_charts?.length || 0} charts`);
+
+    // Update document_analysis_status with completion
+    await supabase
+      .from('document_analysis_status')
+      .update({
+        status: 'complete',
+        completed_at: new Date().toISOString(),
+        metrics_extracted: analysisResult.metrics?.length || 0,
+        insights_extracted: analysisResult.insights?.length || 0,
+        error_message: null
+      })
+      .eq('document_id', document_id);
 
     return new Response(
       JSON.stringify({

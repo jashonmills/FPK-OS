@@ -29,6 +29,7 @@ interface DocumentStatus {
   error_message: string | null;
   started_at: string | null;
   completed_at: string | null;
+  created_at: string;
 }
 
 export const ProjectScribe = ({ jobId, onComplete }: ProjectScribeProps) => {
@@ -147,17 +148,54 @@ export const ProjectScribe = ({ jobId, onComplete }: ProjectScribeProps) => {
     }
   };
 
-  const getStatusText = (status: DocumentStatus['status']) => {
+  const getStatusText = (doc: DocumentStatus) => {
+    const { status, error_message, started_at } = doc;
+    
+    // Calculate elapsed time for analyzing status
+    const getElapsedTime = () => {
+      if (!started_at) return '';
+      const elapsed = Math.floor((Date.now() - new Date(started_at).getTime()) / 1000);
+      if (elapsed < 60) return `${elapsed}s`;
+      return `${Math.floor(elapsed / 60)}m ${elapsed % 60}s`;
+    };
+    
+    // Parse stage from error_message (we use it to store progress)
+    let stage = null;
+    let elapsedMs = 0;
+    try {
+      if (error_message && error_message.startsWith('{')) {
+        const progress = JSON.parse(error_message);
+        stage = progress.stage;
+        elapsedMs = progress.elapsed_ms || 0;
+      }
+    } catch (e) {
+      // Not progress data, actual error
+    }
+    
     switch (status) {
       case 'pending':
-        return 'Pending';
+        return 'Queued for analysis';
       case 'extracting':
-        return 'Extracting text with Vision AI';
+        return 'Extracting text with Claude Vision AI';
       case 'analyzing':
-        return 'Analyzing document';
+        if (stage === 'calling_ai_model') {
+          return `Calling AI Model (${getElapsedTime()} elapsed)`;
+        } else if (stage === 'processing_response') {
+          return `Processing AI Response (${getElapsedTime()} elapsed)`;
+        } else if (stage === 'distributing_data') {
+          return `Saving Extracted Data (${getElapsedTime()} elapsed)`;
+        }
+        const elapsed = getElapsedTime();
+        const warning = started_at && (Date.now() - new Date(started_at).getTime() > 60000) 
+          ? ' ⚠️ Long analysis' 
+          : '';
+        return `Analyzing document (${elapsed})${warning}`;
       case 'complete':
         return 'Complete';
       case 'failed':
+        if (error_message?.includes('timeout')) {
+          return 'Failed: Timeout (can retry)';
+        }
         return 'Failed';
     }
   };
@@ -190,19 +228,27 @@ export const ProjectScribe = ({ jobId, onComplete }: ProjectScribeProps) => {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="font-medium truncate">{doc.document_name}</span>
-                  <span className="text-xs text-muted-foreground shrink-0">
-                    {getStatusText(doc.status)}
-                  </span>
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {getStatusText(doc)}
                 </div>
                 
+                {doc.status === 'analyzing' && doc.started_at && (
+                  <div className="mt-1">
+                    <div className="text-xs text-muted-foreground">
+                      Estimated: 30-90 seconds
+                    </div>
+                  </div>
+                )}
+                
                 {doc.status === 'complete' && (
-                  <p className="text-sm text-muted-foreground">
-                    {doc.metrics_extracted} metrics, {doc.insights_extracted} insights extracted
+                  <p className="text-sm text-green-600 mt-1">
+                    ✓ {doc.metrics_extracted} metrics, {doc.insights_extracted} insights extracted
                   </p>
                 )}
                 
-                {doc.status === 'failed' && doc.error_message && (
-                  <p className="text-sm text-red-500">{doc.error_message}</p>
+                {doc.status === 'failed' && doc.error_message && !doc.error_message.startsWith('{') && (
+                  <p className="text-sm text-red-500 mt-1">{doc.error_message}</p>
                 )}
               </div>
             </div>

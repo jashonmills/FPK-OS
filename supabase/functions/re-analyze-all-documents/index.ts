@@ -129,20 +129,50 @@ serve(async (req) => {
                 .eq('job_id', job.id)
                 .eq('document_id', doc.id);
 
-              // Step 2: Analyze document with Master Prompt (UNIFIED AI CALL)
+              // Step 2: Analyze document with Master Prompt (UNIFIED AI CALL) with retry on timeout
               console.log(`  🧠 Analyzing ${doc.file_name} with Master Prompt...`);
-              const { data: analysisData, error: analysisError } = await supabase.functions.invoke(
-                'analyze-document',
-                {
-                  body: { 
-                    document_id: doc.id,
-                    bypass_limit: true
-                  }
+              
+              let analysisSuccess = false;
+              let analysisData = null;
+              let lastAnalysisError = null;
+              const maxAnalysisRetries = 2; // One initial attempt + one retry on timeout
+              
+              for (let retryCount = 0; retryCount < maxAnalysisRetries && !analysisSuccess; retryCount++) {
+                if (retryCount > 0) {
+                  console.log(`  🔄 Retrying analysis for ${doc.file_name} (attempt ${retryCount + 1}/${maxAnalysisRetries})...`);
+                  await new Promise(resolve => setTimeout(resolve, 5000)); // 5s delay before retry
                 }
-              );
+                
+                const { data, error } = await supabase.functions.invoke(
+                  'analyze-document',
+                  {
+                    body: { 
+                      document_id: doc.id,
+                      bypass_limit: true
+                    }
+                  }
+                );
 
-              if (analysisError) {
-                throw new Error(`Analysis failed: ${analysisError.message}`);
+                if (error) {
+                  lastAnalysisError = error;
+                  const isTimeout = error.message?.includes('timeout') || 
+                                   error.message?.includes('Timeout') ||
+                                   data?.can_retry === true;
+                  
+                  if (isTimeout && retryCount < maxAnalysisRetries - 1) {
+                    console.log(`  ⏱️ Analysis timeout for ${doc.file_name}, will retry...`);
+                    continue; // Retry on timeout
+                  }
+                  
+                  throw new Error(`Analysis failed: ${error.message}`);
+                } else {
+                  analysisSuccess = true;
+                  analysisData = data;
+                }
+              }
+              
+              if (!analysisSuccess) {
+                throw new Error(`Analysis failed after ${maxAnalysisRetries} attempts: ${lastAnalysisError?.message || 'Unknown error'}`);
               }
 
               // Update status to complete with Master Prompt results
