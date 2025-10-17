@@ -1,192 +1,238 @@
-import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.75.0";
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
+  if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
     const { family_id } = await req.json();
+    console.log('🔄 Starting re-analysis job for family:', family_id);
 
-    if (!family_id) {
-      return new Response(
-        JSON.stringify({ error: "family_id is required" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    console.log(`🔄 Starting deep re-analysis for family: ${family_id}`);
+    // Get all documents for this family
+    const { data: documents, error: docsError } = await supabase
+      .from('documents')
+      .select('id, file_name, family_id')
+      .eq('family_id', family_id)
+      .order('created_at', { ascending: true });
 
-    // Step 1: Fetch all documents for this family
-    const { data: documents, error: fetchError } = await supabase
-      .from("documents")
-      .select("id, file_name, file_path, extracted_content, family_id, student_id")
-      .eq("family_id", family_id);
-
-    if (fetchError) {
-      console.error("Error fetching documents:", fetchError);
-      return new Response(
-        JSON.stringify({ error: "Failed to fetch documents" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    if (docsError) {
+      console.error('❌ Error fetching documents:', docsError);
+      throw docsError;
     }
 
     if (!documents || documents.length === 0) {
+      console.log('ℹ️ No documents found for family');
       return new Response(
-        JSON.stringify({ 
-          success: true, 
-          message: "No documents found to re-analyze",
-          documents_processed: 0 
-        }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ success: true, message: 'No documents to analyze' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log(`📄 Found ${documents.length} documents to process`);
+    console.log(`📊 Found ${documents.length} documents to re-analyze`);
 
-    // Identify documents that need extraction
-    const needsExtraction = documents.filter((doc: any) => 
-      !doc.extracted_content || 
-      doc.extracted_content.startsWith('Document uploaded:') ||
-      doc.extracted_content.length < 100
-    );
+    // Create analysis job record
+    const { data: job, error: jobError } = await supabase
+      .from('analysis_jobs')
+      .insert({
+        family_id,
+        job_type: 're-analysis',
+        status: 'processing',
+        total_documents: documents.length,
+        processed_documents: 0,
+        failed_documents: 0,
+        started_at: new Date().toISOString(),
+        metadata: { document_count: documents.length }
+      })
+      .select()
+      .single();
 
-    console.log(`🔄 ${needsExtraction.length} documents need text extraction`);
-
-    // Step 2: Clear existing analysis data for these documents
-    const documentIds = documents.map(d => d.id);
-    
-    // Delete existing metrics
-    const { error: metricsDeleteError } = await supabase
-      .from("document_metrics")
-      .delete()
-      .in("document_id", documentIds);
-
-    if (metricsDeleteError) {
-      console.error("Error deleting old metrics:", metricsDeleteError);
-    } else {
-      console.log("✅ Cleared old metrics");
+    if (jobError || !job) {
+      console.error('❌ Error creating job:', jobError);
+      throw jobError || new Error('Failed to create job');
     }
 
-    // Delete existing insights
-    const { error: insightsDeleteError } = await supabase
-      .from("ai_insights")
-      .delete()
-      .in("document_id", documentIds);
+    console.log(`✅ Created job: ${job.id}`);
 
-    if (insightsDeleteError) {
-      console.error("Error deleting old insights:", insightsDeleteError);
-    } else {
-      console.log("✅ Cleared old insights");
+    // Create initial status records for all documents
+    const statusRecords = documents.map(doc => ({
+      job_id: job.id,
+      document_id: doc.id,
+      family_id: doc.family_id,
+      document_name: doc.file_name,
+      status: 'pending'
+    }));
+
+    const { error: statusError } = await supabase
+      .from('document_analysis_status')
+      .insert(statusRecords);
+
+    if (statusError) {
+      console.error('❌ Error creating status records:', statusError);
     }
 
-    // Delete existing progress tracking
-    const { error: progressDeleteError } = await supabase
-      .from("progress_tracking")
-      .delete()
-      .in("document_id", documentIds);
+    // Process documents in background using EdgeRuntime.waitUntil
+    const backgroundTask = async () => {
+      let processedCount = 0;
+      let failedCount = 0;
 
-    if (progressDeleteError) {
-      console.error("Error deleting old progress:", progressDeleteError);
-    } else {
-      console.log("✅ Cleared old progress tracking");
-    }
+      // Process documents in batches of 3 to avoid overload
+      const batchSize = 3;
+      for (let i = 0; i < documents.length; i += batchSize) {
+        const batch = documents.slice(i, i + batchSize);
+        
+        await Promise.all(
+          batch.map(async (doc) => {
+            try {
+              console.log(`🔍 Processing ${doc.file_name} (${processedCount + 1}/${documents.length})`);
 
-    // Delete existing chart mappings
-    const { error: chartDeleteError } = await supabase
-      .from("document_chart_mapping")
-      .delete()
-      .in("document_id", documentIds);
+              // Update status to extracting
+              await supabase
+                .from('document_analysis_status')
+                .update({ 
+                  status: 'extracting',
+                  started_at: new Date().toISOString()
+                })
+                .eq('job_id', job.id)
+                .eq('document_id', doc.id);
 
-    if (chartDeleteError) {
-      console.error("Error deleting old chart mappings:", chartDeleteError);
-    } else {
-      console.log("✅ Cleared old chart mappings");
-    }
+              // Step 1: Extract text with Vision API (force re-extract)
+              console.log(`  📄 Extracting text for ${doc.file_name}...`);
+              const { error: extractError } = await supabase.functions.invoke(
+                'extract-text-with-vision',
+                {
+                  body: { 
+                    document_id: doc.id,
+                    force_re_extract: true  // Force fresh extraction
+                  }
+                }
+              );
 
-    // Step 3: Extract and re-analyze each document
-    let extractedCount = 0;
-    let successCount = 0;
-    let errorCount = 0;
+              if (extractError) {
+                throw new Error(`Extraction failed: ${extractError.message}`);
+              }
 
-    for (const doc of documents) {
-      try {
-        // Step 3a: Extract text if needed
-        if (needsExtraction.some((d: any) => d.id === doc.id)) {
-          console.log(`📄 Extracting text from: ${doc.file_name}`);
-          
-          const { data: extractData, error: extractError } = await supabase.functions.invoke(
-            'extract-document-text',
-            { body: { document_id: doc.id } }
-          );
-          
-          if (extractError) {
-            throw new Error(`Extraction failed: ${extractError.message || extractError}`);
-          }
-          
-          console.log(`✅ Extracted ${extractData?.text_length || 0} characters from: ${doc.file_name}`);
-          extractedCount++;
-          
+              // Update status to analyzing
+              await supabase
+                .from('document_analysis_status')
+                .update({ status: 'analyzing' })
+                .eq('job_id', job.id)
+                .eq('document_id', doc.id);
+
+              // Step 2: Analyze document
+              console.log(`  🧠 Analyzing ${doc.file_name}...`);
+              const { data: analysisData, error: analysisError } = await supabase.functions.invoke(
+                'analyze-document',
+                {
+                  body: { 
+                    document_id: doc.id,
+                    bypass_limit: true
+                  }
+                }
+              );
+
+              if (analysisError) {
+                throw new Error(`Analysis failed: ${analysisError.message}`);
+              }
+
+              // Update status to complete
+              await supabase
+                .from('document_analysis_status')
+                .update({ 
+                  status: 'complete',
+                  metrics_extracted: analysisData?.metrics_count || 0,
+                  insights_extracted: analysisData?.insights_count || 0,
+                  completed_at: new Date().toISOString()
+                })
+                .eq('job_id', job.id)
+                .eq('document_id', doc.id);
+
+              processedCount++;
+              console.log(`✅ Completed ${doc.file_name} (${processedCount}/${documents.length})`);
+
+            } catch (error) {
+              console.error(`❌ Failed to process ${doc.file_name}:`, error);
+              failedCount++;
+
+              // Update status to failed
+              await supabase
+                .from('document_analysis_status')
+                .update({ 
+                  status: 'failed',
+                  error_message: error instanceof Error ? error.message : 'Unknown error',
+                  completed_at: new Date().toISOString()
+                })
+                .eq('job_id', job.id)
+                .eq('document_id', doc.id);
+            }
+
+            // Update job progress
+            await supabase
+              .from('analysis_jobs')
+              .update({
+                processed_documents: processedCount,
+                failed_documents: failedCount
+              })
+              .eq('id', job.id);
+          })
+        );
+
+        // Small delay between batches to avoid rate limits
+        if (i + batchSize < documents.length) {
           await new Promise(resolve => setTimeout(resolve, 1000));
         }
-        
-        // Step 3b: Analyze document
-        console.log(`🔍 Re-analyzing: ${doc.file_name}`);
-        
-        const analyzeResponse = await supabase.functions.invoke("analyze-document", {
-          body: {
-            document_id: doc.id,
-            bypass_limit: true
-          }
-        });
-
-        if (analyzeResponse.error) {
-          console.error(`❌ Error analyzing ${doc.file_name}:`, analyzeResponse.error);
-          errorCount++;
-        } else {
-          console.log(`✅ Successfully re-analyzed: ${doc.file_name}`);
-          console.log(`   Extracted: ${analyzeResponse.data?.metrics_count || 0} metrics, ${analyzeResponse.data?.insights_count || 0} insights`);
-          successCount++;
-        }
-        
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-      } catch (error) {
-        console.error(`❌ Exception processing ${doc.file_name}:`, error);
-        errorCount++;
       }
-    }
 
-    console.log(`🎉 Processing complete: ${extractedCount} extracted, ${successCount} analyzed, ${errorCount} errors`);
+      // Mark job as complete
+      await supabase
+        .from('analysis_jobs')
+        .update({
+          status: failedCount === documents.length ? 'failed' : 'completed',
+          completed_at: new Date().toISOString(),
+          processed_documents: processedCount,
+          failed_documents: failedCount
+        })
+        .eq('id', job.id);
 
+      console.log(`🎉 Job ${job.id} complete: ${processedCount} processed, ${failedCount} failed`);
+    };
+
+    // Start background task (non-blocking)
+    // Note: In Deno, we use Promise.resolve to start the background task
+    Promise.resolve().then(() => backgroundTask());
+
+    // Return immediately with job ID
     return new Response(
       JSON.stringify({
         success: true,
+        job_id: job.id,
         total_documents: documents.length,
-        extracted: extractedCount,
-        analyzed: successCount,
-        failed: errorCount,
-        message: `Processed ${documents.length} documents: ${extractedCount} extracted, ${successCount} analyzed`
+        message: 'Re-analysis job started in background'
       }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
-    console.error("Error in re-analyze-all-documents:", error);
+    console.error('❌ Error:', error);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      JSON.stringify({ 
+        error: error instanceof Error ? error.message : 'Unknown error',
+        success: false,
+      }),
+      { 
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      }
     );
   }
 });

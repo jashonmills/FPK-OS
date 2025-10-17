@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { document_id } = await req.json();
+    const { document_id, force_re_extract = false } = await req.json();
     
     if (!document_id) {
       throw new Error('document_id is required');
@@ -29,6 +29,7 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     console.log(`🔍 Starting vision-based extraction for document: ${document_id}`);
+    console.log(`🔄 Force re-extract: ${force_re_extract}`);
 
     // Fetch document record
     const { data: document, error: docError } = await supabase
@@ -39,6 +40,28 @@ serve(async (req) => {
 
     if (docError || !document) {
       throw new Error(`Document not found: ${docError?.message}`);
+    }
+
+    // Check if document already has extracted content (unless force re-extract)
+    if (!force_re_extract && document.extracted_content && document.extracted_content.length > 100) {
+      console.log('✅ Document already has extracted content, skipping extraction');
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          document_id,
+          extracted_content: document.extracted_content,
+          message: 'Document already has extracted content'
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    if (force_re_extract) {
+      console.log('🔄 Force re-extract enabled, clearing old content...');
+      await supabase
+        .from('documents')
+        .update({ extracted_content: null })
+        .eq('id', document_id);
     }
 
     // Download file from storage

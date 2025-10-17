@@ -21,6 +21,7 @@ import { DocumentsEmptyState } from "@/components/documents/DocumentsEmptyState"
 import { DocumentReportModal } from "@/components/documents/DocumentReportModal";
 import { FocusAreaSelector, type FocusArea } from "@/components/documents/FocusAreaSelector";
 import { HistoricalReportsAccordion } from "@/components/documents/HistoricalReportsAccordion";
+import { ProjectScribe } from "@/components/documents/ProjectScribe";
 import * as pdfjs from "pdfjs-dist";
 import { ProductTour } from "@/components/onboarding/ProductTour";
 import { documentsTourSteps } from "@/components/onboarding/tourConfigs";
@@ -44,6 +45,7 @@ export default function Documents() {
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [selectedDocIds, setSelectedDocIds] = useState<string[]>([]);
   const [isBulkDownloading, setIsBulkDownloading] = useState(false);
+  const [activeJobId, setActiveJobId] = useState<string | null>(null);
 
   const { data: documents, isLoading } = useQuery({
     queryKey: ["documents", selectedFamily?.id, selectedStudent?.id],
@@ -407,13 +409,18 @@ export default function Documents() {
   const handleDeepReAnalysis = async () => {
     if (!selectedFamily?.id) return;
     
-    const toastId = toast.loading("Re-analyzing all documents with specialized Deep Read prompts...");
+    const toastId = toast.loading("Starting analysis job with Vision AI...");
     try {
       const { data, error } = await supabase.functions.invoke("re-analyze-all-documents", {
         body: { family_id: selectedFamily.id },
       });
 
       if (error) throw error;
+
+      if (data?.job_id) {
+        setActiveJobId(data.job_id);
+        toast.success(`Processing ${data.total_documents} documents. Watch the live progress below.`, { id: toastId });
+      }
 
       toast.success(
         `✨ ${data.successful} documents re-analyzed! Extracted 5-10x more data points. View Analytics to see new charts.`, 
@@ -561,6 +568,18 @@ export default function Documents() {
       )}
       
       <div className="space-y-6">
+        {/* Project Scribe - Live Analysis Log */}
+        {activeJobId && (
+          <ProjectScribe 
+            jobId={activeJobId}
+            onComplete={() => {
+              setActiveJobId(null);
+              queryClient.invalidateQueries({ queryKey: ["documents"] });
+              toast.success("Analysis complete! All documents have been processed with Vision AI.");
+            }}
+          />
+        )}
+
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
           <div>
             <p className="text-muted-foreground text-sm sm:text-base">

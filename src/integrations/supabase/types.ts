@@ -300,6 +300,62 @@ export type Database = {
           },
         ]
       }
+      analysis_jobs: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          error_message: string | null
+          failed_documents: number
+          family_id: string
+          id: string
+          job_type: string
+          metadata: Json | null
+          processed_documents: number
+          started_at: string | null
+          status: string
+          total_documents: number
+          updated_at: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          failed_documents?: number
+          family_id: string
+          id?: string
+          job_type?: string
+          metadata?: Json | null
+          processed_documents?: number
+          started_at?: string | null
+          status?: string
+          total_documents?: number
+          updated_at?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          failed_documents?: number
+          family_id?: string
+          id?: string
+          job_type?: string
+          metadata?: Json | null
+          processed_documents?: number
+          started_at?: string | null
+          status?: string
+          total_documents?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analysis_jobs_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       article_authors: {
         Row: {
           bio: string | null
@@ -602,6 +658,73 @@ export type Database = {
             columns: ["conversation_id"]
             isOneToOne: false
             referencedRelation: "chat_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_analysis_status: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          document_id: string
+          document_name: string
+          error_message: string | null
+          family_id: string
+          id: string
+          insights_extracted: number | null
+          job_id: string
+          metrics_extracted: number | null
+          started_at: string | null
+          status: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          document_id: string
+          document_name: string
+          error_message?: string | null
+          family_id: string
+          id?: string
+          insights_extracted?: number | null
+          job_id: string
+          metrics_extracted?: number | null
+          started_at?: string | null
+          status?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          document_id?: string
+          document_name?: string
+          error_message?: string | null
+          family_id?: string
+          id?: string
+          insights_extracted?: number | null
+          job_id?: string
+          metrics_extracted?: number | null
+          started_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_analysis_status_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_analysis_status_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_analysis_status_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "analysis_jobs"
             referencedColumns: ["id"]
           },
         ]
