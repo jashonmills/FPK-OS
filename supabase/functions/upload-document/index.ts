@@ -85,47 +85,140 @@ serve(async (req) => {
       throw dbError;
     }
 
-    console.log('✅ Document record created, initiating vision extraction...');
+    console.log('✅ Document record created:', {
+      documentId: documentData.id,
+      fileName: file.name,
+      fileType: file.type,
+      fileSizeKB: Math.round(file.size / 1024)
+    });
 
     // ========================================================================
-    // UNIFIED EXTRACTION PATHWAY: Claude Vision (No Fallbacks)
+    // PHASE 1: EXTRACTION TRIGGER - COMPREHENSIVE DIAGNOSTIC LOGGING
     // ========================================================================
-    const maxExtractionRetries = 2;
+    console.log('🔍 EXTRACTION PHASE - Starting diagnostic pipeline...');
+    
+    // Update status to "triggering"
+    await supabase
+      .from('documents')
+      .update({
+        metadata: {
+          extraction_status: 'triggering',
+          extraction_started_at: new Date().toISOString(),
+          note: 'Attempting to invoke extract-text-with-vision function'
+        }
+      })
+      .eq('id', documentData.id);
+
+    const maxExtractionRetries = 3; // Increased to 3 for better debugging
     let extractionAttempt = 0;
     let extractionSucceeded = false;
     let extractionError = null;
 
     while (extractionAttempt < maxExtractionRetries && !extractionSucceeded) {
       extractionAttempt++;
-      console.log(`📄 Text extraction attempt ${extractionAttempt}/${maxExtractionRetries}...`);
+      console.log(`\n📄 ========== EXTRACTION ATTEMPT ${extractionAttempt}/${maxExtractionRetries} ==========`);
+      console.log(`📋 Document ID: ${documentData.id}`);
+      console.log(`📂 File: ${file.name} (${file.type})`);
+      console.log(`⏰ Timestamp: ${new Date().toISOString()}`);
 
       try {
+        console.log('🚀 Invoking extract-text-with-vision function...');
+        console.log('📤 Request body:', JSON.stringify({ document_id: documentData.id }));
+
+        const invokeStartTime = Date.now();
+        
         const { data: extractData, error: extractError } = await supabase.functions.invoke(
           'extract-text-with-vision',
-          { body: { document_id: documentData.id } }
+          { 
+            body: { 
+              document_id: documentData.id,
+              force_re_extract: extractionAttempt > 1 // Force re-extract on retries
+            } 
+          }
         );
 
+        const invokeEndTime = Date.now();
+        const invokeDuration = invokeEndTime - invokeStartTime;
+
+        console.log(`⏱️  Function invocation took ${invokeDuration}ms`);
+        console.log('📥 Response data:', JSON.stringify(extractData, null, 2));
+        console.log('📥 Response error:', extractError ? JSON.stringify(extractError, null, 2) : 'null');
+
         if (extractError) {
-          throw extractError;
+          console.error('❌ Edge function returned error object:', extractError);
+          throw new Error(`Extract function error: ${JSON.stringify(extractError)}`);
         }
 
-        console.log(`✅ Vision extraction completed on attempt ${extractionAttempt}`);
+        if (!extractData) {
+          console.error('❌ Edge function returned no data');
+          throw new Error('Extract function returned no data');
+        }
+
+        if (extractData.error) {
+          console.error('❌ Edge function returned error in data:', extractData.error);
+          throw new Error(`Extract function error: ${extractData.error}`);
+        }
+
+        console.log(`✅ Vision extraction completed successfully on attempt ${extractionAttempt}`);
+        console.log(`📊 Extracted content length: ${extractData.content?.length || 0} characters`);
+        
         extractionSucceeded = true;
+
+        // Update status to "completed"
+        await supabase
+          .from('documents')
+          .update({
+            metadata: {
+              extraction_status: 'completed',
+              extraction_completed_at: new Date().toISOString(),
+              extraction_attempts: extractionAttempt,
+              extraction_duration_ms: invokeDuration,
+              note: 'Text extraction via Claude Vision completed successfully'
+            }
+          })
+          .eq('id', documentData.id);
+
       } catch (error) {
         extractionError = error;
-        console.error(`Extraction attempt ${extractionAttempt} failed:`, error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown extraction error';
+        const errorStack = error instanceof Error ? error.stack : undefined;
+        
+        console.error(`\n❌ ========== EXTRACTION ATTEMPT ${extractionAttempt} FAILED ==========`);
+        console.error('💥 Error type:', error?.constructor?.name || typeof error);
+        console.error('💥 Error message:', errorMessage);
+        console.error('💥 Error stack:', errorStack);
+        console.error('💥 Full error object:', JSON.stringify(error, null, 2));
+
+        // Update document with attempt failure
+        await supabase
+          .from('documents')
+          .update({
+            metadata: {
+              extraction_status: 'retrying',
+              extraction_last_error: errorMessage,
+              extraction_last_error_stack: errorStack,
+              extraction_attempts: extractionAttempt,
+              extraction_last_attempt_at: new Date().toISOString(),
+              note: `Extraction attempt ${extractionAttempt} failed, will retry`
+            }
+          })
+          .eq('id', documentData.id);
 
         if (extractionAttempt >= maxExtractionRetries) {
-          console.error('❌ Text extraction failed after max retries');
+          console.error(`\n❌ ========== EXTRACTION FAILED AFTER ${maxExtractionRetries} ATTEMPTS ==========`);
+          console.error('💀 Final error:', errorMessage);
 
-          // Update document with FAILED status
+          // Update document with FINAL FAILED status
           await supabase
             .from('documents')
             .update({
               metadata: {
                 extraction_status: 'failed',
-                extraction_error: error instanceof Error ? error.message : 'Unknown extraction error',
-                extraction_attempts: extractionAttempt
+                extraction_final_error: errorMessage,
+                extraction_final_error_stack: errorStack,
+                extraction_attempts: extractionAttempt,
+                extraction_failed_at: new Date().toISOString(),
+                note: 'Text extraction failed after all retry attempts'
               }
             })
             .eq('id', documentData.id);
@@ -133,37 +226,65 @@ serve(async (req) => {
           return new Response(
             JSON.stringify({
               success: false,
-              error: 'Critical Error: Text extraction failed',
-              message: 'Unable to extract text from document. Please try uploading again or contact support.',
-              document: documentData
+              error: 'EXTRACTION_FAILED',
+              message: `Text extraction failed after ${maxExtractionRetries} attempts: ${errorMessage}`,
+              document: documentData,
+              debug: {
+                attempts: extractionAttempt,
+                lastError: errorMessage,
+                documentId: documentData.id
+              }
             }),
             { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
           );
         }
 
-        // Wait before retry (exponential backoff)
-        await new Promise(resolve => setTimeout(resolve, 2000 * extractionAttempt));
+        // Wait before retry with exponential backoff
+        const retryDelay = 3000 * extractionAttempt; // 3s, 6s, 9s
+        console.log(`⏳ Waiting ${retryDelay}ms before retry ${extractionAttempt + 1}...`);
+        await new Promise(resolve => setTimeout(resolve, retryDelay));
       }
     }
 
-    // If extraction succeeded, proceed to analysis
+    // ========================================================================
+    // PHASE 2: ANALYSIS TRIGGER (Only if extraction succeeded)
+    // ========================================================================
     if (extractionSucceeded) {
-      console.log('🧠 Extraction successful, triggering AI analysis...');
+      console.log('\n🧠 ========== ANALYSIS PHASE - Starting ==========');
+      console.log('✅ Extraction completed, triggering Claude Sonnet 4.5 analysis...');
 
       try {
-        const { error: analyzeError } = await supabase.functions.invoke(
+        console.log('🚀 Invoking analyze-document function...');
+        console.log('📤 Request body:', JSON.stringify({ document_id: documentData.id }));
+
+        const analysisStartTime = Date.now();
+
+        const { data: analysisData, error: analyzeError } = await supabase.functions.invoke(
           'analyze-document',
           { body: { document_id: documentData.id } }
         );
 
+        const analysisEndTime = Date.now();
+        const analysisDuration = analysisEndTime - analysisStartTime;
+
+        console.log(`⏱️  Analysis invocation took ${analysisDuration}ms`);
+        console.log('📥 Analysis response data:', JSON.stringify(analysisData, null, 2));
+        console.log('📥 Analysis response error:', analyzeError ? JSON.stringify(analyzeError, null, 2) : 'null');
+
         if (analyzeError) {
-          console.error('Analysis invocation error:', analyzeError);
+          console.error('⚠️  Analysis invocation error (non-blocking):', analyzeError);
           // Don't fail the upload - analysis can be retried later
+        } else {
+          console.log('✅ Analysis triggered successfully');
         }
       } catch (analysisError) {
-        console.error('Analysis trigger failed:', analysisError);
+        const errorMessage = analysisError instanceof Error ? analysisError.message : 'Unknown analysis error';
+        console.error('⚠️  Analysis trigger failed (non-blocking):', errorMessage);
+        console.error('💥 Analysis error details:', JSON.stringify(analysisError, null, 2));
         // Don't fail the upload - analysis can be retried later
       }
+    } else {
+      console.log('⏭️  Skipping analysis - extraction did not succeed');
     }
 
     return new Response(

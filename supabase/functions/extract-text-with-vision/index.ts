@@ -15,7 +15,13 @@ serve(async (req) => {
   try {
     const { document_id, force_re_extract = false } = await req.json();
     
+    console.log('\n🔍 ========== EXTRACT-TEXT-WITH-VISION INVOKED ==========');
+    console.log('📋 Document ID:', document_id);
+    console.log('🔄 Force re-extract:', force_re_extract);
+    console.log('⏰ Invoked at:', new Date().toISOString());
+    
     if (!document_id) {
+      console.error('❌ CRITICAL: Missing document_id in request');
       throw new Error('document_id is required');
     }
 
@@ -23,14 +29,19 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const anthropicApiKey = Deno.env.get('ANTHROPIC_API_KEY');
 
+    console.log('🔑 Environment check:', {
+      hasSupabaseUrl: !!supabaseUrl,
+      hasSupabaseKey: !!supabaseKey,
+      hasAnthropicKey: !!anthropicApiKey
+    });
+
     if (!anthropicApiKey) {
-      throw new Error('ANTHROPIC_API_KEY is not configured');
+      console.error('❌ CRITICAL: ANTHROPIC_API_KEY is not configured');
+      throw new Error('ANTHROPIC_API_KEY is not configured in environment');
     }
 
     const supabase = createClient(supabaseUrl, supabaseKey);
-
-    console.log(`🔍 Starting vision-based extraction for document: ${document_id}`);
-    console.log(`🔄 Force re-extract: ${force_re_extract}`);
+    console.log('✅ Supabase client initialized');
 
     // Fetch document record
     const { data: document, error: docError } = await supabase
