@@ -88,20 +88,39 @@ serve(async (req) => {
       throw dbError;
     }
 
-    // Trigger background analysis using waitUntil
+    // Trigger background analysis with retry logic for rate limiting
     const analyzePromise = (async () => {
-      try {
-        console.log(`Triggering analysis for document ${documentData.id}`);
-        const { error: analyzeError } = await supabase.functions.invoke('analyze-document', {
-          body: { document_id: documentData.id }
-        });
-        if (analyzeError) {
-          console.error('Background analysis trigger error:', analyzeError);
-        } else {
-          console.log(`Analysis triggered successfully for document ${documentData.id}`);
+      const maxRetries = 3;
+      let retryCount = 0;
+      let delay = 1000; // Start with 1 second
+
+      while (retryCount < maxRetries) {
+        try {
+          console.log(`Triggering analysis for document ${documentData.id} (attempt ${retryCount + 1})`);
+          const { data, error: analyzeError } = await supabase.functions.invoke('analyze-document', {
+            body: { document_id: documentData.id }
+          });
+
+          if (analyzeError) {
+            // Check if it's a rate limit error
+            if (analyzeError.message?.includes('429') || analyzeError.message?.includes('Too Many Requests')) {
+              retryCount++;
+              if (retryCount < maxRetries) {
+                console.log(`Rate limited, retrying in ${delay}ms...`);
+                await new Promise(resolve => setTimeout(resolve, delay));
+                delay *= 2; // Exponential backoff
+                continue;
+              }
+            }
+            console.error('Background analysis trigger error:', analyzeError);
+          } else {
+            console.log(`Analysis triggered successfully for document ${documentData.id}`);
+          }
+          break; // Success or non-retryable error, exit loop
+        } catch (error) {
+          console.error('Background analysis error:', error);
+          break;
         }
-      } catch (error) {
-        console.error('Background analysis error:', error);
       }
     })();
 
