@@ -112,7 +112,7 @@ serve(async (req) => {
           .eq('family_id', family_id)
           .eq('student_id', student_id)
           .eq('metric_type', metricType)
-          .eq('tracking_period', metric.measurement_date)
+          .eq('period_start', metric.measurement_date)
           .maybeSingle();
 
         if (existingProgress) continue;
@@ -130,7 +130,8 @@ serve(async (req) => {
             current_value: metric.metric_value,
             target_value: metric.target_value || maxTarget,
             progress_percentage: progressPercentage,
-            tracking_period: metric.measurement_date,
+            period_start: metric.measurement_date,
+            period_end: metric.measurement_date,
             notes: `Auto-synced from document: ${metric.metric_name}`,
             trend: 'stable',
           });

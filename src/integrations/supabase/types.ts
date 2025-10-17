@@ -3314,7 +3314,9 @@ export type Database = {
         }[]
       }
       get_sensory_profile_data: {
-        Args: { p_family_id: string; p_student_id: string }
+        Args:
+          | { p_days?: number; p_family_id: string; p_student_id: string }
+          | { p_family_id: string; p_student_id: string }
         Returns: {
           avg_value: number
           frequency: number

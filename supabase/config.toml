@@ -167,3 +167,9 @@ verify_jwt = true
 
 [functions.re-analyze-all-documents]
 verify_jwt = true
+
+[functions.sync-document-metrics-to-tracking]
+verify_jwt = true
+
+[functions.trigger-re-analysis]
+verify_jwt = true
