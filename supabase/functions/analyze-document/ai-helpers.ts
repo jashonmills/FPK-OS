@@ -239,11 +239,61 @@ Return your analysis as a valid JSON object.`
   let analysisResult;
   try {
     let cleanContent = aiContent.trim();
+    
+    // Remove markdown code blocks
     cleanContent = cleanContent.replace(/^```(?:json)?\s*/g, '').replace(/\s*```$/g, '');
-    analysisResult = JSON.parse(cleanContent);
+    
+    // Check if AI returned conversational text instead of JSON
+    if (!cleanContent.startsWith('{') && !cleanContent.startsWith('[')) {
+      console.error("AI returned conversational response instead of JSON:", cleanContent.substring(0, 100));
+      
+      // If on first attempt, retry with more explicit instructions
+      if (attempt === 1) {
+        console.log('⚠️ AI returned text instead of JSON, retrying with stricter prompt...');
+        return await analyzeWithRetry(
+          document, 
+          extractedContent, 
+          identifiedType, 
+          lovableApiKey, 
+          systemPrompt, 
+          2
+        );
+      }
+      
+      // On second attempt, return empty structure with insight about the issue
+      console.log('⚠️ Creating fallback structure for unparseable response');
+      analysisResult = {
+        metrics: [],
+        insights: [{
+          insight_type: 'extraction_failure',
+          title: 'Document Analysis Incomplete',
+          content: `Unable to extract structured data from this document. The AI response was: ${cleanContent.substring(0, 200)}`,
+          confidence_score: 0.3,
+          priority: 'low'
+        }],
+        progress: []
+      };
+    } else {
+      analysisResult = JSON.parse(cleanContent);
+    }
   } catch (parseError) {
     console.error("Failed to parse AI response:", parseError);
-    throw new Error("Failed to parse AI response");
+    console.error("Raw content:", aiContent.substring(0, 500));
+    
+    // If on first attempt, retry
+    if (attempt === 1) {
+      console.log('⚠️ Parse error on first attempt, retrying...');
+      return await analyzeWithRetry(
+        document, 
+        extractedContent, 
+        identifiedType, 
+        lovableApiKey, 
+        systemPrompt, 
+        2
+      );
+    }
+    
+    throw new Error("Failed to parse AI response after retry");
   }
 
   // Check if result is suspiciously empty
