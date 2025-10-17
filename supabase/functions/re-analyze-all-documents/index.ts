@@ -115,6 +115,11 @@ serve(async (req) => {
       try {
         console.log(`🔍 Re-analyzing: ${doc.file_name}`);
         
+        // Add a 2-second delay between analyses to avoid rate limits
+        if (successCount + errorCount > 0) {
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        }
+        
         // Call analyze-document with bypass_limit: true (don't count against usage)
         const analyzeResponse = await supabase.functions.invoke("analyze-document", {
           body: {
