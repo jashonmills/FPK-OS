@@ -153,9 +153,7 @@ const App = () => (
               path="/analytics"
               element={
                 <ProtectedRoute>
-                  <AppLayout>
-                    <Analytics />
-                  </AppLayout>
+                  <Analytics />
                 </ProtectedRoute>
               }
             />
