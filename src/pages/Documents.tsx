@@ -409,7 +409,7 @@ export default function Documents() {
   const handleDeepReAnalysis = async () => {
     if (!selectedFamily?.id) return;
     
-    const toastId = toast.loading("Starting analysis job with Vision AI...");
+    const toastId = toast.loading("Starting deep re-analysis with Vision AI...");
     try {
       const { data, error } = await supabase.functions.invoke("re-analyze-all-documents", {
         body: { family_id: selectedFamily.id },
@@ -421,18 +421,6 @@ export default function Documents() {
         setActiveJobId(data.job_id);
         toast.success(`Processing ${data.total_documents} documents. Watch the live progress below.`, { id: toastId });
       }
-
-      toast.success(
-        `✨ ${data.successful} documents re-analyzed! Extracted 5-10x more data points. View Analytics to see new charts.`, 
-        { id: toastId, duration: 6000 }
-      );
-      queryClient.invalidateQueries({ queryKey: ["documents"] });
-      queryClient.invalidateQueries({ queryKey: ["unlocked-charts"] });
-      
-      // Redirect to analytics after 2 seconds
-      setTimeout(() => {
-        navigate("/analytics");
-      }, 2000);
     } catch (error: any) {
       console.error("Re-analysis error:", error);
       toast.error("Re-analysis failed: " + error.message, { id: toastId });
