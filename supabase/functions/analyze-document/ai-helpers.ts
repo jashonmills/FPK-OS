@@ -55,38 +55,45 @@ export async function aiIdentifyDocumentType(
         },
         signal: abortController.signal,
         body: JSON.stringify({
-          model: 'google/gemini-2.5-flash',
+          model: 'google/gemini-2.5-pro',
           messages: [
             {
               role: 'system',
               content: `You are a document classifier for special education documents.
 
 Classify the document into ONE of these types:
-- "Individualized Education Program (IEP)"
-- "Behavior Intervention Plan (BIP)"
-- "IEP Amendment"
-- "Progress Report"
-- "Psychoeducational Evaluation"
-- "Neuropsychological Evaluation"
-- "Evaluation Team Report (ETR)"
-- "Occupational Therapy Evaluation"
-- "Sensory Profile"
-- "Sleep Log"
-- "Incident Report Log"
-- "Parent Home Log"
-- "Educator Session Log"
-- "Communication Log (Parent-Teacher)"
-- "Teacher Progress Notes"
-- "Unknown"
+- "Individualized Education Program (IEP)" - Contains goals, accommodations, present levels, services
+- "Behavior Intervention Plan (BIP)" - Contains target behaviors, function, replacement behaviors, strategies
+- "IEP Amendment" - Modifications to existing IEP
+- "Progress Report" - Updates on student progress toward goals
+- "Psychoeducational Evaluation" - Cognitive, academic, behavioral assessments with scores
+- "Neuropsychological Evaluation" - Detailed cognitive/neurological testing
+- "Evaluation Team Report (ETR)" - Team evaluation summary
+- "Occupational Therapy Evaluation" - Fine/gross motor, sensory assessments
+- "Sensory Profile" - Sensory processing patterns
+- "Sleep Log" - Sleep times, wake times, quality ratings
+- "Incident Report Log" - Behavioral incidents with ABC data
+- "Parent Home Log" - Parent observations and home activities
+- "Educator Session Log" - Classroom activities and performance
+- "Communication Log (Parent-Teacher)" - Communication between home and school
+- "Teacher Progress Notes" - Teacher observations on progress
+- "Unknown" - ONLY if genuinely none of the above
+
+**CLASSIFICATION RULES:**
+1. Look for KEY INDICATORS first (e.g., "Present Levels", "Annual Goals", "Accommodations" = IEP)
+2. Check for STRUCTURED DATA (dates, times, numeric values, tables)
+3. Even if formatting is poor, classify based on CONTENT
+4. Default to a specific type if 60%+ confident - do NOT overuse "Unknown"
+5. Progress reports about IEP goals = "Progress Report", not IEP
 
 Return ONLY a JSON object in this exact format:
 { "doc_type": "type_name", "confidence": 0.85 }
 
 Confidence scoring:
-- 0.9-1.0: Very clear (document explicitly states type)
-- 0.7-0.89: Confident (multiple indicators match)
-- 0.5-0.69: Likely (some indicators match)
-- Below 0.5: Uncertain (classify as "Unknown")`
+- 0.9-1.0: Document explicitly states type OR has unmistakable key sections
+- 0.7-0.89: Strong indicators (multiple section headers match expected structure)
+- 0.6-0.69: Moderate confidence (some indicators match, content fits)
+- Below 0.6: Classify as "Unknown"`
             },
             {
               role: 'user',
@@ -116,11 +123,13 @@ Confidence scoring:
     
     const result = JSON.parse(cleanedContent);
     
-    // Only return if confidence is high enough
-    if (result.confidence >= 0.6 && result.doc_type !== 'Unknown') {
+    // Lower threshold - we want to classify more documents as specific types
+    if (result.confidence >= 0.55 && result.doc_type !== 'Unknown') {
+      console.log(`✅ Document classified as "${result.doc_type}" with ${result.confidence} confidence`);
       return result;
     }
     
+    console.log(`⚠️ Confidence too low (${result.confidence}) or Unknown type, will use generic analysis`);
     return null;
     } catch (fetchError: any) {
       clearTimeout(timeoutId);
