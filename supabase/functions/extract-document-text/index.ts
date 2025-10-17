@@ -14,10 +14,10 @@ interface ValidationResult {
 
 function extractRelativePath(fullPath: string): string {
   // Handle both formats:
-  // 1. Full URL: "https://.../family-documents/path/to/file.pdf"
+  // 1. Full URL: "https://.../storage/v1/object/public/family-documents/path/to/file.pdf"
   // 2. Relative: "path/to/file.pdf"
   
-  const bucketPrefix = '/family-documents/';
+  const bucketPrefix = '/public/family-documents/';
   const bucketIndex = fullPath.indexOf(bucketPrefix);
   
   if (bucketIndex !== -1) {
