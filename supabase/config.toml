@@ -173,3 +173,9 @@ verify_jwt = true
 
 [functions.trigger-re-analysis]
 verify_jwt = true
+
+[functions.test-document-ai-credentials]
+verify_jwt = false
+
+[functions.extract-text-with-document-ai]
+verify_jwt = false
