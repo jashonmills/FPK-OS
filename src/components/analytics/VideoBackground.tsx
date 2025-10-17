@@ -2,7 +2,7 @@ interface VideoBackgroundProps {
   opacity?: number;
 }
 
-export const VideoBackground = ({ opacity = 0.55 }: VideoBackgroundProps) => {
+export const VideoBackground = ({ opacity = 1.0 }: VideoBackgroundProps) => {
   return (
     <video
       className="fixed top-0 left-0 w-full h-full object-cover"
