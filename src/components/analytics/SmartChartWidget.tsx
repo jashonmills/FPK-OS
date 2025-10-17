@@ -73,18 +73,32 @@ export const SmartChartWidget = ({
   // Render chart component
   const ChartComponent = config.component;
 
-  // Frameless container with glassmorphism
+  // True glassmorphism container
   return (
     <div 
-      className="relative h-full w-full overflow-hidden rounded-2xl border border-cyan-500/20"
+      className="relative h-full w-full overflow-hidden rounded-xl border"
       style={{
-        backgroundColor: 'rgba(10, 25, 47, 0.7)',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)'
+        backgroundColor: 'rgba(10, 25, 47, 0.15)',
+        backdropFilter: 'blur(5px)',
+        WebkitBackdropFilter: 'blur(5px)',
+        borderColor: 'rgba(6, 182, 212, 0.4)',
+        boxShadow: '0 0 15px rgba(0, 180, 255, 0.15)'
       }}
     >
+      {/* Chart Title - top left corner inside glass */}
+      <div className="absolute top-1 left-1.5 z-20">
+        <h3 
+          className="text-[9px] font-bold text-cyan-400/90"
+          style={{
+            textShadow: '0 0 8px rgba(6, 182, 212, 0.4)'
+          }}
+        >
+          {config.title}
+        </h3>
+      </div>
+
       {/* Status badges - top right corner */}
-      <div className="absolute top-2 right-2 z-20 flex gap-1">
+      <div className="absolute top-1 right-1.5 z-20 flex gap-1">
         {finalMode === "live" && (
           <Badge variant="default" className="bg-cyan-500/20 text-cyan-400 border-cyan-500/30 animate-pulse text-[8px] px-1 py-0">
             <TrendingUp className="h-2 w-2" />
@@ -128,7 +142,7 @@ export const SmartChartWidget = ({
             </div>
           </div>
           {/* Blurred preview */}
-          <div className="blur-sm opacity-20 pointer-events-none h-full p-2">
+          <div className="blur-sm opacity-20 pointer-events-none h-full p-1">
             <ChartComponent 
               familyId={familyId}
               studentId={studentId}
@@ -140,8 +154,8 @@ export const SmartChartWidget = ({
         </div>
       ) : finalMode === "demo" ? (
         // DEMO MODE: Show mock data with compact upload CTA
-        <div className="h-full w-full flex flex-col">
-          <div className="flex-1 min-h-0 relative p-2">
+        <div className="h-full w-full flex flex-col pt-5">
+          <div className="flex-1 min-h-0 relative px-1 pb-1">
             <div className="h-full">
               <ChartComponent 
                 familyId={familyId}
@@ -152,13 +166,13 @@ export const SmartChartWidget = ({
               />
             </div>
           </div>
-          <div className="flex-none p-2 border-t border-amber-400/20 bg-amber-500/5">
-            <div className="text-[9px] text-amber-300/80 flex items-center justify-between gap-1">
+          <div className="flex-none px-1.5 pb-1 border-t border-amber-400/20 bg-amber-500/5">
+            <div className="text-[8px] text-amber-300/80 flex items-center justify-between gap-1 py-0.5">
               <span className="truncate">Upload {config.requiredDocuments[0]}</span>
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="h-5 text-[8px] px-1.5 border-amber-400/30 hover:bg-amber-500/10 text-amber-400 flex-shrink-0"
+                className="h-4 text-[7px] px-1 border-amber-400/30 hover:bg-amber-500/10 text-amber-400 flex-shrink-0"
                 onClick={() => navigate("/documents")}
               >
                 Upload
@@ -168,7 +182,7 @@ export const SmartChartWidget = ({
         </div>
       ) : (
         // LIVE MODE: Show real data
-        <div className="h-full w-full p-2">
+        <div className="h-full w-full pt-5 px-1 pb-1">
           <ChartComponent 
             familyId={familyId}
             studentId={studentId}

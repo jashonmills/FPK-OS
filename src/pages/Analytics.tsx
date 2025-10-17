@@ -95,7 +95,7 @@ const Analytics = () => {
   return (
     <div className={`fixed inset-0 dark flex flex-col transition-opacity duration-300 ${isExiting ? 'opacity-0' : 'opacity-100'}`} style={{ zIndex: 9999 }}>
       {/* Layer 1: Full-Screen Video Background */}
-      <VideoBackground opacity={0.25} />
+      <VideoBackground />
       
       {/* Layer 2: UI Content */}
       {/* Exit Button */}
@@ -109,14 +109,14 @@ const Analytics = () => {
         <X className="h-5 w-5" />
       </Button>
 
-      <div className="flex-none px-4 pt-3 pb-2 relative" style={{ zIndex: 10 }}>
+      <div className="flex-none px-4 pt-2 pb-1.5 relative" style={{ zIndex: 10 }}>
         {/* Compact Mission Control Header */}
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center justify-between mb-1.5">
           <div>
-            <h1 className="text-xl font-bold tracking-tight glow-text bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+            <h1 className="text-lg font-bold tracking-tight glow-text bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
               Mission Control
             </h1>
-            <p className="text-cyan-300/50 text-[9px]">
+            <p className="text-cyan-300/50 text-[8px]">
               {selectedStudent.student_name}
             </p>
           </div>
