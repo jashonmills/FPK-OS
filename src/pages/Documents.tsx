@@ -62,6 +62,20 @@ export default function Documents() {
     enabled: !!selectedFamily?.id && !!selectedStudent?.id,
   });
 
+  // Check if user is super admin
+  const { data: isSuperAdmin } = useQuery({
+    queryKey: ["is-super-admin"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return false;
+      
+      const { data, error } = await supabase
+        .rpc('has_super_admin_role', { _user_id: user.id });
+      
+      return data || false;
+    },
+  });
+
   const { data: familyData } = useQuery({
     queryKey: ["family", selectedFamily?.id],
     queryFn: async () => {
@@ -298,6 +312,13 @@ export default function Documents() {
       // Now analyze the document with timeout protection
       toast.loading("Analyzing document with AI...", { id: toastId });
       
+      // Super admins bypass usage limits for testing
+      const bypassLimit = isSuperAdmin || false;
+      
+      if (bypassLimit) {
+        console.log('🔓 Super Admin mode: Bypassing usage limits');
+      }
+      
       // Client-side timeout: 90 seconds max
       const analysisPromise = (async () => {
         let retries = 0;
@@ -307,7 +328,10 @@ export default function Documents() {
         while (retries < maxRetries) {
           try {
             const { data, error } = await supabase.functions.invoke("analyze-document", {
-              body: { document_id: documentId },
+              body: { 
+                document_id: documentId,
+                bypass_limit: bypassLimit 
+              },
             });
 
             if (error) {
@@ -525,6 +549,16 @@ export default function Documents() {
         tourTitle="Welcome to Documents"
         tourDescription="Upload and analyze important documents with AI assistance. Ready to learn more?"
       />
+
+      {isSuperAdmin && (
+        <div className="mb-4 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg flex items-center gap-2">
+          <span className="text-lg">🔓</span>
+          <div>
+            <p className="text-sm font-semibold text-yellow-600 dark:text-yellow-400">Super Admin Testing Mode</p>
+            <p className="text-xs text-yellow-600/80 dark:text-yellow-400/80">Unlimited document analysis • No usage restrictions</p>
+          </div>
+        </div>
+      )}
       
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
