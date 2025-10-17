@@ -34,16 +34,27 @@ export const MoodDistributionChart = ({ familyId, studentId, sampleData }: MoodD
       }
       
       // Fallback to document_metrics (historical mood data)
+      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      
       const { data: metrics, error: metricsError } = await supabase
         .from("document_metrics")
         .select("measurement_date, metric_name, metric_value")
         .eq("family_id", familyId)
         .eq("student_id", studentId)
         .eq("metric_type", "mood_tracking")
-        .gte("measurement_date", new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+        .not("measurement_date", "is", null)
+        .gte("measurement_date", sevenDaysAgo)
         .order("measurement_date", { ascending: true });
       
       if (metricsError) throw metricsError;
+      
+      // Log data quality
+      if (metrics && metrics.length > 0) {
+        const nullDates = metrics.filter(m => !m.measurement_date).length;
+        if (nullDates > 0) {
+          console.warn(`⚠️ [MoodDistribution] ${nullDates} metrics missing measurement_date`);
+        }
+      }
       
       // Transform metrics to mood count format
       const transformedData = metrics?.map(m => ({

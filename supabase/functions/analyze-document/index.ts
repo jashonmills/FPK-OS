@@ -152,6 +152,7 @@ Extract any structured data you can find. Focus on:
 1. DO NOT INFER OR HALLUCINATE. Only extract data that is explicitly stated.
 2. PRIORITIZE TIME-BASED DATA. Extract exact timestamps, start/end times, and durations.
 3. QUANTIFY EVERYTHING. Convert phrases like "five instances" into a numeric value.
+4. **ALWAYS EXTRACT DATES**: Look for assessment dates, report dates, observation dates, or date ranges in the document. If you find "March 15, 2024" or "3/15/2024", format it as "2024-03-15". If multiple dates exist, use the observation/assessment date. If no date is found, return null (we'll use document upload date as fallback).
 
 Format your entire response as a single, valid JSON object with the following structure:
 {
@@ -161,7 +162,7 @@ Format your entire response as a single, valid JSON object with the following st
       "metric_type": "behavioral_incident",
       "metric_value": 3,
       "metric_unit": "episodes",
-      "measurement_date": "YYYY-MM-DD",
+      "measurement_date": "2024-03-15",
       "start_time": "1:44",
       "end_time": "2:14",
       "duration_minutes": 30,
@@ -253,6 +254,8 @@ Extract all relevant data from the above document content and return your analys
 
     // Insert metrics
     if (analysisResult.metrics && analysisResult.metrics.length > 0) {
+      const documentUploadDate = document.created_at ? new Date(document.created_at).toISOString().split('T')[0] : null;
+      
       const metricsToInsert = analysisResult.metrics.map((metric: any) => ({
         document_id: document.id,
         family_id: document.family_id,
@@ -261,7 +264,8 @@ Extract all relevant data from the above document content and return your analys
         metric_type: metric.metric_type,
         metric_value: metric.metric_value,
         metric_unit: metric.metric_unit || null,
-        measurement_date: metric.measurement_date || null,
+        // Use extracted date, or fallback to document upload date (never leave NULL)
+        measurement_date: metric.measurement_date || documentUploadDate || new Date().toISOString().split('T')[0],
         start_time: metric.start_time || null,
         end_time: metric.end_time || null,
         duration_minutes: metric.duration_minutes || null,
@@ -269,6 +273,9 @@ Extract all relevant data from the above document content and return your analys
         intervention_used: metric.intervention_used || null,
         target_value: metric.target_value || null,
       }));
+      
+      console.log(`📅 Inserting ${metricsToInsert.length} metrics with dates:`, 
+        metricsToInsert.map((m: any) => ({ name: m.metric_name, date: m.measurement_date })));
 
       const { error: metricsError } = await supabase
         .from("document_metrics")

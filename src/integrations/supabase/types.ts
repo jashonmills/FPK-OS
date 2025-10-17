@@ -2979,7 +2979,19 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      admin_metrics_quality: {
+        Row: {
+          earliest_date: string | null
+          family_name: string | null
+          latest_date: string | null
+          metric_type: string | null
+          null_dates: number | null
+          null_percentage: number | null
+          student_name: string | null
+          total_metrics: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       add_purchased_credits: {

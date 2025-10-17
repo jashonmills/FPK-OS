@@ -35,15 +35,27 @@ export const IncidentFrequencyChart = ({ familyId, studentId, days, sampleData }
       }
       
       // Fallback to document_metrics (historical documents)
+      const cutoffDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      
       const { data: metrics, error: metricsError } = await supabase
         .from("document_metrics")
         .select("measurement_date, metric_name")
         .eq("family_id", familyId)
         .eq("student_id", studentId)
         .eq("metric_type", "behavioral_incident")
+        .not("measurement_date", "is", null)
+        .gte("measurement_date", cutoffDate)
         .order("measurement_date", { ascending: true });
       
       if (metricsError) throw metricsError;
+      
+      // Log data quality
+      if (metrics && metrics.length > 0) {
+        const nullDates = metrics.filter(m => !m.measurement_date).length;
+        if (nullDates > 0) {
+          console.warn(`⚠️ [IncidentFrequency] ${nullDates} metrics missing measurement_date`);
+        }
+      }
       
       return { 
         source: 'documents', 

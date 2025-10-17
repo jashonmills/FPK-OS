@@ -24,6 +24,15 @@ export const AcademicFluencyTrends = ({ studentId, familyId, dateRange, sampleDa
         p_end_date: format(dateRange.to, "yyyy-MM-dd")
       });
       if (error) throw error;
+      
+      // Log data quality
+      if (data && data.length > 0) {
+        const nullDates = data.filter((d: any) => !d.measurement_date).length;
+        if (nullDates > 0) {
+          console.warn(`⚠️ [AcademicFluency] ${nullDates} metrics missing measurement_date`);
+        }
+      }
+      
       return data;
     },
     enabled: !sampleData,
