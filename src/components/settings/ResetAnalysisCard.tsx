@@ -15,7 +15,6 @@ import { RefreshCw, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useFamily } from "@/contexts/FamilyContext";
-import { CleanupOrphanedDocumentsButton } from "./CleanupOrphanedDocumentsButton";
 
 export const ResetAnalysisCard = () => {
   const [showResetDialog, setShowResetDialog] = useState(false);
@@ -61,10 +60,30 @@ export const ResetAnalysisCard = () => {
 
     setIsReanalyzing(true);
     try {
-      // First, clear all old data to ensure clean slate
+      // Step 1: Clean up orphaned documents first
       toast({
-        title: "Preparing Clean Slate",
-        description: "Clearing old data before re-analysis...",
+        title: "Cleaning Up Ghost Documents",
+        description: "Removing documents from deleted students...",
+      });
+
+      const { error: cleanupError } = await supabase.functions.invoke("cleanup-orphaned-documents", {
+        body: { family_id: selectedFamily.id },
+      });
+
+      if (cleanupError) {
+        console.error("Cleanup error:", cleanupError);
+        toast({
+          title: "Cleanup Failed",
+          description: "Failed to remove orphaned documents. Aborting re-analysis.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Step 2: Clear all old analysis data
+      toast({
+        title: "Clearing Old Data",
+        description: "Removing old metrics, insights, and chart mappings...",
       });
 
       const { error: clearError } = await supabase.functions.invoke("clear-family-data", {
@@ -74,15 +93,22 @@ export const ResetAnalysisCard = () => {
       if (clearError) {
         console.error("Clear error:", clearError);
         toast({
-          title: "Warning",
-          description: "Some old data may remain. Proceeding with re-analysis...",
+          title: "Clear Failed",
+          description: "Failed to clear old data. Aborting re-analysis.",
+          variant: "destructive",
         });
+        return;
       }
 
-      // Wait a moment for clearing to complete
+      // Wait for clearing to complete
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      // Then trigger re-analysis
+      // Step 3: Re-analyze remaining documents
+      toast({
+        title: "Re-Analyzing Documents",
+        description: "Processing documents with improved AI prompts...",
+      });
+
       const { data, error } = await supabase.functions.invoke("re-analyze-all-documents", {
         body: { family_id: selectedFamily.id },
       });
@@ -91,7 +117,7 @@ export const ResetAnalysisCard = () => {
 
       toast({
         title: "Deep Re-Analysis Complete",
-        description: `Successfully re-analyzed ${data.successful} of ${data.total_documents} documents with improved prompts. Your charts should now populate with historical data.`,
+        description: `Successfully re-analyzed ${data.successful} of ${data.total_documents} documents with improved prompts.`,
       });
 
       // Reload to show new data
@@ -112,9 +138,6 @@ export const ResetAnalysisCard = () => {
 
   return (
     <>
-      <div className="mb-4">
-        <CleanupOrphanedDocumentsButton />
-      </div>
       <div className="space-y-4">
         <Card className="border-primary/50">
           <CardHeader>
@@ -202,10 +225,10 @@ export const ResetAnalysisCard = () => {
             </AlertDialogTitle>
             <AlertDialogDescription className="space-y-2">
               <p>
-                This will first clear ALL old data (documents, logs, metrics, insights, goals, chats) to ensure a clean slate, then re-analyze any currently uploaded documents.
+                This will automatically clean up ghost documents from deleted students, clear all old analysis data, then re-analyze your current documents.
               </p>
               <p className="font-medium text-foreground">
-                This process may take 1-2 minutes. Only currently visible documents will be analyzed.
+                This process may take 1-2 minutes.
               </p>
             </AlertDialogDescription>
           </AlertDialogHeader>
