@@ -15,18 +15,35 @@ serve(async (req) => {
   }
 
   try {
+    console.log('📥 Received analyze request');
     const { document_id, bypass_limit } = await req.json();
+    console.log(`📄 Analyzing document: ${document_id}`);
 
     if (!document_id) {
+      console.error('❌ Missing document_id');
       return new Response(
         JSON.stringify({ error: "document_id is required" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const lovableApiKey = Deno.env.get("LOVABLE_API_KEY")!;
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    const lovableApiKey = Deno.env.get("LOVABLE_API_KEY");
+    
+    console.log('🔑 Environment check:', {
+      hasSupabaseUrl: !!supabaseUrl,
+      hasSupabaseKey: !!supabaseKey,
+      hasLovableKey: !!lovableApiKey
+    });
+
+    if (!supabaseUrl || !supabaseKey || !lovableApiKey) {
+      console.error('❌ Missing required environment variables');
+      return new Response(
+        JSON.stringify({ error: "Server configuration error" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -460,9 +477,18 @@ Rules:
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
-    console.error("Error in analyze-document function:", error);
+    console.error("❌ CRITICAL ERROR in analyze-document:", error);
+    console.error("Error details:", {
+      name: error instanceof Error ? error.name : 'unknown',
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined
+    });
+    
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
+      JSON.stringify({ 
+        error: error instanceof Error ? error.message : "Unknown error",
+        type: error instanceof Error ? error.name : "UnknownError"
+      }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
