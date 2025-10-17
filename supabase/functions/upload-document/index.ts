@@ -88,44 +88,73 @@ serve(async (req) => {
       throw dbError;
     }
 
-    // Trigger background analysis with retry logic for rate limiting
-    const analyzePromise = (async () => {
+    // Trigger extraction and analysis pipeline in the background
+    console.log('🔄 Triggering extraction and analysis pipeline...');
+    
+    const processPipeline = (async () => {
       const maxRetries = 3;
       let retryCount = 0;
-      let delay = 1000; // Start with 1 second
-
+      
+      // Step 1: Extract text from PDF
+      console.log('📄 Step 1: Extracting text from PDF...');
       while (retryCount < maxRetries) {
         try {
-          console.log(`Triggering analysis for document ${documentData.id} (attempt ${retryCount + 1})`);
-          const { data, error: analyzeError } = await supabase.functions.invoke('analyze-document', {
-            body: { document_id: documentData.id }
-          });
-
-          if (analyzeError) {
-            // Check if it's a rate limit error
-            if (analyzeError.message?.includes('429') || analyzeError.message?.includes('Too Many Requests')) {
-              retryCount++;
-              if (retryCount < maxRetries) {
-                console.log(`Rate limited, retrying in ${delay}ms...`);
-                await new Promise(resolve => setTimeout(resolve, delay));
-                delay *= 2; // Exponential backoff
-                continue;
-              }
-            }
-            console.error('Background analysis trigger error:', analyzeError);
-          } else {
-            console.log(`Analysis triggered successfully for document ${documentData.id}`);
+          const { data: extractData, error: extractError } = await supabase.functions.invoke(
+            'extract-document-text',
+            { body: { document_id: documentData.id } }
+          );
+          
+          if (extractError) {
+            throw extractError;
           }
-          break; // Success or non-retryable error, exit loop
-        } catch (error) {
-          console.error('Background analysis error:', error);
+          
+          console.log('✅ Text extraction completed:', extractData);
           break;
+        } catch (error) {
+          retryCount++;
+          console.error(`Extraction attempt ${retryCount} failed:`, error);
+          
+          if (retryCount >= maxRetries) {
+            console.error('❌ Text extraction failed after max retries');
+            return;
+          }
+          
+          await new Promise(resolve => setTimeout(resolve, 2000 * retryCount));
+        }
+      }
+      
+      // Step 2: Analyze document with real content
+      console.log('🧠 Step 2: Analyzing document...');
+      retryCount = 0;
+      
+      while (retryCount < maxRetries) {
+        try {
+          const { error: analyzeError } = await supabase.functions.invoke(
+            'analyze-document',
+            { body: { document_id: documentData.id } }
+          );
+          
+          if (analyzeError) {
+            throw analyzeError;
+          }
+          
+          console.log('✅ Analysis completed successfully');
+          break;
+        } catch (error) {
+          retryCount++;
+          console.error(`Analysis attempt ${retryCount} failed:`, error);
+          
+          if (retryCount >= maxRetries) {
+            console.error('❌ Analysis failed after max retries');
+            return;
+          }
+          
+          await new Promise(resolve => setTimeout(resolve, 2000 * retryCount));
         }
       }
     })();
 
-    // Note: Analysis will run in background via the Promise
-    // EdgeRuntime.waitUntil is not available in this Deno environment
+    // Note: Pipeline runs in background via the Promise
 
     return new Response(
       JSON.stringify({

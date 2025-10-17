@@ -31,9 +31,8 @@ serve(async (req) => {
     // Step 1: Fetch all documents for this family
     const { data: documents, error: fetchError } = await supabase
       .from("documents")
-      .select("id, file_name, family_id, student_id")
-      .eq("family_id", family_id)
-      .not("extracted_content", "is", null);
+      .select("id, file_name, file_path, extracted_content, family_id, student_id")
+      .eq("family_id", family_id);
 
     if (fetchError) {
       console.error("Error fetching documents:", fetchError);
@@ -54,7 +53,16 @@ serve(async (req) => {
       );
     }
 
-    console.log(`📄 Found ${documents.length} documents to re-analyze`);
+    console.log(`📄 Found ${documents.length} documents to process`);
+
+    // Identify documents that need extraction
+    const needsExtraction = documents.filter((doc: any) => 
+      !doc.extracted_content || 
+      doc.extracted_content.startsWith('Document uploaded:') ||
+      doc.extracted_content.length < 100
+    );
+
+    console.log(`🔄 ${needsExtraction.length} documents need text extraction`);
 
     // Step 2: Clear existing analysis data for these documents
     const documentIds = documents.map(d => d.id);
@@ -107,24 +115,39 @@ serve(async (req) => {
       console.log("✅ Cleared old chart mappings");
     }
 
-    // Step 3: Re-analyze each document using the new specialized prompts
+    // Step 3: Extract and re-analyze each document
+    let extractedCount = 0;
     let successCount = 0;
     let errorCount = 0;
 
     for (const doc of documents) {
       try {
-        console.log(`🔍 Re-analyzing: ${doc.file_name}`);
-        
-        // Add a 2-second delay between analyses to avoid rate limits
-        if (successCount + errorCount > 0) {
-          await new Promise(resolve => setTimeout(resolve, 2000));
+        // Step 3a: Extract text if needed
+        if (needsExtraction.some((d: any) => d.id === doc.id)) {
+          console.log(`📄 Extracting text from: ${doc.file_name}`);
+          
+          const { data: extractData, error: extractError } = await supabase.functions.invoke(
+            'extract-document-text',
+            { body: { document_id: doc.id } }
+          );
+          
+          if (extractError) {
+            throw new Error(`Extraction failed: ${extractError.message || extractError}`);
+          }
+          
+          console.log(`✅ Extracted ${extractData?.text_length || 0} characters from: ${doc.file_name}`);
+          extractedCount++;
+          
+          await new Promise(resolve => setTimeout(resolve, 1000));
         }
         
-        // Call analyze-document with bypass_limit: true (don't count against usage)
+        // Step 3b: Analyze document
+        console.log(`🔍 Re-analyzing: ${doc.file_name}`);
+        
         const analyzeResponse = await supabase.functions.invoke("analyze-document", {
           body: {
             document_id: doc.id,
-            bypass_limit: true // Don't count re-analysis against monthly limits
+            bypass_limit: true
           }
         });
 
@@ -136,21 +159,25 @@ serve(async (req) => {
           console.log(`   Extracted: ${analyzeResponse.data?.metrics_count || 0} metrics, ${analyzeResponse.data?.insights_count || 0} insights`);
           successCount++;
         }
+        
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
       } catch (error) {
-        console.error(`❌ Exception analyzing ${doc.file_name}:`, error);
+        console.error(`❌ Exception processing ${doc.file_name}:`, error);
         errorCount++;
       }
     }
 
-    console.log(`🎉 Re-analysis complete: ${successCount} successful, ${errorCount} errors`);
+    console.log(`🎉 Processing complete: ${extractedCount} extracted, ${successCount} analyzed, ${errorCount} errors`);
 
     return new Response(
       JSON.stringify({
         success: true,
         total_documents: documents.length,
-        successful: successCount,
+        extracted: extractedCount,
+        analyzed: successCount,
         failed: errorCount,
-        message: `Re-analyzed ${successCount} of ${documents.length} documents using specialized "Deep Read" prompts`
+        message: `Processed ${documents.length} documents: ${extractedCount} extracted, ${successCount} analyzed`
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );

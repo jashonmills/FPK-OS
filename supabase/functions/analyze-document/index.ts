@@ -62,6 +62,44 @@ serve(async (req) => {
       );
     }
 
+    // Check if content is placeholder and needs extraction
+    if (!document.extracted_content || 
+        document.extracted_content.startsWith('Document uploaded:') ||
+        document.extracted_content.length < 100) {
+      
+      console.log('🔄 Placeholder content detected, triggering extraction...');
+      
+      const { data: extractData, error: extractError } = await supabase.functions.invoke(
+        'extract-document-text',
+        { body: { document_id } }
+      );
+      
+      if (extractError) {
+        console.error('❌ Extraction failed:', extractError);
+        return new Response(
+          JSON.stringify({ error: 'Failed to extract document text' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
+      console.log('✅ Extraction completed, refetching document...');
+      
+      const { data: updatedDoc, error: refetchError } = await supabase
+        .from('documents')
+        .select('*')
+        .eq('id', document_id)
+        .single();
+      
+      if (refetchError || !updatedDoc || !updatedDoc.extracted_content) {
+        return new Response(
+          JSON.stringify({ error: 'Failed to fetch extracted content' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
+      Object.assign(document, updatedDoc);
+    }
+
     if (!document.extracted_content) {
       return new Response(
         JSON.stringify({ error: "Document has no extracted content to analyze" }),
