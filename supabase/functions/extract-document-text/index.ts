@@ -12,6 +12,22 @@ interface ValidationResult {
   passedValidation: boolean;
 }
 
+function extractRelativePath(fullPath: string): string {
+  // Handle both formats:
+  // 1. Full URL: "https://.../family-documents/path/to/file.pdf"
+  // 2. Relative: "path/to/file.pdf"
+  
+  const bucketPrefix = '/family-documents/';
+  const bucketIndex = fullPath.indexOf(bucketPrefix);
+  
+  if (bucketIndex !== -1) {
+    return fullPath.substring(bucketIndex + bucketPrefix.length);
+  }
+  
+  // Already relative
+  return fullPath;
+}
+
 function validateExtraction(text: string): ValidationResult {
   const length = text.length;
   const wordCount = text.split(/\s+/).filter(word => word.length > 0).length;
@@ -70,17 +86,27 @@ serve(async (req) => {
       throw new Error('Document not found');
     }
 
-    console.log('📥 Downloading PDF from storage:', document.file_path);
+    // Extract relative path from full URL
+    const relativePath = extractRelativePath(document.file_path);
+    console.log('📥 Downloading PDF from storage:', {
+      original: document.file_path,
+      relative: relativePath
+    });
     const startTime = Date.now();
 
     const { data: fileData, error: downloadError } = await supabase
       .storage
       .from('family-documents')
-      .download(document.file_path);
+      .download(relativePath);
 
     if (downloadError || !fileData) {
-      console.error('Failed to download PDF:', downloadError);
-      throw new Error('Failed to download PDF from storage');
+      console.error('Failed to download PDF:', {
+        error: downloadError,
+        originalPath: document.file_path,
+        relativePath: relativePath,
+        bucket: 'family-documents'
+      });
+      throw new Error(`Failed to download PDF from storage: ${downloadError?.message || 'Unknown error'}`);
     }
 
     const pdfBuffer = await fileData.arrayBuffer();
