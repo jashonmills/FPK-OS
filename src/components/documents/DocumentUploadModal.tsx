@@ -7,14 +7,23 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Upload, FileText, File, X } from "lucide-react";
+import { Upload, FileText, File, X, Loader2, CheckCircle2, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { Card } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 
 interface DocumentUploadModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+}
+
+interface FileUploadStatus {
+  fileName: string;
+  status: 'pending' | 'uploading' | 'extracting' | 'success' | 'error';
+  statusMessage: string;
+  progress: number;
+  error?: string;
 }
 
 export function DocumentUploadModal({ open, onOpenChange }: DocumentUploadModalProps) {
@@ -25,6 +34,7 @@ export function DocumentUploadModal({ open, onOpenChange }: DocumentUploadModalP
   const [category, setCategory] = useState("general");
   const [documentDate, setDocumentDate] = useState("");
   const [uploadProgress, setUploadProgress] = useState<{ current: number; total: number } | null>(null);
+  const [fileStatuses, setFileStatuses] = useState<Record<string, FileUploadStatus>>({});
 
   const MAX_FILES = 10;
 
@@ -38,6 +48,18 @@ export function DocumentUploadModal({ open, onOpenChange }: DocumentUploadModalP
         throw new Error("Missing required data");
       }
 
+      // Initialize file statuses
+      const initialStatuses: Record<string, FileUploadStatus> = {};
+      files.forEach(file => {
+        initialStatuses[file.name] = {
+          fileName: file.name,
+          status: 'pending',
+          statusMessage: 'Waiting to upload...',
+          progress: 0,
+        };
+      });
+      setFileStatuses(initialStatuses);
+
       const results = { success: 0, failed: 0, failedFiles: [] as string[] };
 
       for (let i = 0; i < files.length; i++) {
@@ -45,6 +67,17 @@ export function DocumentUploadModal({ open, onOpenChange }: DocumentUploadModalP
         setUploadProgress({ current: i + 1, total: files.length });
 
         try {
+          // Update status: uploading
+          setFileStatuses(prev => ({
+            ...prev,
+            [file.name]: {
+              ...prev[file.name],
+              status: 'uploading',
+              statusMessage: 'Uploading file...',
+              progress: 25,
+            }
+          }));
+
           const formData = new FormData();
           formData.append('file', file);
           formData.append('family_id', selectedFamily.id);
@@ -60,9 +93,47 @@ export function DocumentUploadModal({ open, onOpenChange }: DocumentUploadModalP
           if (error) throw error;
           if (!data?.success) throw new Error(data?.error || 'Upload failed');
 
+          // Update status: extracting
+          setFileStatuses(prev => ({
+            ...prev,
+            [file.name]: {
+              ...prev[file.name],
+              status: 'extracting',
+              statusMessage: 'Extracting text with AI...',
+              progress: 50,
+            }
+          }));
+
+          // Simulate extraction progress (the actual extraction happens in background)
+          await new Promise(resolve => setTimeout(resolve, 1000));
+
+          // Update status: success
+          setFileStatuses(prev => ({
+            ...prev,
+            [file.name]: {
+              ...prev[file.name],
+              status: 'success',
+              statusMessage: 'Upload complete! AI extraction in progress...',
+              progress: 100,
+            }
+          }));
+
           results.success++;
         } catch (error: any) {
           console.error(`Failed to upload ${file.name}:`, error);
+          
+          // Update status: error
+          setFileStatuses(prev => ({
+            ...prev,
+            [file.name]: {
+              ...prev[file.name],
+              status: 'error',
+              statusMessage: 'Upload failed',
+              progress: 0,
+              error: error.message,
+            }
+          }));
+
           results.failed++;
           results.failedFiles.push(file.name);
         }
@@ -76,7 +147,7 @@ export function DocumentUploadModal({ open, onOpenChange }: DocumentUploadModalP
       
       // Show comprehensive results toast
       if (results.failed === 0) {
-        toast.success(`✅ ${results.success} document${results.success > 1 ? 's' : ''} uploaded successfully. Analysis starting in background.`);
+        toast.success(`✅ ${results.success} document${results.success > 1 ? 's' : ''} uploaded successfully. AI extraction continues in background.`);
       } else if (results.success === 0) {
         toast.error(`❌ All ${results.failed} uploads failed.`);
       } else {
@@ -101,13 +172,18 @@ export function DocumentUploadModal({ open, onOpenChange }: DocumentUploadModalP
         }
       }
 
-      onOpenChange(false);
-      setFiles([]);
-      setCategory("general");
-      setDocumentDate("");
+      // Wait a moment before closing to let users see final status
+      setTimeout(() => {
+        onOpenChange(false);
+        setFiles([]);
+        setCategory("general");
+        setDocumentDate("");
+        setFileStatuses({});
+      }, 1500);
     },
     onError: (error: any) => {
       setUploadProgress(null);
+      setFileStatuses({});
       toast.error("Upload failed: " + error.message);
     },
   });
@@ -189,31 +265,62 @@ export function DocumentUploadModal({ open, onOpenChange }: DocumentUploadModalP
             ) : (
               <>
                 <div className="space-y-2 max-h-80 overflow-y-auto pr-2">
-                  {files.map((file, index) => (
-                    <Card key={index} className="p-3 border-2">
-                      <div className="flex items-start gap-3">
-                        <div className="flex-shrink-0 mt-0.5">
-                          {file.type === 'application/pdf' ? (
-                            <FileText className="h-8 w-8 text-destructive" />
-                          ) : (
-                            <File className="h-8 w-8 text-primary" />
+                  {files.map((file, index) => {
+                    const status = fileStatuses[file.name];
+                    return (
+                      <Card key={index} className="p-3 border-2">
+                        <div className="flex items-start gap-3">
+                          <div className="flex-shrink-0 mt-0.5">
+                            {status?.status === 'success' ? (
+                              <CheckCircle2 className="h-8 w-8 text-green-500" />
+                            ) : status?.status === 'error' ? (
+                              <XCircle className="h-8 w-8 text-destructive" />
+                            ) : status?.status === 'uploading' || status?.status === 'extracting' ? (
+                              <Loader2 className="h-8 w-8 text-primary animate-spin" />
+                            ) : file.type === 'application/pdf' ? (
+                              <FileText className="h-8 w-8 text-destructive" />
+                            ) : (
+                              <File className="h-8 w-8 text-primary" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0 overflow-hidden space-y-1">
+                            <p className="text-sm font-medium truncate pr-2">{file.name}</p>
+                            <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
+                            
+                            {status && (
+                              <>
+                                <p className={`text-xs font-medium ${
+                                  status.status === 'success' ? 'text-green-600' :
+                                  status.status === 'error' ? 'text-destructive' :
+                                  status.status === 'uploading' ? 'text-blue-600' :
+                                  status.status === 'extracting' ? 'text-purple-600' :
+                                  'text-muted-foreground'
+                                }`}>
+                                  {status.statusMessage}
+                                </p>
+                                {status.progress > 0 && status.status !== 'error' && (
+                                  <Progress value={status.progress} className="h-1.5" />
+                                )}
+                                {status.error && (
+                                  <p className="text-xs text-destructive">{status.error}</p>
+                                )}
+                              </>
+                            )}
+                          </div>
+                          {!uploadMutation.isPending && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => removeFile(index)}
+                              className="flex-shrink-0 h-8 w-8"
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
                           )}
                         </div>
-                        <div className="flex-1 min-w-0 overflow-hidden">
-                          <p className="text-sm font-medium truncate pr-2">{file.name}</p>
-                          <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => removeFile(index)}
-                          className="flex-shrink-0 h-8 w-8"
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </Card>
-                  ))}
+                      </Card>
+                    );
+                  })}
                 </div>
                 {files.length < MAX_FILES && (
                   <div className="border-2 border-dashed rounded-lg p-4 text-center hover:border-primary/50 transition-colors mt-3">
