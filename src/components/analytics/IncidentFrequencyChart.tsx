@@ -15,22 +15,47 @@ export const IncidentFrequencyChart = ({ familyId, studentId, days, sampleData }
   const { data, isLoading } = useQuery({
     queryKey: ["incident-frequency", familyId, studentId, days],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // Try incident_logs first (manual daily logging)
+      const { data: logs, error: logsError } = await supabase
         .from("incident_logs")
-        .select("incident_date, behavior_description")
+        .select("incident_date, behavior_description, reporter_role")
         .eq("family_id", familyId)
         .eq("student_id", studentId)
         .gte("incident_date", new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
         .order("incident_date", { ascending: true });
 
-      if (error) throw error;
-      return data;
+      if (logsError) throw logsError;
+      
+      if (logs && logs.length > 0) {
+        const hasManualLogs = logs.some(log => log.reporter_role !== 'automated');
+        return { 
+          source: hasManualLogs ? 'logs' : 'documents', 
+          data: logs.map(l => ({ incident_date: l.incident_date, behavior_description: l.behavior_description }))
+        };
+      }
+      
+      // Fallback to document_metrics (historical documents)
+      const { data: metrics, error: metricsError } = await supabase
+        .from("document_metrics")
+        .select("measurement_date, metric_name")
+        .eq("family_id", familyId)
+        .eq("student_id", studentId)
+        .eq("metric_type", "behavioral_incident")
+        .order("measurement_date", { ascending: true });
+      
+      if (metricsError) throw metricsError;
+      
+      return { 
+        source: 'documents', 
+        data: metrics ? metrics.map(m => ({ incident_date: m.measurement_date, behavior_description: m.metric_name })) : []
+      };
     },
     staleTime: 5 * 60 * 1000,
     enabled: !sampleData,
   });
 
-  const displayData = sampleData || data;
+  const displayData = sampleData || data?.data;
+  const dataSource = data?.source || 'unknown';
 
   if (isLoading) {
     return <Skeleton className="h-[300px] w-full" />;
@@ -38,8 +63,9 @@ export const IncidentFrequencyChart = ({ familyId, studentId, days, sampleData }
 
   if (!displayData || displayData.length === 0) {
     return (
-      <div className="h-[300px] flex items-center justify-center text-muted-foreground">
-        No incidents recorded. This is great progress!
+      <div className="h-[300px] flex flex-col items-center justify-center text-center p-6 space-y-4">
+        <p className="text-muted-foreground">No incident data available yet.</p>
+        <p className="text-sm text-muted-foreground">Upload documents with behavioral data, or start logging incidents daily.</p>
       </div>
     );
   }
@@ -60,7 +86,13 @@ export const IncidentFrequencyChart = ({ familyId, studentId, days, sampleData }
   }));
 
   return (
-    <ResponsiveContainer width="100%" height={300}>
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <span className={`text-xs px-2 py-1 rounded ${dataSource === 'logs' ? 'bg-primary/10 text-primary' : 'bg-secondary/50 text-secondary-foreground'}`}>
+          {dataSource === 'logs' ? '📝 Daily Logs' : '📚 Historical Documents'}
+        </span>
+      </div>
+      <ResponsiveContainer width="100%" height={300}>
       <LineChart data={chartData}>
         <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
         <XAxis 
@@ -85,5 +117,6 @@ export const IncidentFrequencyChart = ({ familyId, studentId, days, sampleData }
         />
       </LineChart>
     </ResponsiveContainer>
+    </div>
   );
 };

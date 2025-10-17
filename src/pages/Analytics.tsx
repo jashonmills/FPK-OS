@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useFamily } from "@/contexts/FamilyContext";
 import confetti from "canvas-confetti";
+import { format } from "date-fns";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -403,6 +404,16 @@ const Analytics = () => {
           </SelectContent>
         </Select>
       </div>
+
+      {/* Data Source Banner */}
+      {documentDateRange && (
+        <Alert className="mb-6 border-secondary bg-secondary/10">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            <strong>📚 Historical Data Mode:</strong> Charts are displaying data extracted from your uploaded documents ({format(documentDateRange.earliest, "MMM yyyy")} - {format(documentDateRange.latest, "MMM yyyy")}). To see real-time daily tracking, start logging incidents, moods, and activities via the Activity Log page.
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* AI Discovery Banner */}
       {unlockedCharts && unlockedCharts.length > 0 && (

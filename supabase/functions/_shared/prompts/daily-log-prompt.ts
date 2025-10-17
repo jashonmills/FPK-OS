@@ -175,6 +175,39 @@ This is a time-series document. If the log contains 30 days of entries, you MUST
 7. **IDENTIFY PATTERNS**: After extracting all daily data, create insights about weekly trends, day-of-week patterns, or time-based patterns
 8. **STRICT NUMERIC VALUES**: metric_value, target_value, duration_minutes accept ONLY numbers or NULL. Never use text like "sometimes", "improving", or descriptive words - those belong in context field.
 
+## CRITICAL: MANDATORY MOOD EXTRACTION (RULE #9)
+
+**EVERY daily log entry MUST extract mood/emotional state.**
+
+You MUST create at least one mood metric per day, even if mood is not explicitly stated. Use these rules:
+
+**Explicit Mood Statements (Priority 1):**
+- "Child was anxious" → metric_type: "mood_tracking", metric_name: "anxious", metric_value: 7
+- "Appeared happy during recess" → metric_type: "mood_tracking", metric_name: "happy", metric_value: 8
+- "Frustrated all morning" → metric_type: "mood_tracking", metric_name: "frustrated", metric_value: 6
+
+**Infer from Behavioral Descriptions (Priority 2):**
+- "Refused to participate" → likely "irritable" or "anxious", metric_value: 4-6
+- "Had multiple meltdowns" → likely "dysregulated" or "overwhelmed", metric_value: 2-3
+- "Shared toys with peers" → likely "happy" or "calm", metric_value: 7-8
+
+**Infer from Activities (Priority 3):**
+- "Enjoyed reading time" → likely "happy" or "engaged", metric_value: 8
+- "Struggled during math" → likely "frustrated" or "anxious", metric_value: 4-5
+- "Participated in group activity" → likely "calm" or "happy", metric_value: 7
+
+**Default (Priority 4):**
+- If NO mood indicators at all → use "neutral", metric_value: 5
+
+**Mood Intensity Scale (1-10):**
+- 9-10: Very positive (ecstatic, thrilled)
+- 7-8: Positive (happy, calm, content)
+- 5-6: Neutral to mildly positive/negative
+- 3-4: Negative (frustrated, anxious, irritable)
+- 1-2: Very negative (melting down, dysregulated, distressed)
+
+**CRITICAL:** This is NON-NEGOTIABLE. If you extract 30 daily entries, you MUST have AT LEAST 30 mood metrics (one per day minimum).
+
 ## COMMON LOG FORMATS
 - **Narrative format:** "Today Bobby had a great day. He completed his math worksheet and participated in reading group. There were 2 incidents of elopement during transitions."
 - **Structured format:** Date | Behavior | Academic | Communication

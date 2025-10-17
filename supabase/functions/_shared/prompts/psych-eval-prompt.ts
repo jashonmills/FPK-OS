@@ -187,6 +187,34 @@ export const PSYCH_EVAL_EXTRACTION_PROMPT = `You are analyzing a **Psychoeducati
 7. **DIAGNOSTIC IMPRESSIONS = INSIGHTS**: Extract diagnoses and recommendations as insights
 8. **NUMBERS ONLY IN SCORE FIELDS**: metric_value, target_value, baseline_value accept ONLY numeric values (integers or decimals) or NULL. Text descriptors like "Average" cause database errors - put them in context instead.
 
+## CRITICAL: ACADEMIC FLUENCY EXTRACTION (RULE #9)
+
+**ALL academic achievement scores MUST use metric_type "academic_fluency".**
+
+When you see ANY academic score (reading, math, writing), you MUST:
+1. Set metric_type: "academic_fluency" (not "academic_score" or "achievement_score")
+2. Extract the numeric score as metric_value (SINGLE NUMBER ONLY)
+3. Put all descriptive text in context field (percentiles, grade equivalents, descriptors)
+
+**Reading & Math Scores → Academic Fluency Metrics:**
+- "Reading fluency: 85 WPM" → metric_type: "academic_fluency", metric_name: "Reading Fluency (WPM)", metric_value: 85
+- "Math fact fluency: 40 digits/min" → metric_type: "academic_fluency", metric_name: "Math Fact Fluency", metric_value: 40
+- "WIAT-III Reading Comprehension: 82 (12th percentile)" → metric_type: "academic_fluency", metric_name: "Reading Comprehension (WIAT-III)", metric_value: 82, context: "12th percentile, Below Average"
+- "WJ-IV Math Calculation: 95" → metric_type: "academic_fluency", metric_name: "Math Calculation (WJ-IV)", metric_value: 95
+
+**FORBIDDEN:**
+- ❌ "Reading: 12th percentile" (percentile is NOT the metric_value - find the standard score)
+- ❌ "Math: Below Average" (text descriptor is NOT a metric_value)
+- ❌ "Reading: 82-85 range" (ranges are NOT allowed - use single midpoint value like 83.5)
+
+**Required Fields for Academic Metrics:**
+- metric_name: Include subject AND test name (e.g., "Reading Comprehension (WIAT-III)")
+- metric_type: "academic_fluency" (ALWAYS)
+- metric_value: SINGLE NUMERIC VALUE (integer or decimal)
+- metric_unit: "standard score" or "WPM" or "digits/min"
+- context: Include percentile, descriptor, grade equivalent as text
+- target_value: 100 (standard score mean) OR NULL if not applicable
+
 ## COMMON SECTION HEADERS TO LOOK FOR
 - "Reason for Referral"
 - "Background Information"
