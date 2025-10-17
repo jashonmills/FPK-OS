@@ -7,6 +7,24 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Helper: Update extraction progress with realtime support
+async function updateExtractionProgress(
+  supabase: any,
+  documentId: string,
+  progress: number,
+  message: string
+) {
+  await supabase
+    .from('document_analysis_status')
+    .update({
+      status: 'extracting',
+      progress_percent: progress,
+      current_phase: 'extraction',
+      status_message: message
+    })
+    .eq('document_id', documentId);
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -76,6 +94,9 @@ serve(async (req) => {
         .eq('id', document_id);
     }
 
+    // Update progress: starting extraction
+    await updateExtractionProgress(supabase, document_id, 5, 'Downloading document...');
+
     // Download file from storage
     console.log(`📥 Downloading file: ${document.file_path}`);
     const filePathParts = document.file_path.split('/family-documents/')[1];
@@ -93,8 +114,12 @@ serve(async (req) => {
     const arrayBuffer = await fileData.arrayBuffer();
     const uint8Array = new Uint8Array(arrayBuffer);
     const base64Data = encodeBase64(uint8Array);
+    const fileSizeKB = Math.round(arrayBuffer.byteLength / 1024);
 
-    console.log(`📄 File downloaded: ${document.file_name} (${Math.round(arrayBuffer.byteLength / 1024)} KB)`);
+    console.log(`📄 File downloaded: ${document.file_name} (${fileSizeKB} KB)`);
+    
+    // Update progress: preparing for extraction
+    await updateExtractionProgress(supabase, document_id, 15, `Processing ${fileSizeKB}KB document...`);
 
     // Determine media type
     const mediaType = document.file_type === 'application/pdf' 
@@ -104,11 +129,16 @@ serve(async (req) => {
         : 'application/pdf';
 
     console.log(`🤖 Sending to Claude Vision API (${mediaType})...`);
+    
+    // Update progress: extracting with AI
+    await updateExtractionProgress(supabase, document_id, 25, 'Extracting text with AI vision...');
 
     // Call Anthropic Vision API with intelligent retry logic
     let extractedText = '';
     let retryCount = 0;
     const maxRetries = 3;
+    const extractionStartTime = Date.now();
+    let qualityMetrics: any = null;
     
     while (retryCount <= maxRetries) {
       try {
@@ -135,15 +165,26 @@ serve(async (req) => {
                 },
                 {
                   type: 'text',
-                  text: `Extract ALL text from this document. Preserve:
-- All headings, titles, and section names
-- All body text and paragraphs
-- All table data (convert tables to structured text)
-- All form fields and their values
-- All dates, numbers, and measurements
-- Page numbers and footers
+                  text: `Extract ALL text from this document with highest accuracy. Return JSON format:
 
-Output ONLY the extracted text. Do not add commentary or explanations. If this is a multi-page document, clearly separate pages with "--- PAGE X ---" markers.`
+{
+  "extracted_text": "... full document text ...",
+  "quality_assessment": {
+    "text_clarity": 1-10,
+    "extraction_confidence": 1-10,
+    "warnings": ["list any concerns like poor scan quality, handwriting, etc."]
+  }
+}
+
+EXTRACTION REQUIREMENTS:
+- Preserve document structure (headers, sections, paragraphs)
+- Include ALL table data (format as markdown tables)
+- Include form fields and checkboxes with their values
+- Include dates, numbers, and measurements
+- Note any handwritten content separately
+- Use "--- PAGE X ---" markers for multi-page documents
+
+If you cannot return valid JSON, return only the extracted text.`
                 }
               ]
             }]
@@ -160,6 +201,13 @@ Output ONLY the extracted text. Do not add commentary or explanations. If this i
             console.log(`⏳ Rate limited (429). Waiting ${waitTime}ms before retry ${retryCount + 1}/${maxRetries}...`);
             console.log(`ℹ️ Anthropic rate limit is 10,000 tokens/minute. Large documents require longer waits.`);
             
+            await updateExtractionProgress(
+              supabase, 
+              document_id, 
+              25 + (retryCount * 10), 
+              `Rate limited. Waiting ${waitTime/1000}s before retry...`
+            );
+            
             if (retryCount < maxRetries) {
               await new Promise(resolve => setTimeout(resolve, waitTime));
               retryCount++;
@@ -172,7 +220,18 @@ Output ONLY the extracted text. Do not add commentary or explanations. If this i
         }
 
         const anthropicData = await anthropicResponse.json();
-        extractedText = anthropicData.content[0].text;
+        const rawText = anthropicData.content[0].text;
+        
+        // Try to parse JSON response for quality metrics
+        try {
+          const parsed = JSON.parse(rawText);
+          extractedText = parsed.extracted_text || rawText;
+          qualityMetrics = parsed.quality_assessment;
+        } catch (e) {
+          // If not JSON, use raw text
+          extractedText = rawText;
+        }
+        
         break; // Success - exit retry loop
         
       } catch (error) {
@@ -186,7 +245,32 @@ Output ONLY the extracted text. Do not add commentary or explanations. If this i
       }
     }
 
-    console.log(`✅ Extracted ${extractedText.length} characters`);
+    const processingTime = Date.now() - extractionStartTime;
+    console.log(`✅ Extracted ${extractedText.length} characters in ${processingTime}ms`);
+    
+    // Update progress: storing results
+    await updateExtractionProgress(supabase, document_id, 85, 'Saving extracted content...');
+
+    // Store quality diagnostics
+    const wordCount = extractedText.split(/\s+/).length;
+    const qualityScore = qualityMetrics?.text_clarity >= 7 ? 'good' : 
+                        qualityMetrics?.text_clarity >= 5 ? 'medium' : 'poor';
+    
+    await supabase.from('document_extraction_diagnostics').insert({
+      document_id: document_id,
+      family_id: document.family_id,
+      extraction_method: 'claude_vision',
+      chunk_index: 0,
+      total_chunks: 1,
+      processing_time_ms: processingTime,
+      quality_metrics: qualityMetrics || {},
+      warnings: qualityMetrics?.warnings || [],
+      text_length: extractedText.length,
+      word_count: wordCount,
+      validation_passed: true,
+      quality_score: qualityScore,
+      ai_model_used: 'claude-sonnet-4-20250514'
+    });
 
     // Update document with extracted content
     const { error: updateError } = await supabase
@@ -196,10 +280,12 @@ Output ONLY the extracted text. Do not add commentary or explanations. If this i
         metadata: {
           ...document.metadata,
           extraction_method: 'claude_vision_api',
-          extraction_quality: 'high',
+          extraction_quality: qualityScore,
           extracted_at: new Date().toISOString(),
           text_length: extractedText.length,
-          model: 'claude-sonnet-4-20250514'
+          word_count: wordCount,
+          model: 'claude-sonnet-4-20250514',
+          quality_metrics: qualityMetrics
         }
       })
       .eq('id', document_id);
@@ -209,6 +295,9 @@ Output ONLY the extracted text. Do not add commentary or explanations. If this i
       throw updateError;
     }
 
+    // Final progress update
+    await updateExtractionProgress(supabase, document_id, 100, 'Extraction complete!');
+
     console.log('✅ Document updated with extracted content');
 
     return new Response(
@@ -216,6 +305,9 @@ Output ONLY the extracted text. Do not add commentary or explanations. If this i
         success: true,
         document_id,
         extracted_length: extractedText.length,
+        word_count: wordCount,
+        quality_score: qualityScore,
+        processing_time_ms: processingTime,
         method: 'claude_vision_api'
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

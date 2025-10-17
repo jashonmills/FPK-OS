@@ -300,6 +300,60 @@ export type Database = {
           },
         ]
       }
+      analysis_checkpoints: {
+        Row: {
+          completed: boolean | null
+          completed_at: string | null
+          created_at: string | null
+          data: Json | null
+          document_id: string
+          error_message: string | null
+          family_id: string
+          id: string
+          phase: string
+          updated_at: string | null
+        }
+        Insert: {
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          data?: Json | null
+          document_id: string
+          error_message?: string | null
+          family_id: string
+          id?: string
+          phase: string
+          updated_at?: string | null
+        }
+        Update: {
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          data?: Json | null
+          document_id?: string
+          error_message?: string | null
+          family_id?: string
+          id?: string
+          phase?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analysis_checkpoints_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "analysis_checkpoints_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       analysis_jobs: {
         Row: {
           completed_at: string | null
@@ -666,6 +720,7 @@ export type Database = {
         Row: {
           completed_at: string | null
           created_at: string | null
+          current_phase: string | null
           document_id: string
           document_name: string
           error_message: string | null
@@ -674,12 +729,15 @@ export type Database = {
           insights_extracted: number | null
           job_id: string
           metrics_extracted: number | null
+          progress_percent: number | null
           started_at: string | null
           status: string
+          status_message: string | null
         }
         Insert: {
           completed_at?: string | null
           created_at?: string | null
+          current_phase?: string | null
           document_id: string
           document_name: string
           error_message?: string | null
@@ -688,12 +746,15 @@ export type Database = {
           insights_extracted?: number | null
           job_id: string
           metrics_extracted?: number | null
+          progress_percent?: number | null
           started_at?: string | null
           status?: string
+          status_message?: string | null
         }
         Update: {
           completed_at?: string | null
           created_at?: string | null
+          current_phase?: string | null
           document_id?: string
           document_name?: string
           error_message?: string | null
@@ -702,8 +763,10 @@ export type Database = {
           insights_extracted?: number | null
           job_id?: string
           metrics_extracted?: number | null
+          progress_percent?: number | null
           started_at?: string | null
           status?: string
+          status_message?: string | null
         }
         Relationships: [
           {
@@ -869,6 +932,7 @@ export type Database = {
         Row: {
           ai_model_used: string | null
           charts_mapped: number | null
+          chunk_index: number | null
           classification_method: string | null
           created_at: string | null
           document_id: string
@@ -881,17 +945,22 @@ export type Database = {
           metrics_extracted: number | null
           processing_time_ms: number | null
           progress_records: number | null
+          quality_metrics: Json | null
           quality_score: string
+          requires_manual_review: boolean | null
           retry_count: number | null
           text_length: number
+          total_chunks: number | null
           type_confidence: number | null
           validation_passed: boolean
           validation_reason: string | null
+          warnings: string[] | null
           word_count: number
         }
         Insert: {
           ai_model_used?: string | null
           charts_mapped?: number | null
+          chunk_index?: number | null
           classification_method?: string | null
           created_at?: string | null
           document_id: string
@@ -904,17 +973,22 @@ export type Database = {
           metrics_extracted?: number | null
           processing_time_ms?: number | null
           progress_records?: number | null
+          quality_metrics?: Json | null
           quality_score: string
+          requires_manual_review?: boolean | null
           retry_count?: number | null
           text_length: number
+          total_chunks?: number | null
           type_confidence?: number | null
           validation_passed: boolean
           validation_reason?: string | null
+          warnings?: string[] | null
           word_count: number
         }
         Update: {
           ai_model_used?: string | null
           charts_mapped?: number | null
+          chunk_index?: number | null
           classification_method?: string | null
           created_at?: string | null
           document_id?: string
@@ -927,12 +1001,16 @@ export type Database = {
           metrics_extracted?: number | null
           processing_time_ms?: number | null
           progress_records?: number | null
+          quality_metrics?: Json | null
           quality_score?: string
+          requires_manual_review?: boolean | null
           retry_count?: number | null
           text_length?: number
+          total_chunks?: number | null
           type_confidence?: number | null
           validation_passed?: boolean
           validation_reason?: string | null
+          warnings?: string[] | null
           word_count?: number
         }
         Relationships: [
