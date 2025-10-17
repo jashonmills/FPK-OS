@@ -109,12 +109,12 @@ Your final response MUST be a single JSON object matching this exact schema. Do 
 
     try {
       const abortController = new AbortController();
-      const timeoutId = setTimeout(() => abortController.abort(), 90000); // 90s for comprehensive analysis
+      const timeoutId = setTimeout(() => abortController.abort(), 60000); // 60s timeout
 
       if (progressCallback) {
         await progressCallback('calling_ai_model');
       }
-      console.log('📡 Calling AI Model (Gemini 2.5 Pro)...');
+      console.log('📡 Calling AI Model (Claude Sonnet 4.5)...');
 
       const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
         method: 'POST',
@@ -124,7 +124,7 @@ Your final response MUST be a single JSON object matching this exact schema. Do 
         },
         signal: abortController.signal,
         body: JSON.stringify({
-          model: 'google/gemini-2.5-pro', // Using most powerful model for accuracy
+          model: 'claude-sonnet-4-5', // Most capable model with superior reasoning
           messages: [
             { role: 'system', content: MASTER_PROMPT },
             { role: 'user', content: `Analyze this document:\n\n${extractedContent}` }
@@ -148,6 +148,10 @@ Your final response MUST be a single JSON object matching this exact schema. Do 
           status: response.status,
           error: errorText,
         });
+        
+        if (response.status === 402) {
+          throw new Error('Payment required. Please add credits to your Lovable AI workspace.');
+        }
 
         if (response.status === 429) {
           throw new Error('Rate limit exceeded. Please wait and try again.');
@@ -156,23 +160,30 @@ Your final response MUST be a single JSON object matching this exact schema. Do 
         throw new Error(`Master Analysis API failed with status ${response.status}`);
       }
 
+      console.log('📦 Parsing JSON response...');
       const data = await response.json();
       const content = data.choices?.[0]?.message?.content;
 
       if (!content) {
+        console.error('❌ No content in AI response');
         throw new Error('Master Analysis returned no content');
       }
 
+      console.log('📏 Response length:', content.length, 'characters');
+      
       // Parse JSON response
       let cleanContent = content.trim()
         .replace(/^```(?:json)?\s*/g, '')
         .replace(/\s*```$/g, '');
 
       if (!cleanContent.startsWith('{')) {
+        console.error('❌ Response is not valid JSON, starts with:', cleanContent.substring(0, 100));
         throw new Error('Master Analysis did not return valid JSON');
       }
 
+      console.log('🔍 Parsing JSON structure...');
       const analysisResult = JSON.parse(cleanContent);
+      console.log('✅ JSON parsed successfully');
       
       if (progressCallback) {
         await progressCallback('distributing_data');
@@ -202,7 +213,7 @@ Your final response MUST be a single JSON object matching this exact schema. Do 
       console.error(`Master Analysis attempt ${attempt} failed:`, error);
 
       if (error.name === 'AbortError') {
-        console.error('⏱️ Master Analysis timed out after 90s');
+        console.error('⏱️ Master Analysis timed out after 60s');
         lastError = new Error('Master Analysis timed out. Document may be too large or complex.');
       }
 
