@@ -4,18 +4,27 @@ export async function aiIdentifyDocumentType(
   lovableApiKey: string
 ): Promise<{ doc_type: string; confidence: number } | null> {
   try {
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${lovableApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          {
-            role: 'system',
-            content: `You are a document classifier for special education documents.
+    console.log('🔍 Starting document type identification...');
+    const startTime = Date.now();
+    
+    // Create abort controller for 60s timeout
+    const abortController = new AbortController();
+    const timeoutId = setTimeout(() => abortController.abort(), 60000);
+    
+    try {
+      const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${lovableApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        signal: abortController.signal,
+        body: JSON.stringify({
+          model: 'google/gemini-2.5-flash',
+          messages: [
+            {
+              role: 'system',
+              content: `You are a document classifier for special education documents.
 
 Classify the document into ONE of these types:
 - "Individualized Education Program (IEP)"
@@ -39,19 +48,23 @@ Confidence scoring:
 - 0.7-0.89: Confident (multiple indicators match)
 - 0.5-0.69: Likely (some indicators match)
 - Below 0.5: Uncertain (classify as "Unknown")`
-          },
-          {
-            role: 'user',
-            content: `Classify this document based on the first 3000 characters:\n\n${extractedContent.slice(0, 3000)}`
-          }
-        ],
-      }),
-    });
+            },
+            {
+              role: 'user',
+              content: `Classify this document based on the first 3000 characters:\n\n${extractedContent.slice(0, 3000)}`
+            }
+          ],
+        }),
+      });
+      
+      clearTimeout(timeoutId);
+      const elapsed = Date.now() - startTime;
+      console.log(`✅ Document classification completed in ${elapsed}ms`);
 
-    if (!response.ok) {
-      console.error('AI classification failed:', response.status);
-      return null;
-    }
+      if (!response.ok) {
+        console.error('AI classification failed:', response.status);
+        return null;
+      }
 
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content || '{}';
@@ -70,8 +83,20 @@ Confidence scoring:
     }
     
     return null;
-  } catch (error) {
+    } catch (fetchError: any) {
+      clearTimeout(timeoutId);
+      
+      if (fetchError.name === 'AbortError') {
+        console.error('❌ Document classification timed out after 60s');
+        return null;
+      }
+      throw fetchError;
+    }
+  } catch (error: any) {
     console.error('Error in AI document classification:', error);
+    if (error.name === 'AbortError') {
+      console.error('⏱️ Request timed out');
+    }
     return null;
   }
 }
@@ -86,13 +111,22 @@ export async function analyzeWithRetry(
   attempt: number = 1
 ): Promise<{ result: any; retryCount: number }> {
   
-  const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${lovableApiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
+  console.log(`🔬 Starting AI analysis (attempt ${attempt})...`);
+  const startTime = Date.now();
+  
+  // Create abort controller for 60s timeout
+  const abortController = new AbortController();
+  const timeoutId = setTimeout(() => abortController.abort(), 60000);
+  
+  try {
+    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${lovableApiKey}`,
+        "Content-Type": "application/json",
+      },
+      signal: abortController.signal,
+      body: JSON.stringify({
       model: "google/gemini-2.5-flash",
       messages: [
         { role: "system", content: systemPrompt },
@@ -130,13 +164,18 @@ Return your analysis as a valid JSON object.`
       ],
     }),
   });
+  
+  clearTimeout(timeoutId);
+  const elapsed = Date.now() - startTime;
+  console.log(`⏱️ AI analysis request completed in ${elapsed}ms`);
 
   if (!aiResponse.ok) {
     const errorText = await aiResponse.text();
     console.error("❌ AI API error:", {
       status: aiResponse.status,
       statusText: aiResponse.statusText,
-      error: errorText
+      error: errorText,
+      elapsed_ms: elapsed
     });
     
     // Return more specific error for rate limiting
@@ -185,4 +224,14 @@ Return your analysis as a valid JSON object.`
   console.log(`📊 Analysis complete (attempt ${attempt}): ${analysisResult.metrics?.length || 0} metrics, ${analysisResult.insights?.length || 0} insights, ${analysisResult.progress?.length || 0} progress records`);
   
   return { result: analysisResult, retryCount: attempt - 1 };
+  } catch (fetchError: any) {
+    clearTimeout(timeoutId);
+    
+    if (fetchError.name === 'AbortError') {
+      const elapsed = Date.now() - startTime;
+      console.error(`❌ AI analysis timed out after ${elapsed}ms`);
+      throw new Error("Analysis request timed out after 60 seconds. Please try again.");
+    }
+    throw fetchError;
+  }
 }

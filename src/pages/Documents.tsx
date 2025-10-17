@@ -295,55 +295,68 @@ export default function Documents() {
         }
       }
 
-      // Now analyze the document
+      // Now analyze the document with timeout protection
       toast.loading("Analyzing document with AI...", { id: toastId });
       
-      // Add retry logic for rate limiting
-      let retries = 0;
-      const maxRetries = 3;
-      let delay = 2000; // Start with 2 second delay
-      
-      while (retries < maxRetries) {
-        try {
-          const { data, error } = await supabase.functions.invoke("analyze-document", {
-            body: { document_id: documentId },
-          });
+      // Client-side timeout: 90 seconds max
+      const analysisPromise = (async () => {
+        let retries = 0;
+        const maxRetries = 3;
+        let delay = 2000;
+        
+        while (retries < maxRetries) {
+          try {
+            const { data, error } = await supabase.functions.invoke("analyze-document", {
+              body: { document_id: documentId },
+            });
 
-          if (error) {
-            // Check if it's a rate limit error
-            if (error.message?.includes('429') || error.message?.includes('Too Many Requests')) {
-              retries++;
-              if (retries < maxRetries) {
-                toast.loading(`Rate limited, retrying in ${delay/1000}s...`, { id: toastId });
-                await new Promise(resolve => setTimeout(resolve, delay));
-                delay *= 2; // Exponential backoff
-                continue;
+            if (error) {
+              if (error.message?.includes('429') || error.message?.includes('Too Many Requests')) {
+                retries++;
+                if (retries < maxRetries) {
+                  toast.loading(`Rate limited, retrying in ${delay/1000}s...`, { id: toastId });
+                  await new Promise(resolve => setTimeout(resolve, delay));
+                  delay *= 2;
+                  continue;
+                }
               }
+              throw error;
             }
-            throw error;
-          }
 
-          toast.success(`Analysis complete! Found ${data.metrics_count} metrics, ${data.insights_count} insights`, { id: toastId });
-          queryClient.invalidateQueries({ queryKey: ["documents"] });
-          break; // Success, exit loop
-        } catch (innerError) {
-          if (retries >= maxRetries - 1) {
-            throw innerError;
+            return data;
+          } catch (innerError) {
+            if (retries >= maxRetries - 1) {
+              throw innerError;
+            }
           }
         }
-      }
+      })();
+      
+      // Race between analysis and timeout
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Analysis timed out after 90 seconds')), 90000)
+      );
+      
+      const data = await Promise.race([analysisPromise, timeoutPromise]) as any;
+      
+      toast.success(`Analysis complete! Found ${data.metrics_count} metrics, ${data.insights_count} insights`, { id: toastId });
+      queryClient.invalidateQueries({ queryKey: ["documents"] });
     } catch (error: any) {
       console.error('Document analysis error:', error);
       
       // Better error messages
       let errorMsg = "Failed to analyze document";
-      if (error.message?.includes('429')) {
-        errorMsg = "Too many requests - please wait a moment and try again";
+      if (error.message?.includes('timed out')) {
+        errorMsg = "⏱️ Analysis timed out - the document may be too large or the AI is slow. Please try again.";
+      } else if (error.message?.includes('429') || error.message?.includes('Too Many Requests')) {
+        errorMsg = "🚦 Too many requests - please wait 30 seconds and try again";
+      } else if (error.message?.includes('Rate limit')) {
+        errorMsg = "🚦 Rate limit exceeded - please wait a moment and try again";
       } else if (error.message) {
         errorMsg = error.message;
       }
       
-      toast.error(errorMsg, { id: toastId });
+      toast.error(errorMsg, { id: toastId, duration: 6000 });
     } finally {
       setAnalyzingDocId(null);
     }
