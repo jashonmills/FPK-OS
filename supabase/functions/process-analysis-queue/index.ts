@@ -50,6 +50,29 @@ serve(async (req) => {
       const processingPromises = queueItems.map(async (item: any) => {
         const startTime = Date.now();
         
+        // Get document details
+        const { data: doc } = await supabase
+          .from('documents')
+          .select('file_name')
+          .eq('id', item.document_id)
+          .single();
+        
+        const documentName = doc?.file_name || 'Unknown';
+        
+        // Create status tracking record
+        const { data: statusRecord } = await supabase
+          .from('document_analysis_status')
+          .insert({
+            job_id: item.job_id,
+            document_id: item.document_id,
+            family_id: item.family_id,
+            document_name: documentName,
+            status: 'extracting',
+            started_at: new Date().toISOString()
+          })
+          .select()
+          .single();
+        
         try {
           // Step 1: Extract text with vision
           console.log(`  📄 Extracting: ${item.document_id}`);
@@ -67,6 +90,15 @@ serve(async (req) => {
             throw new Error(`Extraction failed: ${extractError.message}`);
           }
 
+          // Update status to analyzing
+          await supabase
+            .from('document_analysis_status')
+            .update({
+              status: 'analyzing',
+              status_message: 'Running AI analysis...'
+            })
+            .eq('id', statusRecord.id);
+
           // Step 2: Analyze document
           console.log(`  🧠 Analyzing: ${item.document_id}`);
           const { data: analysisData, error: analysisError } = await supabase.functions.invoke(
@@ -83,16 +115,39 @@ serve(async (req) => {
             throw new Error(`Analysis failed: ${analysisError.message}`);
           }
 
+          // Get final metrics/insights count
+          const [{ count: metricsCount }, { count: insightsCount }] = await Promise.all([
+            supabase
+              .from('document_metrics')
+              .select('id', { count: 'exact', head: true })
+              .eq('document_id', item.document_id),
+            supabase
+              .from('ai_insights')
+              .select('id', { count: 'exact', head: true })
+              .eq('document_id', item.document_id)
+          ]);
+
           // Mark as completed
           const processingTime = Date.now() - startTime;
-          await supabase
-            .from('analysis_queue')
-            .update({
-              status: 'completed',
-              completed_at: new Date().toISOString(),
-              processing_time_ms: processingTime
-            })
-            .eq('id', item.id);
+          await Promise.all([
+            supabase
+              .from('analysis_queue')
+              .update({
+                status: 'completed',
+                completed_at: new Date().toISOString(),
+                processing_time_ms: processingTime
+              })
+              .eq('id', item.id),
+            supabase
+              .from('document_analysis_status')
+              .update({
+                status: 'complete',
+                metrics_extracted: metricsCount || 0,
+                insights_extracted: insightsCount || 0,
+                completed_at: new Date().toISOString()
+              })
+              .eq('id', statusRecord.id)
+          ]);
 
           console.log(`  ✅ Completed: ${item.document_id} (${processingTime}ms)`);
           return { success: true, item };
@@ -103,6 +158,16 @@ serve(async (req) => {
           // Update queue item with error
           const processingTime = Date.now() - startTime;
           const retryCount = item.retry_count + 1;
+          
+          // Update status record with failure
+          await supabase
+            .from('document_analysis_status')
+            .update({
+              status: 'failed',
+              error_message: error.message,
+              completed_at: new Date().toISOString()
+            })
+            .eq('id', statusRecord.id);
           
           // Check if we should retry
           if (retryCount < item.max_retries && 
