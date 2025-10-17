@@ -97,44 +97,37 @@ serve(async (req) => {
   }
 });
 
-// Simple PDF text extraction function
+// Production-grade PDF text extraction using pdf-parse
 async function extractPdfText(pdfData: Uint8Array): Promise<string> {
   try {
-    // Convert to text using a simple extraction
-    // This is a basic implementation - we'll use pdfjs via npm package
-    const decoder = new TextDecoder('utf-8');
-    let text = '';
+    // Import pdf-parse from npm (Deno-compatible)
+    const pdfParse = (await import("npm:pdf-parse@1.1.1")).default;
     
-    // Try to extract readable text from PDF
-    // This is a simplified approach - in production, you'd use a proper PDF library
-    const dataStr = decoder.decode(pdfData);
+    // Convert Uint8Array to Buffer for pdf-parse
+    const buffer = Buffer.from(pdfData);
     
-    // Extract text between common PDF text markers
-    const textMatches = dataStr.match(/\((.*?)\)/g);
-    if (textMatches) {
-      text = textMatches
-        .map(match => match.slice(1, -1))
-        .join(' ')
-        .replace(/\\[nrt]/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim();
+    // Extract text using pdf-parse
+    const pdfData_parsed = await pdfParse(buffer);
+    
+    const extractedText = pdfData_parsed.text;
+    const pageCount = pdfData_parsed.numpages;
+    
+    console.log(`✅ Successfully extracted ${extractedText.length} characters from ${pageCount} pages`);
+    
+    // Warn if extracted text is suspiciously short (might be scanned/image-based PDF)
+    if (extractedText.length < 100) {
+      console.warn('⚠️ Extracted text is suspiciously short. PDF might be scanned/image-based.');
+      return 'Unable to extract text - document may be scanned. OCR required.';
     }
     
-    // If no text extracted, try alternative method
-    if (!text || text.length < 100) {
-      // Look for text between BT and ET markers (PDF text objects)
-      const btMatches = dataStr.match(/BT\s+(.*?)\s+ET/gs);
-      if (btMatches) {
-        text = btMatches.join(' ')
-          .replace(/[^a-zA-Z0-9\s.,;:!?()-]/g, ' ')
-          .replace(/\s+/g, ' ')
-          .trim();
-      }
-    }
-
-    return text || 'Unable to extract text from PDF';
+    // Clean up the extracted text
+    const cleanedText = extractedText
+      .replace(/\s+/g, ' ')  // Normalize whitespace
+      .trim();
+    
+    return cleanedText;
   } catch (error: any) {
-    console.error('PDF text extraction error:', error);
+    console.error('❌ PDF extraction error:', error);
     return `Error extracting text: ${error.message}`;
   }
 }
