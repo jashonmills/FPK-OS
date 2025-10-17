@@ -33,9 +33,6 @@ serve(async (req) => {
     const fileBuffer = await file.arrayBuffer();
     const uint8Array = new Uint8Array(fileBuffer);
     
-    // Note: Text extraction temporarily disabled - will be added via separate analysis function
-    const extractedContent = `Document uploaded: ${file.name} (${Math.round(file.size / 1024)} KB)`;
-
     // Upload file to storage
     const fileName = `${Date.now()}_${file.name}`;
     const filePath = `${familyId}/${studentId}/${fileName}`;
@@ -59,7 +56,7 @@ serve(async (req) => {
       .from('family-documents')
       .getPublicUrl(filePath);
 
-    // Insert document record with extracted content
+    // Insert document record with placeholder content
     const { data: documentData, error: dbError } = await supabase
       .from('documents')
       .insert({
@@ -72,10 +69,10 @@ serve(async (req) => {
         file_size_kb: Math.round(file.size / 1024),
         category,
         document_date: documentDate || null,
-        extracted_content: extractedContent,
+        extracted_content: `Document uploaded: ${file.name} (${Math.round(file.size / 1024)} KB) - Extraction pending`,
         metadata: {
-          extraction_quality: 'pending',
-          note: 'Text extraction will be performed during analysis'
+          extraction_status: 'pending',
+          note: 'Awaiting text extraction via Claude Vision'
         }
       })
       .select()
@@ -88,108 +85,92 @@ serve(async (req) => {
       throw dbError;
     }
 
-    // Check if AI analysis pipeline is enabled
-    const { data: aiPipelineFlag } = await supabase
-      .from('feature_flags')
-      .select('is_enabled')
-      .eq('flag_key', 'enable-ai-analysis-pipeline')
-      .single();
+    console.log('✅ Document record created, initiating vision extraction...');
 
-    if (aiPipelineFlag?.is_enabled) {
-      console.log('🔄 AI analysis pipeline enabled - triggering extraction and analysis...');
-      
-      const processPipeline = (async () => {
-        const maxRetries = 3;
-        let retryCount = 0;
-        
-        // Check which extraction engine to use
-        const { data: visionFlag } = await supabase
-          .from('feature_flags')
-          .select('is_enabled')
-          .eq('flag_key', 'use-vision-extraction')
-          .single();
-        
-        const { data: docAiFlag } = await supabase
-          .from('feature_flags')
-          .select('is_enabled')
-          .eq('flag_key', 'use-document-ai-extraction')
-          .single();
-        
-        // Priority: Vision API > Document AI > Basic extraction
-        const extractionFunction = visionFlag?.is_enabled
-          ? 'extract-text-with-vision'
-          : docAiFlag?.is_enabled
-            ? 'extract-text-with-document-ai'
-            : 'extract-document-text';
-        
-        // Step 1: Extract text from PDF
-        console.log(`📄 Step 1: Extracting text using ${extractionFunction}...`);
-        while (retryCount < maxRetries) {
-          try {
-            const { data: extractData, error: extractError } = await supabase.functions.invoke(
-              extractionFunction,
-              { body: { document_id: documentData.id } }
-            );
-            
-            if (extractError) {
-              throw extractError;
-            }
-            
-            console.log('✅ Text extraction completed:', extractData);
-            break;
-          } catch (error) {
-            retryCount++;
-            console.error(`Extraction attempt ${retryCount} failed:`, error);
-            
-            if (retryCount >= maxRetries) {
-              console.error('❌ Text extraction failed after max retries');
-              return;
-            }
-            
-            await new Promise(resolve => setTimeout(resolve, 2000 * retryCount));
-          }
-        }
-        
-        // Step 2: Analyze document with real content
-        console.log('🧠 Step 2: Analyzing document...');
-        retryCount = 0;
-        
-        while (retryCount < maxRetries) {
-          try {
-            const { error: analyzeError } = await supabase.functions.invoke(
-              'analyze-document',
-              { body: { document_id: documentData.id } }
-            );
-            
-            if (analyzeError) {
-              throw analyzeError;
-            }
-            
-            console.log('✅ Analysis completed successfully');
-            break;
-          } catch (error) {
-            retryCount++;
-            console.error(`Analysis attempt ${retryCount} failed:`, error);
-            
-            if (retryCount >= maxRetries) {
-              console.error('❌ Analysis failed after max retries');
-              return;
-            }
-            
-            await new Promise(resolve => setTimeout(resolve, 2000 * retryCount));
-          }
-        }
-      })();
+    // ========================================================================
+    // UNIFIED EXTRACTION PATHWAY: Claude Vision (No Fallbacks)
+    // ========================================================================
+    const maxExtractionRetries = 2;
+    let extractionAttempt = 0;
+    let extractionSucceeded = false;
+    let extractionError = null;
 
-      // Pipeline runs in background
-    } else {
-      console.log('✅ Document uploaded successfully (AI analysis pipeline disabled)');
+    while (extractionAttempt < maxExtractionRetries && !extractionSucceeded) {
+      extractionAttempt++;
+      console.log(`📄 Text extraction attempt ${extractionAttempt}/${maxExtractionRetries}...`);
+
+      try {
+        const { data: extractData, error: extractError } = await supabase.functions.invoke(
+          'extract-text-with-vision',
+          { body: { document_id: documentData.id } }
+        );
+
+        if (extractError) {
+          throw extractError;
+        }
+
+        console.log(`✅ Vision extraction completed on attempt ${extractionAttempt}`);
+        extractionSucceeded = true;
+      } catch (error) {
+        extractionError = error;
+        console.error(`Extraction attempt ${extractionAttempt} failed:`, error);
+
+        if (extractionAttempt >= maxExtractionRetries) {
+          console.error('❌ Text extraction failed after max retries');
+
+          // Update document with FAILED status
+          await supabase
+            .from('documents')
+            .update({
+              metadata: {
+                extraction_status: 'failed',
+                extraction_error: error instanceof Error ? error.message : 'Unknown extraction error',
+                extraction_attempts: extractionAttempt
+              }
+            })
+            .eq('id', documentData.id);
+
+          return new Response(
+            JSON.stringify({
+              success: false,
+              error: 'Critical Error: Text extraction failed',
+              message: 'Unable to extract text from document. Please try uploading again or contact support.',
+              document: documentData
+            }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+          );
+        }
+
+        // Wait before retry (exponential backoff)
+        await new Promise(resolve => setTimeout(resolve, 2000 * extractionAttempt));
+      }
+    }
+
+    // If extraction succeeded, proceed to analysis
+    if (extractionSucceeded) {
+      console.log('🧠 Extraction successful, triggering AI analysis...');
+
+      try {
+        const { error: analyzeError } = await supabase.functions.invoke(
+          'analyze-document',
+          { body: { document_id: documentData.id } }
+        );
+
+        if (analyzeError) {
+          console.error('Analysis invocation error:', analyzeError);
+          // Don't fail the upload - analysis can be retried later
+        }
+      } catch (analysisError) {
+        console.error('Analysis trigger failed:', analysisError);
+        // Don't fail the upload - analysis can be retried later
+      }
     }
 
     return new Response(
       JSON.stringify({
         success: true,
-        document: documentData
+        document: documentData,
+        extraction_status: extractionSucceeded ? 'completed' : 'failed'
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

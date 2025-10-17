@@ -106,14 +106,14 @@ serve(async (req) => {
                 .eq('job_id', job.id)
                 .eq('document_id', doc.id);
 
-              // Step 1: Extract text with Vision API (force re-extract)
-              console.log(`  📄 Extracting text for ${doc.file_name}...`);
+              // Step 1: Extract text with Claude Vision (UNIFIED PATHWAY)
+              console.log(`  📄 Extracting text for ${doc.file_name} via Claude Vision...`);
               const { error: extractError } = await supabase.functions.invoke(
                 'extract-text-with-vision',
                 {
                   body: { 
                     document_id: doc.id,
-                    force_re_extract: true  // Force fresh extraction
+                    force_re_extract: true
                   }
                 }
               );
@@ -129,8 +129,8 @@ serve(async (req) => {
                 .eq('job_id', job.id)
                 .eq('document_id', doc.id);
 
-              // Step 2: Analyze document
-              console.log(`  🧠 Analyzing ${doc.file_name}...`);
+              // Step 2: Analyze document with Master Prompt (UNIFIED AI CALL)
+              console.log(`  🧠 Analyzing ${doc.file_name} with Master Prompt...`);
               const { data: analysisData, error: analysisError } = await supabase.functions.invoke(
                 'analyze-document',
                 {
@@ -145,13 +145,13 @@ serve(async (req) => {
                 throw new Error(`Analysis failed: ${analysisError.message}`);
               }
 
-              // Update status to complete
+              // Update status to complete with Master Prompt results
               await supabase
                 .from('document_analysis_status')
                 .update({ 
                   status: 'complete',
-                  metrics_extracted: analysisData?.metrics_count || 0,
-                  insights_extracted: analysisData?.insights_count || 0,
+                  metrics_extracted: analysisData?.metrics_extracted || 0,
+                  insights_extracted: analysisData?.insights_generated || 0,
                   completed_at: new Date().toISOString()
                 })
                 .eq('job_id', job.id)
