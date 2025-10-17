@@ -5,7 +5,7 @@
 
 export async function masterAnalyzeDocument(
   extractedContent: string,
-  lovableApiKey: string,
+  anthropicApiKey: string,
   progressCallback?: (stage: string) => Promise<void>
 ): Promise<{ result: any; retryCount: number }> {
   
@@ -114,22 +114,23 @@ Your final response MUST be a single JSON object matching this exact schema. Do 
       if (progressCallback) {
         await progressCallback('calling_ai_model');
       }
-      console.log('📡 Calling AI Model (Gemini 2.5 Pro)...');
+      console.log('📡 Calling AI Model (Claude Sonnet 4.5)...');
 
-      const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${lovableApiKey}`,
+          'x-api-key': anthropicApiKey,
+          'anthropic-version': '2023-06-01',
           'Content-Type': 'application/json',
         },
         signal: abortController.signal,
         body: JSON.stringify({
-          model: 'google/gemini-2.5-pro', // Most powerful model for comprehensive analysis
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 16000,
+          system: MASTER_PROMPT,
           messages: [
-            { role: 'system', content: MASTER_PROMPT },
             { role: 'user', content: `Analyze this document:\n\n${extractedContent}` }
           ],
-          temperature: 0.2, // Low temperature for consistent, structured output
         }),
       });
 
@@ -162,7 +163,7 @@ Your final response MUST be a single JSON object matching this exact schema. Do 
 
       console.log('📦 Parsing JSON response...');
       const data = await response.json();
-      const content = data.choices?.[0]?.message?.content;
+      const content = data.content?.[0]?.text;
 
       if (!content) {
         console.error('❌ No content in AI response');

@@ -27,15 +27,15 @@ serve(async (req) => {
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-    const lovableApiKey = Deno.env.get("LOVABLE_API_KEY");
+    const anthropicApiKey = Deno.env.get("ANTHROPIC_API_KEY");
     
     console.log('🔑 Environment check:', {
       hasSupabaseUrl: !!supabaseUrl,
       hasSupabaseKey: !!supabaseKey,
-      hasLovableKey: !!lovableApiKey
+      hasAnthropicKey: !!anthropicApiKey
     });
 
-    if (!supabaseUrl || !supabaseKey || !lovableApiKey) {
+    if (!supabaseUrl || !supabaseKey || !anthropicApiKey) {
       console.error('❌ Missing required environment variables');
       return new Response(
         JSON.stringify({ error: "Server configuration error" }),
@@ -155,7 +155,7 @@ serve(async (req) => {
     try {
       const analysisData = await masterAnalyzeDocument(
         document.extracted_content,
-        lovableApiKey,
+        anthropicApiKey,
         async (stage: string) => {
           // Progress callback for granular status updates
           await supabase
@@ -220,12 +220,14 @@ serve(async (req) => {
       .update({ 
         category: analysisResult.identified_document_type,
         last_analyzed_at: new Date().toISOString(),
+        analysis_model: 'claude-sonnet-4-20250514',
         metadata: {
           ...document.metadata,
           analysis_status: 'completed',
           identified_type: analysisResult.identified_document_type,
           confidence_score: analysisResult.confidence_score,
-          analysis_completed_at: new Date().toISOString()
+          analysis_completed_at: new Date().toISOString(),
+          analysis_model: 'claude-sonnet-4-20250514'
         }
       })
       .eq('id', document_id);
