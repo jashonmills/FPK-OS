@@ -179,3 +179,6 @@ verify_jwt = false
 
 [functions.extract-text-with-document-ai]
 verify_jwt = false
+
+[functions.extract-text-with-vision]
+verify_jwt = false

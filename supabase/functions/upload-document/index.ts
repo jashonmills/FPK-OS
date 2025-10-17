@@ -103,15 +103,24 @@ serve(async (req) => {
         let retryCount = 0;
         
         // Check which extraction engine to use
-        const { data: extractionFlag } = await supabase
+        const { data: visionFlag } = await supabase
+          .from('feature_flags')
+          .select('is_enabled')
+          .eq('flag_key', 'use-vision-extraction')
+          .single();
+        
+        const { data: docAiFlag } = await supabase
           .from('feature_flags')
           .select('is_enabled')
           .eq('flag_key', 'use-document-ai-extraction')
           .single();
         
-        const extractionFunction = extractionFlag?.is_enabled
-          ? 'extract-text-with-document-ai'
-          : 'extract-document-text';
+        // Priority: Vision API > Document AI > Basic extraction
+        const extractionFunction = visionFlag?.is_enabled
+          ? 'extract-text-with-vision'
+          : docAiFlag?.is_enabled
+            ? 'extract-text-with-document-ai'
+            : 'extract-document-text';
         
         // Step 1: Extract text from PDF
         console.log(`📄 Step 1: Extracting text using ${extractionFunction}...`);
