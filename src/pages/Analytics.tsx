@@ -40,21 +40,8 @@ const Analytics = () => {
     }, 300);
   };
 
-  // Early return if no student selected
-  if (!selectedStudent) {
-    return (
-      <div className="container mx-auto p-6">
-        <Alert>
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            Please select a student to view analytics.
-          </AlertDescription>
-        </Alert>
-      </div>
-    );
-  }
-
   // Fetch critical metadata: subscription tier and unlocked charts
+  // MUST be called before any conditional returns (Rules of Hooks)
   const { data: userMeta, isLoading: isLoadingMeta } = useQuery({
     queryKey: ["user-analytics-meta", selectedFamily?.id],
     queryFn: async () => {
@@ -72,6 +59,20 @@ const Analytics = () => {
     },
     enabled: !!selectedFamily?.id && !!selectedStudent?.id
   });
+
+  // Early return if no student selected (AFTER all hooks)
+  if (!selectedStudent) {
+    return (
+      <div className="container mx-auto p-6">
+        <Alert>
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Please select a student to view analytics.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
 
   // Show single page loader until metadata ready
   if (isLoadingMeta || !userMeta) {
