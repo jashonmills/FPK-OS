@@ -11,7 +11,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { RefreshCw, AlertTriangle } from "lucide-react";
+import { RefreshCw, AlertTriangle, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useFamily } from "@/contexts/FamilyContext";
@@ -19,8 +19,10 @@ import { useFamily } from "@/contexts/FamilyContext";
 export const ResetAnalysisCard = () => {
   const [showResetDialog, setShowResetDialog] = useState(false);
   const [showReanalyzeDialog, setShowReanalyzeDialog] = useState(false);
+  const [showClearDialog, setShowClearDialog] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
   const [isReanalyzing, setIsReanalyzing] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
   const { toast } = useToast();
   const { selectedFamily } = useFamily();
 
@@ -83,6 +85,37 @@ export const ResetAnalysisCard = () => {
     } finally {
       setIsReanalyzing(false);
       setShowReanalyzeDialog(false);
+    }
+  };
+
+  const handleClearAllData = async () => {
+    if (!selectedFamily?.id) return;
+
+    setIsClearing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("clear-family-data", {
+        body: { family_id: selectedFamily.id },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "All Family Data Cleared",
+        description: "All documents, logs, metrics, and AI insights have been permanently deleted. Your family and student profiles remain intact.",
+      });
+
+      // Reload the page to reflect the clean state
+      setTimeout(() => window.location.reload(), 1500);
+    } catch (error) {
+      console.error("Clear data error:", error);
+      toast({
+        title: "Clear Failed",
+        description: error instanceof Error ? error.message : "Failed to clear family data",
+        variant: "destructive",
+      });
+    } finally {
+      setIsClearing(false);
+      setShowClearDialog(false);
     }
   };
 
@@ -163,6 +196,46 @@ export const ResetAnalysisCard = () => {
             </Button>
           </CardContent>
         </Card>
+
+        <Card className="border-destructive">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-destructive">
+              <Trash2 className="h-5 w-5" />
+              Clear All Family Data
+            </CardTitle>
+            <CardDescription>
+              Permanently delete ALL documents, logs, metrics, and AI insights
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2 text-sm">
+              <p className="font-medium">⚠️ This will permanently delete:</p>
+              <ul className="list-disc list-inside space-y-1 text-muted-foreground ml-2">
+                <li>All uploaded documents and files</li>
+                <li>All educator, parent, and incident logs</li>
+                <li>All document metrics and AI insights</li>
+                <li>All goals and progress tracking data</li>
+                <li>All chat conversations</li>
+                <li>All sleep records</li>
+              </ul>
+              <p className="font-medium mt-4">✅ This will preserve:</p>
+              <ul className="list-disc list-inside space-y-1 text-muted-foreground ml-2">
+                <li>Your family account and settings</li>
+                <li>All student profiles</li>
+                <li>Family members and their roles</li>
+              </ul>
+            </div>
+            <Button
+              variant="destructive"
+              onClick={() => setShowClearDialog(true)}
+              disabled={isClearing}
+              className="w-full"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Clear All Data
+            </Button>
+          </CardContent>
+        </Card>
       </div>
 
       <AlertDialog open={showReanalyzeDialog} onOpenChange={setShowReanalyzeDialog}>
@@ -218,6 +291,35 @@ export const ResetAnalysisCard = () => {
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               {isResetting ? "Resetting..." : "Yes, Reset Everything"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showClearDialog} onOpenChange={setShowClearDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <Trash2 className="h-5 w-5 text-destructive" />
+              Clear All Family Data?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="space-y-2">
+              <p>
+                This action cannot be undone. This will permanently delete ALL documents, logs, metrics, insights, goals, and chat conversations for your family.
+              </p>
+              <p className="font-medium text-foreground">
+                Only your family account and student profiles will remain. You'll start with a completely clean slate.
+              </p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isClearing}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleClearAllData}
+              disabled={isClearing}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isClearing ? "Clearing..." : "Yes, Clear All Data"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
