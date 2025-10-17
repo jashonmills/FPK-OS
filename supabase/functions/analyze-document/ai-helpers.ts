@@ -114,7 +114,7 @@ Your final response MUST be a single JSON object matching this exact schema. Do 
       if (progressCallback) {
         await progressCallback('calling_ai_model');
       }
-      console.log('📡 Calling AI Model (Claude Sonnet 4.5)...');
+      console.log('📡 Calling AI Model (Gemini 2.5 Pro)...');
 
       const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
         method: 'POST',
@@ -124,7 +124,7 @@ Your final response MUST be a single JSON object matching this exact schema. Do 
         },
         signal: abortController.signal,
         body: JSON.stringify({
-          model: 'claude-sonnet-4-5', // Most capable model with superior reasoning
+          model: 'google/gemini-2.5-pro', // Most powerful model for comprehensive analysis
           messages: [
             { role: 'system', content: MASTER_PROMPT },
             { role: 'user', content: `Analyze this document:\n\n${extractedContent}` }
