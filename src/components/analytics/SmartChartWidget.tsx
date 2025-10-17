@@ -82,7 +82,7 @@ export const SmartChartWidget = ({
   // Render chart component
   const ChartComponent = config.component;
 
-  // True glassmorphism container with conditional neon glow
+  // Dark glassmorphism container with conditional neon glow
   return (
     <div 
       className={cn(
@@ -90,21 +90,21 @@ export const SmartChartWidget = ({
         finalMode === "live" && "live-chart-glow"
       )}
       style={{
-        backgroundColor: 'rgba(10, 25, 47, 0.15)',
-        backdropFilter: 'blur(5px)',
-        WebkitBackdropFilter: 'blur(5px)',
-        borderColor: finalMode === "live" ? 'rgba(56, 189, 248, 0.8)' : 'rgba(6, 182, 212, 0.4)',
+        backgroundColor: 'rgba(10, 25, 47, 0.60)',  // FIXED: Much darker, more opaque glass
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        borderColor: finalMode === "live" ? 'rgba(56, 189, 248, 0.8)' : 'rgba(6, 182, 212, 0.3)',
         boxShadow: finalMode === "live" 
-          ? '0 0 20px rgba(56, 189, 248, 0.5), 0 0 30px rgba(56, 189, 248, 0.3)'
-          : '0 0 15px rgba(0, 180, 255, 0.15)'
+          ? '0 0 25px rgba(56, 189, 248, 0.6), 0 0 40px rgba(56, 189, 248, 0.4)'
+          : '0 0 15px rgba(0, 180, 255, 0.1)'
       }}
     >
       {/* Chart Title - top left corner inside glass */}
       <div className="absolute top-1 left-1.5 z-20">
         <h3 
-          className="text-[9px] font-bold text-cyan-400/90"
+          className="text-[10px] font-bold text-cyan-100"
           style={{
-            textShadow: '0 0 8px rgba(6, 182, 212, 0.4)'
+            textShadow: '0 0 10px rgba(6, 182, 212, 0.6), 0 1px 2px rgba(0, 0, 0, 0.8)'
           }}
         >
           {config.title}
@@ -114,13 +114,13 @@ export const SmartChartWidget = ({
       {/* Status badges - top right corner */}
       <div className="absolute top-1 right-1.5 z-20 flex gap-1">
         {finalMode === "live" && (
-          <Badge variant="default" className="bg-cyan-500/30 text-cyan-300 border-cyan-400/50 text-[8px] px-1.5 py-0 font-bold">
-            <TrendingUp className="h-2 w-2 mr-0.5" />
+          <Badge variant="default" className="bg-cyan-500/40 text-cyan-50 border-cyan-400/60 text-[8px] px-1.5 py-0 font-bold shadow-[0_0_15px_rgba(6,182,212,0.5)]">
+            <TrendingUp className="h-2.5 w-2.5 mr-0.5" />
             LIVE
           </Badge>
         )}
         {finalMode === "demo" && (
-          <Badge variant="outline" className="border-amber-400/50 text-amber-400 text-[8px] px-1 py-0">
+          <Badge variant="outline" className="border-amber-400/60 bg-amber-500/20 text-amber-200 text-[8px] px-1 py-0">
             <Sparkles className="h-2 w-2" />
           </Badge>
         )}
@@ -141,23 +141,23 @@ export const SmartChartWidget = ({
           <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
             <div className="text-center space-y-2 p-3 max-w-[180px] pointer-events-auto"
               style={{
-                backgroundColor: 'rgba(10, 25, 47, 0.85)',
-                backdropFilter: 'blur(8px)',
+                backgroundColor: 'rgba(10, 25, 47, 0.92)',
+                backdropFilter: 'blur(10px)',
                 borderRadius: '12px',
-                border: '1px solid rgba(139, 92, 246, 0.3)',
-                boxShadow: '0 0 20px rgba(139, 92, 246, 0.4)'
+                border: '1px solid rgba(139, 92, 246, 0.4)',
+                boxShadow: '0 0 25px rgba(139, 92, 246, 0.5)'
               }}
             >
-              <div className="w-10 h-10 mx-auto rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 flex items-center justify-center">
-                <Lock className="h-5 w-5 text-purple-400" />
+              <div className="w-10 h-10 mx-auto rounded-full bg-gradient-to-r from-purple-500/30 to-pink-500/30 flex items-center justify-center">
+                <Lock className="h-5 w-5 text-purple-300" />
               </div>
-              <h3 className="text-xs font-bold text-purple-300">Premium Chart</h3>
-              <p className="text-[9px] text-cyan-300/60">
+              <h3 className="text-xs font-bold text-purple-200">Premium Chart</h3>
+              <p className="text-[9px] text-cyan-200/70">
                 {config.subscriptionTier === "pro" ? "Pro" : "Team"} plan required
               </p>
               <Button 
                 size="sm"
-                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 h-6 text-[9px] px-2"
+                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 h-6 text-[9px] px-2 shadow-[0_0_15px_rgba(139,92,246,0.4)]"
                 onClick={() => navigate("/pricing")}
               >
                 Upgrade Now
@@ -196,13 +196,13 @@ export const SmartChartWidget = ({
             </div>
           </div>
           {/* Compact upload CTA at bottom */}
-          <div className="flex-none px-1.5 pb-1 border-t border-amber-400/10 bg-amber-500/5">
-            <div className="text-[7px] text-amber-300/70 flex items-center justify-between gap-1 py-0.5">
-              <span className="truncate">Upload to unlock live data</span>
+          <div className="flex-none px-1.5 pb-1 border-t border-amber-400/20 bg-amber-500/10">
+            <div className="text-[7px] text-amber-200/80 flex items-center justify-between gap-1 py-0.5">
+              <span className="truncate font-medium">Upload to unlock live data</span>
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="h-4 text-[7px] px-1 border-amber-400/30 hover:bg-amber-500/10 text-amber-400 flex-shrink-0"
+                className="h-4 text-[7px] px-1.5 border border-amber-400/40 hover:bg-amber-500/20 text-amber-200 flex-shrink-0"
                 onClick={() => navigate("/documents")}
               >
                 Upload
