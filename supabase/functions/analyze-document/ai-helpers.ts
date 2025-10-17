@@ -6,10 +6,13 @@
 export async function masterAnalyzeDocument(
   extractedContent: string,
   anthropicApiKey: string,
+  documentType?: string,
+  specializedPrompt?: string,
   progressCallback?: (stage: string) => Promise<void>
 ): Promise<{ result: any; retryCount: number }> {
   
-  const MASTER_PROMPT = `You are an elite AI data analyst for FPX MyCNS, a special education collaborative care platform. Your mission is to perform a complete analysis of a single clinical or educational document in one pass.
+  // Use specialized prompt if provided and document type is known
+  const SYSTEM_PROMPT = specializedPrompt || `You are an elite AI data analyst for FPX MyCNS, a special education collaborative care platform. Your mission is to perform a complete analysis of a single clinical or educational document in one pass.
 
 You MUST follow these three steps in order and return a single, valid JSON object.
 
@@ -96,7 +99,11 @@ Your final response MUST be a single JSON object matching this exact schema. Do 
   "recommended_charts": ["iep_goal_service_tracker", "academic_fluency_trends"]
 }`;
 
-  console.log('🔬 Starting Master Analysis (single AI call)...');
+  const promptInfo = specializedPrompt 
+    ? `using specialized ${documentType} extraction prompt` 
+    : 'using master prompt';
+
+  console.log(`🔬 Starting Master Analysis ${promptInfo}...`);
   const startTime = Date.now();
   
   const maxRetries = 2;
@@ -127,7 +134,7 @@ Your final response MUST be a single JSON object matching this exact schema. Do 
         body: JSON.stringify({
           model: 'claude-sonnet-4-20250514',
           max_tokens: 16000,
-          system: MASTER_PROMPT,
+          system: SYSTEM_PROMPT,
           messages: [
             { role: 'user', content: `Analyze this document:\n\n${extractedContent}` }
           ],

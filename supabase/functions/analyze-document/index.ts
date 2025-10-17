@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { masterAnalyzeDocument } from "./ai-helpers.ts";
 import { classifyDocument } from "./classification-helpers.ts";
+import { getSpecializedPrompt } from "../_shared/prompts/index.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -245,10 +246,26 @@ serve(async (req) => {
     } else {
       console.log('📊 Running master data extraction...');
       
+      // Check if we should use a specialized extraction prompt
+      const useSpecialized = classificationResult.confidence_score >= 0.80;
+      const specializedPrompt = useSpecialized 
+        ? getSpecializedPrompt(classificationResult.document_type) 
+        : null;
+      
+      if (specializedPrompt) {
+        console.log(`✨ Using specialized prompt for: ${classificationResult.document_type} (confidence: ${classificationResult.confidence_score})`);
+      } else if (useSpecialized) {
+        console.log(`⚠️ No specialized prompt available for: ${classificationResult.document_type}, using master prompt`);
+      } else {
+        console.log(`📋 Confidence too low (${classificationResult.confidence_score}), using master prompt`);
+      }
+      
       try {
         const analysisData = await masterAnalyzeDocument(
           document.extracted_content,
           anthropicApiKey,
+          classificationResult.document_type,
+          specializedPrompt || undefined,
           async (stage: string) => {
             const progressMap: Record<string, number> = {
               'calling_ai_model': 40,
