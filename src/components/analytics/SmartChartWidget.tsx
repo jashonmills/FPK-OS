@@ -40,7 +40,7 @@ export const SmartChartWidget = ({
     (config.subscriptionTier === "pro" && subscriptionTier === "pro");
 
   // Fetch live data if unlocked and has subscription
-  const { data: liveData, isLoading } = useQuery({
+  const { data: liveData, isLoading, error } = useQuery({
     queryKey: ["chart-data", config.chartId, familyId, studentId, dateRange],
     queryFn: async () => {
       if (!config.rpcFunction) return null;
@@ -51,20 +51,29 @@ export const SmartChartWidget = ({
         p_days: 30
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error(`[${config.chartId}] RPC Error:`, error);
+        throw error;
+      }
       return data;
     },
     enabled: isUnlocked && hasSubscription && !!config.rpcFunction
   });
 
-  // Determine final mode
+  // Determine final mode with robust error and data checking
   let finalMode: ChartMode = "locked";
   if (!hasSubscription) {
     finalMode = "locked";
-  } else if (isUnlocked && liveData && Array.isArray(liveData) && liveData.length > 0) {
+  } else if (isUnlocked && !error && liveData && Array.isArray(liveData) && liveData.length > 0) {
     finalMode = "live";
+    console.log(`[${config.chartId}] LIVE MODE - Data count: ${liveData.length}`);
   } else if (isUnlocked) {
     finalMode = "demo";
+    if (error) {
+      console.warn(`[${config.chartId}] DEMO MODE (RPC Error):`, error.message);
+    } else {
+      console.log(`[${config.chartId}] DEMO MODE - No data available`);
+    }
   }
 
   // Get mock data for demo mode
@@ -73,16 +82,21 @@ export const SmartChartWidget = ({
   // Render chart component
   const ChartComponent = config.component;
 
-  // True glassmorphism container
+  // True glassmorphism container with conditional neon glow
   return (
     <div 
-      className="relative h-full w-full overflow-hidden rounded-xl border"
+      className={cn(
+        "relative h-full w-full overflow-hidden rounded-xl border",
+        finalMode === "live" && "live-chart-glow"
+      )}
       style={{
         backgroundColor: 'rgba(10, 25, 47, 0.15)',
         backdropFilter: 'blur(5px)',
         WebkitBackdropFilter: 'blur(5px)',
-        borderColor: 'rgba(6, 182, 212, 0.4)',
-        boxShadow: '0 0 15px rgba(0, 180, 255, 0.15)'
+        borderColor: finalMode === "live" ? 'rgba(56, 189, 248, 0.8)' : 'rgba(6, 182, 212, 0.4)',
+        boxShadow: finalMode === "live" 
+          ? '0 0 20px rgba(56, 189, 248, 0.5), 0 0 30px rgba(56, 189, 248, 0.3)'
+          : '0 0 15px rgba(0, 180, 255, 0.15)'
       }}
     >
       {/* Chart Title - top left corner inside glass */}
@@ -100,8 +114,9 @@ export const SmartChartWidget = ({
       {/* Status badges - top right corner */}
       <div className="absolute top-1 right-1.5 z-20 flex gap-1">
         {finalMode === "live" && (
-          <Badge variant="default" className="bg-cyan-500/20 text-cyan-400 border-cyan-500/30 animate-pulse text-[8px] px-1 py-0">
-            <TrendingUp className="h-2 w-2" />
+          <Badge variant="default" className="bg-cyan-500/30 text-cyan-300 border-cyan-400/50 text-[8px] px-1.5 py-0 font-bold">
+            <TrendingUp className="h-2 w-2 mr-0.5" />
+            LIVE
           </Badge>
         )}
         {finalMode === "demo" && (

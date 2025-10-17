@@ -274,4 +274,24 @@ All colors MUST be HSL.
     box-shadow: 0 8px 32px 0 hsl(0 0% 0% / 0.4),
                 0 0 0 1px hsl(187 95% 55% / 0.1) inset;
   }
+
+  /* Live Chart Neon Glow - Dedicated style for charts with live data */
+  .live-chart-glow {
+    animation: live-data-pulse 2s infinite ease-in-out;
+  }
+
+  @keyframes live-data-pulse {
+    0% { 
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.5),
+                  0 0 10px rgba(56, 189, 248, 0.3); 
+    }
+    50% { 
+      box-shadow: 0 0 35px rgba(56, 189, 248, 0.8),
+                  0 0 20px rgba(56, 189, 248, 0.5); 
+    }
+    100% { 
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.5),
+                  0 0 10px rgba(56, 189, 248, 0.3); 
+    }
+  }
 }
