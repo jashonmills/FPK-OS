@@ -344,9 +344,27 @@ export default function Documents() {
     } catch (error: any) {
       console.error('Document analysis error:', error);
       
+      // Parse error response for monthly limit
+      let errorData: any = {};
+      try {
+        if (error.message) {
+          // Try to parse JSON error message
+          const jsonMatch = error.message.match(/\{.*\}/);
+          if (jsonMatch) {
+            errorData = JSON.parse(jsonMatch[0]);
+          }
+        }
+      } catch (e) {
+        // Not JSON, continue with regular error handling
+      }
+      
       // Better error messages
       let errorMsg = "Failed to analyze document";
-      if (error.message?.includes('timed out')) {
+      
+      if (errorData.error?.includes('Monthly document analysis limit reached') || 
+          error.message?.includes('Monthly document analysis limit')) {
+        errorMsg = `📊 Monthly limit reached (${errorData.used || 20}/${errorData.limit || 20} documents analyzed). Upgrade your subscription or wait until next month.`;
+      } else if (error.message?.includes('timed out')) {
         errorMsg = "⏱️ Analysis timed out - the document may be too large or the AI is slow. Please try again.";
       } else if (error.message?.includes('429') || error.message?.includes('Too Many Requests')) {
         errorMsg = "🚦 Too many requests - please wait 30 seconds and try again";
@@ -356,7 +374,7 @@ export default function Documents() {
         errorMsg = error.message;
       }
       
-      toast.error(errorMsg, { id: toastId, duration: 6000 });
+      toast.error(errorMsg, { id: toastId, duration: 8000 });
     } finally {
       setAnalyzingDocId(null);
     }
