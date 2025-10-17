@@ -86,8 +86,8 @@ serve(async (req) => {
       let processedCount = 0;
       let failedCount = 0;
 
-      // Process documents in batches of 3 to avoid overload
-      const batchSize = 3;
+      // Process documents ONE AT A TIME to avoid rate limits with Vision API
+      const batchSize = 1;
       for (let i = 0; i < documents.length; i += batchSize) {
         const batch = documents.slice(i, i + batchSize);
         
@@ -187,9 +187,9 @@ serve(async (req) => {
           })
         );
 
-        // Small delay between batches to avoid rate limits
+        // Delay between documents to respect rate limits (200ms per document)
         if (i + batchSize < documents.length) {
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          await new Promise(resolve => setTimeout(resolve, 500));
         }
       }
 

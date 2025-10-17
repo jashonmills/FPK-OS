@@ -77,9 +77,18 @@ serve(async (req) => {
       throw new Error(`Failed to download file: ${downloadError?.message}`);
     }
 
-    // Convert blob to base64
+    // Convert blob to base64 in chunks to avoid stack overflow on large files
     const arrayBuffer = await fileData.arrayBuffer();
-    const base64Data = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+    const uint8Array = new Uint8Array(arrayBuffer);
+    
+    // Process in 8KB chunks to avoid "Maximum call stack size exceeded"
+    const chunkSize = 8192;
+    let base64Data = '';
+    
+    for (let i = 0; i < uint8Array.length; i += chunkSize) {
+      const chunk = uint8Array.slice(i, i + chunkSize);
+      base64Data += btoa(String.fromCharCode(...chunk));
+    }
 
     console.log(`📄 File downloaded: ${document.file_name} (${Math.round(arrayBuffer.byteLength / 1024)} KB)`);
 
@@ -92,31 +101,37 @@ serve(async (req) => {
 
     console.log(`🤖 Sending to Claude Vision API (${mediaType})...`);
 
-    // Call Anthropic Vision API
-    const anthropicResponse = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': anthropicApiKey,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 4096,
-        messages: [{
-          role: 'user',
-          content: [
-            {
-              type: 'document',
-              source: {
-                type: 'base64',
-                media_type: mediaType,
-                data: base64Data
-              }
-            },
-            {
-              type: 'text',
-              text: `Extract ALL text from this document. Preserve:
+    // Call Anthropic Vision API with intelligent retry logic
+    let extractedText = '';
+    let retryCount = 0;
+    const maxRetries = 3;
+    
+    while (retryCount <= maxRetries) {
+      try {
+        const anthropicResponse = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': anthropicApiKey,
+            'anthropic-version': '2023-06-01'
+          },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 4096,
+            messages: [{
+              role: 'user',
+              content: [
+                {
+                  type: 'document',
+                  source: {
+                    type: 'base64',
+                    media_type: mediaType,
+                    data: base64Data
+                  }
+                },
+                {
+                  type: 'text',
+                  text: `Extract ALL text from this document. Preserve:
 - All headings, titles, and section names
 - All body text and paragraphs
 - All table data (convert tables to structured text)
@@ -125,20 +140,45 @@ serve(async (req) => {
 - Page numbers and footers
 
 Output ONLY the extracted text. Do not add commentary or explanations. If this is a multi-page document, clearly separate pages with "--- PAGE X ---" markers.`
+                }
+              ]
+            }]
+          })
+        });
+
+        if (!anthropicResponse.ok) {
+          const errorText = await anthropicResponse.text();
+          
+          // Handle rate limiting with exponential backoff
+          if (anthropicResponse.status === 429) {
+            const waitTime = Math.pow(2, retryCount) * 1000; // 1s, 2s, 4s, 8s
+            console.log(`⏳ Rate limited (429). Waiting ${waitTime}ms before retry ${retryCount + 1}/${maxRetries}...`);
+            
+            if (retryCount < maxRetries) {
+              await new Promise(resolve => setTimeout(resolve, waitTime));
+              retryCount++;
+              continue;
             }
-          ]
-        }]
-      })
-    });
+          }
+          
+          console.error('Anthropic API error:', errorText);
+          throw new Error(`Anthropic API error: ${anthropicResponse.status} - ${errorText}`);
+        }
 
-    if (!anthropicResponse.ok) {
-      const errorText = await anthropicResponse.text();
-      console.error('Anthropic API error:', errorText);
-      throw new Error(`Anthropic API error: ${anthropicResponse.status} - ${errorText}`);
+        const anthropicData = await anthropicResponse.json();
+        extractedText = anthropicData.content[0].text;
+        break; // Success - exit retry loop
+        
+      } catch (error) {
+        if (retryCount >= maxRetries) {
+          throw error;
+        }
+        
+        console.log(`⚠️ Attempt ${retryCount + 1} failed, retrying...`);
+        retryCount++;
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
     }
-
-    const anthropicData = await anthropicResponse.json();
-    const extractedText = anthropicData.content[0].text;
 
     console.log(`✅ Extracted ${extractedText.length} characters`);
 
