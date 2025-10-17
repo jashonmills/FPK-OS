@@ -11,10 +11,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { RefreshCw, AlertTriangle, Trash2 } from "lucide-react";
+import { RefreshCw, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useFamily } from "@/contexts/FamilyContext";
+import { CleanupOrphanedDocumentsButton } from "./CleanupOrphanedDocumentsButton";
 
 export const ResetAnalysisCard = () => {
   const [showResetDialog, setShowResetDialog] = useState(false);
@@ -111,6 +112,9 @@ export const ResetAnalysisCard = () => {
 
   return (
     <>
+      <div className="mb-4">
+        <CleanupOrphanedDocumentsButton />
+      </div>
       <div className="space-y-4">
         <Card className="border-primary/50">
           <CardHeader>
