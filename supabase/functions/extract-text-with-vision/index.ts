@@ -153,10 +153,12 @@ Output ONLY the extracted text. Do not add commentary or explanations. If this i
         if (!anthropicResponse.ok) {
           const errorText = await anthropicResponse.text();
           
-          // Handle rate limiting with exponential backoff
+          // Handle rate limiting with aggressive backoff for Anthropic's 10k tokens/minute limit
           if (anthropicResponse.status === 429) {
-            const waitTime = Math.pow(2, retryCount) * 1000; // 1s, 2s, 4s, 8s
+            // Use much longer delays: 15s, 30s, 45s to allow rate limit window to reset
+            const waitTime = 15000 * (retryCount + 1);
             console.log(`⏳ Rate limited (429). Waiting ${waitTime}ms before retry ${retryCount + 1}/${maxRetries}...`);
+            console.log(`ℹ️ Anthropic rate limit is 10,000 tokens/minute. Large documents require longer waits.`);
             
             if (retryCount < maxRetries) {
               await new Promise(resolve => setTimeout(resolve, waitTime));

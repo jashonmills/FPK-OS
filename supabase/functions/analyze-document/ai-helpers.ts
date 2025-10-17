@@ -109,7 +109,7 @@ Your final response MUST be a single JSON object matching this exact schema. Do 
 
     try {
       const abortController = new AbortController();
-      const timeoutId = setTimeout(() => abortController.abort(), 60000); // 60s timeout
+      const timeoutId = setTimeout(() => abortController.abort(), 120000); // 120s timeout for complex documents
 
       if (progressCallback) {
         await progressCallback('calling_ai_model');
@@ -214,8 +214,8 @@ Your final response MUST be a single JSON object matching this exact schema. Do 
       console.error(`Master Analysis attempt ${attempt} failed:`, error);
 
       if (error.name === 'AbortError') {
-        console.error('⏱️ Master Analysis timed out after 60s');
-        lastError = new Error('Master Analysis timed out. Document may be too large or complex.');
+        console.error('⏱️ Master Analysis timed out after 120s');
+        lastError = new Error('Master Analysis timed out after 120 seconds. Document may be too large or complex.');
       }
 
       if (attempt >= maxRetries) {

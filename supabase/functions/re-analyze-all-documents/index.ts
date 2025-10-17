@@ -238,9 +238,11 @@ serve(async (req) => {
           })
         );
 
-        // Delay between documents to respect rate limits (200ms per document)
+        // Critical delay to respect Anthropic's 10k tokens/minute rate limit
+        // 20 seconds between documents ensures we stay well under the limit
         if (i + batchSize < documents.length) {
-          await new Promise(resolve => setTimeout(resolve, 500));
+          console.log('⏸️ Waiting 20 seconds before next document to respect rate limits...');
+          await new Promise(resolve => setTimeout(resolve, 20000));
         }
       }
 
