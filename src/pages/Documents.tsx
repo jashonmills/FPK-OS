@@ -297,17 +297,53 @@ export default function Documents() {
 
       // Now analyze the document
       toast.loading("Analyzing document with AI...", { id: toastId });
-      const { data, error } = await supabase.functions.invoke("analyze-document", {
-        body: { document_id: documentId },
-      });
+      
+      // Add retry logic for rate limiting
+      let retries = 0;
+      const maxRetries = 3;
+      let delay = 2000; // Start with 2 second delay
+      
+      while (retries < maxRetries) {
+        try {
+          const { data, error } = await supabase.functions.invoke("analyze-document", {
+            body: { document_id: documentId },
+          });
 
-      if (error) throw error;
+          if (error) {
+            // Check if it's a rate limit error
+            if (error.message?.includes('429') || error.message?.includes('Too Many Requests')) {
+              retries++;
+              if (retries < maxRetries) {
+                toast.loading(`Rate limited, retrying in ${delay/1000}s...`, { id: toastId });
+                await new Promise(resolve => setTimeout(resolve, delay));
+                delay *= 2; // Exponential backoff
+                continue;
+              }
+            }
+            throw error;
+          }
 
-      toast.success(`Analysis complete! Found ${data.metrics_count} metrics, ${data.insights_count} insights`, { id: toastId });
-      queryClient.invalidateQueries({ queryKey: ["documents"] });
+          toast.success(`Analysis complete! Found ${data.metrics_count} metrics, ${data.insights_count} insights`, { id: toastId });
+          queryClient.invalidateQueries({ queryKey: ["documents"] });
+          break; // Success, exit loop
+        } catch (innerError) {
+          if (retries >= maxRetries - 1) {
+            throw innerError;
+          }
+        }
+      }
     } catch (error: any) {
       console.error('Document analysis error:', error);
-      toast.error("Failed to analyze document: " + error.message, { id: toastId });
+      
+      // Better error messages
+      let errorMsg = "Failed to analyze document";
+      if (error.message?.includes('429')) {
+        errorMsg = "Too many requests - please wait a moment and try again";
+      } else if (error.message) {
+        errorMsg = error.message;
+      }
+      
+      toast.error(errorMsg, { id: toastId });
     } finally {
       setAnalyzingDocId(null);
     }
