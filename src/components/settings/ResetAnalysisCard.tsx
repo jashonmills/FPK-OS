@@ -17,8 +17,10 @@ import { useToast } from "@/hooks/use-toast";
 import { useFamily } from "@/contexts/FamilyContext";
 
 export const ResetAnalysisCard = () => {
-  const [showDialog, setShowDialog] = useState(false);
+  const [showResetDialog, setShowResetDialog] = useState(false);
+  const [showReanalyzeDialog, setShowReanalyzeDialog] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
+  const [isReanalyzing, setIsReanalyzing] = useState(false);
   const { toast } = useToast();
   const { selectedFamily } = useFamily();
 
@@ -49,53 +51,150 @@ export const ResetAnalysisCard = () => {
       });
     } finally {
       setIsResetting(false);
-      setShowDialog(false);
+      setShowResetDialog(false);
+    }
+  };
+
+  const handleReanalyze = async () => {
+    if (!selectedFamily?.id) return;
+
+    setIsReanalyzing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("re-analyze-all-documents", {
+        body: { family_id: selectedFamily.id },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Deep Re-Analysis Complete",
+        description: `Successfully re-analyzed ${data.successful} of ${data.total_documents} documents with improved prompts. Your charts should now populate with historical data.`,
+      });
+
+      // Reload to show new data
+      setTimeout(() => window.location.reload(), 2000);
+    } catch (error) {
+      console.error("Re-analysis error:", error);
+      toast({
+        title: "Re-Analysis Failed",
+        description: error instanceof Error ? error.message : "Failed to re-analyze documents",
+        variant: "destructive",
+      });
+    } finally {
+      setIsReanalyzing(false);
+      setShowReanalyzeDialog(false);
     }
   };
 
   return (
     <>
-      <Card className="border-destructive/50">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <RefreshCw className="h-5 w-5" />
-            Reset Analysis Data
-          </CardTitle>
-          <CardDescription>
-            Clear all AI-generated insights and metrics to start fresh
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2 text-sm">
-            <p className="font-medium">This will permanently delete:</p>
-            <ul className="list-disc list-inside space-y-1 text-muted-foreground ml-2">
-              <li>All document metrics</li>
-              <li>All AI insights</li>
-              <li>All progress tracking records</li>
-              <li>All imported goals</li>
-              <li>All chart mappings</li>
-            </ul>
-            <p className="font-medium mt-4">This will NOT delete:</p>
-            <ul className="list-disc list-inside space-y-1 text-muted-foreground ml-2">
-              <li>Student profiles</li>
-              <li>Uploaded documents</li>
-              <li>Activity logs (parent, educator, incident)</li>
-              <li>Manually created goals</li>
-            </ul>
-          </div>
-          <Button
-            variant="destructive"
-            onClick={() => setShowDialog(true)}
-            disabled={isResetting}
-            className="w-full"
-          >
-            <AlertTriangle className="h-4 w-4 mr-2" />
-            Reset All Analysis Data
-          </Button>
-        </CardContent>
-      </Card>
+      <div className="space-y-4">
+        <Card className="border-primary/50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <RefreshCw className="h-5 w-5" />
+              Deep Re-Analysis (Recommended)
+            </CardTitle>
+            <CardDescription>
+              Re-extract data from existing documents with improved prompts
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2 text-sm">
+              <p className="font-medium">This will:</p>
+              <ul className="list-disc list-inside space-y-1 text-muted-foreground ml-2">
+                <li>Clear old metrics, insights, and chart mappings</li>
+                <li>Re-analyze ALL uploaded documents using strengthened AI prompts</li>
+                <li>Extract proper numeric values for chart population</li>
+                <li>Preserve historical measurement dates for "time machine" view</li>
+              </ul>
+              <p className="text-xs text-muted-foreground mt-2">
+                ✅ This fixes NULL metric values and enables all-time historical chart views
+              </p>
+            </div>
+            <Button
+              variant="default"
+              onClick={() => setShowReanalyzeDialog(true)}
+              disabled={isReanalyzing}
+              className="w-full"
+            >
+              <RefreshCw className={`h-4 w-4 mr-2 ${isReanalyzing ? 'animate-spin' : ''}`} />
+              {isReanalyzing ? "Re-analyzing Documents..." : "Run Deep Re-Analysis"}
+            </Button>
+          </CardContent>
+        </Card>
 
-      <AlertDialog open={showDialog} onOpenChange={setShowDialog}>
+        <Card className="border-destructive/50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5" />
+              Reset Analysis Data
+            </CardTitle>
+            <CardDescription>
+              Clear all AI-generated insights and metrics to start fresh
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2 text-sm">
+              <p className="font-medium">This will permanently delete:</p>
+              <ul className="list-disc list-inside space-y-1 text-muted-foreground ml-2">
+                <li>All document metrics</li>
+                <li>All AI insights</li>
+                <li>All progress tracking records</li>
+                <li>All imported goals</li>
+                <li>All chart mappings</li>
+              </ul>
+              <p className="font-medium mt-4">This will NOT delete:</p>
+              <ul className="list-disc list-inside space-y-1 text-muted-foreground ml-2">
+                <li>Student profiles</li>
+                <li>Uploaded documents</li>
+                <li>Activity logs (parent, educator, incident)</li>
+                <li>Manually created goals</li>
+              </ul>
+            </div>
+            <Button
+              variant="destructive"
+              onClick={() => setShowResetDialog(true)}
+              disabled={isResetting}
+              className="w-full"
+            >
+              <AlertTriangle className="h-4 w-4 mr-2" />
+              Reset All Analysis Data
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+
+      <AlertDialog open={showReanalyzeDialog} onOpenChange={setShowReanalyzeDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <RefreshCw className="h-5 w-5 text-primary" />
+              Run Deep Re-Analysis?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="space-y-2">
+              <p>
+                This will clear existing analysis data and re-extract all information from your {" "}
+                uploaded documents using improved AI prompts.
+              </p>
+              <p className="font-medium text-foreground">
+                This process may take 1-2 minutes. Your documents will remain intact.
+              </p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isReanalyzing}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleReanalyze}
+              disabled={isReanalyzing}
+            >
+              {isReanalyzing ? "Re-analyzing..." : "Yes, Re-Analyze All Documents"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showResetDialog} onOpenChange={setShowResetDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
