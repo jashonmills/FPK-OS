@@ -13,7 +13,7 @@ serve(async (req) => {
 
   try {
     const { family_id } = await req.json();
-    console.log('🔄 Starting re-analysis job for family:', family_id);
+    console.log('🔄 Starting queue-based re-analysis for family:', family_id);
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -52,7 +52,11 @@ serve(async (req) => {
         processed_documents: 0,
         failed_documents: 0,
         started_at: new Date().toISOString(),
-        metadata: { document_count: documents.length }
+        metadata: { 
+          document_count: documents.length,
+          processing_mode: 'queue_parallel',
+          estimated_time_minutes: Math.ceil(documents.length / 5) + 1
+        }
       })
       .select()
       .single();
@@ -64,225 +68,78 @@ serve(async (req) => {
 
     console.log(`✅ Created job: ${job.id}`);
 
-    // Create initial status records for all documents
-    const statusRecords = documents.map(doc => ({
-      job_id: job.id,
-      document_id: doc.id,
+    // Queue all documents for processing
+    const queueRecords = documents.map(doc => ({
       family_id: doc.family_id,
-      document_name: doc.file_name,
+      document_id: doc.id,
+      job_id: job.id,
+      priority: 5,
       status: 'pending'
     }));
 
-    const { error: statusError } = await supabase
-      .from('document_analysis_status')
-      .insert(statusRecords);
+    const { error: queueError } = await supabase
+      .from('analysis_queue')
+      .insert(queueRecords);
 
-    if (statusError) {
-      console.error('❌ Error creating status records:', statusError);
+    if (queueError) {
+      console.error('❌ Error queuing documents:', queueError);
+      throw queueError;
     }
 
-    // Process documents in background using EdgeRuntime.waitUntil
-    const backgroundTask = async () => {
-      let processedCount = 0;
-      let failedCount = 0;
+    console.log(`📦 Queued ${documents.length} documents for parallel processing`);
 
-      // Process documents ONE AT A TIME to avoid rate limits with Vision API
-      for (let i = 0; i < documents.length; i++) {
-        const doc = documents[i];
-        try {
-          console.log(`🔍 Processing ${doc.file_name} (${processedCount + 1}/${documents.length})`);
-
-          // Update status to extracting
-          await supabase
-            .from('document_analysis_status')
-            .update({ 
-              status: 'extracting',
-              started_at: new Date().toISOString()
-            })
-            .eq('job_id', job.id)
-            .eq('document_id', doc.id);
-
-          // Step 1: Extract text with Claude Vision (UNIFIED PATHWAY)
-          console.log(`  📄 Extracting text for ${doc.file_name} via Claude Vision...`);
-          const { error: extractError } = await supabase.functions.invoke(
-            'extract-text-with-vision',
-            {
-              body: { 
-                document_id: doc.id,
-                force_re_extract: true
-              }
-            }
-          );
-
-          if (extractError) {
-            throw new Error(`Extraction failed: ${extractError.message}`);
-          }
-
-          // Update status to analyzing
-          await supabase
-            .from('document_analysis_status')
-            .update({ status: 'analyzing' })
-            .eq('job_id', job.id)
-            .eq('document_id', doc.id);
-
-          // Step 2: Analyze document with Master Prompt (UNIFIED AI CALL) with retry on timeout
-          console.log(`  🧠 Analyzing ${doc.file_name} with Master Prompt...`);
-          
-          let analysisSuccess = false;
-          let analysisData = null;
-          let lastAnalysisError = null;
-          const maxAnalysisRetries = 3; // Increased retries for rate limits
-          
-          for (let retryCount = 0; retryCount < maxAnalysisRetries && !analysisSuccess; retryCount++) {
-            if (retryCount > 0) {
-              // Exponential backoff: 15s, 30s, 60s
-              const delay = Math.min(15000 * Math.pow(2, retryCount - 1), 60000);
-              console.log(`  🔄 Retrying analysis for ${doc.file_name} (attempt ${retryCount + 1}/${maxAnalysisRetries}) after ${delay/1000}s...`);
-              await new Promise(resolve => setTimeout(resolve, delay));
-            }
-            
-            try {
-              // Wrap the invoke call in a timeout to prevent it from hanging indefinitely
-              const invokePromise = supabase.functions.invoke(
-                'analyze-document',
-                {
-                  body: { 
-                    document_id: doc.id,
-                    bypass_limit: true
-                  }
-                }
-              );
-              
-              // Set a 120-second timeout for the entire invoke operation
-              const timeoutPromise = new Promise((_, reject) => 
-                setTimeout(() => reject(new Error('Function invoke timed out after 120s')), 120000)
-              );
-              
-              const { data, error } = await Promise.race([invokePromise, timeoutPromise]) as any;
-
-              if (error) {
-                lastAnalysisError = error;
-                const isTimeout = error.message?.includes('timeout') || 
-                                 error.message?.includes('Timeout') ||
-                                 data?.can_retry === true;
-                const isRateLimit = error.message?.includes('rate limit') ||
-                                   error.message?.includes('Rate limit') ||
-                                   error.message?.includes('429');
-                
-                if ((isTimeout || isRateLimit) && retryCount < maxAnalysisRetries - 1) {
-                  console.log(`  ⏱️ ${isRateLimit ? 'Rate limit' : 'Timeout'} for ${doc.file_name}, will retry...`);
-                  // Extra delay for rate limits
-                  if (isRateLimit) {
-                    console.log('  ⏸️ Adding extra 30s delay for rate limit recovery...');
-                    await new Promise(resolve => setTimeout(resolve, 30000));
-                  }
-                  continue; // Retry on timeout or rate limit
-                }
-                
-                throw new Error(`Analysis failed: ${error.message}`);
-              } else {
-                analysisSuccess = true;
-                analysisData = data;
-              }
-            } catch (invokeError: any) {
-              lastAnalysisError = invokeError;
-              const isTimeout = invokeError.message?.includes('timeout') || 
-                               invokeError.message?.includes('Timeout');
-              const isRateLimit = invokeError.message?.includes('rate limit') ||
-                                 invokeError.message?.includes('Rate limit') ||
-                                 invokeError.message?.includes('429');
-              
-              if ((isTimeout || isRateLimit) && retryCount < maxAnalysisRetries - 1) {
-                console.log(`  ⏱️ ${isRateLimit ? 'Rate limit' : 'Timeout'} invoke error for ${doc.file_name}, will retry...`);
-                // Extra delay for rate limits
-                if (isRateLimit) {
-                  console.log('  ⏸️ Adding extra 30s delay for rate limit recovery...');
-                  await new Promise(resolve => setTimeout(resolve, 30000));
-                }
-                continue; // Retry on timeout or rate limit
-              }
-              
-              throw invokeError;
+    // Start queue processor in background using EdgeRuntime.waitUntil
+    const processQueue = async () => {
+      try {
+        console.log('🚀 Starting background queue processor...');
+        const { error: processError } = await supabase.functions.invoke(
+          'process-analysis-queue',
+          {
+            body: { 
+              family_id,
+              job_id: job.id
             }
           }
+        );
+
+        if (processError) {
+          console.error('❌ Queue processor error:', processError);
           
-          if (!analysisSuccess) {
-            throw new Error(`Analysis failed after ${maxAnalysisRetries} attempts: ${lastAnalysisError?.message || 'Unknown error'}`);
-          }
-
-          // Update status to complete with Master Prompt results
+          // Mark job as failed
           await supabase
-            .from('document_analysis_status')
-            .update({ 
-              status: 'complete',
-              metrics_extracted: analysisData?.metrics_extracted || 0,
-              insights_extracted: analysisData?.insights_generated || 0,
-              completed_at: new Date().toISOString()
-            })
-            .eq('job_id', job.id)
-            .eq('document_id', doc.id);
-
-          processedCount++;
-          console.log(`✅ Completed ${doc.file_name} (${processedCount}/${documents.length})`);
-
-        } catch (error) {
-          console.error(`❌ Failed to process ${doc.file_name}:`, error);
-          failedCount++;
-
-          // Update status to failed
-          await supabase
-            .from('document_analysis_status')
-            .update({ 
+            .from('analysis_jobs')
+            .update({
               status: 'failed',
-              error_message: error instanceof Error ? error.message : 'Unknown error',
+              error_message: `Queue processor failed: ${processError.message}`,
               completed_at: new Date().toISOString()
             })
-            .eq('job_id', job.id)
-            .eq('document_id', doc.id);
+            .eq('id', job.id);
         }
-
-        // Update job progress
-        await supabase
-          .from('analysis_jobs')
-          .update({
-            processed_documents: processedCount,
-            failed_documents: failedCount
-          })
-          .eq('id', job.id);
-
-        // Critical delay to respect Anthropic's 30k tokens/minute rate limit
-        // 30 seconds between documents ensures we stay well under the limit
-        if (i < documents.length - 1) {
-          console.log('⏸️ Waiting 30 seconds before next document to respect rate limits...');
-          await new Promise(resolve => setTimeout(resolve, 30000));
-        }
+      } catch (error) {
+        console.error('❌ Background task error:', error);
       }
-
-      // Mark job as complete
-      await supabase
-        .from('analysis_jobs')
-        .update({
-          status: failedCount === documents.length ? 'failed' : 'completed',
-          completed_at: new Date().toISOString(),
-          processed_documents: processedCount,
-          failed_documents: failedCount
-        })
-        .eq('id', job.id);
-
-      console.log(`🎉 Job ${job.id} complete: ${processedCount} processed, ${failedCount} failed`);
     };
 
-    // Start background task (non-blocking)
-    // Note: In Deno, we use Promise.resolve to start the background task
-    Promise.resolve().then(() => backgroundTask());
+    // Use EdgeRuntime.waitUntil for proper background task execution
+    // @ts-ignore - EdgeRuntime is available in Supabase Edge Functions
+    if (typeof EdgeRuntime !== 'undefined' && EdgeRuntime.waitUntil) {
+      // @ts-ignore
+      EdgeRuntime.waitUntil(processQueue());
+    } else {
+      // Fallback for local dev
+      processQueue();
+    }
 
-    // Return immediately with job ID
+    // Return immediately with job ID and queue info
     return new Response(
       JSON.stringify({
         success: true,
         job_id: job.id,
         total_documents: documents.length,
-        message: 'Re-analysis job started in background'
+        queued_documents: documents.length,
+        estimated_time_minutes: Math.ceil(documents.length / 5) + 1,
+        processing_mode: 'parallel_queue',
+        message: 'Documents queued for parallel processing (5 at a time)'
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

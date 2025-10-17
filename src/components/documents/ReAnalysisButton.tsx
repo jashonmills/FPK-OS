@@ -14,7 +14,7 @@ export function ReAnalysisButton({ familyId, onJobStarted }: ReAnalysisButtonPro
 
   const handleReAnalyze = async () => {
     setIsAnalyzing(true);
-    const toastId = toast.loading("🚀 Starting re-analysis with improved rate limiting...");
+    const toastId = toast.loading("🚀 Starting parallel queue processing...");
     
     try {
       const { data, error } = await supabase.functions.invoke("re-analyze-all-documents", {
@@ -25,9 +25,10 @@ export function ReAnalysisButton({ familyId, onJobStarted }: ReAnalysisButtonPro
 
       if (data?.job_id) {
         onJobStarted?.(data.job_id);
+        const estimatedTime = data.estimated_time_minutes || 3;
         toast.success(
-          `✅ Processing ${data.total_documents} documents with smart rate limiting (30s delays)`, 
-          { id: toastId, duration: 5000 }
+          `✅ Queued ${data.total_documents} documents for parallel processing (est. ${estimatedTime} min)`, 
+          { id: toastId, duration: 6000 }
         );
       }
     } catch (error: any) {

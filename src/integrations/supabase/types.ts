@@ -410,6 +410,79 @@ export type Database = {
           },
         ]
       }
+      analysis_queue: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          document_id: string
+          error_message: string | null
+          family_id: string
+          id: string
+          job_id: string | null
+          max_retries: number
+          priority: number
+          processing_time_ms: number | null
+          retry_count: number
+          started_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          document_id: string
+          error_message?: string | null
+          family_id: string
+          id?: string
+          job_id?: string | null
+          max_retries?: number
+          priority?: number
+          processing_time_ms?: number | null
+          retry_count?: number
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          document_id?: string
+          error_message?: string | null
+          family_id?: string
+          id?: string
+          job_id?: string | null
+          max_retries?: number
+          priority?: number
+          processing_time_ms?: number | null
+          retry_count?: number
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analysis_queue_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "analysis_queue_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "analysis_queue_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "analysis_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       article_authors: {
         Row: {
           bio: string | null
@@ -3466,6 +3539,25 @@ export type Database = {
         Args: { tier: string }
         Returns: number
       }
+      get_next_queue_items: {
+        Args: { p_family_id: string; p_limit?: number }
+        Returns: {
+          completed_at: string | null
+          created_at: string
+          document_id: string
+          error_message: string | null
+          family_id: string
+          id: string
+          job_id: string | null
+          max_retries: number
+          priority: number
+          processing_time_ms: number | null
+          retry_count: number
+          started_at: string | null
+          status: string
+          updated_at: string
+        }[]
+      }
       get_peer_interaction_data: {
         Args: { p_days?: number; p_family_id: string; p_student_id: string }
         Returns: {
@@ -3485,6 +3577,17 @@ export type Database = {
           log_date: string
           physical_count: number
           verbal_count: number
+        }[]
+      }
+      get_queue_stats: {
+        Args: { p_family_id: string }
+        Returns: {
+          avg_processing_time_sec: number
+          completed_items: number
+          failed_items: number
+          pending_items: number
+          processing_items: number
+          total_items: number
         }[]
       }
       get_reading_error_data: {
