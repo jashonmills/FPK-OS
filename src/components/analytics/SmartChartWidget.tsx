@@ -121,28 +121,36 @@ export const SmartChartWidget = ({
           <Skeleton className="h-full w-full bg-cyan-900/20" />
         </div>
       ) : finalMode === "locked" ? (
-        // LOCKED MODE: Show blurred preview with upgrade CTA
+        // LOCKED MODE: Show beautiful mock data with premium overlay
         <div className="relative h-full w-full">
-          <div className="absolute inset-0 backdrop-blur-sm bg-[#0A192F]/80 z-10 flex items-center justify-center">
-            <div className="text-center space-y-2 p-3 max-w-[180px]">
+          <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
+            <div className="text-center space-y-2 p-3 max-w-[180px] pointer-events-auto"
+              style={{
+                backgroundColor: 'rgba(10, 25, 47, 0.85)',
+                backdropFilter: 'blur(8px)',
+                borderRadius: '12px',
+                border: '1px solid rgba(139, 92, 246, 0.3)',
+                boxShadow: '0 0 20px rgba(139, 92, 246, 0.4)'
+              }}
+            >
               <div className="w-10 h-10 mx-auto rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 flex items-center justify-center">
                 <Lock className="h-5 w-5 text-purple-400" />
               </div>
-              <h3 className="text-xs font-bold text-purple-300">Premium</h3>
+              <h3 className="text-xs font-bold text-purple-300">Premium Chart</h3>
               <p className="text-[9px] text-cyan-300/60">
-                {config.subscriptionTier === "pro" ? "Pro" : "Team"} plan
+                {config.subscriptionTier === "pro" ? "Pro" : "Team"} plan required
               </p>
               <Button 
                 size="sm"
                 className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 h-6 text-[9px] px-2"
                 onClick={() => navigate("/pricing")}
               >
-                Upgrade
+                Upgrade Now
               </Button>
             </div>
           </div>
-          {/* Blurred preview */}
-          <div className="blur-sm opacity-20 pointer-events-none h-full p-1">
+          {/* Beautiful mock data in background */}
+          <div className="opacity-30 pointer-events-none h-full p-1">
             <ChartComponent 
               familyId={familyId}
               studentId={studentId}
@@ -153,8 +161,14 @@ export const SmartChartWidget = ({
           </div>
         </div>
       ) : finalMode === "demo" ? (
-        // DEMO MODE: Show mock data with compact upload CTA
+        // DEMO MODE: Show mock data with subtle "Upload Data" badge at top
         <div className="h-full w-full flex flex-col pt-5">
+          {/* Demo badge - top right, minimal */}
+          <div className="absolute top-1 right-1.5 z-20">
+            <Badge variant="outline" className="border-amber-400/50 text-amber-400 text-[7px] px-1 py-0">
+              Demo Data
+            </Badge>
+          </div>
           <div className="flex-1 min-h-0 relative px-1 pb-1">
             <div className="h-full">
               <ChartComponent 
@@ -166,9 +180,10 @@ export const SmartChartWidget = ({
               />
             </div>
           </div>
-          <div className="flex-none px-1.5 pb-1 border-t border-amber-400/20 bg-amber-500/5">
-            <div className="text-[8px] text-amber-300/80 flex items-center justify-between gap-1 py-0.5">
-              <span className="truncate">Upload {config.requiredDocuments[0]}</span>
+          {/* Compact upload CTA at bottom */}
+          <div className="flex-none px-1.5 pb-1 border-t border-amber-400/10 bg-amber-500/5">
+            <div className="text-[7px] text-amber-300/70 flex items-center justify-between gap-1 py-0.5">
+              <span className="truncate">Upload to unlock live data</span>
               <Button 
                 variant="ghost" 
                 size="sm" 
