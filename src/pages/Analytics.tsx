@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useFamily } from "@/contexts/FamilyContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, AlertCircle, Activity, Brain, BookOpen, Users, Waves } from "lucide-react";
+import { Loader2, AlertCircle, Activity, Brain, BookOpen, Users, Waves, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { ChartGrid } from "@/components/analytics/ChartGrid";
 import { TAB_ORDER, TAB_MANIFEST } from "@/config/tabManifest";
 
@@ -19,6 +20,25 @@ const TAB_ICONS = {
 const Analytics = () => {
   const { selectedFamily, selectedStudent } = useFamily();
   const [activeTab, setActiveTab] = useState("overall");
+  const [isExiting, setIsExiting] = useState(false);
+
+  // ESC key to exit
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        handleExit();
+      }
+    };
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, []);
+
+  const handleExit = () => {
+    setIsExiting(true);
+    setTimeout(() => {
+      window.history.back();
+    }, 300);
+  };
 
   // Early return if no student selected
   if (!selectedStudent) {
@@ -71,15 +91,25 @@ const Analytics = () => {
   };
 
   return (
-    <div className="dark h-screen overflow-hidden bg-gradient-to-br from-[#0A192F] via-[#112240] to-[#0A192F] flex flex-col">
+    <div className={`fixed inset-0 dark bg-gradient-to-br from-[#0A192F] via-[#112240] to-[#0A192F] flex flex-col transition-opacity duration-300 ${isExiting ? 'opacity-0' : 'opacity-100'}`} style={{ zIndex: 9999 }}>
+      {/* Exit Button */}
+      <Button
+        variant="ghost"
+        size="icon"
+        className="absolute top-4 right-4 z-50 text-cyan-400/60 hover:text-cyan-400 hover:bg-cyan-500/10"
+        onClick={handleExit}
+      >
+        <X className="h-5 w-5" />
+      </Button>
+
       <div className="flex-none px-4 pt-3 pb-2">
         {/* Compact Mission Control Header */}
         <div className="flex items-center justify-between mb-2">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight glow-text bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+            <h1 className="text-xl font-bold tracking-tight glow-text bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
               Mission Control
             </h1>
-            <p className="text-cyan-300/50 text-[10px]">
+            <p className="text-cyan-300/50 text-[9px]">
               {selectedStudent.student_name}
             </p>
           </div>
