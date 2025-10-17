@@ -22,6 +22,7 @@ import { DocumentReportModal } from "@/components/documents/DocumentReportModal"
 import { FocusAreaSelector, type FocusArea } from "@/components/documents/FocusAreaSelector";
 import { HistoricalReportsAccordion } from "@/components/documents/HistoricalReportsAccordion";
 import { ProjectScribe } from "@/components/documents/ProjectScribe";
+import { ReAnalysisButton } from "@/components/documents/ReAnalysisButton";
 import * as pdfjs from "pdfjs-dist";
 import { ProductTour } from "@/components/onboarding/ProductTour";
 import { documentsTourSteps } from "@/components/onboarding/tourConfigs";
@@ -632,16 +633,13 @@ export default function Documents() {
                       <span className="sm:hidden">{isGeneratingReport ? "Gen..." : "Report"}</span>
                     </Button>
                     
-                    <Button 
-                      onClick={handleDeepReAnalysis}
-                      variant="outline"
-                      size="sm"
-                      className="text-xs sm:text-sm bg-gradient-to-r from-violet-500/10 to-purple-500/10 border-violet-500/30 hover:from-violet-500/20 hover:to-purple-500/20"
-                    >
-                      <Sparkles className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4 text-violet-600" />
-                      <span className="hidden sm:inline">Deep Re-Analysis</span>
-                      <span className="sm:hidden">Re-Analyze</span>
-                    </Button>
+                    <ReAnalysisButton 
+                      familyId={selectedFamily.id}
+                      onJobStarted={(jobId) => {
+                        setActiveJobId(jobId);
+                        queryClient.invalidateQueries({ queryKey: ["documents"] });
+                      }}
+                    />
                   </>
                 )}
               </div>
