@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.75.0";
+import { encodeBase64 } from "https://deno.land/std@0.224.0/encoding/base64.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -77,18 +78,10 @@ serve(async (req) => {
       throw new Error(`Failed to download file: ${downloadError?.message}`);
     }
 
-    // Convert blob to base64 in chunks to avoid stack overflow on large files
+    // Convert blob to base64 using Deno's standard library (robust & efficient)
     const arrayBuffer = await fileData.arrayBuffer();
     const uint8Array = new Uint8Array(arrayBuffer);
-    
-    // Process in 8KB chunks to avoid "Maximum call stack size exceeded"
-    const chunkSize = 8192;
-    let base64Data = '';
-    
-    for (let i = 0; i < uint8Array.length; i += chunkSize) {
-      const chunk = uint8Array.slice(i, i + chunkSize);
-      base64Data += btoa(String.fromCharCode(...chunk));
-    }
+    const base64Data = encodeBase64(uint8Array);
 
     console.log(`📄 File downloaded: ${document.file_name} (${Math.round(arrayBuffer.byteLength / 1024)} KB)`);
 
