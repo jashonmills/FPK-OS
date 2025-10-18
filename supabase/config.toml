@@ -173,3 +173,6 @@ verify_jwt = true
 
 [functions.scrape-clinical-resources]
 verify_jwt = true
+
+[functions.semantic-blog-generation]
+verify_jwt = true

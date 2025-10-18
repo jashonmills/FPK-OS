@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { TransparentTile } from '@/components/ui/transparent-tile';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -254,61 +255,64 @@ export default function KnowledgeBaseCommandCenter() {
   return (
     <div className="container mx-auto py-8 space-y-8">
       {/* Header */}
-      <div>
+      <TransparentTile>
         <h1 className="text-3xl font-bold mb-2">Knowledge Base Command Center</h1>
         <p className="text-muted-foreground">
           Ingest content from academic databases, clinical resources, and institutional sources to power AI blog generation
         </p>
-      </div>
+      </TransparentTile>
 
       {/* Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <FileText className="h-4 w-4" />
-              Total Documents
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{stats.totalDocuments}</div>
-          </CardContent>
-        </Card>
+      <TransparentTile>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="bg-background/40 backdrop-blur-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                Total Documents
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold">{stats.totalDocuments}</div>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <Brain className="h-4 w-4" />
-              Total Embeddings
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{stats.totalEmbeddings}</div>
-          </CardContent>
-        </Card>
+          <Card className="bg-background/40 backdrop-blur-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Brain className="h-4 w-4" />
+                Total Embeddings
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold">{stats.totalEmbeddings}</div>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <Database className="h-4 w-4" />
-              Actions
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={loadStats}>
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Refresh
-            </Button>
-            <Button variant="destructive" size="sm" onClick={handleClearKB} disabled={loading}>
-              <Trash2 className="h-4 w-4 mr-2" />
-              Clear KB
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+          <Card className="bg-background/40 backdrop-blur-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Database className="h-4 w-4" />
+                Actions
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={loadStats}>
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Refresh
+              </Button>
+              <Button variant="destructive" size="sm" onClick={handleClearKB} disabled={loading}>
+                <Trash2 className="h-4 w-4 mr-2" />
+                Clear KB
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </TransparentTile>
 
       {/* Academic Databases Ingestion */}
-      <Card>
+      <TransparentTile>
+        <Card className="bg-background/40 backdrop-blur-sm border-none shadow-none">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5" />
@@ -356,10 +360,12 @@ export default function KnowledgeBaseCommandCenter() {
             {academicLoading ? 'Ingesting...' : 'Start Academic Ingestion'}
           </Button>
         </CardContent>
-      </Card>
+        </Card>
+      </TransparentTile>
 
       {/* Clinical Resources */}
-      <Card>
+      <TransparentTile>
+        <Card className="bg-background/40 backdrop-blur-sm border-none shadow-none">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Building className="h-5 w-5" />
@@ -396,10 +402,12 @@ export default function KnowledgeBaseCommandCenter() {
             {clinicalLoading ? 'Scraping...' : 'Start Clinical Resource Scraping'}
           </Button>
         </CardContent>
-      </Card>
+        </Card>
+      </TransparentTile>
 
       {/* Institutional Resources */}
-      <Card>
+      <TransparentTile>
+        <Card className="bg-background/40 backdrop-blur-sm border-none shadow-none">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Building className="h-5 w-5" />
@@ -436,10 +444,12 @@ export default function KnowledgeBaseCommandCenter() {
             {institutionalLoading ? 'Scraping...' : 'Start Institutional Scraping'}
           </Button>
         </CardContent>
-      </Card>
+        </Card>
+      </TransparentTile>
 
       {/* Specialized Resources */}
-      <Card>
+      <TransparentTile>
+        <Card className="bg-background/40 backdrop-blur-sm border-none shadow-none">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5" />
@@ -476,10 +486,12 @@ export default function KnowledgeBaseCommandCenter() {
             {specializedLoading ? 'Scraping...' : 'Start Specialized Scraping'}
           </Button>
         </CardContent>
-      </Card>
+        </Card>
+      </TransparentTile>
 
       {/* Documents Table */}
-      <Card>
+      <TransparentTile>
+        <Card className="bg-background/40 backdrop-blur-sm border-none shadow-none">
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
             <span className="flex items-center gap-2">
@@ -577,6 +589,7 @@ export default function KnowledgeBaseCommandCenter() {
           </div>
         </CardContent>
       </Card>
+      </TransparentTile>
     </div>
   );
 }
