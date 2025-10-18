@@ -31,13 +31,6 @@ export default function BlogHub() {
       color: 'text-green-600'
     },
     {
-      title: 'AI Knowledge Base',
-      description: 'Manage AI research sources',
-      icon: Database,
-      path: '/dashboard/admin/blog/ai-sources',
-      color: 'text-cyan-600'
-    },
-    {
       title: 'Knowledge Base Command Center',
       description: 'Ingest content from academic & clinical sources',
       icon: Database,
