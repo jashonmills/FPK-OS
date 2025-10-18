@@ -27,9 +27,11 @@ export const MoodDistributionChart = ({ familyId, studentId, sampleData }: MoodD
       const { data: logs, error: logsError } = await supabase.rpc("get_weekly_mood_counts", {
         p_family_id: familyId,
         p_student_id: studentId,
+        p_days: 7
       });
 
       if (!logsError && logs && logs.length > 0) {
+        console.log(`[MoodDistribution] Found ${logs.length} mood entries from parent logs`);
         return { source: 'logs', data: logs };
       }
       

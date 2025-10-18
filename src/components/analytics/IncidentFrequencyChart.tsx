@@ -27,11 +27,14 @@ export const IncidentFrequencyChart = ({ familyId, studentId, days, sampleData }
       if (logsError) throw logsError;
       
       if (logs && logs.length > 0) {
+        console.log(`[IncidentFrequency] Found ${logs.length} incidents from incident_logs`);
         const hasManualLogs = logs.some(log => log.reporter_role !== 'automated');
         return { 
           source: hasManualLogs ? 'logs' : 'documents', 
           data: logs.map(l => ({ incident_date: l.incident_date, behavior_description: l.behavior_description }))
         };
+      } else {
+        console.log(`[IncidentFrequency] No incidents found in incident_logs, checking document_metrics...`);
       }
       
       // Fallback to document_metrics (historical documents)

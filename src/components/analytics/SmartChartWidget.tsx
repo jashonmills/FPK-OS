@@ -68,9 +68,12 @@ export const SmartChartWidget = ({
     finalMode = "live";
     console.log(`[${config.chartId}] LIVE MODE - Data count: ${liveData.length}`);
   } else if (isUnlocked) {
+    // Show demo mode but indicate whether it's truly "no data" or just waiting for uploads
     finalMode = "demo";
     if (error) {
       console.warn(`[${config.chartId}] DEMO MODE (RPC Error):`, error.message);
+    } else if (liveData && Array.isArray(liveData) && liveData.length === 0) {
+      console.log(`[${config.chartId}] DEMO MODE - Empty data (needs specific data upload)`);
     } else {
       console.log(`[${config.chartId}] DEMO MODE - No data available`);
     }
