@@ -19,8 +19,8 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Process in batches of 5 for optimal parallel processing
-    const BATCH_SIZE = 5;
+    // Process documents sequentially (1 at a time) to avoid rate limits
+    const BATCH_SIZE = 1;
     let totalProcessed = 0;
     let totalFailed = 0;
     let continueProcessing = true;
@@ -44,10 +44,13 @@ serve(async (req) => {
         break;
       }
 
-      console.log(`📦 Processing batch of ${queueItems.length} documents`);
+      console.log(`📦 Processing ${queueItems.length} document(s) sequentially`);
 
-      // Process all items in parallel using Promise.allSettled
-      const processingPromises = queueItems.map(async (item: any) => {
+      // Process items sequentially (one at a time) to avoid rate limits
+      let batchProcessed = 0;
+      let batchFailed = 0;
+
+      for (const item of queueItems) {
         const startTime = Date.now();
         
         // Get document details
@@ -150,7 +153,7 @@ serve(async (req) => {
           ]);
 
           console.log(`  ✅ Completed: ${item.document_id} (${processingTime}ms)`);
-          return { success: true, item };
+          batchProcessed++;
 
         } catch (error: any) {
           console.error(`  ❌ Failed: ${item.document_id}`, error.message);
@@ -196,25 +199,20 @@ serve(async (req) => {
               .eq('id', item.id);
           }
 
-          return { success: false, item, error: error.message };
+          batchFailed++;
         }
-      });
 
-      // Wait for all parallel processing to complete
-      const results = await Promise.allSettled(processingPromises);
-      
-      // Count successes and failures
-      const batchProcessed = results.filter(r => 
-        r.status === 'fulfilled' && r.value.success
-      ).length;
-      const batchFailed = results.filter(r => 
-        r.status === 'fulfilled' && !r.value.success
-      ).length;
+        // Add 30-second delay between documents to prevent rate limits
+        if (queueItems.indexOf(item) < queueItems.length - 1) {
+          console.log('  ⏸️ Waiting 30s before next document...');
+          await new Promise(resolve => setTimeout(resolve, 30000));
+        }
+      }
 
       totalProcessed += batchProcessed;
       totalFailed += batchFailed;
 
-      console.log(`📊 Batch complete: ${batchProcessed} succeeded, ${batchFailed} failed`);
+      console.log(`📊 Sequential batch complete: ${batchProcessed} succeeded, ${batchFailed} failed`);
 
       // Update job progress
       if (job_id) {
@@ -227,10 +225,7 @@ serve(async (req) => {
           .eq('id', job_id);
       }
 
-      // Small delay between batches to prevent overwhelming the system
-      if (queueItems.length === BATCH_SIZE) {
-        await new Promise(resolve => setTimeout(resolve, 2000));
-      }
+      // No additional delay needed - already delayed 30s between documents
     }
 
     // Mark job as complete if all items processed
