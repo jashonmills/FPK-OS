@@ -37,6 +37,14 @@ export default function BlogHub() {
       color: 'text-cyan-600'
     },
     {
+      title: 'Knowledge Base Command Center',
+      description: 'Ingest content from academic & clinical sources',
+      icon: Database,
+      path: '/dashboard/admin/blog/knowledge-base',
+      color: 'text-indigo-600',
+      featured: true
+    },
+    {
       title: 'Media Library',
       description: 'Upload and manage images',
       icon: Image,

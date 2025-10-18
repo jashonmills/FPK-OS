@@ -115,6 +115,7 @@ const MediaLibrary = lazy(() => import("./pages/admin/blog/MediaLibrary"));
 const BlogAnalytics = lazy(() => import("./pages/admin/blog/BlogAnalytics"));
 const BlogHub = lazy(() => import("./pages/admin/blog/BlogHub"));
 const AISourcesManager = lazy(() => import("./pages/admin/blog/AISourcesManager"));
+const KnowledgeBaseCommandCenter = lazy(() => import("./pages/admin/blog/KnowledgeBaseCommandCenter"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 const RSSFeed = lazy(() => import("./pages/RSSFeed"));
@@ -504,6 +505,7 @@ const App: React.FC = () => {
             <Route path="admin/blog/media" element={<LazyRoute><MediaLibrary /></LazyRoute>} />
             <Route path="admin/blog/analytics" element={<LazyRoute><BlogAnalytics /></LazyRoute>} />
             <Route path="admin/blog/ai-sources" element={<LazyRoute><AISourcesManager /></LazyRoute>} />
+            <Route path="admin/blog/knowledge-base" element={<LazyRoute><KnowledgeBaseCommandCenter /></LazyRoute>} />
             <Route path="admin/phoenix-lab" element={
               <RequireAdmin>
                 <LazyRoute><PhoenixLab /></LazyRoute>

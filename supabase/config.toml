@@ -167,3 +167,9 @@ verify_jwt = true
 
 [functions.generate-ai-blog-post]
 verify_jwt = true
+
+[functions.ingest-academic-papers]
+verify_jwt = true
+
+[functions.scrape-clinical-resources]
+verify_jwt = true

@@ -4306,6 +4306,134 @@ export type Database = {
           },
         ]
       }
+      kb_documents: {
+        Row: {
+          content: string
+          content_hash: string | null
+          created_at: string | null
+          created_by: string | null
+          document_type: string
+          focus_areas: string[] | null
+          id: string
+          metadata: Json | null
+          publication_date: string | null
+          source_name: string
+          source_type: string
+          source_url: string | null
+          title: string
+        }
+        Insert: {
+          content: string
+          content_hash?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          document_type: string
+          focus_areas?: string[] | null
+          id?: string
+          metadata?: Json | null
+          publication_date?: string | null
+          source_name: string
+          source_type: string
+          source_url?: string | null
+          title: string
+        }
+        Update: {
+          content?: string
+          content_hash?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          document_type?: string
+          focus_areas?: string[] | null
+          id?: string
+          metadata?: Json | null
+          publication_date?: string | null
+          source_name?: string
+          source_type?: string
+          source_url?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
+      kb_embeddings: {
+        Row: {
+          chunk_index: number
+          chunk_text: string
+          created_at: string | null
+          document_id: string
+          embedding: string | null
+          id: string
+        }
+        Insert: {
+          chunk_index: number
+          chunk_text: string
+          created_at?: string | null
+          document_id: string
+          embedding?: string | null
+          id?: string
+        }
+        Update: {
+          chunk_index?: number
+          chunk_text?: string
+          created_at?: string | null
+          document_id?: string
+          embedding?: string | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kb_embeddings_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "kb_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kb_scraping_jobs: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          created_by: string | null
+          documents_added: number | null
+          documents_found: number | null
+          error_message: string | null
+          id: string
+          job_type: string
+          search_queries: string[] | null
+          source_name: string
+          started_at: string | null
+          status: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          documents_added?: number | null
+          documents_found?: number | null
+          error_message?: string | null
+          id?: string
+          job_type: string
+          search_queries?: string[] | null
+          source_name: string
+          started_at?: string | null
+          status?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          documents_added?: number | null
+          documents_found?: number | null
+          error_message?: string | null
+          id?: string
+          job_type?: string
+          search_queries?: string[] | null
+          source_name?: string
+          started_at?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       knowledge_base_files: {
         Row: {
           created_at: string
@@ -10820,6 +10948,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      binary_quantize: {
+        Args: { "": string } | { "": unknown }
+        Returns: unknown
+      }
       calculate_level_from_xp: {
         Args: { total_xp: number }
         Returns: {
@@ -11290,6 +11422,22 @@ export type Database = {
         Args: { check_user_id?: string }
         Returns: string
       }
+      halfvec_avg: {
+        Args: { "": number[] }
+        Returns: unknown
+      }
+      halfvec_out: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      halfvec_send: {
+        Args: { "": unknown }
+        Returns: string
+      }
+      halfvec_typmod_in: {
+        Args: { "": unknown[] }
+        Returns: number
+      }
       has_permission: {
         Args: {
           _permission: Database["public"]["Enums"]["app_permission"]
@@ -11303,6 +11451,22 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      hnsw_bit_support: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      hnsw_halfvec_support: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      hnsw_sparsevec_support: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      hnswhandler: {
+        Args: { "": unknown }
+        Returns: unknown
       }
       initialize_student_profile: {
         Args: { p_user_id: string }
@@ -11327,6 +11491,26 @@ export type Database = {
       is_org_owner: {
         Args: { p_org_id: string; p_user_id: string }
         Returns: boolean
+      }
+      ivfflat_bit_support: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      ivfflat_halfvec_support: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      ivfflathandler: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      l2_norm: {
+        Args: { "": unknown } | { "": unknown }
+        Returns: number
+      }
+      l2_normalize: {
+        Args: { "": string } | { "": unknown } | { "": unknown }
+        Returns: unknown
       }
       log_hipaa_access: {
         Args: {
@@ -11419,6 +11603,31 @@ export type Database = {
         }
         Returns: Json
       }
+      search_kb_embeddings: {
+        Args: {
+          match_count?: number
+          match_threshold?: number
+          query_embedding: string
+        }
+        Returns: {
+          chunk_index: number
+          chunk_text: string
+          document_id: string
+          similarity: number
+        }[]
+      }
+      sparsevec_out: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      sparsevec_send: {
+        Args: { "": unknown }
+        Returns: string
+      }
+      sparsevec_typmod_in: {
+        Args: { "": unknown[] }
+        Returns: number
+      }
       track_usage: {
         Args: {
           p_feature_type: string
@@ -11507,6 +11716,30 @@ export type Database = {
           linked_user_id: string
           student_id: string
         }[]
+      }
+      vector_avg: {
+        Args: { "": number[] }
+        Returns: string
+      }
+      vector_dims: {
+        Args: { "": string } | { "": unknown }
+        Returns: number
+      }
+      vector_norm: {
+        Args: { "": string }
+        Returns: number
+      }
+      vector_out: {
+        Args: { "": string }
+        Returns: unknown
+      }
+      vector_send: {
+        Args: { "": string }
+        Returns: string
+      }
+      vector_typmod_in: {
+        Args: { "": unknown[] }
+        Returns: number
       }
       withdraw_user_consent: {
         Args: { p_consent_type: string; p_reason?: string; p_user_id: string }
