@@ -65,8 +65,8 @@ export function EnhancedAIBlogWizard({ open, onOpenChange }: EnhancedAIBlogWizar
           : 'Created draft successfully',
       });
 
-      // Navigate to editor
-      navigate(`/dashboard/admin/blog/posts/edit/${data.post.id}`);
+      // Navigate to editor with slug
+      navigate(`/dashboard/admin/blog/edit/${data.post.slug}`);
       onOpenChange(false);
     } catch (error) {
       console.error('Generation error:', error);

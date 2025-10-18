@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { FileEdit, Trash2, Eye, MoreHorizontal } from 'lucide-react';
-import { useBlogPosts, useDeleteBlogPost } from '@/hooks/useBlogPosts';
+import { useBlogPosts, useDeleteBlogPost, BlogPost } from '@/hooks/useBlogPosts';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
@@ -37,6 +37,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { TransparentTile } from '@/components/ui/transparent-tile';
+import { PostPreviewDialog } from '@/components/blog/PostPreviewDialog';
 
 export function PostsManager() {
   const [statusFilter, setStatusFilter] = useState('all');
@@ -46,6 +47,8 @@ export function PostsManager() {
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [postToDelete, setPostToDelete] = useState<any>(null);
+  const [previewPost, setPreviewPost] = useState<BlogPost | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const handleDeletePost = async () => {
     if (!postToDelete) return;
@@ -163,7 +166,10 @@ export function PostsManager() {
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8"
-                        onClick={() => window.open(`/blog/${post.slug}`, '_blank')}
+                        onClick={() => {
+                          setPreviewPost(post);
+                          setPreviewOpen(true);
+                        }}
                       >
                         <Eye className="h-4 w-4" />
                       </Button>
@@ -171,7 +177,7 @@ export function PostsManager() {
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8"
-                        onClick={() => navigate(`/dashboard/admin/blog/editor/${post.id}`)}
+                        onClick={() => navigate(`/dashboard/admin/blog/edit/${post.slug}`)}
                       >
                         <FileEdit className="h-4 w-4" />
                       </Button>
@@ -202,6 +208,12 @@ export function PostsManager() {
           </TableBody>
         </Table>
       </div>
+
+      <PostPreviewDialog
+        post={previewPost}
+        open={previewOpen}
+        onOpenChange={setPreviewOpen}
+      />
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
