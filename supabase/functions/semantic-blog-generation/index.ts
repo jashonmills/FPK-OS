@@ -218,12 +218,34 @@ Generate a complete, publication-ready blog post.`;
     }
 
     // Generate slug from title
-    const slug = generatedContent.title
+    let baseSlug = generatedContent.title
       .toLowerCase()
       .replace(/[^a-z0-9\s-]/g, '')
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
       .trim();
+
+    // Check if slug exists and make it unique
+    let slug = baseSlug;
+    let slugSuffix = 1;
+    let slugExists = true;
+
+    while (slugExists) {
+      const { data: existingPost } = await supabase
+        .from('blog_posts')
+        .select('id')
+        .eq('slug', slug)
+        .maybeSingle();
+
+      if (!existingPost) {
+        slugExists = false;
+      } else {
+        slugSuffix++;
+        slug = `${baseSlug}-${slugSuffix}`;
+      }
+    }
+
+    console.log(`Using unique slug: ${slug}`);
 
     // Create blog post draft
     const { data: newPost, error: insertError } = await supabase
