@@ -138,15 +138,19 @@ export default function BlogPost() {
       <SchemaMarkup post={post} />
       
       <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-4 py-12 max-w-4xl">
-        <Button 
-          variant="ghost" 
-          onClick={handleBackClick}
-          className="mb-8"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Resources
-        </Button>
+        {/* Fixed Back Button */}
+        <div className="fixed top-20 left-4 z-50">
+          <Button 
+            variant="outline" 
+            onClick={handleBackClick}
+            className="bg-background/95 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Resources
+          </Button>
+        </div>
+
+        <div className="container mx-auto px-4 py-12 max-w-4xl mt-4">
 
         {post.featured_image_url && (
           <div className="relative h-96 w-full overflow-hidden rounded-lg mb-8">

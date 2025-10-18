@@ -35,46 +35,46 @@ serve(async (req) => {
       ? content.split(/\s+/).slice(0, 500).join(' ')
       : '';
 
-    const systemPrompt = `You are an expert SEO specialist. Generate metadata that will achieve 70+/100 SEO score.
+    const systemPrompt = `You are an expert SEO copywriter. Generate metadata that will score 80+/100.
 
-CRITICAL SCORING FACTORS (Each worth ~7-8 points):
-1. Focus keyword MUST appear in the original title
-2. Focus keyword MUST appear in meta description
-3. Meta title must be 30-60 characters
-4. Meta description must be 120-160 characters
+CRITICAL REQUIREMENTS (failing any = low score):
+1. Focus keyword MUST be 2-3 words that appear EXACTLY as written in the title
+2. Focus keyword MUST appear at the START of meta title
+3. Focus keyword MUST appear in FIRST 20 WORDS of meta description  
+4. Meta title: 50-58 characters ONLY
+5. Meta description: 140-155 characters ONLY
 
-RULES - FOLLOW EXACTLY:
-1. Focus keyword: 
-   - Extract 2-4 words that ALREADY EXIST in the title
-   - Must be naturally present in the title text
-   - Complete phrase only, never truncated
-   - Example from "Finding Your Anchor: Grounding Techniques for Neurodivergent Minds":
-     ✓ "grounding techniques neurodivergent" (appears in title)
-     ✗ "grounding techniques neur" (truncated)
+PROCESS:
+1. Read the title carefully
+2. Identify the core 2-3 word phrase that appears in title
+3. Use that EXACT phrase as focus keyword
+4. Build meta title starting with that exact phrase
+5. Write meta description starting with that exact phrase
 
-2. Meta title (30-60 characters):
-   - MUST start with focus keyword
-   - Must be 50-58 characters (ideal for search display)
-   - Engaging and click-worthy
-   - Example: "Grounding Techniques Neurodivergent: Find Your Anchor"
+EXAMPLES:
 
-3. Meta description (120-160 characters):
-   - MUST include focus keyword naturally in first sentence
-   - Target 145-155 characters (ideal for search display)
-   - Include clear benefit and call-to-action
-   - Example: "Discover effective grounding techniques neurodivergent individuals can use daily. Science-backed strategies to find calm and regain control. Start today!"
-
-VALIDATION: Before responding, verify:
-- Focus keyword exists in original title ✓
-- Meta title: 30-60 chars ✓
-- Meta description: 120-160 chars ✓
-- Focus keyword in meta description ✓
-
-Respond ONLY with valid JSON:
+Title: "Finding Your Anchor: Grounding Techniques for Neurodivergent Minds"
+✓ CORRECT:
 {
-  "focusKeyword": "phrase from title",
-  "metaTitle": "50-58 char title",
-  "metaDescription": "145-155 char description"
+  "focusKeyword": "grounding techniques",
+  "metaTitle": "Grounding Techniques for Neurodivergent Minds Guide",
+  "metaDescription": "Grounding techniques help neurodivergent individuals manage anxiety and sensory overload. Discover practical strategies to find calm and stay present."
+}
+
+✗ WRONG - keyword too long:
+"focusKeyword": "grounding techniques neurodivergent"
+
+✗ WRONG - keyword not at start of meta title:
+"metaTitle": "Find Your Anchor: Grounding Techniques"
+
+✗ WRONG - keyword not at start of description:
+"metaDescription": "Discover effective strategies for grounding techniques"
+
+Respond ONLY with valid JSON (no markdown, no explanation):
+{
+  "focusKeyword": "2-3 words from title",
+  "metaTitle": "50-58 char title starting with keyword",
+  "metaDescription": "140-155 char description starting with keyword"
 }`;
 
     const userPrompt = `Title: ${title}${contentPreview ? `\n\nContent Preview: ${contentPreview}` : ''}`;
