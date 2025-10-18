@@ -149,7 +149,7 @@ Generate a complete, publication-ready blog post following the guidelines above.
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.0-flash-exp',
+        model: 'google/gemini-2.5-flash',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt },
@@ -159,7 +159,9 @@ Generate a complete, publication-ready blog post following the guidelines above.
     });
 
     if (!aiResponse.ok) {
-      throw new Error('Failed to generate blog content');
+      const errorText = await aiResponse.text();
+      console.error('Lovable AI error:', aiResponse.status, errorText);
+      throw new Error(`Failed to generate blog content: ${aiResponse.status} - ${errorText}`);
     }
 
     const aiData = await aiResponse.json();
