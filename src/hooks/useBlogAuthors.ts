@@ -4,7 +4,7 @@ import { toast } from '@/hooks/use-toast';
 
 export interface BlogAuthor {
   id: string;
-  user_id: string;
+  user_id: string | null;
   display_name: string;
   author_slug?: string;
   bio?: string;
@@ -54,13 +54,19 @@ export function useCreateBlogAuthor() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (author: Partial<BlogAuthor> & { display_name: string }) => {
+    mutationFn: async (author: Partial<BlogAuthor> & { display_name: string; is_ai_author?: boolean }) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
+      // For AI authors, set user_id to NULL; for real authors, use the current user's ID
+      const authorData = {
+        ...author,
+        user_id: author.is_ai_author ? null : user.id
+      };
+
       const { data, error } = await supabase
         .from('blog_authors')
-        .insert([{ ...author, user_id: user.id }])
+        .insert([authorData])
         .select()
         .single();
 

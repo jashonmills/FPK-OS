@@ -812,7 +812,7 @@ export type Database = {
           is_ai_author: boolean | null
           social_links: Json | null
           updated_at: string | null
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           author_slug?: string | null
@@ -826,7 +826,7 @@ export type Database = {
           is_ai_author?: boolean | null
           social_links?: Json | null
           updated_at?: string | null
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           author_slug?: string | null
@@ -840,7 +840,7 @@ export type Database = {
           is_ai_author?: boolean | null
           social_links?: Json | null
           updated_at?: string | null
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: []
       }
