@@ -15,7 +15,15 @@ export function EmbeddingProgressTracker({ job }: EmbeddingProgressTrackerProps)
     ? (job.processed_documents / job.total_documents) * 100 
     : 0;
 
+  // Check for API permission issues
+  const hasApiPermissionError = job.error_message?.includes('insufficient permissions') || 
+                                 job.error_message?.includes('Missing scopes');
+  const allFailed = job.total_documents > 0 && job.successful_embeddings === 0 && job.status === 'completed';
+
   const getStatusIcon = () => {
+    if (hasApiPermissionError || allFailed) {
+      return <AlertCircle className="h-4 w-4 text-red-500" />;
+    }
     switch (job.status) {
       case 'in_progress':
         return <Loader2 className="h-4 w-4 animate-spin text-blue-500" />;
@@ -29,6 +37,9 @@ export function EmbeddingProgressTracker({ job }: EmbeddingProgressTrackerProps)
   };
 
   const getStatusBadge = () => {
+    if (hasApiPermissionError || allFailed) {
+      return <Badge variant="destructive">Failed</Badge>;
+    }
     switch (job.status) {
       case 'in_progress':
         return <Badge variant="secondary" className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">Processing</Badge>;
@@ -76,13 +87,30 @@ export function EmbeddingProgressTracker({ job }: EmbeddingProgressTrackerProps)
             <span>{Math.round(progress)}%</span>
           </div>
 
-          {job.error_message && (
+          {hasApiPermissionError && (
+            <div className="text-xs text-red-600 dark:text-red-400 mt-2 p-3 bg-red-50 dark:bg-red-900/20 rounded border border-red-200 dark:border-red-800">
+              <div className="font-semibold mb-1">⚠️ OpenAI API Key Permission Error</div>
+              <div>Your OpenAI API key lacks the required <code className="px-1 py-0.5 bg-red-100 dark:bg-red-900/40 rounded">model.request</code> scope.</div>
+              <div className="mt-2">
+                <strong>Fix:</strong> Go to OpenAI dashboard → API Keys → Edit your key → Enable "Model capabilities" permission
+              </div>
+            </div>
+          )}
+
+          {allFailed && !hasApiPermissionError && (
+            <div className="text-xs text-red-600 dark:text-red-400 mt-2 p-3 bg-red-50 dark:bg-red-900/20 rounded border border-red-200 dark:border-red-800">
+              <div className="font-semibold mb-1">❌ All embeddings failed</div>
+              <div>{job.error_message || 'Check edge function logs for details'}</div>
+            </div>
+          )}
+
+          {job.error_message && !hasApiPermissionError && !allFailed && (
             <div className="text-xs text-red-600 dark:text-red-400 mt-2">
               {job.error_message}
             </div>
           )}
 
-          {job.status === 'completed' && (
+          {job.status === 'completed' && job.successful_embeddings > 0 && (
             <div className="text-sm text-green-600 dark:text-green-400 mt-2">
               🎉 All embeddings generated successfully!
             </div>
