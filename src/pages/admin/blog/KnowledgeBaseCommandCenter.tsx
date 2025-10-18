@@ -44,6 +44,7 @@ interface KBDocument {
   publication_date: string | null;
   focus_areas: string[];
   created_at: string;
+  source_url?: string;
 }
 
 export default function KnowledgeBaseCommandCenter() {
@@ -55,6 +56,8 @@ export default function KnowledgeBaseCommandCenter() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterSource, setFilterSource] = useState<string>('all');
   const [filterType, setFilterType] = useState<string>('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
 
   // Collapsible state
   const [tier1Open, setTier1Open] = useState(false);
@@ -121,7 +124,7 @@ export default function KnowledgeBaseCommandCenter() {
           message: `Processing ${academicJob.source_name}...`,
           progress: 50,
           itemsProcessed: academicJob.documents_added || 0,
-          totalItems: academicJob.documents_found || 1
+          itemsFound: academicJob.documents_found || 1
         });
       } else if (academicJob.status === 'completed') {
         setAcademicStatus({
@@ -153,7 +156,7 @@ export default function KnowledgeBaseCommandCenter() {
             message: `Scraping ${webScrapeJob.source_name}...`,
             progress: 50,
             itemsProcessed: webScrapeJob.documents_added || 0,
-            totalItems: webScrapeJob.documents_found || 1
+            itemsFound: webScrapeJob.documents_found || 1
           });
         } else if (webScrapeJob.status === 'completed') {
           setter({
@@ -232,6 +235,7 @@ export default function KnowledgeBaseCommandCenter() {
 
   useEffect(() => {
     loadDocuments();
+    setCurrentPage(1); // Reset to first page when filters change
   }, [searchQuery, filterSource, filterType]);
 
   const handleAcademicIngestion = async () => {
@@ -896,7 +900,7 @@ export default function KnowledgeBaseCommandCenter() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  documents.map((doc) => (
+                  documents.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((doc) => (
                     <TableRow key={doc.id} className="hover:bg-muted/50">
                       <TableCell className="font-medium">
                         <div className="line-clamp-2 max-w-md" title={doc.title}>
@@ -904,9 +908,20 @@ export default function KnowledgeBaseCommandCenter() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <span className="text-cyan-600 dark:text-cyan-400 font-medium text-sm">
-                          {doc.source_name}
-                        </span>
+                        {doc.source_url ? (
+                          <a 
+                            href={doc.source_url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-cyan-600 dark:text-cyan-400 font-medium text-sm hover:underline"
+                          >
+                            {doc.source_name}
+                          </a>
+                        ) : (
+                          <span className="text-cyan-600 dark:text-cyan-400 font-medium text-sm">
+                            {doc.source_name}
+                          </span>
+                        )}
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-1 flex-wrap">
@@ -949,6 +964,36 @@ export default function KnowledgeBaseCommandCenter() {
               </TableBody>
             </Table>
           </div>
+          
+          {/* Pagination */}
+          {documents.length > itemsPerPage && (
+            <div className="flex items-center justify-between pt-4">
+              <div className="text-sm text-muted-foreground">
+                Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, documents.length)} of {documents.length} documents
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                >
+                  Previous
+                </Button>
+                <div className="text-sm">
+                  Page {currentPage} of {Math.ceil(documents.length / itemsPerPage)}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.min(Math.ceil(documents.length / itemsPerPage), prev + 1))}
+                  disabled={currentPage === Math.ceil(documents.length / itemsPerPage)}
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
       </TransparentTile>
