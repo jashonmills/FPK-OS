@@ -8,6 +8,7 @@ import { ProgressTrackingSection } from '@/components/dashboard/ProgressTracking
 import { DocumentMetricsSection } from '@/components/dashboard/DocumentMetricsSection';
 import { AIInsightsWidget } from '@/components/dashboard/AIInsightsWidget';
 import { DailyBriefingWidget } from '@/components/dashboard/DailyBriefingWidget';
+import { AnalysisQueueStatus } from '@/components/dashboard/AnalysisQueueStatus';
 import { ProductTour } from '@/components/onboarding/ProductTour';
 import { dashboardTourSteps } from '@/components/onboarding/tourConfigs';
 import { useTourProgress } from '@/hooks/useTourProgress';
@@ -55,6 +56,9 @@ const Dashboard = () => {
             Tracking progress for {selectedStudent.student_name}
           </p>
         </div>
+
+        {/* Real-Time Processing Status */}
+        <AnalysisQueueStatus />
 
         {/* Daily Briefing - Top Priority */}
         <FeatureFlag flag="enable-ai-daily-briefing">

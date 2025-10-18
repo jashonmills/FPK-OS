@@ -477,15 +477,34 @@ serve(async (req) => {
 
       console.log(`📊 Batch complete: ${batchProcessed} succeeded, ${batchFailed} failed`);
 
-      // Update job progress
+      // Update job progress with estimated time
       if (job_id) {
-        await supabase
+        const jobData = await supabase
           .from('analysis_jobs')
-          .update({
-            processed_documents: totalProcessed,
-            failed_documents: totalFailed
-          })
-          .eq('id', job_id);
+          .select('started_at, created_at, total_documents, metadata')
+          .eq('id', job_id)
+          .single();
+
+        if (jobData.data) {
+          const startTime = jobData.data.started_at || jobData.data.created_at;
+          const elapsedMinutes = Math.floor((Date.now() - new Date(startTime).getTime()) / 60000);
+          const avgTimePerDoc = totalProcessed > 0 ? elapsedMinutes / totalProcessed : 2;
+          const remainingDocs = jobData.data.total_documents - totalProcessed;
+          const estimatedMinutes = Math.ceil(avgTimePerDoc * remainingDocs);
+
+          await supabase
+            .from('analysis_jobs')
+            .update({
+              processed_documents: totalProcessed,
+              failed_documents: totalFailed,
+              metadata: {
+                ...(jobData.data.metadata as any || {}),
+                estimatedMinutes,
+                avgTimePerDoc: Math.round(avgTimePerDoc * 10) / 10
+              }
+            })
+            .eq('id', job_id);
+        }
       }
 
       // Adaptive cooldown between batches

@@ -1,0 +1,205 @@
+import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { useFamily } from '@/contexts/FamilyContext';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Loader2, CheckCircle2, AlertCircle, Clock, FileText } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
+
+export const AnalysisQueueStatus = () => {
+  const { selectedFamily, selectedStudent } = useFamily();
+  const navigate = useNavigate();
+  const [liveStats, setLiveStats] = useState<any>(null);
+
+  // Fetch current analysis jobs
+  const { data: activeJobs } = useQuery({
+    queryKey: ['active-analysis-jobs', selectedFamily?.id],
+    queryFn: async () => {
+      if (!selectedFamily?.id) return null;
+      
+      const { data, error } = await supabase
+        .from('analysis_jobs')
+        .select('*')
+        .eq('family_id', selectedFamily.id)
+        .in('status', ['pending', 'processing'])
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (error) throw error;
+      return data?.[0] || null;
+    },
+    enabled: !!selectedFamily?.id,
+    refetchInterval: 5000 // Poll every 5 seconds
+  });
+
+  // Fetch queue stats
+  const { data: queueStats } = useQuery({
+    queryKey: ['queue-stats', selectedFamily?.id],
+    queryFn: async () => {
+      if (!selectedFamily?.id) return null;
+      
+      const { data, error } = await supabase.rpc('get_queue_stats', {
+        p_family_id: selectedFamily.id
+      });
+
+      if (error) throw error;
+      return data?.[0];
+    },
+    enabled: !!selectedFamily?.id,
+    refetchInterval: 3000 // Poll every 3 seconds
+  });
+
+  // Real-time subscription to queue changes
+  useEffect(() => {
+    if (!selectedFamily?.id) return;
+
+    const channel = supabase
+      .channel('queue-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'analysis_queue',
+          filter: `family_id=eq.${selectedFamily.id}`
+        },
+        (payload) => {
+          console.log('Queue update:', payload);
+          // Trigger refetch of stats
+          setLiveStats((prev: any) => ({ ...prev, timestamp: Date.now() }));
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'analysis_jobs',
+          filter: `family_id=eq.${selectedFamily.id}`
+        },
+        (payload) => {
+          console.log('Job update:', payload);
+          setLiveStats((prev: any) => ({ ...prev, timestamp: Date.now() }));
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [selectedFamily?.id]);
+
+  if (!selectedFamily || !selectedStudent) return null;
+
+  // Don't show if no active processing
+  if (!activeJobs && (!queueStats || queueStats.processing_items === 0)) return null;
+
+  const progress = activeJobs 
+    ? Math.round((activeJobs.processed_documents / activeJobs.total_documents) * 100)
+    : 0;
+
+  const metadata = activeJobs?.metadata as any;
+  const estimatedMinutesRemaining = metadata?.estimatedMinutes 
+    ? Math.max(0, metadata.estimatedMinutes - Math.floor((Date.now() - new Date(activeJobs.started_at || activeJobs.created_at).getTime()) / 60000))
+    : null;
+
+  return (
+    <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Loader2 className="h-4 w-4 animate-spin text-primary" />
+            AI Analysis in Progress
+          </CardTitle>
+          {activeJobs && (
+            <Badge variant="secondary" className="text-xs">
+              {activeJobs.job_type === 're-analysis' ? 'Re-Analysis' : 'Processing'}
+            </Badge>
+          )}
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {activeJobs && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Progress</span>
+              <span className="font-medium">
+                {activeJobs.processed_documents} / {activeJobs.total_documents} documents
+              </span>
+            </div>
+            <Progress value={progress} className="h-2" />
+            {estimatedMinutesRemaining !== null && (
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Clock className="h-3 w-3" />
+                Estimated time remaining: {estimatedMinutesRemaining}m
+              </div>
+            )}
+          </div>
+        )}
+
+        {queueStats && (
+          <div className="grid grid-cols-2 gap-3 pt-2 border-t">
+            <div className="flex items-center gap-2">
+              <div className="p-2 rounded-lg bg-blue-500/10">
+                <Loader2 className="h-4 w-4 text-blue-500" />
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground">Processing</div>
+                <div className="font-medium">{queueStats.processing_items || 0}</div>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <div className="p-2 rounded-lg bg-amber-500/10">
+                <Clock className="h-4 w-4 text-amber-500" />
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground">Pending</div>
+                <div className="font-medium">{queueStats.pending_items || 0}</div>
+              </div>
+            </div>
+
+            {(queueStats.completed_items > 0 || queueStats.failed_items > 0) && (
+              <>
+                <div className="flex items-center gap-2">
+                  <div className="p-2 rounded-lg bg-green-500/10">
+                    <CheckCircle2 className="h-4 w-4 text-green-500" />
+                  </div>
+                  <div>
+                    <div className="text-xs text-muted-foreground">Completed</div>
+                    <div className="font-medium">{queueStats.completed_items || 0}</div>
+                  </div>
+                </div>
+
+                {queueStats.failed_items > 0 && (
+                  <div className="flex items-center gap-2">
+                    <div className="p-2 rounded-lg bg-red-500/10">
+                      <AlertCircle className="h-4 w-4 text-red-500" />
+                    </div>
+                    <div>
+                      <div className="text-xs text-muted-foreground">Failed</div>
+                      <div className="font-medium">{queueStats.failed_items}</div>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        )}
+
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="w-full"
+          onClick={() => navigate('/documents')}
+        >
+          <FileText className="h-4 w-4 mr-2" />
+          View Details
+        </Button>
+      </CardContent>
+    </Card>
+  );
+};
