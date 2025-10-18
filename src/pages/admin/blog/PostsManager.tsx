@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { FileEdit, Trash2, Calendar, Eye } from 'lucide-react';
+import { FileEdit, Trash2, Eye, MoreHorizontal } from 'lucide-react';
 import { useBlogPosts, useDeleteBlogPost } from '@/hooks/useBlogPosts';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
@@ -23,6 +22,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export function PostsManager() {
   const [statusFilter, setStatusFilter] = useState('all');
@@ -52,36 +65,37 @@ export function PostsManager() {
   const getStatusBadgeColor = (status: string) => {
     switch (status) {
       case 'published':
-        return 'bg-green-500/10 text-green-500';
+        return 'bg-green-500/10 text-green-500 border-green-500/20';
       case 'draft':
-        return 'bg-yellow-500/10 text-yellow-500';
+        return 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20';
       case 'scheduled':
-        return 'bg-blue-500/10 text-blue-500';
+        return 'bg-blue-500/10 text-blue-500 border-blue-500/20';
       case 'archived':
-        return 'bg-gray-500/10 text-gray-500';
+        return 'bg-muted text-muted-foreground border-border';
       default:
-        return 'bg-muted text-muted-foreground';
+        return 'bg-muted text-muted-foreground border-border';
     }
   };
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
-        <div className="h-32 bg-muted animate-pulse rounded-lg" />
-        <div className="h-32 bg-muted animate-pulse rounded-lg" />
+      <div className="space-y-3">
+        <div className="h-12 bg-muted animate-pulse rounded" />
+        <div className="h-12 bg-muted animate-pulse rounded" />
+        <div className="h-12 bg-muted animate-pulse rounded" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div>
-          <h2 className="text-2xl font-bold">Blog Posts</h2>
-          <p className="text-muted-foreground">Manage your blog content</p>
+          <h2 className="text-xl sm:text-2xl font-bold">Blog Posts</h2>
+          <p className="text-sm text-muted-foreground">Manage your blog content</p>
         </div>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-full sm:w-[180px]">
+          <SelectTrigger className="w-full sm:w-[160px]">
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
           <SelectContent>
@@ -94,82 +108,96 @@ export function PostsManager() {
         </Select>
       </div>
 
-      <div className="space-y-4">
-        {posts.map((post) => (
-          <Card key={post.id}>
-            <CardContent className="p-4 sm:p-6">
-              <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
-                <div className="flex gap-4 flex-1 w-full">
-                  {post.featured_image_url && (
-                    <img
-                      src={post.featured_image_url}
-                      alt={post.featured_image_alt || post.title}
-                      className="w-20 h-20 sm:w-24 sm:h-24 rounded-lg object-cover flex-shrink-0"
-                    />
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex flex-wrap items-center gap-2 mb-2">
-                      <h3 className="text-base sm:text-lg font-semibold truncate">{post.title}</h3>
-                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusBadgeColor(post.status)}`}>
-                        {post.status}
-                      </span>
-                    </div>
-                    {post.excerpt && (
-                      <p className="text-sm text-muted-foreground line-clamp-2 mb-2">{post.excerpt}</p>
-                    )}
-                    <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
-                      {post.published_at && (
-                        <span className="flex items-center gap-1">
-                          <Calendar className="h-3 w-3" />
-                          {format(new Date(post.published_at), 'MMM d, yyyy')}
+      <div className="border rounded-lg bg-card">
+        <Table>
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead className="font-semibold">Title</TableHead>
+              <TableHead className="hidden md:table-cell font-semibold">Status</TableHead>
+              <TableHead className="hidden lg:table-cell font-semibold">Views</TableHead>
+              <TableHead className="hidden xl:table-cell font-semibold">Updated</TableHead>
+              <TableHead className="text-right font-semibold">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {posts.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center py-12 text-muted-foreground">
+                  No posts found. {statusFilter !== 'all' && 'Try changing the filter or '}
+                  Create your first blog post from the Blog Hub.
+                </TableCell>
+              </TableRow>
+            ) : (
+              posts.map((post) => (
+                <TableRow key={post.id}>
+                  <TableCell>
+                    <div className="space-y-1">
+                      <div className="font-medium line-clamp-1">{post.title}</div>
+                      <div className="text-xs text-muted-foreground md:hidden">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${getStatusBadgeColor(post.status)}`}>
+                          {post.status}
                         </span>
-                      )}
-                      <span className="flex items-center gap-1">
-                        <Eye className="h-3 w-3" />
-                        {post.views_count} views
-                      </span>
-                      <span>{post.read_time_minutes} min read</span>
+                      </div>
                     </div>
-                  </div>
-                </div>
-                <div className="flex gap-2 w-full sm:w-auto">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => navigate(`/dashboard/admin/blog/editor/${post.id}`)}
-                    className="flex-1 sm:flex-none"
-                  >
-                    <FileEdit className="h-4 w-4 sm:mr-2" />
-                    <span className="hidden sm:inline">Edit</span>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setPostToDelete(post);
-                      setDeleteDialogOpen(true);
-                    }}
-                    className="flex-1 sm:flex-none"
-                  >
-                    <Trash2 className="h-4 w-4 sm:mr-2" />
-                    <span className="hidden sm:inline">Delete</span>
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-
-        {posts.length === 0 && (
-          <Card>
-            <CardContent className="p-12 text-center">
-              <p className="text-muted-foreground">
-                No posts found. {statusFilter !== 'all' && `Try changing the filter or `}
-                Create your first blog post from the Blog Hub.
-              </p>
-            </CardContent>
-          </Card>
-        )}
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell">
+                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${getStatusBadgeColor(post.status)}`}>
+                      {post.status}
+                    </span>
+                  </TableCell>
+                  <TableCell className="hidden lg:table-cell text-muted-foreground">
+                    <div className="flex items-center gap-1.5">
+                      <Eye className="h-3.5 w-3.5" />
+                      {post.views_count}
+                    </div>
+                  </TableCell>
+                  <TableCell className="hidden xl:table-cell text-muted-foreground text-sm">
+                    {post.updated_at ? format(new Date(post.updated_at), 'MMM d, yyyy') : '-'}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex items-center justify-end gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => window.open(`/blog/${post.slug}`, '_blank')}
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => navigate(`/dashboard/admin/blog/editor/${post.id}`)}
+                      >
+                        <FileEdit className="h-4 w-4" />
+                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={() => {
+                              setPostToDelete(post);
+                              setDeleteDialogOpen(true);
+                            }}
+                            className="text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
       </div>
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
