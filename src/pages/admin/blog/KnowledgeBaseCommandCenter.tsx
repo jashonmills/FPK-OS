@@ -226,6 +226,42 @@ export default function KnowledgeBaseCommandCenter() {
     }
   };
 
+  const handleGenerateEmbeddings = async () => {
+    if (stats.totalDocuments === 0) {
+      toast({
+        title: 'No documents found',
+        description: 'Please ingest some content first',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('regenerate-kb-embeddings');
+
+      if (error) throw error;
+
+      toast({
+        title: 'Embeddings generated successfully',
+        description: data?.stats ? 
+          `Processed ${data.stats.total} documents. ${data.stats.success} successful, ${data.stats.failed} failed.` :
+          'All embeddings generated successfully'
+      });
+
+      loadStats();
+    } catch (error) {
+      toast({
+        title: 'Embedding generation failed',
+        description: error instanceof Error ? error.message : 'Unknown error',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleClearKB = async () => {
     if (!confirm('Are you sure you want to clear the entire knowledge base? This cannot be undone.')) {
       return;
@@ -304,12 +340,16 @@ export default function KnowledgeBaseCommandCenter() {
                 Actions
               </CardTitle>
             </CardHeader>
-            <CardContent className="flex flex-wrap gap-2">
-              <Button variant="outline" size="sm" onClick={loadStats} className="flex-1 sm:flex-none">
+            <CardContent className="flex flex-col gap-2">
+              <Button variant="outline" size="sm" onClick={loadStats}>
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Refresh
               </Button>
-              <Button variant="destructive" size="sm" onClick={handleClearKB} disabled={loading} className="flex-1 sm:flex-none">
+              <Button variant="default" size="sm" onClick={handleGenerateEmbeddings} disabled={loading}>
+                <Brain className="h-4 w-4 mr-2" />
+                Generate Embeddings
+              </Button>
+              <Button variant="destructive" size="sm" onClick={handleClearKB} disabled={loading}>
                 <Trash2 className="h-4 w-4 mr-2" />
                 Clear KB
               </Button>
@@ -556,39 +596,52 @@ export default function KnowledgeBaseCommandCenter() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Source</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Focus Areas</TableHead>
-                  <TableHead>Date Added</TableHead>
+                  <TableHead className="w-[40%]">Title</TableHead>
+                  <TableHead className="w-[15%]">Source</TableHead>
+                  <TableHead className="w-[15%]">Focus Areas</TableHead>
+                  <TableHead className="w-[12%]">Type</TableHead>
+                  <TableHead className="w-[10%]">Pub Date</TableHead>
+                  <TableHead className="w-[8%]">Added</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {documents.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                    <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
                       No documents found. Start ingesting content from the sources above.
                     </TableCell>
                   </TableRow>
                 ) : (
                   documents.map((doc) => (
                     <TableRow key={doc.id}>
-                      <TableCell className="font-medium">{doc.title}</TableCell>
-                      <TableCell>{doc.source_name}</TableCell>
+                      <TableCell className="font-medium max-w-md">
+                        <div className="truncate" title={doc.title}>{doc.title}</div>
+                      </TableCell>
                       <TableCell>
-                        <Badge variant="outline">{doc.document_type}</Badge>
+                        <span className="text-cyan-600 dark:text-cyan-400 font-medium">
+                          {doc.source_name}
+                        </span>
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-1 flex-wrap">
-                          {doc.focus_areas.slice(0, 3).map((area) => (
+                          {doc.focus_areas.slice(0, 2).map((area) => (
                             <Badge key={area} variant="secondary" className="text-xs">
                               {area}
                             </Badge>
                           ))}
                         </div>
                       </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {new Date(doc.created_at).toLocaleDateString()}
+                      <TableCell>
+                        <Badge variant="outline" className="text-xs">{doc.document_type}</Badge>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground text-sm">
+                        {doc.publication_date ? 
+                          new Date(doc.publication_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) :
+                          '-'
+                        }
+                      </TableCell>
+                      <TableCell className="text-muted-foreground text-sm">
+                        {new Date(doc.created_at).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' })}
                       </TableCell>
                     </TableRow>
                   ))
