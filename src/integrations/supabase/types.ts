@@ -4363,6 +4363,51 @@ export type Database = {
         }
         Relationships: []
       }
+      kb_embedding_jobs: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          current_document_title: string | null
+          error_message: string | null
+          failed_embeddings: number
+          id: string
+          processed_documents: number
+          started_at: string | null
+          status: string
+          successful_embeddings: number
+          total_documents: number
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          current_document_title?: string | null
+          error_message?: string | null
+          failed_embeddings?: number
+          id?: string
+          processed_documents?: number
+          started_at?: string | null
+          status?: string
+          successful_embeddings?: number
+          total_documents?: number
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          current_document_title?: string | null
+          error_message?: string | null
+          failed_embeddings?: number
+          id?: string
+          processed_documents?: number
+          started_at?: string | null
+          status?: string
+          successful_embeddings?: number
+          total_documents?: number
+        }
+        Relationships: []
+      }
       kb_embeddings: {
         Row: {
           chunk_index: number

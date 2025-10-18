@@ -14,6 +14,8 @@ import { IngestionStatusTracker, IngestionStatus } from '@/components/admin/Inge
 import { useNavigate } from 'react-router-dom';
 import { KB_SOURCES } from '@/lib/knowledgeBase/sourceCatalog';
 import { useScrapingJobStatus } from '@/hooks/useScrapingJobStatus';
+import { useEmbeddingJobStatus } from '@/hooks/useEmbeddingJobStatus';
+import { EmbeddingProgressTracker } from '@/components/admin/EmbeddingProgressTracker';
 import {
   Table,
   TableBody,
@@ -85,6 +87,10 @@ export default function KnowledgeBaseCommandCenter() {
   // Job tracking state
   const [trackingEnabled, setTrackingEnabled] = useState(false);
   const { jobs, getLatestJobByType } = useScrapingJobStatus(trackingEnabled);
+  
+  // Embedding job tracking
+  const [embeddingTrackingEnabled, setEmbeddingTrackingEnabled] = useState(false);
+  const { currentJob: embeddingJob } = useEmbeddingJobStatus(embeddingTrackingEnabled);
 
   useEffect(() => {
     loadStats();
@@ -435,6 +441,7 @@ export default function KnowledgeBaseCommandCenter() {
     }
 
     setLoading(true);
+    setEmbeddingTrackingEnabled(true);
 
     try {
       const { data, error } = await supabase.functions.invoke('regenerate-kb-embeddings');
@@ -442,23 +449,31 @@ export default function KnowledgeBaseCommandCenter() {
       if (error) throw error;
 
       toast({
-        title: 'Embeddings generated successfully',
-        description: data?.stats ? 
-          `Processed ${data.stats.total} documents. ${data.stats.success} successful, ${data.stats.failed} failed.` :
-          'All embeddings generated successfully'
+        title: 'Embedding generation started',
+        description: 'Processing documents in the background. Progress will update automatically.'
       });
-
-      loadStats();
     } catch (error) {
       toast({
-        title: 'Embedding generation failed',
+        title: 'Failed to start embedding generation',
         description: error instanceof Error ? error.message : 'Unknown error',
         variant: 'destructive'
       });
+      setEmbeddingTrackingEnabled(false);
     } finally {
       setLoading(false);
     }
   };
+
+  // Watch for embedding job completion
+  useEffect(() => {
+    if (embeddingJob?.status === 'completed') {
+      loadStats();
+      loadDocuments();
+      setTimeout(() => {
+        setEmbeddingTrackingEnabled(false);
+      }, 3000);
+    }
+  }, [embeddingJob?.status]);
 
   const handleClearKB = async () => {
     if (!confirm('Are you sure you want to clear the entire knowledge base? This cannot be undone.')) {
@@ -539,15 +554,34 @@ export default function KnowledgeBaseCommandCenter() {
               </CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-2">
-              <Button variant="outline" size="sm" onClick={loadStats}>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => {
+                  loadStats();
+                  loadDocuments();
+                  toast({ title: 'Data refreshed' });
+                }}
+                disabled={loading}
+              >
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Refresh
               </Button>
-              <Button variant="default" size="sm" onClick={handleGenerateEmbeddings} disabled={loading}>
+              <Button 
+                variant="default" 
+                size="sm" 
+                onClick={handleGenerateEmbeddings} 
+                disabled={loading || stats.totalDocuments === 0 || embeddingJob?.status === 'in_progress'}
+              >
                 <Brain className="h-4 w-4 mr-2" />
                 Generate Embeddings
               </Button>
-              <Button variant="destructive" size="sm" onClick={handleClearKB} disabled={loading}>
+              <Button 
+                variant="destructive" 
+                size="sm" 
+                onClick={handleClearKB} 
+                disabled={loading}
+              >
                 <Trash2 className="h-4 w-4 mr-2" />
                 Clear KB
               </Button>
@@ -573,6 +607,11 @@ export default function KnowledgeBaseCommandCenter() {
             <IngestionStatusTracker status={specializedStatus} tierName="Tier 4: Specialized Resources" />
           )}
         </div>
+      )}
+
+      {/* Embedding Progress Tracker */}
+      {embeddingJob && (
+        <EmbeddingProgressTracker job={embeddingJob} />
       )}
 
       {/* Academic Databases Ingestion */}
