@@ -19,8 +19,11 @@ Deno.serve(async (req) => {
 
   try {
     const { post_slug, referrer, user_agent }: BlogViewRequest = await req.json();
+    
+    console.log('[TRACK-BLOG-VIEW] Request received:', { post_slug, referrer, hasUserAgent: !!user_agent });
 
     if (!post_slug) {
+      console.error('[TRACK-BLOG-VIEW] Missing post_slug');
       return new Response(
         JSON.stringify({ error: 'post_slug is required' }),
         { 
@@ -31,17 +34,35 @@ Deno.serve(async (req) => {
     }
 
     // Create Supabase client
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
-    );
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY');
+    
+    if (!supabaseUrl || !supabaseKey) {
+      console.error('[TRACK-BLOG-VIEW] Missing Supabase credentials');
+      return new Response(
+        JSON.stringify({ error: 'Server configuration error' }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
+    const supabaseClient = createClient(supabaseUrl, supabaseKey);
+    
+    console.log('[TRACK-BLOG-VIEW] Calling increment_blog_post_views RPC');
 
     // Call the increment function
     const { data, error } = await supabaseClient
       .rpc('increment_blog_post_views', { post_slug });
 
     if (error) {
-      console.error('Error incrementing blog views:', error);
+      console.error('[TRACK-BLOG-VIEW] RPC Error:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      });
       return new Response(
         JSON.stringify({ 
           error: 'Failed to track view',
@@ -54,17 +75,19 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Log the view for monitoring
-    console.log(`Blog view tracked: ${post_slug}`, {
-      views_count: data?.[0]?.views_count,
-      referrer,
-      user_agent: user_agent?.substring(0, 50) // Truncate for logging
+    const viewsCount = data?.[0]?.views_count || 0;
+    
+    console.log('[TRACK-BLOG-VIEW] Success:', {
+      post_slug,
+      views_count: viewsCount,
+      referrer: referrer || 'direct',
+      timestamp: new Date().toISOString()
     });
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        views_count: data?.[0]?.views_count 
+        views_count: viewsCount 
       }),
       { 
         status: 200, 
@@ -72,9 +95,15 @@ Deno.serve(async (req) => {
       }
     );
   } catch (error) {
-    console.error('Error in track-blog-view function:', error);
+    console.error('[TRACK-BLOG-VIEW] Unexpected error:', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined
+    });
     return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
+      JSON.stringify({ 
+        error: 'Internal server error',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      }),
       { 
         status: 500, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 

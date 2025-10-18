@@ -22,25 +22,37 @@ export default function BlogPost() {
   
   const author = post?.blog_authors;
 
-  // Track blog view on mount
+  // Track blog view on mount with retry logic
   useEffect(() => {
     if (!slug || !post) return;
 
     let hasTracked = false;
 
-    const trackView = async () => {
+    const trackView = async (retryCount = 0) => {
       if (hasTracked) return;
-      hasTracked = true;
+      
+      const maxRetries = 2;
+      const retryDelay = 1000; // 1 second
 
       try {
+        console.log(`[BlogPost] Tracking view for: ${slug} (attempt ${retryCount + 1})`);
+        
         // Track in database via edge function
-        await supabase.functions.invoke('track-blog-view', {
+        const { data, error } = await supabase.functions.invoke('track-blog-view', {
           body: {
             post_slug: slug,
             referrer: document.referrer,
             user_agent: navigator.userAgent
           }
         });
+
+        if (error) {
+          console.error('[BlogPost] Edge function error:', error);
+          throw error;
+        }
+
+        console.log('[BlogPost] View tracked successfully:', data);
+        hasTracked = true;
 
         // Track in Google Analytics
         ga4.trackCustomEvent('blog_post_view', {
@@ -51,11 +63,20 @@ export default function BlogPost() {
           read_time: post.read_time_minutes
         });
       } catch (error) {
-        console.error('Error tracking blog view:', error);
+        console.error(`[BlogPost] Error tracking view (attempt ${retryCount + 1}):`, error);
+        
+        // Retry logic
+        if (retryCount < maxRetries) {
+          console.log(`[BlogPost] Retrying in ${retryDelay}ms...`);
+          setTimeout(() => trackView(retryCount + 1), retryDelay);
+        } else {
+          console.error('[BlogPost] Max retries reached, view tracking failed');
+        }
       }
     };
 
-    trackView();
+    // Small delay to ensure edge function is deployed
+    setTimeout(() => trackView(), 500);
   }, [slug, post]);
 
   const handleBackClick = () => {

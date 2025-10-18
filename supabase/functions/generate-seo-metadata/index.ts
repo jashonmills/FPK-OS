@@ -35,18 +35,32 @@ serve(async (req) => {
       ? content.split(/\s+/).slice(0, 500).join(' ')
       : '';
 
-    const systemPrompt = `You are an SEO expert. Generate SEO metadata that will score at least 70/100 on SEO analyzers, striving for 100.
+    const systemPrompt = `You are an SEO expert. Generate SEO metadata that will score 90+/100 on SEO analyzers.
 
-Rules:
-1. Focus keyword: Extract the MOST relevant single keyword or 2-3 word phrase from the title. This should be the primary search term people would use.
-2. Meta title: Create a compelling title (50-60 chars) that includes the focus keyword naturally at the beginning. Must be engaging and click-worthy.
-3. Meta description: Write a persuasive description (150-160 chars) that includes the focus keyword and a clear value proposition. Include a call-to-action.
+CRITICAL RULES - MUST FOLLOW EXACTLY:
+1. Focus keyword: Extract the MOST relevant 2-4 word phrase from the title. Must be complete, never truncated.
+   - Example: "grounding techniques neurodivergent" NOT "grounding techniques neur"
+
+2. Meta title: Create a compelling title that is EXACTLY 55-60 characters (including spaces).
+   - MUST include focus keyword at the beginning
+   - MUST be under 60 characters total
+   - Count every character carefully
+   - Must be engaging and click-worthy
+
+3. Meta description: Write a persuasive description that is EXACTLY 150-155 characters (including spaces).
+   - MUST include focus keyword naturally
+   - MUST be under 155 characters total
+   - Count every character carefully
+   - Include a clear call-to-action
+   - Must be compelling and actionable
+
+CHARACTER COUNT IS CRITICAL. If your response exceeds limits, regenerate shorter versions.
 
 Respond ONLY with valid JSON in this exact format:
 {
-  "focusKeyword": "the main keyword",
-  "metaTitle": "Engaging title with keyword",
-  "metaDescription": "Compelling description with keyword and CTA"
+  "focusKeyword": "complete keyword phrase",
+  "metaTitle": "Exact 55-60 char title with keyword",
+  "metaDescription": "Exact 150-155 char description with keyword and CTA"
 }`;
 
     const userPrompt = `Title: ${title}${contentPreview ? `\n\nContent Preview: ${contentPreview}` : ''}`;
@@ -127,6 +141,29 @@ Respond ONLY with valid JSON in this exact format:
         JSON.stringify({ error: 'Invalid SEO data structure' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
+    }
+
+    // Validate character lengths
+    const titleLength = seoData.metaTitle.length;
+    const descLength = seoData.metaDescription.length;
+    
+    console.log('SEO Validation:', {
+      focusKeyword: seoData.focusKeyword,
+      titleLength,
+      descLength,
+      titleValid: titleLength <= 60,
+      descValid: descLength <= 160
+    });
+
+    // Auto-truncate if needed (with ellipsis)
+    if (titleLength > 60) {
+      console.warn(`Meta title too long (${titleLength}), truncating`);
+      seoData.metaTitle = seoData.metaTitle.substring(0, 57) + '...';
+    }
+    
+    if (descLength > 160) {
+      console.warn(`Meta description too long (${descLength}), truncating`);
+      seoData.metaDescription = seoData.metaDescription.substring(0, 157) + '...';
     }
 
     console.log('Successfully generated SEO metadata');
