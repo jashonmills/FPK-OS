@@ -107,17 +107,19 @@ export const DraggableChartGrid = ({
         className="layout"
         layout={layout}
         cols={48}
-        rowHeight={30}
+        rowHeight={40}
         isDraggable={isEditMode}
         isResizable={isEditMode}
         onLayoutChange={handleLayoutChange}
-        compactType="vertical"
+        compactType={null}
         preventCollision={false}
-        margin={[4, 4]}
-        containerPadding={[12, 12]}
+        margin={[8, 8]}
+        containerPadding={[16, 16]}
         useCSSTransforms={true}
+        autoSize={false}
         style={{
-          minHeight: '100%',
+          minHeight: '100vh',
+          height: 'auto',
           position: 'relative'
         }}
       >

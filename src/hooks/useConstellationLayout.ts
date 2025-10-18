@@ -19,36 +19,36 @@ export const useConstellationLayout = (chartCount: number): GridPosition[] => {
   // 5 CHARTS - Behavioral, Social, Sensory/Executive
   if (chartCount === 5) {
     return [
-      { gridColumn: '1 / 13', gridRow: '1 / 4' },     // Top-left (1-4 * 4 = 1-13)
-      { gridColumn: '37 / 49', gridRow: '1 / 4' },    // Top-right (10-13 * 4 = 37-49)
-      { gridColumn: '1 / 13', gridRow: '5 / 9' },     // Bottom-left
-      { gridColumn: '17 / 33', gridRow: '6 / 9' },    // Bottom-center (5-9 * 4 = 17-33)
-      { gridColumn: '37 / 49', gridRow: '5 / 9' }     // Bottom-right
+      { gridColumn: '1 / 13', gridRow: '1 / 6' },     // Top-left (taller)
+      { gridColumn: '37 / 49', gridRow: '1 / 6' },    // Top-right (taller)
+      { gridColumn: '1 / 13', gridRow: '7 / 12' },    // Bottom-left (taller)
+      { gridColumn: '17 / 33', gridRow: '7 / 12' },   // Bottom-center (taller)
+      { gridColumn: '37 / 49', gridRow: '7 / 12' }    // Bottom-right (taller)
     ];
   }
   
   // 6 CHARTS - Academic tab
   if (chartCount === 6) {
     return [
-      { gridColumn: '1 / 13', gridRow: '1 / 4' },     // Top-left (IEP Goal Tracker)
-      { gridColumn: '37 / 49', gridRow: '1 / 4' },    // Top-right (Academic Fluency)
-      { gridColumn: '33 / 45', gridRow: '6 / 9' },    // Bottom-right (Reading Error - 9-12 * 4 = 33-45)
-      { gridColumn: '1 / 13', gridRow: '5 / 9' },     // Bottom-left (Task Initiation)
-      { gridColumn: '17 / 29', gridRow: '6 / 9' },    // Bottom-center-left (Working Memory - 5-8 * 4 = 17-29)
-      { gridColumn: '13 / 37', gridRow: '1 / 4' }     // Top-center (Daily Living Skills - 4-10 * 4 = 13-37)
+      { gridColumn: '1 / 13', gridRow: '1 / 6' },     // Top-left (IEP Goal Tracker) - taller
+      { gridColumn: '37 / 49', gridRow: '1 / 6' },    // Top-right (Academic Fluency) - taller
+      { gridColumn: '33 / 45', gridRow: '7 / 12' },   // Bottom-right (Reading Error) - taller
+      { gridColumn: '1 / 13', gridRow: '7 / 12' },    // Bottom-left (Task Initiation) - taller
+      { gridColumn: '17 / 29', gridRow: '7 / 12' },   // Bottom-center-left (Working Memory) - taller
+      { gridColumn: '13 / 37', gridRow: '1 / 6' }     // Top-center (Daily Living Skills) - taller
     ];
   }
   
   // 7 CHARTS - Overall tab
   if (chartCount === 7) {
     return [
-      { gridColumn: '1 / 13', gridRow: '1 / 4' },     // Top-left (Daily Activity)
-      { gridColumn: '37 / 49', gridRow: '1 / 4' },    // Top-right (Mood)
-      { gridColumn: '17 / 33', gridRow: '2 / 5' },    // Center (Sleep Quality - 5-9 * 4 = 17-33)
-      { gridColumn: '1 / 13', gridRow: '5 / 8' },     // Mid-left (Incident)
-      { gridColumn: '37 / 49', gridRow: '5 / 8' },    // Mid-right (Intervention)
-      { gridColumn: '1 / 25', gridRow: '8 / 9' },     // Bottom-left (Top Goals - 1-7 * 4 = 1-25)
-      { gridColumn: '25 / 49', gridRow: '8 / 9' }     // Bottom-right (Strategy - 7-13 * 4 = 25-49)
+      { gridColumn: '1 / 13', gridRow: '1 / 5' },     // Top-left (Daily Activity) - taller
+      { gridColumn: '37 / 49', gridRow: '1 / 5' },    // Top-right (Mood) - taller
+      { gridColumn: '17 / 33', gridRow: '1 / 6' },    // Center (Sleep Quality) - taller
+      { gridColumn: '1 / 13', gridRow: '6 / 10' },    // Mid-left (Incident) - taller
+      { gridColumn: '37 / 49', gridRow: '6 / 10' },   // Mid-right (Intervention) - taller
+      { gridColumn: '1 / 25', gridRow: '11 / 15' },   // Bottom-left (Top Goals) - taller & lower
+      { gridColumn: '25 / 49', gridRow: '11 / 15' }   // Bottom-right (Strategy) - taller & lower
     ];
   }
   
@@ -61,8 +61,8 @@ export const useConstellationLayout = (chartCount: number): GridPosition[] => {
     const row = Math.floor(i / cols);
     const colStart = 1 + (col * 12); // 3 * 4 = 12 columns per chart
     const colEnd = colStart + 12;
-    const rowStart = 1 + (row * 2);
-    const rowEnd = rowStart + 2;
+    const rowStart = 1 + (row * 5);  // Increased spacing (was 2, now 5 for taller charts)
+    const rowEnd = rowStart + 4;     // Increased height (was 2, now 4)
     
     positions.push({
       gridColumn: `${colStart} / ${colEnd}`,

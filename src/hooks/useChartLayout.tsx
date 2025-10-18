@@ -85,9 +85,9 @@ export const useChartLayout = (
         w,
         h,
         minW: 8,  // Minimum 8 cols (was 2 for 12-col grid)
-        minH: 2,
+        minH: 3,
         maxW: 48, // Maximum 48 cols (full width)
-        maxH: 4,
+        maxH: 10,
       };
     });
   };
