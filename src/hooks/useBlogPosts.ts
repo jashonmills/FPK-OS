@@ -57,28 +57,36 @@ export function useBlogPosts(status?: string) {
     queryFn: async () => {
       let query = supabase
         .from('blog_posts')
-        .select(`
-          *,
-          blog_authors (
-            id,
-            display_name,
-            author_slug,
-            bio,
-            credentials,
-            avatar_url,
-            is_ai_author
-          )
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
       if (status && status !== 'all') {
         query = query.eq('status', status);
       }
 
-      const { data, error } = await query;
+      const { data: posts, error: postsError } = await query;
+      if (postsError) throw postsError;
 
-      if (error) throw error;
-      return data as BlogPost[];
+      // Fetch authors separately
+      const authorIds = [...new Set(posts?.map(p => p.author_id).filter(Boolean))];
+      if (authorIds.length === 0) return posts as BlogPost[];
+
+      const { data: authors, error: authorsError } = await supabase
+        .from('blog_authors')
+        .select('*')
+        .in('id', authorIds);
+
+      if (authorsError) throw authorsError;
+
+      // Combine posts with authors
+      const postsWithAuthors = posts?.map(post => ({
+        ...post,
+        blog_authors: post.author_id 
+          ? authors?.find(a => a.id === post.author_id) 
+          : undefined
+      }));
+
+      return postsWithAuthors as BlogPost[];
     },
   });
 }
@@ -87,25 +95,30 @@ export function useBlogPost(slug: string) {
   return useQuery({
     queryKey: ['blog_post', slug],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: post, error } = await supabase
         .from('blog_posts')
-        .select(`
-          *,
-          blog_authors (
-            id,
-            display_name,
-            author_slug,
-            bio,
-            credentials,
-            avatar_url,
-            is_ai_author
-          )
-        `)
+        .select('*')
         .eq('slug', slug)
         .maybeSingle();
 
       if (error) throw error;
-      return data as BlogPost | null;
+      if (!post) return null;
+
+      // Fetch author separately if exists
+      if (post.author_id) {
+        const { data: author } = await supabase
+          .from('blog_authors')
+          .select('*')
+          .eq('id', post.author_id)
+          .maybeSingle();
+
+        return {
+          ...post,
+          blog_authors: author || undefined
+        } as BlogPost;
+      }
+
+      return post as BlogPost;
     },
     enabled: !!slug,
   });
