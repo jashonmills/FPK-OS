@@ -9,6 +9,7 @@ import { DocumentMetricsSection } from '@/components/dashboard/DocumentMetricsSe
 import { AIInsightsWidget } from '@/components/dashboard/AIInsightsWidget';
 import { DailyBriefingWidget } from '@/components/dashboard/DailyBriefingWidget';
 import { AnalysisQueueStatus } from '@/components/dashboard/AnalysisQueueStatus';
+import { MetricConnectionStatus } from '@/components/analytics/MetricConnectionStatus';
 import { ProductTour } from '@/components/onboarding/ProductTour';
 import { dashboardTourSteps } from '@/components/onboarding/tourConfigs';
 import { useTourProgress } from '@/hooks/useTourProgress';
@@ -16,7 +17,7 @@ import { Plus, TrendingUp, BookOpen, Activity, FileText, Sparkles } from 'lucide
 import { FeatureFlag } from '@/components/shared/FeatureFlag';
 
 const Dashboard = () => {
-  const { selectedStudent, isLoading } = useFamily();
+  const { selectedStudent, selectedFamily, isLoading } = useFamily();
   const { shouldRunTour, markTourAsSeen } = useTourProgress('has_seen_dashboard_tour');
 
   if (isLoading) {
@@ -59,6 +60,12 @@ const Dashboard = () => {
 
         {/* Real-Time Processing Status */}
         <AnalysisQueueStatus />
+        {selectedFamily && (
+          <MetricConnectionStatus 
+            familyId={selectedFamily.id} 
+            studentId={selectedStudent.id} 
+          />
+        )}
 
         {/* Daily Briefing - Top Priority */}
         <FeatureFlag flag="enable-ai-daily-briefing">

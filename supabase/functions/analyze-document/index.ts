@@ -516,6 +516,15 @@ serve(async (req) => {
     const totalTime = Date.now() - startTime;
     console.log(`✅ Analysis complete in ${totalTime}ms (${analysisRetryCount} retries)`);
     console.log(`📊 Results: ${analysisResult.metrics?.length || 0} metrics, ${analysisResult.insights?.length || 0} insights, ${analysisResult.progress_tracking?.length || 0} progress, ${analysisResult.recommended_charts?.length || 0} charts`);
+    
+    // Log metric type breakdown for debugging
+    if (analysisResult.metrics && analysisResult.metrics.length > 0) {
+      const metricTypeBreakdown = analysisResult.metrics.reduce((acc: any, m: any) => {
+        acc[m.metric_type] = (acc[m.metric_type] || 0) + 1;
+        return acc;
+      }, {});
+      console.log(`📊 Metric types extracted:`, metricTypeBreakdown);
+    }
 
     // Update document_analysis_status with completion
     await supabase
