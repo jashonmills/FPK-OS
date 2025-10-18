@@ -11,8 +11,11 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  let currentJobId: string | null = null;
+  
   try {
     const { family_id, job_id } = await req.json();
+    currentJobId = job_id;
     console.log('🚀 Queue processor starting for family:', family_id);
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -711,11 +714,50 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('❌ Queue processor error:', error);
+    console.error('❌ FATAL ERROR in process-analysis-queue:', error);
+    
+    // CRITICAL: Clean up stuck items on catastrophic failure
+    try {
+      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+      const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+      const supabase = createClient(supabaseUrl, supabaseKey);
+      
+      console.log('🔄 Attempting cleanup of stuck items...');
+      
+      // Reset processing items to pending for retry
+      if (currentJobId) {
+        await supabase
+          .from('analysis_queue')
+          .update({
+            status: 'pending',
+            started_at: null,
+            error_message: `Fatal error: ${error.message}. Reset for retry.`,
+            updated_at: new Date().toISOString()
+          })
+          .eq('job_id', currentJobId)
+          .eq('status', 'processing');
+
+        // Mark job as failed
+        await supabase
+          .from('analysis_jobs')
+          .update({
+            status: 'failed',
+            error_message: `Fatal error: ${error.message}`,
+            completed_at: new Date().toISOString()
+          })
+          .eq('id', currentJobId);
+          
+        console.log('✅ Cleanup completed');
+      }
+    } catch (cleanupError) {
+      console.error('❌ Cleanup failed:', cleanupError);
+    }
+    
     return new Response(
       JSON.stringify({ 
         error: error instanceof Error ? error.message : 'Unknown error',
         success: false,
+        recovery_available: true
       }),
       { 
         status: 500,

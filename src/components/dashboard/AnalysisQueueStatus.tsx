@@ -5,18 +5,20 @@ import { useFamily } from '@/contexts/FamilyContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Loader2, CheckCircle2, AlertCircle, Clock, FileText } from 'lucide-react';
+import { Loader2, CheckCircle2, AlertCircle, Clock, FileText, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import type { JobStatus, QueueStats, AnalysisJobMetadata } from '@/types/analysis';
 
 export const AnalysisQueueStatus = () => {
   const { selectedFamily, selectedStudent } = useFamily();
   const navigate = useNavigate();
   const [liveStats, setLiveStats] = useState<any>(null);
+  const [isRecovering, setIsRecovering] = useState(false);
 
   // Fetch current analysis jobs
-  const { data: activeJobs } = useQuery({
+  const { data: activeJobs, refetch: refetchJobs } = useQuery({
     queryKey: ['active-analysis-jobs', selectedFamily?.id],
     queryFn: async () => {
       if (!selectedFamily?.id) return null;
@@ -37,7 +39,7 @@ export const AnalysisQueueStatus = () => {
   });
 
   // Fetch queue stats
-  const { data: queueStats } = useQuery({
+  const { data: queueStats, refetch: refetchStats } = useQuery({
     queryKey: ['queue-stats', selectedFamily?.id],
     queryFn: async () => {
       if (!selectedFamily?.id) return null;
@@ -108,6 +110,49 @@ export const AnalysisQueueStatus = () => {
     ? Math.max(0, metadata.estimatedMinutes - Math.floor((Date.now() - new Date(activeJobs.started_at).getTime()) / 60000))
     : null;
 
+  // Detect stuck job (processing >5 min with no progress)
+  const isStuck = activeJobs?.status === 'processing' && 
+    activeJobs.started_at && 
+    (Date.now() - new Date(activeJobs.started_at).getTime() > 5 * 60 * 1000) &&
+    activeJobs.processed_documents === 0;
+
+  const handleRecovery = async () => {
+    if (!selectedFamily || !activeJobs) return;
+    
+    setIsRecovering(true);
+    try {
+      const { error } = await supabase.functions.invoke('recover-stuck-queue-items', {
+        body: { 
+          family_id: selectedFamily.id,
+          job_id: activeJobs.id 
+        }
+      });
+
+      if (error) throw error;
+
+      toast.success('Recovery successful! Restarting analysis...');
+      
+      // Trigger re-analysis
+      const { error: reanalyzeError } = await supabase.functions.invoke('re-analyze-all-documents', {
+        body: { 
+          family_id: selectedFamily.id,
+          student_id: selectedStudent?.id 
+        }
+      });
+
+      if (reanalyzeError) throw reanalyzeError;
+
+      // Refetch data
+      await Promise.all([refetchJobs(), refetchStats()]);
+      
+    } catch (error) {
+      console.error('Recovery error:', error);
+      toast.error('Recovery failed. Please try again.');
+    } finally {
+      setIsRecovering(false);
+    }
+  };
+
   return (
     <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
       <CardHeader className="pb-3">
@@ -124,6 +169,36 @@ export const AnalysisQueueStatus = () => {
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
+        {isStuck && (
+          <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+            <AlertCircle className="h-4 w-4 text-destructive flex-shrink-0" />
+            <div className="flex-1 text-sm">
+              <p className="font-medium text-destructive">Analysis appears stuck</p>
+              <p className="text-muted-foreground text-xs mt-1">
+                No progress detected. Click to recover and retry.
+              </p>
+            </div>
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={handleRecovery}
+              disabled={isRecovering}
+            >
+              {isRecovering ? (
+                <>
+                  <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                  Recovering...
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="mr-2 h-3 w-3" />
+                  Recover
+                </>
+              )}
+            </Button>
+          </div>
+        )}
+
         {activeJobs && (
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
