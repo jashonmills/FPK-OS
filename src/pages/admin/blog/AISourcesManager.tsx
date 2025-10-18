@@ -275,16 +275,16 @@ export default function AISourcesManager() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="category">Primary Category</Label>
+              <Label htmlFor="category">Primary Category (Optional)</Label>
               <Select
-                value={formData.category_id}
-                onValueChange={(value) => setFormData({ ...formData, category_id: value })}
+                value={formData.category_id || 'none'}
+                onValueChange={(value) => setFormData({ ...formData, category_id: value === 'none' ? '' : value })}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="All Categories" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Categories</SelectItem>
+                  <SelectItem value="none">All Categories</SelectItem>
                   {categories?.map((cat) => (
                     <SelectItem key={cat.id} value={cat.id}>
                       {cat.name}
