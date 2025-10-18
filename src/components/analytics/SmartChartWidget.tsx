@@ -106,7 +106,7 @@ export const SmartChartWidget = ({
       }}
     >
       {/* Chart Title - top left corner inside glass */}
-      <div className="absolute top-1 left-1.5 z-20">
+      <div className="absolute top-3 left-3 z-20">
         <h3 
           className="text-[10px] font-bold text-cyan-100"
           style={{

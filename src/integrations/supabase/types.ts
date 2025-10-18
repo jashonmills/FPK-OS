@@ -3055,6 +3055,51 @@ export type Database = {
           },
         ]
       }
+      user_chart_layouts: {
+        Row: {
+          created_at: string | null
+          family_id: string
+          id: string
+          layout: Json
+          student_id: string | null
+          tab_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          family_id: string
+          id?: string
+          layout: Json
+          student_id?: string | null
+          tab_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          family_id?: string
+          id?: string
+          layout?: Json
+          student_id?: string | null
+          tab_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_chart_layouts_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_chart_layouts_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_feature_overrides: {
         Row: {
           created_at: string | null
@@ -3445,6 +3490,10 @@ export type Database = {
           common_consequence: string
           frequency: number
         }[]
+      }
+      get_chart_layout: {
+        Args: { p_family_id: string; p_student_id: string; p_tab_id: string }
+        Returns: Json
       }
       get_communication_progress_data: {
         Args: { p_days?: number; p_family_id: string; p_student_id: string }
@@ -3856,6 +3905,15 @@ export type Database = {
       }
       reset_monthly_credits: {
         Args: { p_family_id: string }
+        Returns: undefined
+      }
+      save_chart_layout: {
+        Args: {
+          p_family_id: string
+          p_layout: Json
+          p_student_id: string
+          p_tab_id: string
+        }
         Returns: undefined
       }
       sparsevec_out: {

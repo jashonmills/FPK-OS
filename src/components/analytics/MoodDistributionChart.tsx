@@ -10,6 +10,16 @@ interface MoodDistributionChartProps {
   sampleData?: any;
 }
 
+// FPX Vibrant Color Palette - No Grays/Blacks!
+const FPX_VIBRANT_PALETTE = {
+  happy: { from: "rgb(251, 191, 36)", to: "rgb(245, 158, 11)" },     // Amber
+  calm: { from: "rgb(96, 165, 250)", to: "rgb(59, 130, 246)" },      // Blue
+  anxious: { from: "rgb(168, 85, 247)", to: "rgb(147, 51, 234)" },   // Purple
+  agitated: { from: "rgb(248, 113, 113)", to: "rgb(239, 68, 68)" },  // Red
+  tired: { from: "rgb(34, 211, 238)", to: "rgb(6, 182, 212)" },      // Cyan (was gray!)
+  irritable: { from: "rgb(251, 113, 133)", to: "rgb(236, 72, 153)" } // Pink
+};
+
 const MOOD_COLORS: Record<string, string> = {
   "happy": "url(#happyGradient)",
   "calm": "url(#calmGradient)",
@@ -133,8 +143,8 @@ export const MoodDistributionChart = ({ familyId, studentId, sampleData }: MoodD
             <stop offset="100%" stopColor="rgb(239, 68, 68)" stopOpacity={0.8} />
           </linearGradient>
           <linearGradient id="tiredGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="rgb(148, 163, 184)" stopOpacity={1} />
-            <stop offset="100%" stopColor="rgb(100, 116, 139)" stopOpacity={0.8} />
+            <stop offset="0%" stopColor={FPX_VIBRANT_PALETTE.tired.from} stopOpacity={1} />
+            <stop offset="100%" stopColor={FPX_VIBRANT_PALETTE.tired.to} stopOpacity={0.8} />
           </linearGradient>
           <linearGradient id="irritableGradient" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="rgb(239, 68, 68)" stopOpacity={1} />
