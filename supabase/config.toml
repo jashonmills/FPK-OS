@@ -161,3 +161,9 @@ verify_jwt = true
 
 [functions.generate-rss-feed]
 verify_jwt = false
+
+[functions.scrape-and-cache-source]
+verify_jwt = true
+
+[functions.generate-ai-blog-post]
+verify_jwt = true

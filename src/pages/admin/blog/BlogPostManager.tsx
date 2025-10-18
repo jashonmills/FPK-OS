@@ -29,9 +29,10 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Search, Edit, Trash2, Eye, ArrowLeft } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Eye, ArrowLeft, Sparkles } from 'lucide-react';
 import { format } from 'date-fns';
 import { Skeleton } from '@/components/ui/skeleton';
+import { AIBlogWizard } from '@/components/blog/AIBlogWizard';
 
 export default function BlogPostManager() {
   const navigate = useNavigate();
@@ -40,6 +41,7 @@ export default function BlogPostManager() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [selectedPosts, setSelectedPosts] = useState<string[]>([]);
   const [authorFilter, setAuthorFilter] = useState('all');
+  const [showAIWizard, setShowAIWizard] = useState(false);
 
   const { data: posts, isLoading } = useBlogPosts(statusFilter);
   const deleteMutation = useDeleteBlogPost();
@@ -94,10 +96,19 @@ export default function BlogPostManager() {
       
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Blog Posts</h1>
-        <Button onClick={() => navigate('/dashboard/admin/blog/new')}>
-          <Plus className="h-4 w-4 mr-2" />
-          New Post
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            onClick={() => setShowAIWizard(true)}
+            className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600"
+          >
+            <Sparkles className="h-4 w-4 mr-2" />
+            Generate with AI
+          </Button>
+          <Button onClick={() => navigate('/dashboard/admin/blog/new')}>
+            <Plus className="h-4 w-4 mr-2" />
+            New Post
+          </Button>
+        </div>
       </div>
 
       <div className="flex gap-4 flex-wrap">
@@ -239,6 +250,8 @@ export default function BlogPostManager() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <AIBlogWizard open={showAIWizard} onOpenChange={setShowAIWizard} />
     </div>
   );
 }

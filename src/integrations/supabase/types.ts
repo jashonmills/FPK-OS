@@ -151,6 +151,81 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_generation_history: {
+        Row: {
+          ai_model_used: string | null
+          category_id: string | null
+          completed_at: string | null
+          completion_tokens: number | null
+          created_at: string | null
+          error_message: string | null
+          focus_keyword: string | null
+          generation_mode: string
+          id: string
+          outline_json: Json | null
+          post_id: string | null
+          prompt_tokens: number | null
+          sources_used: Json | null
+          status: string | null
+          topic: string
+          total_duration_ms: number | null
+          user_id: string
+        }
+        Insert: {
+          ai_model_used?: string | null
+          category_id?: string | null
+          completed_at?: string | null
+          completion_tokens?: number | null
+          created_at?: string | null
+          error_message?: string | null
+          focus_keyword?: string | null
+          generation_mode: string
+          id?: string
+          outline_json?: Json | null
+          post_id?: string | null
+          prompt_tokens?: number | null
+          sources_used?: Json | null
+          status?: string | null
+          topic: string
+          total_duration_ms?: number | null
+          user_id: string
+        }
+        Update: {
+          ai_model_used?: string | null
+          category_id?: string | null
+          completed_at?: string | null
+          completion_tokens?: number | null
+          created_at?: string | null
+          error_message?: string | null
+          focus_keyword?: string | null
+          generation_mode?: string
+          id?: string
+          outline_json?: Json | null
+          post_id?: string | null
+          prompt_tokens?: number | null
+          sources_used?: Json | null
+          status?: string | null
+          topic?: string
+          total_duration_ms?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_generation_history_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "blog_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_generation_history_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "blog_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_inbox: {
         Row: {
           confidence: number
@@ -198,6 +273,80 @@ export type Database = {
           why?: Json | null
         }
         Relationships: []
+      }
+      ai_knowledge_cache: {
+        Row: {
+          cleaned_text_content: string
+          content_hash: string | null
+          created_at: string | null
+          etag: string | null
+          id: string
+          last_scraped_at: string | null
+          metadata: Json | null
+          source_url: string
+        }
+        Insert: {
+          cleaned_text_content: string
+          content_hash?: string | null
+          created_at?: string | null
+          etag?: string | null
+          id?: string
+          last_scraped_at?: string | null
+          metadata?: Json | null
+          source_url: string
+        }
+        Update: {
+          cleaned_text_content?: string
+          content_hash?: string | null
+          created_at?: string | null
+          etag?: string | null
+          id?: string
+          last_scraped_at?: string | null
+          metadata?: Json | null
+          source_url?: string
+        }
+        Relationships: []
+      }
+      ai_knowledge_sources: {
+        Row: {
+          category_id: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          source_name: string
+          updated_at: string | null
+          url: string
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          source_name: string
+          updated_at?: string | null
+          url: string
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          source_name?: string
+          updated_at?: string | null
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_knowledge_sources_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "blog_categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       ai_outputs: {
         Row: {

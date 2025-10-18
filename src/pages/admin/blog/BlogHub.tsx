@@ -1,11 +1,20 @@
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileText, Tag, Image, BarChart3 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { FileText, Tag, Image, BarChart3, Sparkles, Database } from 'lucide-react';
 
 export default function BlogHub() {
   const navigate = useNavigate();
 
   const sections = [
+    {
+      title: 'AI Content Generator',
+      description: 'Create SEO-optimized posts with AI',
+      icon: Sparkles,
+      path: '/dashboard/admin/blog/posts',
+      color: 'text-pink-600',
+      featured: true
+    },
     {
       title: 'Posts',
       description: 'Create and manage blog posts',
@@ -19,6 +28,13 @@ export default function BlogHub() {
       icon: Tag,
       path: '/dashboard/admin/blog/categories',
       color: 'text-green-600'
+    },
+    {
+      title: 'AI Knowledge Base',
+      description: 'Manage AI research sources',
+      icon: Database,
+      path: '/dashboard/admin/blog/ai-sources',
+      color: 'text-cyan-600'
     },
     {
       title: 'Media Library',
@@ -49,13 +65,18 @@ export default function BlogHub() {
           return (
             <Card
               key={section.path}
-              className="cursor-pointer hover:shadow-lg transition-shadow bg-background/80 backdrop-blur-sm"
+              className={`cursor-pointer hover:shadow-lg transition-shadow bg-background/80 backdrop-blur-sm ${
+                section.featured ? 'border-pink-500/50 bg-gradient-to-br from-pink-500/5 to-purple-500/5' : ''
+              }`}
               onClick={() => navigate(section.path)}
             >
               <CardHeader>
                 <CardTitle className="flex items-center gap-3">
                   <Icon className={`h-6 w-6 ${section.color}`} />
                   {section.title}
+                  {section.featured && (
+                    <Badge className="ml-auto bg-gradient-to-r from-pink-500 to-purple-500">New</Badge>
+                  )}
                 </CardTitle>
               </CardHeader>
               <CardContent>
