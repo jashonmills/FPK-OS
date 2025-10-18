@@ -927,6 +927,83 @@ export type Database = {
           },
         ]
       }
+      blog_media_assets: {
+        Row: {
+          alt_text: string | null
+          asset_type: string | null
+          created_at: string | null
+          description: string | null
+          dimensions: Json | null
+          file_size: number | null
+          id: string
+          mime_type: string | null
+          storage_path: string
+          title: string | null
+          updated_at: string | null
+          uploaded_by: string | null
+        }
+        Insert: {
+          alt_text?: string | null
+          asset_type?: string | null
+          created_at?: string | null
+          description?: string | null
+          dimensions?: Json | null
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+          storage_path: string
+          title?: string | null
+          updated_at?: string | null
+          uploaded_by?: string | null
+        }
+        Update: {
+          alt_text?: string | null
+          asset_type?: string | null
+          created_at?: string | null
+          description?: string | null
+          dimensions?: Json | null
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+          storage_path?: string
+          title?: string | null
+          updated_at?: string | null
+          uploaded_by?: string | null
+        }
+        Relationships: []
+      }
+      blog_media_usage: {
+        Row: {
+          created_at: string | null
+          id: string
+          media_id: string | null
+          reference_id: string
+          usage_type: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          media_id?: string | null
+          reference_id: string
+          usage_type: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          media_id?: string | null
+          reference_id?: string
+          usage_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_media_usage_media_id_fkey"
+            columns: ["media_id"]
+            isOneToOne: false
+            referencedRelation: "blog_media_assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blog_post_categories: {
         Row: {
           category_id: string

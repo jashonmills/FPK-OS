@@ -4,11 +4,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { Upload, Search, Image as ImageIcon, Trash2, ArrowLeft } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Upload, Search, Image as ImageIcon, Trash2, Info } from 'lucide-react';
 import { toast } from 'sonner';
 import { useDropzone } from 'react-dropzone';
-import { useNavigate } from 'react-router-dom';
-import { TransparentTile } from '@/components/ui/transparent-tile';
+import { MediaAssetDialog } from '@/components/blog/MediaAssetDialog';
+import { useMediaAsset } from '@/hooks/useMediaAssets';
 
 interface MediaFile {
   name: string;
@@ -17,9 +18,9 @@ interface MediaFile {
 }
 
 export default function MediaLibrary() {
-  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<{ name: string; url: string } | null>(null);
 
   const { data: files, refetch } = useQuery({
     queryKey: ['blog-media'],
@@ -85,15 +86,6 @@ export default function MediaLibrary() {
 
   return (
     <div className="space-y-6">
-      <TransparentTile className="p-4">
-        <div className="flex items-center gap-3">
-          <ImageIcon className="h-6 w-6" />
-          <div>
-            <h2 className="text-2xl font-bold">Media Library</h2>
-            <p className="text-muted-foreground">Manage your blog images</p>
-          </div>
-        </div>
-      </TransparentTile>
 
       <div
         {...getRootProps()}
@@ -123,38 +115,86 @@ export default function MediaLibrary() {
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
         {filteredFiles?.map((file) => (
-          <Card key={file.id} className="overflow-hidden group relative bg-background/80 backdrop-blur-sm">
-            <img
-              src={getPublicUrl(file.name)}
-              alt={file.name}
-              className="w-full h-48 object-cover"
-            />
-            <div className="p-3 space-y-2">
-              <p className="text-sm font-medium truncate">{file.name}</p>
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="flex-1"
-                  onClick={() => {
-                    navigator.clipboard.writeText(getPublicUrl(file.name));
-                    toast.success('URL copied!');
-                  }}
-                >
-                  Copy URL
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => handleDelete(file.name)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </Card>
+          <MediaCard
+            key={file.id}
+            fileName={file.name}
+            publicUrl={getPublicUrl(file.name)}
+            onDelete={() => handleDelete(file.name)}
+            onClick={() => setSelectedFile({ name: file.name, url: getPublicUrl(file.name) })}
+          />
         ))}
       </div>
+
+      {selectedFile && (
+        <MediaAssetDialog
+          open={!!selectedFile}
+          onOpenChange={(open) => !open && setSelectedFile(null)}
+          storagePath={selectedFile.name}
+          publicUrl={selectedFile.url}
+        />
+      )}
     </div>
+  );
+}
+
+interface MediaCardProps {
+  fileName: string;
+  publicUrl: string;
+  onDelete: () => void;
+  onClick: () => void;
+}
+
+function MediaCard({ fileName, publicUrl, onDelete, onClick }: MediaCardProps) {
+  const { data: asset } = useMediaAsset(fileName);
+  const hasMetadata = !!(asset?.title || asset?.alt_text || asset?.description);
+
+  return (
+    <Card className="overflow-hidden group relative bg-background/80 backdrop-blur-sm hover:shadow-lg transition-shadow cursor-pointer">
+      <div onClick={onClick}>
+        {hasMetadata && (
+          <Badge variant="secondary" className="absolute top-2 right-2 z-10 flex items-center gap-1">
+            <Info className="h-3 w-3" />
+            Metadata
+          </Badge>
+        )}
+        <img
+          src={publicUrl}
+          alt={asset?.alt_text || fileName}
+          className="w-full h-48 object-cover"
+        />
+        <div className="p-3 space-y-2">
+          <p className="text-sm font-medium truncate">{asset?.title || fileName}</p>
+          {asset?.asset_type && asset.asset_type !== 'general' && (
+            <Badge variant="outline" className="text-xs">
+              {asset.asset_type.replace(/_/g, ' ')}
+            </Badge>
+          )}
+        </div>
+      </div>
+      <div className="px-3 pb-3 flex gap-2">
+        <Button
+          size="sm"
+          variant="outline"
+          className="flex-1"
+          onClick={(e) => {
+            e.stopPropagation();
+            navigator.clipboard.writeText(publicUrl);
+            toast.success('URL copied!');
+          }}
+        >
+          Copy URL
+        </Button>
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete();
+          }}
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </div>
+    </Card>
   );
 }
