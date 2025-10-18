@@ -108,6 +108,8 @@ const PlatformGuide = lazy(() => import("./pages/PlatformGuide"));
 const ThresholdManagement = lazy(() => import("./pages/admin/ThresholdManagement"));
 const BetaManagement = lazy(() => import("./pages/admin/BetaManagement"));
 const OrganizationManagement = lazy(() => import("./pages/admin/OrganizationManagement"));
+const BlogPostManager = lazy(() => import("./pages/admin/blog/BlogPostManager"));
+const BlogPostEditor = lazy(() => import("./pages/admin/blog/BlogPostEditor"));
 const AuditLogs = lazy(() => import("./pages/admin/AuditLogs"));
 const OrganizationDetail = lazy(() => import("./pages/admin/OrganizationDetail"));
 const InstructorConsole = lazy(() => import("./pages/admin/InstructorConsole"));
@@ -483,6 +485,9 @@ const App: React.FC = () => {
             <Route path="admin/beta" element={<LazyRoute><BetaManagement /></LazyRoute>} />
             <Route path="admin/settings" element={<LazyRoute><AdminSettings /></LazyRoute>} />
             <Route path="admin/generate-backgrounds" element={<LazyRoute><GenerateBackgrounds /></LazyRoute>} />
+            <Route path="admin/blog" element={<LazyRoute><BlogPostManager /></LazyRoute>} />
+            <Route path="admin/blog/new" element={<LazyRoute><BlogPostEditor /></LazyRoute>} />
+            <Route path="admin/blog/edit/:slug" element={<LazyRoute><BlogPostEditor /></LazyRoute>} />
             <Route path="admin/phoenix-lab" element={
               <RequireAdmin>
                 <LazyRoute><PhoenixLab /></LazyRoute>

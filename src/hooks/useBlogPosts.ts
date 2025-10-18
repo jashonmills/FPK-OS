@@ -1,0 +1,204 @@
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
+
+export interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  meta_title: string;
+  meta_description: string | null;
+  author_id: string | null;
+  status: 'draft' | 'published' | 'scheduled' | 'archived';
+  published_at: string | null;
+  scheduled_for: string | null;
+  featured_image_url: string | null;
+  featured_image_alt: string | null;
+  content: string;
+  excerpt: string | null;
+  focus_keyword: string | null;
+  seo_score: number;
+  readability_score: number | null;
+  word_count: number;
+  read_time_minutes: number;
+  views_count: number;
+  likes_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BlogCategory {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  display_order: number;
+}
+
+export interface BlogTag {
+  id: string;
+  name: string;
+  slug: string;
+  usage_count: number;
+}
+
+export function useBlogPosts(status?: string) {
+  return useQuery({
+    queryKey: ['blog_posts', status],
+    queryFn: async () => {
+      let query = supabase
+        .from('blog_posts')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (status && status !== 'all') {
+        query = query.eq('status', status);
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+      return data as BlogPost[];
+    },
+  });
+}
+
+export function useBlogPost(slug: string) {
+  return useQuery({
+    queryKey: ['blog_post', slug],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('blog_posts')
+        .select('*')
+        .eq('slug', slug)
+        .maybeSingle();
+
+      if (error) throw error;
+      return data as BlogPost | null;
+    },
+    enabled: !!slug,
+  });
+}
+
+export function useCreateBlogPost() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (post: any) => {
+      const { data, error } = await supabase
+        .from('blog_posts')
+        .insert([post])
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blog_posts'] });
+      toast({
+        title: 'Success',
+        description: 'Blog post created successfully',
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Error',
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
+}
+
+export function useUpdateBlogPost() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, ...updates }: Partial<BlogPost> & { id: string }) => {
+      const { data, error } = await supabase
+        .from('blog_posts')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['blog_posts'] });
+      queryClient.invalidateQueries({ queryKey: ['blog_post', data.slug] });
+      toast({
+        title: 'Success',
+        description: 'Blog post updated successfully',
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Error',
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
+}
+
+export function useDeleteBlogPost() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('blog_posts')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blog_posts'] });
+      toast({
+        title: 'Success',
+        description: 'Blog post deleted successfully',
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Error',
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
+}
+
+export function useBlogCategories() {
+  return useQuery({
+    queryKey: ['blog_categories'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('blog_categories')
+        .select('*')
+        .order('display_order', { ascending: true });
+
+      if (error) throw error;
+      return data as BlogCategory[];
+    },
+  });
+}
+
+export function useBlogTags() {
+  return useQuery({
+    queryKey: ['blog_tags'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('blog_tags')
+        .select('*')
+        .order('usage_count', { ascending: false });
+
+      if (error) throw error;
+      return data as BlogTag[];
+    },
+  });
+}

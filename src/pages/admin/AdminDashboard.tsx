@@ -45,6 +45,13 @@ const AdminDashboard = () => {
       color: "text-green-600"
     },
     {
+      title: "Blog Management",
+      description: "Create and manage SEO-optimized blog content",
+      icon: BookOpen,
+      path: "/dashboard/admin/blog",
+      color: "text-teal-600"
+    },
+    {
       title: "SCORM Packages",
       description: "Manage SCORM packages and assignments",
       icon: Download,
