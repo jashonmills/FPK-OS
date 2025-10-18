@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useBlogPost, useCreateBlogPost, useUpdateBlogPost, useBlogCategories, useBlogTags } from '@/hooks/useBlogPosts';
+import { useBlogAuthors } from '@/hooks/useBlogAuthors';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { TransparentTile } from '@/components/ui/transparent-tile';
 import { ArrowLeft, Save, Eye, CheckCircle, XCircle } from 'lucide-react';
 import { calculateSEOScore } from '@/utils/seoAnalyzer';
 import MDEditor from '@uiw/react-md-editor';
@@ -27,6 +29,7 @@ export default function BlogPostEditor() {
   const updateMutation = useUpdateBlogPost();
   const { data: categories } = useBlogCategories();
   const { data: tags } = useBlogTags();
+  const { data: authors } = useBlogAuthors();
 
   const [title, setTitle] = useState('');
   const [slugValue, setSlugValue] = useState('');
@@ -36,6 +39,7 @@ export default function BlogPostEditor() {
   const [focusKeyword, setFocusKeyword] = useState('');
   const [status, setStatus] = useState<'draft' | 'published' | 'scheduled' | 'archived'>('draft');
   const [featuredImageAlt, setFeaturedImageAlt] = useState('');
+  const [authorId, setAuthorId] = useState<string>(user?.id || '');
 
   useEffect(() => {
     if (existingPost && !isNewPost) {
@@ -47,8 +51,9 @@ export default function BlogPostEditor() {
       setFocusKeyword(existingPost.focus_keyword || '');
       setStatus(existingPost.status);
       setFeaturedImageAlt(existingPost.featured_image_alt || '');
+      setAuthorId(existingPost.author_id || user?.id || '');
     }
-  }, [existingPost, isNewPost]);
+  }, [existingPost, isNewPost, user?.id]);
 
   const seoAnalysis = calculateSEOScore(title, metaTitle, metaDescription, content, focusKeyword);
 
@@ -62,7 +67,7 @@ export default function BlogPostEditor() {
       focus_keyword: focusKeyword,
       status,
       featured_image_alt: featuredImageAlt,
-      author_id: user?.id,
+      author_id: authorId,
       seo_score: seoAnalysis.score,
     };
 
@@ -76,7 +81,7 @@ export default function BlogPostEditor() {
 
   if (isLoading && !isNewPost) {
     return (
-      <div className="p-6 space-y-6">
+      <div className="px-6 pt-12 pb-6 space-y-6">
         <Skeleton className="h-12 w-full" />
         <Skeleton className="h-96 w-full" />
       </div>
@@ -84,15 +89,16 @@ export default function BlogPostEditor() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="px-6 pt-12 pb-6 space-y-6">
+      <Button variant="outline" size="sm" onClick={() => navigate('/dashboard/admin/blog')} className="mb-6 bg-background/50 backdrop-blur-sm">
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Back
+      </Button>
+
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard/admin/blog')}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
-          </Button>
+        <TransparentTile className="px-6 py-4 flex-1 mr-4">
           <h1 className="text-3xl font-bold">{isNewPost ? 'New Post' : 'Edit Post'}</h1>
-        </div>
+        </TransparentTile>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => {}}>
             <Eye className="h-4 w-4 mr-2" />
@@ -164,6 +170,22 @@ export default function BlogPostEditor() {
                     <SelectItem value="published">Published</SelectItem>
                     <SelectItem value="scheduled">Scheduled</SelectItem>
                     <SelectItem value="archived">Archived</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label>Author</Label>
+                <Select value={authorId} onValueChange={setAuthorId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select an author" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background border shadow-lg z-50">
+                    {authors?.map((author) => (
+                      <SelectItem key={author.id} value={author.user_id}>
+                        {author.display_name}{author.is_ai_author ? ' (AI)' : ''}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
