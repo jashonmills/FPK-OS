@@ -11602,6 +11602,13 @@ export type Database = {
         Args: { "": unknown }
         Returns: unknown
       }
+      increment_blog_post_views: {
+        Args: { post_slug: string }
+        Returns: {
+          success: boolean
+          views_count: number
+        }[]
+      }
       initialize_student_profile: {
         Args: { p_user_id: string }
         Returns: string

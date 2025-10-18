@@ -1,4 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useBlogPost } from '@/hooks/useBlogPosts';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,6 +12,8 @@ import { SchemaMarkup } from '@/components/blog/SchemaMarkup';
 import { Helmet } from 'react-helmet';
 import { SocialShare } from '@/components/blog/SocialShare';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { supabase } from '@/integrations/supabase/client';
+import { ga4 } from '@/utils/ga4Setup';
 
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
@@ -18,6 +21,42 @@ export default function BlogPost() {
   const { data: post, isLoading } = useBlogPost(slug || '');
   
   const author = post?.blog_authors;
+
+  // Track blog view on mount
+  useEffect(() => {
+    if (!slug || !post) return;
+
+    let hasTracked = false;
+
+    const trackView = async () => {
+      if (hasTracked) return;
+      hasTracked = true;
+
+      try {
+        // Track in database via edge function
+        await supabase.functions.invoke('track-blog-view', {
+          body: {
+            post_slug: slug,
+            referrer: document.referrer,
+            user_agent: navigator.userAgent
+          }
+        });
+
+        // Track in Google Analytics
+        ga4.trackCustomEvent('blog_post_view', {
+          post_id: post.id,
+          post_slug: slug,
+          post_title: post.title,
+          author_id: post.author_id,
+          read_time: post.read_time_minutes
+        });
+      } catch (error) {
+        console.error('Error tracking blog view:', error);
+      }
+    };
+
+    trackView();
+  }, [slug, post]);
 
   const handleBackClick = () => {
     // Check if the user came from /resources page

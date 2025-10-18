@@ -234,7 +234,7 @@ const getGA4MeasurementId = (): string => {
     const hostname = window.location.hostname;
     
     // Production environments - use actual GA4 Measurement ID
-    if (hostname.includes('lovableproject.com') || hostname.includes('lovable.app')) {
+    if (hostname.includes('lovableproject.com') || hostname.includes('lovable.app') || hostname.includes('fpkuniversity.com')) {
       return 'G-RFMWCWD8CV'; // FPK University GA4 Measurement ID
     }
     
