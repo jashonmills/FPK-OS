@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Search, Calendar, Clock } from 'lucide-react';
+import { Search, Calendar, Clock, ArrowLeft } from 'lucide-react';
 import { format } from 'date-fns';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Helmet } from 'react-helmet';
@@ -45,7 +45,20 @@ export default function Blog() {
         <meta name="description" content="Insights on education, neurodiversity, and learning strategies from FPK University" />
         <link rel="alternate" type="application/rss+xml" title="FPK University Blog RSS Feed" href="/blog/feed.xml" />
       </Helmet>
-      <div className="container mx-auto px-4 py-12">
+      
+      {/* Fixed Back Button */}
+      <div className="fixed top-20 left-4 z-50">
+        <Button 
+          variant="outline" 
+          onClick={() => navigate('/resources')}
+          className="bg-background/95 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to Resources
+        </Button>
+      </div>
+
+      <div className="container mx-auto px-4 py-12 mt-4">
         <div className="mb-12">
           <h1 className="text-4xl font-bold mb-4">Blog</h1>
           <p className="text-lg text-muted-foreground">
