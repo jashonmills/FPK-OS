@@ -33,6 +33,7 @@ import { Plus, Search, Edit, Trash2, Eye, ArrowLeft, Sparkles } from 'lucide-rea
 import { format } from 'date-fns';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AIBlogWizard } from '@/components/blog/AIBlogWizard';
+import { BlogPreviewDialog } from '@/components/blog/BlogPreviewDialog';
 
 export default function BlogPostManager() {
   const navigate = useNavigate();
@@ -42,6 +43,7 @@ export default function BlogPostManager() {
   const [selectedPosts, setSelectedPosts] = useState<string[]>([]);
   const [authorFilter, setAuthorFilter] = useState('all');
   const [showAIWizard, setShowAIWizard] = useState(false);
+  const [previewPost, setPreviewPost] = useState<any>(null);
 
   const { data: posts, isLoading } = useBlogPosts(statusFilter);
   const deleteMutation = useDeleteBlogPost();
@@ -204,19 +206,19 @@ export default function BlogPostManager() {
                   <TableCell>{post.views_count}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
-                      {post.status === 'published' && (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => window.open(`/blog/${post.slug}`, '_blank')}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                      )}
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setPreviewPost(post)}
+                        title="Preview post"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
                       <Button
                         size="sm"
                         variant="ghost"
                         onClick={() => navigate(`/dashboard/admin/blog/edit/${post.slug}`)}
+                        title="Edit post"
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
@@ -224,6 +226,7 @@ export default function BlogPostManager() {
                         size="sm"
                         variant="ghost"
                         onClick={() => setDeleteId(post.id)}
+                        title="Delete post"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -252,6 +255,11 @@ export default function BlogPostManager() {
       </AlertDialog>
 
       <AIBlogWizard open={showAIWizard} onOpenChange={setShowAIWizard} />
+      <BlogPreviewDialog 
+        post={previewPost} 
+        open={!!previewPost} 
+        onOpenChange={(open) => !open && setPreviewPost(null)} 
+      />
     </div>
   );
 }

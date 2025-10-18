@@ -19,7 +19,11 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const openaiKey = Deno.env.get('OPENAI_API_KEY');
+    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
+
+    if (!lovableApiKey) {
+      throw new Error('LOVABLE_API_KEY not configured');
+    }
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
@@ -124,9 +128,9 @@ serve(async (req) => {
 
             totalDocumentsAdded++;
 
-            // Generate embeddings if OpenAI key is available
-            if (openaiKey && document) {
-              await generateEmbeddings(supabase, document.id, paper.abstract || paper.title, openaiKey);
+            // Generate embeddings using Lovable AI
+            if (lovableApiKey && document) {
+              await generateEmbeddings(supabase, document.id, paper.abstract || paper.title, lovableApiKey);
             }
           }
 
@@ -243,7 +247,7 @@ function extractFocusAreas(query: string): string[] {
   return [...new Set(areas)];
 }
 
-async function generateEmbeddings(supabase: any, documentId: string, content: string, openaiKey: string) {
+async function generateEmbeddings(supabase: any, documentId: string, content: string, lovableApiKey: string) {
   try {
     // Split content into chunks (simple approach - split by sentences, ~1000 chars each)
     const chunks = splitIntoChunks(content, 1000);
@@ -251,11 +255,11 @@ async function generateEmbeddings(supabase: any, documentId: string, content: st
     for (let i = 0; i < chunks.length; i++) {
       const chunk = chunks[i];
 
-      // Generate embedding using OpenAI
-      const embeddingResponse = await fetch('https://api.openai.com/v1/embeddings', {
+      // Generate embedding using Lovable AI
+      const embeddingResponse = await fetch('https://ai.gateway.lovable.dev/v1/embeddings', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${openaiKey}`,
+          'Authorization': `Bearer ${lovableApiKey}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
@@ -263,6 +267,10 @@ async function generateEmbeddings(supabase: any, documentId: string, content: st
           input: chunk
         })
       });
+
+      if (!embeddingResponse.ok) {
+        throw new Error(`Embedding API error: ${embeddingResponse.statusText}`);
+      }
 
       const embeddingData = await embeddingResponse.json();
       const embedding = embeddingData.data[0].embedding;
