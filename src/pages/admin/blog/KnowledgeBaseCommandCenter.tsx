@@ -568,16 +568,10 @@ export default function KnowledgeBaseCommandCenter() {
   };
 
   return (
-    <div className="w-full px-4 sm:px-6 pt-12 pb-8 space-y-6 sm:space-y-8 max-w-7xl mx-auto">
-      {/* Back Button */}
-      <Button variant="outline" size="sm" onClick={() => navigate('/dashboard/admin/blog')} className="bg-background/50 backdrop-blur-sm">
-        <ArrowLeft className="h-4 w-4 mr-2" />
-        Back to Blog Hub
-      </Button>
-
+    <div className="w-full space-y-6 sm:space-y-8">
       {/* Header */}
       <TransparentTile className="p-4 sm:p-6">
-        <h1 className="text-2xl sm:text-3xl font-bold mb-2">Knowledge Base Command Center</h1>
+        <h2 className="text-2xl font-bold mb-2">Knowledge Base Command Center</h2>
         <p className="text-sm sm:text-base text-muted-foreground">
           Ingest content from academic databases, clinical resources, and institutional sources to power AI blog generation
         </p>

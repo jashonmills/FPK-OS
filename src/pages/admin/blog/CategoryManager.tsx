@@ -122,19 +122,14 @@ export default function CategoryManager() {
   };
 
   return (
-    <div className="px-6 pt-12 pb-6 space-y-6">
-      <Button variant="outline" size="sm" onClick={() => navigate('/dashboard/admin/blog')} className="bg-background/50 backdrop-blur-sm">
-        <ArrowLeft className="h-4 w-4 mr-2" />
-        Back to Blog Hub
-      </Button>
-      
-      <TransparentTile className="p-6">
+    <div className="space-y-6">
+      <TransparentTile className="p-4">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold flex items-center gap-2">
-              <Tag className="h-8 w-8" />
+            <h2 className="text-2xl font-bold flex items-center gap-2">
+              <Tag className="h-6 w-6" />
               Categories
-            </h1>
+            </h2>
             <p className="text-muted-foreground mt-1">Organize your blog content</p>
           </div>
           <Button onClick={() => { setEditCategory(null); setIsDialogOpen(true); }}>
@@ -144,7 +139,7 @@ export default function CategoryManager() {
         </div>
       </TransparentTile>
 
-      <div className="border rounded-lg bg-background/80 backdrop-blur-sm">
+      <div className="border rounded-lg bg-card">
         <Table>
           <TableHeader>
             <TableRow>

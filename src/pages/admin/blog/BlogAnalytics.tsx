@@ -51,18 +51,15 @@ export default function BlogAnalytics() {
   });
 
   return (
-    <div className="px-6 pt-12 pb-6 space-y-6">
-      <Button variant="outline" size="sm" onClick={() => navigate('/dashboard/admin/blog')} className="bg-background/50 backdrop-blur-sm">
-        <ArrowLeft className="h-4 w-4 mr-2" />
-        Back to Blog Hub
-      </Button>
-      
-      <TransparentTile className="p-6">
-        <h1 className="text-3xl font-bold flex items-center gap-2">
-          <BarChart3 className="h-8 w-8" />
-          Blog Analytics
-        </h1>
-        <p className="text-muted-foreground mt-1">Track your content performance</p>
+    <div className="space-y-6">
+      <TransparentTile className="p-4">
+        <div className="flex items-center gap-3">
+          <BarChart3 className="h-6 w-6" />
+          <div>
+            <h2 className="text-2xl font-bold">Blog Analytics</h2>
+            <p className="text-muted-foreground">Track your content performance</p>
+          </div>
+        </div>
       </TransparentTile>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">

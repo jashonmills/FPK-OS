@@ -84,18 +84,15 @@ export default function MediaLibrary() {
   );
 
   return (
-    <div className="px-6 pt-12 pb-6 space-y-6">
-      <Button variant="outline" size="sm" onClick={() => navigate('/dashboard/admin/blog')} className="bg-background/50 backdrop-blur-sm">
-        <ArrowLeft className="h-4 w-4 mr-2" />
-        Back to Blog Hub
-      </Button>
-      
-      <TransparentTile className="p-6">
-        <h1 className="text-3xl font-bold flex items-center gap-2">
-          <ImageIcon className="h-8 w-8" />
-          Media Library
-        </h1>
-        <p className="text-muted-foreground mt-1">Manage your blog images</p>
+    <div className="space-y-6">
+      <TransparentTile className="p-4">
+        <div className="flex items-center gap-3">
+          <ImageIcon className="h-6 w-6" />
+          <div>
+            <h2 className="text-2xl font-bold">Media Library</h2>
+            <p className="text-muted-foreground">Manage your blog images</p>
+          </div>
+        </div>
       </TransparentTile>
 
       <div

@@ -38,6 +38,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { TransparentTile } from '@/components/ui/transparent-tile';
 import { PostPreviewDialog } from '@/components/blog/PostPreviewDialog';
+import { AIBlogWizard } from '@/components/blog/AIBlogWizard';
+import { Sparkles } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
 export function PostsManager() {
   const [statusFilter, setStatusFilter] = useState('all');
@@ -49,6 +52,7 @@ export function PostsManager() {
   const [postToDelete, setPostToDelete] = useState<any>(null);
   const [previewPost, setPreviewPost] = useState<BlogPost | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [showAIWizard, setShowAIWizard] = useState(false);
 
   const handleDeletePost = async () => {
     if (!postToDelete) return;
@@ -93,24 +97,51 @@ export function PostsManager() {
 
   return (
     <div className="space-y-4">
+      {/* AI Generator Card */}
+      <Card className="bg-gradient-to-br from-pink-500/5 to-purple-500/5 border-pink-500/20">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-pink-600" />
+            AI Content Generator
+          </CardTitle>
+          <CardDescription>Create SEO-optimized blog posts with AI from your knowledge base</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button 
+            onClick={() => setShowAIWizard(true)}
+            className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600"
+          >
+            <Sparkles className="h-4 w-4 mr-2" />
+            Generate Articles
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* All Articles Section */}
       <TransparentTile className="p-4">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div>
-            <h2 className="text-xl sm:text-2xl font-bold">Blog Posts</h2>
-            <p className="text-sm text-muted-foreground">Manage your blog content</p>
+            <h2 className="text-xl sm:text-2xl font-bold">All Articles</h2>
+            <p className="text-sm text-muted-foreground">Manage your published and draft content</p>
           </div>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-full sm:w-[160px]">
-              <SelectValue placeholder="Filter by status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Posts</SelectItem>
-              <SelectItem value="published">Published</SelectItem>
-              <SelectItem value="draft">Drafts</SelectItem>
-              <SelectItem value="scheduled">Scheduled</SelectItem>
-              <SelectItem value="archived">Archived</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex gap-2">
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-full sm:w-[160px]">
+                <SelectValue placeholder="Filter by status" />
+              </SelectTrigger>
+              <SelectContent className="bg-background/95 backdrop-blur-sm z-50">
+                <SelectItem value="all">All Posts</SelectItem>
+                <SelectItem value="published">Published</SelectItem>
+                <SelectItem value="draft">Drafts</SelectItem>
+                <SelectItem value="scheduled">Scheduled</SelectItem>
+                <SelectItem value="archived">Archived</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button onClick={() => navigate('/dashboard/admin/blog/new')} size="sm">
+              <FileEdit className="h-4 w-4 mr-2" />
+              New Article
+            </Button>
+          </div>
         </div>
       </TransparentTile>
 
@@ -214,6 +245,8 @@ export function PostsManager() {
         open={previewOpen}
         onOpenChange={setPreviewOpen}
       />
+
+      <AIBlogWizard open={showAIWizard} onOpenChange={setShowAIWizard} />
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>

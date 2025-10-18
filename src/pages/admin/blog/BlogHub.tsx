@@ -1,93 +1,89 @@
-import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { useState } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TransparentTile } from '@/components/ui/transparent-tile';
-import { FileText, Tag, Image, BarChart3, Sparkles, Database } from 'lucide-react';
+import { Shield, FileText, Tag, Users, Database, Image, BarChart3 } from 'lucide-react';
+import { PostsManager } from './PostsManager';
+import { AuthorsManager } from './AuthorsManager';
+import CategoryManager from './CategoryManager';
+import KnowledgeBaseCommandCenter from './KnowledgeBaseCommandCenter';
+import BlogAnalytics from './BlogAnalytics';
+import MediaLibrary from './MediaLibrary';
 
 export default function BlogHub() {
-  const navigate = useNavigate();
-
-  const sections = [
-    {
-      title: 'AI Content Generator',
-      description: 'Create SEO-optimized posts with AI',
-      icon: Sparkles,
-      path: '/dashboard/admin/blog/posts',
-      color: 'text-pink-600',
-      featured: true
-    },
-    {
-      title: 'Content Manager',
-      description: 'Manage posts, categories, and authors',
-      icon: FileText,
-      path: '/dashboard/admin/blog/content',
-      color: 'text-blue-600'
-    },
-    {
-      title: 'Categories',
-      description: 'Organize content with categories',
-      icon: Tag,
-      path: '/dashboard/admin/blog/categories',
-      color: 'text-green-600'
-    },
-    {
-      title: 'Knowledge Base Command Center',
-      description: 'Ingest content from academic & clinical sources',
-      icon: Database,
-      path: '/dashboard/admin/blog/knowledge-base',
-      color: 'text-indigo-600',
-      featured: true
-    },
-    {
-      title: 'Media Library',
-      description: 'Upload and manage images',
-      icon: Image,
-      path: '/dashboard/admin/blog/media',
-      color: 'text-purple-600'
-    },
-    {
-      title: 'Analytics',
-      description: 'Track performance metrics',
-      icon: BarChart3,
-      path: '/dashboard/admin/blog/analytics',
-      color: 'text-orange-600'
-    },
-  ];
+  const [activeTab, setActiveTab] = useState('articles');
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="px-6 pt-20 pb-6 space-y-6">
       <TransparentTile className="p-6">
-        <h1 className="text-3xl font-bold">Content Management</h1>
-        <p className="text-muted-foreground mt-1">Manage your SEO-optimized blog</p>
+        <div className="flex items-center gap-3">
+          <Shield className="h-8 w-8 text-primary" />
+          <div>
+            <h1 className="text-3xl font-bold">Content Manager</h1>
+            <p className="text-muted-foreground mt-1">Manage articles, categories, and authors • Super Admin Only</p>
+          </div>
+        </div>
       </TransparentTile>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-        {sections.map((section) => {
-          const Icon = section.icon;
-          return (
-            <Card
-              key={section.path}
-              className={`cursor-pointer hover:shadow-lg transition-shadow bg-background/80 backdrop-blur-sm ${
-                section.featured ? 'border-pink-500/50 bg-gradient-to-br from-pink-500/5 to-purple-500/5' : ''
-              }`}
-              onClick={() => navigate(section.path)}
-            >
-              <CardHeader>
-                <CardTitle className="flex items-center gap-3">
-                  <Icon className={`h-6 w-6 ${section.color}`} />
-                  {section.title}
-                  {section.featured && (
-                    <Badge className="ml-auto bg-gradient-to-r from-pink-500 to-purple-500">New</Badge>
-                  )}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">{section.description}</p>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="bg-background/80 backdrop-blur-sm border">
+          <TabsTrigger value="articles">
+            <FileText className="h-4 w-4 mr-2" />
+            Articles
+          </TabsTrigger>
+          <TabsTrigger value="categories">
+            <Tag className="h-4 w-4 mr-2" />
+            Categories
+          </TabsTrigger>
+          <TabsTrigger value="authors">
+            <Users className="h-4 w-4 mr-2" />
+            Authors
+          </TabsTrigger>
+          <TabsTrigger value="knowledge-base">
+            <Database className="h-4 w-4 mr-2" />
+            Knowledge Base
+          </TabsTrigger>
+          <TabsTrigger value="media">
+            <Image className="h-4 w-4 mr-2" />
+            Media Library
+          </TabsTrigger>
+          <TabsTrigger value="analytics">
+            <BarChart3 className="h-4 w-4 mr-2" />
+            Analytics
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="articles" className="space-y-4">
+          <PostsManager />
+        </TabsContent>
+
+        <TabsContent value="categories" className="space-y-4">
+          <div className="border rounded-lg bg-background/80 backdrop-blur-sm p-6">
+            <CategoryManager />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="authors" className="space-y-4">
+          <AuthorsManager />
+        </TabsContent>
+
+        <TabsContent value="knowledge-base" className="space-y-4">
+          <div className="bg-background/80 backdrop-blur-sm rounded-lg">
+            <KnowledgeBaseCommandCenter />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="media" className="space-y-4">
+          <div className="bg-background/80 backdrop-blur-sm rounded-lg">
+            <MediaLibrary />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="analytics" className="space-y-4">
+          <div className="bg-background/80 backdrop-blur-sm rounded-lg">
+            <BlogAnalytics />
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
