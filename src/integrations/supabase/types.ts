@@ -11667,7 +11667,6 @@ export type Database = {
           query_embedding: string
         }
         Returns: {
-          chunk_index: number
           chunk_text: string
           document_id: string
           similarity: number

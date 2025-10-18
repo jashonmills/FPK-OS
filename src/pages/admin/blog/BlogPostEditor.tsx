@@ -41,8 +41,18 @@ export default function BlogPostEditor() {
   const [status, setStatus] = useState<'draft' | 'published' | 'scheduled' | 'archived'>('draft');
   const [featuredImageUrl, setFeaturedImageUrl] = useState('');
   const [featuredImageAlt, setFeaturedImageAlt] = useState('');
-  const [authorId, setAuthorId] = useState<string>(user?.id || '');
+  const [authorId, setAuthorId] = useState<string>('');
   const [previewOpen, setPreviewOpen] = useState(false);
+
+  // Set author ID from user's author record for new posts
+  useEffect(() => {
+    if (isNewPost && authors && user?.id) {
+      const userAuthor = authors.find(a => a.user_id === user.id);
+      if (userAuthor) {
+        setAuthorId(userAuthor.id);
+      }
+    }
+  }, [isNewPost, authors, user?.id]);
 
   useEffect(() => {
     if (existingPost && !isNewPost) {
@@ -55,9 +65,9 @@ export default function BlogPostEditor() {
       setStatus(existingPost.status);
       setFeaturedImageUrl(existingPost.featured_image_url || '');
       setFeaturedImageAlt(existingPost.featured_image_alt || '');
-      setAuthorId(existingPost.author_id || user?.id || '');
+      setAuthorId(existingPost.author_id || '');
     }
-  }, [existingPost, isNewPost, user?.id]);
+  }, [existingPost, isNewPost]);
 
   const seoAnalysis = calculateSEOScore(title, metaTitle, metaDescription, content, focusKeyword);
 
@@ -192,7 +202,7 @@ export default function BlogPostEditor() {
                   </SelectTrigger>
                   <SelectContent className="bg-background border shadow-lg z-50">
                     {authors?.map((author) => (
-                      <SelectItem key={author.id} value={author.user_id}>
+                      <SelectItem key={author.id} value={author.id}>
                         {author.display_name}{author.is_ai_author ? ' (AI)' : ''}
                       </SelectItem>
                     ))}
