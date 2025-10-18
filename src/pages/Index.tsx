@@ -1,6 +1,7 @@
 import React from 'react';
 import HomepageNavigation from '@/components/homepage/HomepageNavigation';
 import HomepageHero from '@/components/homepage/HomepageHero';
+import ResourcesSection from '@/components/homepage/ResourcesSection';
 import IntroSection from '@/components/homepage/IntroSection';
 import OfferingsSection from '@/components/homepage/OfferingsSection';
 import WhyChooseSection from '@/components/homepage/WhyChooseSection';
@@ -25,6 +26,7 @@ const Index = () => {
     >
       <HomepageNavigation />
       <HomepageHero />
+      <ResourcesSection />
       <IntroSection />
       <OfferingsSection />
       <WhyChooseSection />

@@ -119,6 +119,7 @@ const AISourcesManager = lazy(() => import("./pages/admin/blog/AISourcesManager"
 const KnowledgeBaseCommandCenter = lazy(() => import("./pages/admin/blog/KnowledgeBaseCommandCenter"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
+const Resources = lazy(() => import("./pages/Resources"));
 const RSSFeed = lazy(() => import("./pages/RSSFeed"));
 const AuditLogs = lazy(() => import("./pages/admin/AuditLogs"));
 const OrganizationDetail = lazy(() => import("./pages/admin/OrganizationDetail"));
@@ -286,6 +287,7 @@ const App: React.FC = () => {
         <Routes>
           <Route index path="/" element={<LazyRoute><Index /></LazyRoute>} />
           <Route path="/courses" element={<LazyRoute><CoursesPage /></LazyRoute>} />
+          <Route path="/resources" element={<LazyRoute><Resources /></LazyRoute>} />
           <Route path="/blog" element={<LazyRoute><Blog /></LazyRoute>} />
           <Route path="/blog/feed.xml" element={<LazyRoute><RSSFeed /></LazyRoute>} />
           <Route path="/blog/:slug" element={<LazyRoute><BlogPost /></LazyRoute>} />
