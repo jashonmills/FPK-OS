@@ -10,6 +10,7 @@ import { useFamily } from "@/contexts/FamilyContext";
 import { ProductTour } from "@/components/onboarding/ProductTour";
 import { settingsTourSteps } from "@/components/onboarding/tourConfigs";
 import { useTourProgress } from "@/hooks/useTourProgress";
+import { UserIdDisplay } from "@/components/settings/UserIdDisplay";
 
 const Settings = () => {
   const { familyMembership } = useFamily();
@@ -67,6 +68,7 @@ const Settings = () => {
 
         <TabsContent value="profile" className="space-y-6">
           <ProfileTab />
+          <UserIdDisplay />
           {isOwner && <ResetAnalysisCard />}
         </TabsContent>
 
