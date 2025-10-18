@@ -3,7 +3,6 @@ import { Button } from '@/components/ui/button';
 import { Plus, Pencil, Trash2, Sparkles } from 'lucide-react';
 import { useBlogAuthors, useCreateBlogAuthor, useUpdateBlogAuthor, useDeleteBlogAuthor } from '@/hooks/useBlogAuthors';
 import { AuthorManagementDialog } from '@/components/blog/AuthorManagementDialog';
-import { toast } from '@/hooks/use-toast';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,38 +35,18 @@ export function AuthorsManager() {
   const [authorToDelete, setAuthorToDelete] = useState<any>(null);
 
   const handleSaveAuthor = async (data: any) => {
-    try {
-      if (selectedAuthor) {
-        await updateAuthor.mutateAsync({ id: selectedAuthor.id, ...data });
-        toast({ title: 'Author updated successfully' });
-      } else {
-        await createAuthor.mutateAsync(data);
-        toast({ title: 'Author created successfully' });
-      }
-    } catch (error: any) {
-      toast({
-        title: 'Failed to save author',
-        description: error.message,
-        variant: 'destructive'
-      });
-      throw error;
+    if (selectedAuthor) {
+      await updateAuthor.mutateAsync({ id: selectedAuthor.id, ...data });
+    } else {
+      await createAuthor.mutateAsync(data);
     }
   };
 
   const handleDeleteAuthor = async () => {
     if (!authorToDelete) return;
-    try {
-      await deleteAuthor.mutateAsync(authorToDelete.id);
-      toast({ title: 'Author deleted successfully' });
-      setDeleteDialogOpen(false);
-      setAuthorToDelete(null);
-    } catch (error: any) {
-      toast({
-        title: 'Failed to delete author',
-        description: error.message,
-        variant: 'destructive'
-      });
-    }
+    await deleteAuthor.mutateAsync(authorToDelete.id);
+    setDeleteDialogOpen(false);
+    setAuthorToDelete(null);
   };
 
   if (isLoading) {
