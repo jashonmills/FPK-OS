@@ -801,34 +801,43 @@ export type Database = {
       }
       blog_authors: {
         Row: {
+          author_slug: string | null
           avatar_url: string | null
           bio: string | null
           created_at: string | null
+          credentials: string | null
           display_name: string
           id: string
           is_active: boolean | null
+          is_ai_author: boolean | null
           social_links: Json | null
           updated_at: string | null
           user_id: string
         }
         Insert: {
+          author_slug?: string | null
           avatar_url?: string | null
           bio?: string | null
           created_at?: string | null
+          credentials?: string | null
           display_name: string
           id?: string
           is_active?: boolean | null
+          is_ai_author?: boolean | null
           social_links?: Json | null
           updated_at?: string | null
           user_id: string
         }
         Update: {
+          author_slug?: string | null
           avatar_url?: string | null
           bio?: string | null
           created_at?: string | null
+          credentials?: string | null
           display_name?: string
           id?: string
           is_active?: boolean | null
+          is_ai_author?: boolean | null
           social_links?: Json | null
           updated_at?: string | null
           user_id?: string

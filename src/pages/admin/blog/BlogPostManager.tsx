@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useBlogPosts, useDeleteBlogPost } from '@/hooks/useBlogPosts';
+import { useBlogAuthors } from '@/hooks/useBlogAuthors';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -46,6 +47,7 @@ export default function BlogPostManager() {
   const [previewPost, setPreviewPost] = useState<any>(null);
 
   const { data: posts, isLoading } = useBlogPosts(statusFilter);
+  const { data: authors = [] } = useBlogAuthors();
   const deleteMutation = useDeleteBlogPost();
 
   const filteredPosts = posts?.filter(post => {
@@ -161,6 +163,7 @@ export default function BlogPostManager() {
                 />
               </TableHead>
               <TableHead>Title</TableHead>
+              <TableHead>Author</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Published</TableHead>
               <TableHead>SEO Score</TableHead>
@@ -171,7 +174,7 @@ export default function BlogPostManager() {
           <TableBody>
             {filteredPosts.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center text-muted-foreground">
+                <TableCell colSpan={8} className="text-center text-muted-foreground">
                   No posts found
                 </TableCell>
               </TableRow>
@@ -192,6 +195,14 @@ export default function BlogPostManager() {
                     />
                   </TableCell>
                   <TableCell className="font-medium">{post.title}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      {authors.find(a => a.id === post.author_id)?.display_name || 'Unknown'}
+                      {authors.find(a => a.id === post.author_id)?.is_ai_author && (
+                        <Sparkles className="h-3 w-3 text-primary" />
+                      )}
+                    </div>
+                  </TableCell>
                   <TableCell>{getStatusBadge(post.status)}</TableCell>
                   <TableCell>
                     {post.published_at

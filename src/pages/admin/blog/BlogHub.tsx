@@ -16,10 +16,10 @@ export default function BlogHub() {
       featured: true
     },
     {
-      title: 'Posts',
-      description: 'Create and manage blog posts',
+      title: 'Content Manager',
+      description: 'Manage posts, categories, and authors',
       icon: FileText,
-      path: '/dashboard/admin/blog/posts',
+      path: '/dashboard/admin/blog/content',
       color: 'text-blue-600'
     },
     {
