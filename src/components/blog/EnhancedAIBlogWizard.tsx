@@ -22,6 +22,7 @@ export function EnhancedAIBlogWizard({ open, onOpenChange }: EnhancedAIBlogWizar
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isGenerating, setIsGenerating] = useState(false);
+  const [progressStep, setProgressStep] = useState<string>('');
   
   // Form state
   const [topic, setTopic] = useState('');
@@ -44,8 +45,16 @@ export function EnhancedAIBlogWizard({ open, onOpenChange }: EnhancedAIBlogWizar
     }
 
     setIsGenerating(true);
+    setProgressStep('Initializing...');
 
     try {
+      // Simulate progress steps
+      setTimeout(() => setProgressStep('Searching knowledge base...'), 500);
+      setTimeout(() => setProgressStep('Analyzing relevant sources...'), 3000);
+      setTimeout(() => setProgressStep('Generating blog content...'), 8000);
+      setTimeout(() => setProgressStep('Optimizing for SEO...'), 15000);
+      setTimeout(() => setProgressStep('Finalizing draft...'), 25000);
+
       const { data, error } = await supabase.functions.invoke('semantic-blog-generation', {
         body: {
           topic,
@@ -58,6 +67,8 @@ export function EnhancedAIBlogWizard({ open, onOpenChange }: EnhancedAIBlogWizar
 
       if (error) throw error;
 
+      setProgressStep('Complete!');
+      
       toast({
         title: 'Blog post generated!',
         description: includeKB && data.kb_integrated
@@ -72,11 +83,12 @@ export function EnhancedAIBlogWizard({ open, onOpenChange }: EnhancedAIBlogWizar
       console.error('Generation error:', error);
       toast({
         title: 'Generation failed',
-        description: error instanceof Error ? error.message : 'Unknown error occurred',
+        description: error instanceof Error ? error.message : 'Edge Function returned a non-2xx status code',
         variant: 'destructive',
       });
     } finally {
       setIsGenerating(false);
+      setProgressStep('');
     }
   };
 
@@ -218,10 +230,25 @@ export function EnhancedAIBlogWizard({ open, onOpenChange }: EnhancedAIBlogWizar
           </Button>
 
           {isGenerating && (
-            <div className="text-center">
-              <p className="text-sm text-muted-foreground">
-                This may take 30-60 seconds. Searching knowledge base and generating content...
-              </p>
+            <div className="space-y-3">
+              <div className="rounded-lg border bg-muted/30 p-4">
+                <div className="flex items-center gap-3">
+                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">{progressStep}</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      This typically takes 30-60 seconds
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              {includeKB && (
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Database className="h-3 w-3" />
+                  <span>Searching through knowledge base for relevant sources</span>
+                </div>
+              )}
             </div>
           )}
         </div>

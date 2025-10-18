@@ -154,7 +154,6 @@ Generate a complete, publication-ready blog post following the guidelines above.
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt },
         ],
-        response_format: { type: 'json_object' },
       }),
     });
 
@@ -165,7 +164,15 @@ Generate a complete, publication-ready blog post following the guidelines above.
     }
 
     const aiData = await aiResponse.json();
-    const generatedContent = JSON.parse(aiData.choices[0].message.content);
+    let rawContent = aiData.choices[0].message.content;
+    
+    // Extract JSON from markdown code blocks if present
+    const jsonMatch = rawContent.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);
+    if (jsonMatch) {
+      rawContent = jsonMatch[1];
+    }
+    
+    const generatedContent = JSON.parse(rawContent);
 
     // Get authenticated user
     const authHeader = req.headers.get('Authorization')!;
