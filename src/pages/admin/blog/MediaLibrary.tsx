@@ -100,8 +100,8 @@ export default function MediaLibrary() {
 
       <div
         {...getRootProps()}
-        className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors
-          ${isDragActive ? 'border-primary bg-primary/5' : 'border-muted-foreground/25'}
+        className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors bg-background/80 backdrop-blur-sm
+          ${isDragActive ? 'border-primary bg-primary/10' : 'border-border'}
           ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
       >
         <input {...getInputProps()} />

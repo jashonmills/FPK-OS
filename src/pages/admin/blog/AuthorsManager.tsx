@@ -22,6 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { TransparentTile } from '@/components/ui/transparent-tile';
 
 export function AuthorsManager() {
   const { data: authors = [], isLoading } = useBlogAuthors();
@@ -81,19 +82,21 @@ export function AuthorsManager() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-        <div>
-          <h2 className="text-xl sm:text-2xl font-bold">Authors</h2>
-          <p className="text-sm text-muted-foreground">Manage content contributors</p>
+      <TransparentTile className="p-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <div>
+            <h2 className="text-xl sm:text-2xl font-bold">Authors</h2>
+            <p className="text-sm text-muted-foreground">Manage content contributors</p>
+          </div>
+          <Button onClick={() => {
+            setSelectedAuthor(null);
+            setDialogOpen(true);
+          }}>
+            <Plus className="mr-2 h-4 w-4" />
+            New Author
+          </Button>
         </div>
-        <Button onClick={() => {
-          setSelectedAuthor(null);
-          setDialogOpen(true);
-        }}>
-          <Plus className="mr-2 h-4 w-4" />
-          New Author
-        </Button>
-      </div>
+      </TransparentTile>
 
       <div className="border rounded-lg bg-card">
         <Table>
