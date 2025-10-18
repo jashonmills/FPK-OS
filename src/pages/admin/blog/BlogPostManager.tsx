@@ -29,7 +29,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Search, Edit, Trash2, Eye } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Eye, ArrowLeft } from 'lucide-react';
 import { format } from 'date-fns';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -38,13 +38,24 @@ export default function BlogPostManager() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [selectedPosts, setSelectedPosts] = useState<string[]>([]);
+  const [authorFilter, setAuthorFilter] = useState('all');
 
   const { data: posts, isLoading } = useBlogPosts(statusFilter);
   const deleteMutation = useDeleteBlogPost();
 
-  const filteredPosts = posts?.filter(post =>
-    post.title.toLowerCase().includes(searchQuery.toLowerCase())
-  ) || [];
+  const filteredPosts = posts?.filter(post => {
+    const matchesSearch = post.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesAuthor = authorFilter === 'all' || post.author_id === authorFilter;
+    return matchesSearch && matchesAuthor;
+  }) || [];
+
+  const handleBulkDelete = async () => {
+    for (const id of selectedPosts) {
+      await deleteMutation.mutateAsync(id);
+    }
+    setSelectedPosts([]);
+  };
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
@@ -74,6 +85,13 @@ export default function BlogPostManager() {
 
   return (
     <div className="p-6 space-y-6">
+      <div className="flex items-center gap-4 mb-4">
+        <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard/admin/blog')}>
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Content Hub
+        </Button>
+      </div>
+      
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Blog Posts</h1>
         <Button onClick={() => navigate('/dashboard/admin/blog/new')}>
@@ -82,8 +100,8 @@ export default function BlogPostManager() {
         </Button>
       </div>
 
-      <div className="flex gap-4">
-        <div className="relative flex-1">
+      <div className="flex gap-4 flex-wrap">
+        <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search posts..."
@@ -104,12 +122,31 @@ export default function BlogPostManager() {
             <SelectItem value="archived">Archived</SelectItem>
           </SelectContent>
         </Select>
+        {selectedPosts.length > 0 && (
+          <Button variant="destructive" onClick={handleBulkDelete}>
+            <Trash2 className="h-4 w-4 mr-2" />
+            Delete {selectedPosts.length}
+          </Button>
+        )}
       </div>
 
       <div className="border rounded-lg bg-background/80 backdrop-blur-sm">
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-12">
+                <input
+                  type="checkbox"
+                  checked={selectedPosts.length === filteredPosts.length && filteredPosts.length > 0}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setSelectedPosts(filteredPosts.map(p => p.id));
+                    } else {
+                      setSelectedPosts([]);
+                    }
+                  }}
+                />
+              </TableHead>
               <TableHead>Title</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Published</TableHead>
@@ -128,6 +165,19 @@ export default function BlogPostManager() {
             ) : (
               filteredPosts.map((post) => (
                 <TableRow key={post.id}>
+                  <TableCell>
+                    <input
+                      type="checkbox"
+                      checked={selectedPosts.includes(post.id)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedPosts([...selectedPosts, post.id]);
+                        } else {
+                          setSelectedPosts(selectedPosts.filter(id => id !== post.id));
+                        }
+                      }}
+                    />
+                  </TableCell>
                   <TableCell className="font-medium">{post.title}</TableCell>
                   <TableCell>{getStatusBadge(post.status)}</TableCell>
                   <TableCell>

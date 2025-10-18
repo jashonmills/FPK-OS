@@ -45,7 +45,7 @@ const AdminDashboard = () => {
       color: "text-green-600"
     },
     {
-      title: "Blog Management",
+      title: "Content Manager",
       description: "Create and manage SEO-optimized blog content",
       icon: BookOpen,
       path: "/dashboard/admin/blog",

@@ -110,6 +110,10 @@ const BetaManagement = lazy(() => import("./pages/admin/BetaManagement"));
 const OrganizationManagement = lazy(() => import("./pages/admin/OrganizationManagement"));
 const BlogPostManager = lazy(() => import("./pages/admin/blog/BlogPostManager"));
 const BlogPostEditor = lazy(() => import("./pages/admin/blog/BlogPostEditor"));
+const CategoryManager = lazy(() => import("./pages/admin/blog/CategoryManager"));
+const MediaLibrary = lazy(() => import("./pages/admin/blog/MediaLibrary"));
+const BlogAnalytics = lazy(() => import("./pages/admin/blog/BlogAnalytics"));
+const BlogHub = lazy(() => import("./pages/admin/blog/BlogHub"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 const RSSFeed = lazy(() => import("./pages/RSSFeed"));
@@ -491,9 +495,13 @@ const App: React.FC = () => {
             <Route path="admin/beta" element={<LazyRoute><BetaManagement /></LazyRoute>} />
             <Route path="admin/settings" element={<LazyRoute><AdminSettings /></LazyRoute>} />
             <Route path="admin/generate-backgrounds" element={<LazyRoute><GenerateBackgrounds /></LazyRoute>} />
-            <Route path="admin/blog" element={<LazyRoute><BlogPostManager /></LazyRoute>} />
+            <Route path="admin/blog" element={<LazyRoute><BlogHub /></LazyRoute>} />
+            <Route path="admin/blog/posts" element={<LazyRoute><BlogPostManager /></LazyRoute>} />
             <Route path="admin/blog/new" element={<LazyRoute><BlogPostEditor /></LazyRoute>} />
             <Route path="admin/blog/edit/:slug" element={<LazyRoute><BlogPostEditor /></LazyRoute>} />
+            <Route path="admin/blog/categories" element={<LazyRoute><CategoryManager /></LazyRoute>} />
+            <Route path="admin/blog/media" element={<LazyRoute><MediaLibrary /></LazyRoute>} />
+            <Route path="admin/blog/analytics" element={<LazyRoute><BlogAnalytics /></LazyRoute>} />
             <Route path="admin/phoenix-lab" element={
               <RequireAdmin>
                 <LazyRoute><PhoenixLab /></LazyRoute>
