@@ -18,8 +18,6 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const openaiKey = Deno.env.get('OPENAI_API_KEY');
-
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const { sources }: ScrapeRequest = await req.json();
@@ -139,11 +137,8 @@ serve(async (req) => {
           }
 
           totalDocumentsAdded++;
-
-          // Generate embeddings if OpenAI key is available
-          if (openaiKey && document) {
-            await generateEmbeddings(supabase, document.id, scrapedData.cleaned_text_content, openaiKey);
-          }
+          
+          // Embeddings will be generated separately via the Generate Embeddings button
         }
 
         // Update job status
@@ -222,44 +217,6 @@ function getFocusAreasForSource(source: string): string[] {
   };
 
   return mapping[source] || ['general'];
-}
-
-async function generateEmbeddings(supabase: any, documentId: string, content: string, openaiKey: string) {
-  try {
-    const chunks = splitIntoChunks(content, 1000);
-
-    for (let i = 0; i < chunks.length; i++) {
-      const chunk = chunks[i];
-
-      const embeddingResponse = await fetch('https://api.openai.com/v1/embeddings', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${openaiKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: 'text-embedding-3-small',
-          input: chunk
-        })
-      });
-
-      const embeddingData = await embeddingResponse.json();
-      const embedding = embeddingData.data[0].embedding;
-
-      await supabase
-        .from('kb_embeddings')
-        .insert({
-          document_id: documentId,
-          chunk_index: i,
-          chunk_text: chunk,
-          embedding: JSON.stringify(embedding)
-        });
-    }
-
-    console.log(`Generated ${chunks.length} embeddings for document ${documentId}`);
-  } catch (error) {
-    console.error('Error generating embeddings:', error);
-  }
 }
 
 function splitIntoChunks(text: string, maxLength: number): string[] {

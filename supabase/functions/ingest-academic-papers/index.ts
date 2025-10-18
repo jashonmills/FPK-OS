@@ -19,12 +19,6 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
-
-    if (!lovableApiKey) {
-      throw new Error('LOVABLE_API_KEY not configured');
-    }
-
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const { sources, queries }: IngestRequest = await req.json();
@@ -127,11 +121,8 @@ serve(async (req) => {
             }
 
             totalDocumentsAdded++;
-
-            // Generate embeddings using Lovable AI
-            if (lovableApiKey && document) {
-              await generateEmbeddings(supabase, document.id, paper.abstract || paper.title, lovableApiKey);
-            }
+            
+            // Embeddings will be generated separately via the Generate Embeddings button
           }
 
           // Update job status
@@ -245,51 +236,6 @@ function extractFocusAreas(query: string): string[] {
   if (keywords.some(k => ['iep', 'education', 'special'].includes(k))) areas.push('special-education');
   
   return [...new Set(areas)];
-}
-
-async function generateEmbeddings(supabase: any, documentId: string, content: string, lovableApiKey: string) {
-  try {
-    // Split content into chunks (simple approach - split by sentences, ~1000 chars each)
-    const chunks = splitIntoChunks(content, 1000);
-
-    for (let i = 0; i < chunks.length; i++) {
-      const chunk = chunks[i];
-
-      // Generate embedding using Lovable AI
-      const embeddingResponse = await fetch('https://ai.gateway.lovable.dev/v1/embeddings', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${lovableApiKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: 'text-embedding-3-small',
-          input: chunk
-        })
-      });
-
-      if (!embeddingResponse.ok) {
-        throw new Error(`Embedding API error: ${embeddingResponse.statusText}`);
-      }
-
-      const embeddingData = await embeddingResponse.json();
-      const embedding = embeddingData.data[0].embedding;
-
-      // Store embedding
-      await supabase
-        .from('kb_embeddings')
-        .insert({
-          document_id: documentId,
-          chunk_index: i,
-          chunk_text: chunk,
-          embedding: JSON.stringify(embedding)
-        });
-    }
-
-    console.log(`Generated ${chunks.length} embeddings for document ${documentId}`);
-  } catch (error) {
-    console.error('Error generating embeddings:', error);
-  }
 }
 
 function splitIntoChunks(text: string, maxLength: number): string[] {

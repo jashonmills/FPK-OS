@@ -13,6 +13,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { IngestionStatusTracker, IngestionStatus } from '@/components/admin/IngestionStatusTracker';
 import { useNavigate } from 'react-router-dom';
 import { KB_SOURCES } from '@/lib/knowledgeBase/sourceCatalog';
+import { useScrapingJobStatus } from '@/hooks/useScrapingJobStatus';
 import {
   Table,
   TableBody,
@@ -78,6 +79,10 @@ export default function KnowledgeBaseCommandCenter() {
   const [specializedSources, setSpecializedSources] = useState<string[]>([]);
   const [specializedStatus, setSpecializedStatus] = useState<IngestionStatus>({ stage: 'idle', message: '', progress: 0 });
 
+  // Job tracking state
+  const [trackingEnabled, setTrackingEnabled] = useState(false);
+  const { jobs, getLatestJobByType } = useScrapingJobStatus(trackingEnabled);
+
   useEffect(() => {
     loadStats();
     loadDocuments();
@@ -103,6 +108,83 @@ export default function KnowledgeBaseCommandCenter() {
       supabase.removeChannel(documentsChannel);
     };
   }, []);
+
+  // Poll job status and update UI based on job state
+  useEffect(() => {
+    if (!trackingEnabled) return;
+
+    const academicJob = getLatestJobByType('academic_search');
+    if (academicJob) {
+      if (academicJob.status === 'in_progress') {
+        setAcademicStatus({
+          stage: 'ingesting',
+          message: `Processing ${academicJob.source_name}...`,
+          progress: 50,
+          itemsProcessed: academicJob.documents_added || 0,
+          totalItems: academicJob.documents_found || 1
+        });
+      } else if (academicJob.status === 'completed') {
+        setAcademicStatus({
+          stage: 'complete',
+          message: `Successfully added ${academicJob.documents_added || 0} documents!`,
+          progress: 100
+        });
+        loadStats();
+        loadDocuments();
+        setTimeout(() => {
+          setAcademicStatus({ stage: 'idle', message: '', progress: 0 });
+        }, 3000);
+      } else if (academicJob.status === 'failed') {
+        setAcademicStatus({
+          stage: 'error',
+          message: academicJob.error_message || 'Ingestion failed',
+          progress: 0
+        });
+      }
+    }
+
+    const webScrapeJob = getLatestJobByType('web_scrape');
+    if (webScrapeJob) {
+      // Determine which tier based on source type
+      const updateStatus = (setter: typeof setClinicalStatus) => {
+        if (webScrapeJob.status === 'in_progress') {
+          setter({
+            stage: 'ingesting',
+            message: `Scraping ${webScrapeJob.source_name}...`,
+            progress: 50,
+            itemsProcessed: webScrapeJob.documents_added || 0,
+            totalItems: webScrapeJob.documents_found || 1
+          });
+        } else if (webScrapeJob.status === 'completed') {
+          setter({
+            stage: 'complete',
+            message: `Successfully added ${webScrapeJob.documents_added || 0} documents!`,
+            progress: 100
+          });
+          loadStats();
+          loadDocuments();
+          setTimeout(() => {
+            setter({ stage: 'idle', message: '', progress: 0 });
+          }, 3000);
+        } else if (webScrapeJob.status === 'failed') {
+          setter({
+            stage: 'error',
+            message: webScrapeJob.error_message || 'Scraping failed',
+            progress: 0
+          });
+        }
+      };
+
+      // Update the appropriate tier status
+      if (clinicalSources.includes(webScrapeJob.source_name || '')) {
+        updateStatus(setClinicalStatus);
+      } else if (institutionalSources.includes(webScrapeJob.source_name || '')) {
+        updateStatus(setInstitutionalStatus);
+      } else if (specializedSources.includes(webScrapeJob.source_name || '')) {
+        updateStatus(setSpecializedStatus);
+      }
+    }
+  }, [jobs, trackingEnabled, getLatestJobByType, clinicalSources, institutionalSources, specializedSources]);
 
   const loadStats = async () => {
     const [docsResult, embeddingsResult] = await Promise.all([
@@ -173,13 +255,10 @@ export default function KnowledgeBaseCommandCenter() {
 
     const queries = academicQueries.split(',').map(q => q.trim()).filter(q => q);
     
+    setTrackingEnabled(true);
     setAcademicStatus({ stage: 'searching', message: `Searching ${academicSources.length} databases for ${queries.length} queries...`, progress: 10 });
 
     try {
-      setTimeout(() => {
-        setAcademicStatus(prev => ({ ...prev, stage: 'found', message: 'Connecting to databases...', progress: 25 }));
-      }, 1500);
-
       const { data, error } = await supabase.functions.invoke('ingest-academic-papers', {
         body: {
           sources: academicSources,
@@ -189,19 +268,12 @@ export default function KnowledgeBaseCommandCenter() {
 
       if (error) throw error;
 
-      setAcademicStatus({ stage: 'ingesting', message: 'Retrieving and processing papers...', progress: 50, estimatedTimeLeft: 180 });
+      toast({
+        title: 'Academic ingestion started',
+        description: `Processing ${academicSources.length} databases`
+      });
       
-      setTimeout(() => {
-        setAcademicStatus({ stage: 'analyzing', message: 'Analyzing content and generating embeddings...', progress: 75, estimatedTimeLeft: 60 });
-      }, 3000);
-
-      setTimeout(() => {
-        setAcademicStatus({ stage: 'complete', message: 'Academic ingestion completed successfully!', progress: 100 });
-        toast({
-          title: 'Ingestion complete',
-          description: `Searched ${academicSources.length} databases for ${queries.length} queries`
-        });
-      }, 6000);
+      // Status will be updated via polling in useEffect
     } catch (error) {
       setAcademicStatus({ stage: 'error', message: error instanceof Error ? error.message : 'Unknown error', progress: 0 });
       toast({
@@ -209,6 +281,7 @@ export default function KnowledgeBaseCommandCenter() {
         description: error instanceof Error ? error.message : 'Unknown error',
         variant: 'destructive'
       });
+      setTrackingEnabled(false);
     }
   };
 
@@ -222,32 +295,22 @@ export default function KnowledgeBaseCommandCenter() {
       return;
     }
 
+    setTrackingEnabled(true);
     setClinicalStatus({ stage: 'searching', message: `Initiating scrape of ${clinicalSources.length} clinical sources...`, progress: 10 });
 
     try {
-      setTimeout(() => {
-        setClinicalStatus({ stage: 'found', message: 'Connecting to clinical resources...', progress: 25 });
-      }, 1500);
-
       const { data, error } = await supabase.functions.invoke('scrape-clinical-resources', {
         body: { sources: clinicalSources }
       });
 
       if (error) throw error;
 
-      setClinicalStatus({ stage: 'ingesting', message: 'Scraping guidelines and documents...', progress: 50, estimatedTimeLeft: 120 });
+      toast({
+        title: 'Clinical scraping started',
+        description: `Processing ${clinicalSources.length} sources`
+      });
       
-      setTimeout(() => {
-        setClinicalStatus({ stage: 'analyzing', message: 'Processing and analyzing content...', progress: 80, estimatedTimeLeft: 30 });
-      }, 3000);
-
-      setTimeout(() => {
-        setClinicalStatus({ stage: 'complete', message: 'Clinical resource scraping completed!', progress: 100 });
-        toast({
-          title: 'Scraping complete',
-          description: `Scraped ${clinicalSources.length} clinical sources`
-        });
-      }, 5000);
+      // Status will be updated via polling
     } catch (error) {
       setClinicalStatus({ stage: 'error', message: error instanceof Error ? error.message : 'Unknown error', progress: 0 });
       toast({
@@ -255,6 +318,7 @@ export default function KnowledgeBaseCommandCenter() {
         description: error instanceof Error ? error.message : 'Unknown error',
         variant: 'destructive'
       });
+      setTrackingEnabled(false);
     }
   };
 
