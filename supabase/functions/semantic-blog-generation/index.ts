@@ -33,11 +33,16 @@ serve(async (req) => {
 
     // If knowledge base integration is enabled, perform semantic search
     if (include_kb) {
-      // Generate embedding for the topic using Lovable AI
-      const embeddingResponse = await fetch('https://ai.gateway.lovable.dev/v1/embeddings', {
+      // Generate embedding for the topic using OpenAI
+      const openaiKey = Deno.env.get('OPENAI_API_KEY');
+      if (!openaiKey) {
+        throw new Error('OPENAI_API_KEY not configured');
+      }
+
+      const embeddingResponse = await fetch('https://api.openai.com/v1/embeddings', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${Deno.env.get('LOVABLE_API_KEY')}`,
+          'Authorization': `Bearer ${openaiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -47,7 +52,9 @@ serve(async (req) => {
       });
 
       if (!embeddingResponse.ok) {
-        throw new Error('Failed to generate topic embedding');
+        const errorText = await embeddingResponse.text();
+        console.error('Embedding API error:', errorText);
+        throw new Error(`Failed to generate topic embedding: ${embeddingResponse.status} ${errorText}`);
       }
 
       const embeddingData = await embeddingResponse.json();
