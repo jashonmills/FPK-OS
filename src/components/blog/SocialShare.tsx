@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Twitter, Facebook, Linkedin, Mail, Link2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { getSiteUrl } from '@/utils/siteUrl';
 
 interface SocialShareProps {
   title: string;
@@ -11,7 +12,7 @@ interface SocialShareProps {
 }
 
 export function SocialShare({ title, url, excerpt, variant = 'full' }: SocialShareProps) {
-  const fullUrl = `https://fpkuniversity.com${url}`;
+  const fullUrl = `${getSiteUrl()}${url}`;
   const encodedTitle = encodeURIComponent(title);
   const encodedUrl = encodeURIComponent(fullUrl);
   const encodedExcerpt = encodeURIComponent(excerpt || title);
