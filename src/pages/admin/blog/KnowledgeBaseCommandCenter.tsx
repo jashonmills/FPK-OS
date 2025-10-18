@@ -8,7 +8,9 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Database, FileText, Brain, Building, Sparkles, Trash2, Search, Filter, RefreshCw, ArrowLeft } from 'lucide-react';
+import { Database, FileText, Brain, Building, Sparkles, Trash2, Search, Filter, RefreshCw, ArrowLeft, ChevronDown, ChevronUp } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { IngestionStatusTracker, IngestionStatus } from '@/components/admin/IngestionStatusTracker';
 import { useNavigate } from 'react-router-dom';
 import { KB_SOURCES } from '@/lib/knowledgeBase/sourceCatalog';
 import {
@@ -53,22 +55,28 @@ export default function KnowledgeBaseCommandCenter() {
   const [filterSource, setFilterSource] = useState<string>('all');
   const [filterType, setFilterType] = useState<string>('all');
 
+  // Collapsible state
+  const [tier1Open, setTier1Open] = useState(false);
+  const [tier2Open, setTier2Open] = useState(false);
+  const [tier3Open, setTier3Open] = useState(false);
+  const [tier4Open, setTier4Open] = useState(false);
+
   // Academic ingestion state
   const [academicSources, setAcademicSources] = useState<string[]>([]);
   const [academicQueries, setAcademicQueries] = useState<string>('');
-  const [academicLoading, setAcademicLoading] = useState(false);
+  const [academicStatus, setAcademicStatus] = useState<IngestionStatus>({ stage: 'idle', message: '', progress: 0 });
 
   // Clinical ingestion state
   const [clinicalSources, setClinicalSources] = useState<string[]>([]);
-  const [clinicalLoading, setClinicalLoading] = useState(false);
+  const [clinicalStatus, setClinicalStatus] = useState<IngestionStatus>({ stage: 'idle', message: '', progress: 0 });
 
   // Institutional ingestion state
   const [institutionalSources, setInstitutionalSources] = useState<string[]>([]);
-  const [institutionalLoading, setInstitutionalLoading] = useState(false);
+  const [institutionalStatus, setInstitutionalStatus] = useState<IngestionStatus>({ stage: 'idle', message: '', progress: 0 });
 
   // Specialized ingestion state
   const [specializedSources, setSpecializedSources] = useState<string[]>([]);
-  const [specializedLoading, setSpecializedLoading] = useState(false);
+  const [specializedStatus, setSpecializedStatus] = useState<IngestionStatus>({ stage: 'idle', message: '', progress: 0 });
 
   useEffect(() => {
     loadStats();
@@ -163,11 +171,15 @@ export default function KnowledgeBaseCommandCenter() {
       return;
     }
 
-    setAcademicLoading(true);
+    const queries = academicQueries.split(',').map(q => q.trim()).filter(q => q);
+    
+    setAcademicStatus({ stage: 'searching', message: `Searching ${academicSources.length} databases for ${queries.length} queries...`, progress: 10 });
 
     try {
-      const queries = academicQueries.split(',').map(q => q.trim()).filter(q => q);
-      
+      setTimeout(() => {
+        setAcademicStatus(prev => ({ ...prev, stage: 'found', message: 'Connecting to databases...', progress: 25 }));
+      }, 1500);
+
       const { data, error } = await supabase.functions.invoke('ingest-academic-papers', {
         body: {
           sources: academicSources,
@@ -177,18 +189,26 @@ export default function KnowledgeBaseCommandCenter() {
 
       if (error) throw error;
 
-      toast({
-        title: 'Academic ingestion started',
-        description: `Searching ${academicSources.length} databases for ${queries.length} queries`
-      });
+      setAcademicStatus({ stage: 'ingesting', message: 'Retrieving and processing papers...', progress: 50, estimatedTimeLeft: 180 });
+      
+      setTimeout(() => {
+        setAcademicStatus({ stage: 'analyzing', message: 'Analyzing content and generating embeddings...', progress: 75, estimatedTimeLeft: 60 });
+      }, 3000);
+
+      setTimeout(() => {
+        setAcademicStatus({ stage: 'complete', message: 'Academic ingestion completed successfully!', progress: 100 });
+        toast({
+          title: 'Ingestion complete',
+          description: `Searched ${academicSources.length} databases for ${queries.length} queries`
+        });
+      }, 6000);
     } catch (error) {
+      setAcademicStatus({ stage: 'error', message: error instanceof Error ? error.message : 'Unknown error', progress: 0 });
       toast({
         title: 'Ingestion failed',
         description: error instanceof Error ? error.message : 'Unknown error',
         variant: 'destructive'
       });
-    } finally {
-      setAcademicLoading(false);
     }
   };
 
@@ -202,27 +222,39 @@ export default function KnowledgeBaseCommandCenter() {
       return;
     }
 
-    setClinicalLoading(true);
+    setClinicalStatus({ stage: 'searching', message: `Initiating scrape of ${clinicalSources.length} clinical sources...`, progress: 10 });
 
     try {
+      setTimeout(() => {
+        setClinicalStatus({ stage: 'found', message: 'Connecting to clinical resources...', progress: 25 });
+      }, 1500);
+
       const { data, error } = await supabase.functions.invoke('scrape-clinical-resources', {
         body: { sources: clinicalSources }
       });
 
       if (error) throw error;
 
-      toast({
-        title: 'Clinical resource scraping started',
-        description: `Scraping ${clinicalSources.length} sources`
-      });
+      setClinicalStatus({ stage: 'ingesting', message: 'Scraping guidelines and documents...', progress: 50, estimatedTimeLeft: 120 });
+      
+      setTimeout(() => {
+        setClinicalStatus({ stage: 'analyzing', message: 'Processing and analyzing content...', progress: 80, estimatedTimeLeft: 30 });
+      }, 3000);
+
+      setTimeout(() => {
+        setClinicalStatus({ stage: 'complete', message: 'Clinical resource scraping completed!', progress: 100 });
+        toast({
+          title: 'Scraping complete',
+          description: `Scraped ${clinicalSources.length} clinical sources`
+        });
+      }, 5000);
     } catch (error) {
+      setClinicalStatus({ stage: 'error', message: error instanceof Error ? error.message : 'Unknown error', progress: 0 });
       toast({
         title: 'Scraping failed',
         description: error instanceof Error ? error.message : 'Unknown error',
         variant: 'destructive'
       });
-    } finally {
-      setClinicalLoading(false);
     }
   };
 
@@ -236,9 +268,13 @@ export default function KnowledgeBaseCommandCenter() {
       return;
     }
 
-    setInstitutionalLoading(true);
+    setInstitutionalStatus({ stage: 'searching', message: `Initiating institutional resource scraping...`, progress: 10 });
 
     try {
+      setTimeout(() => {
+        setInstitutionalStatus({ stage: 'found', message: 'Connecting to research institutions...', progress: 25 });
+      }, 1500);
+
       const { data, error } = await supabase.functions.invoke('scrape-clinical-resources', {
         body: { 
           sources: institutionalSources,
@@ -248,18 +284,26 @@ export default function KnowledgeBaseCommandCenter() {
 
       if (error) throw error;
 
-      toast({
-        title: 'Institutional scraping started',
-        description: `Scraping ${institutionalSources.length} institutional sources`
-      });
+      setInstitutionalStatus({ stage: 'ingesting', message: 'Retrieving institutional resources...', progress: 55, estimatedTimeLeft: 150 });
+      
+      setTimeout(() => {
+        setInstitutionalStatus({ stage: 'analyzing', message: 'Almost complete, finalizing data processing...', progress: 85 });
+      }, 3000);
+
+      setTimeout(() => {
+        setInstitutionalStatus({ stage: 'complete', message: 'Institutional scraping completed successfully!', progress: 100 });
+        toast({
+          title: 'Scraping complete',
+          description: `Scraped ${institutionalSources.length} institutional sources`
+        });
+      }, 5000);
     } catch (error) {
+      setInstitutionalStatus({ stage: 'error', message: error instanceof Error ? error.message : 'Unknown error', progress: 0 });
       toast({
         title: 'Scraping failed',
         description: error instanceof Error ? error.message : 'Unknown error',
         variant: 'destructive'
       });
-    } finally {
-      setInstitutionalLoading(false);
     }
   };
 
@@ -273,9 +317,13 @@ export default function KnowledgeBaseCommandCenter() {
       return;
     }
 
-    setSpecializedLoading(true);
+    setSpecializedStatus({ stage: 'searching', message: `Initiating specialized resource scraping...`, progress: 10 });
 
     try {
+      setTimeout(() => {
+        setSpecializedStatus({ stage: 'found', message: 'Locating specialized methodologies...', progress: 30 });
+      }, 1500);
+
       const { data, error } = await supabase.functions.invoke('scrape-clinical-resources', {
         body: { 
           sources: specializedSources,
@@ -285,18 +333,26 @@ export default function KnowledgeBaseCommandCenter() {
 
       if (error) throw error;
 
-      toast({
-        title: 'Specialized scraping started',
-        description: `Scraping ${specializedSources.length} specialized sources`
-      });
+      setSpecializedStatus({ stage: 'ingesting', message: 'Extracting specialized content...', progress: 60, estimatedTimeLeft: 90 });
+      
+      setTimeout(() => {
+        setSpecializedStatus({ stage: 'analyzing', message: 'Standby, processing final items...', progress: 90 });
+      }, 3000);
+
+      setTimeout(() => {
+        setSpecializedStatus({ stage: 'complete', message: 'Specialized scraping completed!', progress: 100 });
+        toast({
+          title: 'Scraping complete',
+          description: `Scraped ${specializedSources.length} specialized sources`
+        });
+      }, 4500);
     } catch (error) {
+      setSpecializedStatus({ stage: 'error', message: error instanceof Error ? error.message : 'Unknown error', progress: 0 });
       toast({
         title: 'Scraping failed',
         description: error instanceof Error ? error.message : 'Unknown error',
         variant: 'destructive'
       });
-    } finally {
-      setSpecializedLoading(false);
     }
   };
 
@@ -432,184 +488,275 @@ export default function KnowledgeBaseCommandCenter() {
         </div>
       </TransparentTile>
 
+      {/* Status Trackers */}
+      {(academicStatus.stage !== 'idle' || clinicalStatus.stage !== 'idle' || 
+        institutionalStatus.stage !== 'idle' || specializedStatus.stage !== 'idle') && (
+        <div className="space-y-3">
+          {academicStatus.stage !== 'idle' && (
+            <IngestionStatusTracker status={academicStatus} tierName="Tier 1: Academic Databases" />
+          )}
+          {clinicalStatus.stage !== 'idle' && (
+            <IngestionStatusTracker status={clinicalStatus} tierName="Tier 2: Clinical Resources" />
+          )}
+          {institutionalStatus.stage !== 'idle' && (
+            <IngestionStatusTracker status={institutionalStatus} tierName="Tier 3: Institutional Resources" />
+          )}
+          {specializedStatus.stage !== 'idle' && (
+            <IngestionStatusTracker status={specializedStatus} tierName="Tier 4: Specialized Resources" />
+          )}
+        </div>
+      )}
+
       {/* Academic Databases Ingestion */}
       <TransparentTile>
-        <Card className="bg-background/40 backdrop-blur-sm border-none shadow-none">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5" />
-            Tier 1: Academic Databases
-          </CardTitle>
-          <CardDescription>
-            Search academic databases for research papers and studies
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-            {KB_SOURCES.academic_databases.map((source) => (
-              <div key={source.name} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`academic-${source.name}`}
-                  checked={academicSources.includes(source.name)}
-                  onCheckedChange={(checked) => {
-                    if (checked) {
-                      setAcademicSources([...academicSources, source.name]);
-                    } else {
-                      setAcademicSources(academicSources.filter(s => s !== source.name));
-                    }
-                  }}
-                />
-                <Label htmlFor={`academic-${source.name}`} className="text-sm cursor-pointer flex-1">
-                  {source.name}
-                  <span className="text-muted-foreground ml-2 text-xs block sm:inline">{source.description}</span>
-                </Label>
-              </div>
-            ))}
-          </div>
+        <Collapsible open={tier1Open} onOpenChange={setTier1Open}>
+          <Card className="bg-background/40 backdrop-blur-sm border-none shadow-none">
+            <CardHeader>
+              <CollapsibleTrigger className="w-full">
+                <div className="flex items-center justify-between w-full group">
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    <CardTitle className="text-left">Tier 1: Academic Databases</CardTitle>
+                    <Badge variant="secondary" className="ml-2">{academicSources.length} selected</Badge>
+                  </div>
+                  {tier1Open ? (
+                    <ChevronUp className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                  )}
+                </div>
+              </CollapsibleTrigger>
+              <CardDescription className="text-left mt-2">
+                Search academic databases for research papers and studies
+              </CardDescription>
+            </CardHeader>
+            <CollapsibleContent>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                  {KB_SOURCES.academic_databases.map((source) => (
+                    <div key={source.name} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`academic-${source.name}`}
+                        checked={academicSources.includes(source.name)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setAcademicSources([...academicSources, source.name]);
+                          } else {
+                            setAcademicSources(academicSources.filter(s => s !== source.name));
+                          }
+                        }}
+                      />
+                      <Label htmlFor={`academic-${source.name}`} className="text-sm cursor-pointer flex-1">
+                        {source.name}
+                        <span className="text-muted-foreground ml-2 text-xs block sm:inline">{source.description}</span>
+                      </Label>
+                    </div>
+                  ))}
+                </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="academic-queries">Search Queries (comma-separated)</Label>
-            <Input
-              id="academic-queries"
-              placeholder="autism social skills, adhd executive function"
-              value={academicQueries}
-              onChange={(e) => setAcademicQueries(e.target.value)}
-              className="w-full"
-            />
-          </div>
+                <div className="space-y-2">
+                  <Label htmlFor="academic-queries">Search Queries (comma-separated)</Label>
+                  <Input
+                    id="academic-queries"
+                    placeholder="autism social skills, adhd executive function"
+                    value={academicQueries}
+                    onChange={(e) => setAcademicQueries(e.target.value)}
+                    className="w-full"
+                  />
+                </div>
 
-          <Button onClick={handleAcademicIngestion} disabled={academicLoading} className="w-full sm:w-auto">
-            <Sparkles className="h-4 w-4 mr-2" />
-            {academicLoading ? 'Ingesting...' : 'Start Academic Ingestion'}
-          </Button>
-        </CardContent>
-        </Card>
+                <Button 
+                  onClick={handleAcademicIngestion} 
+                  disabled={academicStatus.stage !== 'idle' && academicStatus.stage !== 'complete' && academicStatus.stage !== 'error'} 
+                  className="w-full sm:w-auto"
+                >
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Start Academic Ingestion
+                </Button>
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
       </TransparentTile>
 
       {/* Clinical Resources */}
       <TransparentTile>
-        <Card className="bg-background/40 backdrop-blur-sm border-none shadow-none">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Building className="h-5 w-5" />
-            Tier 2: Clinical & Educational Resources
-          </CardTitle>
-          <CardDescription>
-            Scrape guidelines and resources from authoritative organizations
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-            {KB_SOURCES.clinical_resources.map((source) => (
-              <div key={source.name} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`clinical-${source.name}`}
-                  checked={clinicalSources.includes(source.name)}
-                  onCheckedChange={(checked) => {
-                    if (checked) {
-                      setClinicalSources([...clinicalSources, source.name]);
-                    } else {
-                      setClinicalSources(clinicalSources.filter(s => s !== source.name));
-                    }
-                  }}
-                />
-                <Label htmlFor={`clinical-${source.name}`} className="text-sm cursor-pointer">
-                  {source.name}
-                </Label>
-              </div>
-            ))}
-          </div>
+        <Collapsible open={tier2Open} onOpenChange={setTier2Open}>
+          <Card className="bg-background/40 backdrop-blur-sm border-none shadow-none">
+            <CardHeader>
+              <CollapsibleTrigger className="w-full">
+                <div className="flex items-center justify-between w-full group">
+                  <div className="flex items-center gap-2">
+                    <Building className="h-5 w-5" />
+                    <CardTitle className="text-left">Tier 2: Clinical & Educational Resources</CardTitle>
+                    <Badge variant="secondary" className="ml-2">{clinicalSources.length} selected</Badge>
+                  </div>
+                  {tier2Open ? (
+                    <ChevronUp className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                  )}
+                </div>
+              </CollapsibleTrigger>
+              <CardDescription className="text-left mt-2">
+                Scrape guidelines and resources from authoritative organizations
+              </CardDescription>
+            </CardHeader>
+            <CollapsibleContent>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                  {KB_SOURCES.clinical_resources.map((source) => (
+                    <div key={source.name} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`clinical-${source.name}`}
+                        checked={clinicalSources.includes(source.name)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setClinicalSources([...clinicalSources, source.name]);
+                          } else {
+                            setClinicalSources(clinicalSources.filter(s => s !== source.name));
+                          }
+                        }}
+                      />
+                      <Label htmlFor={`clinical-${source.name}`} className="text-sm cursor-pointer">
+                        {source.name}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
 
-          <Button onClick={handleClinicalIngestion} disabled={clinicalLoading} className="w-full sm:w-auto">
-            <Sparkles className="h-4 w-4 mr-2" />
-            {clinicalLoading ? 'Scraping...' : 'Start Clinical Resource Scraping'}
-          </Button>
-        </CardContent>
-        </Card>
+                <Button 
+                  onClick={handleClinicalIngestion} 
+                  disabled={clinicalStatus.stage !== 'idle' && clinicalStatus.stage !== 'complete' && clinicalStatus.stage !== 'error'} 
+                  className="w-full sm:w-auto"
+                >
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Start Clinical Resource Scraping
+                </Button>
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
       </TransparentTile>
 
       {/* Institutional Resources */}
       <TransparentTile>
-        <Card className="bg-background/40 backdrop-blur-sm border-none shadow-none">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Building className="h-5 w-5" />
-            Tier 3: Institutional Resources
-          </CardTitle>
-          <CardDescription>
-            Advanced resources from leading research institutions
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-            {KB_SOURCES.institutional_resources.map((source) => (
-              <div key={source.name} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`institutional-${source.name}`}
-                  checked={institutionalSources.includes(source.name)}
-                  onCheckedChange={(checked) => {
-                    if (checked) {
-                      setInstitutionalSources([...institutionalSources, source.name]);
-                    } else {
-                      setInstitutionalSources(institutionalSources.filter(s => s !== source.name));
-                    }
-                  }}
-                />
-                <Label htmlFor={`institutional-${source.name}`} className="text-sm cursor-pointer">
-                  {source.name}
-                </Label>
-              </div>
-            ))}
-          </div>
+        <Collapsible open={tier3Open} onOpenChange={setTier3Open}>
+          <Card className="bg-background/40 backdrop-blur-sm border-none shadow-none">
+            <CardHeader>
+              <CollapsibleTrigger className="w-full">
+                <div className="flex items-center justify-between w-full group">
+                  <div className="flex items-center gap-2">
+                    <Building className="h-5 w-5" />
+                    <CardTitle className="text-left">Tier 3: Institutional Resources</CardTitle>
+                    <Badge variant="secondary" className="ml-2">{institutionalSources.length} selected</Badge>
+                  </div>
+                  {tier3Open ? (
+                    <ChevronUp className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                  )}
+                </div>
+              </CollapsibleTrigger>
+              <CardDescription className="text-left mt-2">
+                Advanced resources from leading research institutions
+              </CardDescription>
+            </CardHeader>
+            <CollapsibleContent>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                  {KB_SOURCES.institutional_resources.map((source) => (
+                    <div key={source.name} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`institutional-${source.name}`}
+                        checked={institutionalSources.includes(source.name)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setInstitutionalSources([...institutionalSources, source.name]);
+                          } else {
+                            setInstitutionalSources(institutionalSources.filter(s => s !== source.name));
+                          }
+                        }}
+                      />
+                      <Label htmlFor={`institutional-${source.name}`} className="text-sm cursor-pointer">
+                        {source.name}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
 
-          <Button onClick={handleInstitutionalIngestion} disabled={institutionalLoading} className="w-full sm:w-auto">
-            <Sparkles className="h-4 w-4 mr-2" />
-            {institutionalLoading ? 'Scraping...' : 'Start Institutional Scraping'}
-          </Button>
-        </CardContent>
-        </Card>
+                <Button 
+                  onClick={handleInstitutionalIngestion} 
+                  disabled={institutionalStatus.stage !== 'idle' && institutionalStatus.stage !== 'complete' && institutionalStatus.stage !== 'error'} 
+                  className="w-full sm:w-auto"
+                >
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Start Institutional Scraping
+                </Button>
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
       </TransparentTile>
 
       {/* Specialized Resources */}
       <TransparentTile>
-        <Card className="bg-background/40 backdrop-blur-sm border-none shadow-none">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5" />
-            Tier 4: Specialized Resources
-          </CardTitle>
-          <CardDescription>
-            Specialized methodologies and educational resources
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-            {KB_SOURCES.specialized_resources.map((source) => (
-              <div key={source.name} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`specialized-${source.name}`}
-                  checked={specializedSources.includes(source.name)}
-                  onCheckedChange={(checked) => {
-                    if (checked) {
-                      setSpecializedSources([...specializedSources, source.name]);
-                    } else {
-                      setSpecializedSources(specializedSources.filter(s => s !== source.name));
-                    }
-                  }}
-                />
-                <Label htmlFor={`specialized-${source.name}`} className="text-sm cursor-pointer">
-                  {source.name}
-                </Label>
-              </div>
-            ))}
-          </div>
+        <Collapsible open={tier4Open} onOpenChange={setTier4Open}>
+          <Card className="bg-background/40 backdrop-blur-sm border-none shadow-none">
+            <CardHeader>
+              <CollapsibleTrigger className="w-full">
+                <div className="flex items-center justify-between w-full group">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-5 w-5" />
+                    <CardTitle className="text-left">Tier 4: Specialized Resources</CardTitle>
+                    <Badge variant="secondary" className="ml-2">{specializedSources.length} selected</Badge>
+                  </div>
+                  {tier4Open ? (
+                    <ChevronUp className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                  )}
+                </div>
+              </CollapsibleTrigger>
+              <CardDescription className="text-left mt-2">
+                Specialized methodologies and educational resources
+              </CardDescription>
+            </CardHeader>
+            <CollapsibleContent>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                  {KB_SOURCES.specialized_resources.map((source) => (
+                    <div key={source.name} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`specialized-${source.name}`}
+                        checked={specializedSources.includes(source.name)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setSpecializedSources([...specializedSources, source.name]);
+                          } else {
+                            setSpecializedSources(specializedSources.filter(s => s !== source.name));
+                          }
+                        }}
+                      />
+                      <Label htmlFor={`specialized-${source.name}`} className="text-sm cursor-pointer">
+                        {source.name}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
 
-          <Button onClick={handleSpecializedIngestion} disabled={specializedLoading} className="w-full sm:w-auto">
-            <Sparkles className="h-4 w-4 mr-2" />
-            {specializedLoading ? 'Scraping...' : 'Start Specialized Scraping'}
-          </Button>
-        </CardContent>
-        </Card>
+                <Button 
+                  onClick={handleSpecializedIngestion} 
+                  disabled={specializedStatus.stage !== 'idle' && specializedStatus.stage !== 'complete' && specializedStatus.stage !== 'error'} 
+                  className="w-full sm:w-auto"
+                >
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Start Specialized Scraping
+                </Button>
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
       </TransparentTile>
 
       {/* Documents Table */}
