@@ -248,13 +248,36 @@ serve(async (req) => {
 
     console.log(`🏁 Job complete: ${totalAdded}/${totalResources} resources added`);
 
+    // Auto-trigger embedding generation for newly added documents if any were added
+    if (totalAdded > 0) {
+      console.log('🤖 Auto-triggering embedding generation for new documents...');
+      try {
+        const embedResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/regenerate-kb-embeddings`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (embedResponse.ok) {
+          console.log('✅ Embedding generation triggered successfully');
+        } else {
+          console.warn('⚠️ Failed to trigger embedding generation:', await embedResponse.text());
+        }
+      } catch (embedErr) {
+        console.warn('⚠️ Could not trigger embedding generation:', embedErr);
+      }
+    }
+
     return new Response(
       JSON.stringify({ 
         success: true, 
         job_id: jobId,
         documents_found: totalResources,
         documents_added: totalAdded,
-        errors: errors.length > 0 ? errors : null
+        errors: errors.length > 0 ? errors : null,
+        embeddings_triggered: totalAdded > 0
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
