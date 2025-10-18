@@ -4,8 +4,9 @@ import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { Loader2, CheckCircle2, XCircle, AlertCircle, RotateCcw } from 'lucide-react';
+import { Loader2, CheckCircle2, XCircle, AlertCircle, RotateCcw, FileText } from 'lucide-react';
 import { toast } from 'sonner';
+import { DocumentReportModal } from './DocumentReportModal';
 
 interface ProjectScribeProps {
   jobId: string;
@@ -20,6 +21,7 @@ interface JobStatus {
   failed_documents: number;
   started_at: string;
   completed_at: string | null;
+  metadata?: any; // Use any to handle Json type from Supabase
 }
 
 interface DocumentStatus {
@@ -39,6 +41,8 @@ export const ProjectScribe = ({ jobId, onComplete }: ProjectScribeProps) => {
   const [documents, setDocuments] = useState<DocumentStatus[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isResetting, setIsResetting] = useState(false);
+  const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [reportData, setReportData] = useState<any>(null);
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -121,6 +125,24 @@ export const ProjectScribe = ({ jobId, onComplete }: ProjectScribeProps) => {
       supabase.removeChannel(docsChannel);
     };
   }, [jobId, onComplete]);
+
+  const handleViewReport = async () => {
+    if (!job?.metadata?.report_id) return;
+    
+    const { data, error } = await supabase
+      .from('document_reports')
+      .select('*')
+      .eq('id', job.metadata.report_id)
+      .single();
+    
+    if (error) {
+      toast.error('Failed to load report');
+      return;
+    }
+    
+    setReportData(data);
+    setReportModalOpen(true);
+  };
 
   if (isLoading || !job) {
     return (
@@ -295,9 +317,17 @@ export const ProjectScribe = ({ jobId, onComplete }: ProjectScribeProps) => {
         )}
         <Progress value={progress} className="h-2" />
         {job.status === 'completed' && (
-          <p className="text-sm text-green-600">
-            ✅ Analysis complete! {job.failed_documents > 0 && `(${job.failed_documents} failed)`}
-          </p>
+          <div className="flex items-center gap-2">
+            <p className="text-sm text-green-600">
+              ✅ Analysis complete! {job.failed_documents > 0 && `(${job.failed_documents} failed)`}
+            </p>
+            {job.metadata?.report_generated && (
+              <Button onClick={handleViewReport} size="sm" variant="outline">
+                <FileText className="h-4 w-4 mr-2" />
+                View Comprehensive Report
+              </Button>
+            )}
+          </div>
         )}
         {job.status === 'failed' && (
           <p className="text-sm text-red-600">
@@ -355,6 +385,13 @@ export const ProjectScribe = ({ jobId, onComplete }: ProjectScribeProps) => {
           ))}
         </div>
       </ScrollArea>
+
+      <DocumentReportModal
+        open={reportModalOpen}
+        onOpenChange={setReportModalOpen}
+        reportData={reportData}
+        documents={documents}
+      />
     </Card>
   );
 };

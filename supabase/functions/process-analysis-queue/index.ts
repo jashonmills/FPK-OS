@@ -525,6 +525,15 @@ serve(async (req) => {
       const processingCount = stats?.[0]?.processing_items || 0;
 
       if (pendingCount === 0 && processingCount === 0) {
+        // Get job metadata for report generation
+        const { data: jobData } = await supabase
+          .from('analysis_jobs')
+          .select('metadata')
+          .eq('id', job_id)
+          .single();
+
+        const jobMetadata = (jobData?.metadata as any) || {};
+        
         await supabase
           .from('analysis_jobs')
           .update({
@@ -534,6 +543,60 @@ serve(async (req) => {
           .eq('id', job_id);
 
         console.log('🎉 Job complete!');
+
+        // Auto-generate comprehensive report after successful completion
+        if (totalFailed === 0 && totalProcessed > 0) {
+          console.log('📊 Auto-generating comprehensive report...');
+          
+          // Get student_id from processed documents
+          const { data: processedDocs } = await supabase
+            .from('document_analysis_status')
+            .select('document_id')
+            .eq('job_id', job_id)
+            .eq('status', 'complete')
+            .limit(1);
+
+          if (processedDocs && processedDocs.length > 0) {
+            const { data: doc } = await supabase
+              .from('documents')
+              .select('student_id')
+              .eq('id', processedDocs[0].document_id)
+              .single();
+
+            if (doc?.student_id) {
+              try {
+                const reportResponse = await supabase.functions.invoke('generate-document-report', {
+                  body: {
+                    family_id: family_id,
+                    student_id: doc.student_id,
+                    focusArea: 'comprehensive'
+                  }
+                });
+
+                if (reportResponse.error) {
+                  console.error('❌ Report generation failed:', reportResponse.error);
+                } else {
+                  console.log('✅ Report generated:', reportResponse.data?.report_id);
+                  
+                  // Update job metadata with report ID
+                  await supabase
+                    .from('analysis_jobs')
+                    .update({
+                      metadata: {
+                        ...jobMetadata,
+                        report_id: reportResponse.data?.report_id,
+                        report_generated: true
+                      }
+                    })
+                    .eq('id', job_id);
+                }
+              } catch (reportError) {
+                console.error('❌ Report generation error:', reportError);
+                // Don't fail the job if report generation fails
+              }
+            }
+          }
+        }
       }
     }
 

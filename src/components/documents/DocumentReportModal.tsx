@@ -14,8 +14,13 @@ interface DocumentReportModalProps {
     report_content: string;
     generated_at: string;
     document_count: number;
-    metrics_analyzed: number;
-    insights_included: number;
+    metrics_analyzed?: number;
+    metrics_count?: number;
+    insights_included?: number;
+    insights_count?: number;
+    progress_records_count?: number;
+    focus_area?: string;
+    report_format?: string;
     document_ids?: string[];
   } | null;
   documents?: any[];
@@ -81,15 +86,35 @@ export const DocumentReportModal = ({
           <div className="space-y-4">
             {/* Report Metadata */}
             <div className="bg-muted p-4 rounded-lg space-y-2">
-              <p className="text-sm text-muted-foreground">
-                <strong>Generated:</strong> {new Date(reportData.generated_at).toLocaleString()}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                <strong>Documents Analyzed:</strong> {reportData.document_count || reportData.document_ids?.length || 0}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                <strong>Data Points:</strong> {reportData.metrics_analyzed || 0} metrics, {reportData.insights_included || 0} insights
-              </p>
+              <div className="grid grid-cols-2 gap-4 mb-3">
+                <div>
+                  <p className="text-xs font-semibold text-muted-foreground mb-1">ANALYSIS SUMMARY</p>
+                  <p className="text-sm">
+                    <strong>{reportData.document_count || reportData.document_ids?.length || 0}</strong> documents analyzed
+                  </p>
+                  <p className="text-sm">
+                    <strong>{reportData.metrics_analyzed || reportData.metrics_count || 0}</strong> metrics extracted
+                  </p>
+                  <p className="text-sm">
+                    <strong>{reportData.insights_included || reportData.insights_count || 0}</strong> insights generated
+                  </p>
+                  <p className="text-sm">
+                    <strong>{reportData.progress_records_count || 0}</strong> progress records
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-muted-foreground mb-1">REPORT DETAILS</p>
+                  <p className="text-sm text-muted-foreground">
+                    Generated: {new Date(reportData.generated_at).toLocaleDateString()}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Focus: {reportData.focus_area || 'Comprehensive'}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Format: {reportData.report_format || 'Markdown'}
+                  </p>
+                </div>
+              </div>
               
               {includedDocs.length > 0 && (
                 <details className="mt-2">
