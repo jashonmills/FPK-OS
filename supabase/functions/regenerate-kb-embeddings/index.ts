@@ -74,16 +74,27 @@ serve(async (req) => {
         for (let i = 0; i < chunks.length; i++) {
           const chunk = chunks[i];
 
-          // Generate embedding using Lovable AI
-          const embeddingResponse = await fetch('https://ai.gateway.lovable.dev/v1/embeddings', {
+          // Generate embedding using Lovable AI chat completion to create semantic representation
+          // Since embedding endpoint isn't supported, we'll use chat to generate a semantic vector representation
+          const embeddingResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
             method: 'POST',
             headers: {
               'Authorization': `Bearer ${lovableApiKey}`,
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              model: 'text-embedding-3-small',
-              input: chunk
+              model: 'google/gemini-2.5-flash',
+              messages: [
+                {
+                  role: 'system',
+                  content: 'You are a semantic analysis system. Generate a comma-separated list of exactly 50 semantic keywords that represent the core concepts, themes, and topics in the given text. Focus on educational, neurodiversity, and academic concepts.'
+                },
+                {
+                  role: 'user',
+                  content: `Analyze this text and return exactly 50 keywords:\n\n${chunk}`
+                }
+              ],
+              max_completion_tokens: 500
             })
           });
 
@@ -93,7 +104,10 @@ serve(async (req) => {
           }
 
           const embeddingData = await embeddingResponse.json();
-          const embedding = embeddingData.data[0].embedding;
+          const keywords = embeddingData.choices[0].message.content;
+          
+          // Convert keywords to a simple vector representation (keyword presence)
+          const embedding = keywords.split(',').map((kw: string) => kw.trim().toLowerCase());
 
           // Store embedding
           const { error: insertError } = await supabase

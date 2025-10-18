@@ -762,33 +762,22 @@ export default function KnowledgeBaseCommandCenter() {
       {/* Documents Table */}
       <TransparentTile>
         <Card className="bg-background/40 backdrop-blur-sm border-none shadow-none">
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <span className="flex items-center gap-2">
+        <CardHeader className="pb-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
               <Database className="h-5 w-5" />
-              Knowledge Base Documents
-            </span>
-          </CardTitle>
+              <CardTitle className="text-lg">Knowledge Base Documents</CardTitle>
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Filters */}
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search documents..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </div>
+          <div className="flex flex-col sm:flex-row gap-3">
             <Select value={filterSource} onValueChange={setFilterSource}>
-              <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder="Filter by source" />
+              <SelectTrigger className="w-full sm:w-[220px] bg-background">
+                <SelectValue placeholder="Filter by Source" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-background">
                 <SelectItem value="all">All Sources</SelectItem>
                 {KB_SOURCES.academic_databases.map(s => (
                   <SelectItem key={s.name} value={s.name}>{s.name}</SelectItem>
@@ -796,73 +785,99 @@ export default function KnowledgeBaseCommandCenter() {
                 {KB_SOURCES.clinical_resources.map(s => (
                   <SelectItem key={s.name} value={s.name}>{s.name}</SelectItem>
                 ))}
+                {KB_SOURCES.institutional_resources.map(s => (
+                  <SelectItem key={s.name} value={s.name}>{s.name}</SelectItem>
+                ))}
+                {KB_SOURCES.specialized_resources.map(s => (
+                  <SelectItem key={s.name} value={s.name}>{s.name}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
             <Select value={filterType} onValueChange={setFilterType}>
-              <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder="Filter by type" />
+              <SelectTrigger className="w-full sm:w-[220px] bg-background">
+                <SelectValue placeholder="Filter by Focus Area" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="academic_database">Academic</SelectItem>
-                <SelectItem value="clinical_resource">Clinical</SelectItem>
-                <SelectItem value="institutional">Institutional</SelectItem>
-                <SelectItem value="specialized">Specialized</SelectItem>
+              <SelectContent className="bg-background">
+                <SelectItem value="all">All Focus Areas</SelectItem>
+                <SelectItem value="academic_database">Research</SelectItem>
+                <SelectItem value="clinical_resource">Academic</SelectItem>
+                <SelectItem value="institutional">Clinical</SelectItem>
+                <SelectItem value="specialized">Educational</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          {/* Table */}
-          <div className="border rounded-lg">
+          {/* Clean Table */}
+          <div className="border rounded-lg bg-background overflow-hidden">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[40%]">Title</TableHead>
-                  <TableHead className="w-[15%]">Source</TableHead>
-                  <TableHead className="w-[15%]">Focus Areas</TableHead>
-                  <TableHead className="w-[12%]">Type</TableHead>
-                  <TableHead className="w-[10%]">Pub Date</TableHead>
-                  <TableHead className="w-[8%]">Added</TableHead>
+                <TableRow className="hover:bg-transparent border-b">
+                  <TableHead className="font-semibold">Title</TableHead>
+                  <TableHead className="font-semibold w-[140px]">Source</TableHead>
+                  <TableHead className="font-semibold w-[180px]">Focus Areas</TableHead>
+                  <TableHead className="font-semibold w-[120px]">Type</TableHead>
+                  <TableHead className="font-semibold w-[100px]">Pub Date</TableHead>
+                  <TableHead className="font-semibold w-[100px]">Added</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {documents.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
-                      No documents found. Start ingesting content from the sources above.
+                    <TableCell colSpan={6} className="text-center text-muted-foreground py-12">
+                      <div className="flex flex-col items-center gap-2">
+                        <Database className="h-8 w-8 opacity-50" />
+                        <p>No documents found</p>
+                        <p className="text-sm">Start ingesting content from the sources above</p>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ) : (
                   documents.map((doc) => (
-                    <TableRow key={doc.id}>
-                      <TableCell className="font-medium max-w-md">
-                        <div className="truncate" title={doc.title}>{doc.title}</div>
+                    <TableRow key={doc.id} className="hover:bg-muted/50">
+                      <TableCell className="font-medium">
+                        <div className="line-clamp-2 max-w-md" title={doc.title}>
+                          {doc.title}
+                        </div>
                       </TableCell>
                       <TableCell>
-                        <span className="text-cyan-600 dark:text-cyan-400 font-medium">
+                        <span className="text-cyan-600 dark:text-cyan-400 font-medium text-sm">
                           {doc.source_name}
                         </span>
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-1 flex-wrap">
-                          {doc.focus_areas.slice(0, 2).map((area) => (
-                            <Badge key={area} variant="secondary" className="text-xs">
+                          {doc.focus_areas.slice(0, 2).map((area, idx) => (
+                            <Badge key={idx} variant="secondary" className="text-xs px-2 py-0.5">
                               {area}
                             </Badge>
                           ))}
+                          {doc.focus_areas.length > 2 && (
+                            <Badge variant="secondary" className="text-xs px-2 py-0.5">
+                              +{doc.focus_areas.length - 2}
+                            </Badge>
+                          )}
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline" className="text-xs">{doc.document_type}</Badge>
+                        <Badge variant="outline" className="text-xs font-normal px-2 py-0.5">
+                          {doc.document_type}
+                        </Badge>
                       </TableCell>
                       <TableCell className="text-muted-foreground text-sm">
                         {doc.publication_date ? 
-                          new Date(doc.publication_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) :
+                          new Date(doc.publication_date).toLocaleDateString('en-US', { 
+                            month: 'short', 
+                            year: 'numeric' 
+                          }) :
                           '-'
                         }
                       </TableCell>
                       <TableCell className="text-muted-foreground text-sm">
-                        {new Date(doc.created_at).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' })}
+                        {new Date(doc.created_at).toLocaleDateString('en-US', { 
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric'
+                        })}
                       </TableCell>
                     </TableRow>
                   ))

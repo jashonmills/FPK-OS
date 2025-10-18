@@ -5,7 +5,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Search, Calendar, Clock, ArrowLeft, BookOpen } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Search, Calendar, Clock, ArrowLeft, BookOpen, ChevronDown } from 'lucide-react';
 import { format } from 'date-fns';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Helmet } from 'react-helmet';
@@ -17,6 +18,7 @@ export default function Resources() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [fixingPosts, setFixingPosts] = useState(false);
+  const [categoriesOpen, setCategoriesOpen] = useState(false);
   
   const { data: posts, isLoading, refetch } = useBlogPosts('published');
   const { data: categories } = useBlogCategories();
@@ -106,7 +108,7 @@ export default function Resources() {
         </div>
 
         <div className="mb-8 bg-white/50 backdrop-blur-sm rounded-lg p-4">
-          <div className="relative mb-4">
+          <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search articles..."
@@ -117,27 +119,45 @@ export default function Resources() {
           </div>
 
           {categories && categories.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              <Button
-                variant={selectedCategory === null ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setSelectedCategory(null)}
-                className={selectedCategory === null ? 'bg-fpk-orange hover:bg-fpk-orange/90' : ''}
-              >
-                All
-              </Button>
-              {categories.map(category => (
-                <Button
-                  key={category.id}
-                  variant={selectedCategory === category.id ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setSelectedCategory(category.id)}
-                  className={selectedCategory === category.id ? 'bg-fpk-orange hover:bg-fpk-orange/90' : ''}
+            <Collapsible open={categoriesOpen} onOpenChange={setCategoriesOpen}>
+              <CollapsibleTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="w-full justify-between mt-3 hover:bg-white/50"
                 >
-                  {category.name}
+                  <span className="text-sm text-muted-foreground">
+                    {selectedCategory 
+                      ? `Category: ${categories.find(c => c.id === selectedCategory)?.name}` 
+                      : 'All Categories'}
+                  </span>
+                  <ChevronDown className={`h-4 w-4 transition-transform ${categoriesOpen ? 'rotate-180' : ''}`} />
                 </Button>
-              ))}
-            </div>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-3">
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    variant={selectedCategory === null ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setSelectedCategory(null)}
+                    className={selectedCategory === null ? 'bg-fpk-orange hover:bg-fpk-orange/90' : ''}
+                  >
+                    All
+                  </Button>
+                  {categories.map(category => (
+                    <Button
+                      key={category.id}
+                      variant={selectedCategory === category.id ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setSelectedCategory(category.id)}
+                      className={selectedCategory === category.id ? 'bg-fpk-orange hover:bg-fpk-orange/90' : ''}
+                    >
+                      {category.name}
+                    </Button>
+                  ))}
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
           )}
         </div>
 
