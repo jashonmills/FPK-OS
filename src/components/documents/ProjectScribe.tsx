@@ -325,7 +325,7 @@ export const ProjectScribe = ({ jobId, onComplete }: ProjectScribeProps) => {
                 {doc.status === 'analyzing' && doc.started_at && (
                   <div className="mt-1">
                     <div className="text-xs text-muted-foreground">
-                      Sequential processing: ~3 min per document
+                      Smart batching: Small docs in parallel, large docs sequential
                     </div>
                   </div>
                 )}

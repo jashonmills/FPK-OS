@@ -416,6 +416,7 @@ export type Database = {
           created_at: string
           document_id: string
           error_message: string | null
+          estimated_tokens: number | null
           family_id: string
           id: string
           job_id: string | null
@@ -432,6 +433,7 @@ export type Database = {
           created_at?: string
           document_id: string
           error_message?: string | null
+          estimated_tokens?: number | null
           family_id: string
           id?: string
           job_id?: string | null
@@ -448,6 +450,7 @@ export type Database = {
           created_at?: string
           document_id?: string
           error_message?: string | null
+          estimated_tokens?: number | null
           family_id?: string
           id?: string
           job_id?: string | null
@@ -3546,6 +3549,7 @@ export type Database = {
           created_at: string
           document_id: string
           error_message: string | null
+          estimated_tokens: number | null
           family_id: string
           id: string
           job_id: string | null

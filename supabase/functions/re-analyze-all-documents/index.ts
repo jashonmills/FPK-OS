@@ -19,10 +19,10 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Get all documents for this family
+    // Get all documents for this family with file sizes
     const { data: documents, error: docsError } = await supabase
       .from('documents')
-      .select('id, file_name, family_id')
+      .select('id, file_name, family_id, file_size_kb')
       .eq('family_id', family_id)
       .order('created_at', { ascending: true });
 
@@ -39,8 +39,13 @@ serve(async (req) => {
       );
     }
 
-    console.log(`📊 Found ${documents.length} documents to re-analyze`);
-
+    // Estimate total processing time based on document sizes
+    const totalTokens = documents.reduce((sum, doc) => sum + (doc.file_size_kb || 100) * 150, 0);
+    const avgTokensPerDoc = totalTokens / documents.length;
+    const estimatedMinutes = avgTokensPerDoc > 5000 
+      ? Math.ceil(documents.length * 3)  // Large docs: sequential (3 min each)
+      : Math.ceil(documents.length / 3);  // Small docs: 3 at a time
+    
     // Create analysis job record
     const { data: job, error: jobError } = await supabase
       .from('analysis_jobs')
@@ -54,8 +59,9 @@ serve(async (req) => {
         started_at: new Date().toISOString(),
         metadata: { 
           document_count: documents.length,
-          processing_mode: 'queue_parallel',
-          estimated_time_minutes: Math.ceil(documents.length / 5) + 1
+          processing_mode: 'smart_batching',
+          estimated_time_minutes: estimatedMinutes,
+          total_estimated_tokens: totalTokens
         }
       })
       .select()
@@ -68,14 +74,18 @@ serve(async (req) => {
 
     console.log(`✅ Created job: ${job.id}`);
 
-    // Queue all documents for processing
-    const queueRecords = documents.map(doc => ({
-      family_id: doc.family_id,
-      document_id: doc.id,
-      job_id: job.id,
-      priority: 5,
-      status: 'pending'
-    }));
+    // Queue all documents with token estimates
+    const queueRecords = documents.map(doc => {
+      const estimatedTokens = (doc.file_size_kb || 100) * 150;
+      return {
+        family_id: doc.family_id,
+        document_id: doc.id,
+        job_id: job.id,
+        priority: estimatedTokens > 5000 ? 10 : 5, // Higher priority for large docs
+        status: 'pending',
+        estimated_tokens: estimatedTokens
+      };
+    });
 
     const { error: queueError } = await supabase
       .from('analysis_queue')
@@ -86,7 +96,7 @@ serve(async (req) => {
       throw queueError;
     }
 
-    console.log(`📦 Queued ${documents.length} documents for parallel processing`);
+    console.log(`📦 Queued ${documents.length} documents for smart batching (est. ${estimatedMinutes} min)`);
 
     // Start queue processor in background using EdgeRuntime.waitUntil
     const processQueue = async () => {
@@ -137,9 +147,9 @@ serve(async (req) => {
         job_id: job.id,
         total_documents: documents.length,
         queued_documents: documents.length,
-        estimated_time_minutes: Math.ceil(documents.length / 5) + 1,
-        processing_mode: 'parallel_queue',
-        message: 'Documents queued for parallel processing (5 at a time)'
+        estimated_time_minutes: estimatedMinutes,
+        processing_mode: 'smart_batching',
+        message: 'Documents queued for smart batching (small docs in parallel, large docs sequential)'
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
