@@ -31,10 +31,10 @@ export const useConstellationLayout = (chartCount: number): GridPosition[] => {
     return [
       { gridColumn: '1 / 4', gridRow: '1 / 4' },     // Top-left (IEP Goal Tracker)
       { gridColumn: '10 / 13', gridRow: '1 / 4' },   // Top-right (Academic Fluency)
-      { gridColumn: '4 / 10', gridRow: '1 / 4' },    // Top-center (Daily Living Skills) - repositioned
-      { gridColumn: '1 / 4', gridRow: '5 / 9' },     // Bottom-left (Reading Error)
-      { gridColumn: '5 / 8', gridRow: '6 / 9' },     // Bottom-center-left (Task Initiation)
-      { gridColumn: '9 / 12', gridRow: '6 / 9' }     // Bottom-center-right (Working Memory)
+      { gridColumn: '9 / 12', gridRow: '6 / 9' },    // Bottom-right (Reading Error - swapped)
+      { gridColumn: '1 / 4', gridRow: '5 / 9' },     // Bottom-left (Task Initiation)
+      { gridColumn: '5 / 8', gridRow: '6 / 9' },     // Bottom-center-left (Working Memory)
+      { gridColumn: '4 / 10', gridRow: '1 / 4' }     // Top-center (Daily Living Skills - swapped)
     ];
   }
   
