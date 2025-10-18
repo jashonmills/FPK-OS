@@ -38,6 +38,7 @@ export default function BlogPostEditor() {
   const [content, setContent] = useState('');
   const [focusKeyword, setFocusKeyword] = useState('');
   const [status, setStatus] = useState<'draft' | 'published' | 'scheduled' | 'archived'>('draft');
+  const [featuredImageUrl, setFeaturedImageUrl] = useState('');
   const [featuredImageAlt, setFeaturedImageAlt] = useState('');
   const [authorId, setAuthorId] = useState<string>(user?.id || '');
 
@@ -50,6 +51,7 @@ export default function BlogPostEditor() {
       setContent(existingPost.content);
       setFocusKeyword(existingPost.focus_keyword || '');
       setStatus(existingPost.status);
+      setFeaturedImageUrl(existingPost.featured_image_url || '');
       setFeaturedImageAlt(existingPost.featured_image_alt || '');
       setAuthorId(existingPost.author_id || user?.id || '');
     }
@@ -66,6 +68,7 @@ export default function BlogPostEditor() {
       content,
       focus_keyword: focusKeyword,
       status,
+      featured_image_url: featuredImageUrl || undefined,
       featured_image_alt: featuredImageAlt,
       author_id: authorId,
       seo_score: seoAnalysis.score,
@@ -234,6 +237,18 @@ export default function BlogPostEditor() {
                   maxLength={160}
                   rows={3}
                 />
+              </div>
+
+              <div>
+                <Label>Featured Image URL</Label>
+                <Input
+                  value={featuredImageUrl}
+                  onChange={(e) => setFeaturedImageUrl(e.target.value)}
+                  placeholder="https://your-supabase-storage-url.com/image.jpg"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Upload images to Media Library and paste the URL here
+                </p>
               </div>
 
               <div>
