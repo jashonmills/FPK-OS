@@ -104,35 +104,22 @@ ${relevantChunk?.chunk_text || doc.content?.substring(0, 2000)}
       }
     }
 
-    // Generate blog post using Lovable AI
+    // Generate blog post using Lovable AI with structured outputs
     const systemPrompt = `You are an expert neurodiversity content writer specializing in autism, ADHD, and learning differences. 
 
-Your task is to generate a comprehensive, evidence-based blog post that is:
+Generate a comprehensive, evidence-based blog post that is:
 - Written in an accessible, empathetic tone
 - Backed by research and credible sources
 - Includes practical strategies and real-world examples
-- Optimized for SEO, GEO (Generative Engine Optimization), and AIO (AI-Optimized Content)
-- Structured with proper H2 and H3 headings
+- Optimized for SEO with proper structure
 - 1500-2500 words in length
 
-For SEO/GEO/AIO optimization, ensure:
-1. Clear section summaries at the beginning of major sections
-2. Bullet points and numbered lists for easy scanning
-3. Key takeaways in a highlighted box
-4. FAQ section at the end (3-5 questions)
-5. Inline source citations [Source: Name]
-6. Related terms and synonyms throughout
-
-IMPORTANT: Return ONLY a valid JSON object. Do not include any markdown formatting, explanations, or text outside the JSON. The JSON must have this exact structure:
-{
-  "title": "SEO-optimized title (50-60 chars)",
-  "meta_title": "Meta title for search engines (50-60 chars)",
-  "meta_description": "Compelling meta description (150-160 chars)",
-  "excerpt": "Engaging 2-sentence summary",
-  "content": "Full blog post in markdown format with H2/H3 headings",
-  "focus_keyword": "Primary keyword for SEO",
-  "sources_cited": ["Source 1", "Source 2"]
-}`;
+Include:
+1. Clear H2 and H3 headings in the content
+2. Bullet points and numbered lists
+3. A Key Takeaways section
+4. An FAQ section at the end (3-5 questions)
+5. Inline source citations like [Source: Name]`;
 
     const userPrompt = `Topic: ${topic}
     
@@ -140,7 +127,7 @@ ${personal_insights ? `Personal Insights from Author:\n${personal_insights}\n\n`
 
 ${context ? `Research Context from Knowledge Base:\n${context}\n\n` : ''}
 
-Generate a complete, publication-ready blog post following the guidelines above.`;
+Generate a complete, publication-ready blog post.`;
 
     const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -156,6 +143,49 @@ Generate a complete, publication-ready blog post following the guidelines above.
         ],
         temperature: 0.7,
         max_tokens: 3500,
+        tools: [{
+          type: 'function',
+          function: {
+            name: 'create_blog_post',
+            description: 'Create a structured blog post with all required fields',
+            parameters: {
+              type: 'object',
+              properties: {
+                title: {
+                  type: 'string',
+                  description: 'SEO-optimized title (50-60 characters)'
+                },
+                meta_title: {
+                  type: 'string',
+                  description: 'Meta title for search engines (50-60 characters)'
+                },
+                meta_description: {
+                  type: 'string',
+                  description: 'Compelling meta description (150-160 characters)'
+                },
+                excerpt: {
+                  type: 'string',
+                  description: 'Engaging 2-sentence summary'
+                },
+                content: {
+                  type: 'string',
+                  description: 'Full blog post in markdown format with H2/H3 headings, lists, and citations'
+                },
+                focus_keyword: {
+                  type: 'string',
+                  description: 'Primary keyword for SEO'
+                },
+                sources_cited: {
+                  type: 'array',
+                  items: { type: 'string' },
+                  description: 'List of sources used'
+                }
+              },
+              required: ['title', 'meta_title', 'meta_description', 'excerpt', 'content', 'focus_keyword', 'sources_cited']
+            }
+          }
+        }],
+        tool_choice: { type: 'function', function: { name: 'create_blog_post' } }
       }),
     });
 
@@ -166,37 +196,17 @@ Generate a complete, publication-ready blog post following the guidelines above.
     }
 
     const aiData = await aiResponse.json();
-    let rawContent = aiData.choices[0].message.content;
+    console.log('AI response received');
     
-    console.log('Raw AI response length:', rawContent.length);
-    
-    // Try multiple extraction methods
-    let generatedContent;
-    
-    // Method 1: Try to extract from markdown code blocks
-    const jsonMatch = rawContent.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);
-    if (jsonMatch) {
-      console.log('Found JSON in markdown code block');
-      rawContent = jsonMatch[1];
+    // Extract structured output from tool call
+    const toolCall = aiData.choices[0].message.tool_calls?.[0];
+    if (!toolCall) {
+      console.error('No tool call in response:', JSON.stringify(aiData.choices[0].message));
+      throw new Error('AI did not return structured blog post data');
     }
     
-    // Method 2: Try to find JSON object boundaries
-    const firstBrace = rawContent.indexOf('{');
-    const lastBrace = rawContent.lastIndexOf('}');
-    if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
-      rawContent = rawContent.substring(firstBrace, lastBrace + 1);
-    }
-    
-    // Clean up any remaining markdown or text before/after JSON
-    rawContent = rawContent.trim();
-    
-    try {
-      generatedContent = JSON.parse(rawContent);
-      console.log('Successfully parsed JSON response');
-    } catch (parseError) {
-      console.error('Failed to parse JSON. Raw content preview:', rawContent.substring(0, 500));
-      throw new Error(`Failed to parse AI response as JSON: ${parseError.message}`);
-    }
+    const generatedContent = JSON.parse(toolCall.function.arguments);
+    console.log('Successfully extracted structured blog post');
 
     // Get authenticated user
     const authHeader = req.headers.get('Authorization')!;
