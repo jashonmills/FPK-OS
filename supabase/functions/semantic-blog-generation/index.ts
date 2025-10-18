@@ -217,17 +217,25 @@ Generate a complete, publication-ready blog post.`;
       throw new Error('User not authenticated');
     }
 
+    // Generate slug from title
+    const slug = generatedContent.title
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .trim();
+
     // Create blog post draft
     const { data: newPost, error: insertError } = await supabase
       .from('blog_posts')
       .insert({
         title: generatedContent.title,
+        slug,
         content: generatedContent.content,
         excerpt: generatedContent.excerpt,
         meta_title: generatedContent.meta_title,
         meta_description: generatedContent.meta_description,
         focus_keyword: generatedContent.focus_keyword,
-        category_id,
         author_id: user.id,
         status: 'draft',
         published_at: null,
@@ -236,10 +244,28 @@ Generate a complete, publication-ready blog post.`;
       .single();
 
     if (insertError) {
+      console.error('Error inserting blog post:', insertError);
       throw insertError;
     }
 
     console.log('Blog post created successfully:', newPost.id);
+
+    // If category_id provided, link it via junction table
+    if (category_id && newPost) {
+      const { error: categoryError } = await supabase
+        .from('blog_post_categories')
+        .insert({
+          post_id: newPost.id,
+          category_id: category_id,
+        });
+
+      if (categoryError) {
+        console.error('Error linking category:', categoryError);
+        // Don't throw - post was created successfully
+      } else {
+        console.log('Category linked successfully');
+      }
+    }
 
     return new Response(
       JSON.stringify({
