@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -34,6 +34,7 @@ import { Tag, ArrowLeft, Plus, Edit, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { TransparentTile } from '@/components/ui/transparent-tile';
+import { slugify } from '@/lib/slug';
 
 interface Category {
   id: string;
@@ -50,6 +51,48 @@ export default function CategoryManager() {
   const [editCategory, setEditCategory] = useState<Category | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  
+  // Form state
+  const [formData, setFormData] = useState({
+    name: '',
+    slug: '',
+    description: '',
+    display_order: 0,
+    is_active: true
+  });
+  const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
+
+  // Load form data when editing
+  useEffect(() => {
+    if (editCategory) {
+      setFormData({
+        name: editCategory.name || '',
+        slug: editCategory.slug || '',
+        description: editCategory.description || '',
+        display_order: editCategory.display_order || 0,
+        is_active: editCategory.is_active ?? true
+      });
+      setSlugManuallyEdited(!!editCategory.slug);
+    } else if (!isDialogOpen) {
+      // Reset form when dialog closes
+      setFormData({
+        name: '',
+        slug: '',
+        description: '',
+        display_order: 0,
+        is_active: true
+      });
+      setSlugManuallyEdited(false);
+    }
+  }, [editCategory, isDialogOpen]);
+
+  // Auto-generate slug from name for new categories
+  useEffect(() => {
+    if (!editCategory && formData.name && !slugManuallyEdited) {
+      const autoSlug = slugify(formData.name);
+      setFormData(prev => ({ ...prev, slug: autoSlug }));
+    }
+  }, [formData.name, editCategory, slugManuallyEdited]);
 
   const { data: categories, isLoading } = useQuery({
     queryKey: ['blog-categories'],
@@ -110,14 +153,13 @@ export default function CategoryManager() {
 
   const handleSave = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
     saveMutation.mutate({
       id: editCategory?.id,
-      name: formData.get('name') as string,
-      slug: formData.get('slug') as string,
-      description: formData.get('description') as string,
-      is_active: formData.get('is_active') === 'on',
-      display_order: parseInt(formData.get('display_order') as string) || 0,
+      name: formData.name,
+      slug: formData.slug || slugify(formData.name),
+      description: formData.description,
+      is_active: formData.is_active,
+      display_order: formData.display_order,
     });
   };
 
@@ -206,27 +248,54 @@ export default function CategoryManager() {
           </DialogHeader>
           <form onSubmit={handleSave} className="space-y-4">
             <div>
-              <label className="text-sm font-medium">Name</label>
-              <Input name="name" defaultValue={editCategory?.name} required />
+              <label className="text-sm font-medium">Name *</label>
+              <Input 
+                name="name" 
+                value={formData.name}
+                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                required 
+              />
             </div>
             <div>
-              <label className="text-sm font-medium">Slug</label>
-              <Input name="slug" defaultValue={editCategory?.slug} required />
+              <label className="text-sm font-medium">Slug *</label>
+              <Input 
+                name="slug" 
+                value={formData.slug}
+                onChange={(e) => {
+                  setFormData(prev => ({ ...prev, slug: e.target.value }));
+                  setSlugManuallyEdited(true);
+                }}
+                placeholder="Auto-generated from name"
+                required 
+              />
+              <p className="text-sm text-muted-foreground mt-1">
+                Auto-generated from name. Edit manually to customize.
+              </p>
             </div>
             <div>
               <label className="text-sm font-medium">Description</label>
-              <Textarea name="description" defaultValue={editCategory?.description} />
+              <Textarea 
+                name="description" 
+                value={formData.description}
+                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+              />
             </div>
             <div>
               <label className="text-sm font-medium">Display Order</label>
-              <Input type="number" name="display_order" defaultValue={editCategory?.display_order || 0} />
+              <Input 
+                type="number" 
+                name="display_order" 
+                value={formData.display_order}
+                onChange={(e) => setFormData(prev => ({ ...prev, display_order: parseInt(e.target.value) || 0 }))}
+              />
             </div>
             <div className="flex items-center gap-2">
               <input
                 type="checkbox"
                 name="is_active"
                 id="is_active"
-                defaultChecked={editCategory?.is_active ?? true}
+                checked={formData.is_active}
+                onChange={(e) => setFormData(prev => ({ ...prev, is_active: e.target.checked }))}
               />
               <label htmlFor="is_active" className="text-sm">Active</label>
             </div>

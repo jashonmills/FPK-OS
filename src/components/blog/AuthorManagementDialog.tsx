@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Loader2 } from 'lucide-react';
+import { slugify } from '@/lib/slug';
 
 interface AuthorManagementDialogProps {
   open: boolean;
@@ -39,6 +40,7 @@ export function AuthorManagementDialog({
     is_ai_author: false
   });
   const [isSaving, setIsSaving] = useState(false);
+  const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
 
   useEffect(() => {
     if (author) {
@@ -51,6 +53,7 @@ export function AuthorManagementDialog({
         linkedin_url: author.social_links?.linkedin || '',
         is_ai_author: author.is_ai_author || false
       });
+      setSlugManuallyEdited(!!author.author_slug);
     } else {
       setFormData({
         display_name: '',
@@ -61,8 +64,17 @@ export function AuthorManagementDialog({
         linkedin_url: '',
         is_ai_author: false
       });
+      setSlugManuallyEdited(false);
     }
   }, [author, open]);
+
+  // Auto-generate slug from display name for new authors
+  useEffect(() => {
+    if (!author && formData.display_name && !slugManuallyEdited) {
+      const autoSlug = slugify(formData.display_name);
+      setFormData(prev => ({ ...prev, author_slug: autoSlug }));
+    }
+  }, [formData.display_name, author, slugManuallyEdited]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -109,11 +121,14 @@ export function AuthorManagementDialog({
             <Input
               id="author_slug"
               value={formData.author_slug}
-              onChange={(e) => setFormData({ ...formData, author_slug: e.target.value })}
+              onChange={(e) => {
+                setFormData({ ...formData, author_slug: e.target.value });
+                setSlugManuallyEdited(true);
+              }}
               placeholder="URL-friendly version of the name (auto-generated)"
             />
             <p className="text-sm text-muted-foreground mt-1">
-              URL-friendly version of the name (auto-generated)
+              Auto-generated from name. Edit manually to customize.
             </p>
           </div>
 
