@@ -72,7 +72,22 @@ serve(async (req) => {
             .eq('id', item.document_id)
             .single();
           
-          const documentName = doc?.file_name || 'Unknown';
+          // CRITICAL FIX #1: Handle missing documents
+          if (!doc) {
+            console.error(`❌ Document not found: ${item.document_id} (may have been deleted)`);
+            await supabase
+              .from('analysis_queue')
+              .update({
+                status: 'failed',
+                error_message: 'Document not found (may have been deleted)',
+                completed_at: new Date().toISOString()
+              })
+              .eq('id', item.id);
+            batchFailed++;
+            continue;
+          }
+          
+          const documentName = doc.file_name;
           
           // Create status tracking record
           const { data: statusRecord } = await supabase
@@ -227,8 +242,10 @@ serve(async (req) => {
               break;
             }
             
-            // Handle rate limits with auto-retry
-            if (isRateLimit && retryCount < item.max_retries) {
+            // CRITICAL FIX #5: Handle rate limits with max consecutive limit
+            const MAX_CONSECUTIVE_RATE_LIMITS = 5;
+            
+            if (isRateLimit && retryCount < item.max_retries && consecutiveRateLimits < MAX_CONSECUTIVE_RATE_LIMITS) {
               const backoffDelay = Math.min(30000 * Math.pow(2, item.retry_count), 120000); // 30s, 60s, 120s max
               console.log(`⏸️ Rate limit hit. Backing off ${backoffDelay/1000}s before retry ${retryCount}/${item.max_retries}`);
               
@@ -246,6 +263,18 @@ serve(async (req) => {
               await new Promise(resolve => setTimeout(resolve, backoffDelay));
               consecutiveRateLimits++;
               continue; // Don't count as failed, will retry
+            } else if (consecutiveRateLimits >= MAX_CONSECUTIVE_RATE_LIMITS) {
+              console.log(`❌ Max consecutive rate limits (${MAX_CONSECUTIVE_RATE_LIMITS}) exceeded - stopping job`);
+              await supabase
+                .from('analysis_jobs')
+                .update({
+                  status: 'failed',
+                  error_message: 'Persistent rate limiting detected. API may be unavailable. Please try again later.',
+                  failed_documents: totalFailed + batchFailed + 1
+                })
+                .eq('id', job_id);
+              continueProcessing = false;
+              break;
             }
             
             // Handle retryable errors (timeouts)
@@ -303,7 +332,21 @@ serve(async (req) => {
             .eq('id', item.document_id)
             .single();
           
-          const documentName = doc?.file_name || 'Unknown';
+          // CRITICAL FIX #1: Handle missing documents in parallel processing
+          if (!doc) {
+            console.error(`❌ Document not found: ${item.document_id}`);
+            await supabase
+              .from('analysis_queue')
+              .update({
+                status: 'failed',
+                error_message: 'Document not found (may have been deleted)',
+                completed_at: new Date().toISOString()
+              })
+              .eq('id', item.id);
+            return { success: false, item, error: 'Document not found' };
+          }
+          
+          const documentName = doc.file_name;
           
           const { data: statusRecord } = await supabase
             .from('document_analysis_status')
@@ -534,13 +577,31 @@ serve(async (req) => {
 
         const jobMetadata = (jobData?.metadata as any) || {};
         
-        await supabase
+        // CRITICAL FIX #2: Use database-level locking to prevent race condition
+        const { data: jobUpdate } = await supabase
           .from('analysis_jobs')
           .update({
             status: totalFailed > 0 ? 'completed_with_errors' : 'completed',
             completed_at: new Date().toISOString()
           })
-          .eq('id', job_id);
+          .eq('id', job_id)
+          .eq('status', 'processing') // Only update if still processing
+          .select()
+          .single();
+
+        // Only proceed if WE were the one to complete the job
+        if (!jobUpdate) {
+          console.log('⚠️ Job already completed by another process, skipping report generation');
+          return new Response(
+            JSON.stringify({
+              success: true,
+              processed: totalProcessed,
+              failed: totalFailed,
+              message: 'Job already completed by another process'
+            }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
 
         console.log('🎉 Job complete!');
 
@@ -548,52 +609,91 @@ serve(async (req) => {
         if (totalFailed === 0 && totalProcessed > 0) {
           console.log('📊 Auto-generating comprehensive report...');
           
-          // Get student_id from processed documents
+          // CRITICAL FIX #6: Try all documents to find valid student_id
           const { data: processedDocs } = await supabase
             .from('document_analysis_status')
             .select('document_id')
             .eq('job_id', job_id)
-            .eq('status', 'complete')
-            .limit(1);
+            .eq('status', 'complete');
 
           if (processedDocs && processedDocs.length > 0) {
-            const { data: doc } = await supabase
+            // Try all documents to find one with valid student_id
+            const { data: docsWithStudent } = await supabase
               .from('documents')
               .select('student_id')
-              .eq('id', processedDocs[0].document_id)
-              .single();
+              .in('id', processedDocs.map(d => d.document_id))
+              .not('student_id', 'is', null)
+              .limit(1);
 
-            if (doc?.student_id) {
+            const studentId = docsWithStudent?.[0]?.student_id;
+
+            if (studentId) {
               try {
                 const reportResponse = await supabase.functions.invoke('generate-document-report', {
                   body: {
                     family_id: family_id,
-                    student_id: doc.student_id,
+                    student_id: studentId,
                     focusArea: 'comprehensive'
                   }
                 });
 
+                // CRITICAL FIX #3: Proper error handling for report generation
                 if (reportResponse.error) {
                   console.error('❌ Report generation failed:', reportResponse.error);
-                } else {
-                  console.log('✅ Report generated:', reportResponse.data?.report_id);
-                  
-                  // Update job metadata with report ID
+                  // Update metadata with error info
                   await supabase
                     .from('analysis_jobs')
                     .update({
                       metadata: {
                         ...jobMetadata,
-                        report_id: reportResponse.data?.report_id,
+                        report_error: reportResponse.error.message || 'Report generation failed',
+                        report_generated: false
+                      }
+                    })
+                    .eq('id', job_id);
+                } else if (reportResponse.data?.report_id) {
+                  console.log('✅ Report generated:', reportResponse.data.report_id);
+                  
+                  // Update job metadata with valid report ID
+                  await supabase
+                    .from('analysis_jobs')
+                    .update({
+                      metadata: {
+                        ...jobMetadata,
+                        report_id: reportResponse.data.report_id,
                         report_generated: true
                       }
                     })
                     .eq('id', job_id);
+                } else {
+                  console.warn('⚠️ Report response missing report_id');
+                  await supabase
+                    .from('analysis_jobs')
+                    .update({
+                      metadata: {
+                        ...jobMetadata,
+                        report_error: 'Report generated but no ID returned',
+                        report_generated: false
+                      }
+                    })
+                    .eq('id', job_id);
                 }
-              } catch (reportError) {
-                console.error('❌ Report generation error:', reportError);
-                // Don't fail the job if report generation fails
+              } catch (reportError: any) {
+                console.error('❌ Report generation exception:', reportError);
+                // Update metadata with exception info
+                await supabase
+                  .from('analysis_jobs')
+                  .update({
+                    metadata: {
+                      ...jobMetadata,
+                      report_error: reportError.message || 'Report generation threw exception',
+                      report_generated: false
+                    }
+                  })
+                  .eq('id', job_id);
               }
+            } else {
+              console.warn('⚠️ No documents with valid student_id found');
             }
           }
         }

@@ -5,25 +5,46 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useToast } from "@/hooks/use-toast";
 import { AIAttribution } from "@/components/shared/AIAttribution";
+// CRITICAL FIX #4: Standardized report data structure
+// Support both database documents and analysis status documents
+interface DocumentInfo {
+  id: string;
+  document_name?: string;
+  file_name?: string;
+}
+interface ReportStatistics {
+  documentCount: number;
+  metricsExtracted: number;
+  insightsGenerated: number;
+  progressRecords: number;
+}
+
+interface ReportMetadata {
+  focusArea: string;
+  format: 'markdown' | 'pdf';
+}
+
+interface DocumentReportData {
+  id?: string;
+  report_content: string;
+  generated_at: string;
+  // Support both old and new field names for backwards compatibility
+  document_count?: number;
+  metrics_count?: number;
+  metrics_analyzed?: number;
+  insights_count?: number;
+  insights_included?: number;
+  progress_records_count?: number;
+  focus_area?: string;
+  report_format?: string;
+  document_ids?: string[] | { ids: string[] };
+}
 
 interface DocumentReportModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  reportData: {
-    report_id?: string;
-    report_content: string;
-    generated_at: string;
-    document_count: number;
-    metrics_analyzed?: number;
-    metrics_count?: number;
-    insights_included?: number;
-    insights_count?: number;
-    progress_records_count?: number;
-    focus_area?: string;
-    report_format?: string;
-    document_ids?: string[];
-  } | null;
-  documents?: any[];
+  reportData: DocumentReportData | null;
+  documents?: DocumentInfo[];
 }
 
 export const DocumentReportModal = ({ 
@@ -65,9 +86,22 @@ export const DocumentReportModal = ({
 
   if (!reportData) return null;
 
+  // CRITICAL FIX #4: Type-safe document ID extraction
+  const documentIds = Array.isArray(reportData.document_ids) 
+    ? reportData.document_ids 
+    : (reportData.document_ids as any)?.ids || [];
+    
   const includedDocs = documents?.filter(d => 
-    reportData.document_ids?.includes(d.id)
+    documentIds.includes(d.id)
   ) || [];
+  
+  // Normalize statistics (support both old and new field names)
+  const stats: ReportStatistics = {
+    documentCount: reportData.document_count || documentIds.length || 0,
+    metricsExtracted: reportData.metrics_count || reportData.metrics_analyzed || 0,
+    insightsGenerated: reportData.insights_count || reportData.insights_included || 0,
+    progressRecords: reportData.progress_records_count || 0
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -90,16 +124,16 @@ export const DocumentReportModal = ({
                 <div>
                   <p className="text-xs font-semibold text-muted-foreground mb-1">ANALYSIS SUMMARY</p>
                   <p className="text-sm">
-                    <strong>{reportData.document_count || reportData.document_ids?.length || 0}</strong> documents analyzed
+                    <strong>{stats.documentCount}</strong> documents analyzed
                   </p>
                   <p className="text-sm">
-                    <strong>{reportData.metrics_analyzed || reportData.metrics_count || 0}</strong> metrics extracted
+                    <strong>{stats.metricsExtracted}</strong> metrics extracted
                   </p>
                   <p className="text-sm">
-                    <strong>{reportData.insights_included || reportData.insights_count || 0}</strong> insights generated
+                    <strong>{stats.insightsGenerated}</strong> insights generated
                   </p>
                   <p className="text-sm">
-                    <strong>{reportData.progress_records_count || 0}</strong> progress records
+                    <strong>{stats.progressRecords}</strong> progress records
                   </p>
                 </div>
                 <div>
@@ -124,7 +158,7 @@ export const DocumentReportModal = ({
                   <ul className="mt-2 space-y-1 text-sm">
                     {includedDocs.map(doc => (
                       <li key={doc.id} className="text-muted-foreground">
-                        • {doc.file_name} ({doc.category}, {doc.document_date})
+                        • {doc.document_name || doc.file_name || 'Unknown Document'}
                       </li>
                     ))}
                   </ul>

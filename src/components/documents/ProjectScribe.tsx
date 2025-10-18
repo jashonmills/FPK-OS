@@ -7,33 +7,11 @@ import { Button } from '@/components/ui/button';
 import { Loader2, CheckCircle2, XCircle, AlertCircle, RotateCcw, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import { DocumentReportModal } from './DocumentReportModal';
+import type { JobStatus, DocumentStatus, AnalysisJobMetadata } from '@/types/analysis';
 
 interface ProjectScribeProps {
   jobId: string;
   onComplete?: () => void;
-}
-
-interface JobStatus {
-  id: string;
-  status: string;
-  total_documents: number;
-  processed_documents: number;
-  failed_documents: number;
-  started_at: string;
-  completed_at: string | null;
-  metadata?: any; // Use any to handle Json type from Supabase
-}
-
-interface DocumentStatus {
-  id: string;
-  document_name: string;
-  status: string;
-  metrics_extracted: number;
-  insights_extracted: number;
-  error_message: string | null;
-  started_at: string | null;
-  completed_at: string | null;
-  created_at: string;
 }
 
 export const ProjectScribe = ({ jobId, onComplete }: ProjectScribeProps) => {
@@ -54,7 +32,12 @@ export const ProjectScribe = ({ jobId, onComplete }: ProjectScribeProps) => {
         .single();
 
       if (jobData) {
-        setJob(jobData);
+        setJob({
+          ...jobData,
+          status: jobData.status as JobStatus['status'],
+          job_type: jobData.job_type as JobStatus['job_type'],
+          metadata: jobData.metadata as AnalysisJobMetadata | undefined
+        });
       }
 
       // Fetch document statuses
@@ -65,7 +48,10 @@ export const ProjectScribe = ({ jobId, onComplete }: ProjectScribeProps) => {
         .order('started_at', { ascending: true });
 
       if (docsData) {
-        setDocuments(docsData);
+        setDocuments(docsData.map(d => ({
+          ...d,
+          status: d.status as DocumentStatus['status']
+        })));
       }
 
       setIsLoading(false);
@@ -85,7 +71,13 @@ export const ProjectScribe = ({ jobId, onComplete }: ProjectScribeProps) => {
           filter: `id=eq.${jobId}`
         },
         (payload) => {
-          setJob(payload.new as JobStatus);
+          const newJob = payload.new as any;
+          setJob({
+            ...newJob,
+            status: newJob.status as JobStatus['status'],
+            job_type: newJob.job_type as JobStatus['job_type'],
+            metadata: newJob.metadata as AnalysisJobMetadata | undefined
+          });
           
           // Check if job is complete
           if (payload.new.status === 'completed' && onComplete) {
@@ -107,12 +99,18 @@ export const ProjectScribe = ({ jobId, onComplete }: ProjectScribeProps) => {
           filter: `job_id=eq.${jobId}`
         },
         (payload) => {
+          const newDoc = payload.new as any;
+          const typedDoc: DocumentStatus = {
+            ...newDoc,
+            status: newDoc.status as DocumentStatus['status']
+          };
+          
           if (payload.eventType === 'INSERT') {
-            setDocuments(prev => [...prev, payload.new as DocumentStatus]);
+            setDocuments(prev => [...prev, typedDoc]);
           } else if (payload.eventType === 'UPDATE') {
             setDocuments(prev =>
               prev.map(doc =>
-                doc.id === payload.new.id ? (payload.new as DocumentStatus) : doc
+                doc.id === newDoc.id ? typedDoc : doc
               )
             );
           }
@@ -127,16 +125,22 @@ export const ProjectScribe = ({ jobId, onComplete }: ProjectScribeProps) => {
   }, [jobId, onComplete]);
 
   const handleViewReport = async () => {
-    if (!job?.metadata?.report_id) return;
+    // CRITICAL FIX #4: Type-safe metadata access
+    const metadata = job?.metadata as AnalysisJobMetadata | undefined;
+    if (!metadata?.report_id) {
+      toast.error('No report available');
+      return;
+    }
     
     const { data, error } = await supabase
       .from('document_reports')
       .select('*')
-      .eq('id', job.metadata.report_id)
+      .eq('id', metadata.report_id)
       .single();
     
     if (error) {
       toast.error('Failed to load report');
+      console.error('Report load error:', error);
       return;
     }
     
@@ -158,6 +162,9 @@ export const ProjectScribe = ({ jobId, onComplete }: ProjectScribeProps) => {
   const progress = job.total_documents > 0
     ? (job.processed_documents / job.total_documents) * 100
     : 0;
+  
+  // CRITICAL FIX #4: Type-safe metadata access
+  const metadata = job.metadata as AnalysisJobMetadata | undefined;
   
   // Check if job appears stuck (processing for >2 minutes with no progress)
   const isJobStuck = job.status === 'processing' && 
@@ -188,7 +195,12 @@ export const ProjectScribe = ({ jobId, onComplete }: ProjectScribeProps) => {
         .single();
       
       if (jobData) {
-        setJob(jobData);
+        setJob({
+          ...jobData,
+          status: jobData.status as JobStatus['status'],
+          job_type: jobData.job_type as JobStatus['job_type'],
+          metadata: jobData.metadata as AnalysisJobMetadata | undefined
+        });
       }
       
       // Refresh document statuses
@@ -199,7 +211,10 @@ export const ProjectScribe = ({ jobId, onComplete }: ProjectScribeProps) => {
         .order('started_at', { ascending: true });
       
       if (docsData) {
-        setDocuments(docsData);
+        setDocuments(docsData.map(d => ({
+          ...d,
+          status: d.status as DocumentStatus['status']
+        })));
       }
       
       if (onComplete) {
@@ -321,11 +336,16 @@ export const ProjectScribe = ({ jobId, onComplete }: ProjectScribeProps) => {
             <p className="text-sm text-green-600">
               ✅ Analysis complete! {job.failed_documents > 0 && `(${job.failed_documents} failed)`}
             </p>
-            {job.metadata?.report_generated && (
+            {metadata?.report_generated && metadata.report_id && (
               <Button onClick={handleViewReport} size="sm" variant="outline">
                 <FileText className="h-4 w-4 mr-2" />
                 View Comprehensive Report
               </Button>
+            )}
+            {metadata?.report_error && (
+              <p className="text-sm text-amber-600">
+                ⚠️ Report generation failed: {metadata.report_error}
+              </p>
             )}
           </div>
         )}

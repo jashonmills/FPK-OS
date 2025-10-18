@@ -8,6 +8,7 @@ import { Progress } from '@/components/ui/progress';
 import { Loader2, CheckCircle2, AlertCircle, Clock, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import type { JobStatus, QueueStats, AnalysisJobMetadata } from '@/types/analysis';
 
 export const AnalysisQueueStatus = () => {
   const { selectedFamily, selectedStudent } = useFamily();
@@ -101,9 +102,10 @@ export const AnalysisQueueStatus = () => {
     ? Math.round((activeJobs.processed_documents / activeJobs.total_documents) * 100)
     : 0;
 
-  const metadata = activeJobs?.metadata as any;
-  const estimatedMinutesRemaining = metadata?.estimatedMinutes 
-    ? Math.max(0, metadata.estimatedMinutes - Math.floor((Date.now() - new Date(activeJobs.started_at || activeJobs.created_at).getTime()) / 60000))
+  // CRITICAL FIX #4: Type-safe metadata access
+  const metadata = activeJobs?.metadata as AnalysisJobMetadata | undefined;
+  const estimatedMinutesRemaining = metadata?.estimatedMinutes && activeJobs?.started_at
+    ? Math.max(0, metadata.estimatedMinutes - Math.floor((Date.now() - new Date(activeJobs.started_at).getTime()) / 60000))
     : null;
 
   return (
