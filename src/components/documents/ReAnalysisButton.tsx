@@ -27,8 +27,8 @@ export function ReAnalysisButton({ familyId, onJobStarted }: ReAnalysisButtonPro
         onJobStarted?.(data.job_id);
         const estimatedTime = data.estimated_time_minutes || 3;
         toast.success(
-          `✅ Processing ${data.total_documents} document(s) with smart batching (est. ${estimatedTime} min)`, 
-          { id: toastId, duration: 6000 }
+          `✅ Processing ${data.total_documents} doc(s) with smart batching (est. ${estimatedTime} min). Auto-retry enabled for rate limits.`, 
+          { id: toastId, duration: 7000 }
         );
       }
     } catch (error: any) {

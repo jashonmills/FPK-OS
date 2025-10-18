@@ -323,9 +323,9 @@ export const ProjectScribe = ({ jobId, onComplete }: ProjectScribeProps) => {
                 </div>
                 
                 {doc.status === 'analyzing' && doc.started_at && (
-                  <div className="mt-1">
+                  <div className="mt-1 space-y-1">
                     <div className="text-xs text-muted-foreground">
-                      Smart batching: Small docs in parallel, large docs sequential
+                      Smart batching with auto-retry on rate limits
                     </div>
                   </div>
                 )}
@@ -337,7 +337,18 @@ export const ProjectScribe = ({ jobId, onComplete }: ProjectScribeProps) => {
                 )}
                 
                 {doc.status === 'failed' && doc.error_message && !doc.error_message.startsWith('{') && (
-                  <p className="text-sm text-red-500 mt-1">{doc.error_message}</p>
+                  <div className="mt-1 space-y-1">
+                    <p className="text-sm text-red-500">{doc.error_message}</p>
+                    {doc.error_message?.includes('Rate limited') && (
+                      <p className="text-xs text-amber-500">⏸️ Will auto-retry with backoff</p>
+                    )}
+                    {doc.error_message?.includes('credits') && (
+                      <p className="text-xs text-amber-500">💳 Add AI credits to continue</p>
+                    )}
+                    {doc.error_message?.includes('Max retries') && (
+                      <p className="text-xs text-muted-foreground">❌ Permanent failure after retries</p>
+                    )}
+                  </div>
                 )}
               </div>
             </div>

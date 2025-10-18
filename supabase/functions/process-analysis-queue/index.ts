@@ -182,40 +182,101 @@ serve(async (req) => {
             const processingTime = Date.now() - startTime;
             const retryCount = item.retry_count + 1;
             
+            // Detect error types
+            const isRateLimit = error.message?.includes('rate limit') || error.message?.includes('429');
+            const isPaymentRequired = error.message?.includes('402') || error.message?.includes('insufficient credits') || error.message?.includes('payment required');
+            const isTimeout = error.message?.includes('timeout');
+            
             // Update status record with failure
             await supabase
               .from('document_analysis_status')
               .update({
                 status: 'failed',
-                error_message: error.message,
+                error_message: isRateLimit 
+                  ? `Rate limited (429). Auto-retry ${retryCount}/${item.max_retries}` 
+                  : isPaymentRequired 
+                  ? 'Insufficient AI credits. Please add credits.'
+                  : error.message,
                 completed_at: new Date().toISOString()
               })
               .eq('id', statusRecord.id);
             
-            // Check if we should retry
-            const isRateLimit = error.message?.includes('rate limit') || error.message?.includes('429');
-            if (retryCount < item.max_retries && (error.message?.includes('timeout') || isRateLimit)) {
+            // Handle payment required - stop entire job
+            if (isPaymentRequired) {
+              console.log('💳 Payment required (402) - stopping entire job');
+              await supabase
+                .from('analysis_queue')
+                .update({
+                  status: 'failed',
+                  error_message: 'Insufficient AI credits. Please add credits to continue.',
+                  completed_at: new Date().toISOString()
+                })
+                .eq('id', item.id);
+              
+              await supabase
+                .from('analysis_jobs')
+                .update({
+                  status: 'failed',
+                  error_message: 'Analysis paused: Insufficient AI credits. Add credits and retry.',
+                  failed_documents: totalFailed + 1
+                })
+                .eq('id', job_id);
+              
+              batchFailed++;
+              continueProcessing = false; // Stop processing entirely
+              break;
+            }
+            
+            // Handle rate limits with auto-retry
+            if (isRateLimit && retryCount < item.max_retries) {
+              const backoffDelay = Math.min(30000 * Math.pow(2, item.retry_count), 120000); // 30s, 60s, 120s max
+              console.log(`⏸️ Rate limit hit. Backing off ${backoffDelay/1000}s before retry ${retryCount}/${item.max_retries}`);
+              
               await supabase
                 .from('analysis_queue')
                 .update({
                   status: 'pending',
                   retry_count: retryCount,
-                  error_message: error.message,
+                  error_message: `Rate limited. Will retry in ${backoffDelay/1000}s (attempt ${retryCount}/${item.max_retries})`,
                   processing_time_ms: processingTime
                 })
                 .eq('id', item.id);
-            } else {
+              
+              // Wait before continuing
+              await new Promise(resolve => setTimeout(resolve, backoffDelay));
+              consecutiveRateLimits++;
+              continue; // Don't count as failed, will retry
+            }
+            
+            // Handle retryable errors (timeouts)
+            if (isTimeout && retryCount < item.max_retries) {
+              console.log(`🔄 Timeout detected. Queueing for retry ${retryCount}/${item.max_retries}`);
               await supabase
                 .from('analysis_queue')
                 .update({
-                  status: 'failed',
+                  status: 'pending',
                   retry_count: retryCount,
-                  error_message: error.message,
-                  completed_at: new Date().toISOString(),
+                  error_message: `Timeout. Will retry (attempt ${retryCount}/${item.max_retries})`,
                   processing_time_ms: processingTime
                 })
                 .eq('id', item.id);
+              continue; // Don't count as failed, will retry
             }
+            
+            // All other errors or max retries exceeded - mark as permanently failed
+            console.log(`📝 Marking as permanently failed: ${error.message}`);
+            await supabase
+              .from('analysis_queue')
+              .update({
+                status: 'failed',
+                retry_count: retryCount,
+                error_message: retryCount >= item.max_retries 
+                  ? `Max retries (${item.max_retries}) exceeded: ${error.message}`
+                  : error.message,
+                completed_at: new Date().toISOString(),
+                processing_time_ms: processingTime
+              })
+              .eq('id', item.id);
 
             batchFailed++;
           }
@@ -327,38 +388,66 @@ serve(async (req) => {
             const processingTime = Date.now() - startTime;
             const retryCount = item.retry_count + 1;
             
+            // Detect error types
+            const isRateLimit = error.message?.includes('rate limit') || error.message?.includes('429');
+            const isPaymentRequired = error.message?.includes('402') || error.message?.includes('insufficient credits');
+            const isTimeout = error.message?.includes('timeout');
+            
             await supabase
               .from('document_analysis_status')
               .update({
                 status: 'failed',
-                error_message: error.message,
+                error_message: isRateLimit 
+                  ? `Rate limited (429). Auto-retry ${retryCount}/${item.max_retries}` 
+                  : isPaymentRequired 
+                  ? 'Insufficient AI credits'
+                  : error.message,
                 completed_at: new Date().toISOString()
               })
               .eq('id', statusRecord.id);
             
-            const isRateLimit = error.message?.includes('rate limit') || error.message?.includes('429');
-            if (retryCount < item.max_retries && (error.message?.includes('timeout') || isRateLimit)) {
+            // Payment required - mark as failed
+            if (isPaymentRequired) {
+              await supabase
+                .from('analysis_queue')
+                .update({
+                  status: 'failed',
+                  error_message: 'Insufficient AI credits',
+                  completed_at: new Date().toISOString()
+                })
+                .eq('id', item.id);
+              return { success: false, item, error: 'Payment required', stopProcessing: true };
+            }
+            
+            // Rate limit or timeout - retry if under limit
+            if ((isRateLimit || isTimeout) && retryCount < item.max_retries) {
               await supabase
                 .from('analysis_queue')
                 .update({
                   status: 'pending',
                   retry_count: retryCount,
-                  error_message: error.message,
+                  error_message: isRateLimit 
+                    ? `Rate limited. Will auto-retry (${retryCount}/${item.max_retries})`
+                    : `Timeout. Will retry (${retryCount}/${item.max_retries})`,
                   processing_time_ms: processingTime
                 })
                 .eq('id', item.id);
-            } else {
-              await supabase
-                .from('analysis_queue')
-                .update({
-                  status: 'failed',
-                  retry_count: retryCount,
-                  error_message: error.message,
-                  completed_at: new Date().toISOString(),
-                  processing_time_ms: processingTime
-                })
-                .eq('id', item.id);
+              return { success: false, item, error: error.message, willRetry: true };
             }
+            
+            // Permanent failure
+            await supabase
+              .from('analysis_queue')
+              .update({
+                status: 'failed',
+                retry_count: retryCount,
+                error_message: retryCount >= item.max_retries 
+                  ? `Max retries exceeded: ${error.message}`
+                  : error.message,
+                completed_at: new Date().toISOString(),
+                processing_time_ms: processingTime
+              })
+              .eq('id', item.id);
 
             return { success: false, item, error: error.message };
           }
@@ -366,7 +455,21 @@ serve(async (req) => {
 
         const results = await Promise.allSettled(processingPromises);
         batchProcessed = results.filter(r => r.status === 'fulfilled' && r.value.success).length;
-        batchFailed = results.filter(r => r.status === 'fulfilled' && !r.value.success).length;
+        
+        // Check for payment required errors
+        const hasPaymentError = results.some(r => 
+          r.status === 'fulfilled' && r.value.stopProcessing
+        );
+        
+        if (hasPaymentError) {
+          console.log('💳 Payment required detected in batch - stopping job');
+          continueProcessing = false;
+        }
+        
+        // Count only permanent failures (not retries)
+        batchFailed = results.filter(r => 
+          r.status === 'fulfilled' && !r.value.success && !r.value.willRetry
+        ).length;
       }
 
       totalProcessed += batchProcessed;
