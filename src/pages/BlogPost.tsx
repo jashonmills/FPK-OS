@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useBlogPost } from '@/hooks/useBlogPosts';
+import { useBlogAuthor } from '@/hooks/useBlogAuthors';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -9,11 +10,14 @@ import ReactMarkdown from 'react-markdown';
 import { Skeleton } from '@/components/ui/skeleton';
 import { SchemaMarkup } from '@/components/blog/SchemaMarkup';
 import { Helmet } from 'react-helmet';
+import { AuthorBio } from '@/components/blog/AuthorBio';
+import { SocialShare } from '@/components/blog/SocialShare';
 
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { data: post, isLoading } = useBlogPost(slug || '');
+  const { data: author } = useBlogAuthor(post?.author_id || '');
 
   const handleBackClick = () => {
     // Check if the user came from /resources page
@@ -128,8 +132,24 @@ export default function BlogPost() {
 
           <Separator className="mb-8" />
 
-          <div className="prose prose-lg dark:prose-invert max-w-none">
+          <div className="prose prose-lg dark:prose-invert max-w-none mb-12">
             <ReactMarkdown>{post.content}</ReactMarkdown>
+          </div>
+
+          {/* Author Bio */}
+          {author && (
+            <div className="mb-12">
+              <AuthorBio author={author} />
+            </div>
+          )}
+
+          {/* Social Share */}
+          <div className="mb-12">
+            <SocialShare 
+              title={post.title}
+              url={`/blog/${post.slug}`}
+              excerpt={post.excerpt || undefined}
+            />
           </div>
         </article>
 

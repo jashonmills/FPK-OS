@@ -24,15 +24,27 @@ const ResourcesSection = () => {
                 IEP advocacy, study strategies, and empowering learning approaches. Stay informed with the 
                 latest research and practical tips for students, parents, and educators.
               </p>
-              <Button 
-                asChild 
-                className="bg-fpk-orange hover:bg-fpk-orange/90 text-white group"
-              >
-                <Link to="/resources" className="flex items-center gap-2">
-                  Browse Resources
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Button 
+                  asChild 
+                  className="bg-fpk-orange hover:bg-fpk-orange/90 text-white group"
+                >
+                  <Link to="/resources" className="flex items-center gap-2">
+                    Browse Resources
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </Button>
+                <Button 
+                  asChild 
+                  variant="outline"
+                  className="border-fpk-orange text-fpk-orange hover:bg-fpk-orange/10"
+                >
+                  <Link to="/blog/contributors" className="flex items-center gap-2">
+                    Meet Our Experts
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </Button>
+              </div>
             </div>
           </div>
         </div>

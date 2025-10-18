@@ -50,6 +50,24 @@ export function useBlogAuthor(id: string) {
   });
 }
 
+export function useBlogAuthorBySlug(slug: string) {
+  return useQuery({
+    queryKey: ['blog_author_slug', slug],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('blog_authors')
+        .select('*')
+        .or(`author_slug.eq.${slug},id.eq.${slug}`)
+        .eq('is_active', true)
+        .single();
+
+      if (error) throw error;
+      return data as BlogAuthor;
+    },
+    enabled: !!slug
+  });
+}
+
 export function useCreateBlogAuthor() {
   const queryClient = useQueryClient();
 

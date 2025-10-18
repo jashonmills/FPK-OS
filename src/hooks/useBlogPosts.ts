@@ -25,6 +25,15 @@ export interface BlogPost {
   likes_count: number;
   created_at: string;
   updated_at: string;
+  blog_authors?: {
+    id: string;
+    display_name: string;
+    author_slug?: string;
+    bio?: string;
+    credentials?: string;
+    avatar_url?: string;
+    is_ai_author?: boolean;
+  };
 }
 
 export interface BlogCategory {
@@ -48,7 +57,18 @@ export function useBlogPosts(status?: string) {
     queryFn: async () => {
       let query = supabase
         .from('blog_posts')
-        .select('*')
+        .select(`
+          *,
+          blog_authors (
+            id,
+            display_name,
+            author_slug,
+            bio,
+            credentials,
+            avatar_url,
+            is_ai_author
+          )
+        `)
         .order('created_at', { ascending: false });
 
       if (status && status !== 'all') {
@@ -69,7 +89,18 @@ export function useBlogPost(slug: string) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('blog_posts')
-        .select('*')
+        .select(`
+          *,
+          blog_authors (
+            id,
+            display_name,
+            author_slug,
+            bio,
+            credentials,
+            avatar_url,
+            is_ai_author
+          )
+        `)
         .eq('slug', slug)
         .maybeSingle();
 
