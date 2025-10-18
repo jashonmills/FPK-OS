@@ -255,9 +255,9 @@ export default function KnowledgeBaseCommandCenter() {
   };
 
   return (
-    <div className="container mx-auto py-8 space-y-8">
+    <div className="container mx-auto px-6 pt-12 pb-8 space-y-8">
       {/* Back Button */}
-      <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard/admin/blog')}>
+      <Button variant="outline" size="sm" onClick={() => navigate('/dashboard/admin/blog')} className="bg-background/50 backdrop-blur-sm">
         <ArrowLeft className="h-4 w-4 mr-2" />
         Back to Blog Hub
       </Button>

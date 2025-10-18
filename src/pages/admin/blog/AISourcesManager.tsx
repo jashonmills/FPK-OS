@@ -148,8 +148,8 @@ export default function AISourcesManager() {
   };
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
-      <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard/admin/blog')}>
+    <div className="container mx-auto px-6 pt-12 pb-6 space-y-6">
+      <Button variant="outline" size="sm" onClick={() => navigate('/dashboard/admin/blog')} className="bg-background/50 backdrop-blur-sm">
         <ArrowLeft className="h-4 w-4 mr-2" />
         Back to Blog Hub
       </Button>

@@ -84,8 +84,8 @@ export default function MediaLibrary() {
   );
 
   return (
-    <div className="p-6 space-y-6">
-      <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard/admin/blog')}>
+    <div className="px-6 pt-12 pb-6 space-y-6">
+      <Button variant="outline" size="sm" onClick={() => navigate('/dashboard/admin/blog')} className="bg-background/50 backdrop-blur-sm">
         <ArrowLeft className="h-4 w-4 mr-2" />
         Back to Blog Hub
       </Button>
