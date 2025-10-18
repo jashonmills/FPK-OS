@@ -68,7 +68,7 @@ export const useChartLayout = (
   // Convert CSS Grid positions to React Grid Layout format
   const convertToReactGridLayout = (positions: GridPosition[], chartIds: string[]): Layout[] => {
     return positions.map((pos, index) => {
-      // Parse gridColumn: "1 / 4" -> start: 0, width: 3
+      // Parse gridColumn: "1 / 13" -> start: 0, width: 12 (for 48-column grid)
       const [colStart, colEnd] = pos.gridColumn.split(" / ").map(Number);
       const w = colEnd - colStart;
       const x = colStart - 1; // Convert to 0-indexed
@@ -84,9 +84,9 @@ export const useChartLayout = (
         y,
         w,
         h,
-        minW: 2,
+        minW: 8,  // Minimum 8 cols (was 2 for 12-col grid)
         minH: 2,
-        maxW: 12,
+        maxW: 48, // Maximum 48 cols (full width)
         maxH: 4,
       };
     });

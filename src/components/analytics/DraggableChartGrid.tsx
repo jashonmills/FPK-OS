@@ -106,8 +106,8 @@ export const DraggableChartGrid = ({
       <GridLayout
         className="layout"
         layout={layout}
-        cols={12}
-        rowHeight={80}
+        cols={48}
+        rowHeight={30}
         isDraggable={isEditMode}
         isResizable={isEditMode}
         onLayoutChange={handleLayoutChange}
