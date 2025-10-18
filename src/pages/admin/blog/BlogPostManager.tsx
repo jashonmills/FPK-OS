@@ -30,11 +30,12 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Search, Edit, Trash2, Eye, ArrowLeft, Sparkles } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Eye, ArrowLeft, Sparkles, FileText } from 'lucide-react';
 import { format } from 'date-fns';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AIBlogWizard } from '@/components/blog/AIBlogWizard';
 import { BlogPreviewDialog } from '@/components/blog/BlogPreviewDialog';
+import { TransparentTile } from '@/components/ui/transparent-tile';
 
 export default function BlogPostManager() {
   const navigate = useNavigate();
@@ -91,29 +92,35 @@ export default function BlogPostManager() {
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex items-center gap-4 mb-4">
-        <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard/admin/blog')}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Content Hub
-        </Button>
-      </div>
+      <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard/admin/blog')}>
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Back to Blog Hub
+      </Button>
       
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Blog Posts</h1>
-        <div className="flex gap-2">
-          <Button 
-            onClick={() => setShowAIWizard(true)}
-            className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600"
-          >
-            <Sparkles className="h-4 w-4 mr-2" />
-            Generate with AI
-          </Button>
-          <Button onClick={() => navigate('/dashboard/admin/blog/new')}>
-            <Plus className="h-4 w-4 mr-2" />
-            New Post
-          </Button>
+      <TransparentTile className="p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold flex items-center gap-2">
+              <FileText className="h-8 w-8" />
+              Blog Posts
+            </h1>
+            <p className="text-muted-foreground mt-1">Create and manage your blog content</p>
+          </div>
+          <div className="flex gap-2">
+            <Button 
+              onClick={() => setShowAIWizard(true)}
+              className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600"
+            >
+              <Sparkles className="h-4 w-4 mr-2" />
+              Generate with AI
+            </Button>
+            <Button onClick={() => navigate('/dashboard/admin/blog/new')}>
+              <Plus className="h-4 w-4 mr-2" />
+              New Post
+            </Button>
+          </div>
         </div>
-      </div>
+      </TransparentTile>
 
       <div className="flex gap-4 flex-wrap">
         <div className="relative flex-1 min-w-[200px]">

@@ -6,8 +6,9 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Loader2, Sparkles, Database, ArrowRight } from 'lucide-react';
+import { Loader2, Sparkles, Database, ArrowRight, Users } from 'lucide-react';
 import { useBlogCategories } from '@/hooks/useBlogPosts';
+import { useBlogAuthors } from '@/hooks/useBlogAuthors';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
@@ -26,15 +27,17 @@ export function EnhancedAIBlogWizard({ open, onOpenChange }: EnhancedAIBlogWizar
   const [topic, setTopic] = useState('');
   const [personalInsights, setPersonalInsights] = useState('');
   const [categoryId, setCategoryId] = useState('');
+  const [authorId, setAuthorId] = useState('');
   const [includeKB, setIncludeKB] = useState(true);
 
   const { data: categories } = useBlogCategories();
+  const { data: authors } = useBlogAuthors();
 
   const handleGenerate = async () => {
-    if (!topic || !categoryId) {
+    if (!topic || !categoryId || !authorId) {
       toast({
         title: 'Missing information',
-        description: 'Please provide a topic and select a category',
+        description: 'Please provide a topic, category, and author',
         variant: 'destructive',
       });
       return;
@@ -47,6 +50,7 @@ export function EnhancedAIBlogWizard({ open, onOpenChange }: EnhancedAIBlogWizar
         body: {
           topic,
           category_id: categoryId,
+          author_id: authorId,
           personal_insights: personalInsights || null,
           include_kb: includeKB,
         },
@@ -81,6 +85,7 @@ export function EnhancedAIBlogWizard({ open, onOpenChange }: EnhancedAIBlogWizar
       setTopic('');
       setPersonalInsights('');
       setCategoryId('');
+      setAuthorId('');
       setIncludeKB(true);
       onOpenChange(false);
     }
@@ -132,6 +137,29 @@ export function EnhancedAIBlogWizard({ open, onOpenChange }: EnhancedAIBlogWizar
             </Select>
           </div>
 
+          {/* Author */}
+          <div className="space-y-2">
+            <Label htmlFor="author">Author *</Label>
+            <Select value={authorId} onValueChange={setAuthorId} disabled={isGenerating}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select an author" />
+              </SelectTrigger>
+              <SelectContent>
+                {authors?.map((author) => (
+                  <SelectItem key={author.id} value={author.id}>
+                    <div className="flex items-center gap-2">
+                      {author.display_name}
+                      {author.is_ai_author && <Sparkles className="h-3 w-3 text-primary" />}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              AI-authored posts will display an AI badge. Select a human author to publish under their name.
+            </p>
+          </div>
+
           {/* Personal Insights */}
           <div className="space-y-2">
             <Label htmlFor="insights">Personal Insights (Optional)</Label>
@@ -171,7 +199,7 @@ export function EnhancedAIBlogWizard({ open, onOpenChange }: EnhancedAIBlogWizar
           {/* Generate Button */}
           <Button
             onClick={handleGenerate}
-            disabled={isGenerating || !topic || !categoryId}
+            disabled={isGenerating || !topic || !categoryId || !authorId}
             className="w-full"
             size="lg"
           >

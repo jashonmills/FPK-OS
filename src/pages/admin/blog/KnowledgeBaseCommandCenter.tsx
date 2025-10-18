@@ -8,7 +8,8 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Database, FileText, Brain, Building, Sparkles, Trash2, Search, Filter, RefreshCw } from 'lucide-react';
+import { Database, FileText, Brain, Building, Sparkles, Trash2, Search, Filter, RefreshCw, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { KB_SOURCES } from '@/lib/knowledgeBase/sourceCatalog';
 import {
   Table,
@@ -43,6 +44,7 @@ interface KBDocument {
 }
 
 export default function KnowledgeBaseCommandCenter() {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [stats, setStats] = useState<KBStats>({ totalDocuments: 0, totalEmbeddings: 0 });
   const [documents, setDocuments] = useState<KBDocument[]>([]);
@@ -254,6 +256,12 @@ export default function KnowledgeBaseCommandCenter() {
 
   return (
     <div className="container mx-auto py-8 space-y-8">
+      {/* Back Button */}
+      <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard/admin/blog')}>
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Back to Blog Hub
+      </Button>
+
       {/* Header */}
       <TransparentTile>
         <h1 className="text-3xl font-bold mb-2">Knowledge Base Command Center</h1>

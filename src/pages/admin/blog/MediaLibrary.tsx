@@ -8,6 +8,7 @@ import { Upload, Search, Image as ImageIcon, Trash2, ArrowLeft } from 'lucide-re
 import { toast } from 'sonner';
 import { useDropzone } from 'react-dropzone';
 import { useNavigate } from 'react-router-dom';
+import { TransparentTile } from '@/components/ui/transparent-tile';
 
 interface MediaFile {
   name: string;
@@ -84,20 +85,18 @@ export default function MediaLibrary() {
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex items-center gap-4 mb-4">
-        <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard/admin/blog')}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Content Hub
-        </Button>
-      </div>
+      <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard/admin/blog')}>
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Back to Blog Hub
+      </Button>
       
-      <div>
+      <TransparentTile className="p-6">
         <h1 className="text-3xl font-bold flex items-center gap-2">
           <ImageIcon className="h-8 w-8" />
           Media Library
         </h1>
         <p className="text-muted-foreground mt-1">Manage your blog images</p>
-      </div>
+      </TransparentTile>
 
       <div
         {...getRootProps()}

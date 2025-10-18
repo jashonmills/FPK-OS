@@ -12,8 +12,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
-import { ArrowLeft, Plus, Pencil, Trash2, Loader2, TestTube } from 'lucide-react';
+import { ArrowLeft, Plus, Pencil, Trash2, Loader2, TestTube, Database } from 'lucide-react';
 import { useBlogCategories } from '@/hooks/useBlogPosts';
+import { TransparentTile } from '@/components/ui/transparent-tile';
 
 export default function AISourcesManager() {
   const navigate = useNavigate();
@@ -148,21 +149,26 @@ export default function AISourcesManager() {
 
   return (
     <div className="container mx-auto py-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard/admin/blog')}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
+      <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard/admin/blog')}>
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Back to Blog Hub
+      </Button>
+      
+      <TransparentTile className="p-6">
+        <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">AI Knowledge Base</h1>
-            <p className="text-muted-foreground">Manage research sources for AI blog generation</p>
+            <h1 className="text-3xl font-bold flex items-center gap-2">
+              <Database className="h-8 w-8" />
+              AI Knowledge Base
+            </h1>
+            <p className="text-muted-foreground mt-1">Manage research sources for AI blog generation</p>
           </div>
+          <Button onClick={() => setShowDialog(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Source
+          </Button>
         </div>
-        <Button onClick={() => setShowDialog(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Source
-        </Button>
-      </div>
+      </TransparentTile>
 
       {isLoading ? (
         <div className="flex justify-center py-12">

@@ -30,9 +30,10 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Edit, Trash2, Tag, ArrowLeft } from 'lucide-react';
+import { Tag, ArrowLeft, Plus, Edit, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { TransparentTile } from '@/components/ui/transparent-tile';
 
 interface Category {
   id: string;
@@ -122,26 +123,26 @@ export default function CategoryManager() {
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex items-center gap-4 mb-4">
-        <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard/admin/blog')}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Content Hub
-        </Button>
-      </div>
+      <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard/admin/blog')}>
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Back to Blog Hub
+      </Button>
       
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">
-            <Tag className="h-8 w-8" />
-            Categories
-          </h1>
-          <p className="text-muted-foreground mt-1">Organize your blog content</p>
+      <TransparentTile className="p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold flex items-center gap-2">
+              <Tag className="h-8 w-8" />
+              Categories
+            </h1>
+            <p className="text-muted-foreground mt-1">Organize your blog content</p>
+          </div>
+          <Button onClick={() => { setEditCategory(null); setIsDialogOpen(true); }}>
+            <Plus className="h-4 w-4 mr-2" />
+            New Category
+          </Button>
         </div>
-        <Button onClick={() => { setEditCategory(null); setIsDialogOpen(true); }}>
-          <Plus className="h-4 w-4 mr-2" />
-          New Category
-        </Button>
-      </div>
+      </TransparentTile>
 
       <div className="border rounded-lg bg-background/80 backdrop-blur-sm">
         <Table>

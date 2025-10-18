@@ -3,23 +3,25 @@ import { AuthorsManager } from './AuthorsManager';
 import { Users, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import { TransparentTile } from '@/components/ui/transparent-tile';
 
 export default function ContentManager() {
   const navigate = useNavigate();
   
   return (
     <div className="p-6 space-y-6">
-      <div className="flex items-center gap-4 mb-4">
-        <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard/admin/blog')}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Blog Hub
-        </Button>
-      </div>
+      <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard/admin/blog')}>
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Back to Blog Hub
+      </Button>
 
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">Content Manager</h1>
-        <p className="text-muted-foreground">Manage articles, categories, and authors • Super Admin Only</p>
-      </div>
+      <TransparentTile className="p-6">
+        <h1 className="text-3xl font-bold flex items-center gap-2">
+          <Users className="h-8 w-8" />
+          Content Manager
+        </h1>
+        <p className="text-muted-foreground mt-1">Manage articles, categories, and authors • Super Admin Only</p>
+      </TransparentTile>
 
       <Tabs defaultValue="authors" className="space-y-6">
         <TabsList>

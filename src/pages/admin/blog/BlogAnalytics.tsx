@@ -5,6 +5,7 @@ import { BarChart3, Eye, TrendingUp, Users, ArrowLeft } from 'lucide-react';
 import { Bar, BarChart, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import { TransparentTile } from '@/components/ui/transparent-tile';
 
 export default function BlogAnalytics() {
   const navigate = useNavigate();
@@ -51,20 +52,18 @@ export default function BlogAnalytics() {
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex items-center gap-4 mb-4">
-        <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard/admin/blog')}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Content Hub
-        </Button>
-      </div>
+      <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard/admin/blog')}>
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Back to Blog Hub
+      </Button>
       
-      <div>
+      <TransparentTile className="p-6">
         <h1 className="text-3xl font-bold flex items-center gap-2">
           <BarChart3 className="h-8 w-8" />
           Blog Analytics
         </h1>
         <p className="text-muted-foreground mt-1">Track your content performance</p>
-      </div>
+      </TransparentTile>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="bg-background/80 backdrop-blur-sm">
