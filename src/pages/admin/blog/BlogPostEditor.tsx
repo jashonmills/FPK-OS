@@ -17,6 +17,7 @@ import { calculateSEOScore } from '@/utils/seoAnalyzer';
 import MDEditor from '@uiw/react-md-editor';
 import rehypeSanitize from 'rehype-sanitize';
 import { Skeleton } from '@/components/ui/skeleton';
+import { PostPreviewDialog } from '@/components/blog/PostPreviewDialog';
 
 export default function BlogPostEditor() {
   const { slug } = useParams();
@@ -41,6 +42,7 @@ export default function BlogPostEditor() {
   const [featuredImageUrl, setFeaturedImageUrl] = useState('');
   const [featuredImageAlt, setFeaturedImageAlt] = useState('');
   const [authorId, setAuthorId] = useState<string>(user?.id || '');
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   useEffect(() => {
     if (existingPost && !isNewPost) {
@@ -103,7 +105,7 @@ export default function BlogPostEditor() {
           <h1 className="text-3xl font-bold">{isNewPost ? 'New Post' : 'Edit Post'}</h1>
         </TransparentTile>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => {}}>
+          <Button variant="outline" onClick={() => setPreviewOpen(true)}>
             <Eye className="h-4 w-4 mr-2" />
             Preview
           </Button>
@@ -281,6 +283,35 @@ export default function BlogPostEditor() {
           </Card>
         </div>
       </div>
+
+      <PostPreviewDialog
+        open={previewOpen}
+        onOpenChange={setPreviewOpen}
+        post={{
+          id: existingPost?.id || '',
+          title,
+          slug: slugValue,
+          excerpt: metaDescription,
+          content,
+          featured_image_url: featuredImageUrl,
+          featured_image_alt: featuredImageAlt,
+          meta_title: metaTitle,
+          meta_description: metaDescription,
+          focus_keyword: focusKeyword,
+          status,
+          author_id: authorId,
+          read_time_minutes: Math.ceil(content.split(' ').length / 200),
+          word_count: content.split(' ').length,
+          seo_score: seoAnalysis.score,
+          readability_score: null,
+          views_count: existingPost?.views_count || 0,
+          likes_count: existingPost?.likes_count || 0,
+          scheduled_for: null,
+          published_at: existingPost?.published_at || new Date().toISOString(),
+          created_at: existingPost?.created_at || new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        }}
+      />
     </div>
   );
 }
