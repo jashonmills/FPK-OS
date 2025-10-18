@@ -35,46 +35,48 @@ serve(async (req) => {
       ? content.split(/\s+/).slice(0, 500).join(' ')
       : '';
 
-    const systemPrompt = `You are an expert SEO copywriter. Generate metadata that will score 80+/100.
+    const systemPrompt = `You are an expert SEO specialist. Your goal: generate metadata that scores 75+/100.
 
-CRITICAL REQUIREMENTS (failing any = low score):
-1. Focus keyword MUST be 2-3 words that appear EXACTLY as written in the title
-2. Focus keyword MUST appear at the START of meta title
-3. Focus keyword MUST appear in FIRST 20 WORDS of meta description  
-4. Meta title: 50-58 characters ONLY
-5. Meta description: 140-155 characters ONLY
+SCORING BREAKDOWN (14 total checks, need 10+ to pass):
+✓ Guaranteed passes (if you follow rules): 5 checks
+- Keyword in title (use exact phrase from title)
+- Keyword in meta description (put in first 15 words)
+- Meta title length (50-58 chars)
+- Meta description length (145-155 chars)
+- Keyword density (ensure 0.5-2.5%)
 
-PROCESS:
-1. Read the title carefully
-2. Identify the core 2-3 word phrase that appears in title
-3. Use that EXACT phrase as focus keyword
-4. Build meta title starting with that exact phrase
-5. Write meta description starting with that exact phrase
+CRITICAL RULES:
+1. Focus Keyword: Extract THE MOST important 2-3 words from title
+   - Must appear EXACTLY in the title
+   - Choose words users would search for
+   - Example: "AI in Education" NOT "AI in Education Revolutionary"
 
-EXAMPLES:
+2. Meta Title (50-58 characters):
+   - Start with focus keyword
+   - Add value proposition
+   - Must be 50-58 chars (count carefully!)
+   - Example: "AI in Education: Transform Learning & Teaching Today"
 
-Title: "Finding Your Anchor: Grounding Techniques for Neurodivergent Minds"
-✓ CORRECT:
+3. Meta Description (145-155 characters):
+   - First 15 words MUST include focus keyword
+   - Highlight key benefit
+   - Include action word
+   - Must be 145-155 chars (count carefully!)
+   - Example: "AI in Education is revolutionizing classrooms worldwide. Discover how teachers use artificial intelligence to personalize learning and boost student engagement."
+
+VALIDATION CHECKLIST:
+- [ ] Focus keyword is 2-3 words that appear in title exactly
+- [ ] Meta title starts with focus keyword
+- [ ] Meta title is 50-58 characters
+- [ ] Meta description mentions focus keyword in first sentence
+- [ ] Meta description is 145-155 characters
+- [ ] Both are compelling and actionable
+
+Respond with ONLY valid JSON (no markdown):
 {
-  "focusKeyword": "grounding techniques",
-  "metaTitle": "Grounding Techniques for Neurodivergent Minds Guide",
-  "metaDescription": "Grounding techniques help neurodivergent individuals manage anxiety and sensory overload. Discover practical strategies to find calm and stay present."
-}
-
-✗ WRONG - keyword too long:
-"focusKeyword": "grounding techniques neurodivergent"
-
-✗ WRONG - keyword not at start of meta title:
-"metaTitle": "Find Your Anchor: Grounding Techniques"
-
-✗ WRONG - keyword not at start of description:
-"metaDescription": "Discover effective strategies for grounding techniques"
-
-Respond ONLY with valid JSON (no markdown, no explanation):
-{
-  "focusKeyword": "2-3 words from title",
-  "metaTitle": "50-58 char title starting with keyword",
-  "metaDescription": "140-155 char description starting with keyword"
+  "focusKeyword": "exact 2-3 words from title",
+  "metaTitle": "50-58 char title with keyword first",
+  "metaDescription": "145-155 char description with keyword in first 15 words"
 }`;
 
     const userPrompt = `Title: ${title}${contentPreview ? `\n\nContent Preview: ${contentPreview}` : ''}`;
@@ -172,27 +174,29 @@ Respond ONLY with valid JSON (no markdown, no explanation):
       keywordInTitle,
       titleLength,
       descLength,
-      titleValid: titleLength >= 30 && titleLength <= 60,
-      descValid: descLength >= 120 && descLength <= 160
+      titleValid: titleLength >= 50 && titleLength <= 58,
+      descValid: descLength >= 145 && descLength <= 155,
+      titleInRange: titleLength >= 30 && titleLength <= 60,
+      descInRange: descLength >= 120 && descLength <= 160
     });
 
-    // Warn if lengths are not optimal
-    if (titleLength < 30 || titleLength > 60) {
-      console.warn(`Meta title length ${titleLength} is outside optimal range (30-60)`);
+    // Strict length validation for optimal scoring
+    if (titleLength < 50 || titleLength > 58) {
+      console.warn(`Meta title length ${titleLength} is outside optimal range (50-58 chars)`);
     }
     
-    if (descLength < 120 || descLength > 160) {
-      console.warn(`Meta description length ${descLength} is outside optimal range (120-160)`);
+    if (descLength < 145 || descLength > 155) {
+      console.warn(`Meta description length ${descLength} is outside optimal range (145-155 chars)`);
     }
 
-    // Auto-truncate if needed (with ellipsis)
+    // Hard truncate only if exceeding absolute maximums (shouldn't happen with good prompts)
     if (titleLength > 60) {
-      console.warn(`Meta title too long (${titleLength}), truncating`);
+      console.warn(`Meta title too long (${titleLength}), truncating to 60 chars`);
       seoData.metaTitle = seoData.metaTitle.substring(0, 57) + '...';
     }
     
     if (descLength > 160) {
-      console.warn(`Meta description too long (${descLength}), truncating`);
+      console.warn(`Meta description too long (${descLength}), truncating to 160 chars`);
       seoData.metaDescription = seoData.metaDescription.substring(0, 157) + '...';
     }
 
