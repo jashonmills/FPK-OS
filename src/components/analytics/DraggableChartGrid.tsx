@@ -13,6 +13,7 @@ interface DraggableChartGridProps {
   unlockedCharts: string[];
   subscriptionTier: string;
   studentName?: string;
+  isSuperAdmin?: boolean;
 }
 
 export const DraggableChartGrid = ({
@@ -22,7 +23,8 @@ export const DraggableChartGrid = ({
   dateRange,
   unlockedCharts,
   subscriptionTier,
-  studentName
+  studentName,
+  isSuperAdmin = false
 }: DraggableChartGridProps) => {
   const [isEditMode, setIsEditMode] = useState(false);
   const chartsForTab = getChartsForTab(tabId);
@@ -73,6 +75,7 @@ export const DraggableChartGrid = ({
                 unlockedCharts={unlockedCharts}
                 subscriptionTier={subscriptionTier}
                 studentName={studentName}
+                isSuperAdmin={isSuperAdmin}
               />
             </div>
           );

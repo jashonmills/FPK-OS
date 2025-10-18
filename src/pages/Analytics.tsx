@@ -5,13 +5,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { useFamily } from "@/contexts/FamilyContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, AlertCircle, Activity, Brain, BookOpen, Users, Waves, X } from "lucide-react";
+import { Loader2, AlertCircle, Activity, Brain, BookOpen, Users, Waves, X, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DraggableChartGrid } from "@/components/analytics/DraggableChartGrid";
 import { VideoBackground } from "@/components/analytics/VideoBackground";
 import { TAB_ORDER, TAB_MANIFEST } from "@/config/tabManifest";
 import { AnalyticsDashboardPlaceholder } from "@/components/analytics/AnalyticsDashboardPlaceholder";
 import { useFeatureFlags } from "@/hooks/useFeatureFlags";
+import { useIsSuperAdmin } from "@/hooks/useAuth";
 
 const TAB_ICONS = {
   overall: Activity,
@@ -29,6 +30,9 @@ const Analytics = () => {
   
   // Check if AI analysis pipeline is enabled
   const { flags: featureFlags, loading: flagsLoading } = useFeatureFlags(['enable-ai-analysis-pipeline']);
+  
+  // Check if user is super admin (bypass all restrictions)
+  const { data: isSuperAdmin, isLoading: isSuperAdminLoading } = useIsSuperAdmin();
 
   const handleExit = () => {
     setIsExiting(true);
@@ -88,7 +92,7 @@ const Analytics = () => {
   }
 
   // Show single page loader until metadata ready
-  if (isLoadingMeta || !userMeta || flagsLoading) {
+  if (isLoadingMeta || !userMeta || flagsLoading || isSuperAdminLoading) {
     return (
       <div className="flex items-center justify-center min-h-[600px]">
         <div className="text-center space-y-4">
@@ -120,6 +124,14 @@ const Analytics = () => {
       >
         <X className="h-5 w-5" />
       </Button>
+      
+      {/* Super Admin Indicator */}
+      {isSuperAdmin && (
+        <div className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1.5 rounded-md bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 backdrop-blur-sm" style={{ zIndex: 100 }}>
+          <ShieldCheck className="h-4 w-4 text-amber-400" />
+          <span className="text-xs font-semibold text-amber-300">SUPER ADMIN MODE</span>
+        </div>
+      )}
 
       <div className="flex-none px-4 pt-2 pb-1.5 relative" style={{ zIndex: 10 }}>
         {/* Compact Mission Control Header */}
@@ -170,6 +182,7 @@ const Analytics = () => {
                 unlockedCharts={userMeta.unlockedCharts}
                 subscriptionTier={userMeta.subscriptionTier}
                 studentName={selectedStudent.student_name}
+                isSuperAdmin={isSuperAdmin || false}
               />
             </TabsContent>
           ))}

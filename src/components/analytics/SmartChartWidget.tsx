@@ -18,6 +18,7 @@ interface SmartChartWidgetContainerProps {
   unlockedCharts: string[];
   subscriptionTier: string;
   studentName?: string;
+  isSuperAdmin?: boolean;
 }
 
 export const SmartChartWidget = ({
@@ -27,14 +28,16 @@ export const SmartChartWidget = ({
   dateRange,
   unlockedCharts,
   subscriptionTier,
-  studentName = "Student"
+  studentName = "Student",
+  isSuperAdmin = false
 }: SmartChartWidgetContainerProps) => {
   const navigate = useNavigate();
   const [mode, setMode] = useState<ChartMode>("demo");
 
   // Determine chart mode based on unlock status and subscription
-  const isUnlocked = unlockedCharts.includes(config.chartId) || config.tier === "standard";
-  const hasSubscription = 
+  // Super admins bypass ALL restrictions
+  const isUnlocked = isSuperAdmin || unlockedCharts.includes(config.chartId) || config.tier === "standard";
+  const hasSubscription = isSuperAdmin ||
     (config.subscriptionTier === "free") ||
     (config.subscriptionTier === "team" && ["team", "pro"].includes(subscriptionTier)) ||
     (config.subscriptionTier === "pro" && subscriptionTier === "pro");
