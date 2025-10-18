@@ -12,12 +12,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { TransparentTile } from '@/components/ui/transparent-tile';
-import { ArrowLeft, Save, Eye, CheckCircle, XCircle } from 'lucide-react';
+import { ArrowLeft, Save, Eye, CheckCircle, XCircle, Sparkles } from 'lucide-react';
 import { calculateSEOScore } from '@/utils/seoAnalyzer';
 import MDEditor from '@uiw/react-md-editor';
 import rehypeSanitize from 'rehype-sanitize';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PostPreviewDialog } from '@/components/blog/PostPreviewDialog';
+import { slugify } from '@/lib/slug';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 export default function BlogPostEditor() {
   const { slug } = useParams();
@@ -43,6 +46,8 @@ export default function BlogPostEditor() {
   const [featuredImageAlt, setFeaturedImageAlt] = useState('');
   const [authorId, setAuthorId] = useState<string>('');
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [generatingSEO, setGeneratingSEO] = useState(false);
+  const { toast } = useToast();
 
   // Set author ID from user's author record for new posts
   useEffect(() => {
@@ -68,6 +73,54 @@ export default function BlogPostEditor() {
       setAuthorId(existingPost.author_id || '');
     }
   }, [existingPost, isNewPost]);
+
+  // Auto-generate slug from title for new posts
+  useEffect(() => {
+    if (isNewPost && title && !slugValue) {
+      const autoSlug = slugify(title);
+      setSlugValue(autoSlug);
+    }
+  }, [title, isNewPost, slugValue]);
+
+  const generateSEOMetadata = async () => {
+    if (!title) {
+      toast({
+        title: 'Title Required',
+        description: 'Please enter a title first to generate SEO metadata.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setGeneratingSEO(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-seo-metadata', {
+        body: { title, content }
+      });
+
+      if (error) throw error;
+
+      if (data) {
+        setFocusKeyword(data.focusKeyword);
+        setMetaTitle(data.metaTitle);
+        setMetaDescription(data.metaDescription);
+        
+        toast({
+          title: 'SEO Metadata Generated',
+          description: 'AI has generated optimized SEO metadata for your post.',
+        });
+      }
+    } catch (error: any) {
+      console.error('Error generating SEO metadata:', error);
+      toast({
+        title: 'Generation Failed',
+        description: error.message || 'Failed to generate SEO metadata. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setGeneratingSEO(false);
+    }
+  };
 
   const seoAnalysis = calculateSEOScore(title, metaTitle, metaDescription, content, focusKeyword);
 
@@ -224,7 +277,20 @@ export default function BlogPostEditor() {
             <CardContent className="space-y-4">
               <div>
                 <Progress value={seoAnalysis.score} className="h-2" />
+                <p className="text-xs text-muted-foreground mt-2">
+                  Target: 70+ | Ideal: 100
+                </p>
               </div>
+
+              <Button 
+                onClick={generateSEOMetadata} 
+                disabled={generatingSEO || !title}
+                variant="outline" 
+                className="w-full"
+              >
+                <Sparkles className="h-4 w-4 mr-2" />
+                {generatingSEO ? 'Generating...' : 'Generate SEO with AI'}
+              </Button>
 
               <div>
                 <Label>Focus Keyword</Label>
