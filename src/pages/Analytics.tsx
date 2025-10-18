@@ -7,7 +7,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, AlertCircle, Activity, Brain, BookOpen, Users, Waves, X, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { DraggableChartGrid } from "@/components/analytics/DraggableChartGrid";
 import { VideoBackground } from "@/components/analytics/VideoBackground";
 import { TAB_ORDER, TAB_MANIFEST } from "@/config/tabManifest";
@@ -110,10 +109,9 @@ const Analytics = () => {
   };
 
   return (
-    <TooltipProvider>
-      <div className={`fixed inset-0 dark flex flex-col transition-opacity duration-300 ${isExiting ? 'opacity-0' : 'opacity-100'}`} style={{ zIndex: 9999 }}>
-        {/* Layer 1: Full-Screen Video Background */}
-        <VideoBackground />
+    <div className={`fixed inset-0 dark flex flex-col transition-opacity duration-300 ${isExiting ? 'opacity-0' : 'opacity-100'}`} style={{ zIndex: 9999 }}>
+      {/* Layer 1: Full-Screen Video Background */}
+      <VideoBackground />
       
       {/* Layer 2: UI Content */}
       {/* Exit Button */}
@@ -191,7 +189,6 @@ const Analytics = () => {
         </Tabs>
       </div>
     </div>
-    </TooltipProvider>
   );
 };
 
