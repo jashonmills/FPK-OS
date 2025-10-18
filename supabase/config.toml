@@ -158,3 +158,6 @@ verify_jwt = true
 
 [functions.podcast-generator]
 verify_jwt = true
+
+[functions.generate-rss-feed]
+verify_jwt = false

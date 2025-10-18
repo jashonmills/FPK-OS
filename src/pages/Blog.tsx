@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useBlogPosts, useBlogCategories, useBlogTags } from '@/hooks/useBlogPosts';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -6,8 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Search, Calendar, Clock } from 'lucide-react';
 import { format } from 'date-fns';
-import { useNavigate } from 'react-router-dom';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Helmet } from 'react-helmet';
 
 export default function Blog() {
   const navigate = useNavigate();
@@ -39,6 +40,11 @@ export default function Blog() {
 
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>Blog | FPK University</title>
+        <meta name="description" content="Insights on education, neurodiversity, and learning strategies from FPK University" />
+        <link rel="alternate" type="application/rss+xml" title="FPK University Blog RSS Feed" href="/blog/feed.xml" />
+      </Helmet>
       <div className="container mx-auto px-4 py-12">
         <div className="mb-12">
           <h1 className="text-4xl font-bold mb-4">Blog</h1>

@@ -7,6 +7,8 @@ import { ArrowLeft, Calendar, Clock, Eye } from 'lucide-react';
 import { format } from 'date-fns';
 import ReactMarkdown from 'react-markdown';
 import { Skeleton } from '@/components/ui/skeleton';
+import { SchemaMarkup } from '@/components/blog/SchemaMarkup';
+import { Helmet } from 'react-helmet';
 
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
@@ -37,8 +39,33 @@ export default function BlogPost() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-12 max-w-4xl">
+    <>
+      <Helmet>
+        <title>{post.meta_title || post.title} | FPK University</title>
+        <meta name="description" content={post.meta_description || post.excerpt || ''} />
+        {post.focus_keyword && <meta name="keywords" content={post.focus_keyword} />}
+        
+        {/* Open Graph */}
+        <meta property="og:type" content="article" />
+        <meta property="og:title" content={post.meta_title || post.title} />
+        <meta property="og:description" content={post.meta_description || post.excerpt || ''} />
+        {post.featured_image_url && <meta property="og:image" content={post.featured_image_url} />}
+        <meta property="og:url" content={`https://fpkuniversity.com/blog/${post.slug}`} />
+        
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={post.meta_title || post.title} />
+        <meta name="twitter:description" content={post.meta_description || post.excerpt || ''} />
+        {post.featured_image_url && <meta name="twitter:image" content={post.featured_image_url} />}
+        
+        {/* Canonical URL */}
+        <link rel="canonical" href={`https://fpkuniversity.com/blog/${post.slug}`} />
+      </Helmet>
+      
+      <SchemaMarkup post={post} />
+      
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto px-4 py-12 max-w-4xl">
         <Button 
           variant="ghost" 
           onClick={() => navigate('/blog')}
@@ -105,6 +132,7 @@ export default function BlogPost() {
           </Button>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

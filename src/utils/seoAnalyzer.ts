@@ -17,6 +17,9 @@ export interface SEOAnalysis {
     hasSubheadings: SEOCheck;
     metaTitleLength: SEOCheck;
     metaDescriptionLength: SEOCheck;
+    hasFAQSection: SEOCheck;
+    hasConclusion: SEOCheck;
+    hasLocationKeywords: SEOCheck;
   };
   suggestions: string[];
 }
@@ -40,6 +43,9 @@ export function calculateSEOScore(
     hasSubheadings: checkSubheadings(content),
     metaTitleLength: checkMetaTitleLength(metaTitle),
     metaDescriptionLength: checkMetaDescriptionLength(metaDescription),
+    hasFAQSection: checkFAQSection(content),
+    hasConclusion: checkConclusion(content),
+    hasLocationKeywords: checkLocationKeywords(content),
   };
 
   const passedChecks = Object.values(checks).filter(check => check.passed).length;
@@ -169,5 +175,43 @@ function checkMetaDescriptionLength(metaDescription: string): SEOCheck {
     message: passed
       ? `Meta description length is optimal (${length} chars)`
       : `Meta description should be 120-160 characters (currently ${length})`,
+  };
+}
+
+function checkFAQSection(content: string): SEOCheck {
+  const hasFAQ = /##\s*FAQ/i.test(content);
+  const wordCount = content.split(/\s+/).length;
+  const passed = hasFAQ || wordCount < 500;
+  return {
+    passed,
+    message: passed
+      ? hasFAQ
+        ? 'FAQ section found - great for AI search visibility'
+        : 'Content is concise enough'
+      : 'Add an FAQ section for better AI search optimization (AIO)',
+  };
+}
+
+function checkConclusion(content: string): SEOCheck {
+  const hasConclusion = /##\s*(conclusion|summary|takeaway|final thoughts)/i.test(content);
+  const wordCount = content.split(/\s+/).length;
+  const passed = hasConclusion || wordCount < 800;
+  return {
+    passed,
+    message: passed
+      ? hasConclusion
+        ? 'Conclusion section found'
+        : 'Content is concise enough'
+      : 'Add a conclusion section for better content structure',
+  };
+}
+
+function checkLocationKeywords(content: string): SEOCheck {
+  const hasLocation = /\b(?:in|near|at|located in|serving)\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*,?\s+(?:[A-Z]{2}|Oregon|Washington|California|Nevada|Idaho|Montana)/i.test(content);
+  return {
+    passed: true,
+    message: hasLocation
+      ? 'Location-specific keywords found - consider adding LocalBusiness schema for GEO optimization'
+      : 'No location-specific content detected',
   };
 }
