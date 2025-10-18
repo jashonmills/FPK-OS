@@ -255,7 +255,7 @@ export default function KnowledgeBaseCommandCenter() {
   };
 
   return (
-    <div className="container mx-auto px-6 pt-12 pb-8 space-y-8">
+    <div className="w-full px-4 sm:px-6 pt-12 pb-8 space-y-6 sm:space-y-8 max-w-7xl mx-auto">
       {/* Back Button */}
       <Button variant="outline" size="sm" onClick={() => navigate('/dashboard/admin/blog')} className="bg-background/50 backdrop-blur-sm">
         <ArrowLeft className="h-4 w-4 mr-2" />
@@ -263,16 +263,16 @@ export default function KnowledgeBaseCommandCenter() {
       </Button>
 
       {/* Header */}
-      <TransparentTile>
-        <h1 className="text-3xl font-bold mb-2">Knowledge Base Command Center</h1>
-        <p className="text-muted-foreground">
+      <TransparentTile className="p-4 sm:p-6">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-2">Knowledge Base Command Center</h1>
+        <p className="text-sm sm:text-base text-muted-foreground">
           Ingest content from academic databases, clinical resources, and institutional sources to power AI blog generation
         </p>
       </TransparentTile>
 
       {/* Statistics */}
-      <TransparentTile>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <TransparentTile className="p-4 sm:p-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           <Card className="bg-background/40 backdrop-blur-sm">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -281,7 +281,7 @@ export default function KnowledgeBaseCommandCenter() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">{stats.totalDocuments}</div>
+              <div className="text-2xl sm:text-3xl font-bold">{stats.totalDocuments}</div>
             </CardContent>
           </Card>
 
@@ -293,23 +293,23 @@ export default function KnowledgeBaseCommandCenter() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">{stats.totalEmbeddings}</div>
+              <div className="text-2xl sm:text-3xl font-bold">{stats.totalEmbeddings}</div>
             </CardContent>
           </Card>
 
-          <Card className="bg-background/40 backdrop-blur-sm">
+          <Card className="bg-background/40 backdrop-blur-sm sm:col-span-2 lg:col-span-1">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium flex items-center gap-2">
                 <Database className="h-4 w-4" />
                 Actions
               </CardTitle>
             </CardHeader>
-            <CardContent className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={loadStats}>
+            <CardContent className="flex flex-wrap gap-2">
+              <Button variant="outline" size="sm" onClick={loadStats} className="flex-1 sm:flex-none">
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Refresh
               </Button>
-              <Button variant="destructive" size="sm" onClick={handleClearKB} disabled={loading}>
+              <Button variant="destructive" size="sm" onClick={handleClearKB} disabled={loading} className="flex-1 sm:flex-none">
                 <Trash2 className="h-4 w-4 mr-2" />
                 Clear KB
               </Button>
@@ -331,7 +331,7 @@ export default function KnowledgeBaseCommandCenter() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {KB_SOURCES.academic_databases.map((source) => (
               <div key={source.name} className="flex items-center space-x-2">
                 <Checkbox
@@ -345,9 +345,9 @@ export default function KnowledgeBaseCommandCenter() {
                     }
                   }}
                 />
-                <Label htmlFor={`academic-${source.name}`} className="text-sm cursor-pointer">
+                <Label htmlFor={`academic-${source.name}`} className="text-sm cursor-pointer flex-1">
                   {source.name}
-                  <span className="text-muted-foreground ml-2 text-xs">{source.description}</span>
+                  <span className="text-muted-foreground ml-2 text-xs block sm:inline">{source.description}</span>
                 </Label>
               </div>
             ))}
@@ -357,13 +357,14 @@ export default function KnowledgeBaseCommandCenter() {
             <Label htmlFor="academic-queries">Search Queries (comma-separated)</Label>
             <Input
               id="academic-queries"
-              placeholder="autism social skills, adhd executive function, iep strategies"
+              placeholder="autism social skills, adhd executive function"
               value={academicQueries}
               onChange={(e) => setAcademicQueries(e.target.value)}
+              className="w-full"
             />
           </div>
 
-          <Button onClick={handleAcademicIngestion} disabled={academicLoading}>
+          <Button onClick={handleAcademicIngestion} disabled={academicLoading} className="w-full sm:w-auto">
             <Sparkles className="h-4 w-4 mr-2" />
             {academicLoading ? 'Ingesting...' : 'Start Academic Ingestion'}
           </Button>
@@ -384,7 +385,7 @@ export default function KnowledgeBaseCommandCenter() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {KB_SOURCES.clinical_resources.map((source) => (
               <div key={source.name} className="flex items-center space-x-2">
                 <Checkbox
@@ -405,7 +406,7 @@ export default function KnowledgeBaseCommandCenter() {
             ))}
           </div>
 
-          <Button onClick={handleClinicalIngestion} disabled={clinicalLoading}>
+          <Button onClick={handleClinicalIngestion} disabled={clinicalLoading} className="w-full sm:w-auto">
             <Sparkles className="h-4 w-4 mr-2" />
             {clinicalLoading ? 'Scraping...' : 'Start Clinical Resource Scraping'}
           </Button>
@@ -426,7 +427,7 @@ export default function KnowledgeBaseCommandCenter() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {KB_SOURCES.institutional_resources.map((source) => (
               <div key={source.name} className="flex items-center space-x-2">
                 <Checkbox
@@ -447,7 +448,7 @@ export default function KnowledgeBaseCommandCenter() {
             ))}
           </div>
 
-          <Button onClick={() => {/* TODO */}} disabled={institutionalLoading}>
+          <Button onClick={() => {/* TODO */}} disabled={institutionalLoading} className="w-full sm:w-auto">
             <Sparkles className="h-4 w-4 mr-2" />
             {institutionalLoading ? 'Scraping...' : 'Start Institutional Scraping'}
           </Button>
@@ -468,7 +469,7 @@ export default function KnowledgeBaseCommandCenter() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {KB_SOURCES.specialized_resources.map((source) => (
               <div key={source.name} className="flex items-center space-x-2">
                 <Checkbox

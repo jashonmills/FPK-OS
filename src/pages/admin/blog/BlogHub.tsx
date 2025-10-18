@@ -68,7 +68,7 @@ export default function BlogHub() {
         <p className="text-muted-foreground mt-1">Manage your SEO-optimized blog</p>
       </TransparentTile>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         {sections.map((section) => {
           const Icon = section.icon;
           return (

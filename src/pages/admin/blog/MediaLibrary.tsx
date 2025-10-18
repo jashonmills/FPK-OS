@@ -124,7 +124,7 @@ export default function MediaLibrary() {
         />
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
         {filteredFiles?.map((file) => (
           <Card key={file.id} className="overflow-hidden group relative bg-background/80 backdrop-blur-sm">
             <img

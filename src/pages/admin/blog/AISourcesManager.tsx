@@ -148,22 +148,22 @@ export default function AISourcesManager() {
   };
 
   return (
-    <div className="container mx-auto px-6 pt-12 pb-6 space-y-6">
+    <div className="w-full px-4 sm:px-6 pt-12 pb-6 space-y-4 sm:space-y-6 max-w-7xl mx-auto">
       <Button variant="outline" size="sm" onClick={() => navigate('/dashboard/admin/blog')} className="bg-background/50 backdrop-blur-sm">
         <ArrowLeft className="h-4 w-4 mr-2" />
         Back to Blog Hub
       </Button>
       
-      <TransparentTile className="p-6">
-        <div className="flex items-center justify-between">
+      <TransparentTile className="p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold flex items-center gap-2">
-              <Database className="h-8 w-8" />
+            <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2">
+              <Database className="h-6 sm:h-8 w-6 sm:w-8" />
               AI Knowledge Base
             </h1>
-            <p className="text-muted-foreground mt-1">Manage research sources for AI blog generation</p>
+            <p className="text-sm sm:text-base text-muted-foreground mt-1">Manage research sources for AI blog generation</p>
           </div>
-          <Button onClick={() => setShowDialog(true)}>
+          <Button onClick={() => setShowDialog(true)} className="w-full sm:w-auto">
             <Plus className="h-4 w-4 mr-2" />
             Add Source
           </Button>

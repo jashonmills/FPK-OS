@@ -65,7 +65,7 @@ export default function BlogAnalytics() {
         <p className="text-muted-foreground mt-1">Track your content performance</p>
       </TransparentTile>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
         <Card className="bg-background/80 backdrop-blur-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Total Views</CardTitle>
@@ -110,7 +110,7 @@ export default function BlogAnalytics() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         <Card className="bg-background/80 backdrop-blur-sm">
           <CardHeader>
             <CardTitle>Daily Views (Last 30 Days)</CardTitle>
