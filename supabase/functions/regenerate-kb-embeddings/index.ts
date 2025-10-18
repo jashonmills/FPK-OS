@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -11,238 +11,243 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  let jobId: string | null = null;
+  const supabase = createClient(
+    Deno.env.get('SUPABASE_URL') ?? '',
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+  );
+
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
+    console.log('🚀 Starting knowledge base embedding regeneration');
 
-    if (!lovableApiKey) {
-      return new Response(
-        JSON.stringify({ 
-          error: 'LOVABLE_API_KEY not configured. Please set it in Supabase Dashboard > Settings > Edge Functions' 
-        }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      );
+    // Check for OpenAI API key
+    const openaiKey = Deno.env.get('OPENAI_API_KEY');
+    if (!openaiKey) {
+      throw new Error('OPENAI_API_KEY not configured. Please add it in Supabase Edge Function secrets.');
     }
 
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    // Get all knowledge sources
+    const { data: sources, error: sourcesError } = await supabase
+      .from('ai_knowledge_sources')
+      .select('id, source_name, description, url')
+      .eq('is_active', true);
 
-    // Get all documents without embeddings
-    const { data: documents, error: docsError } = await supabase
-      .from('kb_documents')
-      .select('id, title, content')
-      .order('created_at', { ascending: true });
+    if (sourcesError) throw sourcesError;
 
-    if (docsError) {
-      throw docsError;
-    }
+    console.log(`📚 Found ${sources.length} knowledge sources to process`);
 
-    console.log(`Found ${documents?.length || 0} documents`);
-
-    // Create job tracking record
+    // Create job record
     const { data: job, error: jobError } = await supabase
       .from('kb_embedding_jobs')
       .insert({
         status: 'in_progress',
-        total_documents: documents?.length || 0,
-        started_at: new Date().toISOString()
+        total_documents: sources.length,
+        processed_documents: 0,
+        successful_embeddings: 0,
+        failed_embeddings: 0,
+        started_at: new Date().toISOString(),
       })
       .select()
       .single();
 
     if (jobError) {
+      console.error('❌ Failed to create job:', jobError);
       throw jobError;
     }
 
-    const jobId = job.id;
+    jobId = job.id;
+    console.log(`✅ Created job: ${jobId}`);
 
-    // Process documents in background
-    processDocuments(supabase, documents || [], jobId, lovableApiKey);
+    let successCount = 0;
+    let failCount = 0;
+    const errors: string[] = [];
+
+    // Process in batches of 10 for efficiency
+    const batchSize = 10;
+    
+    for (let batchStart = 0; batchStart < sources.length; batchStart += batchSize) {
+      const batch = sources.slice(batchStart, batchStart + batchSize);
+      console.log(`📦 Processing batch ${Math.floor(batchStart / batchSize) + 1}/${Math.ceil(sources.length / batchSize)}`);
+
+      // Process batch in parallel
+      await Promise.all(batch.map(async (source, batchIndex) => {
+        const globalIndex = batchStart + batchIndex;
+        
+        try {
+          // Update progress
+          await supabase
+            .from('kb_embedding_jobs')
+            .update({
+              current_document_title: source.source_name,
+              processed_documents: globalIndex + 1,
+            })
+            .eq('id', jobId);
+
+          // Prepare content for embedding
+          const content = `${source.source_name}\n\n${source.description || ''}\n\nSource: ${source.url}`;
+          
+          // Split into chunks if content is long (max 8000 chars per chunk)
+          const maxChunkSize = 8000;
+          const chunks: string[] = [];
+          
+          if (content.length <= maxChunkSize) {
+            chunks.push(content);
+          } else {
+            // Split by sentences to avoid breaking mid-sentence
+            const sentences = content.match(/[^.!?]+[.!?]+/g) || [content];
+            let currentChunk = '';
+            
+            for (const sentence of sentences) {
+              if ((currentChunk + sentence).length > maxChunkSize) {
+                if (currentChunk) chunks.push(currentChunk.trim());
+                currentChunk = sentence;
+              } else {
+                currentChunk += sentence;
+              }
+            }
+            if (currentChunk) chunks.push(currentChunk.trim());
+          }
+
+          console.log(`  📄 ${source.source_name} - ${chunks.length} chunk(s)`);
+
+          // Generate embeddings for each chunk
+          for (let chunkIndex = 0; chunkIndex < chunks.length; chunkIndex++) {
+            const chunk = chunks[chunkIndex];
+            
+            // Retry logic for embedding generation
+            let embeddingVector = null;
+            const maxRetries = 3;
+            
+            for (let retry = 0; retry < maxRetries; retry++) {
+              try {
+                const embeddingResponse = await fetch('https://api.openai.com/v1/embeddings', {
+                  method: 'POST',
+                  headers: {
+                    'Authorization': `Bearer ${openaiKey}`,
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    model: 'text-embedding-3-small',
+                    input: chunk,
+                  }),
+                  signal: AbortSignal.timeout(30000), // 30 second timeout
+                });
+
+                if (!embeddingResponse.ok) {
+                  const errorText = await embeddingResponse.text();
+                  throw new Error(`OpenAI API error ${embeddingResponse.status}: ${errorText}`);
+                }
+
+                const embeddingData = await embeddingResponse.json();
+                embeddingVector = embeddingData.data[0].embedding;
+                break; // Success
+                
+              } catch (err) {
+                if (retry === maxRetries - 1) throw err;
+                await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, retry)));
+              }
+            }
+
+            if (!embeddingVector) {
+              throw new Error('Failed to generate embedding after retries');
+            }
+
+            // Store embedding
+            const { error: embeddingError } = await supabase
+              .from('kb_embeddings')
+              .upsert({
+                source_id: source.id,
+                content_chunk: chunk,
+                embedding: embeddingVector,
+                chunk_index: chunkIndex,
+              }, {
+                onConflict: 'source_id,chunk_index'
+              });
+
+            if (embeddingError) {
+              console.error(`  ❌ DB insert error for chunk ${chunkIndex}:`, embeddingError);
+              throw embeddingError;
+            }
+          }
+
+          successCount++;
+          console.log(`  ✅ ${source.source_name} - ${chunks.length} embedding(s) created`);
+
+        } catch (error) {
+          failCount++;
+          const errorMsg = `${source.source_name}: ${error.message}`;
+          console.error(`  ❌ ${errorMsg}`);
+          errors.push(errorMsg);
+        }
+      }));
+
+      // Update counts after each batch
+      await supabase
+        .from('kb_embedding_jobs')
+        .update({
+          successful_embeddings: successCount,
+          failed_embeddings: failCount,
+          error_message: errors.length > 0 ? errors.slice(0, 5).join('; ') : null,
+        })
+        .eq('id', jobId);
+
+      // Rate limiting: wait 1 second between batches
+      if (batchStart + batchSize < sources.length) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+    }
+
+    // Mark job as complete
+    await supabase
+      .from('kb_embedding_jobs')
+      .update({
+        status: failCount > 0 && successCount === 0 ? 'failed' : 'completed',
+        completed_at: new Date().toISOString(),
+        current_document_title: null,
+        successful_embeddings: successCount,
+        failed_embeddings: failCount,
+      })
+      .eq('id', jobId);
+
+    console.log(`🏁 Embedding generation complete: ${successCount}/${sources.length} successful`);
 
     return new Response(
       JSON.stringify({ 
         success: true,
-        message: 'Embedding generation started',
-        jobId: jobId
+        job_id: jobId,
+        total: sources.length,
+        successful: successCount,
+        failed: failCount,
+        errors: errors.length > 0 ? errors.slice(0, 10) : null
       }),
-      { 
-        status: 200, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
-    console.error('Error in regenerate-kb-embeddings:', error);
+    console.error('💥 Fatal error in regenerate-kb-embeddings:', error);
+
+    // Update job as failed
+    if (jobId) {
+      try {
+        await supabase
+          .from('kb_embedding_jobs')
+          .update({
+            status: 'failed',
+            error_message: error.message,
+            completed_at: new Date().toISOString(),
+          })
+          .eq('id', jobId);
+      } catch (updateErr) {
+        console.error('Failed to update job status:', updateErr);
+      }
+    }
+
     return new Response(
-      JSON.stringify({ 
-        error: error instanceof Error ? error.message : 'Unknown error',
-        details: error instanceof Error ? error.stack : undefined
-      }),
+      JSON.stringify({ error: error.message }),
       { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     );
   }
 });
-
-async function processDocuments(supabase: any, documents: any[], jobId: string, lovableApiKey: string) {
-  let successCount = 0;
-  let failCount = 0;
-  const errors: string[] = [];
-
-  for (let docIndex = 0; docIndex < documents.length; docIndex++) {
-    const doc = documents[docIndex];
-    
-    try {
-      // Update progress
-      await supabase
-        .from('kb_embedding_jobs')
-        .update({
-          processed_documents: docIndex + 1,
-          current_document_title: doc.title
-        })
-        .eq('id', jobId);
-
-      // Check if embeddings already exist
-      const { data: existingEmbeddings } = await supabase
-        .from('kb_embeddings')
-        .select('id')
-        .eq('document_id', doc.id)
-        .limit(1);
-
-      if (existingEmbeddings && existingEmbeddings.length > 0) {
-        console.log(`Document ${doc.id} already has embeddings, skipping`);
-        successCount++;
-        continue;
-      }
-
-      // Use title as content for embedding since documents might not have full content
-      const contentToEmbed = doc.content || doc.title;
-      
-      // Split into chunks
-      const chunks = splitIntoChunks(contentToEmbed, 1000);
-      console.log(`Processing document ${doc.id}: ${chunks.length} chunks`);
-
-      for (let i = 0; i < chunks.length; i++) {
-        const chunk = chunks[i];
-
-        // Generate embedding using Lovable AI
-        const embeddingResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${lovableApiKey}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            model: 'google/gemini-2.5-flash',
-            messages: [
-              {
-                role: 'system',
-                content: 'You are a semantic analysis system. Generate a comma-separated list of exactly 50 semantic keywords that represent the core concepts, themes, and topics in the given text. Focus on educational, neurodiversity, and academic concepts.'
-              },
-              {
-                role: 'user',
-                content: `Analyze this text and return exactly 50 keywords:\n\n${chunk}`
-              }
-            ],
-            max_completion_tokens: 500
-          })
-        });
-
-        if (!embeddingResponse.ok) {
-          const errorText = await embeddingResponse.text();
-          throw new Error(`Embedding API error: ${embeddingResponse.status} ${errorText}`);
-        }
-
-        const embeddingData = await embeddingResponse.json();
-        const keywords = embeddingData.choices[0].message.content;
-        
-        // Convert keywords to a simple vector representation
-        const embedding = keywords.split(',').map((kw: string) => kw.trim().toLowerCase());
-
-        // Store embedding
-        const { error: insertError } = await supabase
-          .from('kb_embeddings')
-          .insert({
-            document_id: doc.id,
-            chunk_index: i,
-            chunk_text: chunk,
-            embedding: JSON.stringify(embedding)
-          });
-
-        if (insertError) {
-          throw insertError;
-        }
-      }
-
-      successCount++;
-      
-      // Update success count
-      await supabase
-        .from('kb_embedding_jobs')
-        .update({
-          successful_embeddings: successCount
-        })
-        .eq('id', jobId);
-
-      console.log(`✅ Generated ${chunks.length} embeddings for document: ${doc.title}`);
-    } catch (error) {
-      failCount++;
-      const errorMsg = `Failed on document ${doc.id} (${doc.title}): ${error instanceof Error ? error.message : 'Unknown error'}`;
-      console.error('❌', errorMsg);
-      errors.push(errorMsg);
-      
-      // Update fail count
-      await supabase
-        .from('kb_embedding_jobs')
-        .update({
-          failed_embeddings: failCount,
-          error_message: errorMsg
-        })
-        .eq('id', jobId);
-    }
-  }
-
-  // Mark job as complete
-  await supabase
-    .from('kb_embedding_jobs')
-    .update({
-      status: failCount === documents.length ? 'failed' : 'completed',
-      completed_at: new Date().toISOString(),
-      processed_documents: documents.length,
-      successful_embeddings: successCount,
-      failed_embeddings: failCount
-    })
-    .eq('id', jobId);
-
-  console.log(`Embedding generation complete: ${successCount} successful, ${failCount} failed`);
-}
-
-function splitIntoChunks(text: string, maxLength: number): string[] {
-  const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
-  const chunks: string[] = [];
-  let currentChunk = '';
-
-  for (const sentence of sentences) {
-    if ((currentChunk + sentence).length > maxLength && currentChunk.length > 0) {
-      chunks.push(currentChunk.trim());
-      currentChunk = sentence;
-    } else {
-      currentChunk += sentence;
-    }
-  }
-
-  if (currentChunk.length > 0) {
-    chunks.push(currentChunk.trim());
-  }
-
-  if (chunks.length === 0) {
-    chunks.push(text);
-  }
-
-  return chunks;
-}

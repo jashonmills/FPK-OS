@@ -43,19 +43,27 @@ export const useScrapingJobStatus = (enabled: boolean = false) => {
     // Initial fetch
     fetchJobs();
 
-    // Poll every 2 seconds while there are active jobs
-    const interval = setInterval(() => {
-      const hasActiveJobs = jobs.some(
-        job => job.status === 'pending' || job.status === 'in_progress'
-      );
-      
-      if (hasActiveJobs || jobs.length === 0) {
-        fetchJobs();
-      }
-    }, 2000);
+    // Subscribe to real-time updates
+    const channel = supabase
+      .channel('kb_scraping_jobs_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'kb_scraping_jobs'
+        },
+        (payload) => {
+          console.log('Scraping job update:', payload);
+          fetchJobs(); // Refetch to get updated data
+        }
+      )
+      .subscribe();
 
-    return () => clearInterval(interval);
-  }, [enabled, jobs.length]);
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [enabled]);
 
   const getJobsByType = (jobType: string) => {
     return jobs.filter(job => job.job_type === jobType);

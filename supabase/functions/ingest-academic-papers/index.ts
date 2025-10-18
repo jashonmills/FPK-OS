@@ -1,260 +1,246 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface IngestRequest {
-  sources: string[];
-  queries: string[];
-}
-
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
+  let jobId: string | null = null;
+  const supabase = createClient(
+    Deno.env.get('SUPABASE_URL') ?? '',
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+  );
+
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
-    const { sources, queries }: IngestRequest = await req.json();
-
-    console.log('Starting academic ingestion:', { sources, queries });
-
-    // Get authenticated user
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      throw new Error('No authorization header');
-    }
-
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    const { tier = 1, keywords = [] } = await req.json();
     
-    if (authError || !user) {
-      throw new Error('Unauthorized');
+    console.log(`🚀 Starting academic paper ingestion for tier ${tier}`);
+
+    // Create a job record
+    const { data: job, error: jobError } = await supabase
+      .from('kb_scraping_jobs')
+      .insert({
+        job_type: `academic_tier_${tier}`,
+        source_name: `Academic Papers - Tier ${tier}`,
+        status: 'in_progress',
+        started_at: new Date().toISOString(),
+        documents_found: 0,
+        documents_added: 0,
+      })
+      .select()
+      .single();
+
+    if (jobError) {
+      console.error('❌ Failed to create job:', jobError);
+      throw jobError;
     }
 
-    let totalDocumentsAdded = 0;
+    jobId = job.id;
+    console.log(`✅ Created job: ${jobId}`);
 
-    // Process each source and query combination
-    for (const source of sources) {
-      for (const query of queries) {
-        console.log(`Searching ${source} for: ${query}`);
+    let totalFound = 0;
+    let totalAdded = 0;
+    const errors: string[] = [];
 
-        // Create scraping job
-        const { data: job, error: jobError } = await supabase
-          .from('kb_scraping_jobs')
-          .insert({
-            job_type: 'academic_search',
-            source_name: source,
-            search_queries: [query],
-            status: 'in_progress',
-            created_by: user.id,
-            started_at: new Date().toISOString()
-          })
-          .select()
-          .single();
+    // Tier-based search parameters
+    const tierConfig = {
+      1: { maxResults: 10, keywords: keywords.length > 0 ? keywords : ['neurodiversity', 'ADHD', 'autism'] },
+      2: { maxResults: 25, keywords: keywords.length > 0 ? keywords : ['executive function', 'learning strategies', 'neurodivergent'] },
+      3: { maxResults: 50, keywords: keywords.length > 0 ? keywords : ['educational psychology', 'cognitive development', 'learning disabilities'] },
+    };
 
-        if (jobError) {
-          console.error('Failed to create job:', jobError);
-          continue;
+    const config = tierConfig[tier as keyof typeof tierConfig] || tierConfig[1];
+    console.log(`📊 Config: ${config.maxResults} results for keywords:`, config.keywords);
+
+    // Helper function to update job progress
+    const updateProgress = async (found: number, added: number) => {
+      await supabase
+        .from('kb_scraping_jobs')
+        .update({
+          documents_found: found,
+          documents_added: added,
+        })
+        .eq('id', jobId);
+    };
+
+    // PubMed search with retry logic
+    const maxRetries = 3;
+    let retryCount = 0;
+    
+    while (retryCount < maxRetries) {
+      try {
+        console.log(`🔍 Searching PubMed (attempt ${retryCount + 1}/${maxRetries})`);
+        
+        const pubmedQuery = config.keywords.join(' OR ');
+        const searchUrl = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=${encodeURIComponent(pubmedQuery)}&retmax=${config.maxResults}&retmode=json`;
+        
+        const searchResponse = await fetch(searchUrl, {
+          signal: AbortSignal.timeout(30000) // 30 second timeout
+        });
+        
+        if (!searchResponse.ok) {
+          throw new Error(`PubMed search failed: ${searchResponse.status}`);
         }
-
-        try {
-          let papers: any[] = [];
-
-          if (source === 'PubMed') {
-            papers = await searchPubMed(query);
-          } else if (source === 'Semantic Scholar') {
-            papers = await searchSemanticScholar(query);
-          }
-
-          console.log(`Found ${papers.length} papers from ${source}`);
-
-          // Store documents
-          for (const paper of papers) {
-            // Generate content hash to prevent duplicates
-            const contentHash = await generateHash(paper.abstract || paper.title);
-
-            // Check if document already exists
-            const { data: existing } = await supabase
-              .from('kb_documents')
-              .select('id')
-              .eq('content_hash', contentHash)
-              .single();
-
-            if (existing) {
-              console.log(`Skipping duplicate: ${paper.title}`);
-              continue;
-            }
-
-            // Insert document
-            const { data: document, error: docError } = await supabase
-              .from('kb_documents')
-              .insert({
-                title: paper.title,
-                content: paper.abstract || paper.title,
-                source_name: source,
-                source_type: 'academic_database',
-                document_type: 'research_paper',
-                source_url: paper.url,
-                publication_date: paper.publicationDate,
-                focus_areas: extractFocusAreas(query),
-                metadata: {
-                  authors: paper.authors || [],
-                  citationCount: paper.citationCount || 0,
-                  year: paper.year
-                },
-                content_hash: contentHash,
-                created_by: user.id
-              })
-              .select()
-              .single();
-
-            if (docError) {
-              console.error('Failed to insert document:', docError);
-              continue;
-            }
-
-            totalDocumentsAdded++;
-            
-            // Embeddings will be generated separately via the Generate Embeddings button
-          }
-
-          // Update job status
-          await supabase
-            .from('kb_scraping_jobs')
-            .update({
-              status: 'completed',
-              documents_found: papers.length,
-              documents_added: totalDocumentsAdded,
-              completed_at: new Date().toISOString()
-            })
-            .eq('id', job.id);
-
-        } catch (error) {
-          console.error(`Error processing ${source}:`, error);
+        
+        const searchData = await searchResponse.json();
+        
+        if (searchData.esearchresult?.idlist) {
+          const pmids = searchData.esearchresult.idlist;
+          totalFound = pmids.length;
+          console.log(`📚 Found ${totalFound} papers`);
           
-          // Update job with error
-          await supabase
-            .from('kb_scraping_jobs')
-            .update({
-              status: 'failed',
-              error_message: error instanceof Error ? error.message : 'Unknown error',
-              completed_at: new Date().toISOString()
-            })
-            .eq('id', job.id);
+          await updateProgress(totalFound, totalAdded);
+
+          // Process papers in batches of 5
+          const batchSize = 5;
+          for (let i = 0; i < pmids.length; i += batchSize) {
+            const batch = pmids.slice(i, i + batchSize);
+            console.log(`📄 Processing batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(pmids.length / batchSize)}`);
+            
+            await Promise.all(batch.map(async (pmid: string) => {
+              try {
+                const detailUrl = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&id=${pmid}&retmode=xml`;
+                const detailResponse = await fetch(detailUrl, {
+                  signal: AbortSignal.timeout(15000)
+                });
+                
+                if (!detailResponse.ok) {
+                  throw new Error(`Failed to fetch details: ${detailResponse.status}`);
+                }
+                
+                const xmlText = await detailResponse.text();
+                
+                // Enhanced XML parsing
+                const titleMatch = xmlText.match(/<ArticleTitle>(.+?)<\/ArticleTitle>/s);
+                const abstractMatch = xmlText.match(/<AbstractText[^>]*>(.+?)<\/AbstractText>/s);
+                const authorMatch = xmlText.match(/<Author[^>]*>[\s\S]*?<LastName>([^<]+)<\/LastName>[\s\S]*?<\/Author>/);
+                
+                if (titleMatch) {
+                  const title = titleMatch[1].replace(/<[^>]*>/g, '').trim();
+                  const abstract = abstractMatch ? abstractMatch[1].replace(/<[^>]*>/g, '').trim() : '';
+                  const author = authorMatch ? authorMatch[1] : 'Unknown';
+                  const url = `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`;
+                  
+                  // Check if already exists
+                  const { data: existing } = await supabase
+                    .from('ai_knowledge_sources')
+                    .select('id')
+                    .eq('url', url)
+                    .maybeSingle();
+                  
+                  if (!existing) {
+                    const { error: insertError } = await supabase
+                      .from('ai_knowledge_sources')
+                      .insert({
+                        source_name: title.substring(0, 255),
+                        url: url,
+                        description: abstract ? `${author} - ${abstract.substring(0, 400)}...` : `By ${author}`,
+                        is_active: true,
+                      });
+
+                    if (!insertError) {
+                      totalAdded++;
+                      console.log(`✅ Added: ${title.substring(0, 50)}...`);
+                    } else {
+                      console.error(`❌ Insert error for ${pmid}:`, insertError);
+                      errors.push(`Insert ${pmid}: ${insertError.message}`);
+                    }
+                  } else {
+                    console.log(`⏭️  Skipped duplicate: ${title.substring(0, 50)}...`);
+                  }
+                } else {
+                  console.warn(`⚠️  No title found for ${pmid}`);
+                }
+              } catch (err) {
+                console.error(`❌ Error processing ${pmid}:`, err);
+                errors.push(`PubMed ${pmid}: ${err.message}`);
+              }
+            }));
+            
+            // Update progress after each batch
+            await updateProgress(totalFound, totalAdded);
+            
+            // Rate limiting: wait 500ms between batches
+            if (i + batchSize < pmids.length) {
+              await new Promise(resolve => setTimeout(resolve, 500));
+            }
+          }
+        } else {
+          console.warn('⚠️  No results from PubMed');
+        }
+        
+        break; // Success, exit retry loop
+        
+      } catch (err) {
+        retryCount++;
+        console.error(`❌ PubMed attempt ${retryCount} failed:`, err);
+        
+        if (retryCount >= maxRetries) {
+          errors.push(`PubMed search failed after ${maxRetries} attempts: ${err.message}`);
+        } else {
+          // Exponential backoff
+          await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, retryCount)));
         }
       }
     }
 
+    // Final job update
+    const finalStatus = errors.length > 0 && totalAdded === 0 ? 'failed' : 'completed';
+    await supabase
+      .from('kb_scraping_jobs')
+      .update({
+        status: finalStatus,
+        documents_found: totalFound,
+        documents_added: totalAdded,
+        error_message: errors.length > 0 ? errors.slice(0, 3).join('; ') : null,
+        completed_at: new Date().toISOString(),
+      })
+      .eq('id', jobId);
+
+    console.log(`🏁 Job complete: ${totalAdded}/${totalFound} papers added`);
+
     return new Response(
-      JSON.stringify({
-        success: true,
-        documentsAdded: totalDocumentsAdded,
-        message: `Ingested ${totalDocumentsAdded} documents from ${sources.length} sources`
+      JSON.stringify({ 
+        success: true, 
+        job_id: jobId,
+        documents_found: totalFound,
+        documents_added: totalAdded,
+        errors: errors.length > 0 ? errors.slice(0, 5) : null
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
-    console.error('Error in ingest-academic-papers:', error);
+    console.error('💥 Fatal error in ingest-academic-papers:', error);
+    
+    // Update job as failed if we have a job ID
+    if (jobId) {
+      try {
+        await supabase
+          .from('kb_scraping_jobs')
+          .update({
+            status: 'failed',
+            error_message: error.message,
+            completed_at: new Date().toISOString(),
+          })
+          .eq('id', jobId);
+      } catch (updateErr) {
+        console.error('Failed to update job status:', updateErr);
+      }
+    }
+    
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      JSON.stringify({ error: error.message }),
+      { 
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      }
     );
   }
 });
-
-async function searchPubMed(query: string): Promise<any[]> {
-  // Search PubMed
-  const searchUrl = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=${encodeURIComponent(query)}&retmax=20&retmode=json`;
-  const searchResponse = await fetch(searchUrl);
-  const searchData = await searchResponse.json();
-  
-  const ids = searchData.esearchresult?.idlist || [];
-  if (ids.length === 0) return [];
-
-  // Fetch paper details
-  const fetchUrl = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&id=${ids.join(',')}&retmode=json`;
-  const fetchResponse = await fetch(fetchUrl);
-  const fetchData = await fetchResponse.json();
-
-  const papers = [];
-  for (const id of ids) {
-    const paper = fetchData.result?.[id];
-    if (paper) {
-      papers.push({
-        title: paper.title,
-        abstract: paper.abstract || '',
-        authors: paper.authors?.map((a: any) => a.name) || [],
-        publicationDate: paper.pubdate,
-        year: parseInt(paper.pubdate?.split(' ')[0] || '0'),
-        url: `https://pubmed.ncbi.nlm.nih.gov/${id}/`
-      });
-    }
-  }
-
-  return papers;
-}
-
-async function searchSemanticScholar(query: string): Promise<any[]> {
-  const url = `https://api.semanticscholar.org/graph/v1/paper/search?query=${encodeURIComponent(query)}&limit=20&fields=title,abstract,authors,citationCount,year,url,publicationDate`;
-  
-  const response = await fetch(url);
-  const data = await response.json();
-
-  return (data.data || []).map((paper: any) => ({
-    title: paper.title,
-    abstract: paper.abstract || '',
-    authors: paper.authors?.map((a: any) => a.name) || [],
-    citationCount: paper.citationCount || 0,
-    year: paper.year,
-    publicationDate: paper.publicationDate,
-    url: paper.url || `https://www.semanticscholar.org/paper/${paper.paperId}`
-  }));
-}
-
-async function generateHash(text: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(text);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
-function extractFocusAreas(query: string): string[] {
-  const areas = ['research', 'academic'];
-  const keywords = query.toLowerCase().split(/\s+/);
-  
-  if (keywords.some(k => ['autism', 'asd'].includes(k))) areas.push('autism');
-  if (keywords.some(k => ['adhd', 'attention'].includes(k))) areas.push('adhd');
-  if (keywords.some(k => ['iep', 'education', 'special'].includes(k))) areas.push('special-education');
-  
-  return [...new Set(areas)];
-}
-
-function splitIntoChunks(text: string, maxLength: number): string[] {
-  const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
-  const chunks: string[] = [];
-  let currentChunk = '';
-
-  for (const sentence of sentences) {
-    if ((currentChunk + sentence).length > maxLength && currentChunk.length > 0) {
-      chunks.push(currentChunk.trim());
-      currentChunk = sentence;
-    } else {
-      currentChunk += ' ' + sentence;
-    }
-  }
-
-  if (currentChunk.length > 0) {
-    chunks.push(currentChunk.trim());
-  }
-
-  return chunks;
-}

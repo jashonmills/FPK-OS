@@ -45,15 +45,27 @@ export const useEmbeddingJobStatus = (enabled: boolean = false) => {
     // Initial fetch
     fetchLatestJob();
 
-    // Poll every 2 seconds while job is active
-    const interval = setInterval(() => {
-      if (!currentJob || currentJob.status === 'in_progress') {
-        fetchLatestJob();
-      }
-    }, 2000);
+    // Subscribe to real-time updates
+    const channel = supabase
+      .channel('kb_embedding_jobs_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'kb_embedding_jobs'
+        },
+        (payload) => {
+          console.log('Embedding job update:', payload);
+          fetchLatestJob(); // Refetch to get updated data
+        }
+      )
+      .subscribe();
 
-    return () => clearInterval(interval);
-  }, [enabled, currentJob?.status]);
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [enabled]);
 
   return {
     currentJob,

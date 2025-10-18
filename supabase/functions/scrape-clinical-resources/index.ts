@@ -1,241 +1,248 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.38/deno-dom-wasm.ts"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+}
 
-interface ScrapeRequest {
-  sources: string[];
+// Helper function to extract main content from HTML
+function extractMainContent(html: string, url: string): { title: string; content: string } {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  if (!doc) return { title: new URL(url).hostname, content: '' };
+
+  // Remove unwanted elements
+  const unwantedSelectors = ['script', 'style', 'nav', 'header', 'footer', 'iframe', 'noscript'];
+  unwantedSelectors.forEach(selector => {
+    doc.querySelectorAll(selector).forEach(el => el.remove());
+  });
+
+  // Extract title
+  const titleEl = doc.querySelector('title') || doc.querySelector('h1');
+  const title = titleEl?.textContent?.trim() || new URL(url).hostname;
+
+  // Extract main content (prefer main, article, or body)
+  const mainEl = doc.querySelector('main') || doc.querySelector('article') || doc.querySelector('body');
+  let content = mainEl?.textContent || '';
+  
+  // Clean up content
+  content = content
+    .replace(/\s+/g, ' ') // Normalize whitespace
+    .replace(/\n\s*\n/g, '\n') // Remove excessive newlines
+    .trim();
+
+  return { title, content: content.substring(0, 5000) }; // Limit to 5000 chars
 }
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { headers: corsHeaders })
   }
 
+  let jobId: string | null = null;
+  const supabase = createClient(
+    Deno.env.get('SUPABASE_URL') ?? '',
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+  )
+
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
-    const { sources }: ScrapeRequest = await req.json();
-
-    console.log('Starting clinical resource scraping:', sources);
-
-    // Get authenticated user
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      throw new Error('No authorization header');
-    }
-
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    const { tier = 1 } = await req.json()
     
-    if (authError || !user) {
-      throw new Error('Unauthorized');
+    console.log(`🚀 Starting clinical resource scraping for tier ${tier}`)
+
+    // Create a job record
+    const { data: job, error: jobError } = await supabase
+      .from('kb_scraping_jobs')
+      .insert({
+        job_type: `clinical_tier_${tier}`,
+        source_name: `Clinical Resources - Tier ${tier}`,
+        status: 'in_progress',
+        started_at: new Date().toISOString(),
+        documents_found: 0,
+        documents_added: 0,
+      })
+      .select()
+      .single()
+
+    if (jobError) {
+      console.error('❌ Failed to create job:', jobError);
+      throw jobError;
     }
 
-    // Source URL mapping
-    const sourceUrls: Record<string, string[]> = {
-      'CDC': [
-        'https://www.cdc.gov/autism/',
-        'https://www.cdc.gov/ncbddd/developmentaldisabilities/'
+    jobId = job.id;
+    console.log(`✅ Created job: ${jobId}`);
+
+    // Tier-based resource lists with better URLs
+    const tierResources = {
+      1: [
+        { url: 'https://www.cdc.gov/ncbddd/adhd/facts.html', name: 'CDC ADHD Facts' },
+        { url: 'https://www.nimh.nih.gov/health/topics/autism-spectrum-disorders', name: 'NIMH Autism' },
+        { url: 'https://www.understood.org/en/articles/what-is-neurodiversity', name: 'Understood Neurodiversity' }
       ],
-      'IDEA': [
-        'https://sites.ed.gov/idea/'
+      2: [
+        { url: 'https://chadd.org/about-adhd/overview/', name: 'CHADD ADHD Overview' },
+        { url: 'https://autismsociety.org/about-autism/', name: 'Autism Society' },
+        { url: 'https://ldaamerica.org/types-of-learning-disabilities/', name: 'LDA Learning Disabilities' }
       ],
-      'OSEP': [
-        'https://sites.ed.gov/osers/osep/'
-      ],
-      // Add more mappings as needed
-    };
+      3: [
+        { url: 'https://www.additudemag.com/what-is-adhd-symptoms-causes-treatments/', name: 'ADDitude ADHD Guide' },
+        { url: 'https://www.autismspeaks.org/what-autism', name: 'Autism Speaks' },
+        { url: 'https://www.ncld.org/what-is-ld/', name: 'NCLD Learning Disabilities' }
+      ]
+    }
 
-    let totalDocumentsAdded = 0;
+    const resources = tierResources[tier as keyof typeof tierResources] || tierResources[1];
+    const totalResources = resources.length;
+    let totalAdded = 0;
+    const errors: string[] = [];
 
-    for (const source of sources) {
-      const urls = sourceUrls[source] || [];
-      
-      // Create scraping job
-      const { data: job, error: jobError } = await supabase
-        .from('kb_scraping_jobs')
-        .insert({
-          job_type: 'web_scrape',
-          source_name: source,
-          status: 'in_progress',
-          created_by: user.id,
-          started_at: new Date().toISOString()
-        })
-        .select()
-        .single();
+    console.log(`📚 Processing ${totalResources} resources`);
 
-      if (jobError) {
-        console.error('Failed to create job:', jobError);
-        continue;
-      }
+    // Update job with total count
+    await supabase
+      .from('kb_scraping_jobs')
+      .update({ documents_found: totalResources })
+      .eq('id', jobId);
 
-      try {
-        for (const url of urls) {
-          console.log(`Scraping ${source} from ${url}`);
+    // Process resources in batches
+    const batchSize = 2;
+    for (let i = 0; i < resources.length; i += batchSize) {
+      const batch = resources.slice(i, i + batchSize);
+      console.log(`📄 Processing batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(resources.length / batchSize)}`);
 
-          // Call the existing scrape-and-cache-source function
-          const { data: scrapedData, error: scrapeError } = await supabase.functions.invoke(
-            'scrape-and-cache-source',
-            {
-              body: { source_url: url }
-            }
-          );
+      await Promise.all(batch.map(async (resource) => {
+        const maxRetries = 2;
+        let retryCount = 0;
 
-          if (scrapeError || !scrapedData) {
-            console.error(`Failed to scrape ${url}:`, scrapeError);
-            continue;
-          }
+        while (retryCount < maxRetries) {
+          try {
+            console.log(`🔍 Scraping: ${resource.name}`);
 
-          // Generate content hash
-          const contentHash = await generateHash(scrapedData.cleaned_text_content);
-
-          // Check if document already exists
-          const { data: existing } = await supabase
-            .from('kb_documents')
-            .select('id')
-            .eq('content_hash', contentHash)
-            .single();
-
-          if (existing) {
-            console.log(`Skipping duplicate from ${url}`);
-            continue;
-          }
-
-          // Extract title from URL or content
-          const title = extractTitle(url, scrapedData.cleaned_text_content);
-
-          // Insert document
-          const { data: document, error: docError } = await supabase
-            .from('kb_documents')
-            .insert({
-              title,
-              content: scrapedData.cleaned_text_content,
-              source_name: source,
-              source_type: 'clinical_resource',
-              document_type: 'guideline',
-              source_url: url,
-              focus_areas: getFocusAreasForSource(source),
-              metadata: {
-                scraped_at: new Date().toISOString(),
-                url
+            // Fetch with timeout
+            const response = await fetch(resource.url, {
+              headers: {
+                'User-Agent': 'Mozilla/5.0 (compatible; FPK-Knowledge-Bot/1.0)',
               },
-              content_hash: contentHash,
-              created_by: user.id
-            })
-            .select()
-            .single();
+              signal: AbortSignal.timeout(20000) // 20 second timeout
+            });
 
-          if (docError) {
-            console.error('Failed to insert document:', docError);
-            continue;
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const html = await response.text();
+            const { title, content } = extractMainContent(html, resource.url);
+
+            if (content.length < 100) {
+              throw new Error('Content too short (likely failed to parse)');
+            }
+
+            // Check if already exists
+            const { data: existing } = await supabase
+              .from('ai_knowledge_sources')
+              .select('id')
+              .eq('url', resource.url)
+              .maybeSingle();
+
+            if (!existing) {
+              const { error: insertError } = await supabase
+                .from('ai_knowledge_sources')
+                .insert({
+                  source_name: title.substring(0, 255),
+                  url: resource.url,
+                  description: content.substring(0, 500),
+                  is_active: true,
+                });
+
+              if (!insertError) {
+                totalAdded++;
+                console.log(`✅ Added: ${title.substring(0, 50)}...`);
+              } else {
+                throw insertError;
+              }
+            } else {
+              console.log(`⏭️  Skipped duplicate: ${title.substring(0, 50)}...`);
+              totalAdded++; // Count as success since content exists
+            }
+
+            break; // Success, exit retry loop
+
+          } catch (err) {
+            retryCount++;
+            console.error(`❌ Attempt ${retryCount} failed for ${resource.name}:`, err);
+
+            if (retryCount >= maxRetries) {
+              errors.push(`${resource.name}: ${err.message}`);
+            } else {
+              await new Promise(resolve => setTimeout(resolve, 2000));
+            }
           }
-
-          totalDocumentsAdded++;
-          
-          // Embeddings will be generated separately via the Generate Embeddings button
         }
+      }));
 
-        // Update job status
-        await supabase
-          .from('kb_scraping_jobs')
-          .update({
-            status: 'completed',
-            documents_found: urls.length,
-            documents_added: totalDocumentsAdded,
-            completed_at: new Date().toISOString()
-          })
-          .eq('id', job.id);
+      // Update progress after each batch
+      await supabase
+        .from('kb_scraping_jobs')
+        .update({ documents_added: totalAdded })
+        .eq('id', jobId);
 
-      } catch (error) {
-        console.error(`Error processing ${source}:`, error);
-        
+      // Rate limiting between batches
+      if (i + batchSize < resources.length) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+    }
+
+    // Final update
+    const finalStatus = errors.length > 0 && totalAdded === 0 ? 'failed' : 'completed';
+    await supabase
+      .from('kb_scraping_jobs')
+      .update({
+        status: finalStatus,
+        documents_found: totalResources,
+        documents_added: totalAdded,
+        error_message: errors.length > 0 ? errors.slice(0, 3).join('; ') : null,
+        completed_at: new Date().toISOString(),
+      })
+      .eq('id', jobId);
+
+    console.log(`🏁 Job complete: ${totalAdded}/${totalResources} resources added`);
+
+    return new Response(
+      JSON.stringify({ 
+        success: true, 
+        job_id: jobId,
+        documents_found: totalResources,
+        documents_added: totalAdded,
+        errors: errors.length > 0 ? errors : null
+      }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
+
+  } catch (error) {
+    console.error('💥 Fatal error in scrape-clinical-resources:', error);
+
+    if (jobId) {
+      try {
         await supabase
           .from('kb_scraping_jobs')
           .update({
             status: 'failed',
-            error_message: error instanceof Error ? error.message : 'Unknown error',
-            completed_at: new Date().toISOString()
+            error_message: error.message,
+            completed_at: new Date().toISOString(),
           })
-          .eq('id', job.id);
+          .eq('id', jobId);
+      } catch (updateErr) {
+        console.error('Failed to update job status:', updateErr);
       }
     }
 
     return new Response(
-      JSON.stringify({
-        success: true,
-        documentsAdded: totalDocumentsAdded,
-        message: `Scraped ${totalDocumentsAdded} documents from ${sources.length} sources`
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
-
-  } catch (error) {
-    console.error('Error in scrape-clinical-resources:', error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+      JSON.stringify({ error: error.message }),
+      { 
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      }
+    )
   }
-});
-
-async function generateHash(text: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(text);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
-function extractTitle(url: string, content: string): string {
-  // Try to extract title from content (first 100 chars)
-  const contentTitle = content.substring(0, 100).trim();
-  if (contentTitle.length > 10) {
-    return contentTitle.split('\n')[0];
-  }
-  
-  // Fall back to URL-based title
-  const urlParts = url.split('/').filter(p => p);
-  return urlParts[urlParts.length - 1].replace(/-/g, ' ').replace(/\.[^.]*$/, '');
-}
-
-function getFocusAreasForSource(source: string): string[] {
-  const mapping: Record<string, string[]> = {
-    'CDC': ['autism', 'developmental-disabilities', 'health'],
-    'IDEA': ['iep', 'special-education', 'policy'],
-    'OSEP': ['special-education', 'policy'],
-    'WWC': ['evidence-based', 'education'],
-    'BACB': ['aba', 'autism', 'behavioral'],
-    'NAS': ['autism', 'support'],
-    'AAP': ['medical', 'pediatric'],
-    'CEC': ['special-education', 'teaching']
-  };
-
-  return mapping[source] || ['general'];
-}
-
-function splitIntoChunks(text: string, maxLength: number): string[] {
-  const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
-  const chunks: string[] = [];
-  let currentChunk = '';
-
-  for (const sentence of sentences) {
-    if ((currentChunk + sentence).length > maxLength && currentChunk.length > 0) {
-      chunks.push(currentChunk.trim());
-      currentChunk = sentence;
-    } else {
-      currentChunk += ' ' + sentence;
-    }
-  }
-
-  if (currentChunk.length > 0) {
-    chunks.push(currentChunk.trim());
-  }
-
-  return chunks;
-}
+})
