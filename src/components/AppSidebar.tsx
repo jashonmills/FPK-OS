@@ -38,7 +38,8 @@ import {
   FolderOpen,
   Building2,
   FileText,
-  TestTube
+  TestTube,
+  Edit
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -218,10 +219,9 @@ export function AppSidebar() {
       icon: TestTube,
     },
     {
-      title: 'Course Builder',
-      url: "https://themed-course-compass.lovable.app/dashboard/admin/course-builder",
-      icon: Book,
-      isExternal: true,
+      title: 'Content Manager',
+      url: "/dashboard/admin/blog",
+      icon: Edit,
     },
     {
       title: 'Audit Logs',
