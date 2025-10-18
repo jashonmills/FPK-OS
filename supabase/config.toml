@@ -177,6 +177,10 @@ verify_jwt = true
 [functions.semantic-blog-generation]
 verify_jwt = true
 
+[functions.fix-published-posts]
+verify_jwt = true
+
 [functions.regenerate-kb-embeddings]
 verify_jwt = true
+
 

@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useBlogPosts, useBlogCategories } from '@/hooks/useBlogPosts';
+import { supabase } from '@/integrations/supabase/client';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -8,14 +9,38 @@ import { Search, Calendar, Clock, ArrowLeft, BookOpen } from 'lucide-react';
 import { format } from 'date-fns';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Helmet } from 'react-helmet';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Resources() {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [fixingPosts, setFixingPosts] = useState(false);
   
-  const { data: posts, isLoading } = useBlogPosts('published');
+  const { data: posts, isLoading, refetch } = useBlogPosts('published');
   const { data: categories } = useBlogCategories();
+
+  // Auto-fix published posts on first load if none are visible
+  useEffect(() => {
+    const fixPublishedPosts = async () => {
+      if (!isLoading && posts && posts.length === 0 && !fixingPosts) {
+        setFixingPosts(true);
+        try {
+          const { error } = await supabase.functions.invoke('fix-published-posts');
+          if (!error) {
+            await refetch();
+          }
+        } catch (err) {
+          console.error('Error fixing posts:', err);
+        } finally {
+          setFixingPosts(false);
+        }
+      }
+    };
+    
+    fixPublishedPosts();
+  }, [isLoading, posts, fixingPosts, refetch]);
 
   // Get the 5 most recent posts
   const recentPosts = posts?.slice(0, 5) || [];

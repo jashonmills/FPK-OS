@@ -226,6 +226,80 @@ export default function KnowledgeBaseCommandCenter() {
     }
   };
 
+  const handleInstitutionalIngestion = async () => {
+    if (institutionalSources.length === 0) {
+      toast({
+        title: 'No sources selected',
+        description: 'Please select at least one institutional resource',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    setInstitutionalLoading(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('scrape-clinical-resources', {
+        body: { 
+          sources: institutionalSources,
+          source_type: 'institutional' 
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: 'Institutional scraping started',
+        description: `Scraping ${institutionalSources.length} institutional sources`
+      });
+    } catch (error) {
+      toast({
+        title: 'Scraping failed',
+        description: error instanceof Error ? error.message : 'Unknown error',
+        variant: 'destructive'
+      });
+    } finally {
+      setInstitutionalLoading(false);
+    }
+  };
+
+  const handleSpecializedIngestion = async () => {
+    if (specializedSources.length === 0) {
+      toast({
+        title: 'No sources selected',
+        description: 'Please select at least one specialized resource',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    setSpecializedLoading(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('scrape-clinical-resources', {
+        body: { 
+          sources: specializedSources,
+          source_type: 'specialized' 
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: 'Specialized scraping started',
+        description: `Scraping ${specializedSources.length} specialized sources`
+      });
+    } catch (error) {
+      toast({
+        title: 'Scraping failed',
+        description: error instanceof Error ? error.message : 'Unknown error',
+        variant: 'destructive'
+      });
+    } finally {
+      setSpecializedLoading(false);
+    }
+  };
+
   const handleGenerateEmbeddings = async () => {
     if (stats.totalDocuments === 0) {
       toast({
@@ -488,7 +562,7 @@ export default function KnowledgeBaseCommandCenter() {
             ))}
           </div>
 
-          <Button onClick={() => {/* TODO */}} disabled={institutionalLoading} className="w-full sm:w-auto">
+          <Button onClick={handleInstitutionalIngestion} disabled={institutionalLoading} className="w-full sm:w-auto">
             <Sparkles className="h-4 w-4 mr-2" />
             {institutionalLoading ? 'Scraping...' : 'Start Institutional Scraping'}
           </Button>
@@ -530,7 +604,7 @@ export default function KnowledgeBaseCommandCenter() {
             ))}
           </div>
 
-          <Button onClick={() => {/* TODO */}} disabled={specializedLoading}>
+          <Button onClick={handleSpecializedIngestion} disabled={specializedLoading} className="w-full sm:w-auto">
             <Sparkles className="h-4 w-4 mr-2" />
             {specializedLoading ? 'Scraping...' : 'Start Specialized Scraping'}
           </Button>
