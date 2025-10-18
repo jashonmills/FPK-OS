@@ -19,9 +19,16 @@ export const useWidgetChatStorage = (userId?: string) => {
   useEffect(() => {
     try {
       const stored = safeLocalStorage.getItem<string>(storageKey, { fallbackValue: null });
-      if (stored) {
-        const parsedMessages = JSON.parse(stored);
-        setMessages(parsedMessages);
+      if (stored && stored.trim()) {
+        try {
+          const parsedMessages = JSON.parse(stored);
+          setMessages(Array.isArray(parsedMessages) ? parsedMessages : []);
+        } catch (parseError) {
+          // Clear corrupted data silently
+          logger.warn('Corrupted chat history detected, clearing storage', 'STORAGE');
+          safeLocalStorage.removeItem(storageKey);
+          setMessages([]);
+        }
       }
     } catch (error) {
       logger.warn('Error loading widget chat history', 'STORAGE', error);

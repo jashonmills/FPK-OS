@@ -267,7 +267,13 @@ export const useChatMessages = (sessionId: string | null) => {
   };
 
   useEffect(() => {
-    loadMessages();
+    // Only load messages when we have a valid sessionId
+    if (sessionId) {
+      loadMessages();
+    } else {
+      // Clear messages when no session is selected
+      setMessages([]);
+    }
   }, [sessionId]);
 
   return {
