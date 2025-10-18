@@ -62,7 +62,7 @@ export default function BlogPostEditor() {
   const seoAnalysis = calculateSEOScore(title, metaTitle, metaDescription, content, focusKeyword);
 
   const handleSave = async () => {
-    const postData = {
+    const postData: any = {
       title,
       slug: slugValue || undefined,
       meta_title: metaTitle,
@@ -75,6 +75,11 @@ export default function BlogPostEditor() {
       author_id: authorId,
       seo_score: seoAnalysis.score,
     };
+
+    // Set published_at when status is published and it's not already set
+    if (status === 'published' && (!existingPost?.published_at || existingPost?.status !== 'published')) {
+      postData.published_at = new Date().toISOString();
+    }
 
     if (isNewPost) {
       await createMutation.mutateAsync(postData);
