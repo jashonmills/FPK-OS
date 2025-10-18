@@ -89,14 +89,14 @@ export default function BlogPostManager() {
             placeholder="Search posts..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
+            className="pl-10 bg-background/80 backdrop-blur-sm"
           />
         </div>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-[180px] bg-background/80 backdrop-blur-sm">
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-background/95 backdrop-blur-sm">
             <SelectItem value="all">All Posts</SelectItem>
             <SelectItem value="draft">Drafts</SelectItem>
             <SelectItem value="published">Published</SelectItem>
@@ -106,7 +106,7 @@ export default function BlogPostManager() {
         </Select>
       </div>
 
-      <div className="border rounded-lg">
+      <div className="border rounded-lg bg-background/80 backdrop-blur-sm">
         <Table>
           <TableHeader>
             <TableRow>
