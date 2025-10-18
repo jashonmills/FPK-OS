@@ -122,7 +122,8 @@ export default function KnowledgeBaseCommandCenter() {
   useEffect(() => {
     if (!trackingEnabled) return;
 
-    const academicJob = getLatestJobByType('academic_search');
+    // Check for any academic tier jobs (tier 1, 2, or 3)
+    const academicJob = jobs.find(j => j.job_type?.startsWith('academic_tier_'));
     if (academicJob) {
       if (academicJob.status === 'in_progress') {
         setAcademicStatus({
@@ -152,22 +153,22 @@ export default function KnowledgeBaseCommandCenter() {
       }
     }
 
-    const webScrapeJob = getLatestJobByType('web_scrape');
-    if (webScrapeJob) {
-      // Determine which tier based on source type
+    // Check for clinical tier jobs
+    const clinicalJob = jobs.find(j => j.job_type?.startsWith('clinical_tier_'));
+    if (clinicalJob) {
       const updateStatus = (setter: typeof setClinicalStatus) => {
-        if (webScrapeJob.status === 'in_progress') {
+        if (clinicalJob.status === 'in_progress') {
           setter({
             stage: 'ingesting',
-            message: `Scraping ${webScrapeJob.source_name}...`,
+            message: `Scraping ${clinicalJob.source_name}...`,
             progress: 50,
-            itemsProcessed: webScrapeJob.documents_added || 0,
-            itemsFound: webScrapeJob.documents_found || 1
+            itemsProcessed: clinicalJob.documents_added || 0,
+            itemsFound: clinicalJob.documents_found || 1
           });
-        } else if (webScrapeJob.status === 'completed') {
+        } else if (clinicalJob.status === 'completed') {
           setter({
             stage: 'complete',
-            message: `Successfully added ${webScrapeJob.documents_added || 0} documents!`,
+            message: `Successfully added ${clinicalJob.documents_added || 0} documents!`,
             progress: 100
           });
           loadStats();
@@ -175,25 +176,51 @@ export default function KnowledgeBaseCommandCenter() {
           setTimeout(() => {
             setter({ stage: 'idle', message: '', progress: 0 });
           }, 3000);
-        } else if (webScrapeJob.status === 'failed') {
+        } else if (clinicalJob.status === 'failed') {
           setter({
             stage: 'error',
-            message: webScrapeJob.error_message || 'Scraping failed',
+            message: clinicalJob.error_message || 'Scraping failed',
             progress: 0
           });
         }
       };
-
-      // Update the appropriate tier status
-      if (clinicalSources.includes(webScrapeJob.source_name || '')) {
-        updateStatus(setClinicalStatus);
-      } else if (institutionalSources.includes(webScrapeJob.source_name || '')) {
-        updateStatus(setInstitutionalStatus);
-      } else if (specializedSources.includes(webScrapeJob.source_name || '')) {
-        updateStatus(setSpecializedStatus);
-      }
+      updateStatus(setClinicalStatus);
     }
-  }, [jobs, trackingEnabled, getLatestJobByType, clinicalSources, institutionalSources, specializedSources]);
+
+    // Check for specialized tier jobs  
+    const specializedJob = jobs.find(j => j.job_type?.startsWith('specialized_tier_'));
+    if (specializedJob) {
+      const updateStatus = (setter: typeof setSpecializedStatus) => {
+        if (specializedJob.status === 'in_progress') {
+          setter({
+            stage: 'ingesting',
+            message: `Scraping ${specializedJob.source_name}...`,
+            progress: 50,
+            itemsProcessed: specializedJob.documents_added || 0,
+            itemsFound: specializedJob.documents_found || 1
+          });
+        } else if (specializedJob.status === 'completed') {
+          setter({
+            stage: 'complete',
+            message: `Successfully added ${specializedJob.documents_added || 0} documents!`,
+            progress: 100
+          });
+          loadStats();
+          loadDocuments();
+          setTimeout(() => {
+            setter({ stage: 'idle', message: '', progress: 0 });
+          }, 3000);
+        } else if (specializedJob.status === 'failed') {
+          setter({
+            stage: 'error',
+            message: specializedJob.error_message || 'Scraping failed',
+            progress: 0
+          });
+        }
+      };
+      updateStatus(setSpecializedStatus);
+    }
+  }, [jobs, trackingEnabled]);
 
   const loadStats = async () => {
     const [docsResult, embeddingsResult] = await Promise.all([
@@ -277,6 +304,11 @@ export default function KnowledgeBaseCommandCenter() {
       });
 
       if (error) throw error;
+      
+      // Check if edge function returned an error in data
+      if (data?.error) {
+        throw new Error(data.error);
+      }
 
       toast({
         title: 'Academic ingestion started',
@@ -285,10 +317,12 @@ export default function KnowledgeBaseCommandCenter() {
       
       // Status will be updated via polling in useEffect
     } catch (error) {
-      setAcademicStatus({ stage: 'error', message: error instanceof Error ? error.message : 'Unknown error', progress: 0 });
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error('Academic ingestion error:', errorMessage);
+      setAcademicStatus({ stage: 'error', message: errorMessage, progress: 0 });
       toast({
         title: 'Ingestion failed',
-        description: error instanceof Error ? error.message : 'Unknown error',
+        description: errorMessage,
         variant: 'destructive'
       });
       setTrackingEnabled(false);
@@ -314,6 +348,11 @@ export default function KnowledgeBaseCommandCenter() {
       });
 
       if (error) throw error;
+      
+      // Check if edge function returned an error in data
+      if (data?.error) {
+        throw new Error(data.error);
+      }
 
       toast({
         title: 'Clinical scraping started',
@@ -322,10 +361,12 @@ export default function KnowledgeBaseCommandCenter() {
       
       // Status will be updated via polling
     } catch (error) {
-      setClinicalStatus({ stage: 'error', message: error instanceof Error ? error.message : 'Unknown error', progress: 0 });
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error('Clinical scraping error:', errorMessage);
+      setClinicalStatus({ stage: 'error', message: errorMessage, progress: 0 });
       toast({
         title: 'Scraping failed',
-        description: error instanceof Error ? error.message : 'Unknown error',
+        description: errorMessage,
         variant: 'destructive'
       });
       setTrackingEnabled(false);
@@ -357,6 +398,11 @@ export default function KnowledgeBaseCommandCenter() {
       });
 
       if (error) throw error;
+      
+      // Check if edge function returned an error in data
+      if (data?.error) {
+        throw new Error(data.error);
+      }
 
       setInstitutionalStatus({ stage: 'ingesting', message: 'Retrieving institutional resources...', progress: 55, estimatedTimeLeft: 150 });
       
@@ -406,6 +452,11 @@ export default function KnowledgeBaseCommandCenter() {
       });
 
       if (error) throw error;
+      
+      // Check if edge function returned an error in data
+      if (data?.error) {
+        throw new Error(data.error);
+      }
 
       setSpecializedStatus({ stage: 'ingesting', message: 'Extracting specialized content...', progress: 60, estimatedTimeLeft: 90 });
       
@@ -447,15 +498,28 @@ export default function KnowledgeBaseCommandCenter() {
       const { data, error } = await supabase.functions.invoke('regenerate-kb-embeddings');
 
       if (error) throw error;
+      
+      // Check if edge function returned an error in data
+      if (data?.error) {
+        throw new Error(data.error);
+      }
 
       toast({
         title: 'Embedding generation started',
         description: 'Processing documents in the background. Progress will update automatically.'
       });
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error('Embedding generation error:', errorMessage);
+      
+      // Show helpful message if OpenAI key is missing
+      const displayMessage = errorMessage.includes('OPENAI_API_KEY') 
+        ? 'OpenAI API key not configured. Please add it in Edge Function secrets.'
+        : errorMessage;
+        
       toast({
         title: 'Failed to start embedding generation',
-        description: error instanceof Error ? error.message : 'Unknown error',
+        description: displayMessage,
         variant: 'destructive'
       });
       setEmbeddingTrackingEnabled(false);

@@ -26,22 +26,21 @@ serve(async (req) => {
       throw new Error('OPENAI_API_KEY not configured. Please add it in Supabase Edge Function secrets.');
     }
 
-    // Get all knowledge sources
-    const { data: sources, error: sourcesError } = await supabase
-      .from('ai_knowledge_sources')
-      .select('id, source_name, description, url')
-      .eq('is_active', true);
+    // Get all knowledge base documents
+    const { data: documents, error: docsError } = await supabase
+      .from('kb_documents')
+      .select('*');
 
-    if (sourcesError) throw sourcesError;
+    if (docsError) throw docsError;
 
-    console.log(`📚 Found ${sources.length} knowledge sources to process`);
+    console.log(`📚 Found ${documents.length} knowledge documents to process`);
 
     // Create job record
     const { data: job, error: jobError } = await supabase
       .from('kb_embedding_jobs')
       .insert({
         status: 'in_progress',
-        total_documents: sources.length,
+        total_documents: documents.length,
         processed_documents: 0,
         successful_embeddings: 0,
         failed_embeddings: 0,
@@ -65,12 +64,12 @@ serve(async (req) => {
     // Process in batches of 10 for efficiency
     const batchSize = 10;
     
-    for (let batchStart = 0; batchStart < sources.length; batchStart += batchSize) {
-      const batch = sources.slice(batchStart, batchStart + batchSize);
-      console.log(`📦 Processing batch ${Math.floor(batchStart / batchSize) + 1}/${Math.ceil(sources.length / batchSize)}`);
+    for (let batchStart = 0; batchStart < documents.length; batchStart += batchSize) {
+      const batch = documents.slice(batchStart, batchStart + batchSize);
+      console.log(`📦 Processing batch ${Math.floor(batchStart / batchSize) + 1}/${Math.ceil(documents.length / batchSize)}`);
 
       // Process batch in parallel
-      await Promise.all(batch.map(async (source, batchIndex) => {
+      await Promise.all(batch.map(async (doc, batchIndex) => {
         const globalIndex = batchStart + batchIndex;
         
         try {
@@ -78,13 +77,13 @@ serve(async (req) => {
           await supabase
             .from('kb_embedding_jobs')
             .update({
-              current_document_title: source.source_name,
+              current_document_title: doc.title,
               processed_documents: globalIndex + 1,
             })
             .eq('id', jobId);
 
-          // Prepare content for embedding
-          const content = `${source.source_name}\n\n${source.description || ''}\n\nSource: ${source.url}`;
+          // Use the actual document content
+          const content = doc.content || '';
           
           // Split into chunks if content is long (max 8000 chars per chunk)
           const maxChunkSize = 8000;
@@ -108,7 +107,7 @@ serve(async (req) => {
             if (currentChunk) chunks.push(currentChunk.trim());
           }
 
-          console.log(`  📄 ${source.source_name} - ${chunks.length} chunk(s)`);
+          console.log(`  📄 ${doc.title} - ${chunks.length} chunk(s)`);
 
           // Generate embeddings for each chunk
           for (let chunkIndex = 0; chunkIndex < chunks.length; chunkIndex++) {
@@ -152,16 +151,21 @@ serve(async (req) => {
               throw new Error('Failed to generate embedding after retries');
             }
 
-            // Store embedding
+            // Store embedding with correct column names
             const { error: embeddingError } = await supabase
               .from('kb_embeddings')
               .upsert({
-                source_id: source.id,
-                content_chunk: chunk,
+                document_id: doc.id,
+                chunk_text: chunk,
                 embedding: embeddingVector,
                 chunk_index: chunkIndex,
+                metadata: {
+                  title: doc.title,
+                  source_name: doc.source_name,
+                  source_url: doc.source_url
+                }
               }, {
-                onConflict: 'source_id,chunk_index'
+                onConflict: 'document_id,chunk_index'
               });
 
             if (embeddingError) {
@@ -171,11 +175,11 @@ serve(async (req) => {
           }
 
           successCount++;
-          console.log(`  ✅ ${source.source_name} - ${chunks.length} embedding(s) created`);
+          console.log(`  ✅ ${doc.title} - ${chunks.length} embedding(s) created`);
 
         } catch (error) {
           failCount++;
-          const errorMsg = `${source.source_name}: ${error.message}`;
+          const errorMsg = `${doc.title}: ${error.message}`;
           console.error(`  ❌ ${errorMsg}`);
           errors.push(errorMsg);
         }
@@ -192,7 +196,7 @@ serve(async (req) => {
         .eq('id', jobId);
 
       // Rate limiting: wait 1 second between batches
-      if (batchStart + batchSize < sources.length) {
+      if (batchStart + batchSize < documents.length) {
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
     }
@@ -209,13 +213,13 @@ serve(async (req) => {
       })
       .eq('id', jobId);
 
-    console.log(`🏁 Embedding generation complete: ${successCount}/${sources.length} successful`);
+    console.log(`🏁 Embedding generation complete: ${successCount}/${documents.length} successful`);
 
     return new Response(
       JSON.stringify({ 
         success: true,
         job_id: jobId,
-        total: sources.length,
+        total: documents.length,
         successful: successCount,
         failed: failCount,
         errors: errors.length > 0 ? errors.slice(0, 10) : null

@@ -7,6 +7,30 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+// Resource URL mappings by source name
+const RESOURCE_URLS: Record<string, string> = {
+  // Clinical Resources (Tier 2)
+  'CDC': 'https://www.cdc.gov/ncbddd/adhd/facts.html',
+  'NIMH': 'https://www.nimh.nih.gov/health/topics/autism-spectrum-disorders',
+  'CHADD': 'https://chadd.org/about-adhd/overview/',
+  'Autism Society': 'https://autismsociety.org/about-autism/',
+  'Learning Disabilities Association': 'https://ldaamerica.org/types-of-learning-disabilities/',
+  'ADDitude Magazine': 'https://www.additudemag.com/what-is-adhd-symptoms-causes-treatments/',
+  'Autism Speaks': 'https://www.autismspeaks.org/what-autism',
+  'National Center for LD': 'https://www.ncld.org/what-is-ld/',
+  
+  // Institutional Resources (Tier 3)
+  'Harvard Graduate School of Education': 'https://www.gse.harvard.edu/ideas/usable-knowledge/21/07/teaching-students-adhd',
+  'Stanford School of Education': 'https://ed.stanford.edu/news/stanford-researchers-examine-how-technology-can-help-students-learning-differences',
+  'Johns Hopkins School of Education': 'https://education.jhu.edu/research/centers-labs/center-for-talented-youth/',
+  'Yale Poorvu Center': 'https://poorvucenter.yale.edu/LearningDifferences',
+  
+  // Specialized Resources (Tier 4)
+  'Social Thinking': 'https://www.socialthinking.com/Articles',
+  'MIT OpenCourseWare': 'https://ocw.mit.edu/courses/res-9-003-brains-minds-and-machines-summer-course-summer-2015/',
+  'Khan Academy Special Education': 'https://www.khanacademy.org/about/blog',
+};
+
 // Helper function to extract main content from HTML
 function extractMainContent(html: string, url: string): { title: string; content: string } {
   const doc = new DOMParser().parseFromString(html, 'text/html');
@@ -22,17 +46,24 @@ function extractMainContent(html: string, url: string): { title: string; content
   const titleEl = doc.querySelector('title') || doc.querySelector('h1');
   const title = titleEl?.textContent?.trim() || new URL(url).hostname;
 
-  // Extract main content (prefer main, article, or body)
+  // Extract main content
   const mainEl = doc.querySelector('main') || doc.querySelector('article') || doc.querySelector('body');
   let content = mainEl?.textContent || '';
   
   // Clean up content
   content = content
-    .replace(/\s+/g, ' ') // Normalize whitespace
-    .replace(/\n\s*\n/g, '\n') // Remove excessive newlines
+    .replace(/\s+/g, ' ')
+    .replace(/\n\s*\n/g, '\n')
     .trim();
 
-  return { title, content: content.substring(0, 5000) }; // Limit to 5000 chars
+  return { title, content };
+}
+
+// Determine tier and job type from source type
+function getTierInfo(sourceType: string): { tier: number; jobType: string } {
+  if (sourceType === 'institutional') return { tier: 3, jobType: 'clinical_tier_3' };
+  if (sourceType === 'specialized') return { tier: 4, jobType: 'specialized_tier_4' };
+  return { tier: 2, jobType: 'clinical_tier_2' }; // default clinical
 }
 
 serve(async (req) => {
@@ -47,23 +78,29 @@ serve(async (req) => {
   )
 
   try {
-    const { tier = 1 } = await req.json()
+    const { sources, source_type = 'clinical' } = await req.json();
     
-    console.log(`🚀 Starting clinical resource scraping for tier ${tier}`)
+    if (!sources || sources.length === 0) {
+      throw new Error('No sources provided');
+    }
+
+    const { tier, jobType } = getTierInfo(source_type);
+    
+    console.log(`🚀 Starting ${source_type} scraping (Tier ${tier}) for ${sources.length} sources`);
 
     // Create a job record
     const { data: job, error: jobError } = await supabase
       .from('kb_scraping_jobs')
       .insert({
-        job_type: `clinical_tier_${tier}`,
-        source_name: `Clinical Resources - Tier ${tier}`,
+        job_type: jobType,
+        source_name: sources.join(', '),
         status: 'in_progress',
         started_at: new Date().toISOString(),
         documents_found: 0,
         documents_added: 0,
       })
       .select()
-      .single()
+      .single();
 
     if (jobError) {
       console.error('❌ Failed to create job:', jobError);
@@ -73,26 +110,18 @@ serve(async (req) => {
     jobId = job.id;
     console.log(`✅ Created job: ${jobId}`);
 
-    // Tier-based resource lists with better URLs
-    const tierResources = {
-      1: [
-        { url: 'https://www.cdc.gov/ncbddd/adhd/facts.html', name: 'CDC ADHD Facts' },
-        { url: 'https://www.nimh.nih.gov/health/topics/autism-spectrum-disorders', name: 'NIMH Autism' },
-        { url: 'https://www.understood.org/en/articles/what-is-neurodiversity', name: 'Understood Neurodiversity' }
-      ],
-      2: [
-        { url: 'https://chadd.org/about-adhd/overview/', name: 'CHADD ADHD Overview' },
-        { url: 'https://autismsociety.org/about-autism/', name: 'Autism Society' },
-        { url: 'https://ldaamerica.org/types-of-learning-disabilities/', name: 'LDA Learning Disabilities' }
-      ],
-      3: [
-        { url: 'https://www.additudemag.com/what-is-adhd-symptoms-causes-treatments/', name: 'ADDitude ADHD Guide' },
-        { url: 'https://www.autismspeaks.org/what-autism', name: 'Autism Speaks' },
-        { url: 'https://www.ncld.org/what-is-ld/', name: 'NCLD Learning Disabilities' }
-      ]
-    }
+    // Map source names to URLs
+    const resources = sources
+      .map((sourceName: string) => {
+        const url = RESOURCE_URLS[sourceName];
+        if (!url) {
+          console.warn(`⚠️  No URL found for source: ${sourceName}`);
+          return null;
+        }
+        return { url, name: sourceName };
+      })
+      .filter((r: any) => r !== null);
 
-    const resources = tierResources[tier as keyof typeof tierResources] || tierResources[1];
     const totalResources = resources.length;
     let totalAdded = 0;
     const errors: string[] = [];
@@ -111,7 +140,7 @@ serve(async (req) => {
       const batch = resources.slice(i, i + batchSize);
       console.log(`📄 Processing batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(resources.length / batchSize)}`);
 
-      await Promise.all(batch.map(async (resource) => {
+      await Promise.all(batch.map(async (resource: any) => {
         const maxRetries = 2;
         let retryCount = 0;
 
@@ -124,7 +153,7 @@ serve(async (req) => {
               headers: {
                 'User-Agent': 'Mozilla/5.0 (compatible; FPK-Knowledge-Bot/1.0)',
               },
-              signal: AbortSignal.timeout(20000) // 20 second timeout
+              signal: AbortSignal.timeout(20000)
             });
 
             if (!response.ok) {
@@ -138,21 +167,32 @@ serve(async (req) => {
               throw new Error('Content too short (likely failed to parse)');
             }
 
-            // Check if already exists
+            // Generate content hash for duplicate detection
+            const encoder = new TextEncoder();
+            const data = encoder.encode(content);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const contentHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+            // Check if already exists in kb_documents
             const { data: existing } = await supabase
-              .from('ai_knowledge_sources')
+              .from('kb_documents')
               .select('id')
-              .eq('url', resource.url)
+              .eq('content_hash', contentHash)
               .maybeSingle();
 
             if (!existing) {
               const { error: insertError } = await supabase
-                .from('ai_knowledge_sources')
+                .from('kb_documents')
                 .insert({
-                  source_name: title.substring(0, 255),
-                  url: resource.url,
-                  description: content.substring(0, 500),
-                  is_active: true,
+                  title: title.substring(0, 500),
+                  content,
+                  source_name: resource.name,
+                  source_type: source_type === 'clinical' ? 'clinical_database' : source_type,
+                  document_type: 'guideline',
+                  source_url: resource.url,
+                  focus_areas: ['clinical', 'special-education', 'neurodiversity'],
+                  content_hash: contentHash,
                 });
 
               if (!insertError) {
@@ -163,10 +203,10 @@ serve(async (req) => {
               }
             } else {
               console.log(`⏭️  Skipped duplicate: ${title.substring(0, 50)}...`);
-              totalAdded++; // Count as success since content exists
+              totalAdded++;
             }
 
-            break; // Success, exit retry loop
+            break; // Success
 
           } catch (err) {
             retryCount++;
