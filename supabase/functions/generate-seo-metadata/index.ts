@@ -35,32 +35,46 @@ serve(async (req) => {
       ? content.split(/\s+/).slice(0, 500).join(' ')
       : '';
 
-    const systemPrompt = `You are an SEO expert. Generate SEO metadata that will score 90+/100 on SEO analyzers.
+    const systemPrompt = `You are an expert SEO specialist. Generate metadata that will achieve 70+/100 SEO score.
 
-CRITICAL RULES - MUST FOLLOW EXACTLY:
-1. Focus keyword: Extract the MOST relevant 2-4 word phrase from the title. Must be complete, never truncated.
-   - Example: "grounding techniques neurodivergent" NOT "grounding techniques neur"
+CRITICAL SCORING FACTORS (Each worth ~7-8 points):
+1. Focus keyword MUST appear in the original title
+2. Focus keyword MUST appear in meta description
+3. Meta title must be 30-60 characters
+4. Meta description must be 120-160 characters
 
-2. Meta title: Create a compelling title that is EXACTLY 55-60 characters (including spaces).
-   - MUST include focus keyword at the beginning
-   - MUST be under 60 characters total
-   - Count every character carefully
-   - Must be engaging and click-worthy
+RULES - FOLLOW EXACTLY:
+1. Focus keyword: 
+   - Extract 2-4 words that ALREADY EXIST in the title
+   - Must be naturally present in the title text
+   - Complete phrase only, never truncated
+   - Example from "Finding Your Anchor: Grounding Techniques for Neurodivergent Minds":
+     ✓ "grounding techniques neurodivergent" (appears in title)
+     ✗ "grounding techniques neur" (truncated)
 
-3. Meta description: Write a persuasive description that is EXACTLY 150-155 characters (including spaces).
-   - MUST include focus keyword naturally
-   - MUST be under 155 characters total
-   - Count every character carefully
-   - Include a clear call-to-action
-   - Must be compelling and actionable
+2. Meta title (30-60 characters):
+   - MUST start with focus keyword
+   - Must be 50-58 characters (ideal for search display)
+   - Engaging and click-worthy
+   - Example: "Grounding Techniques Neurodivergent: Find Your Anchor"
 
-CHARACTER COUNT IS CRITICAL. If your response exceeds limits, regenerate shorter versions.
+3. Meta description (120-160 characters):
+   - MUST include focus keyword naturally in first sentence
+   - Target 145-155 characters (ideal for search display)
+   - Include clear benefit and call-to-action
+   - Example: "Discover effective grounding techniques neurodivergent individuals can use daily. Science-backed strategies to find calm and regain control. Start today!"
 
-Respond ONLY with valid JSON in this exact format:
+VALIDATION: Before responding, verify:
+- Focus keyword exists in original title ✓
+- Meta title: 30-60 chars ✓
+- Meta description: 120-160 chars ✓
+- Focus keyword in meta description ✓
+
+Respond ONLY with valid JSON:
 {
-  "focusKeyword": "complete keyword phrase",
-  "metaTitle": "Exact 55-60 char title with keyword",
-  "metaDescription": "Exact 150-155 char description with keyword and CTA"
+  "focusKeyword": "phrase from title",
+  "metaTitle": "50-58 char title",
+  "metaDescription": "145-155 char description"
 }`;
 
     const userPrompt = `Title: ${title}${contentPreview ? `\n\nContent Preview: ${contentPreview}` : ''}`;
@@ -143,17 +157,33 @@ Respond ONLY with valid JSON in this exact format:
       );
     }
 
+    // Validate that focus keyword appears in the original title
+    const keywordInTitle = title.toLowerCase().includes(seoData.focusKeyword.toLowerCase());
+    if (!keywordInTitle) {
+      console.warn(`Focus keyword "${seoData.focusKeyword}" not found in title "${title}"`);
+    }
+
     // Validate character lengths
     const titleLength = seoData.metaTitle.length;
     const descLength = seoData.metaDescription.length;
     
     console.log('SEO Validation:', {
       focusKeyword: seoData.focusKeyword,
+      keywordInTitle,
       titleLength,
       descLength,
-      titleValid: titleLength <= 60,
-      descValid: descLength <= 160
+      titleValid: titleLength >= 30 && titleLength <= 60,
+      descValid: descLength >= 120 && descLength <= 160
     });
+
+    // Warn if lengths are not optimal
+    if (titleLength < 30 || titleLength > 60) {
+      console.warn(`Meta title length ${titleLength} is outside optimal range (30-60)`);
+    }
+    
+    if (descLength < 120 || descLength > 160) {
+      console.warn(`Meta description length ${descLength} is outside optimal range (120-160)`);
+    }
 
     // Auto-truncate if needed (with ellipsis)
     if (titleLength > 60) {
