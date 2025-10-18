@@ -1,6 +1,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AuthorsManager } from './AuthorsManager';
-import { Users, ArrowLeft } from 'lucide-react';
+import { PostsManager } from './PostsManager';
+import { Users, ArrowLeft, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { TransparentTile } from '@/components/ui/transparent-tile';
@@ -23,13 +24,21 @@ export default function ContentManager() {
         <p className="text-muted-foreground mt-1">Manage articles, categories, and authors • Super Admin Only</p>
       </TransparentTile>
 
-      <Tabs defaultValue="authors" className="space-y-6">
+      <Tabs defaultValue="posts" className="space-y-6">
         <TabsList>
+          <TabsTrigger value="posts">
+            <FileText className="h-4 w-4 mr-2" />
+            Posts
+          </TabsTrigger>
           <TabsTrigger value="authors">
             <Users className="h-4 w-4 mr-2" />
             Authors
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="posts">
+          <PostsManager />
+        </TabsContent>
 
         <TabsContent value="authors">
           <AuthorsManager />
