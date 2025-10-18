@@ -1,23 +1,23 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useBlogPost } from '@/hooks/useBlogPosts';
-import { useBlogAuthor } from '@/hooks/useBlogAuthors';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, Calendar, Clock, Eye } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, Eye, User } from 'lucide-react';
 import { format } from 'date-fns';
 import ReactMarkdown from 'react-markdown';
 import { Skeleton } from '@/components/ui/skeleton';
 import { SchemaMarkup } from '@/components/blog/SchemaMarkup';
 import { Helmet } from 'react-helmet';
-import { AuthorBio } from '@/components/blog/AuthorBio';
 import { SocialShare } from '@/components/blog/SocialShare';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { data: post, isLoading } = useBlogPost(slug || '');
-  const { data: author } = useBlogAuthor(post?.author_id || '');
+  
+  const author = post?.blog_authors;
 
   const handleBackClick = () => {
     // Check if the user came from /resources page
@@ -100,7 +100,7 @@ export default function BlogPost() {
 
         <article>
           <header className="mb-8">
-            <h1 className="text-4xl font-bold mb-4">{post.title}</h1>
+            <h1 className="text-4xl font-bold mb-6">{post.title}</h1>
             
             {post.excerpt && (
               <p className="text-xl text-muted-foreground mb-6">
@@ -108,7 +108,7 @@ export default function BlogPost() {
               </p>
             )}
 
-            <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+            <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-6">
               <div className="flex items-center gap-1">
                 <Calendar className="h-4 w-4" />
                 {post.published_at && format(new Date(post.published_at), 'MMMM d, yyyy')}
@@ -123,34 +123,106 @@ export default function BlogPost() {
               </div>
             </div>
 
+            {/* Author and Social Share Section */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 py-4 border-y">
+              {/* Author Info */}
+              {author && (
+                <div 
+                  className="flex items-center gap-3 cursor-pointer group"
+                  onClick={() => {
+                    const slug = author.author_slug || author.id;
+                    navigate(`/blog/author/${slug}`);
+                  }}
+                >
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src={author.avatar_url} alt={author.display_name} />
+                    <AvatarFallback>
+                      <User className="h-5 w-5" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-medium group-hover:text-primary transition-colors">
+                      {author.display_name}
+                    </p>
+                    {author.credentials && (
+                      <p className="text-sm text-muted-foreground line-clamp-1">
+                        {author.credentials}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Social Share - Inline */}
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-muted-foreground">Share:</span>
+                <SocialShare 
+                  title={post.title}
+                  url={`/blog/${post.slug}`}
+                  excerpt={post.excerpt || undefined}
+                  variant="icons-only"
+                />
+              </div>
+            </div>
+
             {post.focus_keyword && (
-              <div className="mt-4">
+              <div className="mt-6">
                 <Badge variant="secondary">{post.focus_keyword}</Badge>
               </div>
             )}
           </header>
 
-          <Separator className="mb-8" />
+          <Separator className="my-8" />
 
           <div className="prose prose-lg dark:prose-invert max-w-none mb-12">
             <ReactMarkdown>{post.content}</ReactMarkdown>
           </div>
 
-          {/* Author Bio */}
-          {author && (
-            <div className="mb-12">
-              <AuthorBio author={author} />
-            </div>
+          {/* Full Author Bio at Bottom */}
+          {author && author.bio && (
+            <>
+              <Separator className="my-8" />
+              <div className="mb-8">
+                <h3 className="text-xl font-semibold mb-4">About the Author</h3>
+                <div 
+                  className="flex gap-4 p-6 border rounded-lg bg-muted/30 cursor-pointer hover:bg-muted/50 transition-colors"
+                  onClick={() => {
+                    const slug = author.author_slug || author.id;
+                    navigate(`/blog/author/${slug}`);
+                  }}
+                >
+                  <Avatar className="h-16 w-16">
+                    <AvatarImage src={author.avatar_url} alt={author.display_name} />
+                    <AvatarFallback>
+                      <User className="h-8 w-8" />
+                    </AvatarFallback>
+                  </Avatar>
+                  
+                  <div className="flex-1 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-semibold text-lg hover:text-primary transition-colors">
+                        {author.display_name}
+                      </h4>
+                    </div>
+                    
+                    {author.credentials && (
+                      <p className="text-sm text-muted-foreground">{author.credentials}</p>
+                    )}
+                    
+                    <p className="text-sm leading-relaxed">
+                      {author.bio.length > 200 
+                        ? `${author.bio.substring(0, 200)}...` 
+                        : author.bio}
+                    </p>
+                    
+                    <Button variant="link" className="p-0 h-auto font-semibold">
+                      View all articles by {author.display_name} →
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </>
           )}
-
-          {/* Social Share */}
-          <div className="mb-12">
-            <SocialShare 
-              title={post.title}
-              url={`/blog/${post.slug}`}
-              excerpt={post.excerpt || undefined}
-            />
-          </div>
         </article>
 
         <Separator className="my-12" />

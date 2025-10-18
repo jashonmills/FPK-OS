@@ -1,14 +1,16 @@
 import { Button } from '@/components/ui/button';
 import { Twitter, Facebook, Linkedin, Mail, Link2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface SocialShareProps {
   title: string;
   url: string;
   excerpt?: string;
+  variant?: 'full' | 'icons-only';
 }
 
-export function SocialShare({ title, url, excerpt }: SocialShareProps) {
+export function SocialShare({ title, url, excerpt, variant = 'full' }: SocialShareProps) {
   const fullUrl = `https://fpkuniversity.com${url}`;
   const encodedTitle = encodeURIComponent(title);
   const encodedUrl = encodeURIComponent(fullUrl);
@@ -40,6 +42,84 @@ export function SocialShare({ title, url, excerpt }: SocialShareProps) {
   const handleShare = (platform: keyof typeof shareLinks) => {
     window.open(shareLinks[platform], '_blank', 'width=600,height=400');
   };
+
+  if (variant === 'icons-only') {
+    return (
+      <TooltipProvider>
+        <div className="flex gap-2">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => handleShare('twitter')}
+                className="h-8 w-8"
+              >
+                <Twitter className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Share on Twitter</TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => handleShare('facebook')}
+                className="h-8 w-8"
+              >
+                <Facebook className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Share on Facebook</TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => handleShare('linkedin')}
+                className="h-8 w-8"
+              >
+                <Linkedin className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Share on LinkedIn</TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => handleShare('email')}
+                className="h-8 w-8"
+              >
+                <Mail className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Share via Email</TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleCopyLink}
+                className="h-8 w-8"
+              >
+                <Link2 className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Copy Link</TooltipContent>
+          </Tooltip>
+        </div>
+      </TooltipProvider>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-3">
