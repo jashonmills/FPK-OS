@@ -123,7 +123,7 @@ For SEO/GEO/AIO optimization, ensure:
 5. Inline source citations [Source: Name]
 6. Related terms and synonyms throughout
 
-Return the response as a JSON object with:
+IMPORTANT: Return ONLY a valid JSON object. Do not include any markdown formatting, explanations, or text outside the JSON. The JSON must have this exact structure:
 {
   "title": "SEO-optimized title (50-60 chars)",
   "meta_title": "Meta title for search engines (50-60 chars)",
@@ -154,6 +154,8 @@ Generate a complete, publication-ready blog post following the guidelines above.
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt },
         ],
+        temperature: 0.7,
+        max_tokens: 3500,
       }),
     });
 
@@ -166,13 +168,35 @@ Generate a complete, publication-ready blog post following the guidelines above.
     const aiData = await aiResponse.json();
     let rawContent = aiData.choices[0].message.content;
     
-    // Extract JSON from markdown code blocks if present
+    console.log('Raw AI response length:', rawContent.length);
+    
+    // Try multiple extraction methods
+    let generatedContent;
+    
+    // Method 1: Try to extract from markdown code blocks
     const jsonMatch = rawContent.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);
     if (jsonMatch) {
+      console.log('Found JSON in markdown code block');
       rawContent = jsonMatch[1];
     }
     
-    const generatedContent = JSON.parse(rawContent);
+    // Method 2: Try to find JSON object boundaries
+    const firstBrace = rawContent.indexOf('{');
+    const lastBrace = rawContent.lastIndexOf('}');
+    if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+      rawContent = rawContent.substring(firstBrace, lastBrace + 1);
+    }
+    
+    // Clean up any remaining markdown or text before/after JSON
+    rawContent = rawContent.trim();
+    
+    try {
+      generatedContent = JSON.parse(rawContent);
+      console.log('Successfully parsed JSON response');
+    } catch (parseError) {
+      console.error('Failed to parse JSON. Raw content preview:', rawContent.substring(0, 500));
+      throw new Error(`Failed to parse AI response as JSON: ${parseError.message}`);
+    }
 
     // Get authenticated user
     const authHeader = req.headers.get('Authorization')!;

@@ -50,12 +50,18 @@ export function EnhancedAIBlogWizard({ open, onOpenChange }: EnhancedAIBlogWizar
     try {
       // Simulate progress steps
       setTimeout(() => setProgressStep('Searching knowledge base...'), 500);
-      setTimeout(() => setProgressStep('Analyzing relevant sources...'), 3000);
-      setTimeout(() => setProgressStep('Generating blog content...'), 8000);
-      setTimeout(() => setProgressStep('Optimizing for SEO...'), 15000);
-      setTimeout(() => setProgressStep('Finalizing draft...'), 25000);
+      setTimeout(() => setProgressStep('Analyzing relevant sources...'), 5000);
+      setTimeout(() => setProgressStep('Generating blog content...'), 15000);
+      setTimeout(() => setProgressStep('Optimizing for SEO...'), 35000);
+      setTimeout(() => setProgressStep('Finalizing draft...'), 55000);
 
-      const { data, error } = await supabase.functions.invoke('semantic-blog-generation', {
+      // Create a timeout promise that will reject after 90 seconds
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Request timed out after 90 seconds. Please try again with a simpler topic or without knowledge base integration.')), 90000)
+      );
+
+      // Create the generation request promise
+      const generatePromise = supabase.functions.invoke('semantic-blog-generation', {
         body: {
           topic,
           category_id: categoryId,
@@ -64,6 +70,16 @@ export function EnhancedAIBlogWizard({ open, onOpenChange }: EnhancedAIBlogWizar
           include_kb: includeKB,
         },
       });
+
+      // Race between the two promises
+      const result = await Promise.race([generatePromise, timeoutPromise]) as any;
+      
+      if (result.error) {
+        console.error('Generation error details:', result.error);
+        throw result.error;
+      }
+
+      const { data, error } = result;
 
       if (error) throw error;
 
@@ -81,9 +97,24 @@ export function EnhancedAIBlogWizard({ open, onOpenChange }: EnhancedAIBlogWizar
       onOpenChange(false);
     } catch (error) {
       console.error('Generation error:', error);
+      
+      let errorMessage = 'Failed to generate blog post. Please try again.';
+      
+      if (error instanceof Error) {
+        if (error.message.includes('timeout') || error.message.includes('timed out')) {
+          errorMessage = 'Request timed out. Try with a simpler topic or disable knowledge base integration.';
+        } else if (error.message.includes('handshake')) {
+          errorMessage = 'Connection error. The server may be overloaded. Please try again in a moment.';
+        } else if (error.message.includes('JSON')) {
+          errorMessage = 'Failed to process AI response. Please try again.';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
       toast({
         title: 'Generation failed',
-        description: error instanceof Error ? error.message : 'Edge Function returned a non-2xx status code',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {
@@ -237,7 +268,7 @@ export function EnhancedAIBlogWizard({ open, onOpenChange }: EnhancedAIBlogWizar
                   <div className="flex-1">
                     <p className="text-sm font-medium">{progressStep}</p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      This typically takes 30-60 seconds
+                      This can take 60-90 seconds for complex topics
                     </p>
                   </div>
                 </div>
