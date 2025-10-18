@@ -47,6 +47,9 @@ export default function Resources() {
   // Get the 5 most recent posts
   const recentPosts = posts?.slice(0, 5) || [];
   
+  // Get posts after the first 5 for "All Articles" section
+  const olderPosts = posts?.slice(5) || [];
+  
   // Filter posts based on search
   const filteredPosts = posts?.filter(post => {
     const matchesSearch = post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -206,12 +209,14 @@ export default function Resources() {
           </div>
         )}
 
-        <div>
-          <h2 className="text-2xl font-bold mb-6 bg-white/70 backdrop-blur-sm rounded-lg p-4">
-            {searchQuery || selectedCategory ? 'Search Results' : 'All Articles'}
-          </h2>
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {filteredPosts.map(post => (
+        {/* Only show All Articles section if there are more than 5 posts total, or if search/filter is active */}
+        {(searchQuery || selectedCategory || (posts && posts.length > 5)) && (
+          <div>
+            <h2 className="text-2xl font-bold mb-6 bg-white/70 backdrop-blur-sm rounded-lg p-4">
+              {searchQuery || selectedCategory ? 'Search Results' : 'All Articles'}
+            </h2>
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+              {(searchQuery || selectedCategory ? filteredPosts : olderPosts).map(post => (
               <Card 
                 key={post.id} 
                 className="cursor-pointer hover:shadow-lg transition-shadow bg-white/90 backdrop-blur-sm"
@@ -248,12 +253,13 @@ export default function Resources() {
             ))}
           </div>
 
-          {filteredPosts.length === 0 && (
-            <div className="text-center py-12 bg-white/70 backdrop-blur-sm rounded-lg">
-              <p className="text-muted-foreground">No articles found</p>
-            </div>
-          )}
-        </div>
+            {(searchQuery || selectedCategory ? filteredPosts : olderPosts).length === 0 && (
+              <div className="text-center py-12 bg-white/70 backdrop-blur-sm rounded-lg">
+                <p className="text-muted-foreground">No articles found</p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

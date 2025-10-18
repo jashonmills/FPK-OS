@@ -15,6 +15,15 @@ export default function BlogPost() {
   const navigate = useNavigate();
   const { data: post, isLoading } = useBlogPost(slug || '');
 
+  const handleBackClick = () => {
+    // Check if the user came from /resources page
+    if (document.referrer.includes('/resources')) {
+      navigate('/resources');
+    } else {
+      navigate('/blog');
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-12 max-w-4xl">
@@ -30,9 +39,9 @@ export default function BlogPost() {
     return (
       <div className="container mx-auto px-4 py-12 max-w-4xl text-center">
         <h1 className="text-2xl font-bold mb-4">Post not found</h1>
-        <Button onClick={() => navigate('/blog')}>
+        <Button onClick={handleBackClick}>
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Blog
+          Back to Resources
         </Button>
       </div>
     );
@@ -68,11 +77,11 @@ export default function BlogPost() {
         <div className="container mx-auto px-4 py-12 max-w-4xl">
         <Button 
           variant="ghost" 
-          onClick={() => navigate('/blog')}
+          onClick={handleBackClick}
           className="mb-8"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Blog
+          Back to Resources
         </Button>
 
         {post.featured_image_url && (
@@ -127,7 +136,7 @@ export default function BlogPost() {
         <Separator className="my-12" />
 
         <div className="flex justify-center">
-          <Button onClick={() => navigate('/blog')}>
+          <Button onClick={handleBackClick}>
             Read More Articles
           </Button>
         </div>
