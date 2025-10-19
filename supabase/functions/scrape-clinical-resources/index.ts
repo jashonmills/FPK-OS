@@ -280,7 +280,7 @@ serve(async (req) => {
                   title: title.substring(0, 500),
                   content,
                   source_name: resource.name,
-                  source_type: source_type === 'clinical' ? 'clinical_database' : source_type,
+                  source_type: source_type === 'clinical' ? 'clinical_resource' : source_type,
                   document_type: 'guideline',
                   source_url: resource.url,
                   focus_areas: ['clinical', 'special-education', 'neurodiversity'],
