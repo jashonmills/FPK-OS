@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { Search, Calendar, Clock, ArrowLeft, BookOpen, ChevronDown, PlayCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -200,43 +201,54 @@ export default function Resources() {
             <h2 className="text-2xl font-bold mb-6 bg-white/70 backdrop-blur-sm rounded-lg p-4">
               Latest Articles
             </h2>
-            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {recentPosts.map(post => (
-                <Card 
-                  key={post.id} 
-                  className="cursor-pointer hover:shadow-lg transition-shadow bg-white/90 backdrop-blur-sm"
-                  onClick={() => navigate(`/blog/${post.slug}`)}
-                >
-                  {post.featured_image_url && (
-                    <div className="relative h-48 w-full overflow-hidden rounded-t-lg">
-                      <img
-                        src={post.featured_image_url}
-                        alt={post.featured_image_alt || post.title}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                  )}
-                  <CardHeader>
-                    <CardTitle className="line-clamp-2">{post.title}</CardTitle>
-                    <CardDescription className="line-clamp-3">
-                      {post.excerpt || post.meta_description}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-4 w-4" />
-                        {post.published_at && format(new Date(post.published_at), 'MMM d, yyyy')}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Clock className="h-4 w-4" />
-                        {post.read_time_minutes} min read
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+            <Carousel
+              opts={{
+                align: 'start',
+                loop: false,
+              }}
+              className="w-full"
+            >
+              <CarouselContent className="-ml-4">
+                {recentPosts.map(post => (
+                  <CarouselItem key={post.id} className="pl-4 md:basis-1/2 lg:basis-1/3 xl:basis-1/5">
+                    <Card 
+                      className="cursor-pointer hover:shadow-lg transition-shadow bg-white/90 backdrop-blur-sm h-full"
+                      onClick={() => navigate(`/blog/${post.slug}`)}
+                    >
+                      {post.featured_image_url && (
+                        <div className="relative h-48 w-full overflow-hidden rounded-t-lg">
+                          <img
+                            src={post.featured_image_url}
+                            alt={post.featured_image_alt || post.title}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                      )}
+                      <CardHeader>
+                        <CardTitle className="line-clamp-2">{post.title}</CardTitle>
+                        <CardDescription className="line-clamp-3">
+                          {post.excerpt || post.meta_description}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                          <div className="flex items-center gap-1">
+                            <Calendar className="h-4 w-4" />
+                            {post.published_at && format(new Date(post.published_at), 'MMM d, yyyy')}
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Clock className="h-4 w-4" />
+                            {post.read_time_minutes} min read
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious />
+              <CarouselNext />
+            </Carousel>
           </div>
         )}
 
