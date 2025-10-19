@@ -11728,6 +11728,21 @@ export type Database = {
         Args: { p_org_id: string; p_tour_name: string; p_user_id: string }
         Returns: undefined
       }
+      match_kb_documents: {
+        Args: {
+          match_count: number
+          match_threshold: number
+          query_embedding: string
+        }
+        Returns: {
+          chunk_text: string
+          document_type: string
+          id: string
+          publication_date: string
+          similarity: number
+          source_name: string
+        }[]
+      }
       migrate_existing_scorm_lessons: {
         Args: Record<PropertyKey, never>
         Returns: undefined
