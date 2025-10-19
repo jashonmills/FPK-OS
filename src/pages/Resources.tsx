@@ -13,6 +13,7 @@ import { Helmet } from 'react-helmet';
 import { useToast } from '@/hooks/use-toast';
 import { PodcastVideoCarousel } from '@/components/resources/PodcastVideoCarousel';
 import { PartnerShowcase } from '@/components/resources/PartnerShowcase';
+import { AdditionalResourcesList } from '@/components/resources/AdditionalResourcesList';
 import { Handshake } from 'lucide-react';
 
 export default function Resources() {
@@ -290,6 +291,11 @@ export default function Resources() {
             )}
           </div>
         )}
+
+        {/* Additional Resources Section */}
+        <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-white/20">
+          <AdditionalResourcesList />
+        </div>
       </div>
     </div>
   );
