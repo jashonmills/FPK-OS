@@ -1909,31 +1909,6 @@ If they seem confused, provide clarification directly. Do NOT switch to Socratic
     
     // PHASE 5.2: Reuse existing conversation UUID (already fetched at line 1310)
     console.log('[CONDUCTOR] Using existing conversationUuid:', conversationUuid);
-      conversationUuid = convData.id;
-      console.log('[CONDUCTOR] ✅ Using existing conversation UUID:', conversationUuid);
-    } else {
-      // Create new conversation record
-      const { data: newConv, error: newConvError } = await supabaseClient
-        .from('phoenix_conversations')
-        .insert({
-          session_id: conversationId,
-          user_id: user.id,
-          metadata: {
-            socraticTurnCounter,
-            nextInterjectionPoint,
-            totalBettyTurns
-          }
-        })
-        .select('id')
-        .single();
-      
-      if (newConvError) {
-        console.error('[CONDUCTOR] ❌ Error creating conversation:', newConvError);
-      } else {
-        conversationUuid = newConv.id;
-        console.log('[CONDUCTOR] ✅ Created new conversation UUID:', conversationUuid);
-      }
-    }
     
     // ============================================
     // V2 DIALOGUE ENGINE: Feature-Flagged Co-Response with Claude + SSML
