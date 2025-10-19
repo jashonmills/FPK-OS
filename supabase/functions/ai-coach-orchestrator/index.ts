@@ -4,6 +4,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import Anthropic from "npm:@anthropic-ai/sdk@0.24.3";
 import { formatKnowledgePack } from './helpers/formatKnowledgePack.ts';
 import { retrieveRelevantKnowledge, formatKnowledgeForPrompt } from './helpers/ragRetrieval.ts';
+import { extractTopicKeywords } from './topic-extraction.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -1182,7 +1183,15 @@ serve(async (req) => {
   let userId: string | null = null;
 
   try {
-    console.log('[CONDUCTOR] Function invoked');
+    // ============ PHASE 1: REQUEST DEDUPLICATION TRACKING ============
+    const requestId = crypto.randomUUID().substring(0, 8);
+    const requestBody = await req.json();
+    const { message, conversationId, conversationHistory } = requestBody;
+    
+    console.log(`[CONDUCTOR-${requestId}] 🎬 Function invoked at:`, new Date().toISOString());
+    console.log(`[CONDUCTOR-${requestId}] 📥 Message received:`, message?.substring(0, 50) || 'NO MESSAGE');
+    console.log(`[CONDUCTOR-${requestId}] 🆔 Conversation ID:`, conversationId);
+    console.log(`[CONDUCTOR-${requestId}] 📚 History length:`, conversationHistory?.length || 0);
     
     // 🔬 PERFORMANCE TRACKING - Phase 1
     const perfStart = Date.now();
@@ -1822,7 +1831,60 @@ Include the time elapsed (${minutesAway} minutes) and the specific topic in your
       // For now, set Betty as the primary persona (we'll override later)
       systemPrompt = buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge);
       
-    } else if (detectedIntent === 'escape_hatch') {
+    } 
+    // ============ PHASE 3: PROACTIVE HANDOFF LOGIC ============
+    else if (!inBettySession && detectedIntent === 'request_for_information' && selectedPersona === 'AL') {
+      // Track consecutive informational turns on the same topic
+      const recentUserMessages = conversationHistory
+        .filter(m => m.persona === 'USER')
+        .slice(-3)
+        .map(m => m.content.toLowerCase());
+      
+      const recentAlResponses = conversationHistory
+        .filter(m => m.persona === 'AL')
+        .slice(-3);
+      
+      console.log('[PROACTIVE-HANDOFF] 🔍 Checking for handoff opportunity...');
+      console.log('[PROACTIVE-HANDOFF] Recent user messages:', recentUserMessages.length);
+      console.log('[PROACTIVE-HANDOFF] Recent Al responses:', recentAlResponses.length);
+      
+      // If Al has responded to 2+ consecutive informational requests
+      if (recentAlResponses.length >= 2) {
+        // Extract topic keywords from recent user messages
+        const topicKeywords = extractTopicKeywords(recentUserMessages);
+        console.log('[PROACTIVE-HANDOFF] 🏷️ Topic keywords detected:', topicKeywords);
+        
+        // Check if discussing the same topic (keyword overlap)
+        const hasSameTopic = topicKeywords.length > 0 && 
+          recentUserMessages.slice(-2).every(msg => 
+            topicKeywords.some(keyword => msg.includes(keyword))
+          );
+        
+        if (hasSameTopic) {
+          console.log('[PROACTIVE-HANDOFF] 🎯 Proactive handoff opportunity detected!');
+          console.log('[PROACTIVE-HANDOFF] 📚 Consistent topic:', topicKeywords[0]);
+          
+          // Inject proactive suggestion into Al's system prompt
+          systemPrompt = buildAlSystemPrompt(studentContext, userMemories, knowledgePack, retrievedKnowledge) + `\n\n---\n\n🎓 PROACTIVE LEARNING OPPORTUNITY 🎓
+
+The student has asked ${recentAlResponses.length} consecutive questions about "${topicKeywords[0]}". They are showing consistent interest in learning this topic.
+
+After answering their current question, append this suggestion:
+
+"You seem really interested in ${topicKeywords[0]}. Would you like to start a guided learning session with Betty to explore this topic more deeply? Just say 'teach me' or 'start a lesson' when you're ready."
+
+Make this feel natural and helpful, not pushy. The student should feel like you're being attentive to their learning needs.`;
+          
+          console.log('[PROACTIVE-HANDOFF] ✅ Suggestion injected into Al\'s prompt');
+        } else {
+          console.log('[PROACTIVE-HANDOFF] ⏭️ Different topics - no handoff suggested');
+        }
+      } else {
+        console.log('[PROACTIVE-HANDOFF] ⏭️ Not enough consecutive Al responses yet');
+      }
+    }
+    
+    else if (detectedIntent === 'escape_hatch') {
       // ⚠️ ESCAPE HATCH: Student explicitly rejected Socratic method
       selectedPersona = 'AL';
       systemPrompt = buildAlSystemPrompt(studentContext, userMemories, knowledgePack, retrievedKnowledge) + `\n\n---\n\nCRITICAL INSTRUCTION: The student has explicitly requested to EXIT the Socratic learning mode and wants a DIRECT ANSWER instead.

@@ -617,18 +617,29 @@ export default function PhoenixLab() {
   };
 
   const sendMessage = async (retryCount = 0): Promise<void> => {
+    // ============ PHASE 1: AGGRESSIVE DEBUG LOGGING ============
+    const sendAttemptId = crypto.randomUUID().substring(0, 8);
+    console.log(`[SEND-${sendAttemptId}] 🔍 Lock status BEFORE check:`, sendMessageLockRef.current);
+    console.log(`[SEND-${sendAttemptId}] 🔍 Input value:`, input);
+    console.log(`[SEND-${sendAttemptId}] 🔍 Loading status:`, loading);
+    
     // CRITICAL: Prevent duplicate sends with ref-based lock
     if (sendMessageLockRef.current || !input.trim() || loading) {
-      console.log('[PHOENIX] 🚫 Message send blocked - lock:', sendMessageLockRef.current, 'input:', !input.trim(), 'loading:', loading);
+      console.log(`[SEND-${sendAttemptId}] 🚫 Message send BLOCKED - lock:`, sendMessageLockRef.current, 'input:', !input.trim(), 'loading:', loading);
       return;
     }
 
+    console.log(`[SEND-${sendAttemptId}] ✅ Lock check passed - proceeding with send`);
+
     // Set lock immediately before any async operations
     sendMessageLockRef.current = true;
+    console.log(`[SEND-${sendAttemptId}] 🔒 Lock ENGAGED at:`, new Date().toISOString());
     
     setLoading(true);
     const userMessage = input.trim();
     setInput('');
+
+    console.log(`[SEND-${sendAttemptId}] 📝 Message to send:`, userMessage.substring(0, 50));
 
     // Add user message to UI immediately (optimistic UI)
     const tempUserMessage: Message = {
@@ -638,6 +649,7 @@ export default function PhoenixLab() {
       created_at: new Date().toISOString()
     };
     setMessages(prev => [...prev, tempUserMessage]);
+    console.log(`[SEND-${sendAttemptId}] ➕ User message added to UI with ID:`, tempUserMessage.id);
 
     // Add typing indicator
     const typingId = crypto.randomUUID();
