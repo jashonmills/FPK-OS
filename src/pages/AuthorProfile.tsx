@@ -106,37 +106,43 @@ export default function AuthorProfile() {
                   {author.social_links.twitter && (
                     <Button 
                       variant="outline" 
-                      size="sm" 
-                      asChild
+                      size="sm"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        window.open(author.social_links.twitter, '_blank', 'noopener,noreferrer');
+                      }}
                     >
-                      <a href={author.social_links.twitter} target="_blank" rel="noopener noreferrer">
-                        <Twitter className="h-4 w-4 mr-2" />
-                        Twitter
-                      </a>
+                      <Twitter className="h-4 w-4 mr-2" />
+                      Twitter
                     </Button>
                   )}
                   {author.social_links.linkedin && (
                     <Button 
                       variant="outline" 
-                      size="sm" 
-                      asChild
+                      size="sm"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        window.open(author.social_links.linkedin, '_blank', 'noopener,noreferrer');
+                      }}
                     >
-                      <a href={author.social_links.linkedin} target="_blank" rel="noopener noreferrer">
-                        <Linkedin className="h-4 w-4 mr-2" />
-                        LinkedIn
-                      </a>
+                      <Linkedin className="h-4 w-4 mr-2" />
+                      LinkedIn
                     </Button>
                   )}
                   {author.social_links.website && (
                     <Button 
                       variant="outline" 
-                      size="sm" 
-                      asChild
+                      size="sm"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        window.open(author.social_links.website, '_blank', 'noopener,noreferrer');
+                      }}
                     >
-                      <a href={author.social_links.website} target="_blank" rel="noopener noreferrer">
-                        <Globe className="h-4 w-4 mr-2" />
-                        Website
-                      </a>
+                      <Globe className="h-4 w-4 mr-2" />
+                      Website
                     </Button>
                   )}
                 </div>
