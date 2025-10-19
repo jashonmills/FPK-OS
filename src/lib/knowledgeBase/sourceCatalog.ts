@@ -32,6 +32,22 @@ export const KB_SOURCES: KBSourceCatalog = {
       description: 'AI-powered academic paper search',
       focusAreas: ['research', 'academic', 'scientific'],
       icon: 'GraduationCap'
+    },
+    {
+      name: 'ERIC',
+      baseUrl: 'https://eric.ed.gov',
+      requiresApiKey: false,
+      description: 'Education Resources Information Center - education research library',
+      focusAreas: ['education', 'research', 'academic'],
+      icon: 'BookOpen'
+    },
+    {
+      name: 'Google Scholar',
+      baseUrl: 'https://scholar.google.com',
+      requiresApiKey: false,
+      description: 'Scholarly literature search across disciplines',
+      focusAreas: ['research', 'academic', 'multidisciplinary'],
+      icon: 'Search'
     }
   ],
   clinical_resources: [
@@ -98,6 +114,54 @@ export const KB_SOURCES: KBSourceCatalog = {
       description: 'Council for Exceptional Children',
       focusAreas: ['special-education', 'teaching'],
       icon: 'Users'
+    },
+    {
+      name: 'British Dyslexia Association',
+      baseUrl: 'https://www.bdadyslexia.org.uk',
+      requiresApiKey: false,
+      description: 'UK\'s leading dyslexia organization - assessments and teaching strategies',
+      focusAreas: ['dyslexia', 'learning-disabilities', 'education'],
+      icon: 'BookMarked'
+    },
+    {
+      name: 'ADHD Foundation UK',
+      baseUrl: 'https://www.adhdfoundation.org.uk',
+      requiresApiKey: false,
+      description: 'Europe\'s largest ADHD charity - training and therapy models',
+      focusAreas: ['adhd', 'neurodiversity', 'support'],
+      icon: 'Zap'
+    },
+    {
+      name: 'ASHA',
+      baseUrl: 'https://www.asha.org',
+      requiresApiKey: false,
+      description: 'American Speech-Language-Hearing Association - communication disorders',
+      focusAreas: ['speech', 'language', 'communication'],
+      icon: 'MessageSquare'
+    },
+    {
+      name: 'WFOT',
+      baseUrl: 'https://www.wfot.org',
+      requiresApiKey: false,
+      description: 'World Federation of Occupational Therapists - sensory integration',
+      focusAreas: ['occupational-therapy', 'sensory', 'global'],
+      icon: 'Globe'
+    },
+    {
+      name: 'Hanen Centre',
+      baseUrl: 'https://www.hanen.org',
+      requiresApiKey: false,
+      description: 'Canadian leader in early childhood language intervention',
+      focusAreas: ['language', 'early-intervention', 'autism'],
+      icon: 'Baby'
+    },
+    {
+      name: 'Autism CRC',
+      baseUrl: 'https://www.autismcrc.com.au',
+      requiresApiKey: false,
+      description: 'Australia\'s autism research center - community-driven resources',
+      focusAreas: ['autism', 'research', 'community'],
+      icon: 'Building2'
     }
   ],
   institutional_resources: [
@@ -164,6 +228,38 @@ export const KB_SOURCES: KBSourceCatalog = {
       description: 'State-specific special education guidelines',
       focusAreas: ['policy', 'special-education', 'iep'],
       icon: 'MapPin'
+    },
+    {
+      name: 'NCSE Ireland',
+      baseUrl: 'https://ncse.ie',
+      requiresApiKey: false,
+      description: 'National Council for Special Education - Ireland\'s special education policy',
+      focusAreas: ['policy', 'special-education', 'ireland'],
+      icon: 'Flag'
+    },
+    {
+      name: 'AsIAm',
+      baseUrl: 'https://asiam.ie',
+      requiresApiKey: false,
+      description: 'Ireland\'s National Autism Charity - Irish autism advocacy',
+      focusAreas: ['autism', 'advocacy', 'ireland'],
+      icon: 'Heart'
+    },
+    {
+      name: 'LD OnLine',
+      baseUrl: 'https://www.ldonline.org',
+      requiresApiKey: false,
+      description: 'Comprehensive US resource on learning disabilities and ADHD',
+      focusAreas: ['learning-disabilities', 'adhd', 'education'],
+      icon: 'Library'
+    },
+    {
+      name: 'The Arc',
+      baseUrl: 'https://thearc.org',
+      requiresApiKey: false,
+      description: 'US advocacy for intellectual and developmental disabilities',
+      focusAreas: ['developmental-disabilities', 'advocacy', 'support'],
+      icon: 'Users2'
     }
   ],
   specialized_resources: [
@@ -198,6 +294,46 @@ export const KB_SOURCES: KBSourceCatalog = {
       description: 'Free educational resources from MIT',
       focusAreas: ['education', 'academic'],
       icon: 'GraduationCap'
+    },
+    {
+      name: 'ADDitude Magazine',
+      baseUrl: 'https://www.additudemag.com',
+      requiresApiKey: false,
+      description: 'Practical ADHD strategies and life hacks',
+      focusAreas: ['adhd', 'strategies', 'lifestyle'],
+      icon: 'Newspaper'
+    },
+    {
+      name: 'Zones of Regulation',
+      baseUrl: 'https://www.zonesofregulation.com',
+      requiresApiKey: false,
+      description: 'Self-regulation framework using color-coded zones',
+      focusAreas: ['self-regulation', 'emotions', 'curriculum'],
+      icon: 'Palette'
+    },
+    {
+      name: 'Lives in the Balance',
+      baseUrl: 'https://www.livesinthebalance.org',
+      requiresApiKey: false,
+      description: 'Ross Greene\'s Collaborative & Proactive Solutions (CPS) model',
+      focusAreas: ['behavior', 'cps', 'problem-solving'],
+      icon: 'Scale'
+    },
+    {
+      name: 'TEACCH',
+      baseUrl: 'https://teacch.com',
+      requiresApiKey: false,
+      description: 'Structured Teaching method for autism - visual supports',
+      focusAreas: ['autism', 'structured-teaching', 'visual-supports'],
+      icon: 'Layout'
+    },
+    {
+      name: 'Interoception Curriculum',
+      baseUrl: 'https://www.kelly-mahler.com',
+      requiresApiKey: false,
+      description: 'Kelly Mahler\'s interoception and self-regulation curriculum',
+      focusAreas: ['interoception', 'self-regulation', 'sensory'],
+      icon: 'Heart'
     }
   ]
 };
