@@ -6793,6 +6793,51 @@ export type Database = {
           },
         ]
       }
+      partner_resources: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string | null
+          description: string
+          display_order: number
+          id: string
+          is_active: boolean
+          logo_url: string
+          name: string
+          tagline: string
+          updated_at: string
+          website_url: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          logo_url: string
+          name: string
+          tagline: string
+          updated_at?: string
+          website_url: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          logo_url?: string
+          name?: string
+          tagline?: string
+          updated_at?: string
+          website_url?: string
+        }
+        Relationships: []
+      }
       phoenix_concept_prerequisites: {
         Row: {
           concept_id: string

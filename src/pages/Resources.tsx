@@ -12,6 +12,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Helmet } from 'react-helmet';
 import { useToast } from '@/hooks/use-toast';
 import { PodcastVideoCarousel } from '@/components/resources/PodcastVideoCarousel';
+import { PartnerShowcase } from '@/components/resources/PartnerShowcase';
+import { Handshake } from 'lucide-react';
 
 export default function Resources() {
   const navigate = useNavigate();
@@ -120,6 +122,22 @@ export default function Resources() {
             <h2 className="text-2xl font-bold">Latest from the FPK University Podcast</h2>
           </div>
           <PodcastVideoCarousel channelId="UCfvvsOo5ZSENykqNmX31JuQ" />
+        </div>
+
+        {/* Partner & Product Showcase */}
+        <div className="mb-8 bg-white/70 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-white/20">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-12 h-12 bg-purple-500/10 rounded-lg flex items-center justify-center">
+              <Handshake className="w-6 h-6 text-purple-600" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold">Trusted Partners & Recommended Tools</h2>
+              <p className="text-sm text-muted-foreground">
+                Products and services we believe in and recommend to our community
+              </p>
+            </div>
+          </div>
+          <PartnerShowcase />
         </div>
 
         <div className="mb-8 bg-white/50 backdrop-blur-sm rounded-lg p-4">

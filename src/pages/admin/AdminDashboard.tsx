@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
-import { Users, BookOpen, BarChart3, Settings, Database, Download, RefreshCw, CheckCircle, AlertTriangle, Building2, GraduationCap, TestTube, TrendingUp } from 'lucide-react';
+import { Users, BookOpen, BarChart3, Settings, Database, Download, RefreshCw, CheckCircle, AlertTriangle, Building2, GraduationCap, TestTube, TrendingUp, Handshake } from 'lucide-react';
 import { useQuickStats } from '@/hooks/useQuickStats';
 import { usePhoenixAnalytics } from '@/hooks/usePhoenixAnalytics';
 
@@ -64,6 +64,13 @@ const AdminDashboard = () => {
       icon: BarChart3,
       path: "/dashboard/admin/analytics",
       color: "text-pink-600"
+    },
+    {
+      title: "Partner Resources",
+      description: "Manage trusted partners and recommended tools",
+      icon: Handshake,
+      path: "/dashboard/admin/partners",
+      color: "text-purple-600"
     },
     {
       title: "Phoenix Lab",
