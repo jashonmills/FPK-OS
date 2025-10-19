@@ -1,7 +1,8 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AuthorsManager } from './AuthorsManager';
 import { PostsManager } from './PostsManager';
-import { Users, ArrowLeft, FileText } from 'lucide-react';
+import { PartnersManager } from './PartnersManager';
+import { Users, ArrowLeft, FileText, Handshake } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { TransparentTile } from '@/components/ui/transparent-tile';
@@ -34,6 +35,10 @@ export default function ContentManager() {
             <Users className="h-4 w-4 mr-2" />
             Authors
           </TabsTrigger>
+          <TabsTrigger value="partners">
+            <Handshake className="h-4 w-4 mr-2" />
+            Partners
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="posts">
@@ -42,6 +47,10 @@ export default function ContentManager() {
 
         <TabsContent value="authors">
           <AuthorsManager />
+        </TabsContent>
+
+        <TabsContent value="partners">
+          <PartnersManager />
         </TabsContent>
       </Tabs>
     </div>
