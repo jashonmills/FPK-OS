@@ -34,6 +34,7 @@ export interface BlogPost {
     avatar_url?: string;
     is_ai_author?: boolean;
   };
+  categories?: string[]; // Array of category IDs
 }
 
 export interface BlogCategory {
@@ -69,21 +70,31 @@ export function useBlogPosts(status?: string) {
 
       // Fetch authors separately
       const authorIds = [...new Set(posts?.map(p => p.author_id).filter(Boolean))];
-      if (authorIds.length === 0) return posts as BlogPost[];
+      
+      const authorsPromise = authorIds.length > 0 
+        ? supabase.from('blog_authors').select('*').in('id', authorIds)
+        : Promise.resolve({ data: [], error: null });
 
-      const { data: authors, error: authorsError } = await supabase
-        .from('blog_authors')
-        .select('*')
-        .in('id', authorIds);
+      // Fetch category relationships for all posts
+      const postIds = posts?.map(p => p.id) || [];
+      const categoriesPromise = postIds.length > 0
+        ? supabase.from('blog_post_categories').select('post_id, category_id').in('post_id', postIds)
+        : Promise.resolve({ data: [], error: null });
 
-      if (authorsError) throw authorsError;
+      const [authorsResult, categoriesResult] = await Promise.all([authorsPromise, categoriesPromise]);
 
-      // Combine posts with authors
+      if (authorsResult.error) throw authorsResult.error;
+      if (categoriesResult.error) throw categoriesResult.error;
+
+      // Combine posts with authors and categories
       const postsWithAuthors = posts?.map(post => ({
         ...post,
         blog_authors: post.author_id 
-          ? authors?.find(a => a.id === post.author_id) 
-          : undefined
+          ? authorsResult.data?.find(a => a.id === post.author_id) 
+          : undefined,
+        categories: categoriesResult.data
+          ?.filter(pc => pc.post_id === post.id)
+          .map(pc => pc.category_id) || []
       }));
 
       return postsWithAuthors as BlogPost[];
