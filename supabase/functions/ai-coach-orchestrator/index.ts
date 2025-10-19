@@ -2602,33 +2602,6 @@ Keep it under 100 words.`;
           // Store complete message in database
           // Reuse existing conversation UUID (already fetched at line 1310)
           console.log('[CONDUCTOR] Using conversationUuid for message storage:', conversationUuid);
-            const { data: newConv, error: createError } = await supabaseClient
-              .from('phoenix_conversations')
-              .insert({
-                user_id: user.id,
-                session_id: conversationId,
-                metadata: { 
-                  phase: 3,
-                  socraticTurnCounter,
-                  nextInterjectionPoint,
-                  totalBettyTurns,
-                  lastNiteOwlTurn,
-                  created_from: 'orchestrator'
-                }
-              })
-              .select('id')
-              .single();
-            
-            if (createError || !newConv) {
-              console.error('[CONDUCTOR] ❌ Failed to create conversation:', createError);
-            } else {
-              conversationUuid = newConv.id;
-              console.log('[CONDUCTOR] ✅ Conversation created:', conversationUuid);
-            }
-          } else {
-            conversationUuid = convData.id;
-            console.log('[CONDUCTOR] ✅ Found existing conversation:', conversationUuid);
-          }
           
           // Insert messages only if we have a valid conversation UUID
           if (conversationUuid) {
