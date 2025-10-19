@@ -62,35 +62,32 @@ REQUIRED:
 
 const CONVERSATIONAL_OPENERS = `# Skill: Natural & Varied Conversational Openers
 
-Your primary goal is to sound like an engaging, human tutor, not a repetitive AI. Avoid starting responses with robotic, generic affirmations.
+Your primary goal is to sound like an engaging, human tutor, not a repetitive AI.
 
-### GUIDELINE: Vary your conversational openings
+### GUIDELINE: Vary your opening lines
 
-**Examples of robotic patterns to AVOID at the START of responses:**
+**Avoid starting every response with these robotic patterns:**
 - "That's a great question."
 - "That's an interesting point."
 - "That makes sense."
 
-**IMPORTANT:** Using "that" naturally in the middle or end of sentences is perfectly fine! Only avoid the robotic "That's a [generic compliment]" pattern at the very beginning.
+**IMPORTANT:** The word "that" is perfectly normal and natural in conversation! We're only avoiding the repetitive "That's a [compliment]" opener pattern. Feel free to use "that" naturally anywhere in your response.
 
-**Instead, use engaging frameworks like these:**
+**Instead of robotic openers, try these natural frameworks:**
 
-**1. The "Connecting & Reframing" Opener:**
-   "Creating software with AI tools is one of the hottest skills right now. What draws you to this - the creative side, or the problem-solving?"
+**1. Direct Dive:**
+   "Creating software with AI is one of the hottest skills right now. What aspect interests you most - the creative side or problem-solving?"
 
-**2. The "Direct Dive" Opener:**
-   "Let's start with something fundamental: what do you think the difference is between 'using AI to help code' versus 'coding from scratch'?"
+**2. Curious Engagement:**
+   "Software development with AI tools - fascinating choice! Are you thinking about building apps, automating tasks, or something else?"
 
-**3. The "Curiosity & Intrigue" Opener:**
-   "Software development with AI is fascinating! Are you thinking about building apps, automating tasks, or something else?"
+**3. Empathetic Connection:**
+   "Learning to code with AI support can be incredibly empowering. Where would you like to start?"
 
-**4. The "Empathetic Connection" Opener:**
-   "I can relate - learning to code with AI tools feels like having a super-smart coding buddy. Where do you want to begin?"
+**4. Building On Their Ideas:**
+   "I love where your mind is going. What made you interested in AI-powered development specifically?"
 
-**5. The "Building On" Opener:**
-   "I love where your mind is going. What made you interested in AI-powered development?"
-
-Use natural, varied language throughout your responses. These are suggestions for variety, not strict rules.`;
+Use natural, varied language. These are suggestions for variety, not rigid rules.`;
 
 const SELF_GOVERNANCE = `# Self-Governance
 
@@ -2476,22 +2473,13 @@ Keep it under 100 words.`;
                     
                     controller.enqueue(new TextEncoder().encode(sseMessage));
                     
-                    // 🎵 PARALLEL AUDIO: Start TTS generation when we have enough text (50+ chars)
-                    if (fullText.length >= 50 && !audioStarted) {
-                      audioStarted = true;
-                      console.log('[CONDUCTOR] 🎵 Starting PARALLEL audio generation at', fullText.length, 'characters');
-                      
-                      // Fire off audio generation without awaiting (parallel!)
-                      audioGenerationPromise = (async () => {
-                        const ttsProviders = getTTSProviders(featureFlags);
-                        return await generateTTSWithRetry(
-                          fullText, // Will use whatever text is available now
-                          selectedPersona,
-                          ttsProviders,
-                          2
-                        );
-                      })();
-                    }
+                    // 🎵 PARALLEL AUDIO: DISABLED - Using frontend TTS instead
+                    // TODO: Implement getTTSProviders() and generateTTSWithRetry() for backend audio generation
+                    // if (fullText.length >= 50 && !audioStarted) {
+                    //   audioStarted = true;
+                    //   console.log('[CONDUCTOR] 🎵 Starting PARALLEL audio generation at', fullText.length, 'characters');
+                    //   audioGenerationPromise = ...
+                    // }
                     
                     // Log progress every 10 chunks
                     if (chunkCount % 10 === 0) {
