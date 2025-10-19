@@ -11661,7 +11661,6 @@ export type Database = {
       increment_blog_post_views: {
         Args: { post_slug: string }
         Returns: {
-          success: boolean
           views_count: number
         }[]
       }
