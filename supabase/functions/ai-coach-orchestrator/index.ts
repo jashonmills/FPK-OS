@@ -2103,9 +2103,9 @@ If they seem confused, provide clarification directly. Do NOT switch to Socratic
     // - Claude/SSML generation failed, OR
     // - Anthropic client not available
     
-    // PHASE 5.2: CO-RESPONSE MODE - Generate TWO responses (Al + Betty)
+    // PHASE 5.2: CO-RESPONSE MODE - Generate TWO responses with UNIFIED STREAMING
     if (isCoResponse) {
-      console.log('[CO-RESPONSE] 🤝 Generating dual response: Al validates + Betty deepens');
+      console.log('[CO-RESPONSE] 🤝 Generating dual response with STREAMING: Al validates + Betty deepens');
       
       // Get last Betty question and user's answer for context
       const lastBettyMessage = conversationHistory
@@ -2139,6 +2139,7 @@ Now it's your turn. Build on Al's validation to ask a deeper Socratic question t
 
 Keep it under 100 words.`;
 
+      // Stream Al's response first
       const alResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -2157,7 +2158,7 @@ Keep it under 100 words.`;
           ],
           temperature: 0.6,
           max_tokens: 200,
-          stream: false // Non-streaming for Co-Response
+          stream: true // NOW STREAMING!
         }),
       });
 
@@ -2166,82 +2167,159 @@ Keep it under 100 words.`;
         isCoResponse = false; // Fallback
       }
       
-      const alData = await alResponse.json();
-      const alValidationText = alData.choices?.[0]?.message?.content || '';
-      console.log('[CO-RESPONSE] ✅ Al validation generated:', alValidationText.substring(0, 80));
-      
-      // Generate Betty's follow-up with Al's validation as context
-      const bettyFollowUpPromptWithContext = bettyFollowUpPrompt.replace(
-        '[Will be inserted after Al responds]',
-        alValidationText
-      );
-      
-      const bettyResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'google/gemini-2.5-flash',
-          messages: [
-            { role: 'system', content: buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge) },
-            ...conversationHistory.slice(-5).map(msg => ({
-              role: msg.persona === 'USER' ? 'user' : 'assistant',
-              content: msg.content
-            })),
-            { role: 'assistant', content: alValidationText }, // Al's validation
-            { role: 'user', content: bettyFollowUpPromptWithContext }
-          ],
-          temperature: 0.8,
-          max_tokens: 300,
-          stream: false // Non-streaming for Co-Response
-        }),
-      });
-
-      if (!bettyResponse.ok) {
-        console.error('[CO-RESPONSE] Betty follow-up failed, falling back to normal mode');
-        isCoResponse = false; // Fallback
-      }
-      
-      const bettyData = await bettyResponse.json();
-      const bettyFollowUpText = bettyData.choices?.[0]?.message?.content || '';
-      console.log('[CO-RESPONSE] ✅ Betty follow-up generated:', bettyFollowUpText.substring(0, 80));
-      
-      // Create a special streaming response that sends both messages
+      // Create unified streaming response that streams both Al and Betty
       const coResponseStream = new ReadableStream({
         async start(controller) {
           try {
-            // Send Al's validation message
-            const alMessage = `data: ${JSON.stringify({
-              type: 'co_response_al',
+            // === STREAM AL'S VALIDATION ===
+            console.log('[CO-RESPONSE] 🎤 Streaming Al\'s validation...');
+            const alReader = alResponse.body?.getReader();
+            const decoder = new TextDecoder();
+            let alFullText = '';
+            let buffer = '';
+            
+            // Send marker that Al is starting
+            controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({
+              type: 'co_response_start',
               persona: 'AL',
-              content: alValidationText,
-              metadata: {
-                isCoResponse: true,
-                part: 1,
-                answerQuality: answerQualityScore
+              part: 1
+            })}\n\n`));
+            
+            while (true) {
+              const { done, value } = await alReader!.read();
+              if (done) break;
+              
+              const chunk = decoder.decode(value, { stream: true });
+              buffer += chunk;
+              
+              const lines = buffer.split('\n');
+              buffer = lines.pop() || '';
+              
+              for (const line of lines) {
+                if (line.trim() === '' || line.startsWith(':')) continue;
+                if (line.startsWith('data: ')) {
+                  const data = line.slice(6).trim();
+                  if (data === '[DONE]') continue;
+                  
+                  try {
+                    const parsed = JSON.parse(data);
+                    const content = parsed.choices?.[0]?.delta?.content;
+                    if (content) {
+                      alFullText += content;
+                      // Stream Al's chunk to client
+                      controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({
+                        type: 'chunk',
+                        persona: 'AL',
+                        content,
+                        metadata: { isCoResponse: true, part: 1 }
+                      })}\n\n`));
+                    }
+                  } catch (e) {
+                    // Skip malformed JSON
+                  }
+                }
               }
-            })}\n\n`;
-            controller.enqueue(new TextEncoder().encode(alMessage));
+            }
             
-            // Small delay for UX (so they appear sequentially)
-            await new Promise(resolve => setTimeout(resolve, 500));
+            console.log('[CO-RESPONSE] ✅ Al complete:', alFullText.substring(0, 80));
             
-            // Send Betty's follow-up message
-            const bettyMessage = `data: ${JSON.stringify({
-              type: 'co_response_betty',
+            // Send marker that Al is done
+            controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({
+              type: 'co_response_part_done',
+              persona: 'AL',
+              part: 1,
+              fullText: alFullText
+            })}\n\n`));
+            
+            // Small delay for UX
+            await new Promise(resolve => setTimeout(resolve, 800));
+            
+            // === STREAM BETTY'S FOLLOW-UP ===
+            console.log('[CO-RESPONSE] 🎤 Streaming Betty\'s follow-up...');
+            
+            const bettyFollowUpPromptWithContext = bettyFollowUpPrompt.replace(
+              '[Will be inserted after Al responds]',
+              alFullText
+            );
+            
+            const bettyResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                model: 'google/gemini-2.5-flash',
+                messages: [
+                  { role: 'system', content: buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge) },
+                  ...conversationHistory.slice(-5).map(msg => ({
+                    role: msg.persona === 'USER' ? 'user' : 'assistant',
+                    content: msg.content
+                  })),
+                  { role: 'assistant', content: alFullText },
+                  { role: 'user', content: bettyFollowUpPromptWithContext }
+                ],
+                temperature: 0.8,
+                max_tokens: 300,
+                stream: true // NOW STREAMING!
+              }),
+            });
+            
+            if (!bettyResponse.ok) {
+              throw new Error('Betty follow-up failed');
+            }
+            
+            const bettyReader = bettyResponse.body?.getReader();
+            let bettyFullText = '';
+            buffer = '';
+            
+            // Send marker that Betty is starting
+            controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({
+              type: 'co_response_start',
               persona: 'BETTY',
-              content: bettyFollowUpText,
-              metadata: {
-                isCoResponse: true,
-                part: 2
-              }
-            })}\n\n`;
-            controller.enqueue(new TextEncoder().encode(bettyMessage));
+              part: 2
+            })}\n\n`));
             
-            // Send completion
-            const doneMessage = `data: ${JSON.stringify({
+            while (true) {
+              const { done, value } = await bettyReader!.read();
+              if (done) break;
+              
+              const chunk = decoder.decode(value, { stream: true });
+              buffer += chunk;
+              
+              const lines = buffer.split('\n');
+              buffer = lines.pop() || '';
+              
+              for (const line of lines) {
+                if (line.trim() === '' || line.startsWith(':')) continue;
+                if (line.startsWith('data: ')) {
+                  const data = line.slice(6).trim();
+                  if (data === '[DONE]') continue;
+                  
+                  try {
+                    const parsed = JSON.parse(data);
+                    const content = parsed.choices?.[0]?.delta?.content;
+                    if (content) {
+                      bettyFullText += content;
+                      // Stream Betty's chunk to client
+                      controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({
+                        type: 'chunk',
+                        persona: 'BETTY',
+                        content,
+                        metadata: { isCoResponse: true, part: 2 }
+                      })}\n\n`));
+                    }
+                  } catch (e) {
+                    // Skip malformed JSON
+                  }
+                }
+              }
+            }
+            
+            console.log('[CO-RESPONSE] ✅ Betty complete:', bettyFullText.substring(0, 80));
+            
+            // Send final completion
+            controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({
               type: 'done',
               isCoResponse: true,
               metadata: {
@@ -2250,10 +2328,9 @@ Keep it under 100 words.`;
                 detectedIntent,
                 answerQualityScore
               }
-            })}\n\n`;
-            controller.enqueue(new TextEncoder().encode(doneMessage));
+            })}\n\n`));
             
-            console.log('[CO-RESPONSE] ✨ Socratic Sandwich delivered successfully');
+            console.log('[CO-RESPONSE] ✨ Streaming Socratic Sandwich delivered successfully');
             controller.close();
             
             // Store both messages in database
@@ -2262,7 +2339,7 @@ Keep it under 100 words.`;
                 {
                   conversation_id: conversationUuid,
                   persona: 'AL',
-                  content: alValidationText,
+                  content: alFullText,
                   metadata: {
                     isCoResponse: true,
                     part: 1,
@@ -2272,7 +2349,7 @@ Keep it under 100 words.`;
                 {
                   conversation_id: conversationUuid,
                   persona: 'BETTY',
-                  content: bettyFollowUpText,
+                  content: bettyFullText,
                   metadata: {
                     isCoResponse: true,
                     part: 2
@@ -2352,7 +2429,7 @@ Keep it under 100 words.`;
       isWelcomeBack
     };
 
-    // Return streaming response
+    // Return streaming response with PARALLEL audio generation
     const stream = new ReadableStream({
       async start(controller) {
         const reader = personaResponse.body?.getReader();
@@ -2360,6 +2437,8 @@ Keep it under 100 words.`;
         let fullText = '';
         let chunkCount = 0;
         let buffer = ''; // Buffer for incomplete JSON
+        let audioGenerationPromise: Promise<{ audioUrl: string | null; provider: string; audioFailed?: boolean }> | null = null;
+        let audioStarted = false;
 
         // Define governorResult with safe defaults BEFORE try block to avoid scope issues
         let governorResult = {
@@ -2384,7 +2463,7 @@ Keep it under 100 words.`;
           controller.enqueue(new TextEncoder().encode(thinkingEvent));
           console.log('[CONDUCTOR] ✅ Sent immediate "thinking" indicator to user');
           
-          console.log('[CONDUCTOR] Starting SSE stream...');
+          console.log('[CONDUCTOR] Starting SSE stream with PARALLEL audio generation...');
           
           while (true) {
             const { done, value } = await reader!.read();
@@ -2421,6 +2500,23 @@ Keep it under 100 words.`;
                     })}\n\n`;
                     
                     controller.enqueue(new TextEncoder().encode(sseMessage));
+                    
+                    // 🎵 PARALLEL AUDIO: Start TTS generation when we have enough text (50+ chars)
+                    if (fullText.length >= 50 && !audioStarted) {
+                      audioStarted = true;
+                      console.log('[CONDUCTOR] 🎵 Starting PARALLEL audio generation at', fullText.length, 'characters');
+                      
+                      // Fire off audio generation without awaiting (parallel!)
+                      audioGenerationPromise = (async () => {
+                        const ttsProviders = getTTSProviders(featureFlags);
+                        return await generateTTSWithRetry(
+                          fullText, // Will use whatever text is available now
+                          selectedPersona,
+                          ttsProviders,
+                          2
+                        );
+                      })();
+                    }
                     
                     // Log progress every 10 chunks
                     if (chunkCount % 10 === 0) {
@@ -2493,244 +2589,39 @@ Keep it under 100 words.`;
           console.log('[CONDUCTOR] 🛡️ Governor feature DISABLED - skipping quality checks');
         }
 
-          // Generate TTS Audio - Try ElevenLabs first, fallback to OpenAI
+          // 🎵 AWAIT PARALLEL AUDIO: Wait for TTS generation to complete
+          let audioUrl: string | null = null;
+          let audioProvider = 'none';
+          let audioFailed = false;
+          
+          if (audioGenerationPromise) {
+            console.log('[CONDUCTOR] 🎵 Awaiting parallel audio generation...');
+            try {
+              const audioResult = await audioGenerationPromise;
+              audioUrl = audioResult.audioUrl;
+              audioProvider = audioResult.provider;
+              audioFailed = audioResult.audioFailed || false;
+              console.log('[CONDUCTOR] ✅ Parallel audio completed:', audioProvider);
+            } catch (error) {
+              console.error('[CONDUCTOR] ❌ Parallel audio generation failed:', error);
+              audioFailed = true;
+            }
+          } else {
+            console.log('[CONDUCTOR] ⚠️ No parallel audio started (text too short?)');
+          }
+          
           // CRITICAL: Store text for TTS as immutable const to prevent corruption
           const textForTTS = finalText;
-          console.log('[CONDUCTOR] 🎵 Text to be sent to TTS (first 80 chars):', textForTTS.substring(0, 80));
-          console.log('[CONDUCTOR] 🎵 Text length for TTS:', textForTTS.length);
+          console.log('[CONDUCTOR] 🎵 Final text length:', textForTTS.length);
           console.log('[CONDUCTOR] 🎵 Target persona for TTS:', selectedPersona);
           
-          let audioUrl = null;
-          let ttsProvider = 'none';
-          
-          // Check if TTS feature is enabled
-          if (featureFlags['tts_audio']?.enabled) {
-            console.log('[CONDUCTOR] 🎵 TTS feature ENABLED - generating audio');
-            try {
-            // Feature flags for TTS providers (read from database with priority)
-            const { data: ttsFlags } = await supabaseClient
-              .from('phoenix_feature_flags')
-              .select('feature_name, is_enabled, priority')
-              .eq('is_enabled', true)
-              .like('feature_name', 'tts_provider_%');
-            
-            // Sort providers by priority (lower number = higher priority)
-            const sortedProviders = ttsFlags
-              ? ttsFlags.sort((a, b) => a.priority - b.priority).map(f => f.feature_name.replace('tts_provider_', ''))
-              : ['google', 'elevenlabs'];
-            
-            console.log('[CONDUCTOR] Enabled TTS Providers (by priority):', sortedProviders);
-            
-            const GOOGLE_TTS_KEY = Deno.env.get('GOOGLE_CLOUD_TTS_API_KEY');
-            const ELEVENLABS_API_KEY = Deno.env.get('ELEVENLABS_API_KEY');
-            const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
-            
-            if (textForTTS.length > 0) {
-              console.log('[CONDUCTOR] Generating TTS audio for completed response...');
-              
-              // Helper: Try TTS with exponential backoff retry
-              const attemptTTSWithRetry = async (providerName: string, maxRetries = 2): Promise<string | null> => {
-                for (let attempt = 0; attempt <= maxRetries; attempt++) {
-                  if (audioUrl) return audioUrl; // Exit if already generated
-                  
-                  if (attempt > 0) {
-                    const backoffMs = 1000 * Math.pow(2, attempt - 1);
-                    console.log(`[CONDUCTOR] Retry ${attempt}/${maxRetries} for ${providerName} after ${backoffMs}ms`);
-                    await new Promise(resolve => setTimeout(resolve, backoffMs));
-                  }
-                  
-                  console.log(`[CONDUCTOR] Attempting TTS via ${providerName} (attempt ${attempt + 1})`);
-                  
-                  // Try Google Cloud TTS
-                  if (providerName === 'google' && GOOGLE_TTS_KEY) {
-                try {
-                  const googleVoice = selectedPersona === 'BETTY' 
-                    ? 'en-US-Wavenet-F'
-                    : selectedPersona === 'NITE_OWL'
-                    ? 'en-US-Wavenet-J'
-                    : 'en-US-Wavenet-D';
-                  
-                  console.log(`[CONDUCTOR] 🎤 Calling Google TTS with voice ${googleVoice}`);
-                  
-                  const googleResponse = await fetch(
-                    `https://texttospeech.googleapis.com/v1/text:synthesize?key=${GOOGLE_TTS_KEY}`,
-                    {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        input: { text: textForTTS },
-                        voice: { languageCode: 'en-US', name: googleVoice },
-                        audioConfig: { audioEncoding: 'MP3', speakingRate: 1.0, pitch: 0 },
-                      }),
-                    }
-                  );
-                  
-                  if (googleResponse.ok) {
-                    const data = await googleResponse.json();
-                    if (data.audioContent) {
-                      const url = `data:audio/mpeg;base64,${data.audioContent}`;
-                      ttsProvider = 'google';
-                      console.log('[CONDUCTOR] ✅ TTS audio generated successfully via Google Cloud');
-                      console.log('[CONDUCTOR] 🔍 Audio generated for text (first 80):', textForTTS.substring(0, 80));
-                      return url; // Success - return immediately
-                    }
-                  } else {
-                    console.error('[CONDUCTOR] ❌ Google TTS request failed:', googleResponse.statusText);
-                    if (attempt === maxRetries) throw new Error('Google TTS failed');
-                  }
-                } catch (googleError) {
-                  console.error('[CONDUCTOR] ❌ Google TTS exception:', googleError);
-                  if (attempt === maxRetries) throw googleError;
-                }
-              }
-              
-              // Try ElevenLabs
-              if (providerName === 'elevenlabs' && ELEVENLABS_API_KEY) {
-                try {
-                  // Voice mapping: Betty = custom voice, Al = custom voice, Nite Owl = custom voice
-                  const voiceId = selectedPersona === 'BETTY' 
-                    ? 'uYXf8XasLslADfZ2MB4u' 
-                    : selectedPersona === 'NITE_OWL'
-                    ? 'wo6udizrrtpIxWGp2qJk'
-                    : 'wo6udizrrtpIxWGp2qJk';
-                  
-                  console.log(`[CONDUCTOR] 🎤 Calling ElevenLabs with voice ${voiceId}`);
-                  
-                  const elevenLabsResponse = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
-                    method: 'POST',
-                    headers: {
-                      'xi-api-key': ELEVENLABS_API_KEY,
-                      'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                      text: textForTTS,
-                      model_id: 'eleven_turbo_v2_5',
-                      voice_settings: {
-                        stability: selectedPersona === 'BETTY' ? 0.6 : 0.7,
-                        similarity_boost: 0.8,
-                        style: selectedPersona === 'BETTY' ? 0.4 : 0.2
-                      }
-                    }),
-                  });
-
-                  if (elevenLabsResponse.ok) {
-                    const audioBuffer = await elevenLabsResponse.arrayBuffer();
-                    
-                    // Convert to base64 safely without stack overflow
-                    const uint8Array = new Uint8Array(audioBuffer);
-                    let binaryString = '';
-                    
-                    // Process byte by byte to avoid any apply() stack issues
-                    for (let i = 0; i < uint8Array.length; i++) {
-                      binaryString += String.fromCharCode(uint8Array[i]);
-                    }
-                    
-                    const base64Audio = btoa(binaryString);
-                    const url = `data:audio/mpeg;base64,${base64Audio}`;
-                    ttsProvider = 'elevenlabs';
-                    console.log('[CONDUCTOR] ✅ TTS audio generated successfully via ElevenLabs');
-                    console.log('[CONDUCTOR] 🔍 Audio generated for text (first 80):', textForTTS.substring(0, 80));
-                    return url; // Success
-                  } else {
-                    const errorText = await elevenLabsResponse.text();
-                    console.error('[CONDUCTOR] ❌ ElevenLabs TTS failed:', errorText);
-                    if (attempt === maxRetries) throw new Error('ElevenLabs TTS failed');
-                  }
-                } catch (elevenLabsError) {
-                  console.error('[CONDUCTOR] ❌ ElevenLabs exception:', elevenLabsError);
-                  if (attempt === maxRetries) throw elevenLabsError;
-                }
-              }
-              
-              // Try OpenAI TTS
-              if (providerName === 'openai' && OPENAI_API_KEY) {
-                try {
-                  const voice = selectedPersona === 'BETTY' 
-                    ? 'nova' 
-                    : selectedPersona === 'NITE_OWL'
-                    ? 'shimmer'
-                    : 'onyx';
-                  
-                  console.log(`[CONDUCTOR] 🎤 Attempting OpenAI TTS with voice ${voice}`);
-                  
-                  const openAIResponse = await fetch('https://api.openai.com/v1/audio/speech', {
-                    method: 'POST',
-                    headers: {
-                      'Authorization': `Bearer ${OPENAI_API_KEY}`,
-                      'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                      model: 'tts-1',
-                      input: textForTTS,
-                      voice: voice,
-                      response_format: 'mp3',
-                    }),
-                  });
-
-                  if (openAIResponse.ok) {
-                    const audioBuffer = await openAIResponse.arrayBuffer();
-                    
-                    // Convert to base64 safely without stack overflow
-                    const uint8Array = new Uint8Array(audioBuffer);
-                    let binaryString = '';
-                    
-                    // Process byte by byte to avoid any apply() stack issues
-                    for (let i = 0; i < uint8Array.length; i++) {
-                      binaryString += String.fromCharCode(uint8Array[i]);
-                    }
-                    
-                    const base64Audio = btoa(binaryString);
-                    const url = `data:audio/mpeg;base64,${base64Audio}`;
-                    ttsProvider = 'openai';
-                    console.log('[CONDUCTOR] ✅ TTS audio generated successfully via OpenAI');
-                    console.log('[CONDUCTOR] 🔍 Audio generated for text (first 80):', textForTTS.substring(0, 80));
-                    return url; // Success
-                  } else {
-                    const errorText = await openAIResponse.text();
-                    console.error('[CONDUCTOR] ❌ OpenAI TTS failed:', errorText);
-                    if (attempt === maxRetries) throw new Error('OpenAI TTS failed');
-                  }
-                } catch (openAIError) {
-                  console.error('[CONDUCTOR] ❌ OpenAI TTS exception:', openAIError);
-                  if (attempt === maxRetries) throw openAIError;
-                }
-              }
-              
-              return null; // No provider succeeded
-            }; // End attemptTTSWithRetry
-            
-            // Try each provider with retry logic
-            for (const providerName of sortedProviders) {
-              audioUrl = await attemptTTSWithRetry(providerName, 2);
-              if (audioUrl) {
-                console.log(`[CONDUCTOR] ✅ Successfully generated audio via ${providerName}`);
-                break;
-              }
-            }
-            
-            // Check if all providers failed
-            if (!audioUrl) {
-              console.error('[CONDUCTOR] ❌ ALL TTS providers failed - will notify frontend');
-              ttsProvider = 'all_failed';
-            }
-            } else {
-              console.warn('[CONDUCTOR] ⚠️ No text to generate audio for (empty finalText)');
-            }
-          } catch (ttsError) {
-            console.error('[CONDUCTOR] ❌ TTS generation failed completely:', ttsError);
-            console.error('[CONDUCTOR] ❌ Text that failed TTS (first 80):', textForTTS.substring(0, 80));
-            // Audio will be null, but we'll still send the text response
-            ttsProvider = 'all_failed';
-          }
-          
-          // Log final TTS status
+          // Audio already generated in parallel - log final status
           if (!audioUrl) {
             console.warn('[CONDUCTOR] ⚠️ No audio available - text-only response will be sent');
+          } else {
+            console.log('[CONDUCTOR] ✅ Audio generated via', audioProvider);
           }
-        } else {
-          console.log('[CONDUCTOR] 🔇 TTS feature DISABLED - skipping audio generation');
-          ttsProvider = 'disabled';
-        }
+          const ttsProvider = audioProvider; // For backward compatibility with logging
           
           // CRITICAL SANITY CHECK: Verify text-audio alignment
           console.log('[CONDUCTOR] 🔍 SANITY CHECK - Text vs Audio alignment:');
