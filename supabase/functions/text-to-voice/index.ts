@@ -38,7 +38,10 @@ serve(async (req) => {
     if (!response.ok) {
       let errorMessage = 'Failed to generate speech';
       try {
-        const error = await response.json();
+        // Limit error response size to prevent stack overflow
+        const errorText = await response.text();
+        const truncatedError = errorText.substring(0, 500);
+        const error = JSON.parse(truncatedError);
         console.error('OpenAI TTS error:', error);
         errorMessage = error.error?.message || errorMessage;
       } catch (parseError) {
@@ -48,11 +51,18 @@ serve(async (req) => {
       throw new Error(errorMessage);
     }
 
-    // Convert audio buffer to base64
+    // Convert audio buffer to base64 using chunked processing to prevent stack overflow
     const arrayBuffer = await response.arrayBuffer()
-    const base64Audio = btoa(
-      String.fromCharCode(...new Uint8Array(arrayBuffer))
-    )
+    const bytes = new Uint8Array(arrayBuffer)
+    
+    // Process in chunks to avoid stack overflow with large arrays
+    const chunkSize = 32768 // 32KB chunks
+    let base64Audio = ''
+    
+    for (let i = 0; i < bytes.length; i += chunkSize) {
+      const chunk = bytes.subarray(i, Math.min(i + chunkSize, bytes.length))
+      base64Audio += btoa(String.fromCharCode(...Array.from(chunk)))
+    }
 
     console.log('Speech generation successful')
 

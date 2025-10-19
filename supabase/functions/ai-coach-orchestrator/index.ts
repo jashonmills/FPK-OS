@@ -1907,17 +1907,8 @@ If they seem confused, provide clarification directly. Do NOT switch to Socratic
     // 10. Generate AI Response with Appropriate Persona
     console.log('[CONDUCTOR] Generating response with', selectedPersona, 'persona...');
     
-    // PHASE 5.2: Fetch conversation UUID early (needed for co-response and normal modes)
-    let conversationUuid: string | undefined;
-    const { data: convData, error: convError } = await supabaseClient
-      .from('phoenix_conversations')
-      .select('id')
-      .eq('session_id', conversationId)
-      .maybeSingle();
-    
-    if (convError) {
-      console.error('[CONDUCTOR] ❌ Error fetching conversation:', convError);
-    } else if (convData) {
+    // PHASE 5.2: Reuse existing conversation UUID (already fetched at line 1310)
+    console.log('[CONDUCTOR] Using existing conversationUuid:', conversationUuid);
       conversationUuid = convData.id;
       console.log('[CONDUCTOR] ✅ Using existing conversation UUID:', conversationUuid);
     } else {
@@ -2634,20 +2625,8 @@ Keep it under 100 words.`;
           }
 
           // Store complete message in database
-          // CRITICAL: Get the UUID id from phoenix_conversations table, or create if doesn't exist
-          let conversationUuid: string | undefined;
-          
-          const { data: convData, error: convError } = await supabaseClient
-            .from('phoenix_conversations')
-            .select('id')
-            .eq('session_id', conversationId)
-            .maybeSingle();
-          
-          if (convError) {
-            console.error('[CONDUCTOR] ❌ Error fetching conversation:', convError);
-          } else if (!convData) {
-            // Conversation doesn't exist, create it
-            console.log('[CONDUCTOR] 📝 Creating new conversation record');
+          // Reuse existing conversation UUID (already fetched at line 1310)
+          console.log('[CONDUCTOR] Using conversationUuid for message storage:', conversationUuid);
             const { data: newConv, error: createError } = await supabaseClient
               .from('phoenix_conversations')
               .insert({
