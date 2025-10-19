@@ -24,6 +24,9 @@ import { IntentAccuracyChart } from '@/components/admin/phoenix-analytics/Intent
 import { FeatureFlagTelemetry } from '@/components/admin/phoenix-analytics/FeatureFlagTelemetry';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
+const SUPABASE_URL = "https://zgcegkmqfgznbpdplscz.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpnY2Vna21xZmd6bmJwZHBsc2N6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MDcxNTgsImV4cCI6MjA2NDk4MzE1OH0.RCtAqfgz7aqjG-QWiOqFBCG5xg2Rok9T4tbyGQMnCm8";
+
 interface Message {
   id: string;
   persona: 'USER' | 'BETTY' | 'AL' | 'CONDUCTOR' | 'NITE_OWL';
@@ -121,7 +124,7 @@ export default function PhoenixLab() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [conversationId] = useState(() => crypto.randomUUID());
+  const [conversationId, setConversationId] = useState(() => crypto.randomUUID());
   const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState<any>(null);
   const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
@@ -551,14 +554,22 @@ export default function PhoenixLab() {
     }]);
 
     try {
-      // Call the Conductor edge function with streaming
+      // Get auth session
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('No active session');
+      }
+
+      // Call the orchestrator edge function with streaming using direct fetch
+      // (supabase.functions.invoke doesn't support streaming yet)
       const response = await fetch(
-        `https://zgcegkmqfgznbpdplscz.supabase.co/functions/v1/ai-coach-orchestrator`,
+        `${SUPABASE_URL}/functions/v1/ai-coach-orchestrator`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+            'Authorization': `Bearer ${session.access_token}`,
+            'apikey': SUPABASE_ANON_KEY
           },
           body: JSON.stringify({
             message: userMessage,
@@ -1207,6 +1218,13 @@ export default function PhoenixLab() {
     setLoading(false);
     setSpeakingMessageId(null);
     setIsGeneratingAudio(false);
+    
+    // Generate new conversation ID for fresh session
+    const newConversationId = crypto.randomUUID();
+    setConversationId(newConversationId);
+    
+    // Small delay to ensure state is cleared
+    await new Promise(resolve => setTimeout(resolve, 100));
     
     // Reinitialize conversation with welcome messages
     // (will now work because hasWelcomePlayed is false)
