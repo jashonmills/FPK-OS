@@ -230,7 +230,7 @@ Research Context (use ONLY this information):
 ${researchContext.substring(0, 20000)} // Limit to ~20k chars
 
 Requirements:
-1. Write in full Markdown format
+1. Write the COMPLETE blog post in full Markdown format - DO NOT stop mid-sentence or mid-section
 2. Use proper heading hierarchy (## for H2, ### for H3)
 3. Naturally integrate the keyword "${keyword}" and related terms (aim for 1-2% density)
 4. Include specific, actionable advice
@@ -240,6 +240,7 @@ Requirements:
 8. Use bullet points and numbered lists where appropriate
 9. Add emphasis with **bold** for key terms (sparingly)
 10. Maintain empathetic, strength-based language throughout
+11. CRITICAL: Complete ALL sections from the outline - do not end prematurely
 
 Do NOT include:
 - Formal citations or references section
@@ -265,6 +266,8 @@ META_DESCRIPTION: [compelling description under 160 characters including keyword
           { role: 'system', content: DRAFT_SYSTEM_PROMPT },
           { role: 'user', content: userPrompt }
         ],
+        max_tokens: 8000,
+        temperature: 0.7,
       }),
     });
 
@@ -274,6 +277,14 @@ META_DESCRIPTION: [compelling description under 160 characters including keyword
 
     const aiData = await aiResponse.json();
     const fullResponse = aiData.choices[0].message.content;
+    
+    console.log('AI response finish reason:', aiData.choices[0].finish_reason);
+    
+    // Check if response was truncated
+    if (aiData.choices[0].finish_reason === 'length') {
+      console.warn('WARNING: AI response was truncated due to length limit');
+      throw new Error('Blog post generation was incomplete. Please try again or reduce the outline complexity.');
+    }
     
     // Parse response
     const metaTitleMatch = fullResponse.match(/META_TITLE:\s*(.+)/);
