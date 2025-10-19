@@ -51,20 +51,16 @@ serve(async (req) => {
       throw new Error(errorMessage);
     }
 
-    // Convert audio buffer to base64 using chunked processing to prevent stack overflow
+    // Convert audio buffer to base64 - use standard approach without chunking for reliability
     const arrayBuffer = await response.arrayBuffer()
     const bytes = new Uint8Array(arrayBuffer)
     
-    // Process in chunks to avoid stack overflow with large arrays
-    const chunkSize = 32768 // 32KB chunks
-    let base64Audio = ''
-    
-    for (let i = 0; i < bytes.length; i += chunkSize) {
-      const chunk = bytes.subarray(i, Math.min(i + chunkSize, bytes.length))
-      base64Audio += btoa(String.fromCharCode(...Array.from(chunk)))
-    }
+    // Convert to base64 in one go for smaller audio files (TTS typically < 1MB)
+    // This avoids character encoding issues from chunked processing
+    const binaryString = Array.from(bytes, byte => String.fromCharCode(byte)).join('');
+    const base64Audio = btoa(binaryString);
 
-    console.log('Speech generation successful')
+    console.log('Speech generation successful, audio size:', bytes.length, 'bytes')
 
     return new Response(
       JSON.stringify({ audioContent: base64Audio }),

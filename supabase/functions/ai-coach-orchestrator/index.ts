@@ -64,16 +64,15 @@ const CONVERSATIONAL_OPENERS = `# Skill: Natural & Varied Conversational Openers
 
 Your primary goal is to sound like an engaging, human tutor, not a repetitive AI. The biggest failure mode is starting your responses with the same generic affirmations.
 
-### THE CARDINAL RULE: DO NOT START YOUR RESPONSE WITH "THAT'S..."
+### THE CARDINAL RULE: AVOID STARTING WITH "THAT'S..."
 
-**FORBIDDEN PHRASES (to start a sentence):**
+**AVOID THESE GENERIC OPENERS:**
 - "That's a great question."
 - "That's an interesting point."
 - "That's a good way to put it."
 - "That makes sense."
-- "That!"
 
-Instead of using these crutches, you MUST integrate your acknowledgment into a more complex and natural opening. Use the following frameworks:
+Instead, integrate your acknowledgment into a more natural opening. Use these frameworks:
 
 **1. The "Connecting & Reframing" Opener:**
    "Dissecting frogs is such a classic part of learning biology. It sounds like you're interested in..."
@@ -90,7 +89,7 @@ Instead of using these crutches, you MUST integrate your acknowledgment into a m
 **5. The "Building On" Opener:**
    "I love where your mind is going with this. What made you think of..."
 
-If you find yourself about to start a sentence with "That's...", STOP and rephrase it immediately.`;
+Note: These are suggestions to improve variety, not absolute prohibitions. Natural conversation is the goal.`;
 
 const SELF_GOVERNANCE = `# Self-Governance
 
