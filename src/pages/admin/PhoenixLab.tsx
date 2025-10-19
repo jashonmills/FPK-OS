@@ -524,7 +524,7 @@ export default function PhoenixLab() {
     }
   };
 
-  const sendMessage = async () => {
+  const sendMessage = async (retryCount = 0): Promise<void> => {
     if (!input.trim() || loading) return;
 
     setLoading(true);
@@ -579,6 +579,16 @@ export default function PhoenixLab() {
       if (!response.ok) {
         const errorText = await response.text();
         console.error('[PHOENIX] Response error:', response.status, errorText);
+        
+        // Retry logic for network errors
+        if (retryCount < 3 && (response.status >= 500 || response.status === 429)) {
+          console.warn(`[PHOENIX] Retry attempt ${retryCount + 1}/3 after ${response.status} error`);
+          await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1)));
+          setLoading(false);
+          setInput(userMessage); // Restore input
+          return sendMessage(retryCount + 1);
+        }
+        
         throw new Error(`Server error: ${response.status}`);
       }
 
@@ -1619,7 +1629,7 @@ export default function PhoenixLab() {
                 </Button>
               </div>
               <Button
-                onClick={sendMessage}
+                onClick={() => sendMessage()}
                 disabled={!input.trim() || loading}
                 className="w-full"
               >

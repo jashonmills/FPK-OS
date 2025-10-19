@@ -3,6 +3,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import Anthropic from "npm:@anthropic-ai/sdk@0.24.3";
 import { formatKnowledgePack } from './helpers/formatKnowledgePack.ts';
+import { retrieveRelevantKnowledge, formatKnowledgeForPrompt } from './helpers/ragRetrieval.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -287,7 +288,7 @@ Rules:
 const MODULE_SEPARATOR = '\n\n---\n\n';
 
 // Prompt assembly functions
-function buildBettySystemPrompt(memories?: any[], knowledgePack?: any): string {
+function buildBettySystemPrompt(memories?: any[], knowledgePack?: any, ragKnowledge?: any[]): string {
   const modules = [
     NO_META_REASONING,
     SELF_GOVERNANCE,
@@ -301,6 +302,20 @@ function buildBettySystemPrompt(memories?: any[], knowledgePack?: any): string {
   ];
   
   let prompt = modules.join(MODULE_SEPARATOR);
+  
+  // Inject RAG Knowledge if available
+  if (ragKnowledge && ragKnowledge.length > 0) {
+    const knowledgeSection = formatKnowledgeForPrompt(ragKnowledge);
+    prompt += `\n\n${MODULE_SEPARATOR}\n# Evidence-Based Teaching Context
+
+You have access to peer-reviewed research and clinical guidelines. When relevant:
+- Reference research findings naturally: "Research shows that..."
+- Cite guidelines when appropriate: "According to [source]..."
+- Use evidence to guide your Socratic questions
+- Don't overwhelm - weave in research subtly
+
+${knowledgeSection}`;
+  }
   
   // Inject Student Knowledge Pack if available
   if (knowledgePack) {
@@ -561,7 +576,7 @@ function buildNiteOwlSystemPrompt(knowledgePack?: any): string {
   return prompt;
 }
 
-function buildAlSystemPrompt(studentContext?: any, memories?: any[], knowledgePack?: any): string {
+function buildAlSystemPrompt(studentContext?: any, memories?: any[], knowledgePack?: any, ragKnowledge?: any[]): string {
   const modules = [
     NO_META_REASONING,
     SELF_GOVERNANCE,
@@ -575,6 +590,23 @@ function buildAlSystemPrompt(studentContext?: any, memories?: any[], knowledgePa
   ];
   
   let prompt = modules.join(MODULE_SEPARATOR);
+  
+  // Inject RAG Knowledge if available
+  if (ragKnowledge && ragKnowledge.length > 0) {
+    const knowledgeSection = formatKnowledgeForPrompt(ragKnowledge);
+    prompt += `\n\n${MODULE_SEPARATOR}\n# Research-Backed Answers
+
+When answering, you can reference:
+- Academic research papers
+- Clinical guidelines
+- Evidence-based practices
+
+Format citations naturally:
+"According to research from [source], [fact]..."
+"Clinical guidelines from [source] recommend..."
+
+${knowledgeSection}`;
+  }
   
   // Inject Student Knowledge Pack if available (PRIORITY: This is more comprehensive than studentContext)
   if (knowledgePack) {
@@ -1227,6 +1259,33 @@ serve(async (req) => {
     timings.context_loading = Date.now() - contextLoadStart;
     console.log(`[PERF] Context loading: ${timings.context_loading}ms`);
 
+    // 🔍 RAG: RETRIEVE RELEVANT KNOWLEDGE FROM KNOWLEDGE BASE
+    let retrievedKnowledge: any[] = [];
+    if (featureFlags['rag_knowledge_base']?.enabled) {
+      console.log('[CONDUCTOR] 🔍 RAG enabled - retrieving relevant knowledge from KB...');
+      const ragStart = Date.now();
+      
+      try {
+        retrievedKnowledge = await retrieveRelevantKnowledge(
+          message,
+          conversationHistory,
+          supabaseClient,
+          LOVABLE_API_KEY
+        );
+        
+        timings.rag_retrieval = Date.now() - ragStart;
+        console.log(`[PERF] RAG retrieval: ${timings.rag_retrieval}ms`);
+        console.log(`[RAG] ✅ Found ${retrievedKnowledge.length} relevant sources`);
+        
+        if (retrievedKnowledge.length > 0) {
+          console.log('[RAG] Top source:', retrievedKnowledge[0].source);
+        }
+      } catch (ragError) {
+        console.error('[RAG] ❌ Retrieval failed (non-blocking):', ragError);
+        // Continue without RAG data
+      }
+    }
+
     // 2. Verify admin status
     const { data: roles } = await supabaseClient
       .from('user_roles')
@@ -1247,7 +1306,38 @@ serve(async (req) => {
       historyLength: conversationHistory.length
     });
 
-    // 3a. Check/Initialize session state for Nite Owl triggering
+    // 3a. Ensure conversation UUID exists BEFORE any message storage
+    let conversationUuid: string | null = null;
+    
+    const { data: existingConv } = await supabaseClient
+      .from('phoenix_conversations')
+      .select('id')
+      .eq('session_id', conversationId)
+      .maybeSingle();
+
+    if (existingConv) {
+      conversationUuid = existingConv.id;
+      console.log('[CONDUCTOR] ✅ Found existing conversation:', conversationUuid);
+    } else {
+      const { data: newConv, error: convError } = await supabaseClient
+        .from('phoenix_conversations')
+        .insert({
+          user_id: user.id,
+          session_id: conversationId,
+          metadata: { phase: 3, source: 'phoenix_lab' }
+        })
+        .select('id')
+        .single();
+      
+      if (convError) {
+        console.error('[CONDUCTOR] ❌ Failed to create conversation:', convError);
+      } else {
+        conversationUuid = newConv.id;
+        console.log('[CONDUCTOR] ✅ Created new conversation:', conversationUuid);
+      }
+    }
+
+    // 3b. Check/Initialize session state for Nite Owl triggering
     let sessionState = await supabaseClient
       .from('phoenix_conversations')
       .select('metadata, updated_at')
@@ -1637,7 +1727,7 @@ serve(async (req) => {
       const minutesAway = Math.round(timeSinceLastUpdate / 60000);
       
       if (selectedPersona === 'BETTY') {
-        systemPrompt = buildBettySystemPrompt(userMemories, knowledgePack) + `\n\n---\n\n🔄 CRITICAL RESUMPTION INSTRUCTION 🔄
+        systemPrompt = buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge) + `\n\n---\n\n🔄 CRITICAL RESUMPTION INSTRUCTION 🔄
 
 The student just RETURNED to this conversation after being away for ${minutesAway} minutes. This is a RESUMPTION, not a continuation.
 
@@ -1704,12 +1794,12 @@ Include the time elapsed (${minutesAway} minutes) and the specific topic in your
       
       // We'll handle the dual response generation after the normal flow
       // For now, set Betty as the primary persona (we'll override later)
-      systemPrompt = buildBettySystemPrompt(userMemories, knowledgePack);
+      systemPrompt = buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge);
       
     } else if (detectedIntent === 'escape_hatch') {
       // ⚠️ ESCAPE HATCH: Student explicitly rejected Socratic method
       selectedPersona = 'AL';
-      systemPrompt = buildAlSystemPrompt(studentContext, userMemories, knowledgePack) + `\n\n---\n\nCRITICAL INSTRUCTION: The student has explicitly requested to EXIT the Socratic learning mode and wants a DIRECT ANSWER instead.
+      systemPrompt = buildAlSystemPrompt(studentContext, userMemories, knowledgePack, retrievedKnowledge) + `\n\n---\n\nCRITICAL INSTRUCTION: The student has explicitly requested to EXIT the Socratic learning mode and wants a DIRECT ANSWER instead.
 
 Student's request: "${message}"
 
@@ -1758,7 +1848,7 @@ If they seem confused, provide clarification directly. Do NOT switch to Socratic
     } else if (detectedIntent === 'socratic_guidance') {
       // BETTY SOCRATIC SESSION: Increment counters
       selectedPersona = 'BETTY';
-      systemPrompt = buildBettySystemPrompt(userMemories, knowledgePack);
+      systemPrompt = buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge);
       socraticTurnCounter++; // Increment turn counter for next Nite Owl check
       totalBettyTurns++;
       console.log('[CONDUCTOR] Betty continues Socratic dialogue');
@@ -2072,7 +2162,7 @@ Keep it under 100 words.`;
         body: JSON.stringify({
           model: 'google/gemini-2.5-flash',
           messages: [
-            { role: 'system', content: buildBettySystemPrompt(userMemories, knowledgePack) },
+            { role: 'system', content: buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge) },
             ...conversationHistory.slice(-5).map(msg => ({
               role: msg.persona === 'USER' ? 'user' : 'assistant',
               content: msg.content
@@ -2744,8 +2834,8 @@ Keep it under 100 words.`;
             // Determine which persona to hand back to (Betty for socratic, Al for direct)
             const handoffPersona = inBettySession ? 'BETTY' : 'AL';
             const handoffSystemPrompt = handoffPersona === 'BETTY' 
-              ? buildBettySystemPrompt(userMemories, knowledgePack) 
-              : buildAlSystemPrompt(studentContext, userMemories, knowledgePack);
+              ? buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge) 
+              : buildAlSystemPrompt(studentContext, userMemories, knowledgePack, retrievedKnowledge);
             
             // Add special instruction for handoff
             const handoffInstruction = handoffPersona === 'BETTY'
