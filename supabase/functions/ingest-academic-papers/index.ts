@@ -127,21 +127,25 @@ serve(async (req) => {
                   const author = authorMatch ? authorMatch[1] : 'Unknown';
                   const url = `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`;
                   
-                  // Check if already exists
+                  // Check if already exists in kb_documents
                   const { data: existing } = await supabase
-                    .from('ai_knowledge_sources')
+                    .from('kb_documents')
                     .select('id')
-                    .eq('url', url)
+                    .eq('source_url', url)
                     .maybeSingle();
                   
                   if (!existing) {
                     const { error: insertError } = await supabase
-                      .from('ai_knowledge_sources')
+                      .from('kb_documents')
                       .insert({
-                        source_name: title.substring(0, 255),
-                        url: url,
-                        description: abstract ? `${author} - ${abstract.substring(0, 400)}...` : `By ${author}`,
-                        is_active: true,
+                        title: title.substring(0, 500),
+                        source_name: 'PubMed',
+                        source_url: url,
+                        source_type: 'academic_database',
+                        document_type: 'research_paper',
+                        content: abstract || title,
+                        publication_date: new Date().toISOString().split('T')[0],
+                        focus_areas: config.keywords,
                       });
 
                     if (!insertError) {
