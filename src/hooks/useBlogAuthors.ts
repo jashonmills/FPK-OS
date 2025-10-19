@@ -76,8 +76,16 @@ export function useCreateBlogAuthor() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      // For non-AI authors, check if user already has an author profile
-      if (!author.is_ai_author) {
+      // Check if user is admin
+      const { data: userRoles } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id);
+      
+      const isAdmin = userRoles?.some(r => r.role === 'admin');
+
+      // For non-admins creating non-AI authors, check if they already have an author profile
+      if (!isAdmin && !author.is_ai_author) {
         const { data: existingAuthor } = await supabase
           .from('blog_authors')
           .select('id, display_name')
@@ -89,10 +97,11 @@ export function useCreateBlogAuthor() {
         }
       }
 
-      // For AI authors, set user_id to NULL; for real authors, use the current user's ID
+      // For AI authors or admin-created authors, set user_id to NULL
+      // For regular authors, use the current user's ID
       const authorData = {
         ...author,
-        user_id: author.is_ai_author ? null : user.id
+        user_id: (author.is_ai_author || isAdmin) ? null : user.id
       };
 
       const { data, error } = await supabase
