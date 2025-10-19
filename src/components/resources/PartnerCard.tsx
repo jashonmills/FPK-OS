@@ -12,12 +12,11 @@ export function PartnerCard({ partner }: PartnerCardProps) {
     <Card className="cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-[1.02] bg-card/95 backdrop-blur-sm h-full flex flex-col">
       <CardHeader className="space-y-4">
         {/* Logo */}
-        <div className="h-32 flex items-center justify-center bg-muted rounded-lg p-4">
+        <div className="h-48 flex items-center justify-center bg-muted rounded-lg p-4">
           <img
             src={partner.logo_url}
             alt={`${partner.name} logo`}
-            className="max-h-full max-w-full object-contain"
-            style={{ objectFit: 'contain' }}
+            className="w-full h-full object-cover"
             onError={(e) => {
               e.currentTarget.src = 'https://via.placeholder.com/200x80?text=Partner+Logo';
             }}
