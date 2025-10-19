@@ -58,9 +58,9 @@ export function EnhancedAIBlogWizard({ open, onOpenChange }: EnhancedAIBlogWizar
       setTimeout(() => setProgressStep('Optimizing for SEO...'), 35000);
       setTimeout(() => setProgressStep('Finalizing draft...'), 55000);
 
-      // Create a timeout promise that will reject after 90 seconds
+      // Create a timeout promise that will reject after 75 seconds
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Request timed out after 90 seconds. Please try again with a simpler topic or without knowledge base integration.')), 90000)
+        setTimeout(() => reject(new Error('Request timed out after 75 seconds. Try with a simpler topic or disable knowledge base integration.')), 75000)
       );
 
       // Create the generation request promise
@@ -300,9 +300,9 @@ export function EnhancedAIBlogWizard({ open, onOpenChange }: EnhancedAIBlogWizar
                   <Loader2 className="h-5 w-5 animate-spin text-primary" />
                   <div className="flex-1">
                     <p className="text-sm font-medium">{progressStep}</p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      This can take 60-90 seconds for complex topics
-                    </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                This typically takes 45-75 seconds
+              </p>
                   </div>
                 </div>
               </div>

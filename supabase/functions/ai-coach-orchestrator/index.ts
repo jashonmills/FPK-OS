@@ -1183,15 +1183,9 @@ serve(async (req) => {
   let userId: string | null = null;
 
   try {
-    // ============ PHASE 1: REQUEST DEDUPLICATION TRACKING ============
-    const requestId = crypto.randomUUID().substring(0, 8);
+    // Parse request and extract parameters
     const requestBody = await req.json();
     const { message, conversationId, conversationHistory } = requestBody;
-    
-    console.log(`[CONDUCTOR-${requestId}] 🎬 Function invoked at:`, new Date().toISOString());
-    console.log(`[CONDUCTOR-${requestId}] 📥 Message received:`, message?.substring(0, 50) || 'NO MESSAGE');
-    console.log(`[CONDUCTOR-${requestId}] 🆔 Conversation ID:`, conversationId);
-    console.log(`[CONDUCTOR-${requestId}] 📚 History length:`, conversationHistory?.length || 0);
     
     // 🔬 PERFORMANCE TRACKING - Phase 1
     const perfStart = Date.now();

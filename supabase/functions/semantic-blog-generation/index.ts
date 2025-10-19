@@ -107,11 +107,13 @@ ${relevantChunk?.chunk_text || doc.content?.substring(0, 2000)}
       }
     }
 
-    // Fetch social & media intelligence if requested
+    // Fetch social & media intelligence if requested (with timeout)
     if (include_social) {
       try {
         console.log('🌐 Fetching social intelligence...');
-        const socialResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/fetch-open-source-intelligence`, {
+        
+        // Add 10 second timeout for social fetch
+        const socialPromise = fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/fetch-open-source-intelligence`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
@@ -119,6 +121,12 @@ ${relevantChunk?.chunk_text || doc.content?.substring(0, 2000)}
           },
           body: JSON.stringify({ topic }),
         });
+
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Social fetch timeout')), 10000)
+        );
+
+        const socialResponse = await Promise.race([socialPromise, timeoutPromise]) as Response;
 
         if (socialResponse.ok) {
           const socialData = await socialResponse.json();
@@ -200,7 +208,7 @@ Generate a complete, publication-ready blog post.`;
           { role: 'user', content: userPrompt },
         ],
         temperature: 0.7,
-        max_tokens: 3500,
+        max_tokens: 2500,
         tools: [{
           type: 'function',
           function: {

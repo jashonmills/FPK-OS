@@ -106,30 +106,26 @@ export function useBlogPost(slug: string) {
   return useQuery({
     queryKey: ['blog_post', slug],
     queryFn: async () => {
+      // Fetch post with author in a single query using join
       const { data: post, error } = await supabase
         .from('blog_posts')
-        .select('*')
+        .select(`
+          *,
+          blog_authors (
+            id,
+            display_name,
+            bio,
+            avatar_url,
+            credentials,
+            author_slug,
+            is_ai_author
+          )
+        `)
         .eq('slug', slug)
         .maybeSingle();
 
       if (error) throw error;
-      if (!post) return null;
-
-      // Fetch author separately if exists
-      if (post.author_id) {
-        const { data: author } = await supabase
-          .from('blog_authors')
-          .select('*')
-          .eq('id', post.author_id)
-          .maybeSingle();
-
-        return {
-          ...post,
-          blog_authors: author || undefined
-        } as BlogPost;
-      }
-
-      return post as BlogPost;
+      return post as BlogPost | null;
     },
     enabled: !!slug,
   });
