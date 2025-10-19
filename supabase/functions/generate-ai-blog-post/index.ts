@@ -230,17 +230,20 @@ Research Context (use ONLY this information):
 ${researchContext.substring(0, 20000)} // Limit to ~20k chars
 
 Requirements:
-1. Write the COMPLETE blog post in full Markdown format - DO NOT stop mid-sentence or mid-section
-2. Use proper heading hierarchy (## for H2, ### for H3)
-3. Naturally integrate the keyword "${keyword}" and related terms (aim for 1-2% density)
-4. Include specific, actionable advice
-5. Add transition sentences between sections
-6. Write an engaging introduction that hooks the reader
-7. Create a conclusion with a clear call-to-action
-8. Use bullet points and numbered lists where appropriate
-9. Add emphasis with **bold** for key terms (sparingly)
-10. Maintain empathetic, strength-based language throughout
-11. CRITICAL: Complete ALL sections from the outline - do not end prematurely
+1. Write the COMPLETE blog post in full Markdown format
+2. YOU MUST complete the ENTIRE article including ALL sections from the outline
+3. DO NOT stop mid-sentence, mid-paragraph, or mid-section under ANY circumstances
+4. The article MUST end with a proper conclusion section
+5. After the conclusion, you MUST include the META_TITLE and META_DESCRIPTION lines
+6. Use proper heading hierarchy (## for H2, ### for H3)
+7. Naturally integrate the keyword "${keyword}" and related terms (aim for 1-2% density)
+8. Include specific, actionable advice
+9. Add transition sentences between sections
+10. Write an engaging introduction that hooks the reader
+11. Create a conclusion with a clear call-to-action
+12. Use bullet points and numbered lists where appropriate
+13. Add emphasis with **bold** for key terms (sparingly)
+14. Maintain empathetic, strength-based language throughout
 
 Do NOT include:
 - Formal citations or references section
@@ -266,7 +269,7 @@ META_DESCRIPTION: [compelling description under 160 characters including keyword
           { role: 'system', content: DRAFT_SYSTEM_PROMPT },
           { role: 'user', content: userPrompt }
         ],
-        max_tokens: 8000,
+        max_tokens: 16000,
         temperature: 0.7,
       }),
     });
@@ -284,6 +287,23 @@ META_DESCRIPTION: [compelling description under 160 characters including keyword
     if (aiData.choices[0].finish_reason === 'length') {
       console.warn('WARNING: AI response was truncated due to length limit');
       throw new Error('Blog post generation was incomplete. Please try again or reduce the outline complexity.');
+    }
+    
+    // Validate completion
+    const hasMetaTitle = fullResponse.includes('META_TITLE:');
+    const hasMetaDescription = fullResponse.includes('META_DESCRIPTION:');
+    const wordCount = fullResponse.split(/\s+/).length;
+    
+    console.log(`Generated blog post: ${wordCount} words, has meta: ${hasMetaTitle && hasMetaDescription}`);
+    
+    if (!hasMetaTitle || !hasMetaDescription) {
+      console.error('Incomplete response - missing meta tags');
+      throw new Error('Blog post generation incomplete - missing meta tags. Please try again.');
+    }
+    
+    if (wordCount < 1000) {
+      console.error(`Response too short: ${wordCount} words`);
+      throw new Error(`Blog post generation incomplete - only ${wordCount} words generated. Please try again.`);
     }
     
     // Parse response
