@@ -2505,14 +2505,21 @@ Keep it under 100 words.`;
             if (textForTTS.length > 0) {
               console.log('[CONDUCTOR] Generating TTS audio for completed response...');
               
-              // Iterate through providers in priority order
-              for (const providerName of sortedProviders) {
-                if (audioUrl) break; // Exit once audio is generated
-                
-                console.log(`[CONDUCTOR] Attempting TTS via ${providerName}`);
-                
-                // Try Google Cloud TTS
-                if (providerName === 'google' && GOOGLE_TTS_KEY) {
+              // Helper: Try TTS with exponential backoff retry
+              const attemptTTSWithRetry = async (providerName: string, maxRetries = 2): Promise<string | null> => {
+                for (let attempt = 0; attempt <= maxRetries; attempt++) {
+                  if (audioUrl) return audioUrl; // Exit if already generated
+                  
+                  if (attempt > 0) {
+                    const backoffMs = 1000 * Math.pow(2, attempt - 1);
+                    console.log(`[CONDUCTOR] Retry ${attempt}/${maxRetries} for ${providerName} after ${backoffMs}ms`);
+                    await new Promise(resolve => setTimeout(resolve, backoffMs));
+                  }
+                  
+                  console.log(`[CONDUCTOR] Attempting TTS via ${providerName} (attempt ${attempt + 1})`);
+                  
+                  // Try Google Cloud TTS
+                  if (providerName === 'google' && GOOGLE_TTS_KEY) {
                 try {
                   const googleVoice = selectedPersona === 'BETTY' 
                     ? 'en-US-Wavenet-F'
@@ -2538,16 +2545,19 @@ Keep it under 100 words.`;
                   if (googleResponse.ok) {
                     const data = await googleResponse.json();
                     if (data.audioContent) {
-                      audioUrl = `data:audio/mpeg;base64,${data.audioContent}`;
+                      const url = `data:audio/mpeg;base64,${data.audioContent}`;
                       ttsProvider = 'google';
                       console.log('[CONDUCTOR] ✅ TTS audio generated successfully via Google Cloud');
                       console.log('[CONDUCTOR] 🔍 Audio generated for text (first 80):', textForTTS.substring(0, 80));
+                      return url; // Success - return immediately
                     }
                   } else {
                     console.error('[CONDUCTOR] ❌ Google TTS request failed:', googleResponse.statusText);
+                    if (attempt === maxRetries) throw new Error('Google TTS failed');
                   }
                 } catch (googleError) {
                   console.error('[CONDUCTOR] ❌ Google TTS exception:', googleError);
+                  if (attempt === maxRetries) throw googleError;
                 }
               }
               
@@ -2593,18 +2603,19 @@ Keep it under 100 words.`;
                     }
                     
                     const base64Audio = btoa(binaryString);
-                    audioUrl = `data:audio/mpeg;base64,${base64Audio}`;
+                    const url = `data:audio/mpeg;base64,${base64Audio}`;
                     ttsProvider = 'elevenlabs';
                     console.log('[CONDUCTOR] ✅ TTS audio generated successfully via ElevenLabs');
                     console.log('[CONDUCTOR] 🔍 Audio generated for text (first 80):', textForTTS.substring(0, 80));
+                    return url; // Success
                   } else {
                     const errorText = await elevenLabsResponse.text();
                     console.error('[CONDUCTOR] ❌ ElevenLabs TTS failed:', errorText);
-                    console.error('[CONDUCTOR] ❌ Failed text was (first 80):', textForTTS.substring(0, 80));
+                    if (attempt === maxRetries) throw new Error('ElevenLabs TTS failed');
                   }
                 } catch (elevenLabsError) {
                   console.error('[CONDUCTOR] ❌ ElevenLabs exception:', elevenLabsError);
-                  console.error('[CONDUCTOR] ❌ Exception occurred for text (first 80):', textForTTS.substring(0, 80));
+                  if (attempt === maxRetries) throw elevenLabsError;
                 }
               }
               
@@ -2646,20 +2657,33 @@ Keep it under 100 words.`;
                     }
                     
                     const base64Audio = btoa(binaryString);
-                    audioUrl = `data:audio/mpeg;base64,${base64Audio}`;
+                    const url = `data:audio/mpeg;base64,${base64Audio}`;
                     ttsProvider = 'openai';
                     console.log('[CONDUCTOR] ✅ TTS audio generated successfully via OpenAI');
                     console.log('[CONDUCTOR] 🔍 Audio generated for text (first 80):', textForTTS.substring(0, 80));
+                    return url; // Success
                   } else {
                     const errorText = await openAIResponse.text();
                     console.error('[CONDUCTOR] ❌ OpenAI TTS failed:', errorText);
-                    console.error('[CONDUCTOR] ❌ Failed text was (first 80):', textForTTS.substring(0, 80));
+                    if (attempt === maxRetries) throw new Error('OpenAI TTS failed');
                   }
                 } catch (openAIError) {
                   console.error('[CONDUCTOR] ❌ OpenAI TTS exception:', openAIError);
+                  if (attempt === maxRetries) throw openAIError;
                 }
               }
-            } // End provider loop
+              
+              return null; // No provider succeeded
+            }; // End attemptTTSWithRetry
+            
+            // Try each provider with retry logic
+            for (const providerName of sortedProviders) {
+              audioUrl = await attemptTTSWithRetry(providerName, 2);
+              if (audioUrl) {
+                console.log(`[CONDUCTOR] ✅ Successfully generated audio via ${providerName}`);
+                break;
+              }
+            }
             } else {
               console.warn('[CONDUCTOR] ⚠️ No text to generate audio for (empty finalText)');
             }

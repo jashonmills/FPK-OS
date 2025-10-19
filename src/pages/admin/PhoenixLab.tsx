@@ -296,15 +296,15 @@ export default function PhoenixLab() {
       return;
     }
     
-    // CRITICAL FIX: Only run welcome sequence if user has clicked Start Chat AND it hasn't been played yet
-    if (hasUserStartedChat && !hasWelcomePlayed && messages.length === 0) {
+    // SIMPLIFIED: Only check if messages are empty AND user clicked start
+    if (messages.length === 0 && hasUserStartedChat && !hasWelcomePlayed) {
       console.log('[PHOENIX] 🎬 Starting welcome sequence (showWelcome:', settings.showWelcomeMessage, ')');
       initializeConversation();
     } else {
-      console.log('[PHOENIX] ⏭️ Skipping welcome - not started, already played, or messages exist');
+      console.log('[PHOENIX] ⏭️ Skipping welcome - conditions not met');
     }
     initializeSpeechRecognition();
-  }, [hasUserStartedChat, settingsLoading, settings.showWelcomeMessage]); // Trigger when user starts chat or settings load
+  }, [hasUserStartedChat, messages.length, settingsLoading]); // Removed hasWelcomePlayed to prevent re-trigger
 
   // Listen for real-time podcast notifications
   useEffect(() => {
@@ -1085,22 +1085,29 @@ export default function PhoenixLab() {
       return;
     }
     
-    // Wait for lock to be released (prevent concurrent playback)
-    let waitCount = 0;
-    while (audioLockRef.current) {
-      // Check if audio was disabled while waiting
-      if (!audioEnabled) {
-        console.log('[PHOENIX] ⛔ Audio disabled during wait, aborting');
-        return;
+    // Wait for lock with timeout and auto-recovery
+    const acquireLock = async (): Promise<boolean> => {
+      const startTime = Date.now();
+      while (audioLockRef.current) {
+        // Check if audio was disabled while waiting
+        if (!audioEnabled) {
+          console.log('[PHOENIX] ⛔ Audio disabled during wait, aborting');
+          return false;
+        }
+        
+        if (Date.now() - startTime > 3000) { // 3 second timeout
+          console.warn('[PHOENIX] ⚠️ Lock timeout - forcing release and cleanup');
+          audioLockRef.current = false;
+          stopAllAudio(); // Clean up any zombie audio
+          return true;
+        }
+        await new Promise(resolve => setTimeout(resolve, 50));
       }
-      
-      if (waitCount++ > 50) { // Max 5 seconds wait
-        console.warn('[PHOENIX] ⏰ Audio lock timeout, forcing release');
-        audioLockRef.current = false;
-        break;
-      }
-      await new Promise(resolve => setTimeout(resolve, 100));
-    }
+      return true;
+    };
+    
+    const lockAcquired = await acquireLock();
+    if (!lockAcquired) return;
     
     // Double-check audio is still enabled after waiting
     if (!audioEnabled) {
@@ -1190,8 +1197,9 @@ export default function PhoenixLab() {
     // Clear played messages tracking
     playedMessagesRef.current.clear();
     
-    // CRITICAL: Reset welcome flag to allow replay on reset
+    // CRITICAL: Reset ALL welcome-related state
     setHasWelcomePlayed(false);
+    setHasUserStartedChat(false); // Reset user interaction flag
     
     // Clear state
     setMessages([]);
