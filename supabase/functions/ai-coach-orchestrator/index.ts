@@ -1602,7 +1602,7 @@ serve(async (req) => {
                         },
                         trigger_co_response: {
                           type: 'boolean',
-                          description: 'True if answer is partially correct (60-85% correctness) but shallow (depth < 60%). This indicates a "good but incomplete" answer perfect for Al+Betty collaboration.'
+                          description: 'True if answer is partially correct (40-90% correctness) but shallow (depth < 70%). This indicates a "good but incomplete" answer perfect for Al+Betty collaboration.'
                         },
                         reasoning: {
                           type: 'string',
