@@ -45,13 +45,19 @@ interface Message {
 const WELCOME_MESSAGES: Omit<Message, 'id' | 'created_at'>[] = [
   {
     persona: 'NITE_OWL',
-    content: `🎙️ **Showtime!**
+    content: `🎙️ **Hoot hoot! It's Showtime!**
 
-Nite Owl kicks off your AI Coach session, introducing Betty (your Socratic guide) and Al (your direct expert).
+Hey there, friend! I'm Nite Owl, your learning buddy! 🦉
 
-Ready to learn? Let's make some magic happen! 🦉✨`,
+I'm here to introduce you to two awesome teachers who'll help you learn anything you want:
+
+🌟 **Betty** - She loves asking questions to help you think and discover answers on your own!
+
+🎯 **Al** - He gives you clear, direct explanations when you need them!
+
+Together, they make an amazing team. Ready to start learning something cool today? Let's make some magic happen! ✨`,
     isWelcome: true,
-    // NOTE: Replace this URL with the actual public URL after uploading to Supabase Storage
+    // Audio URL - using pre-generated multi-speaker welcome
     audioUrl: 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/audio/betty-al-night-Owl-intro/welcome_dialogue_trio.mp3'
   }
 ];
@@ -508,7 +514,32 @@ export default function PhoenixLab() {
       // Play audio if enabled
       if (audioEnabled && showtimeMessage.audioUrl) {
         console.log('[PHOENIX] 🎵 Playing Showtime welcome audio');
-        await playAudioWithHighlight(showtimeMessage.audioUrl, showtimeMessage.id);
+        console.log('[PHOENIX] Audio URL:', showtimeMessage.audioUrl);
+        
+        // Test if audio URL is accessible
+        try {
+          const audioTest = await fetch(showtimeMessage.audioUrl, { method: 'HEAD' });
+          if (!audioTest.ok) {
+            console.warn('[PHOENIX] ⚠️ Audio file not accessible:', audioTest.status);
+            toast({
+              title: "Audio Not Available",
+              description: "Welcome audio file is not accessible. The conversation will work without it.",
+              variant: "default"
+            });
+          } else {
+            console.log('[PHOENIX] ✓ Audio file accessible, playing...');
+            await playAudioWithHighlight(showtimeMessage.audioUrl, showtimeMessage.id);
+          }
+        } catch (audioError) {
+          console.error('[PHOENIX] Audio URL test failed:', audioError);
+          toast({
+            title: "Audio Setup Issue",
+            description: "Could not access audio file. Continuing without audio.",
+            variant: "default"
+          });
+        }
+      } else {
+        console.log('[PHOENIX] Audio skipped - enabled:', audioEnabled, 'hasUrl:', !!showtimeMessage.audioUrl);
       }
 
       // Mark welcome as played to prevent replay
