@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { useIsMobile } from '@/hooks/use-mobile';
 import {
   Table,
   TableBody,
@@ -48,6 +49,7 @@ interface Category {
 export default function CategoryManager() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [editCategory, setEditCategory] = useState<Category | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -165,81 +167,135 @@ export default function CategoryManager() {
 
   return (
     <div className="space-y-6">
-      <TransparentTile className="p-4">
-        <div className="flex items-center justify-between">
+      <TransparentTile className="mobile-card-padding">
+        <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
-            <h2 className="text-2xl font-bold flex items-center gap-2">
-              <Tag className="h-6 w-6" />
+            <h2 className="mobile-heading-md flex items-center gap-2">
+              <Tag className="h-5 w-5 sm:h-6 sm:w-6 shrink-0" />
               Categories
             </h2>
-            <p className="text-muted-foreground mt-1">Organize your blog content</p>
+            <p className="text-muted-foreground mt-1 text-xs sm:text-sm">Organize your blog content</p>
           </div>
-          <Button onClick={() => { setEditCategory(null); setIsDialogOpen(true); }}>
+          <Button onClick={() => { setEditCategory(null); setIsDialogOpen(true); }} className="w-full sm:w-auto min-h-[44px]">
             <Plus className="h-4 w-4 mr-2" />
             New Category
           </Button>
         </div>
       </TransparentTile>
 
-      <div className="border rounded-lg bg-card">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Slug</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead>Order</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
+      {/* Mobile Card View / Desktop Table */}
+      {isMobile ? (
+        /* Mobile Card Grid */
+        <div className="space-y-3">
+          {isLoading ? (
+            <div className="text-center py-6">Loading...</div>
+          ) : categories?.length === 0 ? (
+            <div className="text-center text-muted-foreground py-12 text-sm">
+              No categories yet. Create your first one!
+            </div>
+          ) : (
+            categories?.map((cat) => (
+              <div key={cat.id} className="bg-card border rounded-lg p-4 space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0 space-y-1">
+                    <h3 className="font-semibold text-base">{cat.name}</h3>
+                    <code className="text-xs text-muted-foreground">{cat.slug}</code>
+                    {cat.description && (
+                      <p className="text-sm text-muted-foreground line-clamp-2">{cat.description}</p>
+                    )}
+                  </div>
+                  <Badge variant={cat.is_active ? 'default' : 'secondary'} className="shrink-0">
+                    {cat.is_active ? 'Active' : 'Inactive'}
+                  </Badge>
+                </div>
+                <div className="flex items-center justify-between pt-2 border-t">
+                  <span className="text-xs text-muted-foreground">Order: {cat.display_order}</span>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="min-h-[40px]"
+                      onClick={() => { setEditCategory(cat); setIsDialogOpen(true); }}
+                    >
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="min-h-[40px]"
+                      onClick={() => setDeleteId(cat.id)}
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      ) : (
+        /* Desktop Table */
+        <div className="border rounded-lg bg-card">
+          <Table>
+            <TableHeader>
               <TableRow>
-                <TableCell colSpan={6} className="text-center">Loading...</TableCell>
+                <TableHead>Name</TableHead>
+                <TableHead>Slug</TableHead>
+                <TableHead>Description</TableHead>
+                <TableHead>Order</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
-            ) : categories?.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} className="text-center text-muted-foreground">
-                  No categories yet. Create your first one!
-                </TableCell>
-              </TableRow>
-            ) : (
-              categories?.map((cat) => (
-                <TableRow key={cat.id}>
-                  <TableCell className="font-medium">{cat.name}</TableCell>
-                  <TableCell><code className="text-xs">{cat.slug}</code></TableCell>
-                  <TableCell>{cat.description || '—'}</TableCell>
-                  <TableCell>{cat.display_order}</TableCell>
-                  <TableCell>
-                    <Badge variant={cat.is_active ? 'default' : 'secondary'}>
-                      {cat.is_active ? 'Active' : 'Inactive'}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => { setEditCategory(cat); setIsDialogOpen(true); }}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => setDeleteId(cat.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center">Loading...</TableCell>
+                </TableRow>
+              ) : categories?.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center text-muted-foreground">
+                    No categories yet. Create your first one!
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+              ) : (
+                categories?.map((cat) => (
+                  <TableRow key={cat.id}>
+                    <TableCell className="font-medium">{cat.name}</TableCell>
+                    <TableCell><code className="text-xs">{cat.slug}</code></TableCell>
+                    <TableCell>{cat.description || '—'}</TableCell>
+                    <TableCell>{cat.display_order}</TableCell>
+                    <TableCell>
+                      <Badge variant={cat.is_active ? 'default' : 'secondary'}>
+                        {cat.is_active ? 'Active' : 'Inactive'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => { setEditCategory(cat); setIsDialogOpen(true); }}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setDeleteId(cat.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      )}
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>

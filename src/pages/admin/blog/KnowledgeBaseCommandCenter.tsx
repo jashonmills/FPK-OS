@@ -16,6 +16,8 @@ import { KB_SOURCES } from '@/lib/knowledgeBase/sourceCatalog';
 import { useScrapingJobStatus } from '@/hooks/useScrapingJobStatus';
 import { useEmbeddingJobStatus } from '@/hooks/useEmbeddingJobStatus';
 import { EmbeddingProgressTracker } from '@/components/admin/EmbeddingProgressTracker';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { MobileKBDocCard } from '@/components/admin/MobileKBDocCard';
 import {
   Table,
   TableBody,
@@ -52,6 +54,7 @@ interface KBDocument {
 export default function KnowledgeBaseCommandCenter() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [stats, setStats] = useState<KBStats>({ totalDocuments: 0, totalEmbeddings: 0 });
   const [documents, setDocuments] = useState<KBDocument[]>([]);
   const [loading, setLoading] = useState(false);
@@ -939,7 +942,7 @@ export default function KnowledgeBaseCommandCenter() {
           {/* Filters */}
           <div className="flex flex-col sm:flex-row gap-3">
             <Select value={filterSource} onValueChange={setFilterSource}>
-              <SelectTrigger className="w-full sm:w-[220px] bg-background">
+              <SelectTrigger className="w-full sm:w-[220px] bg-background min-h-[44px]">
                 <SelectValue placeholder="Filter by Source" />
               </SelectTrigger>
               <SelectContent className="bg-background">
@@ -959,7 +962,7 @@ export default function KnowledgeBaseCommandCenter() {
               </SelectContent>
             </Select>
             <Select value={filterType} onValueChange={setFilterType}>
-              <SelectTrigger className="w-full sm:w-[220px] bg-background">
+              <SelectTrigger className="w-full sm:w-[220px] bg-background min-h-[44px]">
                 <SelectValue placeholder="Filter by Focus Area" />
               </SelectTrigger>
               <SelectContent className="bg-background">
@@ -972,117 +975,139 @@ export default function KnowledgeBaseCommandCenter() {
             </Select>
           </div>
 
-          {/* Clean Table */}
-          <div className="border rounded-lg bg-background overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow className="hover:bg-transparent border-b">
-                  <TableHead className="font-semibold">Title</TableHead>
-                  <TableHead className="font-semibold w-[140px]">Source</TableHead>
-                  <TableHead className="font-semibold w-[180px]">Focus Areas</TableHead>
-                  <TableHead className="font-semibold w-[120px]">Type</TableHead>
-                  <TableHead className="font-semibold w-[100px]">Pub Date</TableHead>
-                  <TableHead className="font-semibold w-[100px]">Added</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {documents.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center text-muted-foreground py-12">
-                      <div className="flex flex-col items-center gap-2">
-                        <Database className="h-8 w-8 opacity-50" />
-                        <p>No documents found</p>
-                        <p className="text-sm">Start ingesting content from the sources above</p>
-                      </div>
-                    </TableCell>
+          {/* Mobile Card View / Desktop Table */}
+          {isMobile ? (
+            /* Mobile Card Grid */
+            <div className="space-y-3">
+              {documents.length === 0 ? (
+                <div className="text-center text-muted-foreground py-12">
+                  <div className="flex flex-col items-center gap-2">
+                    <Database className="h-8 w-8 opacity-50" />
+                    <p>No documents found</p>
+                    <p className="text-sm">Start ingesting content from the sources above</p>
+                  </div>
+                </div>
+              ) : (
+                documents.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((doc) => (
+                  <MobileKBDocCard key={doc.id} doc={doc} />
+                ))
+              )}
+            </div>
+          ) : (
+            /* Desktop Table */
+            <div className="border rounded-lg bg-background overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent border-b">
+                    <TableHead className="font-semibold">Title</TableHead>
+                    <TableHead className="font-semibold w-[140px]">Source</TableHead>
+                    <TableHead className="font-semibold w-[180px]">Focus Areas</TableHead>
+                    <TableHead className="font-semibold w-[120px]">Type</TableHead>
+                    <TableHead className="font-semibold w-[100px]">Pub Date</TableHead>
+                    <TableHead className="font-semibold w-[100px]">Added</TableHead>
                   </TableRow>
-                ) : (
-                  documents.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((doc) => (
-                    <TableRow key={doc.id} className="hover:bg-muted/50">
-                      <TableCell className="font-medium">
-                        <div className="line-clamp-2 max-w-md" title={doc.title}>
-                          {doc.title}
+                </TableHeader>
+                <TableBody>
+                  {documents.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center text-muted-foreground py-12">
+                        <div className="flex flex-col items-center gap-2">
+                          <Database className="h-8 w-8 opacity-50" />
+                          <p>No documents found</p>
+                          <p className="text-sm">Start ingesting content from the sources above</p>
                         </div>
-                      </TableCell>
-                      <TableCell>
-                        {doc.source_url ? (
-                          <a 
-                            href={doc.source_url} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-cyan-600 dark:text-cyan-400 font-medium text-sm hover:underline"
-                          >
-                            {doc.source_name}
-                          </a>
-                        ) : (
-                          <span className="text-cyan-600 dark:text-cyan-400 font-medium text-sm">
-                            {doc.source_name}
-                          </span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-1 flex-wrap">
-                          {doc.focus_areas.slice(0, 2).map((area, idx) => (
-                            <Badge key={idx} variant="secondary" className="text-xs px-2 py-0.5">
-                              {area}
-                            </Badge>
-                          ))}
-                          {doc.focus_areas.length > 2 && (
-                            <Badge variant="secondary" className="text-xs px-2 py-0.5">
-                              +{doc.focus_areas.length - 2}
-                            </Badge>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className="text-xs font-normal px-2 py-0.5">
-                          {doc.document_type}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-muted-foreground text-sm">
-                        {doc.publication_date ? 
-                          new Date(doc.publication_date).toLocaleDateString('en-US', { 
-                            month: 'short', 
-                            year: 'numeric' 
-                          }) :
-                          '-'
-                        }
-                      </TableCell>
-                      <TableCell className="text-muted-foreground text-sm">
-                        {new Date(doc.created_at).toLocaleDateString('en-US', { 
-                          month: 'short',
-                          day: 'numeric',
-                          year: 'numeric'
-                        })}
                       </TableCell>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
+                  ) : (
+                    documents.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((doc) => (
+                      <TableRow key={doc.id} className="hover:bg-muted/50">
+                        <TableCell className="font-medium">
+                          <div className="line-clamp-2 max-w-md" title={doc.title}>
+                            {doc.title}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {doc.source_url ? (
+                            <a 
+                              href={doc.source_url} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-cyan-600 dark:text-cyan-400 font-medium text-sm hover:underline"
+                            >
+                              {doc.source_name}
+                            </a>
+                          ) : (
+                            <span className="text-cyan-600 dark:text-cyan-400 font-medium text-sm">
+                              {doc.source_name}
+                            </span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-1 flex-wrap">
+                            {doc.focus_areas.slice(0, 2).map((area, idx) => (
+                              <Badge key={idx} variant="secondary" className="text-xs px-2 py-0.5">
+                                {area}
+                              </Badge>
+                            ))}
+                            {doc.focus_areas.length > 2 && (
+                              <Badge variant="secondary" className="text-xs px-2 py-0.5">
+                                +{doc.focus_areas.length - 2}
+                              </Badge>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className="text-xs font-normal px-2 py-0.5">
+                            {doc.document_type}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-muted-foreground text-sm">
+                          {doc.publication_date ? 
+                            new Date(doc.publication_date).toLocaleDateString('en-US', { 
+                              month: 'short', 
+                              year: 'numeric' 
+                            }) :
+                            '-'
+                          }
+                        </TableCell>
+                        <TableCell className="text-muted-foreground text-sm">
+                          {new Date(doc.created_at).toLocaleDateString('en-US', { 
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric'
+                          })}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          )}
           
           {/* Pagination */}
           {documents.length > itemsPerPage && (
-            <div className="flex items-center justify-between pt-4">
-              <div className="text-sm text-muted-foreground">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4">
+              <div className="text-xs sm:text-sm text-muted-foreground">
                 Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, documents.length)} of {documents.length} documents
               </div>
               <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
                   size="sm"
+                  className="min-h-[40px]"
                   onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                   disabled={currentPage === 1}
                 >
                   Previous
                 </Button>
-                <div className="text-sm">
+                <div className="text-xs sm:text-sm min-w-[80px] text-center">
                   Page {currentPage} of {Math.ceil(documents.length / itemsPerPage)}
                 </div>
                 <Button
                   variant="outline"
                   size="sm"
+                  className="min-h-[40px]"
                   onClick={() => setCurrentPage(prev => Math.min(Math.ceil(documents.length / itemsPerPage), prev + 1))}
                   disabled={currentPage === Math.ceil(documents.length / itemsPerPage)}
                 >
