@@ -1357,6 +1357,10 @@ serve(async (req) => {
     let lastNiteOwlTurn = sessionState.data?.metadata?.lastNiteOwlTurn || -99;
     let resumptionLockTurns = sessionState.data?.metadata?.resumptionLockTurns || 0;
     
+    // 🔒 PERSONA STICKINESS: Track when Betty owns the conversation
+    let isSocraticLoopActive = sessionState.data?.metadata?.isSocraticLoopActive || false;
+    let socraticLoopStartTurn = sessionState.data?.metadata?.socraticLoopStartTurn || -1;
+    
     // ============================================
     // PART 1: RESUMPTION LOCK - Detect session resumption
     // ============================================
@@ -1407,7 +1411,56 @@ serve(async (req) => {
       : null;
     const inBettySession = lastPersona === 'BETTY';
     
-    // Simplified intent detection with clear priority order
+    // ============================================
+    // 🔒 PERSONA STICKINESS RULE (HIGHEST PRIORITY)
+    // ============================================
+    // Once Betty starts a Socratic dialogue, she "owns" the conversation
+    // until the user explicitly exits or asks a factual question
+    // ============================================
+    
+    if (isSocraticLoopActive && lastPersona === 'BETTY') {
+      console.log('[DIRECTOR] 🔒 PERSONA STICKINESS ACTIVE - Betty owns this conversation');
+      
+      const messageLower = message.toLowerCase().trim();
+      
+      // Check for explicit escape hatches
+      const isEscapeHatch = messageLower.includes('just tell me') || 
+                            messageLower.includes('give me the answer') ||
+                            messageLower.includes('stop asking') ||
+                            messageLower === "i don't know";
+      
+      // Check for factual clarification requests (Al should help)
+      const isFactualQuestion = (messageLower.startsWith('what is') || 
+                                 messageLower.startsWith('define') ||
+                                 messageLower.includes("don't know what")) &&
+                                messageLower.split(' ').length < 15; // Short, specific questions only
+      
+      if (isEscapeHatch) {
+        console.log('[DIRECTOR] 🚪 User requested escape from Socratic mode');
+        detectedIntent = 'escape_hatch';
+        intentConfidence = 0.95;
+        isSocraticLoopActive = false; // Exit sticky mode
+        socraticLoopStartTurn = -1;
+      } else if (isFactualQuestion) {
+        console.log('[DIRECTOR] 🤝 User needs factual clarification - Al will provide support');
+        detectedIntent = 'request_for_clarification';
+        intentConfidence = 0.9;
+        // Keep loop active - Betty will resume after Al helps
+      } else {
+        // FORCE Betty to continue - this is the core fix
+        console.log('[DIRECTOR] ✅ Enforcing persona stickiness - routing to Betty');
+        console.log('[DIRECTOR] User message type: Reflection/Statement/Answer (not escape or factual question)');
+        detectedIntent = 'socratic_guidance';
+        intentConfidence = 0.95;
+        intentReasoning = 'Persona stickiness: User responding within active Socratic dialogue';
+        
+        // Skip remaining intent detection and proceed directly
+        timings.intent_detection = Date.now() - intentDetectionStart;
+        console.log(`[PERF] Intent detection: ${timings.intent_detection}ms (via stickiness rule)`);
+      }
+    }
+    
+    // Simplified intent detection with clear priority order (only runs if stickiness rule didn't apply)
     let detectedIntent = 'direct_answer'; // Default
     let intentConfidence = 0.8;
     let intentReasoning = '';
@@ -1788,6 +1841,11 @@ DO NOT:
 
 Their learning preference is valid. Respect it.`;
       
+      // 🔓 DEACTIVATE PERSONA STICKINESS
+      isSocraticLoopActive = false;
+      socraticLoopStartTurn = -1;
+      console.log('[CONDUCTOR] 🔓 Socratic loop deactivated - user exited');
+      
       console.log('[CONDUCTOR] 🚪 ESCAPE HATCH: Student requested direct answers, handing off to Al');
       console.log('[CONDUCTOR] Escape reason:', intentResult.reasoning);
       
@@ -1819,12 +1877,20 @@ If they seem confused, provide clarification directly. Do NOT switch to Socratic
       console.log('[CONDUCTOR] 📊 Al providing data-driven or platform guidance response');
       
     } else if (detectedIntent === 'socratic_guidance') {
-      // BETTY SOCRATIC SESSION: Increment counters
+      // BETTY SOCRATIC SESSION: Increment counters and activate sticky mode
       selectedPersona = 'BETTY';
       systemPrompt = buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge);
       socraticTurnCounter++; // Increment turn counter for next Nite Owl check
       totalBettyTurns++;
-      console.log('[CONDUCTOR] Betty continues Socratic dialogue');
+      
+      // 🔒 ACTIVATE PERSONA STICKINESS
+      if (!isSocraticLoopActive) {
+        isSocraticLoopActive = true;
+        socraticLoopStartTurn = conversationHistory.length;
+        console.log('[CONDUCTOR] 🔒 SOCRATIC LOOP ACTIVATED - Betty now has conversation ownership');
+      }
+      
+      console.log('[CONDUCTOR] Betty continues Socratic dialogue (Turn', totalBettyTurns, ')');
       
     } else {
       // DEFAULT: Al for direct answers
@@ -2683,6 +2749,8 @@ Keep it under 100 words.`;
                 totalBettyTurns,
                 lastNiteOwlTurn,
                 resumptionLockTurns,
+                isSocraticLoopActive,
+                socraticLoopStartTurn,
                 lastUpdated: new Date().toISOString()
               },
               updated_at: new Date().toISOString()
