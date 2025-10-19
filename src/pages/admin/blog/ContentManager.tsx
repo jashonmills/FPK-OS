@@ -36,40 +36,25 @@ export default function ContentManager() {
       </TransparentTile>
 
       <Tabs defaultValue="posts" className="space-y-4">
-        {isMobile ? (
-          <ScrollArea className="w-full whitespace-nowrap">
-            <TabsList className="inline-flex h-10 items-center justify-start rounded-md bg-muted p-1 text-muted-foreground">
-              <TabsTrigger value="posts" className="whitespace-nowrap">
-                <FileText className="h-4 w-4 mr-2" />
-                Posts
+        <div className="w-full overflow-x-auto">
+          <ScrollArea className="w-full">
+            <TabsList className="inline-flex h-10 sm:h-11 items-center justify-start rounded-md bg-muted p-1 text-muted-foreground w-full sm:w-auto">
+              <TabsTrigger value="posts" className="whitespace-nowrap px-3 sm:px-4 min-h-[44px] sm:min-h-0">
+                <FileText className="h-4 w-4 mr-2 shrink-0" />
+                <span className="text-xs sm:text-sm">Posts</span>
               </TabsTrigger>
-              <TabsTrigger value="authors" className="whitespace-nowrap">
-                <Users className="h-4 w-4 mr-2" />
-                Authors
+              <TabsTrigger value="authors" className="whitespace-nowrap px-3 sm:px-4 min-h-[44px] sm:min-h-0">
+                <Users className="h-4 w-4 mr-2 shrink-0" />
+                <span className="text-xs sm:text-sm">Authors</span>
               </TabsTrigger>
-              <TabsTrigger value="partners" className="whitespace-nowrap">
-                <Handshake className="h-4 w-4 mr-2" />
-                Partners
+              <TabsTrigger value="partners" className="whitespace-nowrap px-3 sm:px-4 min-h-[44px] sm:min-h-0">
+                <Handshake className="h-4 w-4 mr-2 shrink-0" />
+                <span className="text-xs sm:text-sm">Partners</span>
               </TabsTrigger>
             </TabsList>
-            <ScrollBar orientation="horizontal" />
+            <ScrollBar orientation="horizontal" className="h-2" />
           </ScrollArea>
-        ) : (
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="posts">
-              <FileText className="h-4 w-4 mr-2" />
-              Posts
-            </TabsTrigger>
-            <TabsTrigger value="authors">
-              <Users className="h-4 w-4 mr-2" />
-              Authors
-            </TabsTrigger>
-            <TabsTrigger value="partners">
-              <Handshake className="h-4 w-4 mr-2" />
-              Partners
-            </TabsTrigger>
-          </TabsList>
-        )}
+        </div>
 
         <TabsContent value="posts">
           <PostsManager />
