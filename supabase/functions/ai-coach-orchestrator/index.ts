@@ -1179,6 +1179,11 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // PHASE 3: Enhanced error tracking
+  const startTime = Date.now();
+  let conversationUuid: string | null = null;
+  let userId: string | null = null;
+
   try {
     console.log('[CONDUCTOR] Function invoked');
     
@@ -1191,6 +1196,7 @@ serve(async (req) => {
     // 1. Authenticate user
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
+      console.error('[CONDUCTOR] ❌ Missing authorization header');
       throw new Error('No authorization header');
     }
 
@@ -1202,9 +1208,11 @@ serve(async (req) => {
 
     const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
     if (authError || !user) {
+      console.error('[CONDUCTOR] ❌ Authentication failed:', authError?.message);
       throw new Error('Unauthorized');
     }
 
+    userId = user.id; // Store for error logging
     console.log('[CONDUCTOR] User authenticated:', user.id);
 
     // 🚦 LOAD FEATURE FLAGS (PLUG-AND-PLAY CONTROL)
@@ -1307,7 +1315,8 @@ serve(async (req) => {
     });
 
     // 3a. Ensure conversation UUID exists BEFORE any message storage
-    let conversationUuid: string | null = null;
+    // PHASE 3 FIX: Don't re-declare, use outer scope variable for error logging
+    conversationUuid = null;
     
     const { data: existingConv } = await supabaseClient
       .from('phoenix_conversations')
@@ -3093,15 +3102,63 @@ Keep it brief and focused on answering their original question.`;
 
 
   } catch (error) {
-    console.error('[CONDUCTOR] Error:', error);
+    const duration = Date.now() - startTime;
+    console.error('[CONDUCTOR] ❌ Fatal error after', duration, 'ms:', error);
+    
+    // PHASE 3: Log error to database for monitoring if we have context
+    if (conversationUuid && userId) {
+      try {
+        const supabaseClient = createClient(
+          Deno.env.get('SUPABASE_URL') ?? '',
+          Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+        );
+        
+        await supabaseClient.from('phoenix_messages').insert({
+          conversation_id: conversationUuid,
+          persona: 'SYSTEM',
+          content: `Error occurred: ${error.message}`,
+          metadata: {
+            error: true,
+            errorType: error.name || 'UnknownError',
+            errorStack: error.stack?.substring(0, 500),
+            duration,
+            timestamp: new Date().toISOString(),
+            phase: 'orchestrator'
+          }
+        });
+        console.log('[CONDUCTOR] ✓ Error logged to database');
+      } catch (logError) {
+        console.error('[CONDUCTOR] Failed to log error to database:', logError);
+      }
+    }
+    
+    // PHASE 3: Determine appropriate status code and retry guidance
+    let status = 500;
+    let retryable = false;
+    
+    if (error.message?.includes('Unauthorized') || error.message?.includes('No authorization')) {
+      status = 401;
+    } else if (error.message?.includes('timeout')) {
+      status = 504;
+      retryable = true;
+    } else if (error.message?.includes('rate limit')) {
+      status = 429;
+      retryable = true;
+    } else if (status >= 500) {
+      retryable = true;
+    }
+    
     return new Response(
       JSON.stringify({ 
         success: false,
-        error: error.message 
+        error: error.message || 'Internal server error',
+        timestamp: new Date().toISOString(),
+        duration,
+        retryable
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 500
+        status
       }
     );
   }

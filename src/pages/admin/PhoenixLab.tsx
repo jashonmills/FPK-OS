@@ -970,8 +970,9 @@ export default function PhoenixLab() {
         throw streamError;
       }
 
-    } catch (error) {
-      console.error('Error sending message:', error);
+    } catch (error: any) {
+      console.error('[PHOENIX] ❌ Error sending message:', error);
+      
       // Remove typing indicator and any streaming messages on error
       setMessages(prev => prev.filter(m => 
         m.id !== typingId && !m.isTyping && !m.isStreaming
@@ -980,11 +981,32 @@ export default function PhoenixLab() {
       // Restore user's input for retry
       setInput(userMessage);
       
+      // PHASE 3: Enhanced error categorization
+      const isNetworkError = !navigator.onLine || error.message?.includes('Failed to fetch');
+      const isServerError = error.message?.includes('500') || error.message?.includes('502');
+      const isTimeout = error.message?.includes('timeout');
+      const canRetry = retryCount < 3 && (isNetworkError || isServerError || isTimeout);
+      
+      // Construct helpful error message
+      let errorTitle = "Connection Error";
+      let errorDescription = error.message || "Failed to send message";
+      
+      if (isNetworkError) {
+        errorTitle = "Network Error";
+        errorDescription = "Please check your internet connection and try again.";
+      } else if (isTimeout) {
+        errorTitle = "Request Timeout";
+        errorDescription = "The request took too long. Please try again.";
+      } else if (isServerError) {
+        errorTitle = "Server Error";
+        errorDescription = "Our servers are experiencing issues. We'll retry automatically.";
+      }
+      
       toast({
-        title: "Connection Error",
-        description: error.message || "Failed to send message",
+        title: errorTitle,
+        description: errorDescription,
         variant: "destructive",
-        action: retryCount < 3 ? (
+        action: canRetry ? (
           <Button 
             size="sm" 
             onClick={() => {
@@ -996,6 +1018,17 @@ export default function PhoenixLab() {
           </Button>
         ) : undefined
       });
+      
+      // PHASE 3: Auto-retry for transient errors
+      if (canRetry && (isNetworkError || isServerError)) {
+        console.log(`[PHOENIX] 🔄 Auto-retrying in ${(retryCount + 1) * 2}s...`);
+        setTimeout(() => {
+          if (!loading) { // Only retry if not already loading
+            setInput('');
+            sendMessage(retryCount);
+          }
+        }, (retryCount + 1) * 2000);
+      }
     } finally {
       // Always clear loading state
       setLoading(false);
