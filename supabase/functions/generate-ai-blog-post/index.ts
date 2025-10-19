@@ -269,7 +269,7 @@ META_DESCRIPTION: [compelling description under 160 characters including keyword
           { role: 'system', content: DRAFT_SYSTEM_PROMPT },
           { role: 'user', content: userPrompt }
         ],
-        max_tokens: 16000,
+        max_completion_tokens: 32000,
         temperature: 0.7,
       }),
     });
