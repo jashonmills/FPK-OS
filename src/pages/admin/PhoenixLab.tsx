@@ -534,46 +534,66 @@ export default function PhoenixLab() {
       if (audioEnabled) {
         console.log('[PHOENIX] 🎵 Generating welcome audio dynamically');
         
-        try {
-          // Generate audio using text-to-voice function
-          const { data: audioData, error: audioError } = await supabase.functions.invoke('text-to-voice', {
-            body: { 
-              text: WELCOME_MESSAGES[0].content.replace(/[🎙️🦉🌟🎯✨*]/g, ''), // Remove emojis and markdown
-              voice: 'nova' // Female voice for Nite Owl
-            }
-          });
-
-          if (audioError) {
-            console.error('[PHOENIX] Failed to generate welcome audio:', audioError);
-            toast({
-              title: "Audio Generation Failed",
-              description: "Could not generate welcome audio. Continuing without it.",
-              variant: "default"
+        let retryCount = 0;
+        const maxRetries = 2;
+        let audioGenerated = false;
+        
+        while (retryCount <= maxRetries && !audioGenerated) {
+          try {
+            console.log(`[PHOENIX] Audio generation attempt ${retryCount + 1}/${maxRetries + 1}`);
+            
+            // Add timeout using Promise.race
+            const audioPromise = supabase.functions.invoke('text-to-voice', {
+              body: { 
+                text: WELCOME_MESSAGES[0].content.replace(/[🎙️🦉🌟🎯✨*]/g, ''), // Remove emojis and markdown
+                voice: 'nova' // Female voice for Nite Owl
+              }
             });
-          } else if (audioData?.audioContent) {
-            console.log('[PHOENIX] ✓ Welcome audio generated, playing...');
             
-            // Convert base64 to blob URL
-            const audioBlob = base64ToBlob(audioData.audioContent, 'audio/mpeg');
-            const audioUrl = URL.createObjectURL(audioBlob);
+            const timeoutPromise = new Promise((_, reject) => 
+              setTimeout(() => reject(new Error('TTS generation timeout')), 30000)
+            );
             
-            // Update message with audio URL
-            setMessages(prev => prev.map(msg => 
-              msg.id === showtimeMessage.id 
-                ? { ...msg, audioUrl }
-                : msg
-            ));
+            const result = await Promise.race([audioPromise, timeoutPromise]) as any;
+            const { data: audioData, error: audioError } = result;
+
+            if (audioError) {
+              throw audioError;
+            } else if (audioData?.audioContent) {
+              console.log('[PHOENIX] ✓ Welcome audio generated, playing...');
+              
+              // Convert base64 to blob URL
+              const audioBlob = base64ToBlob(audioData.audioContent, 'audio/mpeg');
+              const audioUrl = URL.createObjectURL(audioBlob);
+              
+              // Update message with audio URL
+              setMessages(prev => prev.map(msg => 
+                msg.id === showtimeMessage.id 
+                  ? { ...msg, audioUrl }
+                  : msg
+              ));
+              
+              // Play the audio
+              await playAudioWithHighlight(audioUrl, showtimeMessage.id);
+              audioGenerated = true;
+            }
+          } catch (audioError: any) {
+            retryCount++;
+            console.error(`[PHOENIX] Audio generation attempt ${retryCount}/${maxRetries + 1} failed:`, audioError);
             
-            // Play the audio
-            await playAudioWithHighlight(audioUrl, showtimeMessage.id);
+            if (retryCount <= maxRetries) {
+              console.log(`[PHOENIX] Retrying audio generation... (${retryCount}/${maxRetries})`);
+              await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+            } else {
+              // All retries failed - fallback to silent mode
+              console.warn('[PHOENIX] All audio generation attempts failed, continuing in silent mode');
+              toast({
+                title: "Audio Unavailable",
+                description: "Could not generate welcome audio. Continuing without it.",
+                variant: "default"
+              });
+            }
           }
-        } catch (audioError) {
-          console.error('[PHOENIX] Audio generation error:', audioError);
-          toast({
-            title: "Audio Setup Issue",
-            description: "Could not generate audio. Continuing without it.",
-            variant: "default"
-          });
         }
       } else {
         console.log('[PHOENIX] Audio disabled, skipping welcome audio generation');
@@ -956,10 +976,25 @@ export default function PhoenixLab() {
       setMessages(prev => prev.filter(m => 
         m.id !== typingId && !m.isTyping && !m.isStreaming
       ));
+      
+      // Restore user's input for retry
+      setInput(userMessage);
+      
       toast({
-        title: "Error",
+        title: "Connection Error",
         description: error.message || "Failed to send message",
-        variant: "destructive"
+        variant: "destructive",
+        action: retryCount < 3 ? (
+          <Button 
+            size="sm" 
+            onClick={() => {
+              setInput('');
+              sendMessage(retryCount);
+            }}
+          >
+            Retry
+          </Button>
+        ) : undefined
       });
     } finally {
       // Always clear loading state
@@ -1263,15 +1298,28 @@ export default function PhoenixLab() {
   };
 
   const resetConversation = async () => {
-    console.log('[PHOENIX] 🔄 Resetting conversation...');
+    console.log('[PHOENIX] 🔄 Reset conversation requested...');
+    
+    // Show confirmation dialog
+    const confirmed = window.confirm(
+      'Are you sure you want to start a new conversation? Your current chat will be saved to history.'
+    );
+    
+    if (!confirmed) {
+      console.log('[PHOENIX] Reset cancelled by user');
+      return;
+    }
+    
+    console.log('[PHOENIX] Resetting conversation...');
     
     // Save current conversation before resetting
     if (messages.length > 1) {
       await saveCurrentSession();
     }
     
-    // Stop all audio
+    // Stop all audio and wait for it to fully stop
     stopAllAudio();
+    await new Promise(resolve => setTimeout(resolve, 200));
     
     // Clear played messages tracking
     playedMessagesRef.current.clear();
