@@ -189,4 +189,7 @@ verify_jwt = false
 [functions.get-youtube-live-videos]
 verify_jwt = false
 
+[functions.fetch-open-source-intelligence]
+verify_jwt = false
+
 

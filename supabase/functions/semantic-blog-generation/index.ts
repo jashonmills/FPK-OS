@@ -12,6 +12,7 @@ interface RequestBody {
   author_id: string;
   personal_insights?: string;
   include_kb: boolean;
+  include_social?: boolean;
 }
 
 serve(async (req) => {
@@ -25,12 +26,13 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const { topic, category_id, author_id, personal_insights, include_kb } = await req.json() as RequestBody;
+    const { topic, category_id, author_id, personal_insights, include_kb, include_social } = await req.json() as RequestBody;
 
-    console.log('Generating blog with semantic search:', { topic, include_kb });
+    console.log('Generating blog with semantic search:', { topic, include_kb, include_social });
 
     let context = '';
     let sources: any[] = [];
+    let socialContext = '';
 
     // If knowledge base integration is enabled, perform semantic search
     if (include_kb) {
@@ -105,8 +107,52 @@ ${relevantChunk?.chunk_text || doc.content?.substring(0, 2000)}
       }
     }
 
+    // Fetch social & media intelligence if requested
+    if (include_social) {
+      try {
+        console.log('🌐 Fetching social intelligence...');
+        const socialResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/fetch-open-source-intelligence`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ topic }),
+        });
+
+        if (socialResponse.ok) {
+          const socialData = await socialResponse.json();
+          
+          // Build social context summary
+          const youtubeSummary = socialData.youtubeResults?.length > 0
+            ? `\n\nTrending YouTube Videos:\n` + socialData.youtubeResults.slice(0, 5).map((v: any) => 
+                `- "${v.title}" by ${v.channel} (${v.views})\n  ${v.description}`
+              ).join('\n')
+            : '';
+
+          const redditSummary = socialData.redditResults?.length > 0
+            ? `\n\nPopular Reddit Discussions:\n` + socialData.redditResults.slice(0, 5).map((p: any) =>
+                `- r/${p.subreddit}: "${p.title}" (${p.score} upvotes, ${p.numComments} comments)\n  ${p.selftext}\n  Top comments: ${p.topComments.slice(0, 2).join(' | ')}`
+              ).join('\n')
+            : '';
+
+          const tedSummary = socialData.tedResults?.length > 0
+            ? `\n\nRelevant TED Talks:\n` + socialData.tedResults.slice(0, 3).map((t: any) =>
+                `- "${t.title}" by ${t.speaker}\n  ${t.description}`
+              ).join('\n')
+            : '';
+
+          socialContext = youtubeSummary + redditSummary + tedSummary;
+          console.log(`✅ Social intelligence gathered (${socialData.youtubeResults?.length || 0} videos, ${socialData.redditResults?.length || 0} posts, ${socialData.tedResults?.length || 0} talks)`);
+        }
+      } catch (socialErr) {
+        console.warn('⚠️ Social intelligence fetch failed:', socialErr);
+        // Continue without social data
+      }
+    }
+
     // Generate blog post using Lovable AI with structured outputs
-    const systemPrompt = `You are an expert neurodiversity content writer specializing in autism, ADHD, and learning differences. 
+    const systemPrompt = `You are an expert neurodiversity content writer specializing in autism, ADHD, and learning differences.
 
 Generate a comprehensive, evidence-based blog post that is:
 - Written in an accessible, empathetic tone
@@ -120,13 +166,24 @@ Include:
 2. Bullet points and numbered lists
 3. A Key Takeaways section
 4. An FAQ section at the end (3-5 questions)
-5. Inline source citations like [Source: Name]`;
+5. Inline source citations like [Source: Name]
+
+${socialContext ? `
+**Community & Media Context**: You also have access to recent, relevant discussions and content from social media platforms. Use this information to:
+1. Identify trending questions or pain points to address in the introduction
+2. Reference popular influencers or creators by name (e.g., "As seen in a popular video by [Channel Name]...")
+3. Incorporate quotes or paraphrased sentiments from community discussions to show you understand the real-world conversation
+4. Balance the formal research with these timely, relevant community insights
+5. Make the content feel current and connected to what people are actually discussing online
+` : ''}`;
 
     const userPrompt = `Topic: ${topic}
     
 ${personal_insights ? `Personal Insights from Author:\n${personal_insights}\n\n` : ''}
 
 ${context ? `Research Context from Knowledge Base:\n${context}\n\n` : ''}
+
+${socialContext ? `Social & Media Intelligence:\n${socialContext}\n\n` : ''}
 
 Generate a complete, publication-ready blog post.`;
 
@@ -301,6 +358,7 @@ Generate a complete, publication-ready blog post.`;
         post: newPost,
         sources_used: sources.length,
         kb_integrated: include_kb && sources.length > 0,
+        social_integrated: include_social && socialContext.length > 0,
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

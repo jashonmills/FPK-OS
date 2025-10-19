@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Loader2, Sparkles, Database, ArrowRight, Users } from 'lucide-react';
+import { Loader2, Sparkles, Database, ArrowRight, Users, TrendingUp } from 'lucide-react';
 import { useBlogCategories } from '@/hooks/useBlogPosts';
 import { useBlogAuthors } from '@/hooks/useBlogAuthors';
 import { useToast } from '@/hooks/use-toast';
@@ -30,6 +30,7 @@ export function EnhancedAIBlogWizard({ open, onOpenChange }: EnhancedAIBlogWizar
   const [categoryId, setCategoryId] = useState('');
   const [authorId, setAuthorId] = useState('');
   const [includeKB, setIncludeKB] = useState(true);
+  const [includeSocial, setIncludeSocial] = useState(false);
 
   const { data: categories } = useBlogCategories();
   const { data: authors } = useBlogAuthors();
@@ -49,8 +50,10 @@ export function EnhancedAIBlogWizard({ open, onOpenChange }: EnhancedAIBlogWizar
 
     try {
       // Simulate progress steps
-      setTimeout(() => setProgressStep('Searching knowledge base...'), 500);
-      setTimeout(() => setProgressStep('Analyzing relevant sources...'), 5000);
+      if (includeKB || includeSocial) {
+        setTimeout(() => setProgressStep(includeKB ? 'Searching knowledge base...' : 'Gathering social intelligence...'), 500);
+        setTimeout(() => setProgressStep('Analyzing relevant sources...'), 5000);
+      }
       setTimeout(() => setProgressStep('Generating blog content...'), 15000);
       setTimeout(() => setProgressStep('Optimizing for SEO...'), 35000);
       setTimeout(() => setProgressStep('Finalizing draft...'), 55000);
@@ -68,6 +71,7 @@ export function EnhancedAIBlogWizard({ open, onOpenChange }: EnhancedAIBlogWizar
           author_id: authorId,
           personal_insights: personalInsights || null,
           include_kb: includeKB,
+          include_social: includeSocial,
         },
       });
 
@@ -85,11 +89,18 @@ export function EnhancedAIBlogWizard({ open, onOpenChange }: EnhancedAIBlogWizar
 
       setProgressStep('Complete!');
       
+      let description = 'Created draft successfully';
+      if (includeKB && data.kb_integrated && includeSocial && data.social_integrated) {
+        description = `Created draft using ${data.sources_used} knowledge base sources and social intelligence`;
+      } else if (includeKB && data.kb_integrated) {
+        description = `Created draft using ${data.sources_used} knowledge base sources`;
+      } else if (includeSocial && data.social_integrated) {
+        description = 'Created draft using social & media intelligence';
+      }
+      
       toast({
         title: 'Blog post generated!',
-        description: includeKB && data.kb_integrated
-          ? `Created draft using ${data.sources_used} knowledge base sources`
-          : 'Created draft successfully',
+        description,
       });
 
       // Navigate to editor with slug
@@ -130,6 +141,7 @@ export function EnhancedAIBlogWizard({ open, onOpenChange }: EnhancedAIBlogWizar
       setCategoryId('');
       setAuthorId('');
       setIncludeKB(true);
+      setIncludeSocial(false);
       onOpenChange(false);
     }
   };
@@ -239,6 +251,27 @@ export function EnhancedAIBlogWizard({ open, onOpenChange }: EnhancedAIBlogWizar
             </div>
           </div>
 
+          {/* Social Intelligence Integration */}
+          <div className="flex items-start space-x-3 rounded-lg border p-4 bg-muted/50">
+            <Checkbox
+              id="include-social"
+              checked={includeSocial}
+              onCheckedChange={(checked) => setIncludeSocial(checked as boolean)}
+              disabled={isGenerating}
+            />
+            <div className="flex-1 space-y-1">
+              <Label htmlFor="include-social" className="cursor-pointer font-medium">
+                <TrendingUp className="h-4 w-4 inline mr-2" />
+                Include Social & Media Trends
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                AI will analyze trending discussions on Reddit, YouTube videos, and TED Talks 
+                to make your content more timely and engaging. Your post will reference 
+                real community conversations and key influencers.
+              </p>
+            </div>
+          </div>
+
           {/* Generate Button */}
           <Button
             onClick={handleGenerate}
@@ -274,12 +307,20 @@ export function EnhancedAIBlogWizard({ open, onOpenChange }: EnhancedAIBlogWizar
                 </div>
               </div>
               
-              {includeKB && (
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <Database className="h-3 w-3" />
-                  <span>Searching through knowledge base for relevant sources</span>
-                </div>
-              )}
+              <div className="space-y-1">
+                {includeKB && (
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Database className="h-3 w-3" />
+                    <span>Searching through knowledge base for relevant sources</span>
+                  </div>
+                )}
+                {includeSocial && (
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <TrendingUp className="h-3 w-3" />
+                    <span>Gathering insights from YouTube, Reddit, and TED</span>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>

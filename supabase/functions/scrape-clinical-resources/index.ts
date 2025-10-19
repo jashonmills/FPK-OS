@@ -7,28 +7,118 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-// Resource URL mappings by source name
-const RESOURCE_URLS: Record<string, string> = {
-  // Clinical Resources (Tier 2)
-  'CDC': 'https://www.cdc.gov/ncbddd/adhd/facts.html',
-  'NIMH': 'https://www.nimh.nih.gov/health/topics/autism-spectrum-disorders',
-  'CHADD': 'https://chadd.org/about-adhd/overview/',
-  'Autism Society': 'https://autismsociety.org/about-autism/',
-  'Learning Disabilities Association': 'https://ldaamerica.org/types-of-learning-disabilities/',
-  'ADDitude Magazine': 'https://www.additudemag.com/what-is-adhd-symptoms-causes-treatments/',
-  'Autism Speaks': 'https://www.autismspeaks.org/what-autism',
-  'National Center for LD': 'https://www.ncld.org/what-is-ld/',
+// Expanded Resource URL mappings - Multiple URLs per source for better coverage
+const RESOURCE_URLS: Record<string, string[]> = {
+  // Tier 2: Clinical & Educational Resources - US
+  'NIMH': [
+    'https://www.nimh.nih.gov/health/topics/autism-spectrum-disorders',
+    'https://www.nimh.nih.gov/health/topics/attention-deficit-hyperactivity-disorder-adhd',
+    'https://www.nimh.nih.gov/health/topics/child-and-adolescent-mental-health'
+  ],
+  'CHADD': [
+    'https://chadd.org/about-adhd/overview/',
+    'https://chadd.org/for-parents/overview/',
+    'https://chadd.org/for-educators/adhd-in-the-classroom/'
+  ],
+  'ASHA': [
+    'https://www.asha.org/practice-portal/',
+    'https://www.asha.org/public/',
+    'https://www.asha.org/practice-portal/clinical-topics/autism/'
+  ],
   
-  // Institutional Resources (Tier 3)
-  'Harvard Graduate School of Education': 'https://www.gse.harvard.edu/ideas/usable-knowledge/21/07/teaching-students-adhd',
-  'Stanford School of Education': 'https://ed.stanford.edu/news/stanford-researchers-examine-how-technology-can-help-students-learning-differences',
-  'Johns Hopkins School of Education': 'https://education.jhu.edu/research/centers-labs/center-for-talented-youth/',
-  'Yale Poorvu Center': 'https://poorvucenter.yale.edu/LearningDifferences',
+  // Tier 2: Clinical & Educational Resources - UK
+  'National Autistic Society UK': [
+    'https://www.autism.org.uk/advice-and-guidance',
+    'https://www.autism.org.uk/advice-and-guidance/topics/education',
+    'https://www.autism.org.uk/advice-and-guidance/professional-practice'
+  ],
+  'British Dyslexia Association': [
+    'https://www.bdadyslexia.org.uk/dyslexia',
+    'https://www.bdadyslexia.org.uk/advice/children',
+    'https://www.bdadyslexia.org.uk/advice/adults'
+  ],
+  'ADHD Foundation UK': [
+    'https://www.adhdfoundation.org.uk/information/',
+    'https://www.adhdfoundation.org.uk/what-is-adhd/',
+    'https://www.adhdfoundation.org.uk/neurodiversity/'
+  ],
   
-  // Specialized Resources (Tier 4)
-  'Social Thinking': 'https://www.socialthinking.com/Articles',
-  'MIT OpenCourseWare': 'https://ocw.mit.edu/courses/res-9-003-brains-minds-and-machines-summer-course-summer-2015/',
-  'Khan Academy Special Education': 'https://www.khanacademy.org/about/blog',
+  // Tier 2: Clinical & Educational Resources - Ireland
+  'NCSE Ireland': [
+    'https://ncse.ie/policy-advice',
+    'https://ncse.ie/supporting-students',
+    'https://ncse.ie/information-resources'
+  ],
+  'AsIAm Ireland': [
+    'https://asiam.ie/education/',
+    'https://asiam.ie/employment/',
+    'https://asiam.ie/community-support/'
+  ],
+  'Dyslexia Association Ireland': [
+    'https://www.dyslexia.ie/information/',
+    'https://www.dyslexia.ie/dyslexia-in-adults/',
+    'https://www.dyslexia.ie/support-services/'
+  ],
+  'HSE Ireland': [
+    'https://www.hse.ie/eng/services/list/4/disability/',
+    'https://www.hse.ie/eng/services/list/4/disability/earlyintervention/',
+    'https://www.hse.ie/eng/services/list/4/disability/progressing-disability/'
+  ],
+  
+  // Tier 2: Global Professional Organizations
+  'WFOT': [
+    'https://wfot.org/resources',
+    'https://wfot.org/practice',
+    'https://wfot.org/about/about-occupational-therapy'
+  ],
+  
+  // Tier 3: Institutional Resources
+  'MIT OpenCourseWare': [
+    'https://ocw.mit.edu/courses/res-9-003-brains-minds-and-machines-summer-course-summer-2015/',
+    'https://ocw.mit.edu/courses/brain-and-cognitive-sciences/'
+  ],
+  'Hanen Centre': [
+    'http://www.hanen.org/Programs.aspx',
+    'http://www.hanen.org/Helpful-Info.aspx'
+  ],
+  'LD OnLine': [
+    'https://www.ldonline.org/ld-topics/adhd',
+    'https://www.ldonline.org/ld-topics/dyslexia',
+    'https://www.ldonline.org/ld-topics/autism-spectrum-disorders'
+  ],
+  'CPIR': [
+    'https://www.parentcenterhub.org/find-your-center/',
+    'https://www.parentcenterhub.org/priority-iep/',
+    'https://www.parentcenterhub.org/repository/disability-info/'
+  ],
+  'The Arc': [
+    'https://thearc.org/our-initiatives/',
+    'https://thearc.org/policy-advocacy/'
+  ],
+  'Council for Exceptional Children': [
+    'https://exceptionalchildren.org/standards',
+    'https://exceptionalchildren.org/research-and-policy',
+    'https://exceptionalchildren.org/professional-development'
+  ],
+  
+  // Tier 4: Specialized Resources
+  'ADDitude Magazine': [
+    'https://www.additudemag.com/category/adhd-add/',
+    'https://www.additudemag.com/category/parenting-adhd-children/',
+    'https://www.additudemag.com/category/school-learning/'
+  ],
+  'Autism Society': [
+    'https://autismsociety.org/about-autism/',
+    'https://autismsociety.org/living-with-autism/'
+  ],
+  'Learning Disabilities Association': [
+    'https://ldaamerica.org/types-of-learning-disabilities/',
+    'https://ldaamerica.org/support/adults-with-ld/'
+  ],
+  'National Center for LD': [
+    'https://www.ncld.org/what-is-ld/',
+    'https://www.ncld.org/understanding-ld/'
+  ],
 };
 
 // Helper function to extract main content from HTML
@@ -110,23 +200,25 @@ serve(async (req) => {
     jobId = job.id;
     console.log(`✅ Created job: ${jobId}`);
 
-    // Map source names to URLs
-    const resources = sources
-      .map((sourceName: string) => {
-        const url = RESOURCE_URLS[sourceName];
-        if (!url) {
-          console.warn(`⚠️  No URL found for source: ${sourceName}`);
-          return null;
-        }
-        return { url, name: sourceName };
-      })
-      .filter((r: any) => r !== null);
+    // Map source names to their URL arrays
+    const allResources: { url: string; name: string }[] = [];
+    sources.forEach((sourceName: string) => {
+      const urls = RESOURCE_URLS[sourceName];
+      if (!urls || urls.length === 0) {
+        console.warn(`⚠️  No URLs found for source: ${sourceName}`);
+        return;
+      }
+      // Add all URLs for this source
+      urls.forEach(url => {
+        allResources.push({ url, name: sourceName });
+      });
+    });
 
-    const totalResources = resources.length;
+    const totalResources = allResources.length;
     let totalAdded = 0;
     const errors: string[] = [];
 
-    console.log(`📚 Processing ${totalResources} resources`);
+    console.log(`📚 Processing ${totalResources} resource URLs from ${sources.length} sources`);
 
     // Update job with total count
     await supabase
@@ -136,9 +228,9 @@ serve(async (req) => {
 
     // Process resources in batches
     const batchSize = 2;
-    for (let i = 0; i < resources.length; i += batchSize) {
-      const batch = resources.slice(i, i + batchSize);
-      console.log(`📄 Processing batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(resources.length / batchSize)}`);
+    for (let i = 0; i < allResources.length; i += batchSize) {
+      const batch = allResources.slice(i, i + batchSize);
+      console.log(`📄 Processing batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(allResources.length / batchSize)}`);
 
       await Promise.all(batch.map(async (resource: any) => {
         const maxRetries = 2;
@@ -146,7 +238,7 @@ serve(async (req) => {
 
         while (retryCount < maxRetries) {
           try {
-            console.log(`🔍 Scraping: ${resource.name}`);
+            console.log(`🔍 Scraping: ${resource.name} - ${resource.url}`);
 
             // Fetch with timeout
             const response = await fetch(resource.url, {
@@ -203,17 +295,16 @@ serve(async (req) => {
               }
             } else {
               console.log(`⏭️  Skipped duplicate: ${title.substring(0, 50)}...`);
-              totalAdded++;
             }
 
             break; // Success
 
           } catch (err) {
             retryCount++;
-            console.error(`❌ Attempt ${retryCount} failed for ${resource.name}:`, err);
+            console.error(`❌ Attempt ${retryCount} failed for ${resource.name} (${resource.url}):`, err);
 
             if (retryCount >= maxRetries) {
-              errors.push(`${resource.name}: ${err.message}`);
+              errors.push(`${resource.name} (${resource.url}): ${err.message}`);
             } else {
               await new Promise(resolve => setTimeout(resolve, 2000));
             }
@@ -228,7 +319,7 @@ serve(async (req) => {
         .eq('id', jobId);
 
       // Rate limiting between batches
-      if (i + batchSize < resources.length) {
+      if (i + batchSize < allResources.length) {
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
     }
@@ -241,7 +332,7 @@ serve(async (req) => {
         status: finalStatus,
         documents_found: totalResources,
         documents_added: totalAdded,
-        error_message: errors.length > 0 ? errors.slice(0, 3).join('; ') : null,
+        error_message: errors.length > 0 ? errors.slice(0, 5).join('; ') : null,
         completed_at: new Date().toISOString(),
       })
       .eq('id', jobId);
