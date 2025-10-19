@@ -166,6 +166,7 @@ export default function PhoenixLab() {
   const activeAudioElements = React.useRef<Set<HTMLAudioElement>>(new Set());
   const audioLockRef = React.useRef(false);
   const playedMessagesRef = React.useRef<Set<string>>(new Set());
+  const sendMessageLockRef = React.useRef(false); // Prevent duplicate sends
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
@@ -616,8 +617,15 @@ export default function PhoenixLab() {
   };
 
   const sendMessage = async (retryCount = 0): Promise<void> => {
-    if (!input.trim() || loading) return;
+    // CRITICAL: Prevent duplicate sends with ref-based lock
+    if (sendMessageLockRef.current || !input.trim() || loading) {
+      console.log('[PHOENIX] 🚫 Message send blocked - lock:', sendMessageLockRef.current, 'input:', !input.trim(), 'loading:', loading);
+      return;
+    }
 
+    // Set lock immediately before any async operations
+    sendMessageLockRef.current = true;
+    
     setLoading(true);
     const userMessage = input.trim();
     setInput('');
@@ -1030,9 +1038,10 @@ export default function PhoenixLab() {
         }, (retryCount + 1) * 2000);
       }
     } finally {
-      // Always clear loading state
+      // Always clear loading state and unlock
       setLoading(false);
-      console.log('[PHOENIX] Loading state cleared');
+      sendMessageLockRef.current = false;
+      console.log('[PHOENIX] Loading state cleared and lock released');
     }
   };
 
