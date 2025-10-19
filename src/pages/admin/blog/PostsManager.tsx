@@ -96,20 +96,22 @@ export function PostsManager() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="mobile-stack">
       {/* AI Generator Card */}
       <Card className="bg-gradient-to-br from-pink-500/5 to-purple-500/5 border-pink-500/20">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-pink-600" />
-            AI Content Generator
+        <CardHeader className="mobile-card-padding">
+          <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+            <Sparkles className="h-5 w-5 text-pink-600 shrink-0" />
+            <span>AI Content Generator</span>
           </CardTitle>
-          <CardDescription>Create SEO-optimized blog posts with AI from your knowledge base</CardDescription>
+          <CardDescription className="text-sm">
+            Create SEO-optimized blog posts with AI from your knowledge base
+          </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="mobile-card-padding pt-0">
           <Button 
             onClick={() => setShowAIWizard(true)}
-            className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600"
+            className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 w-full sm:w-auto min-h-[44px]"
           >
             <Sparkles className="h-4 w-4 mr-2" />
             Generate Articles
@@ -118,15 +120,15 @@ export function PostsManager() {
       </Card>
 
       {/* All Articles Section */}
-      <TransparentTile className="p-4">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+      <TransparentTile className="mobile-card-padding">
+        <div className="flex flex-col gap-3">
           <div>
-            <h2 className="text-xl sm:text-2xl font-bold">All Articles</h2>
-            <p className="text-sm text-muted-foreground">Manage your published and draft content</p>
+            <h2 className="mobile-heading-md">All Articles</h2>
+            <p className="text-sm text-muted-foreground mt-1">Manage your published and draft content</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2 w-full">
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full sm:w-[160px]">
+              <SelectTrigger className="w-full sm:w-[160px] min-h-[44px]">
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
               <SelectContent className="bg-background/95 backdrop-blur-sm z-50">
@@ -137,7 +139,11 @@ export function PostsManager() {
                 <SelectItem value="archived">Archived</SelectItem>
               </SelectContent>
             </Select>
-            <Button onClick={() => navigate('/dashboard/admin/blog/new')} size="sm">
+            <Button 
+              onClick={() => navigate('/dashboard/admin/blog/new')} 
+              size="sm"
+              className="w-full sm:w-auto min-h-[44px]"
+            >
               <FileEdit className="h-4 w-4 mr-2" />
               New Article
             </Button>
@@ -145,15 +151,15 @@ export function PostsManager() {
         </div>
       </TransparentTile>
 
-      <div className="border rounded-lg bg-card">
+      <div className="border rounded-lg bg-card overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
-              <TableHead className="font-semibold">Title</TableHead>
+              <TableHead className="font-semibold min-w-[200px]">Title</TableHead>
               <TableHead className="hidden md:table-cell font-semibold">Status</TableHead>
               <TableHead className="hidden lg:table-cell font-semibold">Views</TableHead>
               <TableHead className="hidden xl:table-cell font-semibold">Updated</TableHead>
-              <TableHead className="text-right font-semibold">Actions</TableHead>
+              <TableHead className="text-right font-semibold sticky right-0 bg-card">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

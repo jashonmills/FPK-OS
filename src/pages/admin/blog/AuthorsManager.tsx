@@ -60,31 +60,34 @@ export function AuthorsManager() {
   }
 
   return (
-    <div className="space-y-4">
-      <TransparentTile className="p-4">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+    <div className="mobile-stack">
+      <TransparentTile className="mobile-card-padding">
+        <div className="flex flex-col gap-3">
           <div>
-            <h2 className="text-xl sm:text-2xl font-bold">Authors</h2>
-            <p className="text-sm text-muted-foreground">Manage content contributors</p>
+            <h2 className="mobile-heading-md">Authors</h2>
+            <p className="text-sm text-muted-foreground mt-1">Manage content contributors</p>
           </div>
-          <Button onClick={() => {
-            setSelectedAuthor(null);
-            setDialogOpen(true);
-          }}>
+          <Button 
+            onClick={() => {
+              setSelectedAuthor(null);
+              setDialogOpen(true);
+            }}
+            className="w-full sm:w-auto min-h-[44px]"
+          >
             <Plus className="mr-2 h-4 w-4" />
             New Author
           </Button>
         </div>
       </TransparentTile>
 
-      <div className="border rounded-lg bg-card">
+      <div className="border rounded-lg bg-card overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
-              <TableHead className="font-semibold">Author</TableHead>
+              <TableHead className="font-semibold min-w-[200px]">Author</TableHead>
               <TableHead className="hidden md:table-cell font-semibold">Credentials</TableHead>
               <TableHead className="hidden lg:table-cell font-semibold">Type</TableHead>
-              <TableHead className="text-right font-semibold">Actions</TableHead>
+              <TableHead className="text-right font-semibold sticky right-0 bg-card">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
