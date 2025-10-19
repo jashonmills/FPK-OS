@@ -76,6 +76,19 @@ export function useCreateBlogAuthor() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
+      // For non-AI authors, check if user already has an author profile
+      if (!author.is_ai_author) {
+        const { data: existingAuthor } = await supabase
+          .from('blog_authors')
+          .select('id, display_name')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (existingAuthor) {
+          throw new Error(`You already have an author profile: "${existingAuthor.display_name}". Please edit your existing profile or create an AI author instead.`);
+        }
+      }
+
       // For AI authors, set user_id to NULL; for real authors, use the current user's ID
       const authorData = {
         ...author,
