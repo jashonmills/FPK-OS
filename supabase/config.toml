@@ -192,4 +192,7 @@ verify_jwt = false
 [functions.fetch-open-source-intelligence]
 verify_jwt = false
 
+[functions.epub-ingestion]
+verify_jwt = true
+
 
