@@ -6800,6 +6800,7 @@ export type Database = {
           created_by: string | null
           description: string
           display_order: number
+          display_section: string | null
           id: string
           is_active: boolean
           logo_url: string | null
@@ -6814,6 +6815,7 @@ export type Database = {
           created_by?: string | null
           description: string
           display_order?: number
+          display_section?: string | null
           id?: string
           is_active?: boolean
           logo_url?: string | null
@@ -6828,6 +6830,7 @@ export type Database = {
           created_by?: string | null
           description?: string
           display_order?: number
+          display_section?: string | null
           id?: string
           is_active?: boolean
           logo_url?: string | null

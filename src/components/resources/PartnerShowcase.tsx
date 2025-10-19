@@ -5,8 +5,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Handshake } from 'lucide-react';
 
 export function PartnerShowcase() {
-  // Only show Sensory Tools category (Trusted Partners)
-  const { data: partners, isLoading } = usePartnerResources('Sensory Tools');
+  // Only show Trusted Partners section
+  const { data: partners, isLoading } = usePartnerResources('trusted_partners');
 
   if (isLoading) {
     return (

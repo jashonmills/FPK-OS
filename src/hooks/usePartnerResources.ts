@@ -9,16 +9,17 @@ export interface PartnerResource {
   logo_url: string;
   website_url: string;
   category: string;
+  display_section: 'trusted_partners' | 'recommended_organizations';
   display_order: number;
   is_active: boolean;
   created_at: string;
   updated_at: string;
 }
 
-// Fetch active partners (public view)
-export function usePartnerResources(category?: string) {
+// Fetch active partners (public view) - can filter by display_section or category
+export function usePartnerResources(displaySection?: string, category?: string) {
   return useQuery({
-    queryKey: ['partner-resources', category],
+    queryKey: ['partner-resources', displaySection, category],
     queryFn: async () => {
       let query = supabase
         .from('partner_resources')
@@ -26,6 +27,10 @@ export function usePartnerResources(category?: string) {
         .eq('is_active', true)
         .order('display_order', { ascending: true })
         .order('created_at', { ascending: true });
+      
+      if (displaySection) {
+        query = query.eq('display_section', displaySection);
+      }
       
       if (category) {
         query = query.eq('category', category);

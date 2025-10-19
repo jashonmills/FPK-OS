@@ -30,6 +30,7 @@ interface PartnerFormData {
   logo_url: string;
   website_url: string;
   category: string;
+  display_section: 'trusted_partners' | 'recommended_organizations';
   display_order: number;
   is_active: boolean;
 }
@@ -51,6 +52,7 @@ export function PartnersManager() {
     logo_url: '',
     website_url: 'https://',
     category: 'General',
+    display_section: 'recommended_organizations',
     display_order: 0,
     is_active: true
   });
@@ -63,6 +65,7 @@ export function PartnersManager() {
       logo_url: '',
       website_url: 'https://',
       category: 'General',
+      display_section: 'recommended_organizations',
       display_order: 0,
       is_active: true
     });
@@ -78,6 +81,7 @@ export function PartnersManager() {
       logo_url: partner.logo_url,
       website_url: partner.website_url,
       category: partner.category,
+      display_section: partner.display_section,
       display_order: partner.display_order,
       is_active: partner.is_active
     });
@@ -228,6 +232,27 @@ export function PartnersManager() {
               </div>
 
               <div>
+                <Label htmlFor="display_section">Display Section *</Label>
+                <Select
+                  value={formData.display_section}
+                  onValueChange={(value: 'trusted_partners' | 'recommended_organizations') => 
+                    setFormData({ ...formData, display_section: value })
+                  }
+                >
+                  <SelectTrigger id="display_section">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="trusted_partners">Trusted Partners & Recommended Tools</SelectItem>
+                    <SelectItem value="recommended_organizations">Further Reading & Recommended Organizations</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Choose where this partner will appear on the Resources page
+                </p>
+              </div>
+
+              <div>
                 <Label htmlFor="display_order">Display Order</Label>
                 <Input
                   id="display_order"
@@ -281,6 +306,7 @@ export function PartnersManager() {
                   <TableHead>Logo</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Category</TableHead>
+                  <TableHead>Display Section</TableHead>
                   <TableHead>Website</TableHead>
                   <TableHead>Order</TableHead>
                   <TableHead>Status</TableHead>
@@ -303,6 +329,13 @@ export function PartnersManager() {
                       </TableCell>
                       <TableCell className="font-medium">{partner.name}</TableCell>
                       <TableCell>{partner.category}</TableCell>
+                      <TableCell>
+                        <span className="text-xs">
+                          {partner.display_section === 'trusted_partners' 
+                            ? 'Trusted Partners' 
+                            : 'Further Reading'}
+                        </span>
+                      </TableCell>
                       <TableCell>
                         <a 
                           href={partner.website_url} 
@@ -344,7 +377,7 @@ export function PartnersManager() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                       No partners found. Click "Add New Partner" to get started.
                     </TableCell>
                   </TableRow>

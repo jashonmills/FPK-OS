@@ -4,7 +4,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 
 export function AdditionalResourcesList() {
-  const { data: resources, isLoading } = usePartnerResources('Educational Resources');
+  const { data: resources, isLoading } = usePartnerResources('recommended_organizations');
 
   if (isLoading) {
     return (
