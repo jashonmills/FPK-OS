@@ -186,4 +186,7 @@ verify_jwt = true
 [functions.generate-seo-metadata]
 verify_jwt = false
 
+[functions.get-youtube-live-videos]
+verify_jwt = false
+
 

@@ -6,11 +6,12 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Search, Calendar, Clock, ArrowLeft, BookOpen, ChevronDown } from 'lucide-react';
+import { Search, Calendar, Clock, ArrowLeft, BookOpen, ChevronDown, PlayCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Helmet } from 'react-helmet';
 import { useToast } from '@/hooks/use-toast';
+import { PodcastVideoCarousel } from '@/components/resources/PodcastVideoCarousel';
 
 export default function Resources() {
   const navigate = useNavigate();
@@ -108,6 +109,17 @@ export default function Resources() {
           <p className="text-lg text-muted-foreground">
             Insights on education, neurodiversity, IEP advocacy, and learning strategies
           </p>
+        </div>
+
+        {/* YouTube Podcast Carousel */}
+        <div className="mb-8 bg-white/70 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-white/20">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-12 h-12 bg-red-500/10 rounded-lg flex items-center justify-center">
+              <PlayCircle className="w-6 h-6 text-red-500" />
+            </div>
+            <h2 className="text-2xl font-bold">Latest from the FPK University Podcast</h2>
+          </div>
+          <PodcastVideoCarousel channelId="UCfvvsOo5ZSENykqNmX31JuQ" />
         </div>
 
         <div className="mb-8 bg-white/50 backdrop-blur-sm rounded-lg p-4">
