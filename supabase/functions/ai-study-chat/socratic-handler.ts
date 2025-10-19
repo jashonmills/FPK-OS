@@ -69,6 +69,7 @@ export interface SocraticRequest {
   objective?: string;
   studentResponse?: string;
   promotedFromFreeChat?: boolean; // Flag for warm handoff
+  source?: string; // Track data source for isolation
 }
 
 export interface SocraticResponse {
@@ -97,8 +98,8 @@ export async function handleSocraticSession(
       throw new Error('Topic and objective required to start session');
     }
 
-    // Accept source from request body (defaults to 'fpk_university' for backward compatibility)
-    const source = body.source || 'fpk_university';
+    // Accept source from request (defaults to 'fpk_university' for backward compatibility)
+    const source = request.source || 'fpk_university';
 
     // Create session with source tracking
     const { data: session, error } = await supabase
