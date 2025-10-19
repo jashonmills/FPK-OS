@@ -50,7 +50,7 @@ export function AdditionalResourcesList() {
                     {resource.name}
                     <ExternalLink className="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
                   </h3>
-                  <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">
+                  <p className="text-xs text-foreground/80 group-hover:text-foreground leading-relaxed line-clamp-3">
                     {resource.description}
                   </p>
                 </a>
