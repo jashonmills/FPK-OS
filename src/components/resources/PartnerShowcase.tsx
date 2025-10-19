@@ -5,8 +5,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Handshake } from 'lucide-react';
 
 export function PartnerShowcase() {
-  // Only show Sensory Tools category (Snugz and similar products)
-  const { data: partners, isLoading } = usePartnerResources('Sensory Tools');
+  // Show all active partner resources
+  const { data: partners, isLoading } = usePartnerResources();
 
   if (isLoading) {
     return (

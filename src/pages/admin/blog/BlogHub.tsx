@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TransparentTile } from '@/components/ui/transparent-tile';
-import { Shield, FileText, Tag, Users, Database, Image, BarChart3 } from 'lucide-react';
+import { Shield, FileText, Tag, Users, Database, Image, BarChart3, Handshake } from 'lucide-react';
 import { PostsManager } from './PostsManager';
 import { AuthorsManager } from './AuthorsManager';
+import { PartnersManager } from './PartnersManager';
 import CategoryManager from './CategoryManager';
 import KnowledgeBaseCommandCenter from './KnowledgeBaseCommandCenter';
 import BlogAnalytics from './BlogAnalytics';
@@ -38,6 +39,10 @@ export default function BlogHub() {
             <Users className="h-4 w-4 mr-2" />
             Authors
           </TabsTrigger>
+          <TabsTrigger value="partners">
+            <Handshake className="h-4 w-4 mr-2" />
+            Partners
+          </TabsTrigger>
           <TabsTrigger value="knowledge-base">
             <Database className="h-4 w-4 mr-2" />
             Knowledge Base
@@ -64,6 +69,10 @@ export default function BlogHub() {
 
         <TabsContent value="authors" className="space-y-4">
           <AuthorsManager />
+        </TabsContent>
+
+        <TabsContent value="partners" className="space-y-4">
+          <PartnersManager />
         </TabsContent>
 
         <TabsContent value="knowledge-base" className="space-y-4">
