@@ -128,6 +128,8 @@ export default function KnowledgeBaseCommandCenter() {
     // Check for any academic tier jobs (tier 1, 2, or 3)
     const academicJob = jobs.find(j => j.job_type?.startsWith('academic_tier_'));
     if (academicJob) {
+      console.log('Academic job detected:', academicJob.status, academicJob);
+      
       if (academicJob.status === 'in_progress') {
         setAcademicStatus({
           stage: 'ingesting',
@@ -137,6 +139,7 @@ export default function KnowledgeBaseCommandCenter() {
           itemsFound: academicJob.documents_found || 1
         });
       } else if (academicJob.status === 'completed') {
+        console.log('Academic job completed, updating UI');
         setAcademicStatus({
           stage: 'complete',
           message: `Successfully added ${academicJob.documents_added || 0} documents!`,
@@ -144,16 +147,27 @@ export default function KnowledgeBaseCommandCenter() {
         });
         loadStats();
         loadDocuments();
+        
+        // Auto-reset and stop tracking after completion
         setTimeout(() => {
           setAcademicStatus({ stage: 'idle', message: '', progress: 0 });
-        }, 3000);
+          setTrackingEnabled(false);
+        }, 5000);
       } else if (academicJob.status === 'failed') {
+        console.log('Academic job failed:', academicJob.error_message);
         setAcademicStatus({
           stage: 'error',
           message: academicJob.error_message || 'Ingestion failed',
           progress: 0
         });
+        setTimeout(() => {
+          setTrackingEnabled(false);
+        }, 5000);
       }
+    } else if (trackingEnabled && academicStatus.stage === 'searching') {
+      // If we're tracking but haven't found a job yet, and we've been searching for a while,
+      // the job might have already completed before we started tracking
+      console.log('No active job found, checking if it already completed');
     }
 
     // Check for clinical tier jobs
@@ -178,13 +192,17 @@ export default function KnowledgeBaseCommandCenter() {
           loadDocuments();
           setTimeout(() => {
             setter({ stage: 'idle', message: '', progress: 0 });
-          }, 3000);
+            setTrackingEnabled(false);
+          }, 5000);
         } else if (clinicalJob.status === 'failed') {
           setter({
             stage: 'error',
             message: clinicalJob.error_message || 'Scraping failed',
             progress: 0
           });
+          setTimeout(() => {
+            setTrackingEnabled(false);
+          }, 5000);
         }
       };
       updateStatus(setClinicalStatus);
@@ -212,18 +230,22 @@ export default function KnowledgeBaseCommandCenter() {
           loadDocuments();
           setTimeout(() => {
             setter({ stage: 'idle', message: '', progress: 0 });
-          }, 3000);
+            setTrackingEnabled(false);
+          }, 5000);
         } else if (specializedJob.status === 'failed') {
           setter({
             stage: 'error',
             message: specializedJob.error_message || 'Scraping failed',
             progress: 0
           });
+          setTimeout(() => {
+            setTrackingEnabled(false);
+          }, 5000);
         }
       };
       updateStatus(setSpecializedStatus);
     }
-  }, [jobs, trackingEnabled]);
+  }, [jobs, trackingEnabled, academicStatus.stage]);
 
   const loadStats = async () => {
     const [docsResult, embeddingsResult] = await Promise.all([
