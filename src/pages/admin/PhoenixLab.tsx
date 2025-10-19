@@ -27,6 +27,26 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 const SUPABASE_URL = "https://zgcegkmqfgznbpdplscz.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpnY2Vna21xZmd6bmJwZHBsc2N6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MDcxNTgsImV4cCI6MjA2NDk4MzE1OH0.RCtAqfgz7aqjG-QWiOqFBCG5xg2Rok9T4tbyGQMnCm8";
 
+// Helper function to convert base64 to blob
+const base64ToBlob = (base64: string, contentType: string): Blob => {
+  const byteCharacters = atob(base64);
+  const byteArrays = [];
+  
+  for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+    const slice = byteCharacters.slice(offset, offset + 512);
+    const byteNumbers = new Array(slice.length);
+    
+    for (let i = 0; i < slice.length; i++) {
+      byteNumbers[i] = slice.charCodeAt(i);
+    }
+    
+    const byteArray = new Uint8Array(byteNumbers);
+    byteArrays.push(byteArray);
+  }
+  
+  return new Blob(byteArrays, { type: contentType });
+};
+
 interface Message {
   id: string;
   persona: 'USER' | 'BETTY' | 'AL' | 'CONDUCTOR' | 'NITE_OWL';
@@ -56,9 +76,8 @@ I'm here to introduce you to two awesome teachers who'll help you learn anything
 🎯 **Al** - He gives you clear, direct explanations when you need them!
 
 Together, they make an amazing team. Ready to start learning something cool today? Let's make some magic happen! ✨`,
-    isWelcome: true,
-    // Audio URL - using pre-generated multi-speaker welcome
-    audioUrl: 'https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/audio/betty-al-night-Owl-intro/welcome_dialogue_trio.mp3'
+    isWelcome: true
+    // Audio will be generated dynamically
   }
 ];
 
@@ -501,7 +520,7 @@ export default function PhoenixLab() {
 
       setIsGeneratingAudio(false);
 
-      // Create message with pre-defined audio URL
+      // Create message
       const showtimeMessage: Message = {
         ...WELCOME_MESSAGES[0],
         id: crypto.randomUUID(),
@@ -511,35 +530,53 @@ export default function PhoenixLab() {
       // Display message
       setMessages([showtimeMessage]);
 
-      // Play audio if enabled
-      if (audioEnabled && showtimeMessage.audioUrl) {
-        console.log('[PHOENIX] 🎵 Playing Showtime welcome audio');
-        console.log('[PHOENIX] Audio URL:', showtimeMessage.audioUrl);
+      // Generate and play audio if enabled
+      if (audioEnabled) {
+        console.log('[PHOENIX] 🎵 Generating welcome audio dynamically');
         
-        // Test if audio URL is accessible
         try {
-          const audioTest = await fetch(showtimeMessage.audioUrl, { method: 'HEAD' });
-          if (!audioTest.ok) {
-            console.warn('[PHOENIX] ⚠️ Audio file not accessible:', audioTest.status);
+          // Generate audio using text-to-voice function
+          const { data: audioData, error: audioError } = await supabase.functions.invoke('text-to-voice', {
+            body: { 
+              text: WELCOME_MESSAGES[0].content.replace(/[🎙️🦉🌟🎯✨*]/g, ''), // Remove emojis and markdown
+              voice: 'nova' // Female voice for Nite Owl
+            }
+          });
+
+          if (audioError) {
+            console.error('[PHOENIX] Failed to generate welcome audio:', audioError);
             toast({
-              title: "Audio Not Available",
-              description: "Welcome audio file is not accessible. The conversation will work without it.",
+              title: "Audio Generation Failed",
+              description: "Could not generate welcome audio. Continuing without it.",
               variant: "default"
             });
-          } else {
-            console.log('[PHOENIX] ✓ Audio file accessible, playing...');
-            await playAudioWithHighlight(showtimeMessage.audioUrl, showtimeMessage.id);
+          } else if (audioData?.audioContent) {
+            console.log('[PHOENIX] ✓ Welcome audio generated, playing...');
+            
+            // Convert base64 to blob URL
+            const audioBlob = base64ToBlob(audioData.audioContent, 'audio/mpeg');
+            const audioUrl = URL.createObjectURL(audioBlob);
+            
+            // Update message with audio URL
+            setMessages(prev => prev.map(msg => 
+              msg.id === showtimeMessage.id 
+                ? { ...msg, audioUrl }
+                : msg
+            ));
+            
+            // Play the audio
+            await playAudioWithHighlight(audioUrl, showtimeMessage.id);
           }
         } catch (audioError) {
-          console.error('[PHOENIX] Audio URL test failed:', audioError);
+          console.error('[PHOENIX] Audio generation error:', audioError);
           toast({
             title: "Audio Setup Issue",
-            description: "Could not access audio file. Continuing without audio.",
+            description: "Could not generate audio. Continuing without it.",
             variant: "default"
           });
         }
       } else {
-        console.log('[PHOENIX] Audio skipped - enabled:', audioEnabled, 'hasUrl:', !!showtimeMessage.audioUrl);
+        console.log('[PHOENIX] Audio disabled, skipping welcome audio generation');
       }
 
       // Mark welcome as played to prevent replay
