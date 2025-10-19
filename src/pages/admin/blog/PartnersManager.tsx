@@ -135,14 +135,14 @@ export function PartnersManager() {
   };
 
   return (
-    <div className="mobile-stack">
+    <div className="space-y-4">
       <div className="flex justify-end">
         <Dialog open={dialogOpen} onOpenChange={(open) => {
           setDialogOpen(open);
           if (!open) resetForm();
         }}>
           <DialogTrigger asChild>
-            <Button className="w-full sm:w-auto min-h-[44px]">
+            <Button className="w-full min-h-[44px]">
               <Plus className="mr-2 h-4 w-4" />
               Add New Partner
             </Button>
@@ -291,104 +291,106 @@ export function PartnersManager() {
       </div>
 
       <Card>
-        <CardHeader className="mobile-card-padding">
-          <CardTitle className="mobile-heading-md">All Partners</CardTitle>
+        <CardHeader className="p-4 sm:p-6">
+          <CardTitle className="text-base sm:text-lg font-semibold">All Partners</CardTitle>
         </CardHeader>
-        <CardContent className="mobile-card-padding pt-0">
+        <CardContent className="p-4 sm:p-6 pt-0">
           {isLoading ? (
             <div className="space-y-2">
               {[1, 2, 3].map(i => <Skeleton key={i} className="h-16 w-full" />)}
             </div>
           ) : (
-            <div className="overflow-x-auto -mx-4 sm:mx-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="min-w-[80px]">Logo</TableHead>
-                    <TableHead className="min-w-[150px]">Name</TableHead>
-                    <TableHead className="hidden md:table-cell">Category</TableHead>
-                    <TableHead className="hidden lg:table-cell">Display Section</TableHead>
-                    <TableHead className="hidden sm:table-cell">Website</TableHead>
-                    <TableHead className="hidden xl:table-cell">Order</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right sticky right-0 bg-card">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-              <TableBody>
-                {partners && partners.length > 0 ? (
-                  partners.map(partner => (
-                    <TableRow key={partner.id}>
-                       <TableCell>
-                         <img
-                           src={partner.logo_url}
-                           alt={`${partner.name} logo`}
-                           className="h-8 w-16 sm:h-10 sm:w-20 object-contain"
-                           onError={(e) => {
-                             e.currentTarget.src = 'https://via.placeholder.com/80x40?text=Logo';
-                           }}
-                         />
-                       </TableCell>
-                       <TableCell className="font-medium text-sm">{partner.name}</TableCell>
-                       <TableCell className="hidden md:table-cell text-sm">{partner.category}</TableCell>
-                       <TableCell className="hidden lg:table-cell">
-                         <span className="text-xs whitespace-nowrap">
-                           {partner.display_section === 'trusted_partners' 
-                             ? 'Trusted Partners' 
-                             : 'Further Reading'}
-                         </span>
-                       </TableCell>
-                       <TableCell className="hidden sm:table-cell">
-                         <a 
-                           href={partner.website_url} 
-                           target="_blank" 
-                           rel="noopener noreferrer"
-                           className="text-primary hover:underline flex items-center gap-1 text-sm"
-                         >
-                           Visit
-                           <ExternalLink className="h-3 w-3" />
-                         </a>
-                       </TableCell>
-                       <TableCell className="hidden xl:table-cell text-sm">{partner.display_order}</TableCell>
-                       <TableCell>
-                         <span className={`px-2 py-1 rounded-full text-xs whitespace-nowrap ${
-                           partner.is_active 
-                             ? 'bg-green-100 text-green-800' 
-                             : 'bg-gray-100 text-gray-800'
-                         }`}>
-                           {partner.is_active ? 'Active' : 'Inactive'}
-                         </span>
-                       </TableCell>
-                       <TableCell className="text-right sticky right-0 bg-card">
-                         <div className="flex items-center justify-end gap-1">
-                           <Button
-                             size="sm"
-                             variant="outline"
-                             className="h-8 w-8 p-0"
-                             onClick={() => handleEdit(partner)}
-                           >
-                             <Pencil className="h-4 w-4" />
-                           </Button>
-                           <Button
-                             size="sm"
-                             variant="destructive"
-                             className="h-8 w-8 p-0"
-                             onClick={() => handleDelete(partner.id, partner.name)}
-                           >
-                             <Trash2 className="h-4 w-4" />
-                           </Button>
-                         </div>
-                       </TableCell>
+            <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+              <div className="inline-block min-w-full align-middle">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="min-w-[60px]">Logo</TableHead>
+                      <TableHead className="min-w-[120px]">Name</TableHead>
+                      <TableHead className="hidden md:table-cell min-w-[100px]">Category</TableHead>
+                      <TableHead className="hidden lg:table-cell min-w-[100px]">Section</TableHead>
+                      <TableHead className="hidden sm:table-cell min-w-[80px]">Website</TableHead>
+                      <TableHead className="hidden xl:table-cell min-w-[60px]">Order</TableHead>
+                      <TableHead className="min-w-[70px]">Status</TableHead>
+                      <TableHead className="text-right sticky right-0 bg-card/95 backdrop-blur-sm min-w-[80px]">Actions</TableHead>
                     </TableRow>
-                  ))
-                 ) : (
-                   <TableRow>
-                     <TableCell colSpan={8} className="text-center py-8 text-muted-foreground text-sm">
-                       No partners found. Click "Add New Partner" to get started.
-                     </TableCell>
-                   </TableRow>
-                 )}
-               </TableBody>
-             </Table>
+                  </TableHeader>
+                <TableBody>
+                  {partners && partners.length > 0 ? (
+                    partners.map(partner => (
+                      <TableRow key={partner.id}>
+                        <TableCell>
+                          <img
+                            src={partner.logo_url}
+                            alt={`${partner.name} logo`}
+                            className="h-6 w-12 sm:h-8 sm:w-16 object-contain"
+                            onError={(e) => {
+                              e.currentTarget.src = 'https://via.placeholder.com/80x40?text=Logo';
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell className="font-medium text-xs sm:text-sm">{partner.name}</TableCell>
+                        <TableCell className="hidden md:table-cell text-xs sm:text-sm">{partner.category}</TableCell>
+                        <TableCell className="hidden lg:table-cell">
+                          <span className="text-xs whitespace-nowrap">
+                            {partner.display_section === 'trusted_partners' 
+                              ? 'Partners' 
+                              : 'Reading'}
+                          </span>
+                        </TableCell>
+                        <TableCell className="hidden sm:table-cell">
+                          <a 
+                            href={partner.website_url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-primary hover:underline flex items-center gap-1 text-xs"
+                          >
+                            Visit
+                            <ExternalLink className="h-3 w-3" />
+                          </a>
+                        </TableCell>
+                        <TableCell className="hidden xl:table-cell text-xs">{partner.display_order}</TableCell>
+                        <TableCell>
+                          <span className={`px-1.5 py-0.5 rounded-full text-[10px] sm:text-xs whitespace-nowrap ${
+                            partner.is_active 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-gray-100 text-gray-800'
+                          }`}>
+                            {partner.is_active ? 'Active' : 'Inactive'}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-right sticky right-0 bg-card/95 backdrop-blur-sm">
+                          <div className="flex items-center justify-end gap-0.5">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 w-7 p-0"
+                              onClick={() => handleEdit(partner)}
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+                              onClick={() => handleDelete(partner.id, partner.name)}
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={8} className="text-center py-8 text-muted-foreground text-xs sm:text-sm">
+                        No partners found. Click "Add New Partner" to get started.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+              </div>
             </div>
            )}
          </CardContent>

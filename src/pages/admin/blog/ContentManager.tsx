@@ -14,31 +14,31 @@ export default function ContentManager() {
   const isMobile = useIsMobile();
   
   return (
-    <div className="mobile-page-container mobile-section-spacing">
+    <div className="container mx-auto px-3 py-4 sm:px-4 sm:py-6 max-w-7xl">
       <Button 
         variant="outline" 
         size="sm" 
         onClick={() => navigate('/dashboard/admin/blog')} 
-        className="bg-background/50 backdrop-blur-sm min-h-[44px]"
+        className="bg-background/50 backdrop-blur-sm min-h-[44px] mb-4"
       >
         <ArrowLeft className="h-4 w-4 mr-2" />
         Back to Blog Hub
       </Button>
 
-      <TransparentTile className="mobile-card-padding">
-        <h1 className="mobile-heading-lg flex items-center gap-2 flex-wrap">
-          <Users className="h-6 w-6 sm:h-8 sm:w-8" />
+      <TransparentTile className="p-4 sm:p-6 mb-4">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold flex items-center gap-2 flex-wrap">
+          <Users className="h-6 w-6 sm:h-8 sm:w-8 shrink-0" />
           <span>Content Manager</span>
         </h1>
-        <p className="text-muted-foreground mt-1 text-sm sm:text-base">
+        <p className="text-muted-foreground mt-2 text-sm sm:text-base">
           Manage articles, categories, and authors • Super Admin Only
         </p>
       </TransparentTile>
 
-      <Tabs defaultValue="posts" className="mobile-section-spacing">
+      <Tabs defaultValue="posts" className="space-y-4">
         {isMobile ? (
-          <ScrollArea className="w-full">
-            <TabsList className="inline-flex h-10 items-center justify-start rounded-md bg-muted p-1 text-muted-foreground min-w-max w-full">
+          <ScrollArea className="w-full whitespace-nowrap">
+            <TabsList className="inline-flex h-10 items-center justify-start rounded-md bg-muted p-1 text-muted-foreground">
               <TabsTrigger value="posts" className="whitespace-nowrap">
                 <FileText className="h-4 w-4 mr-2" />
                 Posts

@@ -60,19 +60,19 @@ export function AuthorsManager() {
   }
 
   return (
-    <div className="mobile-stack">
-      <TransparentTile className="mobile-card-padding">
+    <div className="space-y-4">
+      <TransparentTile className="p-4 sm:p-6">
         <div className="flex flex-col gap-3">
           <div>
-            <h2 className="mobile-heading-md">Authors</h2>
-            <p className="text-sm text-muted-foreground mt-1">Manage content contributors</p>
+            <h2 className="text-base sm:text-lg font-semibold">Authors</h2>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1">Manage content contributors</p>
           </div>
           <Button 
             onClick={() => {
               setSelectedAuthor(null);
               setDialogOpen(true);
             }}
-            className="w-full sm:w-auto min-h-[44px]"
+            className="w-full min-h-[44px]"
           >
             <Plus className="mr-2 h-4 w-4" />
             New Author

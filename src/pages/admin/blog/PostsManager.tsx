@@ -96,22 +96,22 @@ export function PostsManager() {
   }
 
   return (
-    <div className="mobile-stack">
+    <div className="space-y-4">
       {/* AI Generator Card */}
       <Card className="bg-gradient-to-br from-pink-500/5 to-purple-500/5 border-pink-500/20">
-        <CardHeader className="mobile-card-padding">
+        <CardHeader className="p-4 sm:p-6">
           <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
             <Sparkles className="h-5 w-5 text-pink-600 shrink-0" />
             <span>AI Content Generator</span>
           </CardTitle>
-          <CardDescription className="text-sm">
+          <CardDescription className="text-xs sm:text-sm">
             Create SEO-optimized blog posts with AI from your knowledge base
           </CardDescription>
         </CardHeader>
-        <CardContent className="mobile-card-padding pt-0">
+        <CardContent className="p-4 sm:p-6 pt-0">
           <Button 
             onClick={() => setShowAIWizard(true)}
-            className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 w-full sm:w-auto min-h-[44px]"
+            className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 w-full min-h-[44px]"
           >
             <Sparkles className="h-4 w-4 mr-2" />
             Generate Articles
@@ -120,11 +120,11 @@ export function PostsManager() {
       </Card>
 
       {/* All Articles Section */}
-      <TransparentTile className="mobile-card-padding">
+      <TransparentTile className="p-4 sm:p-6">
         <div className="flex flex-col gap-3">
           <div>
-            <h2 className="mobile-heading-md">All Articles</h2>
-            <p className="text-sm text-muted-foreground mt-1">Manage your published and draft content</p>
+            <h2 className="text-base sm:text-lg font-semibold">All Articles</h2>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1">Manage your published and draft content</p>
           </div>
           <div className="flex flex-col sm:flex-row gap-2 w-full">
             <Select value={statusFilter} onValueChange={setStatusFilter}>
