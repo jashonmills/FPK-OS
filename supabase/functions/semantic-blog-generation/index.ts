@@ -9,6 +9,7 @@ const corsHeaders = {
 interface RequestBody {
   topic: string;
   category_id: string;
+  author_id: string;
   personal_insights?: string;
   include_kb: boolean;
 }
@@ -24,7 +25,7 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const { topic, category_id, personal_insights, include_kb } = await req.json() as RequestBody;
+    const { topic, category_id, author_id, personal_insights, include_kb } = await req.json() as RequestBody;
 
     console.log('Generating blog with semantic search:', { topic, include_kb });
 
@@ -248,6 +249,9 @@ Generate a complete, publication-ready blog post.`;
     console.log(`Using unique slug: ${slug}`);
 
     // Create blog post draft
+    // Use the provided author_id, fallback to authenticated user if not provided
+    const finalAuthorId = author_id || user.id;
+    
     const { data: newPost, error: insertError } = await supabase
       .from('blog_posts')
       .insert({
@@ -258,7 +262,9 @@ Generate a complete, publication-ready blog post.`;
         meta_title: generatedContent.meta_title,
         meta_description: generatedContent.meta_description,
         focus_keyword: generatedContent.focus_keyword,
-        author_id: user.id,
+        author_id: finalAuthorId,
+        created_by: user.id,
+        updated_by: user.id,
         status: 'draft',
         published_at: null,
       })
