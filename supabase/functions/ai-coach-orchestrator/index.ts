@@ -1390,7 +1390,9 @@ serve(async (req) => {
     }
 
     // 5. FAST INTENT DETECTION - Lightweight heuristic-based approach
-    console.log('[CONDUCTOR] ⚡ Fast intent detection (heuristic-based)...');
+    // PHASE 2: SIMPLIFIED INTENT DETECTION - Clearer rules with fewer edge cases
+    // ============================================
+    console.log('[CONDUCTOR] ⚡ Simplified intent detection...');
     const intentDetectionStart = Date.now();
     
     // Determine if we're in an active Betty conversation
@@ -1399,102 +1401,70 @@ serve(async (req) => {
       : null;
     const inBettySession = lastPersona === 'BETTY';
     
-    // Fast heuristic-based intent detection (no LLM call needed!)
+    // Simplified intent detection with clear priority order
     let detectedIntent = 'direct_answer'; // Default
     let intentConfidence = 0.8;
     let intentReasoning = '';
     
     const messageLower = message.toLowerCase();
     
-    // NEW: Check for continuation/resumption patterns (highest priority)
-    const continuationPatterns = [
-      /proceed|continue|keep going|go on/i,
-      /where we (left off|were|stopped)/i,
-      /back to (it|the topic|what we|where we)/i,
-      /pick up where/i,
-      /resume/i
-    ];
-    
-    // Define escape hatch patterns for when students explicitly request direct answers
-    const escapePatterns = [
-      'just give me the answer',
-      'just tell me',
-      'stop asking questions',
-      'give me the answer',
-      'tell me the answer',
-      'i need the answer',
-      'answer directly',
-      'straight answer'
-    ];
-    
-    const hasContinuationIntent = continuationPatterns.some(pattern => pattern.test(message));
-    
-    if (hasContinuationIntent) {
-      // Check conversation history to determine if we should resume a Socratic session
-      const lastFewMessages = conversationHistory.slice(-6);
-      const hadBettyInRecent = lastFewMessages.some(msg => msg.persona === 'BETTY');
-      
-      if (hadBettyInRecent || inBettySession) {
-        detectedIntent = 'socratic_guidance';
-        intentConfidence = 0.95;
-        intentReasoning = 'User requesting to continue previous Socratic discussion';
-        console.log('[CONDUCTOR] 🔄 Continuation detected - resuming Socratic mode');
-      } else {
-        detectedIntent = 'direct_answer';
-        intentConfidence = 0.85;
-        intentReasoning = 'User requesting to continue, but no active Socratic session found';
-      }
-    }
-    // Check for escape hatch patterns
-    else if (escapePatterns.some(pattern => messageLower.includes(pattern))) {
+    // PRIORITY 1: Explicit escape hatches (highest priority)
+    if (messageLower.includes('just tell me') || 
+        messageLower.includes('give me the answer') ||
+        messageLower.includes('stop asking') ||
+        message.toLowerCase() === "i don't know") {
       detectedIntent = 'escape_hatch';
       intentConfidence = 0.95;
-      intentReasoning = 'Student explicitly requesting direct answer';
+      intentReasoning = 'Explicit request to exit Socratic mode';
     }
-    // Check for clarification requests
-    else if (messageLower.includes("don't know what") || 
-             messageLower.includes("what does") && messageLower.includes("mean") ||
-             messageLower.includes("what is") && message.length < 50) {
+    // PRIORITY 2: Platform/data questions
+    else if (messageLower.includes('how am i doing') || 
+             messageLower.includes('my progress') ||
+             messageLower.includes('how do i') ||
+             messageLower.includes('dashboard') ||
+             messageLower.includes('settings')) {
+      detectedIntent = lastPersona === 'BETTY' ? 'socratic_guidance' : 'platform_question';
+      intentConfidence = 0.9;
+      intentReasoning = 'Platform or progress inquiry';
+    }
+    // PRIORITY 3: Clarification requests during Betty session
+    else if (inBettySession && (
+             messageLower.includes('what is') ||
+             messageLower.includes('what does') ||
+             messageLower.includes('define') ||
+             messageLower.includes("don't know what"))) {
       detectedIntent = 'request_for_clarification';
       intentConfidence = 0.9;
-      intentReasoning = 'Student asking for definition';
+      intentReasoning = 'Clarification request during Socratic session';
     }
-    // Check for platform questions
-    else if (messageLower.includes('how do i') || messageLower.includes('where is') ||
-             messageLower.includes('can i') || messageLower.includes('dashboard') ||
-             messageLower.includes('profile') || messageLower.includes('settings')) {
-      detectedIntent = 'platform_question';
-      intentConfidence = 0.85;
-      intentReasoning = 'Platform navigation question';
-    }
-    // Check for user data queries
-    else if (messageLower.includes('my progress') || messageLower.includes('my stats') ||
-             messageLower.includes('my courses') || messageLower.includes('how am i doing')) {
-      detectedIntent = 'query_user_data';
-      intentConfidence = 0.9;
-      intentReasoning = 'Query about personal data';
-    }
-    // Check for procedural/recipe flows (keywords: recipe, steps, instructions, how to make)
+    // PRIORITY 4: Procedural guidance (recipes, steps)
     else if (messageLower.includes('recipe') || 
-        messageLower.includes('step') || 
-        messageLower.includes('instructions') ||
-        messageLower.includes('how to make') ||
-        messageLower.includes('baking') ||
-        (inBettySession === false && (messageLower.includes('next') || messageLower.includes('proceed')))) {
+             messageLower.includes('step') || 
+             messageLower.includes('instructions') ||
+             messageLower.includes('how to make')) {
       detectedIntent = 'procedural_guidance';
       intentConfidence = 0.85;
-      intentReasoning = 'Procedural instruction requested (recipe, steps, etc)';
+      intentReasoning = 'Procedural instruction requested';
     }
-    // If in Betty session and asking conceptual questions
+    // PRIORITY 5: Continue with current persona's style
     else if (inBettySession || 
-             messageLower.includes('why') || messageLower.includes('how') ||
-             (message.includes('?') && !messageLower.includes('what is'))) {
+             messageLower.includes('why') || 
+             messageLower.includes('how') ||
+             messageLower.includes('explain')) {
       detectedIntent = 'socratic_guidance';
-      intentConfidence = 0.8;
-      intentReasoning = inBettySession ? 'Continuing Socratic session' : 'Conceptual question detected';
+      intentConfidence = 0.85;
+      intentReasoning = inBettySession ? 'Continuing Socratic dialogue' : 'Conceptual question suitable for Socratic method';
     }
     
-    const intentResult = { intent: detectedIntent, confidence: intentConfidence, reasoning: intentReasoning };
+    const intentResult = {
+      intent: detectedIntent,
+      confidence: intentConfidence,
+      reasoning: intentReasoning
+    };
+    
+    console.log('[CONDUCTOR] Intent detected:', detectedIntent, '| Confidence:', intentConfidence);
+    console.log('[CONDUCTOR] Reasoning:', intentReasoning);
+    console.log('[CONDUCTOR] ⏱️ Intent detection took:', Date.now() - intentDetectionStart, 'ms');
     
     timings.intent_detection = Date.now() - intentDetectionStart;
     console.log(`[PERF] Intent detection: ${timings.intent_detection}ms`);
@@ -1515,9 +1485,6 @@ serve(async (req) => {
         break;
       }
     }
-    
-    console.log('[CONDUCTOR] ⚡ Intent detected:', detectedIntent, 'Confidence:', intentConfidence);
-    console.log('[CONDUCTOR] Reasoning:', intentReasoning);
 
     // 6. Sentiment Analysis (simple for now)
     const detectedSentiment = 'Neutral';
@@ -1862,6 +1829,62 @@ If they seem confused, provide clarification directly. Do NOT switch to Socratic
     
     console.log('[CONDUCTOR] Routing to persona:', selectedPersona, isSocraticHandoff ? '(Socratic Support Mode)' : '');
     console.log('[CONDUCTOR] Turn counter:', socraticTurnCounter, '/ Next interjection:', nextInterjectionPoint);
+    
+    // PHASE 2: CONVERSATION DIRECTOR - Validate persona choice before proceeding
+    // ============================================
+    // Ensures persona transitions follow natural conversation rules
+    // ============================================
+    const validatePersonaChoice = (
+      currentChoice: string,
+      history: Array<{persona: string; content: string}>,
+      intent: string
+    ): { persona: string; reasoning: string } => {
+      
+      const lastAIPersona = history
+        .slice()
+        .reverse()
+        .find(m => m.persona === 'BETTY' || m.persona === 'AL')?.persona;
+      
+      // RULE 1: If Betty is teaching Socratically, only switch to Al for specific intents
+      if (lastAIPersona === 'BETTY' && currentChoice === 'AL') {
+        const allowedSwitches = ['escape_hatch', 'request_for_clarification', 'platform_question', 'query_user_data', 'procedural_guidance'];
+        if (!allowedSwitches.includes(intent)) {
+          console.log('[DIRECTOR] ⚠️ Blocking Betty→Al switch, intent not appropriate:', intent);
+          return { persona: 'BETTY', reasoning: 'Maintaining Socratic flow - inappropriate switch intent' };
+        }
+      }
+      
+      // RULE 2: After Nite Owl, always return to the SAME persona (unless escape hatch)
+      if (history[history.length - 1]?.persona === 'NITE_OWL' && currentChoice !== 'NITE_OWL' && intent !== 'escape_hatch') {
+        if (lastAIPersona) {
+          console.log('[DIRECTOR] 🔄 After Nite Owl, returning to original persona:', lastAIPersona);
+          return { persona: lastAIPersona, reasoning: 'Continuing from Nite Owl with original persona' };
+        }
+      }
+      
+      // RULE 3: Co-response only when answer quality is in the "partial" range
+      if (currentChoice === 'CO_RESPONSE') {
+        console.log('[DIRECTOR] ✅ Co-response validated - student answer quality in target range');
+      }
+      
+      return { persona: currentChoice, reasoning: 'Standard routing approved' };
+    };
+    
+    // Apply director validation (skip for welcome back and Nite Owl triggers)
+    if (!isWelcomeBack && selectedPersona !== 'NITE_OWL') {
+      const directorCheck = validatePersonaChoice(selectedPersona, conversationHistory, detectedIntent);
+      if (directorCheck.persona !== selectedPersona) {
+        console.log('[DIRECTOR] 🎬 Override:', selectedPersona, '→', directorCheck.persona, '-', directorCheck.reasoning);
+        selectedPersona = directorCheck.persona;
+        
+        // Re-build system prompt for overridden persona
+        if (selectedPersona === 'BETTY') {
+          systemPrompt = buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge);
+        } else if (selectedPersona === 'AL') {
+          systemPrompt = buildAlSystemPrompt(studentContext, userMemories, knowledgePack, retrievedKnowledge);
+        }
+      }
+    }
 
     // 10. Build context for Nite Owl if triggered
     let niteOwlContext = '';
@@ -2684,6 +2707,12 @@ Keep it under 100 words.`;
                 break;
               }
             }
+            
+            // Check if all providers failed
+            if (!audioUrl) {
+              console.error('[CONDUCTOR] ❌ ALL TTS providers failed - will notify frontend');
+              ttsProvider = 'all_failed';
+            }
             } else {
               console.warn('[CONDUCTOR] ⚠️ No text to generate audio for (empty finalText)');
             }
@@ -2691,7 +2720,7 @@ Keep it under 100 words.`;
             console.error('[CONDUCTOR] ❌ TTS generation failed completely:', ttsError);
             console.error('[CONDUCTOR] ❌ Text that failed TTS (first 80):', textForTTS.substring(0, 80));
             // Audio will be null, but we'll still send the text response
-            ttsProvider = 'failed';
+            ttsProvider = 'all_failed';
           }
           
           // Log final TTS status
@@ -3180,7 +3209,7 @@ Keep it brief and focused on answering their original question.`;
                 ...responseMetadata,
                 hasAudio: audioUrl !== null,
                 ttsProvider,
-                audioFailed: ttsProvider === 'failed', // NEW: Flag for frontend to show toast
+                audioFailed: ttsProvider === 'all_failed', // Flag for frontend notification
                 governorChecked: true,
                 governorBlocked,
                 isSocraticHandoff,
