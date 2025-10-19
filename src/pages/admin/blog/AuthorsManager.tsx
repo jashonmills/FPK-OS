@@ -3,6 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Plus, Pencil, Trash2, Sparkles } from 'lucide-react';
 import { useBlogAuthors, useCreateBlogAuthor, useUpdateBlogAuthor, useDeleteBlogAuthor } from '@/hooks/useBlogAuthors';
 import { AuthorManagementDialog } from '@/components/blog/AuthorManagementDialog';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { MobileAuthorCard } from '@/components/admin/MobileAuthorCard';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,6 +30,7 @@ export function AuthorsManager() {
   const createAuthor = useCreateBlogAuthor();
   const updateAuthor = useUpdateBlogAuthor();
   const deleteAuthor = useDeleteBlogAuthor();
+  const isMobile = useIsMobile();
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedAuthor, setSelectedAuthor] = useState<any>(null);
@@ -80,92 +83,119 @@ export function AuthorsManager() {
         </div>
       </TransparentTile>
 
-      <div className="border rounded-lg bg-card overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow className="hover:bg-transparent">
-              <TableHead className="font-semibold min-w-[200px]">Author</TableHead>
-              <TableHead className="hidden md:table-cell font-semibold">Credentials</TableHead>
-              <TableHead className="hidden lg:table-cell font-semibold">Type</TableHead>
-              <TableHead className="text-right font-semibold sticky right-0 bg-card">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {authors.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={4} className="text-center py-12 text-muted-foreground">
-                  No authors yet. Create your first author to get started.
-                </TableCell>
+      {/* Mobile Card View */}
+      {isMobile ? (
+        <div className="space-y-3">
+          {authors.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground text-sm">
+              No authors yet. Create your first author to get started.
+            </div>
+          ) : (
+            authors.map((author) => (
+              <MobileAuthorCard
+                key={author.id}
+                author={author}
+                onEdit={() => {
+                  setSelectedAuthor(author);
+                  setDialogOpen(true);
+                }}
+                onDelete={() => {
+                  setAuthorToDelete(author);
+                  setDeleteDialogOpen(true);
+                }}
+              />
+            ))
+          )}
+        </div>
+      ) : (
+        /* Desktop Table View */
+        <div className="border rounded-lg bg-card overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow className="hover:bg-transparent">
+                <TableHead className="font-semibold min-w-[200px]">Author</TableHead>
+                <TableHead className="hidden md:table-cell font-semibold">Credentials</TableHead>
+                <TableHead className="hidden lg:table-cell font-semibold">Type</TableHead>
+                <TableHead className="text-right font-semibold sticky right-0 bg-card">Actions</TableHead>
               </TableRow>
-            ) : (
-              authors.map((author) => (
-                <TableRow key={author.id}>
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      {author.avatar_url && (
-                        <img
-                          src={author.avatar_url}
-                          alt={author.display_name}
-                          className="w-10 h-10 rounded-full object-cover"
-                        />
-                      )}
-                      <div className="space-y-0.5">
-                        <div className="font-medium">{author.display_name}</div>
-                        {author.bio && (
-                          <div className="text-xs text-muted-foreground line-clamp-1 md:hidden">
-                            {author.bio}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
-                    {author.credentials || '-'}
-                  </TableCell>
-                  <TableCell className="hidden lg:table-cell">
-                    {author.is_ai_author ? (
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium border border-primary/20">
-                        <Sparkles className="h-3 w-3" />
-                        AI Assistant
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-muted text-muted-foreground text-xs font-medium border">
-                        Human
-                      </span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => {
-                          setSelectedAuthor(author);
-                          setDialogOpen(true);
-                        }}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => {
-                          setAuthorToDelete(author);
-                          setDeleteDialogOpen(true);
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
+            </TableHeader>
+            <TableBody>
+              {authors.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={4} className="text-center py-12 text-muted-foreground">
+                    No authors yet. Create your first author to get started.
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+              ) : (
+                authors.map((author) => (
+                  <TableRow key={author.id}>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        {author.avatar_url && (
+                          <img
+                            src={author.avatar_url}
+                            alt={author.display_name}
+                            className="w-10 h-10 rounded-full object-cover"
+                          />
+                        )}
+                        <div className="space-y-0.5">
+                          <div className="font-medium">{author.display_name}</div>
+                          {author.bio && (
+                            <div className="text-xs text-muted-foreground line-clamp-1 md:hidden">
+                              {author.bio}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell text-sm text-muted-foreground">
+                      {author.credentials || '-'}
+                    </TableCell>
+                    <TableCell className="hidden lg:table-cell">
+                      {author.is_ai_author ? (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium border border-primary/20">
+                          <Sparkles className="h-3 w-3" />
+                          AI Assistant
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-muted text-muted-foreground text-xs font-medium border">
+                          Human
+                        </span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => {
+                            setSelectedAuthor(author);
+                            setDialogOpen(true);
+                          }}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => {
+                            setAuthorToDelete(author);
+                            setDeleteDialogOpen(true);
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      )}
 
       <AuthorManagementDialog
         open={dialogOpen}

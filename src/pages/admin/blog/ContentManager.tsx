@@ -14,7 +14,7 @@ export default function ContentManager() {
   const isMobile = useIsMobile();
   
   return (
-    <div className="container mx-auto px-3 py-4 sm:px-4 sm:py-6 max-w-7xl">
+    <div className="mobile-page-container mobile-section-spacing max-w-7xl mx-auto">
       <Button 
         variant="outline" 
         size="sm" 
@@ -25,12 +25,12 @@ export default function ContentManager() {
         Back to Blog Hub
       </Button>
 
-      <TransparentTile className="p-4 sm:p-6 mb-4">
-        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold flex items-center gap-2 flex-wrap">
+      <TransparentTile className="mobile-card-padding mb-4">
+        <h1 className="mobile-heading-lg flex items-center gap-2 flex-wrap">
           <Users className="h-6 w-6 sm:h-8 sm:w-8 shrink-0" />
           <span>Content Manager</span>
         </h1>
-        <p className="text-muted-foreground mt-2 text-sm sm:text-base">
+        <p className="text-muted-foreground mt-2 text-xs sm:text-sm">
           Manage articles, categories, and authors • Super Admin Only
         </p>
       </TransparentTile>
