@@ -20,9 +20,16 @@ export function useYouTubeVideos(channelId: string, maxResults = 12) {
     queryKey: ['youtube-videos', channelId, maxResults],
     queryFn: async () => {
       try {
-        const { data, error } = await supabase.functions.invoke('get-youtube-live-videos', {
+        // 15 second timeout using Promise.race
+        const fetchPromise = supabase.functions.invoke('get-youtube-live-videos', {
           body: { channelId, maxResults }
         });
+
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Request timeout')), 15000)
+        );
+
+        const { data, error } = await Promise.race([fetchPromise, timeoutPromise]) as any;
 
         if (error) {
           console.error('Error fetching YouTube videos:', error);
@@ -37,6 +44,6 @@ export function useYouTubeVideos(channelId: string, maxResults = 12) {
     },
     staleTime: 1000 * 60 * 60, // 1 hour
     gcTime: 1000 * 60 * 120, // 2 hours
-    retry: 2,
+    retry: 1, // Reduced from 2 to 1 for faster failure
   });
 }
