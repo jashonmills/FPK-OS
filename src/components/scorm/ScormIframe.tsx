@@ -15,15 +15,8 @@ const ScormIframe: React.FC<Props> = ({ launchUrl, onLoaded }) => {
     
     console.log('🎯 ScormIframe loading URL:', launchUrl);
     
-    // Clear any previous content
-    iframeRef.current.src = 'about:blank';
-    
-    // Small delay to ensure clean state, then load the URL
-    setTimeout(() => {
-      if (iframeRef.current) {
-        iframeRef.current.src = launchUrl;
-      }
-    }, 100);
+    // Load the URL directly without resetting
+    iframeRef.current.src = launchUrl;
 
     const handleLoad = () => {
       console.log('✅ ScormIframe loaded successfully');

@@ -1,8 +1,8 @@
 // Deno Edge Function
 // GET /scorm-content-proxy?pkg=<packageId>&path=<relative/path/inside/package>
+// Serves SCORM content files directly from ZIP archives on-demand
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const BUCKETS = ["scorm-unpacked", "scorm-packages", "scorm-lessons", "scorm-content"]; // try in this order
+import JSZip from "https://esm.sh/jszip@3.10.1";
 
 function mimeFor(path: string): string {
   const ext = path.split(".").pop()?.toLowerCase();
@@ -58,8 +58,10 @@ Deno.serve(async (req: Request) => {
   const pkg = url.searchParams.get("pkg") || "";
   const relPath = url.searchParams.get("path") || "";
 
+  console.log(`📦 SCORM Proxy Request - Package: ${pkg}, Path: ${relPath}`);
+
   if (!pkg || !relPath) {
-    return new Response("Missing pkg or path", { 
+    return new Response("Missing pkg or path parameters", { 
       status: 400,
       headers: {
         "Access-Control-Allow-Origin": "*",
@@ -68,60 +70,101 @@ Deno.serve(async (req: Request) => {
     });
   }
 
-  // Normalize canonical key as packages/<packageId>/<relativePath>
-  const key = `packages/${pkg}/${relPath}`.replace(/\/{2,}/g, "/");
-
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
   );
 
-  // Try buckets in order (lets us migrate names without breaking)
-  let obj: Blob | null = null;
-  let bucketUsed = "";
+  try {
+    // Step 1: Get package info from database to find ZIP path
+    const { data: packageData, error: dbError } = await supabase
+      .from('scorm_packages')
+      .select('zip_path, title')
+      .eq('id', pkg)
+      .single();
 
-  for (const bucket of BUCKETS) {
-    const { data, error } = await supabase.storage.from(bucket).download(key);
-    if (!error && data) {
-      obj = data;
-      bucketUsed = bucket;
-      console.log(`SCORM proxy found file in bucket: ${bucket}, key: ${key}`);
-      break;
+    if (dbError || !packageData?.zip_path) {
+      console.error('❌ Package not found:', pkg, dbError);
+      return new Response(`Package not found: ${pkg}`, { 
+        status: 404,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Content-Type": "text/plain"
+        }
+      });
     }
-  }
 
-  if (!obj) {
-    const errorMessage = `SCORM Content Not Found\n\nPackage: ${pkg}\nRequested: ${relPath}\nLooking for: ${key}\nBuckets checked: ${BUCKETS.join(', ')}\n\nThis usually means:\n1. The manifest launch_href doesn't match extracted files\n2. Package extraction failed\n3. Files are in a different bucket\n\nCheck the scorm-parser-production logs for extraction details.`;
+    console.log(`✅ Found package: ${packageData.title}, ZIP: ${packageData.zip_path}`);
+
+    // Step 2: Download ZIP from storage
+    const { data: zipBlob, error: downloadError } = await supabase
+      .storage
+      .from('scorm-packages')
+      .download(packageData.zip_path);
+
+    if (downloadError || !zipBlob) {
+      console.error('❌ Failed to download ZIP:', downloadError);
+      return new Response(`Failed to download package ZIP: ${downloadError?.message}`, { 
+        status: 500,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Content-Type": "text/plain"
+        }
+      });
+    }
+
+    console.log(`✅ Downloaded ZIP (${zipBlob.size} bytes)`);
+
+    // Step 3: Extract requested file from ZIP
+    const zip = await JSZip.loadAsync(zipBlob);
     
-    console.error("SCORM proxy 404", { 
-      pkg, 
-      relPath, 
-      key, 
-      bucketsChecked: BUCKETS,
-      suggestion: "Verify SCO launch_href matches extracted file structure"
-    });
+    // Find the file (case-insensitive search)
+    let targetFile = null;
+    const fileNames = Object.keys(zip.files);
     
-    return new Response(errorMessage, { 
-      status: 404,
+    for (const fileName of fileNames) {
+      // Remove leading slash and compare paths
+      const normalizedFileName = fileName.replace(/^\/+/, '');
+      const normalizedRelPath = relPath.replace(/^\/+/, '');
+      
+      if (normalizedFileName.toLowerCase() === normalizedRelPath.toLowerCase()) {
+        targetFile = zip.files[fileName];
+        console.log(`✅ Found file in ZIP: ${fileName}`);
+        break;
+      }
+    }
+
+    if (!targetFile) {
+      console.error('❌ File not found in ZIP:', relPath);
+      console.log('📁 Available files:', fileNames.slice(0, 10).join(', '));
+      
+      return new Response(
+        `File not found in package: ${relPath}\n\nAvailable files:\n${fileNames.slice(0, 20).join('\n')}`,
+        { 
+          status: 404,
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Content-Type": "text/plain"
+          }
+        }
+      );
+    }
+
+    // Step 4: Extract and serve the file
+    const fileData = await targetFile.async('uint8array');
+    const mimeType = mimeFor(relPath);
+    
+    console.log(`✅ Serving file: ${relPath} (${fileData.length} bytes, ${mimeType})`);
+
+    return new Response(fileData, {
+      status: 200,
       headers: {
         "Access-Control-Allow-Origin": "*",
-        "Content-Type": "text/plain; charset=utf-8"
+        "Content-Type": mimeType,
+        "Cache-Control": "public, max-age=31536000, immutable",
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "SAMEORIGIN"
       }
     });
-  }
 
-  const body = await obj.arrayBuffer();
-  const contentType = mimeFor(relPath);
-
-  const headers = new Headers({
-    "Access-Control-Allow-Origin": "*",
-    "Content-Type": contentType,
-    "Cache-Control": "public, max-age=600",
-    "X-Content-Type-Options": "nosniff",
-    // allow our app to frame it; content is ours
-    "Content-Security-Policy": "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; img-src 'self' data: blob: *; media-src 'self' blob: *; style-src 'self' 'unsafe-inline' *; script-src 'self' 'unsafe-inline' 'unsafe-eval' *; frame-ancestors *;",
-    "X-Frame-Options": "ALLOWALL",
-  });
-
-  return new Response(body, { status: 200, headers });
 });
