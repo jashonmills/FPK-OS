@@ -13,6 +13,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useFirstVisitVideo } from '@/hooks/useFirstVisitVideo';
 import { FirstVisitVideoModal } from '@/components/common/FirstVisitVideoModal';
 import { PageHelpTrigger } from '@/components/common/PageHelpTrigger';
+import { PageHeroWithTile } from '@/components/common/PageHeroWithTile';
 import AccessibilityErrorBoundary from '@/components/accessibility/AccessibilityErrorBoundary';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -95,24 +96,14 @@ const GoalsAndNotes = () => {
   return (
     <AccessibilityErrorBoundary componentName="Goals & Notes Page">
       <div className="max-w-7xl mx-auto mobile-container viewport-constrain">
-        {/* Header */}
-        <div className={cn(
-          "flex flex-col items-center gap-2 mb-4",
-          isMobile ? "px-3 py-2" : "px-6 py-4"
-        )}>
-          <h1 className={cn(
-            "text-foreground text-center",
-            isMobile ? "text-xl font-bold" : "text-2xl lg:text-3xl font-bold"
-          )}>
-            Goals & Notes
-          </h1>
-          <PageHelpTrigger onOpen={handleShowVideoManually} />
-          <p className={cn(
-            "text-muted-foreground text-center",
-            isMobile ? "text-sm px-4" : "text-base"
-          )}>
-            Set learning goals, organize study materials, and track your progress
-          </p>
+        {/* Hero Section with Contrast Tile */}
+        <div className={cn(isMobile ? "px-3" : "px-6")}>
+          <PageHeroWithTile
+            title="Goals & Notes"
+            subtitle="Set learning goals, organize study materials, and track your progress"
+            onHelpClick={handleShowVideoManually}
+            className="mb-6"
+          />
         </div>
 
         <FirstVisitVideoModal

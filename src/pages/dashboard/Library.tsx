@@ -10,6 +10,7 @@ import { FirstVisitVideoModal } from '@/components/common/FirstVisitVideoModal';
 import { useFirstVisitVideo } from '@/hooks/useFirstVisitVideo';
 import { useCleanup } from '@/utils/cleanupManager';
 import { PageHelpTrigger } from '@/components/common/PageHelpTrigger';
+import { PageHeroWithTile } from '@/components/common/PageHeroWithTile';
 import { usePublicDomainBooks } from '@/hooks/usePublicDomainBooks';
 import { useOpenLibrarySearch } from '@/hooks/useOpenLibrarySearch';
 import LibraryWithMonitoring from '@/components/library/LibraryWithMonitoring';
@@ -193,21 +194,16 @@ const Library = () => {
 
   return (
     <LibraryWithMonitoring>
-      <div className="container mx-auto p-4 sm:p-6 space-y-6">
-        {/* Header */}
-        <div className="space-y-4">
-          <div>
-            <div className="flex flex-col items-center gap-2">
-              <h1 className="text-3xl font-bold text-gray-900">Library</h1>
-              <PageHelpTrigger onOpen={handleShowVideoManually} />
-            </div>
-            <p className="text-muted-foreground text-center mt-2">
-              Discover, read, and organize your digital book collection
-            </p>
-          </div>
-
+      <div className="container mx-auto p-4 sm:p-6">
+        {/* Hero Section with Contrast Tile */}
+        <PageHeroWithTile
+          title="Library"
+          subtitle="Discover, read, and organize your digital book collection"
+          onHelpClick={handleShowVideoManually}
+          className="mb-6"
+        >
           {/* Search Bar */}
-          <div className="relative max-w-2xl">
+          <div className="relative max-w-2xl mx-auto mt-6">
             <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
             <Input
               type="text"
@@ -217,9 +213,10 @@ const Library = () => {
               className="pl-10 pr-4 py-2"
             />
           </div>
+        </PageHeroWithTile>
 
-          {/* Controls */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+        {/* Controls */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center mb-6">
             <div className="flex items-center gap-3">
               <Button variant="outline" size="sm">
                 <Filter className="h-4 w-4 mr-2" />
@@ -242,7 +239,6 @@ const Library = () => {
                 <span className="ml-2 hidden sm:inline">List</span>
               </ToggleGroupItem>
             </ToggleGroup>
-          </div>
         </div>
 
         {/* Library Tabs */}

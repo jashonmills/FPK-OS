@@ -9,6 +9,7 @@ import { useQuickStatsLive } from '@/hooks/useQuickStatsLive';
 import { useFirstVisitVideo } from '@/hooks/useFirstVisitVideo';
 import { FirstVisitVideoModal } from '@/components/common/FirstVisitVideoModal';
 import { PageHelpTrigger } from '@/components/common/PageHelpTrigger';
+import { PageHeroWithTile } from '@/components/common/PageHeroWithTile';
 import { useGoalProgressTracking } from '@/hooks/useGoalProgressTracking';
 
 // Import analytics components with error boundaries
@@ -97,14 +98,13 @@ const LearningAnalytics = () => {
   };
 
   return (
-    <div className="container mx-auto p-4 sm:p-6 space-y-6">
-      <div className="flex flex-col items-center gap-2 mb-4">
-        <h1 className="text-3xl font-bold text-foreground">Learning Analytics</h1>
-        <PageHelpTrigger onOpen={handleShowVideoManually} />
-      </div>
-      <p className="text-muted-foreground text-center mb-6">
-        Track your learning progress and insights across all activities
-      </p>
+    <div className="container mx-auto p-4 sm:p-6">
+      <PageHeroWithTile
+        title="Learning Analytics"
+        subtitle="Track your learning progress and insights across all activities"
+        onHelpClick={handleShowVideoManually}
+        className="mb-6"
+      />
 
       <FirstVisitVideoModal
         isOpen={showVideoModal}

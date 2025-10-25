@@ -128,7 +128,7 @@ export default function CoachProPortal() {
                 <Menu className="h-5 w-5" />
               </Button>
               
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/20">
                 <div className="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-sm">
                   <span className="text-sm font-bold text-white">AI</span>
                 </div>

@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Building2, Search } from 'lucide-react';
+import { PageHeroWithTile } from '@/components/common/PageHeroWithTile';
 
 interface Organization {
   id: string;
@@ -58,16 +59,16 @@ const OrganizationFinderPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary via-primary-variant to-accent p-4">
-      <div className="max-w-2xl mx-auto pt-8 pb-16">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-white/10 backdrop-blur-sm rounded-full mb-4">
+      <div className="max-w-2xl mx-auto pb-16">
+        <PageHeroWithTile
+          title="Find Your Organization"
+          subtitle="Select your school or organization from the list below to continue to your login page."
+          className="mb-8"
+        >
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-white/10 backdrop-blur-sm rounded-full mx-auto mt-4">
             <Building2 className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-4xl font-bold text-white mb-2">Find Your Organization</h1>
-          <p className="text-white/80 text-lg">
-            Select your school or organization from the list below to continue to your login page.
-          </p>
-        </div>
+        </PageHeroWithTile>
 
         <Card className="mb-6 border-0 shadow-2xl">
           <CardContent className="p-4">
