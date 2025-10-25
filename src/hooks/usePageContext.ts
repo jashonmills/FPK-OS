@@ -15,6 +15,7 @@ export const usePageContext = () => {
       '/dashboard/learner/study': 'Study Sessions',
       '/dashboard/learner/ai-coach': 'AI Learning Coach',
       '/dashboard/learner/goals': 'Learning Goals',
+      '/dashboard/learner/goals-notes': 'Goals & Study Materials',
       '/dashboard/learner/analytics': 'Learning Analytics',
       '/dashboard/learner/settings': 'Settings',
       '/dashboard/learner/courses': 'Course Library'

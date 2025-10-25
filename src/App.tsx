@@ -71,6 +71,7 @@ const MyCourses = lazy(() => import("./pages/dashboard/MyCourses"));
 const Notes = lazy(() => import("./pages/dashboard/Notes"));
 const Gamification = lazy(() => import("./pages/dashboard/Gamification"));
 const Goals = lazy(() => import("./pages/dashboard/Goals"));
+const LearnerGoalsAndNotes = lazy(() => import("./pages/dashboard/GoalsAndNotes"));
 const Settings = lazy(() => import("./pages/dashboard/Settings"));
 const LearningAnalytics = lazy(() => import("./pages/dashboard/LearningAnalytics"));
 const AnalyticsDebug = lazy(() => import("./pages/dashboard/AnalyticsDebug"));
@@ -421,8 +422,10 @@ const App: React.FC = () => {
             <Route path="learner" element={<LazyRoute><LearnerHome /></LazyRoute>} />
             <Route path="learner/library" element={<LazyRoute><Library /></LazyRoute>} />
             <Route path="learner/courses" element={<LazyRoute><MyCourses /></LazyRoute>} />
-            <Route path="learner/goals" element={<LazyRoute><Goals /></LazyRoute>} />
-            <Route path="learner/notes" element={<LazyRoute><Notes /></LazyRoute>} />
+            <Route path="learner/goals-notes" element={<LazyRoute><LearnerGoalsAndNotes /></LazyRoute>} />
+            {/* Backward compatibility redirects */}
+            <Route path="learner/goals" element={<Navigate to="/dashboard/learner/goals-notes" replace />} />
+            <Route path="learner/notes" element={<Navigate to="/dashboard/learner/goals-notes" replace />} />
             <Route path="learner/gamification" element={<LazyRoute><Gamification /></LazyRoute>} />
             <Route path="learner/settings" element={<LazyRoute><Settings /></LazyRoute>} />
             <Route path="learner/analytics" element={<LazyRoute><LearningAnalytics /></LazyRoute>} />

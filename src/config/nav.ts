@@ -34,9 +34,8 @@ export const navPersonal: NavItem[] = [
   { label: 'Analytics', icon: React.createElement(BarChart3), to: '/dashboard/learner/analytics' },
   { label: 'Live Learning Hub', icon: React.createElement(Compass), to: '/dashboard/learner/live-hub' },
   { label: 'AI Assistant', icon: React.createElement(Sparkles), to: '/dashboard/learner/ai-coach' },
-  { label: 'Goals', icon: React.createElement(Flag), to: '/dashboard/learner/goals' },
+  { label: 'Goals & Notes', icon: React.createElement(Flag), to: '/dashboard/learner/goals-notes' },
   { label: 'Achievements & XP', icon: React.createElement(Medal), to: '/dashboard/learner/gamification' },
-  { label: 'Notes', icon: React.createElement(Notebook), to: '/dashboard/learner/notes' },
 ];
 
 export const navOrgStudent: NavItem[] = [
@@ -46,9 +45,8 @@ export const navOrgStudent: NavItem[] = [
   { label: 'Analytics', icon: React.createElement(BarChart3), to: '/dashboard/learner/analytics?org=:orgId' },
   { label: 'Live Learning Hub', icon: React.createElement(Compass), to: '/dashboard/learner/live-hub?org=:orgId' },
   { label: 'AI Assistant', icon: React.createElement(Sparkles), to: '/dashboard/learner/ai-coach?org=:orgId' },
-  { label: 'Goals', icon: React.createElement(Flag), to: '/dashboard/learner/goals?org=:orgId' },
+  { label: 'Goals & Notes', icon: React.createElement(Flag), to: '/dashboard/learner/goals-notes?org=:orgId' },
   { label: 'Achievements & XP', icon: React.createElement(Medal), to: '/dashboard/learner/gamification?org=:orgId' },
-  { label: 'Notes', icon: React.createElement(Notebook), to: '/dashboard/learner/notes?org=:orgId' },
   { label: 'Games', icon: React.createElement(Gamepad2), to: '/org/:orgId/games' },
 ];
 
