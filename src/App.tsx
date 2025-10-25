@@ -434,9 +434,7 @@ const App: React.FC = () => {
             <Route path="learner/flashcards" element={<LazyRoute><FlashcardManagerPage /></LazyRoute>} />
             <Route path="learner/live-hub" element={
               <LazyRoute>
-                <RequireFpkUniversityAccess>
-                  <LiveLearningHub />
-                </RequireFpkUniversityAccess>
+                <LiveLearningHub />
               </LazyRoute>
             } />
             <Route path="learner/assignments" element={
