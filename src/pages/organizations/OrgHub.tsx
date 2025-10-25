@@ -38,6 +38,7 @@ import { useOrganizations } from '@/hooks/useOrganizations';
 import { useToast } from '@/hooks/use-toast';
 import { useUserOrganizations } from '@/hooks/useUserOrganization';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { PageHeroWithTile } from '@/components/common/PageHeroWithTile';
 
 const OrgHub = () => {
   const { data: organizations = [], isLoading } = useUserOrganizations();
@@ -102,14 +103,13 @@ const OrgHub = () => {
   }
 
   return (
-    <div className="space-y-8 pt-24">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-white">Organizations</h1>
-        <p className="text-white mt-2">
-          Manage your organizations, join new ones, or create your own.
-        </p>
-      </div>
+    <div className="space-y-8">
+      {/* Hero Section with Contrast Tile */}
+      <PageHeroWithTile
+        title="Organizations"
+        subtitle="Manage your organizations, join new ones, or create your own."
+        className="mb-8"
+      />
 
       {/* Action Cards Grid */}
       <div className="grid gap-6 lg:grid-cols-3">
