@@ -95,7 +95,7 @@ const AIStudyCoach = () => {
       <div className="w-full min-h-screen flex flex-col bg-background">
         
         {/* Fixed Header Section */}
-        <div className="flex-shrink-0 w-full px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6">
+        <div className="flex-shrink-0 w-full px-4 sm:px-6 lg:px-8 pt-24">
           <div className="max-w-7xl mx-auto">
             <div className="text-center space-y-4 mb-6">
               <div className="flex flex-col items-center gap-2">
