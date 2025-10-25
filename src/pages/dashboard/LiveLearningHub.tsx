@@ -11,6 +11,7 @@ import WeatherScienceLabCard from '@/components/dashboard/WeatherScienceLabCard'
 import ModelViewerModal from '@/components/dashboard/ModelViewerModal';
 import APODGalleryModal from '@/components/dashboard/APODGalleryModal';
 import { MuseumItem } from '@/services/MuseumService';
+import { PageHeroWithTile } from '@/components/common/PageHeroWithTile';
 
 const LiveLearningHub = () => {
   const [isAPODModalOpen, setIsAPODModalOpen] = useState(false);
@@ -56,25 +57,24 @@ const LiveLearningHub = () => {
   };
 
   return (
-    <div className="p-4 sm:p-6 space-y-6">
-      <div>
-        <div className="flex flex-col items-center gap-2">
-          <h1 className="text-3xl font-bold text-gray-900">
-            <DualLanguageText translationKey="title" namespace="liveHub" />
-          </h1>
-          <button
-            onClick={handleShowVideoManually}
-            className="flex items-center gap-1 text-sm text-primary hover:text-primary/80 transition-colors underline-offset-4 hover:underline"
-            aria-label="Watch video guide about how this page works"
-          >
-            <HelpCircle className="h-4 w-4" />
-            How this page works
-          </button>
-        </div>
-        <p className="text-gray-600 text-center mt-2">
-          <DualLanguageText translationKey="subtitle" namespace="liveHub" />
-        </p>
-      </div>
+    <div className="space-y-6">
+      {/* Hero Section with Contrast Tile */}
+      <PageHeroWithTile
+        title="Live Learning Hub"
+        subtitle="Connect with teachers and peers in real-time learning sessions"
+        className="mb-8"
+      >
+        <button
+          onClick={handleShowVideoManually}
+          className="flex items-center justify-center gap-1 text-sm text-primary hover:text-primary/80 transition-colors underline-offset-4 hover:underline mt-3 w-full"
+          aria-label="Watch video guide about how this page works"
+        >
+          <HelpCircle className="h-4 w-4" />
+          How this page works
+        </button>
+      </PageHeroWithTile>
+
+      <div className="px-4 sm:px-6 space-y-6">
 
       {/* Daily Discovery Section */}
       <div className="space-y-4">
@@ -151,6 +151,7 @@ const LiveLearningHub = () => {
         isOpen={isVideoModalOpen}
         onClose={handleCloseVideoModal}
       />
+      </div>
     </div>
   );
 };
