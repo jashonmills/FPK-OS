@@ -91,12 +91,21 @@ Deno.serve(async (req: Request) => {
   }
 
   if (!obj) {
-    console.error("SCORM proxy 404", { pkg, relPath, key, bucketsChecked: BUCKETS });
-    return new Response("Not found", { 
+    const errorMessage = `SCORM Content Not Found\n\nPackage: ${pkg}\nRequested: ${relPath}\nLooking for: ${key}\nBuckets checked: ${BUCKETS.join(', ')}\n\nThis usually means:\n1. The manifest launch_href doesn't match extracted files\n2. Package extraction failed\n3. Files are in a different bucket\n\nCheck the scorm-parser-production logs for extraction details.`;
+    
+    console.error("SCORM proxy 404", { 
+      pkg, 
+      relPath, 
+      key, 
+      bucketsChecked: BUCKETS,
+      suggestion: "Verify SCO launch_href matches extracted file structure"
+    });
+    
+    return new Response(errorMessage, { 
       status: 404,
       headers: {
         "Access-Control-Allow-Origin": "*",
-        "Content-Type": "text/plain"
+        "Content-Type": "text/plain; charset=utf-8"
       }
     });
   }
