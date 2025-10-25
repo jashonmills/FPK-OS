@@ -1,5 +1,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.0';
+import JSZip from 'https://esm.sh/jszip@3.10.1';
+import Scorm12API from "https://esm.sh/scorm-again@1.7.0/src/Scorm12API.js";
+import Scorm2004API from "https://esm.sh/scorm-again@1.7.0/src/Scorm2004API.js";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -58,92 +61,157 @@ interface ParsedManifest {
   metadata: any;
 }
 
-// Enhanced XML parsing for SCORM manifests
-function parseManifestXML(xmlContent: string): ParsedManifest {
-  // This is a simplified XML parser - in production you'd use a proper XML library
-  // For now, we'll create a mock structure that demonstrates the expected output
+// Real SCORM manifest parsing using scorm-again library
+async function parseManifestXML(xmlContent: string): Promise<ParsedManifest> {
+  console.log('🔍 Parsing SCORM manifest with scorm-again...');
   
   // Detect SCORM version
   const isScorm2004 = xmlContent.includes('ADL SCORM 2004') || 
                       xmlContent.includes('adlcp:') ||
                       xmlContent.includes('imsss:') ||
-                      xmlContent.includes('version="2004');
+                      xmlContent.includes('2004 4th Edition') ||
+                      xmlContent.includes('version="2004"') ||
+                      xmlContent.includes('IMS Content') && xmlContent.includes('adlseq:');
 
   const standard = isScorm2004 ? 'SCORM 2004' : 'SCORM 1.2';
+  console.log(`📦 Detected ${standard} package`);
 
-  // Extract basic manifest information
-  const identifierMatch = xmlContent.match(/identifier="([^"]+)"/);
-  const manifestId = identifierMatch ? identifierMatch[1] : 'manifest-' + Date.now();
-
-  // Create demo SCOs based on the standard
-  const scos = [
-    {
-      identifier: 'sco-1',
-      title: 'Introduction to SCORM',
-      launch_href: 'content/index.html',
-      parameters: '',
-      seq_order: 1,
-      mastery_score: 80,
-      max_time_allowed: undefined,
-      time_limit_action: 'continue,no message',
-      is_launchable: true,
-      scorm_type: 'sco'
-    },
-    {
-      identifier: 'sco-2', 
-      title: 'SCORM Concepts',
-      launch_href: 'content/lesson2.html',
-      parameters: '',
-      seq_order: 2,
-      mastery_score: 85,
-      max_time_allowed: undefined,
-      time_limit_action: 'continue,no message',
-      is_launchable: true,
-      scorm_type: 'sco'
-    }
-  ];
-
-  return {
-    version: isScorm2004 ? '2004 4th Edition' : '1.2',
-    standard,
-    identifier: manifestId,
-    title: 'Sample SCORM Package',
-    organizations: [
-      {
-        identifier: 'org-1',
-        title: 'Default Organization',
-        structure: 'hierarchical',
-        items: scos.map(sco => ({
-          identifier: sco.identifier,
-          title: sco.title,
-          identifierref: sco.identifier,
-          isvisible: true,
-          parameters: sco.parameters,
-          prerequisites: undefined,
-          maxtimeallowed: sco.max_time_allowed,
-          timelimitaction: sco.time_limit_action,
-          datafromlms: undefined,
-          masteryscore: sco.mastery_score?.toString(),
-          children: []
-        }))
+  // Initialize appropriate SCORM API based on version
+  const scormAPI = isScorm2004 ? new Scorm2004API() : new Scorm12API();
+  
+  try {
+    // Load and parse the manifest
+    scormAPI.loadFromXML(xmlContent);
+    
+    // Extract manifest metadata
+    const manifestId = scormAPI.settings?.identifier || 'manifest-' + Date.now();
+    const title = scormAPI.settings?.title || 'Untitled SCORM Package';
+    
+    // Get all SCOs from the parsed manifest
+    const rawSCOs = scormAPI.getSCOs();
+    console.log(`✅ Found ${rawSCOs.length} SCOs in manifest`);
+    
+    // Transform SCOs to our database format
+    const scos = rawSCOs.map((sco: any, index: number) => {
+      // Clean up launch URL (remove leading slashes if present)
+      let launchHref = sco.launchUrl || sco.launch || 'index.html';
+      if (launchHref.startsWith('/')) {
+        launchHref = launchHref.substring(1);
       }
-    ],
-    defaultOrganization: 'org-1',
-    resources: scos.map(sco => ({
+      
+      console.log(`  📄 SCO ${index + 1}: "${sco.title}" → ${launchHref}`);
+      
+      return {
+        identifier: sco.identifier || `sco-${index + 1}`,
+        title: sco.title || `Lesson ${index + 1}`,
+        launch_href: launchHref,
+        parameters: sco.parameters || '',
+        seq_order: index + 1,
+        mastery_score: sco.masteryScore || sco.mastery_score || null,
+        max_time_allowed: sco.maxTimeAllowed || sco.max_time_allowed || undefined,
+        time_limit_action: sco.timeLimitAction || sco.time_limit_action || 'continue,no message',
+        is_launchable: true,
+        scorm_type: sco.scormType || sco.scorm_type || 'sco'
+      };
+    });
+
+    // Build organizations structure
+    const organizations = [{
+      identifier: 'org-1',
+      title: title,
+      structure: 'hierarchical',
+      items: scos.map(sco => ({
+        identifier: sco.identifier,
+        title: sco.title,
+        identifierref: sco.identifier,
+        isvisible: true,
+        parameters: sco.parameters,
+        prerequisites: undefined,
+        maxtimeallowed: sco.max_time_allowed,
+        timelimitaction: sco.time_limit_action,
+        datafromlms: undefined,
+        masteryscore: sco.mastery_score?.toString(),
+        children: []
+      }))
+    }];
+
+    // Build resources list
+    const resources = scos.map(sco => ({
       identifier: sco.identifier,
-      type: isScorm2004 ? 'webcontent' : 'webcontent',
+      type: 'webcontent',
       href: sco.launch_href,
       metadata: {},
       files: [sco.launch_href]
-    })),
-    scos,
-    metadata: {
-      schema: isScorm2004 ? 'ADL SCORM' : 'ADL SCORM',
-      schemaversion: isScorm2004 ? '2004 4th Edition' : '1.2',
-      parsed_at: new Date().toISOString(),
-      total_scos: scos.length
+    }));
+
+    return {
+      version: isScorm2004 ? '2004 4th Edition' : '1.2',
+      standard,
+      identifier: manifestId,
+      title,
+      organizations,
+      defaultOrganization: 'org-1',
+      resources,
+      scos,
+      metadata: {
+        schema: 'ADL SCORM',
+        schemaversion: isScorm2004 ? '2004 4th Edition' : '1.2',
+        parsed_at: new Date().toISOString(),
+        total_scos: scos.length,
+        parsed_with: 'scorm-again@1.7.0'
+      }
+    };
+  } catch (error) {
+    console.error('❌ scorm-again parsing failed:', error);
+    throw new Error(`Failed to parse SCORM manifest: ${error.message}`);
+  }
+}
+
+// Extract imsmanifest.xml from ZIP file
+async function extractManifestFromZip(zipPath: string, supabaseClient: any): Promise<string> {
+  console.log('📦 Extracting imsmanifest.xml from ZIP...');
+  
+  try {
+    // Download ZIP from storage
+    const { data: zipData, error: downloadError } = await supabaseClient
+      .storage
+      .from('scorm-packages')
+      .download(zipPath);
+
+    if (downloadError) {
+      throw new Error(`Failed to download ZIP: ${downloadError.message}`);
     }
-  };
+
+    console.log('✅ ZIP downloaded, extracting...');
+    
+    // Load ZIP
+    const zip = await JSZip.loadAsync(zipData);
+    
+    // Find imsmanifest.xml (case-insensitive)
+    let manifestFile = null;
+    const fileNames = Object.keys(zip.files);
+    
+    for (const fileName of fileNames) {
+      if (fileName.toLowerCase().endsWith('imsmanifest.xml')) {
+        manifestFile = zip.files[fileName];
+        console.log(`✅ Found manifest: ${fileName}`);
+        break;
+      }
+    }
+    
+    if (!manifestFile) {
+      throw new Error('imsmanifest.xml not found in ZIP package');
+    }
+    
+    // Extract XML content
+    const xmlContent = await manifestFile.async('text');
+    console.log(`✅ Manifest extracted (${xmlContent.length} bytes)`);
+    
+    return xmlContent;
+  } catch (error) {
+    console.error('❌ ZIP extraction failed:', error);
+    throw new Error(`Failed to extract manifest: ${error.message}`);
+  }
 }
 
 // Security: Validate and sanitize file uploads
@@ -256,47 +324,28 @@ serve(async (req) => {
       throw new Error(`Failed to update package status: ${updateError.message}`);
     }
 
-    // Simulate ZIP processing and manifest parsing
-    // In production, you would:
-    // 1. Extract ZIP file to storage
-    // 2. Find and parse imsmanifest.xml
-    // 3. Validate SCORM structure
-    // 4. Store extracted files in organized structure
-
+    // Real SCORM manifest parsing
     let parsedManifest: ParsedManifest;
     
     try {
-      // Mock manifest XML for demonstration
-      const mockManifestXML = `<?xml version="1.0" encoding="UTF-8"?>
-<manifest identifier="com.example.scorm" version="1" xmlns="http://www.imsglobal.org/xsd/imscp_v1p1"
-    xmlns:adlcp="http://www.adlnet.org/xsd/adlcp_v1p3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.imsglobal.org/xsd/imscp_v1p1 imscp_v1p1.xsd http://www.adlnet.org/xsd/adlcp_v1p3 adlcp_v1p3.xsd">
-  <metadata>
-    <schema>ADL SCORM</schema>
-    <schemaversion>2004 4th Edition</schemaversion>
-  </metadata>
-  <organizations default="org1">
-    <organization identifier="org1">
-      <title>Sample SCORM Course</title>
-      <item identifier="item1" identifierref="resource1">
-        <title>Introduction</title>
-      </item>
-      <item identifier="item2" identifierref="resource2">
-        <title>Concepts</title>
-      </item>
-    </organization>
-  </organizations>
-  <resources>
-    <resource identifier="resource1" type="webcontent" href="index.html">
-      <file href="index.html"/>
-    </resource>
-    <resource identifier="resource2" type="webcontent" href="lesson2.html">
-      <file href="lesson2.html"/>
-    </resource>
-  </resources>
-</manifest>`;
+      // Get package to find ZIP path
+      const { data: packageData, error: packageError } = await supabaseClient
+        .from('scorm_packages')
+        .select('zip_path')
+        .eq('id', packageId)
+        .single();
 
-      parsedManifest = parseManifestXML(mockManifestXML);
+      if (packageError || !packageData?.zip_path) {
+        throw new Error('Package ZIP path not found in database');
+      }
+
+      console.log(`📦 Processing package from: ${packageData.zip_path}`);
+
+      // Extract and parse real imsmanifest.xml from ZIP
+      const manifestXML = await extractManifestFromZip(packageData.zip_path, supabaseClient);
+      
+      // Parse with scorm-again library
+      parsedManifest = await parseManifestXML(manifestXML);
       
       // Log parsing activity
       await supabaseClient
