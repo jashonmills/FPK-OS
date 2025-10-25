@@ -102,7 +102,7 @@ const OrgHub = () => {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pt-24">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-white">Organizations</h1>
