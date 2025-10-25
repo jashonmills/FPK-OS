@@ -3,17 +3,27 @@ import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { TrendingUp, BookOpen, MessageCircle, Target, BarChart3 } from 'lucide-react';
+import { TrendingUp, BookOpen, MessageCircle, Target, BarChart3, Medal } from 'lucide-react';
 import ErrorBoundaryUnified from '@/components/ErrorBoundaryUnified';
 import { useQuickStatsLive } from '@/hooks/useQuickStatsLive';
 import { useFirstVisitVideo } from '@/hooks/useFirstVisitVideo';
 import { FirstVisitVideoModal } from '@/components/common/FirstVisitVideoModal';
 import { PageHelpTrigger } from '@/components/common/PageHelpTrigger';
+import { useGoalProgressTracking } from '@/hooks/useGoalProgressTracking';
 
 // Import analytics components with error boundaries
 import ReadingAnalyticsCard from '@/components/analytics/ReadingAnalyticsCard';
 import AICoachEngagementCard from '@/components/analytics/AICoachEngagementCard';
 import XPBreakdownCard from '@/components/analytics/XPBreakdownCard';
+
+// Import gamification components
+import GamificationDashboard from '@/components/gamification/GamificationDashboard';
+import GoalXPTracker from '@/components/goals/GoalXPTracker';
+import SimpleGoalsOverview from '@/components/goals/SimpleGoalsOverview';
+import ActiveLearningGoals from '@/components/goals/ActiveLearningGoals';
+import ReadingProgressWidget from '@/components/goals/ReadingProgressWidget';
+import ReadingProgressWidgetErrorBoundary from '@/components/goals/ReadingProgressWidgetErrorBoundary';
+import GoalReminders from '@/components/goals/GoalReminders';
 
 // Dynamic imports with error handling  
 const UserLearningProgress = React.lazy(() => 
@@ -64,6 +74,9 @@ const LearningAnalytics = () => {
   const [showVideoModal, setShowVideoModal] = useState(false);
   const { data: quickStats, isLoading: quickStatsLoading } = useQuickStatsLive();
   
+  // Initialize automatic progress tracking for achievements tab
+  useGoalProgressTracking();
+  
   // Video storage hook
   const { shouldShowAuto, markVideoAsSeen } = useFirstVisitVideo('analytics_intro_seen');
 
@@ -101,7 +114,7 @@ const LearningAnalytics = () => {
       />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5">
+        <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6">
           <TabsTrigger value="overview" className="flex items-center gap-2">
             <BarChart3 className="h-4 w-4" />
             <span className="hidden sm:inline">Overview</span>
@@ -121,6 +134,10 @@ const LearningAnalytics = () => {
           <TabsTrigger value="goals" className="flex items-center gap-2">
             <Target className="h-4 w-4" />
             <span className="hidden sm:inline">Goals</span>
+          </TabsTrigger>
+          <TabsTrigger value="achievements" className="flex items-center gap-2">
+            <Medal className="h-4 w-4" />
+            <span className="hidden sm:inline">XP & Badges</span>
           </TabsTrigger>
         </TabsList>
 
@@ -226,6 +243,47 @@ const LearningAnalytics = () => {
             }>
               <GoalsGamificationAnalytics />
             </React.Suspense>
+          </ErrorBoundaryUnified>
+        </TabsContent>
+
+        <TabsContent value="achievements" className="mt-6">
+          <ErrorBoundaryUnified>
+            {/* Goal & XP Tracker - Prominent Card */}
+            <div className="mb-6">
+              <GoalXPTracker />
+            </div>
+
+            {/* Main Content Tabs */}
+            <Tabs defaultValue="goals" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-6">
+                <TabsTrigger value="goals">My Goals</TabsTrigger>
+                <TabsTrigger value="badges">Achievements</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="goals" className="space-y-6">
+                {/* Goals Overview Stats */}
+                <SimpleGoalsOverview />
+                
+                {/* Active Learning Goals - with integrated create goal functionality */}
+                <ActiveLearningGoals />
+                
+                {/* Reading Progress Widget and Goal Reminders */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <div className="lg:col-span-1">
+                    <ReadingProgressWidgetErrorBoundary>
+                      <ReadingProgressWidget />
+                    </ReadingProgressWidgetErrorBoundary>
+                  </div>
+                  <div className="lg:col-span-2">
+                    <GoalReminders />
+                  </div>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="badges">
+                <GamificationDashboard />
+              </TabsContent>
+            </Tabs>
           </ErrorBoundaryUnified>
         </TabsContent>
       </Tabs>

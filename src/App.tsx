@@ -426,7 +426,7 @@ const App: React.FC = () => {
             {/* Backward compatibility redirects */}
             <Route path="learner/goals" element={<Navigate to="/dashboard/learner/goals-notes" replace />} />
             <Route path="learner/notes" element={<Navigate to="/dashboard/learner/goals-notes" replace />} />
-            <Route path="learner/gamification" element={<LazyRoute><Gamification /></LazyRoute>} />
+            <Route path="learner/gamification" element={<Navigate to="/dashboard/learner/analytics" replace />} />
             <Route path="learner/settings" element={<LazyRoute><Settings /></LazyRoute>} />
             <Route path="learner/analytics" element={<LazyRoute><LearningAnalytics /></LazyRoute>} />
             <Route path="learner/analytics-debug" element={<LazyRoute><AnalyticsDebug /></LazyRoute>} />

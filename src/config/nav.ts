@@ -35,7 +35,6 @@ export const navPersonal: NavItem[] = [
   { label: 'Live Learning Hub', icon: React.createElement(Compass), to: '/dashboard/learner/live-hub' },
   { label: 'AI Assistant', icon: React.createElement(Sparkles), to: '/dashboard/learner/ai-coach' },
   { label: 'Goals & Notes', icon: React.createElement(Flag), to: '/dashboard/learner/goals-notes' },
-  { label: 'Achievements & XP', icon: React.createElement(Medal), to: '/dashboard/learner/gamification' },
 ];
 
 export const navOrgStudent: NavItem[] = [
@@ -46,7 +45,6 @@ export const navOrgStudent: NavItem[] = [
   { label: 'Live Learning Hub', icon: React.createElement(Compass), to: '/dashboard/learner/live-hub?org=:orgId' },
   { label: 'AI Assistant', icon: React.createElement(Sparkles), to: '/dashboard/learner/ai-coach?org=:orgId' },
   { label: 'Goals & Notes', icon: React.createElement(Flag), to: '/dashboard/learner/goals-notes?org=:orgId' },
-  { label: 'Achievements & XP', icon: React.createElement(Medal), to: '/dashboard/learner/gamification?org=:orgId' },
   { label: 'Games', icon: React.createElement(Gamepad2), to: '/org/:orgId/games' },
 ];
 
