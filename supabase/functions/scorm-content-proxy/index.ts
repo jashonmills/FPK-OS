@@ -167,4 +167,14 @@ Deno.serve(async (req: Request) => {
       }
     });
 
+  } catch (error) {
+    console.error('❌ Error in SCORM proxy:', error);
+    return new Response(`Internal server error: ${error.message}`, {
+      status: 500,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Content-Type": "text/plain"
+      }
+    });
+  }
 });
