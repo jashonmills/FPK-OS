@@ -13,6 +13,8 @@ import { ArrowLeft, MessageCircle, Pencil, Globe, Linkedin, FileText, Heart, Mes
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import { InviteStatsWidget } from "@/components/community/widgets/InviteStatsWidget";
+import { useFeatureFlag } from "@/hooks/useFeatureFlag";
 
 interface Persona {
   id: string;
@@ -85,6 +87,7 @@ export default function ProfilePage() {
   const [startingChat, setStartingChat] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("posts");
+  const isInviteSystemEnabled = useFeatureFlag('user_invite_system_enabled');
 
   useEffect(() => {
     if (personaId) {
@@ -477,6 +480,13 @@ export default function ProfilePage() {
             )}
           </div>
         </Card>
+      )}
+
+      {/* Invite Stats Widget - Only visible on own profile */}
+      {user && persona.user_id === user.id && isInviteSystemEnabled && (
+        <div className="mb-6">
+          <InviteStatsWidget />
+        </div>
       )}
 
       {/* Pinned Post */}
