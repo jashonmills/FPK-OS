@@ -12,6 +12,7 @@ serve(async (req) => {
   }
 
   try {
+    // User client for auth and validation
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
@@ -20,6 +21,12 @@ serve(async (req) => {
           headers: { Authorization: req.headers.get('Authorization')! },
         },
       }
+    );
+
+    // Service role client for privileged operations (bypasses RLS)
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
     );
 
     const { data: { user } } = await supabaseClient.auth.getUser();
@@ -106,7 +113,9 @@ serve(async (req) => {
     ];
 
     console.log('Adding participants:', participants);
-    const { error: participantsError } = await supabaseClient
+    // Use service role to bypass RLS for adding participants
+    // We've already validated the user's permission above
+    const { error: participantsError } = await supabaseAdmin
       .from('conversation_participants')
       .insert(participants);
 
