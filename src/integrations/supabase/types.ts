@@ -76,6 +76,27 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_prompts: {
+        Row: {
+          created_at: string | null
+          day_of_week: number
+          id: string
+          prompt_text: string
+        }
+        Insert: {
+          created_at?: string | null
+          day_of_week: number
+          id?: string
+          prompt_text: string
+        }
+        Update: {
+          created_at?: string | null
+          day_of_week?: number
+          id?: string
+          prompt_text?: string
+        }
+        Relationships: []
+      }
       feature_flags: {
         Row: {
           created_at: string
@@ -261,6 +282,48 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      reflections: {
+        Row: {
+          author_id: string
+          content: string
+          created_at: string | null
+          id: string
+          prompt_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          author_id: string
+          content: string
+          created_at?: string | null
+          id?: string
+          prompt_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          author_id?: string
+          content?: string
+          created_at?: string | null
+          id?: string
+          prompt_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reflections_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "personas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reflections_prompt_id_fkey"
+            columns: ["prompt_id"]
+            isOneToOne: false
+            referencedRelation: "daily_prompts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_feature_flags: {
         Row: {

@@ -5,6 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Loader2 } from "lucide-react";
 import PostCard from "./PostCard";
 import CreatePostForm from "./CreatePostForm";
+import { DailyPromptCard } from "./DailyPromptCard";
 
 interface Post {
   id: string;
@@ -113,6 +114,7 @@ const PostFeed = ({ circleId }: PostFeedProps) => {
 
       <ScrollArea className="flex-1">
         <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 max-w-2xl mx-auto w-full">
+          <DailyPromptCard />
           <CreatePostForm circleId={circleId} onPostCreated={fetchPosts} />
 
           {posts.length === 0 ? (

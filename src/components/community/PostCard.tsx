@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -122,15 +123,20 @@ const PostCard = ({ post, onDelete }: PostCardProps) => {
       <CardHeader className="pb-3 p-4 sm:p-6 sm:pb-3">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-2 sm:gap-3">
-            <Avatar className="h-8 w-8 sm:h-10 sm:w-10">
-              <AvatarFallback className="bg-primary text-primary-foreground text-sm sm:text-base">
-                {post.personas.display_name.charAt(0).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
+            <Link to={`/community/profile/${post.author_id}`}>
+              <Avatar className="h-8 w-8 sm:h-10 sm:w-10 cursor-pointer hover:ring-2 hover:ring-primary transition-all">
+                <AvatarFallback className="bg-primary text-primary-foreground text-sm sm:text-base">
+                  {post.personas.display_name.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+            </Link>
             <div>
-              <p className="font-semibold text-sm sm:text-base text-foreground">
+              <Link 
+                to={`/community/profile/${post.author_id}`}
+                className="font-semibold text-sm sm:text-base text-foreground hover:underline"
+              >
                 {post.personas.display_name}
-              </p>
+              </Link>
               <p className="text-xs text-muted-foreground">
                 {formatDistanceToNow(new Date(post.created_at), {
                   addSuffix: true,

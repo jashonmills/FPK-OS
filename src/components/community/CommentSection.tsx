@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -123,16 +124,21 @@ const CommentSection = ({ postId, onCommentAdded }: CommentSectionProps) => {
         <div className="space-y-3 max-h-64 overflow-y-auto">
           {comments.map((comment) => (
             <div key={comment.id} className="flex gap-3">
-              <Avatar className="h-8 w-8">
-                <AvatarFallback className="bg-secondary text-secondary-foreground text-xs">
-                  {comment.personas.display_name.charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
+              <Link to={`/community/profile/${comment.author_id}`}>
+                <Avatar className="h-8 w-8 cursor-pointer hover:ring-2 hover:ring-primary transition-all">
+                  <AvatarFallback className="bg-secondary text-secondary-foreground text-xs">
+                    {comment.personas.display_name.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+              </Link>
               <div className="flex-1">
                 <div className="bg-secondary rounded-lg p-3">
-                  <p className="font-semibold text-sm">
+                  <Link 
+                    to={`/community/profile/${comment.author_id}`}
+                    className="font-semibold text-sm hover:underline"
+                  >
                     {comment.personas.display_name}
-                  </p>
+                  </Link>
                   <p className="text-sm text-secondary-foreground mt-1">
                     {comment.content}
                   </p>
