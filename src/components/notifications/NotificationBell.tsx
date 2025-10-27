@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -10,13 +10,17 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Bell, CheckCircle, Gift } from "lucide-react";
+import { Bell, CheckCircle, Gift, MessageSquare } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useNavigate } from "react-router-dom";
 
 export const NotificationBell = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [lastNotificationCount, setLastNotificationCount] = useState(0);
 
   // Fetch notifications
   const { data: notifications } = useQuery({
@@ -52,6 +56,21 @@ export const NotificationBell = () => {
     }
   });
 
+  // Initialize audio element
+  useEffect(() => {
+    audioRef.current = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMHHm7A7+OQSQ0PWqzn77BlGwU7k9n0z3gsB'); 
+  }, []);
+
+  // Play sound when new notification arrives
+  useEffect(() => {
+    if (notifications && notifications.length > lastNotificationCount && lastNotificationCount > 0) {
+      audioRef.current?.play().catch(err => console.log('Audio play failed:', err));
+    }
+    if (notifications) {
+      setLastNotificationCount(notifications.length);
+    }
+  }, [notifications, lastNotificationCount]);
+
   // Subscribe to real-time notifications
   useEffect(() => {
     if (!user) return;
@@ -85,8 +104,21 @@ export const NotificationBell = () => {
         return <Gift className="w-4 h-4 text-primary" />;
       case 'ACHIEVEMENT':
         return <CheckCircle className="w-4 h-4 text-green-500" />;
+      case 'MESSAGE':
+        return <MessageSquare className="w-4 h-4 text-blue-500" />;
       default:
         return <Bell className="w-4 h-4" />;
+    }
+  };
+
+  const handleNotificationClick = (notification: any) => {
+    if (!notification.is_read) {
+      markAsReadMutation.mutate(notification.id);
+    }
+    
+    // Navigate to conversation if it's a message notification
+    if (notification.type === 'MESSAGE' && notification.metadata?.conversation_id) {
+      navigate(`/messages/${notification.metadata.conversation_id}`);
     }
   };
 
@@ -117,11 +149,7 @@ export const NotificationBell = () => {
               <DropdownMenuItem
                 key={notification.id}
                 className="p-4 cursor-pointer flex-col items-start"
-                onClick={() => {
-                  if (!notification.is_read) {
-                    markAsReadMutation.mutate(notification.id);
-                  }
-                }}
+                onClick={() => handleNotificationClick(notification)}
               >
                 <div className="flex items-start gap-3 w-full">
                   <div className="mt-1">

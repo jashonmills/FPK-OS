@@ -911,6 +911,7 @@ export type Database = {
     Enums: {
       app_role: "admin" | "moderator" | "user"
       circle_role: "MEMBER" | "ADMIN"
+      notification_type: "REFERRAL_REWARD" | "ACHIEVEMENT" | "MESSAGE"
       persona_type: "PARENT" | "EDUCATOR" | "PROFESSIONAL" | "INDIVIDUAL"
     }
     CompositeTypes: {
@@ -1041,6 +1042,7 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "moderator", "user"],
       circle_role: ["MEMBER", "ADMIN"],
+      notification_type: ["REFERRAL_REWARD", "ACHIEVEMENT", "MESSAGE"],
       persona_type: ["PARENT", "EDUCATOR", "PROFESSIONAL", "INDIVIDUAL"],
     },
   },
