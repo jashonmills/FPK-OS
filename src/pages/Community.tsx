@@ -408,8 +408,8 @@ const Community = () => {
         />
       )}
 
-      {/* Product Tour */}
-      <ProductTour selectedCircleId={selectedCircleId} />
+      {/* Product Tour - Only show after user has joined circles */}
+      {circles.length > 0 && <ProductTour selectedCircleId={selectedCircleId} />}
     </div>
   );
 };
