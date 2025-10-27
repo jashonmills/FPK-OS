@@ -507,7 +507,20 @@ export default function ProfilePage() {
         <TabsContent value="posts" className="space-y-4">
           {posts.length === 0 ? (
             <Card className="p-6 sm:p-8 text-center">
-              <p className="text-muted-foreground">No posts yet</p>
+              {user && persona.user_id === user.id ? (
+                <div className="space-y-4">
+                  <p className="text-muted-foreground">Ready to share your journey?</p>
+                  <Button 
+                    onClick={() => navigate("/community")}
+                    className="gap-2"
+                  >
+                    Share your first post in the Community
+                    <ArrowLeft className="w-4 h-4 rotate-180" />
+                  </Button>
+                </div>
+              ) : (
+                <p className="text-muted-foreground">No posts yet</p>
+              )}
             </Card>
           ) : (
             posts.map((post) => (
