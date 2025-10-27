@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Loader2, Send } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
@@ -17,6 +17,7 @@ interface Comment {
   personas: {
     id: string;
     display_name: string;
+    avatar_url: string | null;
   };
 }
 
@@ -63,7 +64,8 @@ const CommentSection = ({ postId, onCommentAdded }: CommentSectionProps) => {
           author_id,
           personas!post_comments_author_id_fkey (
             id,
-            display_name
+            display_name,
+            avatar_url
           )
         `)
         .eq("post_id", postId)
@@ -141,6 +143,7 @@ const CommentSection = ({ postId, onCommentAdded }: CommentSectionProps) => {
             <div key={comment.id} className="flex gap-3">
               <Link to={`/community/profile/${comment.personas.id}`}>
                 <Avatar className="h-8 w-8 cursor-pointer hover:ring-2 hover:ring-primary transition-all">
+                  <AvatarImage src={comment.personas.avatar_url || ""} alt={comment.personas.display_name} />
                   <AvatarFallback className="bg-secondary text-secondary-foreground text-xs">
                     {comment.personas.display_name.charAt(0).toUpperCase()}
                   </AvatarFallback>
