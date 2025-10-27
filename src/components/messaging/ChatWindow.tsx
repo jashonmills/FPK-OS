@@ -28,6 +28,26 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
   const { user } = useAuth();
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  const handleOptimisticMessage = (optimisticMsg: any) => {
+    if (optimisticMsg.failed) {
+      // Remove failed message
+      setMessages(prev => prev.filter(m => m.id !== optimisticMsg.id));
+      return;
+    }
+    
+    // Add optimistic message if not already present
+    setMessages(prev => {
+      const exists = prev.find(m => m.id === optimisticMsg.id);
+      if (exists) return prev;
+      return [...prev, optimisticMsg];
+    });
+    
+    // Scroll to bottom
+    setTimeout(() => {
+      scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+  };
+
   useEffect(() => {
     if (!conversationId) return;
 
@@ -83,6 +103,8 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
           filter: `conversation_id=eq.${conversationId}`,
         },
         async (payload) => {
+          console.log('Realtime message received:', payload);
+          
           // Fetch sender persona info
           const { data: persona } = await supabase
             .from('personas')
@@ -95,7 +117,20 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
             sender: persona || undefined,
           } as Message;
 
-          setMessages(prev => [...prev, newMessage]);
+          // Remove optimistic message if it exists and replace with real message
+          setMessages(prev => {
+            // Filter out any optimistic messages (temporary IDs)
+            const withoutOptimistic = prev.filter(m => 
+              !m.id.toString().startsWith('temp-') || 
+              m.sender_id !== newMessage.sender_id
+            );
+            
+            // Check if this message is already in the list
+            const exists = withoutOptimistic.find(m => m.id === newMessage.id);
+            if (exists) return withoutOptimistic;
+            
+            return [...withoutOptimistic, newMessage];
+          });
           
           // Scroll to bottom
           setTimeout(() => {
@@ -103,7 +138,9 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
           }, 100);
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('Realtime subscription status:', status);
+      });
 
     return () => {
       supabase.removeChannel(channel);
@@ -172,7 +209,10 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
         </div>
       </ScrollArea>
       <div className="border-t p-4">
-        <MessageInput conversationId={conversationId} />
+        <MessageInput 
+          conversationId={conversationId}
+          onOptimisticMessage={handleOptimisticMessage}
+        />
       </div>
     </div>
   );
