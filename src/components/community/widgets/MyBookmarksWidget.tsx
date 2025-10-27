@@ -46,7 +46,7 @@ export const MyBookmarksWidget = () => {
             content,
             created_at,
             author_id,
-            personas (
+            personas!posts_author_id_fkey (
               display_name
             )
           )

@@ -230,6 +230,9 @@ const PostCard = ({ post, onDelete }: PostCardProps) => {
           <div className="flex items-center gap-2 sm:gap-3">
             <Link to={`/community/profile/${post.personas.id}`}>
               <Avatar className="h-8 w-8 sm:h-10 sm:w-10 cursor-pointer hover:ring-2 hover:ring-primary transition-all">
+                {post.personas.avatar_url && (
+                  <img src={post.personas.avatar_url} alt={post.personas.display_name} className="object-cover" />
+                )}
                 <AvatarFallback className="bg-primary text-primary-foreground text-sm sm:text-base">
                   {post.personas.display_name.charAt(0).toUpperCase()}
                 </AvatarFallback>
