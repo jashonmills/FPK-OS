@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -9,24 +8,24 @@ import { Loader2, Send } from "lucide-react";
 
 interface CreatePostFormProps {
   circleId: string;
+  personaId: string;
   onPostCreated: () => void;
 }
 
-const CreatePostForm = ({ circleId, onPostCreated }: CreatePostFormProps) => {
-  const { user } = useAuth();
+const CreatePostForm = ({ circleId, personaId, onPostCreated }: CreatePostFormProps) => {
   const { toast } = useToast();
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !content.trim()) return;
+    if (!personaId || !content.trim()) return;
 
     setLoading(true);
     try {
       const { error } = await supabase.from("posts").insert({
         circle_id: circleId,
-        author_id: user.id,
+        author_id: personaId,
         content: content.trim(),
       });
 

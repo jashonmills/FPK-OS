@@ -30,6 +30,21 @@ const PostFeed = ({ circleId }: PostFeedProps) => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [circleName, setCircleName] = useState("");
+  const [currentPersonaId, setCurrentPersonaId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchCurrentPersona = async () => {
+      if (!user) return;
+      const { data } = await supabase
+        .from("personas")
+        .select("id")
+        .eq("user_id", user.id)
+        .single();
+      
+      if (data) setCurrentPersonaId(data.id);
+    };
+    fetchCurrentPersona();
+  }, [user]);
 
   useEffect(() => {
     if (!circleId) return;
@@ -67,13 +82,13 @@ const PostFeed = ({ circleId }: PostFeedProps) => {
       const { data: personasData, error: personasError } = await supabase
         .from("personas")
         .select("id, user_id, display_name, avatar_url")
-        .in("user_id", authorIds);
+        .in("id", authorIds);
 
       if (personasError) throw personasError;
 
       // Map personas to posts
       const personasMap = new Map(
-        personasData?.map(p => [p.user_id, p]) || []
+        personasData?.map(p => [p.id, p]) || []
       );
 
       const postsWithPersonas = postsData?.map(post => ({
@@ -141,7 +156,9 @@ const PostFeed = ({ circleId }: PostFeedProps) => {
           <TabsContent value="circle-feed" className="mt-0">
             <ScrollArea className="h-[calc(100vh-12rem)]">
               <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 max-w-2xl mx-auto w-full">
-                <CreatePostForm circleId={circleId} onPostCreated={fetchPosts} />
+                {currentPersonaId && (
+                  <CreatePostForm circleId={circleId} personaId={currentPersonaId} onPostCreated={fetchPosts} />
+                )}
 
                 {posts.length === 0 ? (
                   <div className="text-center py-12 animate-fade-in">
