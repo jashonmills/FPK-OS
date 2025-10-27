@@ -265,7 +265,21 @@ const PostCard = ({ post, onDelete }: PostCardProps) => {
         </div>
       </CardHeader>
       <CardContent className="space-y-4 p-4 sm:p-6">
-        <p className="text-sm sm:text-base text-foreground whitespace-pre-wrap">{post.content}</p>
+        <div className="space-y-3">
+          <p className="text-sm sm:text-base text-foreground whitespace-pre-wrap">{post.content}</p>
+          
+          {/* Display image if present */}
+          {post.image_url && (
+            <div className="rounded-lg overflow-hidden border border-border">
+              <img 
+                src={post.image_url} 
+                alt="Post image" 
+                className="w-full h-auto object-cover max-h-96"
+                loading="lazy"
+              />
+            </div>
+          )}
+        </div>
 
         <div className="flex items-center gap-2 sm:gap-4 pt-2 border-t border-border">
           <Button

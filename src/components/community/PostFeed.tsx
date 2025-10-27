@@ -30,18 +30,18 @@ const PostFeed = ({ circleId }: PostFeedProps) => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [circleName, setCircleName] = useState("");
-  const [currentPersonaId, setCurrentPersonaId] = useState<string | null>(null);
+  const [currentPersona, setCurrentPersona] = useState<{ id: string; display_name: string } | null>(null);
 
   useEffect(() => {
     const fetchCurrentPersona = async () => {
       if (!user) return;
       const { data } = await supabase
         .from("personas")
-        .select("id")
+        .select("id, display_name")
         .eq("user_id", user.id)
         .single();
       
-      if (data) setCurrentPersonaId(data.id);
+      if (data) setCurrentPersona(data);
     };
     fetchCurrentPersona();
   }, [user]);
@@ -156,8 +156,13 @@ const PostFeed = ({ circleId }: PostFeedProps) => {
           <TabsContent value="circle-feed" className="mt-0">
             <ScrollArea className="h-[calc(100vh-12rem)]">
               <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 max-w-2xl mx-auto w-full">
-                {currentPersonaId && (
-                  <CreatePostForm circleId={circleId} personaId={currentPersonaId} onPostCreated={fetchPosts} />
+                {currentPersona && (
+                  <CreatePostForm 
+                    circleId={circleId} 
+                    personaId={currentPersona.id}
+                    personaName={currentPersona.display_name}
+                    onPostCreated={fetchPosts} 
+                  />
                 )}
 
                 {posts.length === 0 ? (
