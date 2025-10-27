@@ -12,6 +12,9 @@ import CreatePersonaDialog from "@/components/community/CreatePersonaDialog";
 import EditProfileDialog from "@/components/community/EditProfileDialog";
 import { ProductTour } from "@/components/tour/ProductTour";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
+import { ProfileBanner } from "@/components/community/ProfileBanner";
+import { WidgetsColumn } from "@/components/community/WidgetsColumn";
+import { useFeatureFlag } from "@/hooks/useFeatureFlag";
 
 const Community = () => {
   const navigate = useNavigate();
@@ -70,6 +73,8 @@ const Community = () => {
     setSelectedCircleId(circleId);
     setSidebarOpen(false); // Close mobile menu when circle is selected
   };
+
+  const isPersonalizedHomeEnabled = useFeatureFlag("personalized_home_ui");
 
   const refetchPersona = async () => {
     if (!user) return;
@@ -162,7 +167,11 @@ const Community = () => {
   );
 
   return (
-    <div className="flex h-screen bg-background overflow-hidden">
+    <div className={`flex h-screen bg-background overflow-hidden ${
+      isPersonalizedHomeEnabled 
+        ? "grid grid-cols-1 lg:grid-cols-[280px_1fr] xl:grid-cols-[280px_1fr_320px]" 
+        : "flex"
+    }`}>
       {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-background border-b border-border">
         <div className="flex items-center justify-between p-4">
@@ -218,23 +227,40 @@ const Community = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-hidden mt-[57px] lg:mt-0">
-        {selectedCircleId ? (
-          <PostFeed circleId={selectedCircleId} />
-        ) : (
-          <div className="flex h-full items-center justify-center p-4 sm:p-8">
-            <div className="text-center space-y-4 max-w-md animate-fade-in">
-              <Users className="h-12 w-12 sm:h-16 sm:w-16 text-muted-foreground mx-auto" />
-              <h2 className="text-xl sm:text-2xl font-semibold text-foreground">
-                Welcome to FPK Nexus
-              </h2>
-              <p className="text-sm sm:text-base text-muted-foreground">
-                Select a circle to start connecting with your community, or create a new circle to begin your journey.
-              </p>
-            </div>
-          </div>
+      <main className="flex-1 overflow-hidden mt-[57px] lg:mt-0 flex flex-col">
+        {isPersonalizedHomeEnabled && hasPersona && persona && (
+          <ProfileBanner
+            bannerUrl={persona.header_image_url}
+            displayName={persona.display_name}
+            avatarUrl={persona.avatar_url}
+          />
         )}
+        
+        <div className="flex-1 overflow-hidden">
+          {selectedCircleId ? (
+            <PostFeed circleId={selectedCircleId} />
+          ) : (
+            <div className="flex h-full items-center justify-center p-4 sm:p-8">
+              <div className="text-center space-y-4 max-w-md animate-fade-in">
+                <Users className="h-12 w-12 sm:h-16 sm:w-16 text-muted-foreground mx-auto" />
+                <h2 className="text-xl sm:text-2xl font-semibold text-foreground">
+                  Welcome to FPK Nexus
+                </h2>
+                <p className="text-sm sm:text-base text-muted-foreground">
+                  Select a circle to start connecting with your community, or create a new circle to begin your journey.
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
       </main>
+
+      {/* Right Widgets Column - Only visible on xl screens when feature flag is enabled */}
+      {isPersonalizedHomeEnabled && user && (
+        <aside className="hidden xl:block w-80 border-l border-border overflow-y-auto">
+          <WidgetsColumn userId={user.id} onSelectCircle={handleCircleSelect} />
+        </aside>
+      )}
 
       <CreatePersonaDialog
         open={showCreatePersona}

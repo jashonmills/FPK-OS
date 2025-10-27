@@ -6,8 +6,9 @@ import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Heart, MessageCircle, Trash2, MoreVertical, Pin } from "lucide-react";
+import { Heart, MessageCircle, Trash2, MoreVertical, Pin, Bookmark } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { cn } from "@/lib/utils";
 import CommentSection from "./CommentSection";
 import ShareButton from "./ShareButton";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -35,10 +36,12 @@ const PostCard = ({ post, onDelete }: PostCardProps) => {
   const [showComments, setShowComments] = useState(false);
   const [commentCount, setCommentCount] = useState(0);
   const [isPinning, setIsPinning] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(false);
 
   useEffect(() => {
     fetchSupportData();
     fetchCommentCount();
+    checkBookmarkStatus();
   }, [post.id]);
 
   const fetchSupportData = async () => {
@@ -61,6 +64,57 @@ const PostCard = ({ post, onDelete }: PostCardProps) => {
 
     if (!error && count !== null) {
       setCommentCount(count);
+    }
+  };
+
+  const checkBookmarkStatus = async () => {
+    if (!user) return;
+    
+    const { data } = await supabase
+      .from("bookmarks")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("post_id", post.id)
+      .maybeSingle();
+    
+    setIsBookmarked(!!data);
+  };
+
+  const toggleBookmark = async () => {
+    if (!user) return;
+
+    try {
+      if (isBookmarked) {
+        const { error } = await supabase
+          .from("bookmarks")
+          .delete()
+          .eq("user_id", user.id)
+          .eq("post_id", post.id);
+
+        if (error) throw error;
+        setIsBookmarked(false);
+        toast({
+          title: "Bookmark removed",
+          description: "Post removed from bookmarks",
+        });
+      } else {
+        const { error } = await supabase
+          .from("bookmarks")
+          .insert({ user_id: user.id, post_id: post.id });
+
+        if (error) throw error;
+        setIsBookmarked(true);
+        toast({
+          title: "Post bookmarked",
+          description: "Post saved to bookmarks",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
     }
   };
 
@@ -234,6 +288,14 @@ const PostCard = ({ post, onDelete }: PostCardProps) => {
             <span className="text-sm">{commentCount}</span>
           </Button>
           <ShareButton postId={post.id} />
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={toggleBookmark}
+            className={cn("text-muted-foreground", isBookmarked && "text-primary")}
+          >
+            <Bookmark className={cn("h-4 w-4", isBookmarked && "fill-current")} />
+          </Button>
         </div>
 
         {showComments && (

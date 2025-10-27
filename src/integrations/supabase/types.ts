@@ -14,6 +14,35 @@ export type Database = {
   }
   public: {
     Tables: {
+      bookmarks: {
+        Row: {
+          created_at: string | null
+          id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookmarks_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       circle_members: {
         Row: {
           circle_id: string
@@ -190,6 +219,59 @@ export type Database = {
           prompt_text?: string
         }
         Relationships: []
+      }
+      events: {
+        Row: {
+          circle_id: string | null
+          created_at: string | null
+          created_by: string
+          description: string | null
+          end_date: string | null
+          event_date: string
+          id: string
+          location_address: string | null
+          location_type: string | null
+          location_url: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          circle_id?: string | null
+          created_at?: string | null
+          created_by: string
+          description?: string | null
+          end_date?: string | null
+          event_date: string
+          id?: string
+          location_address?: string | null
+          location_type?: string | null
+          location_url?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          circle_id?: string | null
+          created_at?: string | null
+          created_by?: string
+          description?: string | null
+          end_date?: string | null
+          event_date?: string
+          id?: string
+          location_address?: string | null
+          location_type?: string | null
+          location_url?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_circle_id_fkey"
+            columns: ["circle_id"]
+            isOneToOne: false
+            referencedRelation: "circles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       feature_flags: {
         Row: {
@@ -753,6 +835,16 @@ export type Database = {
         Returns: string
       }
       generate_invite_code: { Args: never; Returns: string }
+      get_trending_circles: {
+        Args: { limit_count?: number }
+        Returns: {
+          activity_score: number
+          circle_description: string
+          circle_id: string
+          circle_name: string
+          member_count: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
