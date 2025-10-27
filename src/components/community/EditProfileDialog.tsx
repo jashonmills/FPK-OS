@@ -190,9 +190,64 @@ export default function EditProfileDialog({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            {/* Avatar Image Upload - MOVED TO TOP */}
+            <div className="space-y-3 p-4 rounded-lg border-2 border-primary/20 bg-primary/5">
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+                <FormLabel className="text-base font-semibold">Profile Picture (Avatar)</FormLabel>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                This appears in your circular avatar throughout the site
+              </p>
+              <div className="flex items-center gap-4">
+                <Avatar className="h-24 w-24 ring-2 ring-primary/20">
+                  <AvatarImage src={avatarPreview || undefined} />
+                  <AvatarFallback className="text-2xl">
+                    {persona.display_name?.[0]?.toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col gap-2">
+                  <Button
+                    type="button"
+                    variant="default"
+                    size="sm"
+                    onClick={() => avatarInputRef.current?.click()}
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    {avatarPreview ? 'Change Avatar' : 'Upload Avatar'}
+                  </Button>
+                  {avatarPreview && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setAvatarPreview(null);
+                        setAvatarFile(null);
+                        if (avatarInputRef.current) avatarInputRef.current.value = '';
+                      }}
+                    >
+                      <X className="h-4 w-4 mr-2" />
+                      Remove
+                    </Button>
+                  )}
+                </div>
+                <input
+                  ref={avatarInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarChange}
+                  className="hidden"
+                />
+              </div>
+            </div>
+
             {/* Banner Image Upload */}
-            <div className="space-y-2">
-              <FormLabel>Banner Image (820x312px recommended)</FormLabel>
+            <div className="space-y-3 p-4 rounded-lg border-2 border-muted bg-muted/20">
+              <FormLabel className="text-base font-semibold">Banner Image (Optional)</FormLabel>
+              <p className="text-sm text-muted-foreground">
+                This appears as the wide header image at the top of your profile (820x312px recommended)
+              </p>
               <div className="relative">
                 {bannerPreview ? (
                   <div className="relative w-full h-40 rounded-lg overflow-hidden bg-muted">
@@ -230,49 +285,6 @@ export default function EditProfileDialog({
                   type="file"
                   accept="image/*"
                   onChange={handleBannerChange}
-                  className="hidden"
-                />
-              </div>
-            </div>
-
-            {/* Avatar Image Upload */}
-            <div className="space-y-2">
-              <FormLabel>Profile Picture</FormLabel>
-              <div className="flex items-center gap-4">
-                <Avatar className="h-20 w-20">
-                  <AvatarImage src={avatarPreview || undefined} />
-                  <AvatarFallback>{persona.display_name?.[0]?.toUpperCase()}</AvatarFallback>
-                </Avatar>
-                <div className="flex gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => avatarInputRef.current?.click()}
-                  >
-                    <Upload className="h-4 w-4 mr-2" />
-                    Upload
-                  </Button>
-                  {avatarPreview && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setAvatarPreview(null);
-                        setAvatarFile(null);
-                        if (avatarInputRef.current) avatarInputRef.current.value = '';
-                      }}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-                <input
-                  ref={avatarInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleAvatarChange}
                   className="hidden"
                 />
               </div>
@@ -336,19 +348,6 @@ export default function EditProfileDialog({
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="header_image_url"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Header Image URL</FormLabel>
-                  <FormControl>
-                    <Input placeholder="https://example.com/header.jpg" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
 
             <FormField
               control={form.control}
