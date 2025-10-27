@@ -101,7 +101,7 @@ const Community = () => {
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full bg-sidebar">
-      <div className="p-4 sm:p-6 border-b border-sidebar-border">
+      <div className="p-4 sm:p-6 border-b border-sidebar-border flex-shrink-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Users className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
@@ -139,14 +139,16 @@ const Community = () => {
         </p>
       </div>
 
-      <CircleList
-        selectedCircleId={selectedCircleId}
-        onSelectCircle={handleCircleSelect}
-      />
+      <div className="flex-1 overflow-y-auto">
+        <CircleList
+          selectedCircleId={selectedCircleId}
+          onSelectCircle={handleCircleSelect}
+        />
+      </div>
 
       {/* Profile Section at Bottom */}
       {persona && (
-        <div className="p-4 border-t border-sidebar-border mt-auto">
+        <div className="p-4 border-t border-sidebar-border flex-shrink-0">
           <button
             onClick={() => setShowEditProfile(true)}
             className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-sidebar-accent transition-smooth"
@@ -167,11 +169,11 @@ const Community = () => {
   );
 
   return (
-    <div className={`flex h-screen bg-background overflow-hidden ${
+    <div className={
       isPersonalizedHomeEnabled 
-        ? "grid grid-cols-1 lg:grid-cols-[280px_1fr] xl:grid-cols-[280px_1fr_320px]" 
-        : "flex"
-    }`}>
+        ? "grid h-screen bg-background overflow-hidden grid-cols-1 lg:grid-cols-[280px_1fr] xl:grid-cols-[280px_1fr_320px] xl:grid-rows-[auto_1fr]"
+        : "flex h-screen bg-background overflow-hidden"
+    }>
       {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-background border-b border-border">
         <div className="flex items-center justify-between p-4">
@@ -221,19 +223,41 @@ const Community = () => {
         </div>
       </div>
 
-      {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex w-80 border-r border-border flex-col">
+      {/* Desktop Sidebar - spans both rows on XL screens */}
+      <aside className={
+        isPersonalizedHomeEnabled
+          ? "hidden lg:flex border-r border-border flex-col xl:row-span-2"
+          : "hidden lg:flex w-80 border-r border-border flex-col"
+      }>
         <SidebarContent />
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-hidden mt-[57px] lg:mt-0 flex flex-col">
-        {isPersonalizedHomeEnabled && hasPersona && persona && (
+      {/* Banner - Only on XL screens, spans center and right columns */}
+      {isPersonalizedHomeEnabled && hasPersona && persona && (
+        <div className="hidden xl:block xl:col-span-2">
           <ProfileBanner
             bannerUrl={persona.header_image_url}
             displayName={persona.display_name}
             avatarUrl={persona.avatar_url}
           />
+        </div>
+      )}
+
+      {/* Main Content */}
+      <main className={
+        isPersonalizedHomeEnabled
+          ? "overflow-hidden mt-[57px] lg:mt-0 flex flex-col"
+          : "flex-1 overflow-hidden mt-[57px] lg:mt-0 flex flex-col"
+      }>
+        {/* Banner for smaller screens (shown inline within main) */}
+        {isPersonalizedHomeEnabled && hasPersona && persona && (
+          <div className="xl:hidden">
+            <ProfileBanner
+              bannerUrl={persona.header_image_url}
+              displayName={persona.display_name}
+              avatarUrl={persona.avatar_url}
+            />
+          </div>
         )}
         
         <div className="flex-1 overflow-hidden">
@@ -257,7 +281,7 @@ const Community = () => {
 
       {/* Right Widgets Column - Only visible on xl screens when feature flag is enabled */}
       {isPersonalizedHomeEnabled && user && (
-        <aside className="hidden xl:block w-80 border-l border-border overflow-y-auto">
+        <aside className="hidden xl:block border-l border-border overflow-y-auto">
           <WidgetsColumn userId={user.id} onSelectCircle={handleCircleSelect} />
         </aside>
       )}

@@ -23,7 +23,7 @@ export const ProfileBanner = ({
 
   return (
     <div 
-      className={`relative h-40 md:h-48 w-full overflow-hidden ${className}`}
+      className={`relative h-40 md:h-48 w-full overflow-hidden border-b border-border ${className}`}
       style={{
         background: bannerUrl ? `url(${bannerUrl})` : randomGradient,
         backgroundSize: 'cover',
