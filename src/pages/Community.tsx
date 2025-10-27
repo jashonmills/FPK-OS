@@ -323,18 +323,19 @@ const Community = () => {
         </div>
       </main>
 
-      {/* Mobile/Tablet Widgets - Stacked below main content */}
+      {/* Widgets Column - Responsive: stacked on mobile, side column on XL+ */}
       {isPersonalizedHomeEnabled && user && (
-        <div className="xl:hidden border-t border-border bg-muted/30 overflow-y-auto">
-          <WidgetsColumn userId={user.id} onSelectCircle={handleCircleSelect} />
-        </div>
-      )}
+        <>
+          {/* Mobile/Tablet: Stacked below main content */}
+          <div className="xl:hidden border-t border-border bg-muted/30 overflow-y-auto">
+            <WidgetsColumn userId={user.id} onSelectCircle={handleCircleSelect} />
+          </div>
 
-      {/* Desktop Widgets Column - Side by side on XL screens */}
-      {isPersonalizedHomeEnabled && user && (
-        <aside className="hidden xl:block border-l border-border overflow-y-auto w-full max-w-[380px]">
-          <WidgetsColumn userId={user.id} onSelectCircle={handleCircleSelect} />
-        </aside>
+          {/* Desktop XL+: Side column */}
+          <aside className="hidden xl:flex flex-col border-l border-border overflow-y-auto xl:col-start-3 xl:row-start-2">
+            <WidgetsColumn userId={user.id} onSelectCircle={handleCircleSelect} />
+          </aside>
+        </>
       )}
 
       <CreatePersonaDialog
