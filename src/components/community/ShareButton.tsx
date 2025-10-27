@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Share2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface ShareButtonProps {
   postId: string;
@@ -101,15 +102,22 @@ export default function ShareButton({ postId, onShare }: ShareButtonProps) {
   };
 
   return (
-    <Button
-      variant="ghost"
-      size="sm"
-      onClick={handleShare}
-      disabled={loading}
-      className={isShared ? "text-primary" : ""}
-    >
-      <Share2 className="w-4 h-4 mr-1" />
-      {shareCount > 0 && <span>{shareCount}</span>}
-    </Button>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleShare}
+          disabled={loading}
+          className={isShared ? "text-primary" : ""}
+        >
+          <Share2 className="w-4 h-4 mr-1" />
+          {shareCount > 0 && <span>{shareCount}</span>}
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>
+        <p>Share post</p>
+      </TooltipContent>
+    </Tooltip>
   );
 }

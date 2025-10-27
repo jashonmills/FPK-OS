@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import CommentSection from "./CommentSection";
 import ShareButton from "./ShareButton";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface PostCardProps {
   post: {
@@ -215,7 +216,8 @@ const PostCard = ({ post, onDelete }: PostCardProps) => {
   const isAuthor = user && post.author_id;
 
   return (
-    <Card className="shadow-soft animate-fade-in">
+    <TooltipProvider>
+      <Card className="shadow-soft animate-fade-in">
       <CardHeader className="pb-3 p-4 sm:p-6 sm:pb-3">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-2 sm:gap-3">
@@ -281,36 +283,57 @@ const PostCard = ({ post, onDelete }: PostCardProps) => {
           )}
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-4 pt-2 border-t border-border">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleSupport}
-            className={hasSupported ? "text-accent" : "text-muted-foreground"}
-          >
-            <Heart
-              className={`h-4 w-4 mr-1 sm:mr-2 ${hasSupported ? "fill-current" : ""}`}
-            />
-            <span className="text-sm">{supportCount}</span>
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowComments(!showComments)}
-            className="text-muted-foreground"
-          >
-            <MessageCircle className="h-4 w-4 mr-1 sm:mr-2" />
-            <span className="text-sm">{commentCount}</span>
-          </Button>
+        <div className="flex items-center gap-2 sm:gap-4 pt-2 pb-4 border-t border-border">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleSupport}
+                className={hasSupported ? "text-accent" : "text-muted-foreground"}
+              >
+                <Heart
+                  className={`h-4 w-4 mr-1 sm:mr-2 ${hasSupported ? "fill-current" : ""}`}
+                />
+                <span className="text-sm">{supportCount}</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Support this post</p>
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowComments(!showComments)}
+                className="text-muted-foreground"
+              >
+                <MessageCircle className="h-4 w-4 mr-1 sm:mr-2" />
+                <span className="text-sm">{commentCount}</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>View comments</p>
+            </TooltipContent>
+          </Tooltip>
           <ShareButton postId={post.id} />
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={toggleBookmark}
-            className={cn("text-muted-foreground", isBookmarked && "text-primary")}
-          >
-            <Bookmark className={cn("h-4 w-4", isBookmarked && "fill-current")} />
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleBookmark}
+                className={cn("text-muted-foreground", isBookmarked && "text-primary")}
+              >
+                <Bookmark className={cn("h-4 w-4", isBookmarked && "fill-current")} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{isBookmarked ? "Remove bookmark" : "Bookmark post"}</p>
+            </TooltipContent>
+          </Tooltip>
         </div>
 
         {showComments && (
@@ -321,6 +344,7 @@ const PostCard = ({ post, onDelete }: PostCardProps) => {
         )}
       </CardContent>
     </Card>
+    </TooltipProvider>
   );
 };
 
