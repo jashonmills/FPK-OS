@@ -25,7 +25,7 @@ import { Loader2 } from "lucide-react";
 interface CreatePersonaDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onPersonaCreated: () => void;
+  onPersonaCreated: (persona: any) => void;
 }
 
 const CreatePersonaDialog = ({ open, onOpenChange, onPersonaCreated }: CreatePersonaDialogProps) => {
@@ -42,12 +42,12 @@ const CreatePersonaDialog = ({ open, onOpenChange, onPersonaCreated }: CreatePer
 
     setLoading(true);
     try {
-      const { error } = await supabase.from("personas").insert([{
+      const { data: newPersona, error } = await supabase.from("personas").insert([{
         user_id: user.id,
         display_name: displayName,
         persona_type: personaType as "PARENT" | "EDUCATOR" | "PROFESSIONAL" | "INDIVIDUAL",
         bio: bio || null,
-      }]);
+      }]).select().single();
 
       if (error) throw error;
 
@@ -56,7 +56,7 @@ const CreatePersonaDialog = ({ open, onOpenChange, onPersonaCreated }: CreatePer
         description: "Welcome to the community.",
       });
 
-      onPersonaCreated();
+      onPersonaCreated(newPersona);
       onOpenChange(false);
     } catch (error: any) {
       toast({

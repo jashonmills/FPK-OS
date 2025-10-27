@@ -393,7 +393,10 @@ const Community = () => {
       <CreatePersonaDialog
         open={showCreatePersona}
         onOpenChange={setShowCreatePersona}
-        onPersonaCreated={() => setHasPersona(true)}
+        onPersonaCreated={(newPersona) => {
+          setHasPersona(true);
+          setPersona(newPersona);
+        }}
       />
 
       {persona && (
