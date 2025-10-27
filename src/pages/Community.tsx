@@ -243,11 +243,19 @@ const Community = () => {
   );
 
   return (
-    <div className={`grid h-screen bg-background overflow-hidden grid-cols-1 grid-rows-[auto_1fr_auto] ${
-      sidebarCollapsed 
-        ? "md:grid-cols-[80px_1fr] lg:grid-cols-[80px_1fr_minmax(280px,320px)]"
-        : "md:grid-cols-[280px_1fr] lg:grid-cols-[280px_1fr_minmax(280px,320px)]"
-    } lg:grid-rows-[auto_1fr]`}>
+    <div className={`grid h-screen bg-background overflow-hidden ${
+      hasPersona && persona
+        ? `grid-cols-1 grid-rows-[auto_1fr_auto] ${
+            sidebarCollapsed 
+              ? "md:grid-cols-[80px_1fr] lg:grid-cols-[80px_1fr_minmax(280px,320px)]"
+              : "md:grid-cols-[280px_1fr] lg:grid-cols-[280px_1fr_minmax(280px,320px)]"
+          } lg:grid-rows-[auto_1fr]`
+        : `grid-cols-1 grid-rows-[auto_1fr_auto] ${
+            sidebarCollapsed 
+              ? "md:grid-cols-[80px_1fr_320px]"
+              : "md:grid-cols-[280px_1fr_320px]"
+          }`
+    }`}>
       {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-background border-b border-border">
         <div className="flex items-center justify-between p-4">
@@ -309,8 +317,10 @@ const Community = () => {
         </div>
       </div>
 
-      {/* Desktop Sidebar - spans both rows on LG+ screens */}
-      <aside className={`hidden md:flex border-r border-border flex-col lg:row-span-2 transition-all duration-300 ${
+      {/* Desktop Sidebar - spans both rows when banner exists */}
+      <aside className={`hidden md:flex border-r border-border flex-col ${
+        hasPersona && persona ? "lg:row-span-2" : ""
+      } transition-all duration-300 ${
         sidebarCollapsed ? "w-20" : ""
       }`}>
         <SidebarContent />
@@ -361,16 +371,20 @@ const Community = () => {
         </div>
       </main>
 
-      {/* Widgets Column - Responsive: stacked on mobile, side column on LG+ */}
+      {/* Widgets Column - Responsive: stacked on mobile, side column on desktop */}
       {user && (
         <>
           {/* Mobile/Tablet: Stacked below main content */}
-          <div className="lg:hidden border-t border-border bg-muted/30 overflow-y-auto">
+          <div className="md:hidden border-t border-border bg-muted/30 overflow-y-auto">
             <WidgetsColumn userId={user.id} onSelectCircle={handleCircleSelect} />
           </div>
 
-          {/* Desktop LG+: Side column */}
-          <aside className="hidden lg:flex flex-col border-l border-border overflow-y-auto lg:col-start-3 lg:row-start-2">
+          {/* Desktop: Side column - spans full height when no banner, starts at row 2 when banner exists */}
+          <aside className={`hidden md:flex flex-col border-l border-border overflow-y-auto ${
+            hasPersona && persona 
+              ? "lg:col-start-3 lg:row-start-2" 
+              : "md:row-span-2"
+          }`}>
             <WidgetsColumn userId={user.id} onSelectCircle={handleCircleSelect} />
           </aside>
         </>
