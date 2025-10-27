@@ -26,25 +26,31 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_ANON_KEY') ?? ''
     );
 
-    // Fetch invite with creator info
+    // Fetch invite code
     const { data: invite, error: inviteError } = await supabaseClient
       .from('invites')
-      .select(`
-        *,
-        profiles:created_by_user_id (
-          id,
-          email
-        ),
-        personas:created_by_user_id (
-          display_name
-        )
-      `)
+      .select('*')
       .eq('invite_code', invite_code)
       .maybeSingle();
 
     if (inviteError) {
       console.error('Error fetching invite:', inviteError);
       throw inviteError;
+    }
+
+    // Fetch creator's persona if invite exists
+    let creatorName = 'A friend';
+    if (invite) {
+      const { data: persona } = await supabaseClient
+        .from('personas')
+        .select('display_name')
+        .eq('user_id', invite.created_by_user_id)
+        .limit(1)
+        .maybeSingle();
+      
+      if (persona?.display_name) {
+        creatorName = persona.display_name;
+      }
     }
 
     // Check if code exists
@@ -79,7 +85,7 @@ serve(async (req) => {
         valid: true,
         code: invite.invite_code,
         created_by: {
-          display_name: invite.personas?.[0]?.display_name || 'A friend'
+          display_name: creatorName
         },
         uses_remaining: usesRemaining
       }),
