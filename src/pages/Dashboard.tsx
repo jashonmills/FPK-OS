@@ -87,9 +87,16 @@ export default function Dashboard() {
         .from("personas")
         .select("*")
         .eq("user_id", user.id)
-        .single();
+        .maybeSingle();
 
       if (personaError) throw personaError;
+      
+      if (!personaData) {
+        // No persona found, redirect to community
+        navigate("/community");
+        return;
+      }
+      
       setPersona(personaData);
 
       // Fetch posts
@@ -115,7 +122,7 @@ export default function Dashboard() {
             .from("personas")
             .select("id, display_name, avatar_url")
             .eq("id", post.author_id)
-            .single();
+            .maybeSingle();
 
           return {
             ...post,
