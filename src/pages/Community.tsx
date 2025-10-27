@@ -11,6 +11,7 @@ import PostFeed from "@/components/community/PostFeed";
 import CreatePersonaDialog from "@/components/community/CreatePersonaDialog";
 import EditProfileDialog from "@/components/community/EditProfileDialog";
 import { ProductTour } from "@/components/tour/ProductTour";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 
 const Community = () => {
   const navigate = useNavigate();
@@ -182,6 +183,7 @@ const Community = () => {
           </div>
           
           <div className="flex gap-2">
+            <NotificationBell />
             <Button
               variant="ghost"
               size="icon"

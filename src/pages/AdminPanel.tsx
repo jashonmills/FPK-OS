@@ -2,12 +2,13 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUserRole } from "@/contexts/UserRoleContext";
 import { useFeatureFlags } from "@/contexts/FeatureFlagContext";
+import { useFeatureFlag } from "@/hooks/useFeatureFlag";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Shield, Flag } from "lucide-react";
+import { ArrowLeft, Shield, Flag, Users, Play, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface FeatureFlag {
@@ -23,6 +24,9 @@ export default function AdminPanel() {
   const navigate = useNavigate();
   const [flags, setFlags] = useState<FeatureFlag[]>([]);
   const [updating, setUpdating] = useState<string | null>(null);
+  const [inviteStats, setInviteStats] = useState({ codes: 0, referrals: 0, pending: 0, rewarded: 0 });
+  const [processingRewards, setProcessingRewards] = useState(false);
+  const isInviteSystemEnabled = useFeatureFlag('user_invite_system_enabled');
 
   useEffect(() => {
     // Redirect if not admin
@@ -35,8 +39,44 @@ export default function AdminPanel() {
   useEffect(() => {
     if (isAdmin) {
       fetchFlags();
+      if (isInviteSystemEnabled) {
+        fetchInviteStats();
+      }
     }
-  }, [isAdmin]);
+  }, [isAdmin, isInviteSystemEnabled]);
+
+  const fetchInviteStats = async () => {
+    const [codes, referrals, pending, rewarded] = await Promise.all([
+      supabase.from('invites').select('id', { count: 'exact', head: true }),
+      supabase.from('referrals').select('id', { count: 'exact', head: true }),
+      supabase.from('referrals').select('id', { count: 'exact', head: true }).eq('status', 'PENDING_REWARD'),
+      supabase.from('referrals').select('id', { count: 'exact', head: true }).eq('status', 'REWARDED'),
+    ]);
+
+    setInviteStats({
+      codes: codes.count || 0,
+      referrals: referrals.count || 0,
+      pending: pending.count || 0,
+      rewarded: rewarded.count || 0,
+    });
+  };
+
+  const processRewards = async () => {
+    setProcessingRewards(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('process-referral-rewards');
+      
+      if (error) throw error;
+      
+      toast.success(`Processed ${data.summary.processed} rewards!`);
+      await fetchInviteStats();
+    } catch (error) {
+      toast.error('Failed to process rewards');
+      console.error(error);
+    } finally {
+      setProcessingRewards(false);
+    }
+  };
 
   const fetchFlags = async () => {
     const { data, error } = await supabase
@@ -135,6 +175,57 @@ export default function AdminPanel() {
             ))}
           </CardContent>
         </Card>
+
+        {isInviteSystemEnabled && (
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <Users className="h-5 w-5 text-primary" />
+                <CardTitle>Invite System Stats</CardTitle>
+              </div>
+              <CardDescription>
+                Monitor referral program performance
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-4 gap-4 mb-6">
+                <div className="text-center">
+                  <p className="text-3xl font-bold">{inviteStats.codes}</p>
+                  <p className="text-sm text-muted-foreground">Invite Codes</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-3xl font-bold">{inviteStats.referrals}</p>
+                  <p className="text-sm text-muted-foreground">Total Referrals</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-3xl font-bold text-orange-500">{inviteStats.pending}</p>
+                  <p className="text-sm text-muted-foreground">Pending Rewards</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-3xl font-bold text-green-500">{inviteStats.rewarded}</p>
+                  <p className="text-sm text-muted-foreground">Rewarded</p>
+                </div>
+              </div>
+              <Button 
+                onClick={processRewards}
+                disabled={processingRewards || inviteStats.pending === 0}
+                className="w-full"
+              >
+                {processingRewards ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <Play className="mr-2 h-4 w-4" />
+                    Process Pending Rewards Now
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
+        )}
 
         <Card>
           <CardHeader>

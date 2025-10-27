@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useCallback } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,33 +7,95 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, CheckCircle, XCircle } from "lucide-react";
+import { useFeatureFlag } from "@/hooks/useFeatureFlag";
 
 const Auth = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [inviteCode, setInviteCode] = useState("");
+  const [inviteCodeValid, setInviteCodeValid] = useState<boolean | null>(null);
+  const [validatingCode, setValidatingCode] = useState(false);
+  const isInviteSystemEnabled = useFeatureFlag('user_invite_system_enabled');
+
+  // Check URL for invite code on mount
+  useEffect(() => {
+    const codeFromUrl = searchParams.get('invite');
+    if (codeFromUrl && isInviteSystemEnabled) {
+      setInviteCode(codeFromUrl);
+      validateInviteCode(codeFromUrl);
+    }
+  }, [searchParams, isInviteSystemEnabled]);
+
+  // Validate invite code
+  const validateInviteCode = useCallback(async (code: string) => {
+    if (!code || !isInviteSystemEnabled) {
+      setInviteCodeValid(null);
+      return;
+    }
+
+    setValidatingCode(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('validate-invite-code', {
+        body: { invite_code: code }
+      });
+
+      if (error) throw error;
+      setInviteCodeValid(data?.valid || false);
+    } catch (error) {
+      console.error('Error validating invite code:', error);
+      setInviteCodeValid(false);
+    } finally {
+      setValidatingCode(false);
+    }
+  }, [isInviteSystemEnabled]);
+
+  // Debounced validation
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (inviteCode) {
+        validateInviteCode(inviteCode);
+      } else {
+        setInviteCodeValid(null);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [inviteCode, validateInviteCode]);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signUp({
+      const signUpOptions: any = {
         email,
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/`,
-        },
-      });
+        }
+      };
+
+      // Include invite code in user metadata if provided and valid
+      if (inviteCode && inviteCodeValid && isInviteSystemEnabled) {
+        signUpOptions.options.data = {
+          invite_code: inviteCode
+        };
+      }
+
+      const { error } = await supabase.auth.signUp(signUpOptions);
 
       if (error) throw error;
 
       toast({
         title: "Welcome to FPK Nexus!",
-        description: "Your account has been created. You can now sign in.",
+        description: inviteCode && inviteCodeValid
+          ? "Thanks for joining via invite! Your referrer will be rewarded."
+          : "Your account has been created. You can now sign in.",
       });
     } catch (error: any) {
       toast({
@@ -146,6 +208,40 @@ const Auth = () => {
                     minLength={6}
                   />
                 </div>
+
+                {isInviteSystemEnabled && (
+                  <div className="space-y-2">
+                    <Label htmlFor="invite-code">
+                      Invite Code <span className="text-muted-foreground">(Optional)</span>
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id="invite-code"
+                        type="text"
+                        placeholder="KINDRED-XXXXX"
+                        value={inviteCode}
+                        onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
+                      />
+                      {inviteCode && !validatingCode && (
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                          {inviteCodeValid === true && (
+                            <CheckCircle className="w-5 h-5 text-green-500" />
+                          )}
+                          {inviteCodeValid === false && (
+                            <XCircle className="w-5 h-5 text-red-500" />
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    {inviteCodeValid === false && (
+                      <p className="text-xs text-destructive">Invalid or expired invite code</p>
+                    )}
+                    {inviteCodeValid === true && (
+                      <p className="text-xs text-green-600">Valid invite code!</p>
+                    )}
+                  </div>
+                )}
+
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Create Account

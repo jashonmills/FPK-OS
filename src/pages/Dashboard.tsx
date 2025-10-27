@@ -6,9 +6,11 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, FileText, MessageSquare, Heart, Award } from "lucide-react";
+import { ArrowLeft, FileText, MessageSquare, Heart, Award, Users } from "lucide-react";
 import PostCard from "@/components/community/PostCard";
 import EditProfileDialog from "@/components/community/EditProfileDialog";
+import { InviteFriendsSection } from "@/components/community/InviteFriendsSection";
+import { useFeatureFlag } from "@/hooks/useFeatureFlag";
 
 interface Persona {
   id: string;
@@ -64,6 +66,8 @@ export default function Dashboard() {
   const [reflections, setReflections] = useState<Reflection[]>([]);
   const [loading, setLoading] = useState(true);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [referralCount, setReferralCount] = useState(0);
+  const isInviteSystemEnabled = useFeatureFlag('user_invite_system_enabled');
 
   useEffect(() => {
     if (!user) {
@@ -151,6 +155,18 @@ export default function Dashboard() {
 
       if (reflectionsError) throw reflectionsError;
       setReflections(reflectionsData || []);
+
+      // Fetch referral count if invite system enabled
+      if (isInviteSystemEnabled) {
+        const { data: referralsData, error: referralsError } = await supabase
+          .from("referrals")
+          .select("id", { count: 'exact' })
+          .eq("inviting_user_id", user.id);
+        
+        if (!referralsError && referralsData) {
+          setReferralCount(referralsData.length);
+        }
+      }
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
     } finally {
@@ -245,6 +261,20 @@ export default function Dashboard() {
               </div>
             </div>
           </Card>
+
+          {isInviteSystemEnabled && (
+            <Card className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <Users className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{referralCount}</p>
+                  <p className="text-sm text-muted-foreground">Referrals</p>
+                </div>
+              </div>
+            </Card>
+          )}
         </div>
 
         {/* Content Tabs */}
@@ -253,6 +283,9 @@ export default function Dashboard() {
             <TabsTrigger value="posts">My Posts</TabsTrigger>
             <TabsTrigger value="comments">My Comments</TabsTrigger>
             <TabsTrigger value="reflections">My Reflections</TabsTrigger>
+            {isInviteSystemEnabled && (
+              <TabsTrigger value="invites">Invite Friends</TabsTrigger>
+            )}
           </TabsList>
 
           <TabsContent value="posts" className="space-y-4">
@@ -316,6 +349,12 @@ export default function Dashboard() {
               ))
             )}
           </TabsContent>
+
+          {isInviteSystemEnabled && (
+            <TabsContent value="invites">
+              <InviteFriendsSection userId={user.id} />
+            </TabsContent>
+          )}
         </Tabs>
 
         <EditProfileDialog
