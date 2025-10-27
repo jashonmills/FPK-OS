@@ -24,21 +24,9 @@ const CreatePostForm = ({ circleId, onPostCreated }: CreatePostFormProps) => {
 
     setLoading(true);
     try {
-      // Get user's persona ID
-      const { data: persona, error: personaError } = await supabase
-        .from("personas")
-        .select("id")
-        .eq("user_id", user.id)
-        .single();
-
-      if (personaError || !persona) {
-        throw new Error("No persona found");
-      }
-
-      // Create post with persona ID
       const { error } = await supabase.from("posts").insert({
         circle_id: circleId,
-        author_id: persona.id,
+        author_id: user.id,
         content: content.trim(),
       });
 
