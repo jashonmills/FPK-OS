@@ -6,11 +6,13 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, FileText, MessageSquare, Heart, Award, Users } from "lucide-react";
+import { ArrowLeft, FileText, MessageSquare, Heart, Award, Users, LayoutGrid, List, Maximize2, ChevronDown, ChevronUp } from "lucide-react";
 import PostCard from "@/components/community/PostCard";
 import EditProfileDialog from "@/components/community/EditProfileDialog";
 import { InviteFriendsSection } from "@/components/community/InviteFriendsSection";
 import { useFeatureFlag } from "@/hooks/useFeatureFlag";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface Persona {
   id: string;
@@ -68,7 +70,13 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [referralCount, setReferralCount] = useState(0);
+  const [postViewMode, setPostViewMode] = useState<'large' | 'medium' | 'list'>('medium');
+  const [showAllPosts, setShowAllPosts] = useState(false);
   const isInviteSystemEnabled = useFeatureFlag('user_invite_system_enabled');
+
+  const POSTS_PER_PAGE = 12;
+  const displayedPosts = showAllPosts ? posts : posts.slice(0, POSTS_PER_PAGE);
+  const hasMorePosts = posts.length > POSTS_PER_PAGE;
 
   useEffect(() => {
     if (!user) {
@@ -302,9 +310,96 @@ export default function Dashboard() {
                 <p className="text-muted-foreground">You haven't created any posts yet</p>
               </Card>
             ) : (
-              posts.map((post) => (
-                <PostCard key={post.id} post={post} onDelete={fetchDashboardData} />
-              ))
+              <>
+                {/* View Mode Toggle */}
+                <div className="flex gap-2 mb-4">
+                  <Button
+                    variant={postViewMode === 'large' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setPostViewMode('large')}
+                  >
+                    <Maximize2 className="w-4 h-4 mr-2" />
+                    Large
+                  </Button>
+                  <Button
+                    variant={postViewMode === 'medium' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setPostViewMode('medium')}
+                  >
+                    <LayoutGrid className="w-4 h-4 mr-2" />
+                    Medium
+                  </Button>
+                  <Button
+                    variant={postViewMode === 'list' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setPostViewMode('list')}
+                  >
+                    <List className="w-4 h-4 mr-2" />
+                    List
+                  </Button>
+                </div>
+
+                {/* Posts Grid/List */}
+                {postViewMode === 'list' ? (
+                  <div className="space-y-2">
+                    {displayedPosts.map((post) => (
+                      <Card key={post.id} className="p-4 hover:bg-accent/50 transition-colors cursor-pointer">
+                        <div className="flex items-start gap-3">
+                          <Avatar className="w-8 h-8">
+                            <AvatarImage src={post.personas.avatar_url || undefined} />
+                            <AvatarFallback>
+                              {post.personas.display_name.substring(0, 2).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-medium text-sm">{post.personas.display_name}</span>
+                              <span className="text-xs text-muted-foreground">
+                                {new Date(post.created_at).toLocaleDateString()}
+                              </span>
+                            </div>
+                            <p className="text-sm text-muted-foreground line-clamp-2">{post.content}</p>
+                          </div>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <div className={`grid gap-4 ${
+                    postViewMode === 'medium' 
+                      ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4' 
+                      : 'grid-cols-1'
+                  }`}>
+                    {displayedPosts.map((post) => (
+                      <div key={post.id} className={postViewMode === 'medium' ? 'col-span-1' : ''}>
+                        <PostCard post={post} onDelete={fetchDashboardData} />
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Show More/Less Button */}
+                {hasMorePosts && (
+                  <div className="flex justify-center mt-6">
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowAllPosts(!showAllPosts)}
+                    >
+                      {showAllPosts ? (
+                        <>
+                          <ChevronUp className="w-4 h-4 mr-2" />
+                          Show Less
+                        </>
+                      ) : (
+                        <>
+                          <ChevronDown className="w-4 h-4 mr-2" />
+                          Show {posts.length - POSTS_PER_PAGE} More Posts
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                )}
+              </>
             )}
           </TabsContent>
 
