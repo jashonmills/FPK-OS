@@ -76,6 +76,38 @@ export type Database = {
         }
         Relationships: []
       }
+      comment_reactions: {
+        Row: {
+          comment_id: string
+          created_at: string
+          id: string
+          reaction_type: string
+          user_id: string
+        }
+        Insert: {
+          comment_id: string
+          created_at?: string
+          id?: string
+          reaction_type?: string
+          user_id: string
+        }
+        Update: {
+          comment_id?: string
+          created_at?: string
+          id?: string
+          reaction_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comment_reactions_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "post_comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       conversation_participants: {
         Row: {
           conversation_id: string
@@ -186,6 +218,27 @@ export type Database = {
         }
         Relationships: []
       }
+      followers: {
+        Row: {
+          created_at: string
+          followed_user_id: string
+          following_user_id: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          followed_user_id: string
+          following_user_id: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          followed_user_id?: string
+          following_user_id?: string
+          id?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           content: string
@@ -228,34 +281,60 @@ export type Database = {
         Row: {
           avatar_url: string | null
           bio: string | null
+          comments_count: number
           created_at: string
           display_name: string
+          header_image_url: string | null
           id: string
           persona_type: Database["public"]["Enums"]["persona_type"]
+          pinned_post_id: string | null
+          posts_count: number
+          social_links: Json | null
+          supports_received_count: number
           updated_at: string
           user_id: string
         }
         Insert: {
           avatar_url?: string | null
           bio?: string | null
+          comments_count?: number
           created_at?: string
           display_name: string
+          header_image_url?: string | null
           id?: string
           persona_type: Database["public"]["Enums"]["persona_type"]
+          pinned_post_id?: string | null
+          posts_count?: number
+          social_links?: Json | null
+          supports_received_count?: number
           updated_at?: string
           user_id: string
         }
         Update: {
           avatar_url?: string | null
           bio?: string | null
+          comments_count?: number
           created_at?: string
           display_name?: string
+          header_image_url?: string | null
           id?: string
           persona_type?: Database["public"]["Enums"]["persona_type"]
+          pinned_post_id?: string | null
+          posts_count?: number
+          social_links?: Json | null
+          supports_received_count?: number
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "personas_pinned_post_id_fkey"
+            columns: ["pinned_post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       post_comments: {
         Row: {
@@ -424,6 +503,35 @@ export type Database = {
             columns: ["prompt_id"]
             isOneToOne: false
             referencedRelation: "daily_prompts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shares: {
+        Row: {
+          created_at: string
+          id: string
+          original_post_id: string
+          sharing_user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          original_post_id: string
+          sharing_user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          original_post_id?: string
+          sharing_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shares_original_post_id_fkey"
+            columns: ["original_post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
             referencedColumns: ["id"]
           },
         ]

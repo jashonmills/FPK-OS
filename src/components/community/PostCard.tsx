@@ -6,9 +6,11 @@ import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Heart, MessageCircle, Trash2 } from "lucide-react";
+import { Heart, MessageCircle, Trash2, MoreVertical, Pin } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import CommentSection from "./CommentSection";
+import ShareButton from "./ShareButton";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 interface PostCardProps {
   post: {
@@ -32,6 +34,7 @@ const PostCard = ({ post, onDelete }: PostCardProps) => {
   const [hasSupported, setHasSupported] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [commentCount, setCommentCount] = useState(0);
+  const [isPinning, setIsPinning] = useState(false);
 
   useEffect(() => {
     fetchSupportData();
@@ -118,6 +121,44 @@ const PostCard = ({ post, onDelete }: PostCardProps) => {
     }
   };
 
+  const handlePinPost = async () => {
+    if (!user) return;
+
+    setIsPinning(true);
+    try {
+      const { data: persona } = await supabase
+        .from("personas")
+        .select("id")
+        .eq("user_id", user.id)
+        .single();
+
+      if (!persona) throw new Error("Persona not found");
+
+      const { error } = await supabase
+        .from("personas")
+        .update({ pinned_post_id: post.id })
+        .eq("id", persona.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Post pinned",
+        description: "This post is now pinned to your profile",
+      });
+    } catch (error: any) {
+      console.error("Error pinning post:", error);
+      toast({
+        title: "Error",
+        description: "Failed to pin post",
+        variant: "destructive",
+      });
+    } finally {
+      setIsPinning(false);
+    }
+  };
+
+  const isAuthor = user && post.author_id;
+
   return (
     <Card className="shadow-soft animate-fade-in">
       <CardHeader className="pb-3 p-4 sm:p-6 sm:pb-3">
@@ -144,15 +185,27 @@ const PostCard = ({ post, onDelete }: PostCardProps) => {
               </p>
             </div>
           </div>
-          {user?.id === post.author_id && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleDelete}
-              className="text-muted-foreground hover:text-destructive h-8 w-8"
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
+          {isAuthor && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={handlePinPost} disabled={isPinning}>
+                  <Pin className="w-4 h-4 mr-2" />
+                  Pin to Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={handleDelete}
+                  className="text-destructive focus:text-destructive"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Delete Post
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
         </div>
       </CardHeader>
@@ -180,6 +233,7 @@ const PostCard = ({ post, onDelete }: PostCardProps) => {
             <MessageCircle className="h-4 w-4 mr-1 sm:mr-2" />
             <span className="text-sm">{commentCount}</span>
           </Button>
+          <ShareButton postId={post.id} />
         </div>
 
         {showComments && (

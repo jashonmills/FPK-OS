@@ -33,6 +33,11 @@ const editProfileSchema = z.object({
   display_name: z.string().min(1, "Display name is required").max(50, "Display name must be less than 50 characters"),
   bio: z.string().max(500, "Bio must be less than 500 characters").nullable(),
   persona_type: z.enum(["PARENT", "EDUCATOR", "PROFESSIONAL", "INDIVIDUAL"]),
+  header_image_url: z.string().url().optional().or(z.literal("")),
+  social_links: z.object({
+    website: z.string().url().optional().or(z.literal("")),
+    linkedin: z.string().url().optional().or(z.literal("")),
+  }).optional(),
 });
 
 type EditProfileFormData = z.infer<typeof editProfileSchema>;
@@ -45,6 +50,8 @@ interface EditProfileDialogProps {
     display_name: string;
     bio: string | null;
     persona_type: string;
+    header_image_url?: string | null;
+    social_links?: any;
   };
   onProfileUpdated: () => void;
 }
@@ -64,6 +71,11 @@ export default function EditProfileDialog({
       display_name: persona.display_name,
       bio: persona.bio || "",
       persona_type: persona.persona_type as any,
+      header_image_url: persona.header_image_url || "",
+      social_links: {
+        website: persona.social_links?.website || "",
+        linkedin: persona.social_links?.linkedin || "",
+      },
     },
   });
 
@@ -76,6 +88,8 @@ export default function EditProfileDialog({
           display_name: data.display_name,
           bio: data.bio || null,
           persona_type: data.persona_type,
+          header_image_url: data.header_image_url || null,
+          social_links: data.social_links || {},
         })
         .eq("id", persona.id);
 
@@ -160,6 +174,48 @@ export default function EditProfileDialog({
                       className="resize-none"
                       rows={4}
                     />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="header_image_url"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Header Image URL</FormLabel>
+                  <FormControl>
+                    <Input placeholder="https://example.com/header.jpg" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="social_links.website"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Website</FormLabel>
+                  <FormControl>
+                    <Input placeholder="https://yourwebsite.com" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="social_links.linkedin"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>LinkedIn</FormLabel>
+                  <FormControl>
+                    <Input placeholder="https://linkedin.com/in/yourprofile" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

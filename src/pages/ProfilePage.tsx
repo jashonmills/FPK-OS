@@ -8,7 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PostCard from "@/components/community/PostCard";
 import EditProfileDialog from "@/components/community/EditProfileDialog";
-import { ArrowLeft, MessageCircle, Pencil } from "lucide-react";
+import FollowButton from "@/components/community/FollowButton";
+import { ArrowLeft, MessageCircle, Pencil, Globe, Linkedin, FileText, Heart, MessageSquare } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -21,6 +22,15 @@ interface Persona {
   persona_type: string;
   created_at: string;
   user_id: string;
+  header_image_url?: string | null;
+  pinned_post_id?: string | null;
+  social_links?: {
+    website?: string;
+    linkedin?: string;
+  };
+  posts_count?: number;
+  comments_count?: number;
+  supports_received_count?: number;
 }
 
 interface Post {
@@ -63,6 +73,7 @@ export default function ProfilePage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [circles, setCircles] = useState<Circle[]>([]);
   const [reflections, setReflections] = useState<Reflection[]>([]);
+  const [pinnedPost, setPinnedPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
   const [startingChat, setStartingChat] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -84,35 +95,38 @@ export default function ProfilePage() {
         .single();
 
       if (personaError) throw personaError;
-      setPersona(personaData);
+      
+      // Type cast the social_links to expected format
+      const formattedPersona = {
+        ...personaData,
+        social_links: personaData.social_links as { website?: string; linkedin?: string } | null,
+      };
+      setPersona(formattedPersona);
 
       // Fetch posts by this persona
       const { data: postsData, error: postsError } = await supabase
         .from("posts")
-        .select(`
-          *,
-          personas!posts_author_id_fkey (
-            display_name,
-            avatar_url
-          )
-        `)
+        .select("id, content, image_url, created_at, author_id, circle_id")
         .eq("author_id", personaId)
         .order("created_at", { ascending: false });
 
       if (postsError) throw postsError;
 
-      const formattedPosts = postsData?.map((post: any) => ({
-        id: post.id,
-        content: post.content,
-        image_url: post.image_url,
-        created_at: post.created_at,
-        author_id: post.author_id,
-        personas: {
-          display_name: post.personas.display_name,
-          avatar_url: post.personas.avatar_url,
-        },
-        circle_id: post.circle_id,
-      })) || [];
+      // Manually fetch persona info for each post
+      const formattedPosts = await Promise.all(
+        (postsData || []).map(async (post: any) => {
+          const { data: personaInfo } = await supabase
+            .from("personas")
+            .select("display_name, avatar_url")
+            .eq("id", post.author_id)
+            .single();
+
+          return {
+            ...post,
+            personas: personaInfo || { display_name: "Unknown", avatar_url: null },
+          };
+        })
+      );
 
       setPosts(formattedPosts);
 
@@ -158,6 +172,28 @@ export default function ProfilePage() {
       })) || [];
 
       setReflections(formattedReflections);
+
+      // Fetch pinned post if exists
+      if (formattedPersona.pinned_post_id) {
+        const { data: pinnedData } = await supabase
+          .from("posts")
+          .select("id, content, image_url, created_at, author_id, circle_id")
+          .eq("id", formattedPersona.pinned_post_id)
+          .single();
+
+        if (pinnedData) {
+          const { data: pinnedPersonaInfo } = await supabase
+            .from("personas")
+            .select("display_name, avatar_url")
+            .eq("id", pinnedData.author_id)
+            .single();
+
+          setPinnedPost({
+            ...pinnedData,
+            personas: pinnedPersonaInfo || { display_name: "Unknown", avatar_url: null },
+          });
+        }
+      }
     } catch (error) {
       console.error("Error fetching profile:", error);
     } finally {
@@ -252,6 +288,17 @@ export default function ProfilePage() {
           Back
         </Button>
 
+        {/* Header Image */}
+        {persona.header_image_url && (
+          <div className="w-full h-48 mb-6 rounded-lg overflow-hidden">
+            <img 
+              src={persona.header_image_url} 
+              alt="Profile header" 
+              className="w-full h-full object-cover"
+            />
+          </div>
+        )}
+
       <Card className="p-4 sm:p-6 mb-6">
         <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
           <Avatar className="w-20 h-20 sm:w-24 sm:h-24">
@@ -273,36 +320,95 @@ export default function ProfilePage() {
                 </p>
               </div>
 
-              {user && persona.user_id === user.id ? (
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full sm:w-auto"
-                  onClick={() => setEditDialogOpen(true)}
-                >
-                  <Pencil className="w-4 h-4 mr-2" />
-                  Edit Profile
-                </Button>
-              ) : (
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full sm:w-auto"
-                  onClick={handleSendMessage}
-                  disabled={startingChat || !user}
-                >
-                  <MessageCircle className="w-4 h-4 mr-2" />
-                  {startingChat ? "Starting..." : "Message"}
-                </Button>
-              )}
+              <div className="flex gap-2">
+                {user && persona.user_id === user.id ? (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full sm:w-auto"
+                    onClick={() => setEditDialogOpen(true)}
+                  >
+                    <Pencil className="w-4 h-4 mr-2" />
+                    Edit Profile
+                  </Button>
+                ) : (
+                  <>
+                    <FollowButton targetUserId={persona.user_id} />
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="w-full sm:w-auto"
+                      onClick={handleSendMessage}
+                      disabled={startingChat || !user}
+                    >
+                      <MessageCircle className="w-4 h-4 mr-2" />
+                      {startingChat ? "Starting..." : "Message"}
+                    </Button>
+                  </>
+                )}
+              </div>
             </div>
 
             {persona.bio && (
               <p className="text-sm sm:text-base text-muted-foreground mt-4">{persona.bio}</p>
             )}
+
+            {/* Social Links */}
+            {persona.social_links && (persona.social_links.website || persona.social_links.linkedin) && (
+              <div className="flex gap-2 mt-4">
+                {persona.social_links.website && (
+                  <a
+                    href={persona.social_links.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 text-sm text-primary hover:underline"
+                  >
+                    <Globe className="w-4 h-4" />
+                    Website
+                  </a>
+                )}
+                {persona.social_links.linkedin && (
+                  <a
+                    href={persona.social_links.linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 text-sm text-primary hover:underline"
+                  >
+                    <Linkedin className="w-4 h-4" />
+                    LinkedIn
+                  </a>
+                )}
+              </div>
+            )}
+
+            {/* Stats */}
+            {persona.posts_count !== undefined && (
+              <div className="flex gap-4 mt-4 text-sm">
+                <div className="flex items-center gap-1">
+                  <FileText className="w-4 h-4" />
+                  <span className="font-semibold">{persona.posts_count}</span> posts
+                </div>
+                <div className="flex items-center gap-1">
+                  <MessageSquare className="w-4 h-4" />
+                  <span className="font-semibold">{persona.comments_count}</span> comments
+                </div>
+                <div className="flex items-center gap-1">
+                  <Heart className="w-4 h-4" />
+                  <span className="font-semibold">{persona.supports_received_count}</span> supports
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </Card>
+
+      {/* Pinned Post */}
+      {pinnedPost && (
+        <div className="mb-6">
+          <h3 className="text-sm font-semibold mb-2 text-muted-foreground">📌 Pinned Post</h3>
+          <PostCard post={pinnedPost} onDelete={handlePostDelete} />
+        </div>
+      )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="w-full justify-start mb-4">

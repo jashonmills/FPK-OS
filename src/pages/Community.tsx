@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Loader2, Users, LogOut, Menu, MessageSquare } from "lucide-react";
+import { Loader2, Users, LogOut, Menu, MessageSquare, LayoutDashboard } from "lucide-react";
 import CircleList from "@/components/community/CircleList";
 import PostFeed from "@/components/community/PostFeed";
 import CreatePersonaDialog from "@/components/community/CreatePersonaDialog";
@@ -82,6 +82,14 @@ const Community = () => {
             <Button
               variant="ghost"
               size="icon"
+              onClick={() => navigate("/community/dashboard")}
+              title="Dashboard"
+            >
+              <LayoutDashboard className="h-5 w-5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => navigate("/messages")}
               title="Messages"
             >
@@ -131,6 +139,14 @@ const Community = () => {
           </div>
           
           <div className="flex gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate("/community/dashboard")}
+              title="Dashboard"
+            >
+              <LayoutDashboard className="h-5 w-5" />
+            </Button>
             <Button
               variant="ghost"
               size="icon"

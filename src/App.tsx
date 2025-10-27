@@ -11,6 +11,7 @@ import Auth from "./pages/Auth";
 import Community from "./pages/Community";
 import AdminPanel from "./pages/AdminPanel";
 import ProfilePage from "./pages/ProfilePage";
+import Dashboard from "./pages/Dashboard";
 import Messages from "./pages/Messages";
 import NotFound from "./pages/NotFound";
 
@@ -29,6 +30,7 @@ const App = () => (
                 <Route path="/" element={<Community />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/community/profile/:personaId" element={<ProfilePage />} />
+                <Route path="/community/dashboard" element={<Dashboard />} />
                 <Route path="/messages" element={<Messages />} />
                 <Route path="/messages/:conversationId" element={<Messages />} />
                 <Route path="/admin" element={<AdminPanel />} />
