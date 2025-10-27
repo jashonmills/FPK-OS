@@ -51,23 +51,23 @@ const CreatePostForm = ({ circleId, onPostCreated }: CreatePostFormProps) => {
 
   return (
     <Card className="shadow-soft animate-fade-in">
-      <CardContent className="pt-6">
-        <form onSubmit={handleSubmit} className="space-y-4">
+      <CardContent className="pt-4 sm:pt-6">
+        <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
           <Textarea
             placeholder="Share your thoughts with the community..."
             value={content}
             onChange={(e) => setContent(e.target.value)}
             rows={4}
-            className="resize-none"
+            className="resize-none text-sm sm:text-base"
           />
           <div className="flex justify-end">
-            <Button type="submit" disabled={loading || !content.trim()}>
+            <Button type="submit" disabled={loading || !content.trim()} size="sm" className="sm:size-default">
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
               ) : (
                 <Send className="h-4 w-4 mr-2" />
               )}
-              Post
+              <span className="text-sm sm:text-base">Post</span>
             </Button>
           </div>
         </form>

@@ -119,16 +119,16 @@ const PostCard = ({ post, onDelete }: PostCardProps) => {
 
   return (
     <Card className="shadow-soft animate-fade-in">
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-3 p-4 sm:p-6 sm:pb-3">
         <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
-            <Avatar>
-              <AvatarFallback className="bg-primary text-primary-foreground">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Avatar className="h-8 w-8 sm:h-10 sm:w-10">
+              <AvatarFallback className="bg-primary text-primary-foreground text-sm sm:text-base">
                 {post.personas.display_name.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div>
-              <p className="font-semibold text-foreground">
+              <p className="font-semibold text-sm sm:text-base text-foreground">
                 {post.personas.display_name}
               </p>
               <p className="text-xs text-muted-foreground">
@@ -143,17 +143,17 @@ const PostCard = ({ post, onDelete }: PostCardProps) => {
               variant="ghost"
               size="icon"
               onClick={handleDelete}
-              className="text-muted-foreground hover:text-destructive"
+              className="text-muted-foreground hover:text-destructive h-8 w-8"
             >
               <Trash2 className="h-4 w-4" />
             </Button>
           )}
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <p className="text-foreground whitespace-pre-wrap">{post.content}</p>
+      <CardContent className="space-y-4 p-4 sm:p-6">
+        <p className="text-sm sm:text-base text-foreground whitespace-pre-wrap">{post.content}</p>
 
-        <div className="flex items-center gap-4 pt-2 border-t border-border">
+        <div className="flex items-center gap-2 sm:gap-4 pt-2 border-t border-border">
           <Button
             variant="ghost"
             size="sm"
@@ -161,9 +161,9 @@ const PostCard = ({ post, onDelete }: PostCardProps) => {
             className={hasSupported ? "text-accent" : "text-muted-foreground"}
           >
             <Heart
-              className={`h-4 w-4 mr-2 ${hasSupported ? "fill-current" : ""}`}
+              className={`h-4 w-4 mr-1 sm:mr-2 ${hasSupported ? "fill-current" : ""}`}
             />
-            {supportCount}
+            <span className="text-sm">{supportCount}</span>
           </Button>
           <Button
             variant="ghost"
@@ -171,8 +171,8 @@ const PostCard = ({ post, onDelete }: PostCardProps) => {
             onClick={() => setShowComments(!showComments)}
             className="text-muted-foreground"
           >
-            <MessageCircle className="h-4 w-4 mr-2" />
-            {commentCount}
+            <MessageCircle className="h-4 w-4 mr-1 sm:mr-2" />
+            <span className="text-sm">{commentCount}</span>
           </Button>
         </div>
 

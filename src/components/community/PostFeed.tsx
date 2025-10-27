@@ -107,17 +107,17 @@ const PostFeed = ({ circleId }: PostFeedProps) => {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="border-b border-border p-6 bg-card">
-        <h2 className="text-2xl font-bold text-foreground">{circleName}</h2>
+      <div className="border-b border-border p-4 sm:p-6 bg-card">
+        <h2 className="text-xl sm:text-2xl font-bold text-foreground">{circleName}</h2>
       </div>
 
       <ScrollArea className="flex-1">
-        <div className="p-6 space-y-6 max-w-2xl mx-auto">
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 max-w-2xl mx-auto w-full">
           <CreatePostForm circleId={circleId} onPostCreated={fetchPosts} />
 
           {posts.length === 0 ? (
             <div className="text-center py-12 animate-fade-in">
-              <p className="text-muted-foreground">
+              <p className="text-sm sm:text-base text-muted-foreground">
                 No posts yet. Be the first to share something!
               </p>
             </div>
