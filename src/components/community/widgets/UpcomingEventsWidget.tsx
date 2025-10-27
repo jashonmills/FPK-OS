@@ -86,9 +86,9 @@ export const UpcomingEventsWidget = () => {
         {events.map((event) => (
           <div
             key={event.id}
-            className="p-3 rounded-lg hover:bg-accent transition-colors cursor-pointer border border-border"
+            className="p-3 rounded-lg hover:bg-accent transition-colors cursor-pointer border border-border overflow-hidden min-w-0"
           >
-            <h4 className="font-semibold text-sm mb-1">{event.title}</h4>
+            <h4 className="font-semibold text-sm mb-1 break-words">{event.title}</h4>
             {event.description && (
               <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
                 {event.description}

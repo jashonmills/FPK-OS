@@ -95,9 +95,9 @@ export const MyBookmarksWidget = () => {
         {bookmarks.map((bookmark) => (
           <div
             key={bookmark.id}
-            className="p-3 rounded-lg hover:bg-accent transition-colors cursor-pointer"
+            className="p-3 rounded-lg hover:bg-accent transition-colors cursor-pointer overflow-hidden min-w-0"
           >
-            <p className="text-sm line-clamp-2 mb-2">{bookmark.posts.content}</p>
+            <p className="text-sm line-clamp-2 mb-2 break-words">{bookmark.posts.content}</p>
             <div className="flex items-center justify-between text-xs text-muted-foreground">
               <Link
                 to={`/community/profile/${bookmark.posts.author_id}`}

@@ -73,7 +73,7 @@ export const TrendingCirclesWidget = ({ onSelectCircle }: TrendingCirclesWidgetP
           <Button
             key={circle.circle_id}
             variant="ghost"
-            className="w-full justify-start h-auto p-3 hover:bg-accent"
+            className="w-full justify-start h-auto p-3 hover:bg-accent overflow-hidden"
             onClick={() => onSelectCircle(circle.circle_id)}
           >
             <div className="flex items-start gap-3 w-full text-left min-w-0">
