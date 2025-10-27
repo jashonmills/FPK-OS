@@ -8,8 +8,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Shield, Flag, Users, Play, Loader2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { ArrowLeft, Shield, Flag, Users, Play, Loader2, AlertOctagon } from "lucide-react";
 import { toast } from "sonner";
+import { AppealReviewDialog } from "@/components/admin/AppealReviewDialog";
+import { format } from "date-fns";
 
 interface FeatureFlag {
   id: string;
@@ -26,7 +29,11 @@ export default function AdminPanel() {
   const [updating, setUpdating] = useState<string | null>(null);
   const [inviteStats, setInviteStats] = useState({ codes: 0, referrals: 0, pending: 0, rewarded: 0 });
   const [processingRewards, setProcessingRewards] = useState(false);
+  const [pendingAppeals, setPendingAppeals] = useState<any[]>([]);
+  const [selectedAppeal, setSelectedAppeal] = useState<any>(null);
+  const [appealDialogOpen, setAppealDialogOpen] = useState(false);
   const isInviteSystemEnabled = useFeatureFlag('user_invite_system_enabled');
+  const isOperationSpearheadEnabled = useFeatureFlag('operation_spearhead_enabled');
 
   useEffect(() => {
     // Redirect if not admin
@@ -42,8 +49,29 @@ export default function AdminPanel() {
       if (isInviteSystemEnabled) {
         fetchInviteStats();
       }
+      if (isOperationSpearheadEnabled) {
+        fetchPendingAppeals();
+      }
     }
-  }, [isAdmin, isInviteSystemEnabled]);
+  }, [isAdmin, isInviteSystemEnabled, isOperationSpearheadEnabled]);
+
+  const fetchPendingAppeals = async () => {
+    const { data, error } = await supabase
+      .from('ban_appeals')
+      .select(`
+        *,
+        ban:user_bans(*)
+      `)
+      .eq('status', 'pending_review')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching appeals:', error);
+      return;
+    }
+
+    setPendingAppeals(data || []);
+  };
 
   const fetchInviteStats = async () => {
     const [codes, referrals, pending, rewarded] = await Promise.all([
@@ -176,6 +204,60 @@ export default function AdminPanel() {
           </CardContent>
         </Card>
 
+        {isOperationSpearheadEnabled && (
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <AlertOctagon className="h-5 w-5 text-destructive" />
+                <CardTitle className="flex items-center gap-2">
+                  Ban Appeals
+                  {pendingAppeals.length > 0 && (
+                    <Badge variant="destructive">{pendingAppeals.length}</Badge>
+                  )}
+                </CardTitle>
+              </div>
+              <CardDescription>
+                Review user appeals for AI-issued bans
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {pendingAppeals.length === 0 ? (
+                <p className="text-muted-foreground text-center py-6">No pending appeals</p>
+              ) : (
+                <div className="space-y-3">
+                  {pendingAppeals.map((appeal) => (
+                    <div
+                      key={appeal.id}
+                      className="border rounded-lg p-4 hover:bg-muted/50 transition-colors cursor-pointer"
+                      onClick={() => {
+                        setSelectedAppeal(appeal);
+                        setAppealDialogOpen(true);
+                      }}
+                    >
+                      <div className="flex items-start justify-between mb-2">
+                        <div>
+                          <Badge variant="destructive" className="mb-2">
+                            {appeal.ban.reason}
+                          </Badge>
+                          <p className="text-sm text-muted-foreground">
+                            Severity: {appeal.ban.severity_score}/10
+                          </p>
+                        </div>
+                        <span className="text-xs text-muted-foreground">
+                          {format(new Date(appeal.created_at), 'MMM d, h:mm a')}
+                        </span>
+                      </div>
+                      <p className="text-sm line-clamp-2 text-muted-foreground">
+                        "{appeal.user_justification}"
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
         {isInviteSystemEnabled && (
           <Card>
             <CardHeader>
@@ -241,6 +323,13 @@ export default function AdminPanel() {
             <p>• Flags can be toggled on/off at any time without data loss</p>
           </CardContent>
         </Card>
+
+        <AppealReviewDialog
+          appeal={selectedAppeal}
+          open={appealDialogOpen}
+          onOpenChange={setAppealDialogOpen}
+          onUpdate={fetchPendingAppeals}
+        />
       </div>
     </div>
   );

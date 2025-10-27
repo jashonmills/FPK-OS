@@ -1,8 +1,9 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Send } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
 interface MessageInputProps {
@@ -12,30 +13,41 @@ interface MessageInputProps {
 export const MessageInput = ({ conversationId }: MessageInputProps) => {
   const [content, setContent] = useState("");
   const [sending, setSending] = useState(false);
-  const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleSend = async () => {
     if (!content.trim() || sending) return;
 
     setSending(true);
     try {
-      const { error } = await supabase.functions.invoke('send-message', {
+      const { data, error } = await supabase.functions.invoke('send-message', {
         body: {
           conversation_id: conversationId,
           content: content.trim(),
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        // Check if it's a ban error
+        if (error.message?.includes('USER_BANNED') || error.message?.includes('MESSAGE_BLOCKED')) {
+          toast.error("Your message was blocked due to a policy violation. Redirecting...");
+          setTimeout(() => navigate('/banned'), 1000);
+          return;
+        }
+        throw error;
+      }
+
+      // Check if de-escalation occurred
+      if (data?.de_escalated) {
+        toast("A friendly reminder was added to help keep the conversation constructive.", {
+          description: "Thank you for being part of our community!"
+        });
+      }
 
       setContent("");
     } catch (error) {
       console.error('Error sending message:', error);
-      toast({
-        title: "Error",
-        description: "Failed to send message. Please try again.",
-        variant: "destructive",
-      });
+      toast.error("Failed to send message. Please try again.");
     } finally {
       setSending(false);
     }
