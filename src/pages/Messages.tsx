@@ -25,16 +25,14 @@ const Messages = () => {
     <div className="h-screen flex flex-col">
       {/* Header */}
       <header className="border-b p-4 flex items-center gap-4">
-        {conversationId && (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate('/messages')}
-            className="md:hidden"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-        )}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => conversationId ? navigate('/messages') : navigate('/community')}
+          title={conversationId ? "Back to conversations" : "Back to community"}
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </Button>
         <h1 className="text-2xl font-bold">Messages</h1>
       </header>
 
