@@ -144,6 +144,7 @@ const Community = () => {
         <CircleList
           selectedCircleId={selectedCircleId}
           onSelectCircle={handleCircleSelect}
+          isCollapsed={sidebarCollapsed}
         />
       </div>
 
@@ -216,11 +217,11 @@ const Community = () => {
   return (
     <div className={
       isPersonalizedHomeEnabled 
-        ? `grid h-screen bg-background overflow-hidden grid-cols-1 ${
+        ? `grid h-screen bg-background overflow-hidden grid-cols-1 grid-rows-[auto_1fr_auto] ${
             sidebarCollapsed 
-              ? "lg:grid-cols-[80px_1fr] 2xl:grid-cols-[80px_1fr_380px]"
-              : "lg:grid-cols-[280px_1fr] 2xl:grid-cols-[280px_1fr_380px]"
-          } 2xl:grid-rows-[auto_1fr]`
+              ? "lg:grid-cols-[80px_1fr] xl:grid-cols-[80px_1fr_380px]"
+              : "lg:grid-cols-[280px_1fr] xl:grid-cols-[280px_1fr_380px]"
+          } xl:grid-rows-[auto_1fr]`
         : "flex h-screen bg-background overflow-hidden"
     }>
       {/* Mobile Header */}
@@ -264,10 +265,10 @@ const Community = () => {
         </div>
       </div>
 
-      {/* Desktop Sidebar - spans both rows on 2XL screens */}
+      {/* Desktop Sidebar - spans both rows on XL screens */}
       <aside className={
         isPersonalizedHomeEnabled
-          ? `hidden lg:flex border-r border-border flex-col 2xl:row-span-2 transition-all duration-300 ${
+          ? `hidden lg:flex border-r border-border flex-col xl:row-span-2 transition-all duration-300 ${
               sidebarCollapsed ? "w-20" : ""
             }`
           : "hidden lg:flex w-80 border-r border-border flex-col"
@@ -275,9 +276,9 @@ const Community = () => {
         <SidebarContent />
       </aside>
 
-      {/* Banner - Only on 2XL screens, spans center and right columns */}
+      {/* Banner - Only on XL screens, spans center and right columns */}
       {isPersonalizedHomeEnabled && hasPersona && persona && (
-        <div className="hidden 2xl:block 2xl:col-span-2">
+        <div className="hidden xl:block xl:col-span-2">
           <ProfileBanner
             bannerUrl={persona.header_image_url}
             displayName={persona.display_name}
@@ -294,7 +295,7 @@ const Community = () => {
       }>
         {/* Banner for smaller screens (shown inline within main) */}
         {isPersonalizedHomeEnabled && hasPersona && persona && (
-          <div className="2xl:hidden">
+          <div className="xl:hidden">
             <ProfileBanner
               bannerUrl={persona.header_image_url}
               displayName={persona.display_name}
@@ -322,9 +323,16 @@ const Community = () => {
         </div>
       </main>
 
-      {/* Right Widgets Column - Only visible on 2xl screens when feature flag is enabled */}
+      {/* Mobile/Tablet Widgets - Stacked below main content */}
       {isPersonalizedHomeEnabled && user && (
-        <aside className="hidden 2xl:block border-l border-border overflow-y-auto">
+        <div className="xl:hidden border-t border-border bg-muted/30 overflow-y-auto">
+          <WidgetsColumn userId={user.id} onSelectCircle={handleCircleSelect} />
+        </div>
+      )}
+
+      {/* Desktop Widgets Column - Side by side on XL screens */}
+      {isPersonalizedHomeEnabled && user && (
+        <aside className="hidden xl:block border-l border-border overflow-y-auto w-full max-w-[380px]">
           <WidgetsColumn userId={user.id} onSelectCircle={handleCircleSelect} />
         </aside>
       )}

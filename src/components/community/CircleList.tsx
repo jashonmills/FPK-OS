@@ -30,9 +30,10 @@ interface Circle {
 interface CircleListProps {
   selectedCircleId: string | null;
   onSelectCircle: (circleId: string) => void;
+  isCollapsed?: boolean;
 }
 
-const CircleList = ({ selectedCircleId, onSelectCircle }: CircleListProps) => {
+const CircleList = ({ selectedCircleId, onSelectCircle, isCollapsed = false }: CircleListProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [circles, setCircles] = useState<Circle[]>([]);
@@ -153,16 +154,18 @@ const CircleList = ({ selectedCircleId, onSelectCircle }: CircleListProps) => {
 
   return (
     <div id="circle-list-sidebar" className="flex-1 flex flex-col overflow-hidden">
-      <div className="p-4 border-b border-sidebar-border">
-        <Button
-          onClick={() => setShowCreateDialog(true)}
-          className="w-full"
-          size="sm"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Create Circle
-        </Button>
-      </div>
+      {!isCollapsed && (
+        <div className="p-4 border-b border-sidebar-border">
+          <Button
+            onClick={() => setShowCreateDialog(true)}
+            className="w-full"
+            size="sm"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Create Circle
+          </Button>
+        </div>
+      )}
 
       <ScrollArea className="flex-1">
         <div className="p-4 space-y-2">
@@ -184,38 +187,53 @@ const CircleList = ({ selectedCircleId, onSelectCircle }: CircleListProps) => {
                   <button
                     id={circle.name === "Introductions" ? "circle-introductions" : undefined}
                     onClick={() => onSelectCircle(circle.id)}
-                    className="w-full text-left p-3 hover:bg-sidebar-accent rounded-lg"
+                    className={`w-full text-left p-3 hover:bg-sidebar-accent rounded-lg ${
+                      isCollapsed ? 'flex justify-center' : ''
+                    }`}
+                    title={isCollapsed ? circle.name : undefined}
                   >
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-semibold text-sm truncate">
-                            {circle.name}
-                          </h3>
-                          {circle.is_private && (
-                            <Lock className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                    {isCollapsed ? (
+                      <div className="flex items-center justify-center">
+                        <div className={`h-8 w-8 rounded-full flex items-center justify-center text-sm font-semibold ${
+                          selectedCircleId === circle.id 
+                            ? 'bg-primary text-primary-foreground' 
+                            : 'bg-muted'
+                        }`}>
+                          {circle.name.charAt(0).toUpperCase()}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-semibold text-sm truncate">
+                              {circle.name}
+                            </h3>
+                            {circle.is_private && (
+                              <Lock className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                            )}
+                          </div>
+                          {circle.description && (
+                            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                              {circle.description}
+                            </p>
                           )}
                         </div>
-                        {circle.description && (
-                          <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                            {circle.description}
-                          </p>
+                        {canDelete && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6 opacity-0 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setDeleteCircleId(circle.id);
+                            }}
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
                         )}
                       </div>
-                      {canDelete && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-6 w-6 opacity-0 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setDeleteCircleId(circle.id);
-                          }}
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      )}
-                    </div>
+                    )}
                   </button>
                 </div>
               );
