@@ -396,6 +396,7 @@ const Community = () => {
         onPersonaCreated={(newPersona) => {
           setHasPersona(true);
           setPersona(newPersona);
+          fetchCircles();
         }}
       />
 

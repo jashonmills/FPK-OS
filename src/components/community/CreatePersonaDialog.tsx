@@ -56,6 +56,24 @@ const CreatePersonaDialog = ({ open, onOpenChange, onPersonaCreated }: CreatePer
         description: "Welcome to the community.",
       });
 
+      // Auto-join default circles
+      const { data: defaultCircles, error: circlesError } = await supabase
+        .from("circles")
+        .select("id")
+        .eq("is_default_circle", true);
+
+      if (!circlesError && defaultCircles && defaultCircles.length > 0) {
+        const circleMembers = defaultCircles.map(circle => ({
+          circle_id: circle.id,
+          user_id: user.id,
+          role: "MEMBER" as const,
+        }));
+
+        await supabase
+          .from("circle_members")
+          .insert(circleMembers);
+      }
+
       onPersonaCreated(newPersona);
       onOpenChange(false);
     } catch (error: any) {
