@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Copy, Share2, Users, Gift, CheckCircle, Clock } from "lucide-react";
+import { Copy, Share2, Users, Gift, CheckCircle, Clock, Link2 } from "lucide-react";
 import { format } from "date-fns";
 
 interface InviteFriendsSectionProps {
@@ -137,16 +137,24 @@ export const InviteFriendsSection = ({ userId }: InviteFriendsSectionProps) => {
       {invites && invites.length > 0 && (
         <div>
           <h4 className="font-semibold mb-3 flex items-center gap-2">
-            <Copy className="w-4 h-4" />
-            Your Invite Codes
+            <Link2 className="w-4 h-4" />
+            Your Invite Links
           </h4>
           <div className="space-y-2">
             {invites.map((invite) => (
               <Card key={invite.id} className="p-4">
                 <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="font-mono text-lg font-semibold">{invite.invite_code}</div>
-                    <div className="text-sm text-muted-foreground mt-1">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Link2 className="w-4 h-4 text-primary flex-shrink-0" />
+                      <div className="font-mono text-sm text-primary hover:underline truncate">
+                        {window.location.origin}/auth?invite={invite.invite_code}
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground mb-1">
+                      Share this link - it takes people directly to sign-up!
+                    </p>
+                    <div className="text-xs text-muted-foreground">
                       Used {invite.uses_count} {invite.max_uses ? `/ ${invite.max_uses}` : ''} times
                     </div>
                   </div>
