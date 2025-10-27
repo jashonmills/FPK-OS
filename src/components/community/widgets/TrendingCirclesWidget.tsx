@@ -80,9 +80,9 @@ export const TrendingCirclesWidget = ({ onSelectCircle }: TrendingCirclesWidgetP
               <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                 <TrendingUp className="h-5 w-5 text-primary" />
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm break-words overflow-wrap-anywhere">{circle.circle_name}</p>
-                <p className="text-xs text-muted-foreground line-clamp-2 break-words overflow-wrap-anywhere">
+              <div className="flex-1 min-w-0 overflow-hidden">
+                <p className="font-semibold text-sm break-words">{circle.circle_name}</p>
+                <p className="text-xs text-muted-foreground line-clamp-2 break-words">
                   {circle.circle_description}
                 </p>
                 <div className="flex items-center gap-3 mt-1 flex-wrap">
