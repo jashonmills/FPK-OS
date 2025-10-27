@@ -14,6 +14,97 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_moderation_log: {
+        Row: {
+          action_taken: string
+          conversation_id: string
+          created_at: string
+          de_escalation_message: string | null
+          id: string
+          message_content: string
+          processing_time_ms: number | null
+          raw_ai_response: Json
+          sender_id: string
+          severity_score: number
+          violation_category: string | null
+        }
+        Insert: {
+          action_taken: string
+          conversation_id: string
+          created_at?: string
+          de_escalation_message?: string | null
+          id?: string
+          message_content: string
+          processing_time_ms?: number | null
+          raw_ai_response: Json
+          sender_id: string
+          severity_score: number
+          violation_category?: string | null
+        }
+        Update: {
+          action_taken?: string
+          conversation_id?: string
+          created_at?: string
+          de_escalation_message?: string | null
+          id?: string
+          message_content?: string
+          processing_time_ms?: number | null
+          raw_ai_response?: Json
+          sender_id?: string
+          severity_score?: number
+          violation_category?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_moderation_log_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ban_appeals: {
+        Row: {
+          admin_notes: string | null
+          ban_id: string
+          created_at: string
+          id: string
+          reviewed_at: string | null
+          reviewed_by_admin_id: string | null
+          status: string
+          user_justification: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          ban_id: string
+          created_at?: string
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by_admin_id?: string | null
+          status?: string
+          user_justification: string
+        }
+        Update: {
+          admin_notes?: string | null
+          ban_id?: string
+          created_at?: string
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by_admin_id?: string | null
+          status?: string
+          user_justification?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ban_appeals_ban_id_fkey"
+            columns: ["ban_id"]
+            isOneToOne: false
+            referencedRelation: "user_bans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookmarks: {
         Row: {
           created_at: string | null
@@ -364,6 +455,7 @@ export type Database = {
           created_at: string | null
           id: string
           is_edited: boolean | null
+          is_system_message: boolean | null
           sender_id: string
           updated_at: string | null
         }
@@ -373,6 +465,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           is_edited?: boolean | null
+          is_system_message?: boolean | null
           sender_id: string
           updated_at?: string | null
         }
@@ -382,6 +475,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           is_edited?: boolean | null
+          is_system_message?: boolean | null
           sender_id?: string
           updated_at?: string | null
         }
@@ -781,6 +875,59 @@ export type Database = {
         }
         Relationships: []
       }
+      user_bans: {
+        Row: {
+          banned_by_user_id: string | null
+          created_at: string
+          expires_at: string
+          id: string
+          is_ai_ban: boolean
+          offending_conversation_id: string | null
+          offending_message_content: string
+          reason: string
+          severity_score: number | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          banned_by_user_id?: string | null
+          created_at?: string
+          expires_at: string
+          id?: string
+          is_ai_ban?: boolean
+          offending_conversation_id?: string | null
+          offending_message_content: string
+          reason: string
+          severity_score?: number | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          banned_by_user_id?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          is_ai_ban?: boolean
+          offending_conversation_id?: string | null
+          offending_message_content?: string
+          reason?: string
+          severity_score?: number | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_bans_offending_conversation_id_fkey"
+            columns: ["offending_conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_credits: {
         Row: {
           balance: number
@@ -865,6 +1012,7 @@ export type Database = {
         Args: { p_amount: number; p_reason?: string; p_user_id: string }
         Returns: undefined
       }
+      expire_old_bans: { Args: never; Returns: undefined }
       find_existing_dm: {
         Args: { user1_id: string; user2_id: string }
         Returns: string
