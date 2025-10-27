@@ -899,6 +899,10 @@ export type Database = {
         Args: { conv_id: string; user_id: string }
         Returns: boolean
       }
+      user_in_conversation: {
+        Args: { check_user_id: string; conv_id: string }
+        Returns: boolean
+      }
       user_owns_persona: {
         Args: { _persona_id: string; _user_id: string }
         Returns: boolean
