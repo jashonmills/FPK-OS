@@ -28,6 +28,7 @@ const App = () => (
             <FeatureFlagProvider>
               <Routes>
                 <Route path="/" element={<Community />} />
+                <Route path="/community" element={<Community />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/community/profile/:personaId" element={<ProfilePage />} />
                 <Route path="/community/dashboard" element={<Dashboard />} />
