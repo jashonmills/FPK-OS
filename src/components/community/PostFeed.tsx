@@ -122,7 +122,7 @@ const PostFeed = ({ circleId }: PostFeedProps) => {
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div id="main-content-feed" className="flex flex-col h-full">
       <div className="border-b border-border p-4 sm:p-6 bg-card">
         <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-4">{circleName}</h2>
         

@@ -79,7 +79,7 @@ const CircleList = ({ selectedCircleId, onSelectCircle }: CircleListProps) => {
   }
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden">
+    <div id="circle-list-sidebar" className="flex-1 flex flex-col overflow-hidden">
       <div className="p-4 border-b border-sidebar-border">
         <Button
           onClick={() => setShowCreateDialog(true)}
@@ -101,6 +101,7 @@ const CircleList = ({ selectedCircleId, onSelectCircle }: CircleListProps) => {
             circles.map((circle) => (
               <button
                 key={circle.id}
+                id={circle.name === "Introductions" ? "circle-introductions" : undefined}
                 onClick={() => onSelectCircle(circle.id)}
                 className={`w-full text-left p-3 rounded-lg transition-smooth hover:bg-sidebar-accent ${
                   selectedCircleId === circle.id

@@ -8,6 +8,7 @@ import { Loader2, Users, LogOut, Menu } from "lucide-react";
 import CircleList from "@/components/community/CircleList";
 import PostFeed from "@/components/community/PostFeed";
 import CreatePersonaDialog from "@/components/community/CreatePersonaDialog";
+import { ProductTour } from "@/components/tour/ProductTour";
 
 const Community = () => {
   const navigate = useNavigate();
@@ -159,6 +160,9 @@ const Community = () => {
         onOpenChange={setShowCreatePersona}
         onPersonaCreated={() => setHasPersona(true)}
       />
+
+      {/* Product Tour */}
+      <ProductTour selectedCircleId={selectedCircleId} />
     </div>
   );
 };

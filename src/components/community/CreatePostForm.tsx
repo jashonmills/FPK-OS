@@ -50,7 +50,7 @@ const CreatePostForm = ({ circleId, onPostCreated }: CreatePostFormProps) => {
   };
 
   return (
-    <Card className="shadow-soft animate-fade-in">
+    <Card id="post-composer" className="shadow-soft animate-fade-in">
       <CardContent className="pt-4 sm:pt-6">
         <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
           <Textarea
