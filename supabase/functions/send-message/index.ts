@@ -12,6 +12,7 @@ serve(async (req) => {
   }
 
   try {
+    // User client for auth
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
@@ -20,6 +21,12 @@ serve(async (req) => {
           headers: { Authorization: req.headers.get('Authorization')! },
         },
       }
+    );
+
+    // Service role client for privileged operations (bypasses RLS)
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
     );
 
     const { data: { user } } = await supabaseClient.auth.getUser();
@@ -42,8 +49,9 @@ serve(async (req) => {
       });
     }
 
-    // Verify user is participant
-    const { data: participant, error: participantError } = await supabaseClient
+    // Verify user is participant using admin client to bypass RLS
+    // We've already validated the user's auth above
+    const { data: participant, error: participantError } = await supabaseAdmin
       .from('conversation_participants')
       .select('id')
       .eq('conversation_id', conversation_id)
