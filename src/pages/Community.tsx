@@ -14,6 +14,7 @@ import { ProductTour } from "@/components/tour/ProductTour";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { ProfileBanner } from "@/components/community/ProfileBanner";
 import { WidgetsColumn } from "@/components/community/WidgetsColumn";
+import { WelcomeOnboarding } from "@/components/community/WelcomeOnboarding";
 import { useFeatureFlag } from "@/hooks/useFeatureFlag";
 import { useUserRole } from "@/contexts/UserRoleContext";
 
@@ -29,6 +30,7 @@ const Community = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [persona, setPersona] = useState<any>(null);
+  const [circles, setCircles] = useState<any[]>([]);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -79,6 +81,19 @@ const Community = () => {
 
   const isPersonalizedHomeEnabled = useFeatureFlag("personalized_home_ui");
 
+  const fetchCircles = async () => {
+    if (!user) return;
+    
+    const { data } = await supabase
+      .from("circle_members")
+      .select("circle_id")
+      .eq("user_id", user.id);
+    
+    if (data) {
+      setCircles(data);
+    }
+  };
+
   const refetchPersona = async () => {
     if (!user) return;
     
@@ -93,6 +108,10 @@ const Community = () => {
       setPersona(data);
     }
   };
+
+  useEffect(() => {
+    fetchCircles();
+  }, [user]);
 
   if (authLoading || checkingPersona) {
     return (
@@ -329,6 +348,8 @@ const Community = () => {
         <div className="flex-1 overflow-hidden">
           {selectedCircleId ? (
             <PostFeed circleId={selectedCircleId} />
+          ) : circles.length === 0 ? (
+            <WelcomeOnboarding onCircleJoined={fetchCircles} />
           ) : (
             <div className="flex h-full items-center justify-center p-4 sm:p-8">
               <div className="text-center space-y-4 max-w-md animate-fade-in">

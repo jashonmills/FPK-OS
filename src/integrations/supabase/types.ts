@@ -81,6 +81,7 @@ export type Database = {
           created_by: string
           description: string | null
           id: string
+          is_default_circle: boolean | null
           is_private: boolean | null
           name: string
           updated_at: string
@@ -90,6 +91,7 @@ export type Database = {
           created_by: string
           description?: string | null
           id?: string
+          is_default_circle?: boolean | null
           is_private?: boolean | null
           name: string
           updated_at?: string
@@ -99,6 +101,7 @@ export type Database = {
           created_by?: string
           description?: string | null
           id?: string
+          is_default_circle?: boolean | null
           is_private?: boolean | null
           name?: string
           updated_at?: string
