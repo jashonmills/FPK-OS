@@ -15,6 +15,7 @@ interface Comment {
   created_at: string;
   author_id: string;
   personas: {
+    id: string;
     display_name: string;
   };
 }
@@ -48,6 +49,7 @@ const CommentSection = ({ postId, onCommentAdded }: CommentSectionProps) => {
           created_at,
           author_id,
           personas!post_comments_author_id_fkey (
+            id,
             display_name
           )
         `)
@@ -124,7 +126,7 @@ const CommentSection = ({ postId, onCommentAdded }: CommentSectionProps) => {
         <div className="space-y-3 max-h-64 overflow-y-auto">
           {comments.map((comment) => (
             <div key={comment.id} className="flex gap-3">
-              <Link to={`/community/profile/${comment.author_id}`}>
+              <Link to={`/community/profile/${comment.personas.id}`}>
                 <Avatar className="h-8 w-8 cursor-pointer hover:ring-2 hover:ring-primary transition-all">
                   <AvatarFallback className="bg-secondary text-secondary-foreground text-xs">
                     {comment.personas.display_name.charAt(0).toUpperCase()}
@@ -134,7 +136,7 @@ const CommentSection = ({ postId, onCommentAdded }: CommentSectionProps) => {
               <div className="flex-1">
                 <div className="bg-secondary rounded-lg p-3">
                   <Link 
-                    to={`/community/profile/${comment.author_id}`}
+                    to={`/community/profile/${comment.personas.id}`}
                     className="font-semibold text-sm hover:underline"
                   >
                     {comment.personas.display_name}

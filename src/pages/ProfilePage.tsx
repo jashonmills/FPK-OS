@@ -46,6 +46,7 @@ interface Post {
   created_at: string;
   author_id: string;
   personas: {
+    id: string;
     display_name: string;
     avatar_url: string | null;
   };
@@ -129,13 +130,13 @@ export default function ProfilePage() {
         (postsData || []).map(async (post: any) => {
           const { data: personaInfo } = await supabase
             .from("personas")
-            .select("display_name, avatar_url")
+            .select("id, display_name, avatar_url")
             .eq("id", post.author_id)
             .single();
 
           return {
             ...post,
-            personas: personaInfo || { display_name: "Unknown", avatar_url: null },
+            personas: personaInfo || { id: "", display_name: "Unknown", avatar_url: null },
           };
         })
       );
@@ -196,13 +197,13 @@ export default function ProfilePage() {
         if (pinnedData) {
           const { data: pinnedPersonaInfo } = await supabase
             .from("personas")
-            .select("display_name, avatar_url")
+            .select("id, display_name, avatar_url")
             .eq("id", pinnedData.author_id)
             .single();
 
           setPinnedPost({
             ...pinnedData,
-            personas: pinnedPersonaInfo || { display_name: "Unknown", avatar_url: null },
+            personas: pinnedPersonaInfo || { id: "", display_name: "Unknown", avatar_url: null },
           });
         }
       }

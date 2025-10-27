@@ -15,6 +15,7 @@ interface Post {
   created_at: string;
   author_id: string;
   personas: {
+    id: string;
     display_name: string;
     avatar_url: string | null;
   };
@@ -65,7 +66,7 @@ const PostFeed = ({ circleId }: PostFeedProps) => {
       const authorIds = [...new Set(postsData?.map(p => p.author_id) || [])];
       const { data: personasData, error: personasError } = await supabase
         .from("personas")
-        .select("user_id, display_name, avatar_url")
+        .select("id, user_id, display_name, avatar_url")
         .in("user_id", authorIds);
 
       if (personasError) throw personasError;
@@ -78,6 +79,7 @@ const PostFeed = ({ circleId }: PostFeedProps) => {
       const postsWithPersonas = postsData?.map(post => ({
         ...post,
         personas: personasMap.get(post.author_id) || {
+          id: "",
           display_name: "Unknown User",
           avatar_url: null
         }

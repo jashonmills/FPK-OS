@@ -32,6 +32,7 @@ interface Post {
   author_id: string;
   circle_id: string;
   personas: {
+    id: string;
     display_name: string;
     avatar_url: string | null;
   };
@@ -112,13 +113,13 @@ export default function Dashboard() {
         (postsData || []).map(async (post: any) => {
           const { data: personaInfo } = await supabase
             .from("personas")
-            .select("display_name, avatar_url")
+            .select("id, display_name, avatar_url")
             .eq("id", post.author_id)
             .single();
 
           return {
             ...post,
-            personas: personaInfo || { display_name: "Unknown", avatar_url: null },
+            personas: personaInfo || { id: "", display_name: "Unknown", avatar_url: null },
           };
         })
       );
