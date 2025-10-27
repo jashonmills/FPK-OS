@@ -4,10 +4,12 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Loader2, Users, LogOut, Menu, MessageSquare, LayoutDashboard } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Loader2, Users, LogOut, Menu, MessageSquare, LayoutDashboard, Settings } from "lucide-react";
 import CircleList from "@/components/community/CircleList";
 import PostFeed from "@/components/community/PostFeed";
 import CreatePersonaDialog from "@/components/community/CreatePersonaDialog";
+import EditProfileDialog from "@/components/community/EditProfileDialog";
 import { ProductTour } from "@/components/tour/ProductTour";
 
 const Community = () => {
@@ -17,7 +19,9 @@ const Community = () => {
   const [hasPersona, setHasPersona] = useState(false);
   const [checkingPersona, setCheckingPersona] = useState(true);
   const [showCreatePersona, setShowCreatePersona] = useState(false);
+  const [showEditProfile, setShowEditProfile] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [persona, setPersona] = useState<any>(null);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -31,9 +35,10 @@ const Community = () => {
 
       const { data, error } = await supabase
         .from("personas")
-        .select("id")
+        .select("*")
         .eq("user_id", user.id)
-        .limit(1);
+        .limit(1)
+        .single();
 
       if (error) {
         console.error("Error checking persona:", error);
@@ -41,10 +46,13 @@ const Community = () => {
         return;
       }
 
-      setHasPersona(data && data.length > 0);
+      if (data) {
+        setPersona(data);
+        setHasPersona(true);
+      }
       setCheckingPersona(false);
 
-      if (!data || data.length === 0) {
+      if (!data) {
         setShowCreatePersona(true);
       }
     };
@@ -60,6 +68,21 @@ const Community = () => {
   const handleCircleSelect = (circleId: string) => {
     setSelectedCircleId(circleId);
     setSidebarOpen(false); // Close mobile menu when circle is selected
+  };
+
+  const refetchPersona = async () => {
+    if (!user) return;
+    
+    const { data } = await supabase
+      .from("personas")
+      .select("*")
+      .eq("user_id", user.id)
+      .limit(1)
+      .single();
+    
+    if (data) {
+      setPersona(data);
+    }
   };
 
   if (authLoading || checkingPersona) {
@@ -114,6 +137,26 @@ const Community = () => {
         selectedCircleId={selectedCircleId}
         onSelectCircle={handleCircleSelect}
       />
+
+      {/* Profile Section at Bottom */}
+      {persona && (
+        <div className="p-4 border-t border-sidebar-border mt-auto">
+          <button
+            onClick={() => setShowEditProfile(true)}
+            className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-sidebar-accent transition-smooth"
+          >
+            <Avatar className="h-10 w-10">
+              <AvatarImage src={persona.avatar_url} alt={persona.display_name} />
+              <AvatarFallback>{persona.display_name?.[0]?.toUpperCase() || "U"}</AvatarFallback>
+            </Avatar>
+            <div className="flex-1 text-left min-w-0">
+              <p className="font-medium text-sm truncate">{persona.display_name}</p>
+              <p className="text-xs text-muted-foreground">Edit Profile</p>
+            </div>
+            <Settings className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+          </button>
+        </div>
+      )}
     </div>
   );
 
@@ -196,6 +239,15 @@ const Community = () => {
         onOpenChange={setShowCreatePersona}
         onPersonaCreated={() => setHasPersona(true)}
       />
+
+      {persona && (
+        <EditProfileDialog
+          open={showEditProfile}
+          onOpenChange={setShowEditProfile}
+          persona={persona}
+          onProfileUpdated={refetchPersona}
+        />
+      )}
 
       {/* Product Tour */}
       <ProductTour selectedCircleId={selectedCircleId} />
