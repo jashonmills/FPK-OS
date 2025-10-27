@@ -123,7 +123,7 @@ const CommentSection = ({ postId, onCommentAdded }: CommentSectionProps) => {
           <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
         </div>
       ) : comments.length > 0 ? (
-        <div className="space-y-3 max-h-64 overflow-y-auto">
+        <div className="space-y-3">
           {comments.map((comment) => (
             <div key={comment.id} className="flex gap-3">
               <Link to={`/community/profile/${comment.personas.id}`}>

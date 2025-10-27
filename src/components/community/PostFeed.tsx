@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { ScrollArea } from "@/components/ui/scroll-area";
+
 import { Loader2 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PostCard from "./PostCard";
@@ -154,8 +154,8 @@ const PostFeed = ({ circleId }: PostFeedProps) => {
           </TabsList>
 
           <TabsContent value="circle-feed" className="mt-0">
-            <ScrollArea className="h-[calc(100vh-14rem)] sm:h-[calc(100vh-16rem)]">
-              <div className="p-4 sm:p-6 pb-32 space-y-4 sm:space-y-6 max-w-2xl mx-auto w-full">
+            <div className="h-[calc(100vh-14rem)] sm:h-[calc(100vh-16rem)] overflow-y-auto">
+              <div className="p-4 sm:p-6 pb-64 space-y-4 sm:space-y-6 max-w-2xl mx-auto w-full">
                 {currentPersona && (
                   <CreatePostForm 
                     circleId={circleId} 
@@ -179,7 +179,7 @@ const PostFeed = ({ circleId }: PostFeedProps) => {
                   </div>
                 )}
               </div>
-            </ScrollArea>
+            </div>
           </TabsContent>
 
           <TabsContent value="reflections" className="mt-0">
