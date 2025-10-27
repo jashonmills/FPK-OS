@@ -171,7 +171,7 @@ const Community = () => {
   return (
     <div className={
       isPersonalizedHomeEnabled 
-        ? "grid h-screen bg-background overflow-hidden grid-cols-1 lg:grid-cols-[280px_1fr] xl:grid-cols-[280px_1fr_320px] xl:grid-rows-[auto_1fr]"
+        ? "grid h-screen bg-background overflow-hidden grid-cols-1 lg:grid-cols-[280px_1fr] 2xl:grid-cols-[280px_1fr_380px] 2xl:grid-rows-[auto_1fr]"
         : "flex h-screen bg-background overflow-hidden"
     }>
       {/* Mobile Header */}
@@ -223,18 +223,18 @@ const Community = () => {
         </div>
       </div>
 
-      {/* Desktop Sidebar - spans both rows on XL screens */}
+      {/* Desktop Sidebar - spans both rows on 2XL screens */}
       <aside className={
         isPersonalizedHomeEnabled
-          ? "hidden lg:flex border-r border-border flex-col xl:row-span-2"
+          ? "hidden lg:flex border-r border-border flex-col 2xl:row-span-2"
           : "hidden lg:flex w-80 border-r border-border flex-col"
       }>
         <SidebarContent />
       </aside>
 
-      {/* Banner - Only on XL screens, spans center and right columns */}
+      {/* Banner - Only on 2XL screens, spans center and right columns */}
       {isPersonalizedHomeEnabled && hasPersona && persona && (
-        <div className="hidden xl:block xl:col-span-2">
+        <div className="hidden 2xl:block 2xl:col-span-2">
           <ProfileBanner
             bannerUrl={persona.header_image_url}
             displayName={persona.display_name}
@@ -251,7 +251,7 @@ const Community = () => {
       }>
         {/* Banner for smaller screens (shown inline within main) */}
         {isPersonalizedHomeEnabled && hasPersona && persona && (
-          <div className="xl:hidden">
+          <div className="2xl:hidden">
             <ProfileBanner
               bannerUrl={persona.header_image_url}
               displayName={persona.display_name}
@@ -279,9 +279,9 @@ const Community = () => {
         </div>
       </main>
 
-      {/* Right Widgets Column - Only visible on xl screens when feature flag is enabled */}
+      {/* Right Widgets Column - Only visible on 2xl screens when feature flag is enabled */}
       {isPersonalizedHomeEnabled && user && (
-        <aside className="hidden xl:block border-l border-border overflow-y-auto">
+        <aside className="hidden 2xl:block border-l border-border overflow-y-auto">
           <WidgetsColumn userId={user.id} onSelectCircle={handleCircleSelect} />
         </aside>
       )}
