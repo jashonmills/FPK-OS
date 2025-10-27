@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Loader2, Send, Image, X } from "lucide-react";
+import { SpeechToTextButton } from "./SpeechToTextButton";
 
 interface CreatePostFormProps {
   circleId: string;
@@ -177,8 +178,8 @@ const CreatePostForm = ({ circleId, personaId, personaName, onPostCreated }: Cre
           )}
           
           <div className="flex justify-between items-center">
-            {/* Image Upload Button */}
-            <div>
+            {/* Image Upload Button and Speech-to-Text */}
+            <div className="flex gap-2">
               <Input
                 id="image-upload"
                 type="file"
@@ -198,6 +199,9 @@ const CreatePostForm = ({ circleId, personaId, personaName, onPostCreated }: Cre
                 <Image className="h-4 w-4" />
                 <span className="hidden sm:inline">Add Photo</span>
               </Button>
+              <SpeechToTextButton 
+                onTranscript={(text) => setContent(prev => prev ? `${prev} ${text}` : text)}
+              />
             </div>
             
             {/* Post Button */}

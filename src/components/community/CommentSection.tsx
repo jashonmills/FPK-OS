@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Loader2, Send } from "lucide-react";
+import { SpeechToTextButton } from "./SpeechToTextButton";
 import { formatDistanceToNow } from "date-fns";
 
 interface Comment {
@@ -180,17 +181,22 @@ const CommentSection = ({ postId, onCommentAdded }: CommentSectionProps) => {
           rows={2}
           className="resize-none flex-1"
         />
-        <Button
-          type="submit"
-          size="icon"
-          disabled={loading || !newComment.trim()}
-        >
-          {loading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Send className="h-4 w-4" />
-          )}
-        </Button>
+        <div className="flex flex-col gap-2">
+          <SpeechToTextButton 
+            onTranscript={(text) => setNewComment(prev => prev ? `${prev} ${text}` : text)}
+          />
+          <Button
+            type="submit"
+            size="icon"
+            disabled={loading || !newComment.trim()}
+          >
+            {loading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
+          </Button>
+        </div>
       </form>
     </div>
   );
