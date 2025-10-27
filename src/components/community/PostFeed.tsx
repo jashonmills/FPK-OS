@@ -155,7 +155,7 @@ const PostFeed = ({ circleId }: PostFeedProps) => {
 
           <TabsContent value="circle-feed" className="mt-0">
             <ScrollArea className="h-[calc(100vh-12rem)]">
-              <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 max-w-2xl mx-auto w-full">
+              <div className="p-4 sm:p-6 pb-20 space-y-4 sm:space-y-6 max-w-2xl mx-auto w-full">
                 {currentPersona && (
                   <CreatePostForm 
                     circleId={circleId} 
