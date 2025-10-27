@@ -5,8 +5,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PostCard from "@/components/community/PostCard";
-import { ArrowLeft, MessageCircle } from "lucide-react";
+import EditProfileDialog from "@/components/community/EditProfileDialog";
+import { ArrowLeft, MessageCircle, Pencil } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -34,6 +36,24 @@ interface Post {
   circle_id: string;
 }
 
+interface Circle {
+  id: string;
+  name: string;
+  description: string | null;
+  created_at: string;
+  is_private: boolean;
+}
+
+interface Reflection {
+  id: string;
+  content: string;
+  created_at: string;
+  daily_prompts: {
+    prompt_text: string;
+    day_of_week: number;
+  } | null;
+}
+
 export default function ProfilePage() {
   const { personaId } = useParams<{ personaId: string }>();
   const navigate = useNavigate();
@@ -41,8 +61,12 @@ export default function ProfilePage() {
   const { toast } = useToast();
   const [persona, setPersona] = useState<Persona | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
+  const [circles, setCircles] = useState<Circle[]>([]);
+  const [reflections, setReflections] = useState<Reflection[]>([]);
   const [loading, setLoading] = useState(true);
   const [startingChat, setStartingChat] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("posts");
 
   useEffect(() => {
     if (personaId) {
@@ -91,6 +115,49 @@ export default function ProfilePage() {
       })) || [];
 
       setPosts(formattedPosts);
+
+      // Fetch circles the user is a member of
+      const { data: circlesData, error: circlesError } = await supabase
+        .from("circle_members")
+        .select(`
+          circles!inner (
+            id,
+            name,
+            description,
+            created_at,
+            is_private
+          )
+        `)
+        .eq("user_id", personaData.user_id);
+
+      if (circlesError) throw circlesError;
+
+      const formattedCircles = circlesData?.map((cm: any) => cm.circles).filter((c: any) => !c.is_private) || [];
+      setCircles(formattedCircles);
+
+      // Fetch reflections by this user
+      const { data: reflectionsData, error: reflectionsError } = await supabase
+        .from("reflections")
+        .select(`
+          *,
+          daily_prompts (
+            prompt_text,
+            day_of_week
+          )
+        `)
+        .eq("author_id", personaId)
+        .order("created_at", { ascending: false });
+
+      if (reflectionsError) throw reflectionsError;
+
+      const formattedReflections = reflectionsData?.map((r: any) => ({
+        id: r.id,
+        content: r.content,
+        created_at: r.created_at,
+        daily_prompts: r.daily_prompts,
+      })) || [];
+
+      setReflections(formattedReflections);
     } catch (error) {
       console.error("Error fetching profile:", error);
     } finally {
@@ -206,16 +273,28 @@ export default function ProfilePage() {
                 </p>
               </div>
 
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="w-full sm:w-auto"
-                onClick={handleSendMessage}
-                disabled={startingChat || !user}
-              >
-                <MessageCircle className="w-4 h-4 mr-2" />
-                {startingChat ? "Starting..." : "Message"}
-              </Button>
+              {user && persona.user_id === user.id ? (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full sm:w-auto"
+                  onClick={() => setEditDialogOpen(true)}
+                >
+                  <Pencil className="w-4 h-4 mr-2" />
+                  Edit Profile
+                </Button>
+              ) : (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full sm:w-auto"
+                  onClick={handleSendMessage}
+                  disabled={startingChat || !user}
+                >
+                  <MessageCircle className="w-4 h-4 mr-2" />
+                  {startingChat ? "Starting..." : "Message"}
+                </Button>
+              )}
             </div>
 
             {persona.bio && (
@@ -225,26 +304,89 @@ export default function ProfilePage() {
         </div>
       </Card>
 
-      <div className="mb-4">
-        <h2 className="text-lg sm:text-xl font-semibold">
-          Posts by {persona.display_name}
-        </h2>
-        <p className="text-sm text-muted-foreground">
-          {posts.length} {posts.length === 1 ? "post" : "posts"}
-        </p>
-      </div>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="w-full justify-start mb-4">
+          <TabsTrigger value="posts">Posts</TabsTrigger>
+          <TabsTrigger value="circles">Circles</TabsTrigger>
+          <TabsTrigger value="reflections">Reflections</TabsTrigger>
+        </TabsList>
 
-      <div className="space-y-4">
-        {posts.length === 0 ? (
-          <Card className="p-6 sm:p-8 text-center">
-            <p className="text-muted-foreground">No posts yet</p>
-          </Card>
-        ) : (
-          posts.map((post) => (
-            <PostCard key={post.id} post={post} onDelete={handlePostDelete} />
-          ))
-        )}
-      </div>
+        <TabsContent value="posts" className="space-y-4">
+          {posts.length === 0 ? (
+            <Card className="p-6 sm:p-8 text-center">
+              <p className="text-muted-foreground">No posts yet</p>
+            </Card>
+          ) : (
+            posts.map((post) => (
+              <PostCard key={post.id} post={post} onDelete={handlePostDelete} />
+            ))
+          )}
+        </TabsContent>
+
+        <TabsContent value="circles" className="space-y-4">
+          {circles.length === 0 ? (
+            <Card className="p-6 sm:p-8 text-center">
+              <p className="text-muted-foreground">Not a member of any public circles yet</p>
+            </Card>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2">
+              {circles.map((circle) => (
+                <Card
+                  key={circle.id}
+                  className="p-4 hover:border-primary transition-colors cursor-pointer"
+                  onClick={() => navigate(`/community?circle=${circle.id}`)}
+                >
+                  <h3 className="font-semibold mb-2">{circle.name}</h3>
+                  {circle.description && (
+                    <p className="text-sm text-muted-foreground line-clamp-2">
+                      {circle.description}
+                    </p>
+                  )}
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Joined {new Date(circle.created_at).toLocaleDateString()}
+                  </p>
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="reflections" className="space-y-4">
+          {reflections.length === 0 ? (
+            <Card className="p-6 sm:p-8 text-center">
+              <p className="text-muted-foreground">No reflections shared yet</p>
+            </Card>
+          ) : (
+            reflections.map((reflection) => (
+              <Card key={reflection.id} className="p-4 sm:p-6">
+                {reflection.daily_prompts && (
+                  <div className="mb-3 pb-3 border-b">
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Daily Prompt:
+                    </p>
+                    <p className="text-sm italic">"{reflection.daily_prompts.prompt_text}"</p>
+                  </div>
+                )}
+                <p className="text-sm sm:text-base mb-3">{reflection.content}</p>
+                <p className="text-xs text-muted-foreground">
+                  {new Date(reflection.created_at).toLocaleDateString()} at{" "}
+                  {new Date(reflection.created_at).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </p>
+              </Card>
+            ))
+          )}
+        </TabsContent>
+      </Tabs>
+
+      <EditProfileDialog
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        persona={persona}
+        onProfileUpdated={fetchPersonaAndPosts}
+      />
       </div>
     </div>
   );
