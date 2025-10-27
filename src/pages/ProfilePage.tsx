@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PostCard from "@/components/community/PostCard";
 import EditProfileDialog from "@/components/community/EditProfileDialog";
 import FollowButton from "@/components/community/FollowButton";
-import { ArrowLeft, MessageCircle, Pencil, Globe, Linkedin, FileText, Heart, MessageSquare, MapPin, Tag, Info } from "lucide-react";
+import { ArrowLeft, MessageCircle, Pencil, Globe, Linkedin, Facebook, Twitter, FileText, Heart, MessageSquare, MapPin, Tag, Info } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -29,6 +29,8 @@ interface Persona {
   social_links?: {
     website?: string;
     linkedin?: string;
+    facebook?: string;
+    twitter?: string;
   };
   posts_count?: number;
   comments_count?: number;
@@ -114,7 +116,7 @@ export default function ProfilePage() {
       // Type cast the social_links and interests to expected format
       const formattedPersona = {
         ...personaData,
-        social_links: personaData.social_links as { website?: string; linkedin?: string } | null,
+        social_links: personaData.social_links as { website?: string; linkedin?: string; facebook?: string; twitter?: string } | null,
         interests: Array.isArray(personaData.interests) ? personaData.interests as string[] : null,
       };
       setPersona(formattedPersona);
@@ -380,17 +382,17 @@ export default function ProfilePage() {
             )}
 
             {/* Social Links */}
-            {persona.social_links && (persona.social_links.website || persona.social_links.linkedin) && (
-              <div className="flex gap-2 mt-4">
+            {persona.social_links && (persona.social_links.website || persona.social_links.linkedin || persona.social_links.facebook || persona.social_links.twitter) && (
+              <div className="flex flex-wrap gap-3 mt-4">
                 {persona.social_links.website && (
                   <a
                     href={persona.social_links.website}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1 text-sm text-primary hover:underline"
+                    className="flex items-center gap-1.5 text-sm text-primary hover:underline transition-colors"
                   >
                     <Globe className="w-4 h-4" />
-                    Website
+                    <span>Website</span>
                   </a>
                 )}
                 {persona.social_links.linkedin && (
@@ -398,10 +400,32 @@ export default function ProfilePage() {
                     href={persona.social_links.linkedin}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1 text-sm text-primary hover:underline"
+                    className="flex items-center gap-1.5 text-sm text-primary hover:underline transition-colors"
                   >
                     <Linkedin className="w-4 h-4" />
-                    LinkedIn
+                    <span>LinkedIn</span>
+                  </a>
+                )}
+                {persona.social_links.facebook && (
+                  <a
+                    href={persona.social_links.facebook}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 text-sm text-primary hover:underline transition-colors"
+                  >
+                    <Facebook className="w-4 h-4" />
+                    <span>Facebook</span>
+                  </a>
+                )}
+                {persona.social_links.twitter && (
+                  <a
+                    href={persona.social_links.twitter}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 text-sm text-primary hover:underline transition-colors"
+                  >
+                    <Twitter className="w-4 h-4" />
+                    <span>Twitter</span>
                   </a>
                 )}
               </div>

@@ -40,6 +40,8 @@ const editProfileSchema = z.object({
   social_links: z.object({
     website: z.string().url().optional().or(z.literal("")),
     linkedin: z.string().url().optional().or(z.literal("")),
+    facebook: z.string().url().optional().or(z.literal("")),
+    twitter: z.string().url().optional().or(z.literal("")),
   }).optional(),
   headline: z.string().max(100, "Headline must be less than 100 characters").optional().or(z.literal("")),
   pronouns: z.string().max(50, "Pronouns must be less than 50 characters").optional().or(z.literal("")),
@@ -98,6 +100,8 @@ export default function EditProfileDialog({
       social_links: {
         website: persona.social_links?.website || "",
         linkedin: persona.social_links?.linkedin || "",
+        facebook: persona.social_links?.facebook || "",
+        twitter: persona.social_links?.twitter || "",
       },
       headline: persona.headline || "",
       pronouns: persona.pronouns || "",
@@ -400,6 +404,34 @@ export default function EditProfileDialog({
                   <FormLabel>LinkedIn</FormLabel>
                   <FormControl>
                     <Input placeholder="https://linkedin.com/in/yourprofile" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="social_links.facebook"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Facebook</FormLabel>
+                  <FormControl>
+                    <Input placeholder="https://facebook.com/yourprofile" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="social_links.twitter"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Twitter</FormLabel>
+                  <FormControl>
+                    <Input placeholder="https://twitter.com/yourusername" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
