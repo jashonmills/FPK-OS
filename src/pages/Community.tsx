@@ -15,10 +15,7 @@ import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { ProfileBanner } from "@/components/community/ProfileBanner";
 import { WidgetsColumn } from "@/components/community/WidgetsColumn";
 import { WelcomeOnboarding } from "@/components/community/WelcomeOnboarding";
-import { useFeatureFlag } from "@/hooks/useFeatureFlag";
-import { useFeatureFlags } from "@/contexts/FeatureFlagContext";
 import { useUserRole } from "@/contexts/UserRoleContext";
-import { Skeleton } from "@/components/ui/skeleton";
 
 const Community = () => {
   const navigate = useNavigate();
@@ -81,9 +78,6 @@ const Community = () => {
     setSidebarOpen(false); // Close mobile menu when circle is selected
   };
 
-  const { loading: featureFlagsLoading } = useFeatureFlags();
-  const isPersonalizedHomeEnabled = useFeatureFlag("personalized_home_ui");
-
   const fetchCircles = async () => {
     if (!user) return;
     
@@ -116,7 +110,7 @@ const Community = () => {
     fetchCircles();
   }, [user]);
 
-  if (authLoading || checkingPersona || featureFlagsLoading) {
+  if (authLoading || checkingPersona) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -249,15 +243,11 @@ const Community = () => {
   );
 
   return (
-    <div className={
-      isPersonalizedHomeEnabled 
-        ? `grid h-screen bg-background overflow-hidden grid-cols-1 grid-rows-[auto_1fr_auto] ${
-            sidebarCollapsed 
-              ? "md:grid-cols-[80px_1fr] lg:grid-cols-[80px_1fr_minmax(280px,320px)]"
-              : "md:grid-cols-[280px_1fr] lg:grid-cols-[280px_1fr_minmax(280px,320px)]"
-          } lg:grid-rows-[auto_1fr]`
-        : "flex h-screen bg-background overflow-hidden"
-    }>
+    <div className={`grid h-screen bg-background overflow-hidden grid-cols-1 grid-rows-[auto_1fr_auto] ${
+      sidebarCollapsed 
+        ? "md:grid-cols-[80px_1fr] lg:grid-cols-[80px_1fr_minmax(280px,320px)]"
+        : "md:grid-cols-[280px_1fr] lg:grid-cols-[280px_1fr_minmax(280px,320px)]"
+    } lg:grid-rows-[auto_1fr]`}>
       {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-background border-b border-border">
         <div className="flex items-center justify-between p-4">
@@ -320,18 +310,14 @@ const Community = () => {
       </div>
 
       {/* Desktop Sidebar - spans both rows on LG+ screens */}
-      <aside className={
-        isPersonalizedHomeEnabled
-          ? `hidden md:flex border-r border-border flex-col lg:row-span-2 transition-all duration-300 ${
-              sidebarCollapsed ? "w-20" : ""
-            }`
-          : "hidden lg:flex w-80 border-r border-border flex-col"
-      }>
+      <aside className={`hidden md:flex border-r border-border flex-col lg:row-span-2 transition-all duration-300 ${
+        sidebarCollapsed ? "w-20" : ""
+      }`}>
         <SidebarContent />
       </aside>
 
       {/* Banner - Only on LG+ screens, spans center and right columns */}
-      {isPersonalizedHomeEnabled && hasPersona && persona && (
+      {hasPersona && persona && (
         <div className="hidden lg:block lg:col-span-2">
           <ProfileBanner
             bannerUrl={persona.header_image_url}
@@ -342,13 +328,9 @@ const Community = () => {
       )}
 
       {/* Main Content */}
-      <main className={
-        isPersonalizedHomeEnabled
-          ? "overflow-hidden mt-[57px] lg:mt-0 flex flex-col"
-          : "flex-1 overflow-hidden mt-[57px] lg:mt-0 flex flex-col"
-      }>
+      <main className="overflow-hidden mt-[57px] lg:mt-0 flex flex-col">
         {/* Banner for smaller screens (shown inline within main) */}
-        {isPersonalizedHomeEnabled && hasPersona && persona && (
+        {hasPersona && persona && (
           <div className="lg:hidden">
             <ProfileBanner
               bannerUrl={persona.header_image_url}
@@ -380,7 +362,7 @@ const Community = () => {
       </main>
 
       {/* Widgets Column - Responsive: stacked on mobile, side column on LG+ */}
-      {isPersonalizedHomeEnabled && user && (
+      {user && (
         <>
           {/* Mobile/Tablet: Stacked below main content */}
           <div className="lg:hidden border-t border-border bg-muted/30 overflow-y-auto">
