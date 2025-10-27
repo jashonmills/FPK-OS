@@ -92,9 +92,14 @@ export default function ProfilePage() {
         .from("personas")
         .select("*")
         .eq("id", personaId)
-        .single();
+        .maybeSingle();
 
       if (personaError) throw personaError;
+      if (!personaData) {
+        setPersona(null);
+        setLoading(false);
+        return;
+      }
       
       // Type cast the social_links to expected format
       const formattedPersona = {
