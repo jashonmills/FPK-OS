@@ -155,7 +155,7 @@ const PostFeed = ({ circleId }: PostFeedProps) => {
 
           <TabsContent value="circle-feed" className="mt-0">
             <div className="h-[calc(100vh-14rem)] sm:h-[calc(100vh-16rem)] overflow-y-auto">
-              <div className="p-4 sm:p-6 pb-96 space-y-4 sm:space-y-6 max-w-2xl mx-auto w-full">
+              <div className="p-4 sm:p-6 pb-[40rem] space-y-4 sm:space-y-6 max-w-2xl mx-auto w-full">
                 {currentPersona && (
                   <CreatePostForm 
                     circleId={circleId} 

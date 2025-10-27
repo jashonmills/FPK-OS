@@ -32,11 +32,24 @@ const CommentSection = ({ postId, onCommentAdded }: CommentSectionProps) => {
   const [newComment, setNewComment] = useState("");
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
+  const [currentPersonaId, setCurrentPersonaId] = useState<string | null>(null);
 
   useEffect(() => {
+    const fetchCurrentPersona = async () => {
+      if (!user) return;
+      const { data } = await supabase
+        .from("personas")
+        .select("id")
+        .eq("user_id", user.id)
+        .single();
+      
+      if (data) setCurrentPersonaId(data.id);
+    };
+    
+    fetchCurrentPersona();
     fetchComments();
     subscribeToComments();
-  }, [postId]);
+  }, [postId, user]);
 
   const fetchComments = async () => {
     setFetching(true);
@@ -90,13 +103,13 @@ const CommentSection = ({ postId, onCommentAdded }: CommentSectionProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !newComment.trim()) return;
+    if (!user || !newComment.trim() || !currentPersonaId) return;
 
     setLoading(true);
     try {
       const { error } = await supabase.from("post_comments").insert({
         post_id: postId,
-        author_id: user.id,
+        author_id: currentPersonaId,
         content: newComment.trim(),
       });
 
