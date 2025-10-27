@@ -16,6 +16,7 @@ import { ProfileBanner } from "@/components/community/ProfileBanner";
 import { WidgetsColumn } from "@/components/community/WidgetsColumn";
 import { WelcomeOnboarding } from "@/components/community/WelcomeOnboarding";
 import { useUserRole } from "@/contexts/UserRoleContext";
+import { DiscoverPeopleDrawer } from "@/components/community/DiscoverPeopleDrawer";
 
 const Community = () => {
   const navigate = useNavigate();
@@ -276,6 +277,7 @@ const Community = () => {
           
           <div className="flex gap-2">
             <NotificationBell />
+            <DiscoverPeopleDrawer />
             {persona && (
               <Button
                 variant="ghost"
