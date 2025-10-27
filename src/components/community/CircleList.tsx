@@ -203,10 +203,10 @@ const CircleList = ({ selectedCircleId, onSelectCircle, isCollapsed = false }: C
                         </div>
                       </div>
                     ) : (
-                      <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-start justify-between gap-2 min-w-0">
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <h3 className="font-semibold text-sm truncate">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <h3 className="font-semibold text-sm break-words overflow-wrap-anywhere">
                               {circle.name}
                             </h3>
                             {circle.is_private && (
@@ -214,7 +214,7 @@ const CircleList = ({ selectedCircleId, onSelectCircle, isCollapsed = false }: C
                             )}
                           </div>
                           {circle.description && (
-                            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                            <p className="text-xs text-muted-foreground mt-1 line-clamp-2 break-words">
                               {circle.description}
                             </p>
                           )}
