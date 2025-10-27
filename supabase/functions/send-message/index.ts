@@ -277,7 +277,13 @@ serve(async (req) => {
     }
 
     if (analysis.severity >= 4 && analysis.severity <= 6) {
-      // CONFLICT: Insert message + de-escalation
+      // ========== SHADOW MODE: DE-ESCALATION ==========
+      // AI recommended de-escalation, but we're only logging in Shadow Mode
+      console.log(`🔍 SHADOW MODE: Would have DE-ESCALATED message from user ${user.id}`);
+      console.log(`📊 Severity: ${analysis.severity}, Category: ${analysis.violation_category}`);
+      console.log(`💬 De-escalation message that would have been sent: "${analysis.de_escalation_message}"`);
+      
+      // Insert the original message normally (no de-escalation action taken)
       const { data: message, error: msgError } = await supabaseClient
         .from('messages')
         .insert({ conversation_id, sender_id: user.id, content: content.trim() })
@@ -286,54 +292,30 @@ serve(async (req) => {
 
       if (msgError) throw msgError;
 
-      // Insert de-escalation message as system message
-      await supabaseAdmin
-        .from('messages')
-        .insert({
-          conversation_id,
-          sender_id: user.id, // Same sender for simplicity
-          content: analysis.de_escalation_message,
-          is_system_message: true
-        });
-
-      console.log('Message with de-escalation:', message.id);
-      return new Response(JSON.stringify({ message, de_escalated: true }), {
+      console.log('✅ Message allowed (shadow mode - would have de-escalated):', message.id);
+      return new Response(JSON.stringify({ message }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // SEVERE VIOLATION (7-10): Block message + ban user
-    const banExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+    // ========== SHADOW MODE: SEVERE VIOLATION (7-10) ==========
+    // AI recommended ban, but we're only logging in Shadow Mode
+    console.log(`🚨 SHADOW MODE: Would have BANNED user ${user.id}`);
+    console.log(`📊 Severity: ${analysis.severity}, Category: ${analysis.violation_category}`);
+    console.log(`⚠️ Offending content: "${content.trim()}"`);
+    console.log(`🔒 Ban duration that would have been applied: 24 hours`);
 
-    await supabaseAdmin.from('user_bans').insert({
-      user_id: user.id,
-      is_ai_ban: true,
-      reason: analysis.violation_category || 'VIOLATION',
-      offending_conversation_id: conversation_id,
-      offending_message_content: content.trim(),
-      severity_score: analysis.severity,
-      expires_at: banExpiresAt.toISOString()
-    });
+    // Insert the message normally (no ban or block action taken)
+    const { data: message, error: severeMsgError } = await supabaseClient
+      .from('messages')
+      .insert({ conversation_id, sender_id: user.id, content: content.trim() })
+      .select()
+      .single();
 
-    // Create notification
-    await supabaseAdmin.from('notifications').insert({
-      user_id: user.id,
-      type: 'BAN',
-      title: 'Account Suspended',
-      message: `Your account has been suspended for ${analysis.violation_category}. Expires in 24 hours.`,
-      metadata: { reason: analysis.violation_category, expires_at: banExpiresAt.toISOString() }
-    });
+    if (severeMsgError) throw severeMsgError;
 
-    console.log('User banned:', user.id, analysis.violation_category);
-    return new Response(JSON.stringify({
-      error: 'MESSAGE_BLOCKED',
-      code: 'USER_BANNED',
-      ban_details: {
-        reason: analysis.violation_category,
-        expires_at: banExpiresAt.toISOString()
-      }
-    }), {
-      status: 403,
+    console.log('✅ Message allowed (shadow mode - would have banned user):', message.id);
+    return new Response(JSON.stringify({ message }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
