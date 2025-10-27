@@ -91,9 +91,9 @@ export const WelcomeNewMembersWidget = () => {
                 <AvatarImage src={member.avatar_url} />
                 <AvatarFallback>{member.display_name[0]}</AvatarFallback>
               </Avatar>
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0 overflow-hidden">
                 <p className="text-sm font-medium truncate">{member.display_name}</p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground break-words">
                   {formatDistanceToNow(new Date(member.created_at), { addSuffix: true })}
                 </p>
               </div>

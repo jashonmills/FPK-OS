@@ -76,16 +76,16 @@ export const TrendingCirclesWidget = ({ onSelectCircle }: TrendingCirclesWidgetP
             className="w-full justify-start h-auto p-3 hover:bg-accent"
             onClick={() => onSelectCircle(circle.circle_id)}
           >
-            <div className="flex items-start gap-3 w-full text-left">
+            <div className="flex items-start gap-3 w-full text-left min-w-0">
               <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                 <TrendingUp className="h-5 w-5 text-primary" />
               </div>
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0 overflow-hidden">
                 <p className="font-semibold text-sm truncate">{circle.circle_name}</p>
-                <p className="text-xs text-muted-foreground line-clamp-1">
+                <p className="text-xs text-muted-foreground line-clamp-1 break-words">
                   {circle.circle_description}
                 </p>
-                <div className="flex items-center gap-3 mt-1">
+                <div className="flex items-center gap-3 mt-1 flex-wrap">
                   <span className="text-xs text-muted-foreground flex items-center gap-1">
                     <Users className="h-3 w-3" />
                     {circle.member_count} members

@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2, Users, LogOut, Menu, MessageSquare, LayoutDashboard, Settings } from "lucide-react";
+import { Loader2, Users, LogOut, Menu, MessageSquare, LayoutDashboard, Settings, ChevronLeft, ChevronRight } from "lucide-react";
 import CircleList from "@/components/community/CircleList";
 import PostFeed from "@/components/community/PostFeed";
 import CreatePersonaDialog from "@/components/community/CreatePersonaDialog";
@@ -25,6 +25,7 @@ const Community = () => {
   const [showCreatePersona, setShowCreatePersona] = useState(false);
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [persona, setPersona] = useState<any>(null);
 
   useEffect(() => {
@@ -102,41 +103,41 @@ const Community = () => {
   const SidebarContent = () => (
     <div className="flex flex-col h-full bg-sidebar">
       <div className="p-4 sm:p-6 border-b border-sidebar-border flex-shrink-0">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Users className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-            <h1 className="text-xl sm:text-2xl font-bold text-primary">FPK Nexus</h1>
+        {!sidebarCollapsed ? (
+          <>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Users className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+                <h1 className="text-xl sm:text-2xl font-bold text-primary">FPK Nexus</h1>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => navigate("/community/dashboard")}
+                  title="Dashboard"
+                >
+                  <LayoutDashboard className="h-5 w-5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => navigate("/messages")}
+                  title="Messages"
+                >
+                  <MessageSquare className="h-5 w-5" />
+                </Button>
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground mt-2">
+              Your safe community space
+            </p>
+          </>
+        ) : (
+          <div className="flex justify-center">
+            <Users className="h-6 w-6 text-primary" />
           </div>
-          <div className="flex gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate("/community/dashboard")}
-              title="Dashboard"
-            >
-              <LayoutDashboard className="h-5 w-5" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate("/messages")}
-              title="Messages"
-            >
-              <MessageSquare className="h-5 w-5" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleSignOut}
-              title="Sign Out"
-            >
-              <LogOut className="h-5 w-5" />
-            </Button>
-          </div>
-        </div>
-        <p className="text-sm text-muted-foreground mt-2">
-          Your safe community space
-        </p>
+        )}
       </div>
 
       <div className="flex-1 overflow-y-auto">
@@ -149,20 +150,64 @@ const Community = () => {
       {/* Profile Section at Bottom */}
       {persona && (
         <div className="p-4 border-t border-sidebar-border flex-shrink-0">
-          <button
-            onClick={() => setShowEditProfile(true)}
-            className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-sidebar-accent transition-smooth"
-          >
-            <Avatar className="h-10 w-10">
-              <AvatarImage src={persona.avatar_url} alt={persona.display_name} />
-              <AvatarFallback>{persona.display_name?.[0]?.toUpperCase() || "U"}</AvatarFallback>
-            </Avatar>
-            <div className="flex-1 text-left min-w-0">
-              <p className="font-medium text-sm truncate">{persona.display_name}</p>
-              <p className="text-xs text-muted-foreground">Edit Profile</p>
+          {!sidebarCollapsed ? (
+            <>
+              <button
+                onClick={() => setShowEditProfile(true)}
+                className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-sidebar-accent transition-smooth"
+              >
+                <Avatar className="h-10 w-10">
+                  <AvatarImage src={persona.avatar_url} alt={persona.display_name} />
+                  <AvatarFallback>{persona.display_name?.[0]?.toUpperCase() || "U"}</AvatarFallback>
+                </Avatar>
+                <div className="flex-1 text-left min-w-0">
+                  <p className="font-medium text-sm truncate">{persona.display_name}</p>
+                  <p className="text-xs text-muted-foreground">Edit Profile</p>
+                </div>
+                <Settings className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+              </button>
+              
+              {/* Sign Out Button */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleSignOut}
+                className="w-full justify-start mt-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Sign Out
+              </Button>
+              
+              {/* Collapse Button */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSidebarCollapsed(true)}
+                className="w-full justify-center mt-2"
+                title="Collapse sidebar"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+            </>
+          ) : (
+            <div className="flex flex-col items-center gap-2">
+              <Avatar 
+                className="h-10 w-10 cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={() => setShowEditProfile(true)}
+              >
+                <AvatarImage src={persona.avatar_url} alt={persona.display_name} />
+                <AvatarFallback>{persona.display_name?.[0]?.toUpperCase() || "U"}</AvatarFallback>
+              </Avatar>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setSidebarCollapsed(false)}
+                title="Expand sidebar"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
             </div>
-            <Settings className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-          </button>
+          )}
         </div>
       )}
     </div>
@@ -171,7 +216,11 @@ const Community = () => {
   return (
     <div className={
       isPersonalizedHomeEnabled 
-        ? "grid h-screen bg-background overflow-hidden grid-cols-1 lg:grid-cols-[280px_1fr] 2xl:grid-cols-[280px_1fr_380px] 2xl:grid-rows-[auto_1fr]"
+        ? `grid h-screen bg-background overflow-hidden grid-cols-1 ${
+            sidebarCollapsed 
+              ? "lg:grid-cols-[80px_1fr] 2xl:grid-cols-[80px_1fr_380px]"
+              : "lg:grid-cols-[280px_1fr] 2xl:grid-cols-[280px_1fr_380px]"
+          } 2xl:grid-rows-[auto_1fr]`
         : "flex h-screen bg-background overflow-hidden"
     }>
       {/* Mobile Header */}
@@ -211,14 +260,6 @@ const Community = () => {
             >
               <MessageSquare className="h-5 w-5" />
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleSignOut}
-              title="Sign Out"
-            >
-              <LogOut className="h-5 w-5" />
-            </Button>
           </div>
         </div>
       </div>
@@ -226,7 +267,9 @@ const Community = () => {
       {/* Desktop Sidebar - spans both rows on 2XL screens */}
       <aside className={
         isPersonalizedHomeEnabled
-          ? "hidden lg:flex border-r border-border flex-col 2xl:row-span-2"
+          ? `hidden lg:flex border-r border-border flex-col 2xl:row-span-2 transition-all duration-300 ${
+              sidebarCollapsed ? "w-20" : ""
+            }`
           : "hidden lg:flex w-80 border-r border-border flex-col"
       }>
         <SidebarContent />
