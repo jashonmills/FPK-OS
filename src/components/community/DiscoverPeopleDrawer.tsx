@@ -103,7 +103,7 @@ export const DiscoverPeopleDrawer = () => {
                   key={member.id}
                   className="flex items-start gap-3 p-3 rounded-lg bg-card border hover:bg-accent/50 transition-colors"
                 >
-                  <Link to={`/profile/${member.user_id}`} onClick={() => setOpen(false)}>
+                  <Link to={`/community/profile/${member.user_id}`} onClick={() => setOpen(false)}>
                     <Avatar className="h-12 w-12">
                       <AvatarImage src={member.avatar_url || ""} alt={member.display_name} />
                       <AvatarFallback>{member.display_name[0]?.toUpperCase()}</AvatarFallback>
@@ -111,7 +111,7 @@ export const DiscoverPeopleDrawer = () => {
                   </Link>
                   <div className="flex-1 min-w-0">
                     <Link
-                      to={`/profile/${member.user_id}`}
+                      to={`/community/profile/${member.user_id}`}
                       onClick={() => setOpen(false)}
                       className="font-semibold hover:underline block truncate"
                     >
