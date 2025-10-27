@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { WidgetCard } from "./WidgetCard";
 import { Gift, Copy, Check, RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { APP_CONFIG } from "@/config/app";
 
 interface InviteData {
   invite_code: string;
@@ -86,7 +87,7 @@ export const InviteStatsWidget = () => {
     if (!inviteData) return;
 
     try {
-      const inviteUrl = `${window.location.origin}/auth?invite=${inviteData.invite_code}`;
+      const inviteUrl = `${APP_CONFIG.APP_URL}/auth?invite=${inviteData.invite_code}`;
       await navigator.clipboard.writeText(inviteUrl);
       setCopied(true);
       toast({
@@ -147,7 +148,7 @@ export const InviteStatsWidget = () => {
           <p className="text-xs text-muted-foreground mb-2">Your personal invite code:</p>
           <div className="flex items-center gap-2">
             <code className="flex-1 px-3 py-2 bg-muted rounded-md font-mono text-xs break-all">
-              {window.location.origin}/auth?invite={inviteData.invite_code}
+              {APP_CONFIG.APP_URL}/auth?invite={inviteData.invite_code}
             </code>
             <Button
               size="sm"

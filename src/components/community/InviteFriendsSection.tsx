@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Copy, Share2, Users, Gift, CheckCircle, Clock, Link2 } from "lucide-react";
 import { format } from "date-fns";
+import { APP_CONFIG } from "@/config/app";
 
 interface InviteFriendsSectionProps {
   userId: string;
@@ -70,7 +71,7 @@ export const InviteFriendsSection = ({ userId }: InviteFriendsSectionProps) => {
   });
 
   const copyToClipboard = (code: string) => {
-    const inviteUrl = `${window.location.origin}/auth?invite=${code}`;
+    const inviteUrl = `${APP_CONFIG.APP_URL}/auth?invite=${code}`;
     navigator.clipboard.writeText(inviteUrl);
     setCopiedCode(code);
     toast.success('Invite link copied to clipboard!');
@@ -78,7 +79,7 @@ export const InviteFriendsSection = ({ userId }: InviteFriendsSectionProps) => {
   };
 
   const shareInvite = (code: string) => {
-    const inviteUrl = `${window.location.origin}/auth?invite=${code}`;
+    const inviteUrl = `${APP_CONFIG.APP_URL}/auth?invite=${code}`;
     const text = `Join me on FPK Nexus! Use my invite code: ${code}`;
     
     if (navigator.share) {
@@ -148,7 +149,7 @@ export const InviteFriendsSection = ({ userId }: InviteFriendsSectionProps) => {
                     <div className="flex items-center gap-2 mb-1">
                       <Link2 className="w-4 h-4 text-primary flex-shrink-0" />
                       <div className="font-mono text-sm text-primary hover:underline truncate">
-                        {window.location.origin}/auth?invite={invite.invite_code}
+                        {APP_CONFIG.APP_URL}/auth?invite={invite.invite_code}
                       </div>
                     </div>
                     <p className="text-xs text-muted-foreground mb-1">
