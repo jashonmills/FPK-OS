@@ -124,7 +124,7 @@ const Auth = () => {
         title: "Welcome back!",
         description: "You've successfully signed in.",
       });
-      navigate("/");
+      navigate("/community");
     } catch (error: any) {
       toast({
         title: "Error signing in",
@@ -146,7 +146,7 @@ const Auth = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="signin" className="w-full">
+          <Tabs defaultValue={searchParams.get('tab') || 'signin'} className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="signin">Sign In</TabsTrigger>
               <TabsTrigger value="signup">Sign Up</TabsTrigger>

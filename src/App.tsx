@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { UserRoleProvider } from "./contexts/UserRoleContext";
 import { FeatureFlagProvider } from "./contexts/FeatureFlagContext";
-import Index from "./pages/Index";
+import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
 import Community from "./pages/Community";
 import AdminPanel from "./pages/AdminPanel";
@@ -27,7 +27,7 @@ const App = () => (
           <UserRoleProvider>
             <FeatureFlagProvider>
               <Routes>
-                <Route path="/" element={<Community />} />
+                <Route path="/" element={<Landing />} />
                 <Route path="/community" element={<Community />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/community/profile/:personaId" element={<ProfilePage />} />
