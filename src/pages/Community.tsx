@@ -45,24 +45,23 @@ const Community = () => {
         .from("personas")
         .select("*")
         .eq("user_id", user.id)
-        .limit(1)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error("Error checking persona:", error);
         setCheckingPersona(false);
+        setShowCreatePersona(true);
         return;
       }
 
       if (data) {
         setPersona(data);
         setHasPersona(true);
-      }
-      setCheckingPersona(false);
-
-      if (!data) {
+      } else {
         setShowCreatePersona(true);
       }
+      
+      setCheckingPersona(false);
     };
 
     checkPersona();
