@@ -16,7 +16,9 @@ import { ProfileBanner } from "@/components/community/ProfileBanner";
 import { WidgetsColumn } from "@/components/community/WidgetsColumn";
 import { WelcomeOnboarding } from "@/components/community/WelcomeOnboarding";
 import { useFeatureFlag } from "@/hooks/useFeatureFlag";
+import { useFeatureFlags } from "@/contexts/FeatureFlagContext";
 import { useUserRole } from "@/contexts/UserRoleContext";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Community = () => {
   const navigate = useNavigate();
@@ -79,6 +81,7 @@ const Community = () => {
     setSidebarOpen(false); // Close mobile menu when circle is selected
   };
 
+  const { loading: featureFlagsLoading } = useFeatureFlags();
   const isPersonalizedHomeEnabled = useFeatureFlag("personalized_home_ui");
 
   const fetchCircles = async () => {
@@ -113,7 +116,7 @@ const Community = () => {
     fetchCircles();
   }, [user]);
 
-  if (authLoading || checkingPersona) {
+  if (authLoading || checkingPersona || featureFlagsLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -276,6 +279,16 @@ const Community = () => {
           
           <div className="flex gap-2">
             <NotificationBell />
+            {persona && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowEditProfile(true)}
+                title="Edit Profile"
+              >
+                <Settings className="h-5 w-5" />
+              </Button>
+            )}
             <Button
               variant="ghost"
               size="icon"
