@@ -110,13 +110,22 @@ export const NewConversationDialog = () => {
               />
             </div>
           )}
-          <Button
-            onClick={handleStartConversation}
-            disabled={loading || selectedUserIds.length === 0}
-            className="w-full"
-          >
-            {loading ? "Starting..." : "Start Chat"}
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setOpen(false)}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleStartConversation}
+              disabled={loading || selectedUserIds.length === 0}
+              className="flex-1"
+            >
+              {loading ? "Starting..." : "Start Chat"}
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
