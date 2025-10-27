@@ -239,6 +239,39 @@ export type Database = {
         }
         Relationships: []
       }
+      invites: {
+        Row: {
+          created_at: string | null
+          created_by_user_id: string
+          expires_at: string | null
+          id: string
+          invite_code: string
+          max_uses: number | null
+          updated_at: string | null
+          uses_count: number
+        }
+        Insert: {
+          created_at?: string | null
+          created_by_user_id: string
+          expires_at?: string | null
+          id?: string
+          invite_code: string
+          max_uses?: number | null
+          updated_at?: string | null
+          uses_count?: number
+        }
+        Update: {
+          created_at?: string | null
+          created_by_user_id?: string
+          expires_at?: string | null
+          id?: string
+          invite_code?: string
+          max_uses?: number | null
+          updated_at?: string | null
+          uses_count?: number
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           content: string
@@ -276,6 +309,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      notifications: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_read: boolean
+          message: string
+          metadata: Json | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_read?: boolean
+          message: string
+          metadata?: Json | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_read?: boolean
+          message?: string
+          metadata?: Json | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       personas: {
         Row: {
@@ -465,6 +531,44 @@ export type Database = {
         }
         Relationships: []
       }
+      referrals: {
+        Row: {
+          created_at: string | null
+          id: string
+          inviting_user_id: string
+          new_user_id: string
+          rewarded_at: string | null
+          status: string
+          used_invite_code: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          inviting_user_id: string
+          new_user_id: string
+          rewarded_at?: string | null
+          status?: string
+          used_invite_code: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          inviting_user_id?: string
+          new_user_id?: string
+          rewarded_at?: string | null
+          status?: string
+          used_invite_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrals_used_invite_code_fkey"
+            columns: ["used_invite_code"]
+            isOneToOne: false
+            referencedRelation: "invites"
+            referencedColumns: ["invite_code"]
+          },
+        ]
+      }
       reflections: {
         Row: {
           author_id: string
@@ -536,6 +640,57 @@ export type Database = {
           },
         ]
       }
+      user_badges: {
+        Row: {
+          badge_type: string
+          earned_at: string | null
+          id: string
+          metadata: Json | null
+          user_id: string
+        }
+        Insert: {
+          badge_type: string
+          earned_at?: string | null
+          id?: string
+          metadata?: Json | null
+          user_id: string
+        }
+        Update: {
+          badge_type?: string
+          earned_at?: string | null
+          id?: string
+          metadata?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_credits: {
+        Row: {
+          balance: number
+          created_at: string | null
+          id: string
+          lifetime_earned: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          balance?: number
+          created_at?: string | null
+          id?: string
+          lifetime_earned?: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          balance?: number
+          created_at?: string | null
+          id?: string
+          lifetime_earned?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_feature_flags: {
         Row: {
           created_at: string
@@ -589,10 +744,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_user_credits: {
+        Args: { p_amount: number; p_reason?: string; p_user_id: string }
+        Returns: undefined
+      }
       find_existing_dm: {
         Args: { user1_id: string; user2_id: string }
         Returns: string
       }
+      generate_invite_code: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
