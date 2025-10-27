@@ -6,6 +6,42 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Helper function to create message notifications for other participants
+async function createMessageNotifications(supabaseAdmin: any, conversationId: string, senderId: string, messageContent: string) {
+  // Get all participants except the sender
+  const { data: participants } = await supabaseAdmin
+    .from('conversation_participants')
+    .select('user_id, personas(display_name)')
+    .eq('conversation_id', conversationId)
+    .neq('user_id', senderId);
+
+  if (!participants || participants.length === 0) return;
+
+  // Get sender's display name
+  const { data: senderPersona } = await supabaseAdmin
+    .from('personas')
+    .select('display_name')
+    .eq('user_id', senderId)
+    .single();
+
+  const senderName = senderPersona?.display_name || 'Someone';
+  const preview = messageContent.length > 50 ? messageContent.substring(0, 50) + '...' : messageContent;
+
+  // Create notification for each participant
+  const notifications = participants.map((p: any) => ({
+    user_id: p.user_id,
+    type: 'MESSAGE',
+    title: `New message from ${senderName}`,
+    message: preview,
+    metadata: { 
+      conversation_id: conversationId,
+      sender_id: senderId 
+    }
+  }));
+
+  await supabaseAdmin.from('notifications').insert(notifications);
+}
+
 const GUARDIAN_SYSTEM_PROMPT = `You are the 'Guardian,' an AI moderator for a private messaging system supporting neurodiverse individuals. Your primary purpose is to enforce a zero-tolerance policy against hate speech, bigotry, direct insults, and shaming, while also gently de-escalating arguments.
 
 You will be given recent conversation history. Analyze the **newest message** (marked as NEW_MESSAGE) in context and respond in JSON format:
@@ -120,6 +156,9 @@ serve(async (req) => {
         console.error('Error inserting message:', error);
         throw error;
       }
+
+      // Create notifications for other participants
+      await createMessageNotifications(supabaseAdmin, conversation_id, user.id, content.trim());
 
       console.log('Message sent successfully (moderation disabled):', message.id);
       return new Response(JSON.stringify({ message }), {
@@ -270,6 +309,9 @@ serve(async (req) => {
 
       if (error) throw error;
 
+      // Create notifications for other participants
+      await createMessageNotifications(supabaseAdmin, conversation_id, user.id, content.trim());
+
       console.log('Message allowed:', message.id);
       return new Response(JSON.stringify({ message }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -292,6 +334,9 @@ serve(async (req) => {
 
       if (msgError) throw msgError;
 
+      // Create notifications for other participants
+      await createMessageNotifications(supabaseAdmin, conversation_id, user.id, content.trim());
+
       console.log('✅ Message allowed (shadow mode - would have de-escalated):', message.id);
       return new Response(JSON.stringify({ message }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -313,6 +358,9 @@ serve(async (req) => {
       .single();
 
     if (severeMsgError) throw severeMsgError;
+
+    // Create notifications for other participants
+    await createMessageNotifications(supabaseAdmin, conversation_id, user.id, content.trim());
 
     console.log('✅ Message allowed (shadow mode - would have banned user):', message.id);
     return new Response(JSON.stringify({ message }), {
