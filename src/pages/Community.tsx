@@ -219,8 +219,8 @@ const Community = () => {
       isPersonalizedHomeEnabled 
         ? `grid h-screen bg-background overflow-hidden grid-cols-1 grid-rows-[auto_1fr_auto] ${
             sidebarCollapsed 
-              ? "md:grid-cols-[80px_1fr] lg:grid-cols-[80px_1fr_320px]"
-              : "md:grid-cols-[280px_1fr] lg:grid-cols-[280px_1fr_320px]"
+              ? "md:grid-cols-[80px_1fr] lg:grid-cols-[80px_1fr_minmax(280px,320px)]"
+              : "md:grid-cols-[280px_1fr] lg:grid-cols-[280px_1fr_minmax(280px,320px)]"
           } lg:grid-rows-[auto_1fr]`
         : "flex h-screen bg-background overflow-hidden"
     }>
