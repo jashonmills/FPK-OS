@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useUserRole } from "@/contexts/UserRoleContext";
 
 import { Loader2 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -27,6 +28,7 @@ interface PostFeedProps {
 
 const PostFeed = ({ circleId }: PostFeedProps) => {
   const { user } = useAuth();
+  const { isAdmin } = useUserRole();
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [circleName, setCircleName] = useState("");
@@ -156,7 +158,7 @@ const PostFeed = ({ circleId }: PostFeedProps) => {
           <TabsContent value="circle-feed" className="mt-0">
             <div className="h-[calc(100vh-14rem)] sm:h-[calc(100vh-16rem)] overflow-y-auto">
               <div className="p-4 sm:p-6 pb-[40rem] space-y-4 sm:space-y-6 max-w-2xl mx-auto w-full">
-                {currentPersona && (
+                {currentPersona && (circleName !== "Announcements" || isAdmin) && (
                   <CreatePostForm 
                     circleId={circleId} 
                     personaId={currentPersona.id}
