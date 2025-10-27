@@ -99,25 +99,48 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-6 max-w-4xl">
-        <Skeleton className="h-8 w-24 mb-6" />
-        <Card className="p-6 mb-6">
-          <div className="flex flex-col sm:flex-row gap-6">
-            <Skeleton className="w-24 h-24 rounded-full" />
-            <div className="flex-1 space-y-3">
-              <Skeleton className="h-8 w-48" />
-              <Skeleton className="h-4 w-32" />
-              <Skeleton className="h-20 w-full" />
+      <div className="min-h-screen overflow-y-auto bg-background">
+        <div className="container mx-auto px-4 py-6 max-w-4xl">
+          <Skeleton className="h-8 w-24 mb-6" />
+          <Card className="p-6 mb-6">
+            <div className="flex flex-col sm:flex-row gap-6">
+              <Skeleton className="w-24 h-24 rounded-full" />
+              <div className="flex-1 space-y-3">
+                <Skeleton className="h-8 w-48" />
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-20 w-full" />
+              </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+        </div>
       </div>
     );
   }
 
   if (!persona) {
     return (
-      <div className="container mx-auto px-4 py-6 max-w-4xl">
+      <div className="min-h-screen overflow-y-auto bg-background">
+        <div className="container mx-auto px-4 py-6 max-w-4xl">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate("/community")}
+            className="mb-4"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back
+          </Button>
+          <Card className="p-6">
+            <p className="text-muted-foreground">Persona not found</p>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen overflow-y-auto bg-background">
+      <div className="container mx-auto px-4 py-4 sm:py-6 max-w-4xl">
         <Button
           variant="ghost"
           size="sm"
@@ -127,24 +150,6 @@ export default function ProfilePage() {
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back
         </Button>
-        <Card className="p-6">
-          <p className="text-muted-foreground">Persona not found</p>
-        </Card>
-      </div>
-    );
-  }
-
-  return (
-    <div className="container mx-auto px-4 py-4 sm:py-6 max-w-4xl">
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => navigate("/community")}
-        className="mb-4"
-      >
-        <ArrowLeft className="w-4 h-4 mr-2" />
-        Back
-      </Button>
 
       <Card className="p-4 sm:p-6 mb-6">
         <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
@@ -199,6 +204,7 @@ export default function ProfilePage() {
             <PostCard key={post.id} post={post} onDelete={handlePostDelete} />
           ))
         )}
+      </div>
       </div>
     </div>
   );

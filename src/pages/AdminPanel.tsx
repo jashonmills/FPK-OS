@@ -86,8 +86,8 @@ export default function AdminPanel() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container max-w-4xl mx-auto p-6 space-y-6">
+    <div className="min-h-screen overflow-y-auto bg-background">
+      <div className="container max-w-4xl mx-auto p-6 space-y-6 pb-12">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
             <ArrowLeft className="h-5 w-5" />
