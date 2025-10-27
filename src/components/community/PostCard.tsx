@@ -46,6 +46,13 @@ const PostCard = ({ post, onDelete }: PostCardProps) => {
     checkBookmarkStatus();
   }, [post.id]);
 
+  // Auto-expand comments if there are any
+  useEffect(() => {
+    if (commentCount > 0) {
+      setShowComments(true);
+    }
+  }, [commentCount]);
+
   const fetchSupportData = async () => {
     const { data, error } = await supabase
       .from("post_supports")
