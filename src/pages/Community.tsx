@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2, Users, LogOut, Menu, MessageSquare, LayoutDashboard, Settings, ChevronLeft, ChevronRight } from "lucide-react";
+import { Loader2, Users, LogOut, Menu, MessageSquare, LayoutDashboard, Settings, ChevronLeft, ChevronRight, Shield } from "lucide-react";
 import CircleList from "@/components/community/CircleList";
 import PostFeed from "@/components/community/PostFeed";
 import CreatePersonaDialog from "@/components/community/CreatePersonaDialog";
@@ -15,10 +15,12 @@ import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { ProfileBanner } from "@/components/community/ProfileBanner";
 import { WidgetsColumn } from "@/components/community/WidgetsColumn";
 import { useFeatureFlag } from "@/hooks/useFeatureFlag";
+import { useUserRole } from "@/contexts/UserRoleContext";
 
 const Community = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading, signOut } = useAuth();
+  const { isAdmin } = useUserRole();
   const [selectedCircleId, setSelectedCircleId] = useState<string | null>(null);
   const [hasPersona, setHasPersona] = useState(false);
   const [checkingPersona, setCheckingPersona] = useState(true);
@@ -119,6 +121,16 @@ const Community = () => {
                 >
                   <LayoutDashboard className="h-5 w-5" />
                 </Button>
+                {isAdmin && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => navigate("/admin")}
+                    title="Admin Panel"
+                  >
+                    <Shield className="h-5 w-5" />
+                  </Button>
+                )}
                 <Button
                   variant="ghost"
                   size="icon"
@@ -253,6 +265,16 @@ const Community = () => {
             >
               <LayoutDashboard className="h-5 w-5" />
             </Button>
+            {isAdmin && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate("/admin")}
+                title="Admin Panel"
+              >
+                <Shield className="h-5 w-5" />
+              </Button>
+            )}
             <Button
               variant="ghost"
               size="icon"
