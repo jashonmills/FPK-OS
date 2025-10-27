@@ -7,6 +7,8 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import PostCard from "@/components/community/PostCard";
 import { ArrowLeft, MessageCircle } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/components/ui/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface Persona {
@@ -16,6 +18,7 @@ interface Persona {
   avatar_url: string | null;
   persona_type: string;
   created_at: string;
+  user_id: string;
 }
 
 interface Post {
@@ -34,9 +37,12 @@ interface Post {
 export default function ProfilePage() {
   const { personaId } = useParams<{ personaId: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [persona, setPersona] = useState<Persona | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const [startingChat, setStartingChat] = useState(false);
 
   useEffect(() => {
     if (personaId) {
@@ -95,6 +101,34 @@ export default function ProfilePage() {
   const handlePostDelete = () => {
     // Refetch posts after deletion
     fetchPersonaAndPosts();
+  };
+
+  const handleSendMessage = async () => {
+    if (!user || !persona) return;
+
+    setStartingChat(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('start-conversation', {
+        body: {
+          participant_ids: [persona.user_id],
+          is_group: false,
+          group_name: null,
+        },
+      });
+
+      if (error) throw error;
+
+      navigate(`/messages/${data.conversation_id}`);
+    } catch (error) {
+      console.error('Error starting conversation:', error);
+      toast({
+        title: "Error",
+        description: "Failed to start conversation. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setStartingChat(false);
+    }
   };
 
   if (loading) {
@@ -172,9 +206,15 @@ export default function ProfilePage() {
                 </p>
               </div>
 
-              <Button variant="outline" size="sm" disabled className="w-full sm:w-auto">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full sm:w-auto"
+                onClick={handleSendMessage}
+                disabled={startingChat || !user}
+              >
                 <MessageCircle className="w-4 h-4 mr-2" />
-                Message
+                {startingChat ? "Starting..." : "Message"}
               </Button>
             </div>
 
