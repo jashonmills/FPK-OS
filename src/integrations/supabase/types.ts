@@ -431,48 +431,66 @@ export type Database = {
           bio: string | null
           comments_count: number
           created_at: string
+          diagnosis_info: string | null
           display_name: string
           header_image_url: string | null
+          headline: string | null
           id: string
+          interests: Json | null
+          location: string | null
           persona_type: Database["public"]["Enums"]["persona_type"]
           pinned_post_id: string | null
           posts_count: number
+          pronouns: string | null
           social_links: Json | null
           supports_received_count: number
           updated_at: string
           user_id: string
+          why_i_am_here: string | null
         }
         Insert: {
           avatar_url?: string | null
           bio?: string | null
           comments_count?: number
           created_at?: string
+          diagnosis_info?: string | null
           display_name: string
           header_image_url?: string | null
+          headline?: string | null
           id?: string
+          interests?: Json | null
+          location?: string | null
           persona_type: Database["public"]["Enums"]["persona_type"]
           pinned_post_id?: string | null
           posts_count?: number
+          pronouns?: string | null
           social_links?: Json | null
           supports_received_count?: number
           updated_at?: string
           user_id: string
+          why_i_am_here?: string | null
         }
         Update: {
           avatar_url?: string | null
           bio?: string | null
           comments_count?: number
           created_at?: string
+          diagnosis_info?: string | null
           display_name?: string
           header_image_url?: string | null
+          headline?: string | null
           id?: string
+          interests?: Json | null
+          location?: string | null
           persona_type?: Database["public"]["Enums"]["persona_type"]
           pinned_post_id?: string | null
           posts_count?: number
+          pronouns?: string | null
           social_links?: Json | null
           supports_received_count?: number
           updated_at?: string
           user_id?: string
+          why_i_am_here?: string | null
         }
         Relationships: [
           {

@@ -41,6 +41,12 @@ const editProfileSchema = z.object({
     website: z.string().url().optional().or(z.literal("")),
     linkedin: z.string().url().optional().or(z.literal("")),
   }).optional(),
+  headline: z.string().max(100, "Headline must be less than 100 characters").optional().or(z.literal("")),
+  pronouns: z.string().max(50, "Pronouns must be less than 50 characters").optional().or(z.literal("")),
+  location: z.string().max(100, "Location must be less than 100 characters").optional().or(z.literal("")),
+  interests: z.string().optional(),
+  diagnosis_info: z.string().max(1000, "Must be less than 1000 characters").optional().or(z.literal("")),
+  why_i_am_here: z.string().max(1000, "Must be less than 1000 characters").optional().or(z.literal("")),
 });
 
 type EditProfileFormData = z.infer<typeof editProfileSchema>;
@@ -56,6 +62,12 @@ interface EditProfileDialogProps {
     avatar_url?: string | null;
     header_image_url?: string | null;
     social_links?: any;
+    headline?: string | null;
+    pronouns?: string | null;
+    location?: string | null;
+    interests?: any;
+    diagnosis_info?: string | null;
+    why_i_am_here?: string | null;
   };
   onProfileUpdated: () => void;
 }
@@ -87,6 +99,12 @@ export default function EditProfileDialog({
         website: persona.social_links?.website || "",
         linkedin: persona.social_links?.linkedin || "",
       },
+      headline: persona.headline || "",
+      pronouns: persona.pronouns || "",
+      location: persona.location || "",
+      interests: Array.isArray(persona.interests) ? persona.interests.join(", ") : "",
+      diagnosis_info: persona.diagnosis_info || "",
+      why_i_am_here: persona.why_i_am_here || "",
     },
   });
 
@@ -149,6 +167,11 @@ export default function EditProfileDialog({
         bannerUrl = await uploadFile(bannerFile, 'banner');
       }
 
+      // Parse interests from comma-separated string
+      const interestsArray = values.interests 
+        ? values.interests.split(',').map(i => i.trim()).filter(i => i)
+        : [];
+
       const { error } = await supabase
         .from("personas")
         .update({
@@ -158,6 +181,12 @@ export default function EditProfileDialog({
           avatar_url: avatarUrl,
           header_image_url: bannerUrl || null,
           social_links: values.social_links || {},
+          headline: values.headline || null,
+          pronouns: values.pronouns || null,
+          location: values.location || null,
+          interests: interestsArray.length > 0 ? interestsArray : null,
+          diagnosis_info: values.diagnosis_info || null,
+          why_i_am_here: values.why_i_am_here || null,
         })
         .eq("id", persona.id);
 
@@ -376,6 +405,108 @@ export default function EditProfileDialog({
                 </FormItem>
               )}
             />
+
+            <div className="pt-4 border-t">
+              <h3 className="text-lg font-semibold mb-4">Additional Profile Information</h3>
+              
+              <div className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="headline"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Headline</FormLabel>
+                      <FormControl>
+                        <Input placeholder="A short one-line summary (e.g., Parent of 2, Autism Advocate)" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="pronouns"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Pronouns</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., she/her, he/him, they/them" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="location"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Location</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., San Francisco, CA" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="interests"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Interests</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Separate with commas (e.g., Movies, Gardening, Advocacy)" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="diagnosis_info"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>My Journey (Optional)</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          {...field}
+                          value={field.value || ""}
+                          placeholder="Share what you're comfortable with about your diagnosis or journey (e.g., 'Parent of a child with Autism', 'Living with ADHD')"
+                          className="resize-none"
+                          rows={3}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="why_i_am_here"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Why I'm Here (Optional)</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          {...field}
+                          value={field.value || ""}
+                          placeholder="Your personal mission statement or reason for joining the community"
+                          className="resize-none"
+                          rows={3}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
 
             <div className="flex justify-end gap-3">
               <Button

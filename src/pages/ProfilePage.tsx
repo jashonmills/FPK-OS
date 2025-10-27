@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PostCard from "@/components/community/PostCard";
 import EditProfileDialog from "@/components/community/EditProfileDialog";
 import FollowButton from "@/components/community/FollowButton";
-import { ArrowLeft, MessageCircle, Pencil, Globe, Linkedin, FileText, Heart, MessageSquare } from "lucide-react";
+import { ArrowLeft, MessageCircle, Pencil, Globe, Linkedin, FileText, Heart, MessageSquare, MapPin, Tag, Info } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -31,6 +31,12 @@ interface Persona {
   posts_count?: number;
   comments_count?: number;
   supports_received_count?: number;
+  headline?: string | null;
+  pronouns?: string | null;
+  location?: string | null;
+  interests?: string[] | null;
+  diagnosis_info?: string | null;
+  why_i_am_here?: string | null;
 }
 
 interface Post {
@@ -101,10 +107,11 @@ export default function ProfilePage() {
         return;
       }
       
-      // Type cast the social_links to expected format
+      // Type cast the social_links and interests to expected format
       const formattedPersona = {
         ...personaData,
         social_links: personaData.social_links as { website?: string; linkedin?: string } | null,
+        interests: Array.isArray(personaData.interests) ? personaData.interests as string[] : null,
       };
       setPersona(formattedPersona);
 
@@ -316,10 +323,20 @@ export default function ProfilePage() {
           <div className="flex-1">
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-3">
               <div>
-                <h1 className="text-xl sm:text-2xl font-bold mb-2">{persona.display_name}</h1>
-                <Badge variant="secondary" className="mb-2">
-                  {persona.persona_type}
-                </Badge>
+                <h1 className="text-xl sm:text-2xl font-bold mb-1">{persona.display_name}</h1>
+                {persona.headline && (
+                  <p className="text-sm text-muted-foreground mb-2">{persona.headline}</p>
+                )}
+                <div className="flex flex-wrap items-center gap-2 mb-2">
+                  <Badge variant="secondary">
+                    {persona.persona_type}
+                  </Badge>
+                  {persona.pronouns && (
+                    <Badge variant="outline" className="text-xs">
+                      {persona.pronouns}
+                    </Badge>
+                  )}
+                </div>
                 <p className="text-xs sm:text-sm text-muted-foreground">
                   Member since {new Date(persona.created_at).toLocaleDateString()}
                 </p>
@@ -406,6 +423,60 @@ export default function ProfilePage() {
           </div>
         </div>
       </Card>
+
+      {/* About Me Section */}
+      {(persona.location || (persona.interests && persona.interests.length > 0) || persona.diagnosis_info || persona.why_i_am_here) && (
+        <Card className="p-4 sm:p-6 mb-6">
+          <h3 className="text-lg font-semibold mb-4">About Me</h3>
+          <div className="space-y-4">
+            {persona.location && (
+              <div className="flex items-start gap-3">
+                <MapPin className="w-5 h-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="font-medium text-sm">Location</p>
+                  <p className="text-sm text-muted-foreground">{persona.location}</p>
+                </div>
+              </div>
+            )}
+
+            {persona.interests && persona.interests.length > 0 && (
+              <div className="flex items-start gap-3">
+                <Tag className="w-5 h-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                <div className="flex-1">
+                  <p className="font-medium text-sm mb-2">Interests</p>
+                  <div className="flex flex-wrap gap-2">
+                    {persona.interests.map((interest, index) => (
+                      <Badge key={index} variant="secondary" className="text-xs">
+                        {interest}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {persona.diagnosis_info && (
+              <div className="flex items-start gap-3">
+                <Info className="w-5 h-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="font-medium text-sm">My Journey</p>
+                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">{persona.diagnosis_info}</p>
+                </div>
+              </div>
+            )}
+
+            {persona.why_i_am_here && (
+              <div className="flex items-start gap-3">
+                <Heart className="w-5 h-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="font-medium text-sm">Why I'm Here</p>
+                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">{persona.why_i_am_here}</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </Card>
+      )}
 
       {/* Pinned Post */}
       {pinnedPost && (
