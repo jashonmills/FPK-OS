@@ -79,9 +79,10 @@ serve(async (req) => {
       }
     }
 
-    // Create new conversation
+    // Create new conversation using admin client to bypass RLS
+    // We've already validated the user's auth above
     console.log('Creating new conversation');
-    const { data: conversation, error: convError } = await supabaseClient
+    const { data: conversation, error: convError } = await supabaseAdmin
       .from('conversations')
       .insert({
         conversation_type: is_group ? 'GROUP' : 'DM',
