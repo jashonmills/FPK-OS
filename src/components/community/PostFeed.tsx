@@ -52,24 +52,38 @@ const PostFeed = ({ circleId }: PostFeedProps) => {
   const fetchPosts = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      // First fetch posts
+      const { data: postsData, error: postsError } = await supabase
         .from("posts")
-        .select(`
-          id,
-          content,
-          image_url,
-          created_at,
-          author_id,
-          personas!posts_author_id_fkey (
-            display_name,
-            avatar_url
-          )
-        `)
+        .select("id, content, image_url, created_at, author_id")
         .eq("circle_id", circleId)
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
-      setPosts(data as any);
+      if (postsError) throw postsError;
+
+      // Then fetch persona data for each author
+      const authorIds = [...new Set(postsData?.map(p => p.author_id) || [])];
+      const { data: personasData, error: personasError } = await supabase
+        .from("personas")
+        .select("user_id, display_name, avatar_url")
+        .in("user_id", authorIds);
+
+      if (personasError) throw personasError;
+
+      // Map personas to posts
+      const personasMap = new Map(
+        personasData?.map(p => [p.user_id, p]) || []
+      );
+
+      const postsWithPersonas = postsData?.map(post => ({
+        ...post,
+        personas: personasMap.get(post.author_id) || {
+          display_name: "Unknown User",
+          avatar_url: null
+        }
+      }));
+
+      setPosts(postsWithPersonas as any);
     } catch (error) {
       console.error("Error fetching posts:", error);
     } finally {
