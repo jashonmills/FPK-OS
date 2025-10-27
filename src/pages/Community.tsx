@@ -219,9 +219,9 @@ const Community = () => {
       isPersonalizedHomeEnabled 
         ? `grid h-screen bg-background overflow-hidden grid-cols-1 grid-rows-[auto_1fr_auto] ${
             sidebarCollapsed 
-              ? "lg:grid-cols-[80px_1fr] xl:grid-cols-[80px_1fr_380px]"
-              : "lg:grid-cols-[280px_1fr] xl:grid-cols-[280px_1fr_380px]"
-          } xl:grid-rows-[auto_1fr]`
+              ? "md:grid-cols-[80px_1fr] lg:grid-cols-[80px_1fr_320px]"
+              : "md:grid-cols-[280px_1fr] lg:grid-cols-[280px_1fr_320px]"
+          } lg:grid-rows-[auto_1fr]`
         : "flex h-screen bg-background overflow-hidden"
     }>
       {/* Mobile Header */}
@@ -265,10 +265,10 @@ const Community = () => {
         </div>
       </div>
 
-      {/* Desktop Sidebar - spans both rows on XL screens */}
+      {/* Desktop Sidebar - spans both rows on LG+ screens */}
       <aside className={
         isPersonalizedHomeEnabled
-          ? `hidden lg:flex border-r border-border flex-col xl:row-span-2 transition-all duration-300 ${
+          ? `hidden md:flex border-r border-border flex-col lg:row-span-2 transition-all duration-300 ${
               sidebarCollapsed ? "w-20" : ""
             }`
           : "hidden lg:flex w-80 border-r border-border flex-col"
@@ -276,9 +276,9 @@ const Community = () => {
         <SidebarContent />
       </aside>
 
-      {/* Banner - Only on XL screens, spans center and right columns */}
+      {/* Banner - Only on LG+ screens, spans center and right columns */}
       {isPersonalizedHomeEnabled && hasPersona && persona && (
-        <div className="hidden xl:block xl:col-span-2">
+        <div className="hidden lg:block lg:col-span-2">
           <ProfileBanner
             bannerUrl={persona.header_image_url}
             displayName={persona.display_name}
@@ -295,7 +295,7 @@ const Community = () => {
       }>
         {/* Banner for smaller screens (shown inline within main) */}
         {isPersonalizedHomeEnabled && hasPersona && persona && (
-          <div className="xl:hidden">
+          <div className="lg:hidden">
             <ProfileBanner
               bannerUrl={persona.header_image_url}
               displayName={persona.display_name}
@@ -323,16 +323,16 @@ const Community = () => {
         </div>
       </main>
 
-      {/* Widgets Column - Responsive: stacked on mobile, side column on XL+ */}
+      {/* Widgets Column - Responsive: stacked on mobile, side column on LG+ */}
       {isPersonalizedHomeEnabled && user && (
         <>
           {/* Mobile/Tablet: Stacked below main content */}
-          <div className="xl:hidden border-t border-border bg-muted/30 overflow-y-auto">
+          <div className="lg:hidden border-t border-border bg-muted/30 overflow-y-auto">
             <WidgetsColumn userId={user.id} onSelectCircle={handleCircleSelect} />
           </div>
 
-          {/* Desktop XL+: Side column */}
-          <aside className="hidden xl:flex flex-col border-l border-border overflow-y-auto xl:col-start-3 xl:row-start-2">
+          {/* Desktop LG+: Side column */}
+          <aside className="hidden lg:flex flex-col border-l border-border overflow-y-auto lg:col-start-3 lg:row-start-2">
             <WidgetsColumn userId={user.id} onSelectCircle={handleCircleSelect} />
           </aside>
         </>

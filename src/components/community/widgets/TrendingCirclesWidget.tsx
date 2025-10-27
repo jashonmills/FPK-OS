@@ -80,17 +80,17 @@ export const TrendingCirclesWidget = ({ onSelectCircle }: TrendingCirclesWidgetP
               <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                 <TrendingUp className="h-5 w-5 text-primary" />
               </div>
-              <div className="flex-1 min-w-0 overflow-hidden">
-                <p className="font-semibold text-sm truncate">{circle.circle_name}</p>
-                <p className="text-xs text-muted-foreground line-clamp-1 break-words">
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-sm break-words overflow-wrap-anywhere">{circle.circle_name}</p>
+                <p className="text-xs text-muted-foreground line-clamp-2 break-words overflow-wrap-anywhere">
                   {circle.circle_description}
                 </p>
                 <div className="flex items-center gap-3 mt-1 flex-wrap">
-                  <span className="text-xs text-muted-foreground flex items-center gap-1">
+                  <span className="text-xs text-muted-foreground flex items-center gap-1 flex-shrink-0">
                     <Users className="h-3 w-3" />
                     {circle.member_count} members
                   </span>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-xs text-muted-foreground flex-shrink-0">
                     {circle.activity_score} posts this week
                   </span>
                 </div>
