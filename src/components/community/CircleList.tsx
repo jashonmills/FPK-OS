@@ -63,6 +63,13 @@ const CircleList = ({ selectedCircleId, onSelectCircle }: CircleListProps) => {
     }
   };
 
+  // Auto-select first circle when circles are loaded
+  useEffect(() => {
+    if (circles.length > 0 && !selectedCircleId) {
+      onSelectCircle(circles[0].id);
+    }
+  }, [circles, selectedCircleId, onSelectCircle]);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
