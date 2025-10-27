@@ -82,14 +82,14 @@ export const MiniProfileWidget = ({ userId }: MiniProfileWidgetProps) => {
   return (
     <WidgetCard title="My Profile" icon={<User className="h-4 w-4" />}>
       <div className="space-y-4">
-        <div className="flex items-center gap-3">
-          <Avatar className="h-12 w-12">
+        <div className="flex items-center gap-3 min-w-0">
+          <Avatar className="h-12 w-12 flex-shrink-0">
             <AvatarImage src={persona.avatar_url} />
             <AvatarFallback>{persona.display_name?.[0]?.toUpperCase()}</AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-sm truncate">{persona.display_name}</p>
-            <p className="text-xs text-muted-foreground capitalize">
+            <p className="font-semibold text-sm break-words overflow-wrap-anywhere">{persona.display_name}</p>
+            <p className="text-xs text-muted-foreground capitalize break-words">
               {persona.persona_type?.toLowerCase()}
             </p>
           </div>

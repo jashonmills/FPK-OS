@@ -82,7 +82,7 @@ export const WelcomeNewMembersWidget = () => {
     >
       <div className="space-y-3">
         {newMembers.map((member) => (
-          <div key={member.id} className="flex items-center justify-between gap-2">
+          <div key={member.id} className="flex items-center justify-between gap-2 min-w-0">
             <Link
               to={`/community/profile/${member.id}`}
               className="flex items-center gap-2 flex-1 min-w-0 hover:opacity-80 transition-opacity"
@@ -91,9 +91,9 @@ export const WelcomeNewMembersWidget = () => {
                 <AvatarImage src={member.avatar_url} />
                 <AvatarFallback>{member.display_name[0]}</AvatarFallback>
               </Avatar>
-              <div className="flex-1 min-w-0 overflow-hidden">
-                <p className="text-sm font-medium truncate">{member.display_name}</p>
-                <p className="text-xs text-muted-foreground break-words">
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium break-words overflow-wrap-anywhere">{member.display_name}</p>
+                <p className="text-xs text-muted-foreground break-words overflow-wrap-anywhere">
                   {formatDistanceToNow(new Date(member.created_at), { addSuffix: true })}
                 </p>
               </div>

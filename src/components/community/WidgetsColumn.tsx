@@ -12,8 +12,8 @@ interface WidgetsColumnProps {
 
 export const WidgetsColumn = ({ userId, onSelectCircle }: WidgetsColumnProps) => {
   return (
-    <ScrollArea className="h-full">
-      <div className="p-4 space-y-4">
+    <ScrollArea className="h-full w-full">
+      <div className="p-4 space-y-4 max-w-full overflow-hidden">
         <MiniProfileWidget userId={userId} />
         <WelcomeNewMembersWidget />
         <TrendingCirclesWidget onSelectCircle={onSelectCircle} />

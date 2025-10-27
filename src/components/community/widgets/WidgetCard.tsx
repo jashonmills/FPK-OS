@@ -10,17 +10,17 @@ interface WidgetCardProps {
 
 export const WidgetCard = ({ title, icon, children, action }: WidgetCardProps) => {
   return (
-    <Card className="shadow-sm">
+    <Card className="shadow-sm w-full overflow-hidden">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between min-w-0">
           <div className="flex items-center gap-2 min-w-0 flex-1">
-            {icon}
-            <CardTitle className="text-base break-words">{title}</CardTitle>
+            {icon && <div className="flex-shrink-0">{icon}</div>}
+            <CardTitle className="text-base break-words overflow-wrap-anywhere">{title}</CardTitle>
           </div>
-          {action}
+          {action && <div className="flex-shrink-0">{action}</div>}
         </div>
       </CardHeader>
-      <CardContent className="pt-0 min-w-0">
+      <CardContent className="pt-0 min-w-0 overflow-hidden">
         {children}
       </CardContent>
     </Card>
