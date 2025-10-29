@@ -30,21 +30,22 @@ export const GeneralChatTab = () => {
   const [content, setContent] = useState("");
   const [sending, setSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [currentPersonaId, setCurrentPersonaId] = useState<string | null>(null);
+  const [currentPersona, setCurrentPersona] = useState<{ id: string; display_name: string; avatar_url: string | null } | null>(null);
+  const [optimisticMessages, setOptimisticMessages] = useState<Set<string>>(new Set());
 
-  // Fetch current user's persona
+  // Fetch current user's persona with full details
   useEffect(() => {
     const fetchPersona = async () => {
       if (!user) return;
       
       const { data } = await supabase
         .from("personas")
-        .select("id")
+        .select("id, display_name, avatar_url")
         .eq("user_id", user.id)
         .maybeSingle();
       
       if (data) {
-        setCurrentPersonaId(data.id);
+        setCurrentPersona(data);
       }
     };
 
@@ -82,17 +83,7 @@ export const GeneralChatTab = () => {
     const fetchMessages = async () => {
       const { data, error } = await supabase
         .from("messages")
-        .select(`
-          id,
-          content,
-          created_at,
-          sender_id,
-          personas!messages_sender_id_fkey (
-            id,
-            display_name,
-            avatar_url
-          )
-        `)
+        .select("id, content, created_at, sender_id")
         .eq("conversation_id", conversationId)
         .order("created_at", { ascending: true })
         .limit(100);
@@ -104,7 +95,23 @@ export const GeneralChatTab = () => {
         return;
       }
 
-      setMessages(data || []);
+      // Fetch persona info for all messages
+      const messagesWithPersonas = await Promise.all(
+        (data || []).map(async (msg) => {
+          const { data: personaData } = await supabase
+            .from("personas")
+            .select("id, display_name, avatar_url")
+            .eq("id", msg.sender_id)
+            .single();
+
+          return {
+            ...msg,
+            personas: personaData || { id: "", display_name: "Unknown", avatar_url: null },
+          };
+        })
+      );
+
+      setMessages(messagesWithPersonas);
       setLoading(false);
     };
 
@@ -128,20 +135,50 @@ export const GeneralChatTab = () => {
         async (payload) => {
           const newMessage = payload.new;
 
-          // Fetch persona info for the new message
-          const { data: personaData } = await supabase
-            .from("personas")
-            .select("id, display_name, avatar_url")
-            .eq("id", newMessage.sender_id)
-            .single();
+          // Check if this is an optimistic message we already displayed
+          if (optimisticMessages.has(newMessage.id)) {
+            // Remove from optimistic set and replace the temporary message
+            setOptimisticMessages(prev => {
+              const newSet = new Set(prev);
+              newSet.delete(newMessage.id);
+              return newSet;
+            });
+            
+            // Fetch persona info for the confirmed message
+            const { data: personaData } = await supabase
+              .from("personas")
+              .select("id, display_name, avatar_url")
+              .eq("id", newMessage.sender_id)
+              .single();
 
-          if (personaData) {
-            const fullMessage = {
-              ...newMessage,
-              personas: personaData,
-            } as Message;
+            if (personaData) {
+              const fullMessage = {
+                ...newMessage,
+                personas: personaData,
+              } as Message;
 
-            setMessages((current) => [...current, fullMessage]);
+              setMessages((current) => 
+                current.map(msg => 
+                  msg.id === newMessage.id ? fullMessage : msg
+                )
+              );
+            }
+          } else {
+            // This is a message from another user
+            const { data: personaData } = await supabase
+              .from("personas")
+              .select("id, display_name, avatar_url")
+              .eq("id", newMessage.sender_id)
+              .single();
+
+            if (personaData) {
+              const fullMessage = {
+                ...newMessage,
+                personas: personaData,
+              } as Message;
+
+              setMessages((current) => [...current, fullMessage]);
+            }
           }
         }
       )
@@ -150,7 +187,7 @@ export const GeneralChatTab = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [conversationId]);
+  }, [conversationId, optimisticMessages]);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -160,10 +197,27 @@ export const GeneralChatTab = () => {
   }, [messages]);
 
   const handleSend = async () => {
-    if (!content.trim() || !conversationId || !currentPersonaId || sending) return;
+    if (!content.trim() || !conversationId || !currentPersona || sending) return;
 
     setSending(true);
     const messageContent = content.trim();
+    const tempId = `temp-${Date.now()}`;
+    
+    // Optimistic UI update - show message immediately
+    const optimisticMessage: Message = {
+      id: tempId,
+      content: messageContent,
+      created_at: new Date().toISOString(),
+      sender_id: currentPersona.id,
+      personas: {
+        id: currentPersona.id,
+        display_name: currentPersona.display_name,
+        avatar_url: currentPersona.avatar_url,
+      },
+    };
+
+    setMessages((current) => [...current, optimisticMessage]);
+    setOptimisticMessages(prev => new Set(prev).add(tempId));
     setContent("");
 
     try {
@@ -177,6 +231,14 @@ export const GeneralChatTab = () => {
       if (error) throw error;
     } catch (error: any) {
       console.error("Error sending message:", error);
+      
+      // Remove the optimistic message on error
+      setMessages((current) => current.filter(msg => msg.id !== tempId));
+      setOptimisticMessages(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(tempId);
+        return newSet;
+      });
       
       if (error.message?.includes("banned")) {
         toast.error("You have been temporarily banned from messaging");
