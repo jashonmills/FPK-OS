@@ -16,7 +16,6 @@ export const SpeechToTextDialog = ({ open, onOpenChange, onConfirm }: SpeechToTe
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState("");
   const recognitionRef = useRef<any>(null);
-  const lastResultIndexRef = useRef<number>(0);
 
   useEffect(() => {
     // Check if browser supports speech recognition
@@ -32,19 +31,20 @@ export const SpeechToTextDialog = ({ open, onOpenChange, onConfirm }: SpeechToTe
     recognition.lang = 'en-US';
 
     recognition.onresult = (event: any) => {
-      let currentTranscript = '';
+      let newTranscript = '';
       
-      // Only process new results starting from lastResultIndexRef
-      for (let i = lastResultIndexRef.current; i < event.results.length; i++) {
+      // event.resultIndex tells us where the NEW results start
+      // Only process from that point forward
+      for (let i = event.resultIndex; i < event.results.length; i++) {
         const result = event.results[i];
         if (result.isFinal) {
-          currentTranscript += result[0].transcript + ' ';
-          lastResultIndexRef.current = i + 1; // Update to next unprocessed result
+          newTranscript += result[0].transcript + ' ';
         }
       }
       
-      if (currentTranscript) {
-        setTranscript(prev => prev + currentTranscript);
+      // Only append if we have new final text
+      if (newTranscript.trim()) {
+        setTranscript(prev => prev + newTranscript);
       }
     };
 
@@ -90,7 +90,6 @@ export const SpeechToTextDialog = ({ open, onOpenChange, onConfirm }: SpeechToTe
     }
 
     try {
-      lastResultIndexRef.current = 0; // Reset the result index
       recognitionRef.current.start();
       setIsListening(true);
       toast({
