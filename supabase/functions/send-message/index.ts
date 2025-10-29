@@ -104,6 +104,23 @@ serve(async (req) => {
       });
     }
 
+    // Get user's persona ID
+    const { data: persona, error: personaError } = await supabaseAdmin
+      .from('personas')
+      .select('id')
+      .eq('user_id', user.id)
+      .single();
+
+    if (personaError || !persona) {
+      console.error('No persona found for user:', user.id);
+      return new Response(JSON.stringify({ error: 'No persona found' }), {
+        status: 404,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const personaId = persona.id;
+
     const { conversation_id, content } = await req.json();
     console.log('Sending message:', { conversation_id, content_length: content?.length, user_id: user.id });
 
@@ -146,7 +163,7 @@ serve(async (req) => {
         .from('messages')
         .insert({
           conversation_id,
-          sender_id: user.id,
+          sender_id: personaId,
           content: content.trim(),
         })
         .select()
@@ -215,7 +232,7 @@ serve(async (req) => {
       // Fallback: allow message without moderation
       const { data: message, error } = await supabaseClient
         .from('messages')
-        .insert({ conversation_id, sender_id: user.id, content: content.trim() })
+        .insert({ conversation_id, sender_id: personaId, content: content.trim() })
         .select()
         .single();
       
@@ -248,7 +265,7 @@ serve(async (req) => {
       // Fallback: allow message
       const { data: message, error } = await supabaseClient
         .from('messages')
-        .insert({ conversation_id, sender_id: user.id, content: content.trim() })
+        .insert({ conversation_id, sender_id: personaId, content: content.trim() })
         .select()
         .single();
       
@@ -269,7 +286,7 @@ serve(async (req) => {
       // Fallback: allow message
       const { data: message, error } = await supabaseClient
         .from('messages')
-        .insert({ conversation_id, sender_id: user.id, content: content.trim() })
+        .insert({ conversation_id, sender_id: personaId, content: content.trim() })
         .select()
         .single();
       
@@ -288,7 +305,7 @@ serve(async (req) => {
 
     await supabaseAdmin.from('ai_moderation_log').insert({
       conversation_id,
-      sender_id: user.id,
+      sender_id: personaId,
       message_content: content.trim(),
       severity_score: analysis.severity,
       violation_category: analysis.violation_category,
@@ -303,7 +320,7 @@ serve(async (req) => {
       // SAFE: Insert message
       const { data: message, error } = await supabaseClient
         .from('messages')
-        .insert({ conversation_id, sender_id: user.id, content: content.trim() })
+        .insert({ conversation_id, sender_id: personaId, content: content.trim() })
         .select()
         .single();
 
@@ -328,7 +345,7 @@ serve(async (req) => {
       // Insert the original message normally (no de-escalation action taken)
       const { data: message, error: msgError } = await supabaseClient
         .from('messages')
-        .insert({ conversation_id, sender_id: user.id, content: content.trim() })
+        .insert({ conversation_id, sender_id: personaId, content: content.trim() })
         .select()
         .single();
 
@@ -353,7 +370,7 @@ serve(async (req) => {
     // Insert the message normally (no ban or block action taken)
     const { data: message, error: severeMsgError } = await supabaseClient
       .from('messages')
-      .insert({ conversation_id, sender_id: user.id, content: content.trim() })
+      .insert({ conversation_id, sender_id: personaId, content: content.trim() })
       .select()
       .single();
 
