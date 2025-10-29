@@ -1,8 +1,9 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Mic, MicOff } from "lucide-react";
+import { Mic, MicOff, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { pipeline } from "@huggingface/transformers";
 
 interface SpeechToTextButtonProps {
   onTranscript: (text: string) => void;
@@ -11,122 +12,155 @@ interface SpeechToTextButtonProps {
 
 export const SpeechToTextButton = ({ onTranscript, className }: SpeechToTextButtonProps) => {
   const { toast } = useToast();
-  const [isListening, setIsListening] = useState(false);
-  const recognitionRef = useRef<any>(null);
-  const lastProcessedIndexRef = useRef<number>(0);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const transcriberRef = useRef<any>(null);
 
-  useEffect(() => {
-    // Check if browser supports speech recognition
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+  const initializeTranscriber = async () => {
+    if (transcriberRef.current) return;
     
-    if (!SpeechRecognition) {
-      console.log("Speech recognition not supported");
-      return;
-    }
-
-    const recognition = new SpeechRecognition();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = 'en-US';
-
-    recognition.onresult = (event: any) => {
-      let finalTranscript = '';
-
-      // Only process new results to avoid duplicates
-      for (let i = lastProcessedIndexRef.current; i < event.results.length; i++) {
-        if (event.results[i].isFinal) {
-          const transcript = event.results[i][0].transcript;
-          finalTranscript += transcript + ' ';
-          lastProcessedIndexRef.current = i + 1;
-        }
-      }
-
-      if (finalTranscript) {
-        onTranscript(finalTranscript.trim());
-      }
-    };
-
-    recognition.onerror = (event: any) => {
-      console.error('Speech recognition error:', event.error);
-      setIsListening(false);
-      
-      if (event.error === 'not-allowed') {
-        toast({
-          title: "Microphone access denied",
-          description: "Please allow microphone access to use speech-to-text",
-          variant: "destructive",
-        });
-      } else if (event.error !== 'aborted') {
-        toast({
-          title: "Speech recognition error",
-          description: "Please try again",
-          variant: "destructive",
-        });
-      }
-    };
-
-    recognition.onend = () => {
-      setIsListening(false);
-      lastProcessedIndexRef.current = 0;
-    };
-
-    recognitionRef.current = recognition;
-
-    return () => {
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
-      }
-    };
-  }, [onTranscript, toast]);
-
-  const toggleListening = () => {
-    if (!recognitionRef.current) {
-      toast({
-        title: "Not supported",
-        description: "Speech recognition is not supported in your browser",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (isListening) {
-      recognitionRef.current.stop();
-      setIsListening(false);
-      lastProcessedIndexRef.current = 0;
-    } else {
+    setIsInitializing(true);
+    try {
+      console.log("Initializing Whisper model...");
+      transcriberRef.current = await pipeline(
+        "automatic-speech-recognition",
+        "onnx-community/whisper-tiny.en",
+        { device: "webgpu" }
+      );
+      console.log("Whisper model loaded successfully");
+    } catch (error) {
+      console.error("Error loading Whisper model:", error);
+      // Fallback to WASM if WebGPU fails
       try {
-        lastProcessedIndexRef.current = 0;
-        recognitionRef.current.start();
-        setIsListening(true);
-        toast({
-          title: "Listening...",
-          description: "Speak now to convert speech to text",
-        });
-      } catch (error) {
-        console.error('Error starting recognition:', error);
-        toast({
-          title: "Error",
-          description: "Failed to start speech recognition",
-          variant: "destructive",
-        });
+        transcriberRef.current = await pipeline(
+          "automatic-speech-recognition",
+          "onnx-community/whisper-tiny.en"
+        );
+        console.log("Whisper model loaded with WASM fallback");
+      } catch (fallbackError) {
+        console.error("Error loading Whisper model with fallback:", fallbackError);
+        throw fallbackError;
       }
+    } finally {
+      setIsInitializing(false);
     }
   };
+
+  const startRecording = async () => {
+    try {
+      // Initialize model if not already done
+      if (!transcriberRef.current) {
+        await initializeTranscriber();
+      }
+
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          channelCount: 1,
+          sampleRate: 16000,
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        } 
+      });
+
+      audioChunksRef.current = [];
+      
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        setIsProcessing(true);
+        try {
+          const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+          console.log("Processing audio blob, size:", audioBlob.size);
+          
+          // Convert blob to array buffer
+          const arrayBuffer = await audioBlob.arrayBuffer();
+          
+          // Transcribe using Whisper
+          const output = await transcriberRef.current(arrayBuffer);
+          console.log("Transcription result:", output);
+          
+          if (output?.text) {
+            onTranscript(output.text.trim());
+            toast({
+              title: "Transcription complete",
+              description: "Your speech has been converted to text",
+            });
+          }
+        } catch (error) {
+          console.error('Error processing audio:', error);
+          toast({
+            title: "Transcription failed",
+            description: "Please try again",
+            variant: "destructive",
+          });
+        } finally {
+          setIsProcessing(false);
+          stream.getTracks().forEach(track => track.stop());
+        }
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+      
+      toast({
+        title: "Recording...",
+        description: "Click again when you're done speaking",
+      });
+    } catch (error) {
+      console.error('Error starting recording:', error);
+      toast({
+        title: "Microphone access denied",
+        description: "Please allow microphone access to use speech-to-text",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+    }
+  };
+
+  const toggleRecording = async () => {
+    if (isRecording) {
+      stopRecording();
+    } else {
+      await startRecording();
+    }
+  };
+
+  const isLoading = isInitializing || isProcessing;
 
   return (
     <Button
       type="button"
       variant="ghost"
       size="icon"
-      onClick={toggleListening}
+      onClick={toggleRecording}
+      disabled={isLoading}
       className={cn(
-        "transition-colors",
-        isListening && "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+        "transition-smooth",
+        isRecording && "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         className
       )}
-      title={isListening ? "Stop recording" : "Start speech-to-text"}
+      title={isRecording ? "Stop recording" : isLoading ? "Loading..." : "Start speech-to-text"}
     >
-      {isListening ? (
+      {isLoading ? (
+        <Loader2 className="h-4 w-4 animate-spin" />
+      ) : isRecording ? (
         <MicOff className="h-4 w-4 animate-pulse" />
       ) : (
         <Mic className="h-4 w-4" />
