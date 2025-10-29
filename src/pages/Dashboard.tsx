@@ -13,6 +13,7 @@ import { InviteFriendsSection } from "@/components/community/InviteFriendsSectio
 import { useFeatureFlag } from "@/hooks/useFeatureFlag";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { GeneralChatTab } from "@/components/community/GeneralChatTab";
 
 interface Persona {
   id: string;
@@ -294,8 +295,9 @@ export default function Dashboard() {
         </div>
 
         {/* Content Tabs */}
-        <Tabs defaultValue="posts" className="w-full">
+        <Tabs defaultValue="general-chat" className="w-full">
           <TabsList className="w-full justify-start mb-4">
+            <TabsTrigger value="general-chat">General Chat</TabsTrigger>
             <TabsTrigger value="posts">My Posts</TabsTrigger>
             <TabsTrigger value="comments">My Comments</TabsTrigger>
             <TabsTrigger value="reflections">My Reflections</TabsTrigger>
@@ -303,6 +305,10 @@ export default function Dashboard() {
               <TabsTrigger value="invites">Invite Friends</TabsTrigger>
             )}
           </TabsList>
+
+          <TabsContent value="general-chat">
+            <GeneralChatTab />
+          </TabsContent>
 
           <TabsContent value="posts" className="space-y-4">
             {posts.length === 0 ? (
