@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Loader2, Lock, Trash2 } from "lucide-react";
+import { Plus, Loader2, Lock, Trash2, MessageSquare } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import {
   AlertDialog,
@@ -137,12 +137,12 @@ const CircleList = ({ selectedCircleId, onSelectCircle, isCollapsed = false }: C
     }
   };
 
-  // Auto-select first circle when circles are loaded
+  // Auto-select General Chat on first load
   useEffect(() => {
-    if (circles.length > 0 && !selectedCircleId) {
-      onSelectCircle(circles[0].id);
+    if (!selectedCircleId) {
+      onSelectCircle("general-chat");
     }
-  }, [circles, selectedCircleId, onSelectCircle]);
+  }, [selectedCircleId, onSelectCircle]);
 
   if (loading) {
     return (
@@ -169,6 +169,47 @@ const CircleList = ({ selectedCircleId, onSelectCircle, isCollapsed = false }: C
 
       <ScrollArea className="flex-1">
         <div className="p-4 space-y-2">
+          {/* General Chat - Always First */}
+          <div
+            className={`group relative rounded-lg transition-smooth ${
+              selectedCircleId === "general-chat" ? "bg-sidebar-accent shadow-soft" : ""
+            }`}
+          >
+            <button
+              onClick={() => onSelectCircle("general-chat")}
+              className={`w-full text-left p-3 hover:bg-sidebar-accent rounded-lg ${
+                isCollapsed ? 'flex justify-center' : ''
+              }`}
+              title={isCollapsed ? "General Chat" : undefined}
+            >
+              {isCollapsed ? (
+                <div className="flex items-center justify-center">
+                  <MessageSquare className={`h-5 w-5 ${
+                    selectedCircleId === "general-chat" 
+                      ? 'text-primary' 
+                      : 'text-muted-foreground'
+                  }`} />
+                </div>
+              ) : (
+                <div className="flex items-start gap-3">
+                  <MessageSquare className={`h-5 w-5 mt-0.5 flex-shrink-0 ${
+                    selectedCircleId === "general-chat" 
+                      ? 'text-primary' 
+                      : 'text-muted-foreground'
+                  }`} />
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-sm">
+                      General Chat
+                    </h3>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Platform-wide conversation
+                    </p>
+                  </div>
+                </div>
+              )}
+            </button>
+          </div>
+
           {circles.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-8">
               No circles yet. Create one to get started!

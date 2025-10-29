@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Loader2, Users, LogOut, Menu, MessageSquare, LayoutDashboard, Settings, ChevronLeft, ChevronRight, Shield } from "lucide-react";
 import CircleList from "@/components/community/CircleList";
 import PostFeed from "@/components/community/PostFeed";
+import { GeneralChatTab } from "@/components/community/GeneralChatTab";
 import CreatePersonaDialog from "@/components/community/CreatePersonaDialog";
 import EditProfileDialog from "@/components/community/EditProfileDialog";
 import { ProductTour } from "@/components/tour/ProductTour";
@@ -352,10 +353,12 @@ const Community = () => {
         )}
         
         <div className="flex-1 overflow-hidden">
-          {selectedCircleId ? (
+          {selectedCircleId === "general-chat" ? (
+            <div className="h-full p-4 overflow-y-auto">
+              <GeneralChatTab />
+            </div>
+          ) : selectedCircleId ? (
             <PostFeed circleId={selectedCircleId} />
-          ) : circles.length === 0 ? (
-            <WelcomeOnboarding onCircleJoined={fetchCircles} />
           ) : (
             <div className="flex h-full items-center justify-center p-4 sm:p-8">
               <div className="text-center space-y-4 max-w-md animate-fade-in">
