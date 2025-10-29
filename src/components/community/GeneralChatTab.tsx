@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Send, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
+import { SpeechToTextButton } from "./SpeechToTextButton";
 
 interface Message {
   id: string;
@@ -261,6 +262,10 @@ export const GeneralChatTab = () => {
     }
   };
 
+  const handleTranscript = (text: string) => {
+    setContent((prev) => (prev ? prev + " " + text : text));
+  };
+
   if (loading) {
     return (
       <div className="space-y-4">
@@ -330,14 +335,16 @@ export const GeneralChatTab = () => {
             className="min-h-[80px] resize-none"
             disabled={sending}
           />
-          <Button
-            onClick={handleSend}
-            disabled={!content.trim() || sending}
-            size="icon"
-            className="self-end"
-          >
-            <Send className="w-4 h-4" />
-          </Button>
+          <div className="flex flex-col gap-2 self-end">
+            <SpeechToTextButton onTranscript={handleTranscript} />
+            <Button
+              onClick={handleSend}
+              disabled={!content.trim() || sending}
+              size="icon"
+            >
+              <Send className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
         <p className="text-xs text-muted-foreground mt-2">
           Press Enter to send, Shift+Enter for new line
