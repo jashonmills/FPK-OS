@@ -18,7 +18,6 @@ export const SpeechToTextDialog = ({ open, onOpenChange, onConfirm }: SpeechToTe
   const recognitionRef = useRef<any>(null);
 
   useEffect(() => {
-    // Check if browser supports speech recognition
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     
     if (!SpeechRecognition) {
@@ -26,30 +25,22 @@ export const SpeechToTextDialog = ({ open, onOpenChange, onConfirm }: SpeechToTe
     }
 
     const recognition = new SpeechRecognition();
-    recognition.continuous = true;
-    recognition.interimResults = true;
+    recognition.continuous = false; // Get one result at a time
+    recognition.interimResults = false; // Only final results
     recognition.lang = 'en-US';
 
     recognition.onresult = (event: any) => {
-      let newTranscript = '';
-      
-      // event.resultIndex tells us where the NEW results start
-      // Only process from that point forward
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const result = event.results[i];
-        if (result.isFinal) {
-          newTranscript += result[0].transcript + ' ';
-        }
-      }
-      
-      // Only append if we have new final text
-      if (newTranscript.trim()) {
-        setTranscript(prev => prev + newTranscript);
-      }
+      const result = event.results[0][0].transcript;
+      // Append the new result to existing transcript
+      setTranscript(prev => {
+        const newText = prev ? prev + ' ' + result : result;
+        return newText;
+      });
     };
 
     recognition.onerror = (event: any) => {
       console.error('Speech recognition error:', event.error);
+      setIsListening(false);
       
       if (event.error === 'not-allowed') {
         toast({
@@ -60,10 +51,9 @@ export const SpeechToTextDialog = ({ open, onOpenChange, onConfirm }: SpeechToTe
       } else if (event.error === 'no-speech') {
         toast({
           title: "No speech detected",
-          description: "Please try speaking",
+          description: "Try speaking again",
         });
       }
-      setIsListening(false);
     };
 
     recognition.onend = () => {
@@ -74,7 +64,11 @@ export const SpeechToTextDialog = ({ open, onOpenChange, onConfirm }: SpeechToTe
 
     return () => {
       if (recognitionRef.current) {
-        recognitionRef.current.stop();
+        try {
+          recognitionRef.current.abort();
+        } catch (e) {
+          // ignore
+        }
       }
     };
   }, [toast]);
@@ -93,10 +87,14 @@ export const SpeechToTextDialog = ({ open, onOpenChange, onConfirm }: SpeechToTe
       recognitionRef.current.start();
       setIsListening(true);
       toast({
-        title: "🎤 Recording started",
-        description: "Speak now...",
+        title: "🎤 Listening...",
+        description: "Speak your message",
       });
-    } catch (error) {
+    } catch (error: any) {
+      if (error.message?.includes('already started')) {
+        // Ignore if already running
+        return;
+      }
       console.error('Error starting recognition:', error);
     }
   };
@@ -105,10 +103,6 @@ export const SpeechToTextDialog = ({ open, onOpenChange, onConfirm }: SpeechToTe
     if (recognitionRef.current && isListening) {
       recognitionRef.current.stop();
       setIsListening(false);
-      toast({
-        title: "Recording stopped",
-        description: "You can now edit the text",
-      });
     }
   };
 
@@ -128,12 +122,9 @@ export const SpeechToTextDialog = ({ open, onOpenChange, onConfirm }: SpeechToTe
     onOpenChange(false);
   };
 
-  // Auto-start recording when dialog opens
-  useEffect(() => {
-    if (open && !isListening && !transcript) {
-      setTimeout(() => startRecording(), 300);
-    }
-  }, [open]);
+  const handleClearTranscript = () => {
+    setTranscript("");
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -152,7 +143,7 @@ export const SpeechToTextDialog = ({ open, onOpenChange, onConfirm }: SpeechToTe
                 className="animate-pulse"
               >
                 <MicOff className="h-5 w-5 mr-2" />
-                Stop Recording
+                Stop
               </Button>
             ) : (
               <Button
@@ -161,7 +152,16 @@ export const SpeechToTextDialog = ({ open, onOpenChange, onConfirm }: SpeechToTe
                 size="lg"
               >
                 <Mic className="h-5 w-5 mr-2" />
-                Start Recording
+                Record
+              </Button>
+            )}
+            {transcript && (
+              <Button
+                onClick={handleClearTranscript}
+                variant="outline"
+                size="lg"
+              >
+                Clear
               </Button>
             )}
           </div>
@@ -171,7 +171,7 @@ export const SpeechToTextDialog = ({ open, onOpenChange, onConfirm }: SpeechToTe
             <Textarea
               value={transcript}
               onChange={(e) => setTranscript(e.target.value)}
-              placeholder="Your speech will appear here... You can edit it before confirming."
+              placeholder="Click Record and speak. Click Stop when done. You can record multiple times to add more text."
               className="min-h-[150px]"
             />
           </div>
