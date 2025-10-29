@@ -13,6 +13,7 @@ export const SpeechToTextButton = ({ onTranscript, className }: SpeechToTextButt
   const { toast } = useToast();
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef<any>(null);
+  const lastProcessedIndexRef = useRef<number>(0);
 
   useEffect(() => {
     // Check if browser supports speech recognition
@@ -29,15 +30,14 @@ export const SpeechToTextButton = ({ onTranscript, className }: SpeechToTextButt
     recognition.lang = 'en-US';
 
     recognition.onresult = (event: any) => {
-      let interimTranscript = '';
       let finalTranscript = '';
 
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
+      // Only process new results to avoid duplicates
+      for (let i = lastProcessedIndexRef.current; i < event.results.length; i++) {
         if (event.results[i].isFinal) {
+          const transcript = event.results[i][0].transcript;
           finalTranscript += transcript + ' ';
-        } else {
-          interimTranscript += transcript;
+          lastProcessedIndexRef.current = i + 1;
         }
       }
 
@@ -67,6 +67,7 @@ export const SpeechToTextButton = ({ onTranscript, className }: SpeechToTextButt
 
     recognition.onend = () => {
       setIsListening(false);
+      lastProcessedIndexRef.current = 0;
     };
 
     recognitionRef.current = recognition;
@@ -91,8 +92,10 @@ export const SpeechToTextButton = ({ onTranscript, className }: SpeechToTextButt
     if (isListening) {
       recognitionRef.current.stop();
       setIsListening(false);
+      lastProcessedIndexRef.current = 0;
     } else {
       try {
+        lastProcessedIndexRef.current = 0;
         recognitionRef.current.start();
         setIsListening(true);
         toast({
