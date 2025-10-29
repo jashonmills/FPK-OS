@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Mic, MicOff, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-import { pipeline } from "@huggingface/transformers";
+import { supabase } from "@/integrations/supabase/client";
 
 interface SpeechToTextButtonProps {
   onTranscript: (text: string) => void;
@@ -14,52 +14,15 @@ export const SpeechToTextButton = ({ onTranscript, className }: SpeechToTextButt
   const { toast } = useToast();
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isInitializing, setIsInitializing] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
-  const transcriberRef = useRef<any>(null);
-
-  const initializeTranscriber = async () => {
-    if (transcriberRef.current) return;
-    
-    setIsInitializing(true);
-    try {
-      console.log("Initializing Whisper model...");
-      transcriberRef.current = await pipeline(
-        "automatic-speech-recognition",
-        "onnx-community/whisper-tiny.en",
-        { device: "webgpu" }
-      );
-      console.log("Whisper model loaded successfully");
-    } catch (error) {
-      console.error("Error loading Whisper model:", error);
-      // Fallback to WASM if WebGPU fails
-      try {
-        transcriberRef.current = await pipeline(
-          "automatic-speech-recognition",
-          "onnx-community/whisper-tiny.en"
-        );
-        console.log("Whisper model loaded with WASM fallback");
-      } catch (fallbackError) {
-        console.error("Error loading Whisper model with fallback:", fallbackError);
-        throw fallbackError;
-      }
-    } finally {
-      setIsInitializing(false);
-    }
-  };
 
   const startRecording = async () => {
     try {
-      // Initialize model if not already done
-      if (!transcriberRef.current) {
-        await initializeTranscriber();
-      }
-
       const stream = await navigator.mediaDevices.getUserMedia({ 
         audio: {
           channelCount: 1,
-          sampleRate: 16000,
+          sampleRate: 44100,
           echoCancellation: true,
           noiseSuppression: true,
           autoGainControl: true
@@ -68,7 +31,9 @@ export const SpeechToTextButton = ({ onTranscript, className }: SpeechToTextButt
 
       audioChunksRef.current = [];
       
-      const mediaRecorder = new MediaRecorder(stream);
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: 'audio/webm;codecs=opus'
+      });
       mediaRecorderRef.current = mediaRecorder;
 
       mediaRecorder.ondataavailable = (event) => {
@@ -79,28 +44,49 @@ export const SpeechToTextButton = ({ onTranscript, className }: SpeechToTextButt
 
       mediaRecorder.onstop = async () => {
         setIsProcessing(true);
+        
         try {
           const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-          console.log("Processing audio blob, size:", audioBlob.size);
+          console.log("Processing audio, size:", audioBlob.size);
           
-          // Convert blob to array buffer
-          const arrayBuffer = await audioBlob.arrayBuffer();
+          // Convert blob to base64
+          const reader = new FileReader();
+          reader.readAsDataURL(audioBlob);
           
-          // Transcribe using Whisper
-          const output = await transcriberRef.current(arrayBuffer);
-          console.log("Transcription result:", output);
-          
-          if (output?.text) {
-            onTranscript(output.text.trim());
-            toast({
-              title: "Transcription complete",
-              description: "Your speech has been converted to text",
+          reader.onloadend = async () => {
+            const base64Audio = (reader.result as string).split(',')[1];
+            
+            // Send to transcription endpoint
+            const { data, error } = await supabase.functions.invoke('transcribe-audio', {
+              body: { audio: base64Audio }
             });
-          }
+
+            if (error) {
+              console.error('Transcription error:', error);
+              toast({
+                title: "Transcription failed",
+                description: error.message || "Please try again",
+                variant: "destructive",
+              });
+            } else if (data?.text) {
+              console.log('Transcription result:', data.text);
+              onTranscript(data.text);
+              toast({
+                title: "Speech converted!",
+                description: "Your message has been transcribed",
+              });
+            } else {
+              toast({
+                title: "No speech detected",
+                description: "Please try speaking more clearly",
+                variant: "destructive",
+              });
+            }
+          };
         } catch (error) {
           console.error('Error processing audio:', error);
           toast({
-            title: "Transcription failed",
+            title: "Processing failed",
             description: "Please try again",
             variant: "destructive",
           });
@@ -114,8 +100,8 @@ export const SpeechToTextButton = ({ onTranscript, className }: SpeechToTextButt
       setIsRecording(true);
       
       toast({
-        title: "Recording...",
-        description: "Click again when you're done speaking",
+        title: "🎤 Recording...",
+        description: "Speak now. Click the button again when done.",
       });
     } catch (error) {
       console.error('Error starting recording:', error);
@@ -131,37 +117,47 @@ export const SpeechToTextButton = ({ onTranscript, className }: SpeechToTextButt
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
+      toast({
+        title: "Processing...",
+        description: "Converting your speech to text",
+      });
     }
   };
 
   const toggleRecording = async () => {
     if (isRecording) {
       stopRecording();
-    } else {
+    } else if (!isProcessing) {
       await startRecording();
     }
   };
 
-  const isLoading = isInitializing || isProcessing;
+  const isLoading = isProcessing;
 
   return (
     <Button
       type="button"
-      variant="ghost"
+      variant={isRecording ? "destructive" : "ghost"}
       size="icon"
       onClick={toggleRecording}
       disabled={isLoading}
       className={cn(
-        "transition-smooth",
-        isRecording && "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+        "transition-smooth relative",
+        isRecording && "animate-pulse",
         className
       )}
-      title={isRecording ? "Stop recording" : isLoading ? "Loading..." : "Start speech-to-text"}
+      title={
+        isLoading 
+          ? "Processing audio..." 
+          : isRecording 
+          ? "Click to stop recording" 
+          : "Click to start recording"
+      }
     >
       {isLoading ? (
         <Loader2 className="h-4 w-4 animate-spin" />
       ) : isRecording ? (
-        <MicOff className="h-4 w-4 animate-pulse" />
+        <MicOff className="h-4 w-4" />
       ) : (
         <Mic className="h-4 w-4" />
       )}
