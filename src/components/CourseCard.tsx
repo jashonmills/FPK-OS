@@ -7,6 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { BookOpen, Star, CheckCircle, Clock } from 'lucide-react';
 import type { Course } from '@/hooks/useEnrolledCourses';
 import { getCourseImage } from '@/utils/courseImages';
+import { shouldShowBetaFeatures } from '@/lib/featureFlags';
 
 interface CourseCardProps {
   course: Course;
@@ -25,7 +26,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
   onButtonClick,
   progress 
 }) => {
-  const isBetaCourse = false; // Beta course removed
+  const isBetaCourse = shouldShowBetaFeatures() && (course as any).is_beta;
   const completionPercentage = progress?.completion_percentage || 0;
   const completedModules = progress?.completed_modules?.length || 0;
   const isCompleted = progress?.completed || false;

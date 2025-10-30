@@ -49,6 +49,7 @@ import { useUserRole } from "@/hooks/useUserRole";
 import { useGlobalTranslation } from "@/hooks/useGlobalTranslation";
 import DualLanguageText from "@/components/DualLanguageText";
 import { useOrgContext } from "@/components/organizations/OrgContext";
+import { shouldShowBetaFeatures } from '@/lib/featureFlags';
 
 // Safe hook that works with or without OrgProvider
 function useSafeOrgContext() {
@@ -208,11 +209,11 @@ export function AppSidebar() {
       url: "/dashboard/admin/thresholds",
       icon: Settings,
     },
-    {
+    ...(shouldShowBetaFeatures() ? [{
       title: 'Beta Management',
       url: "/dashboard/admin/beta",
       icon: MessageSquare,
-    },
+    }] : []),
     {
       title: 'Phoenix Lab',
       url: "/dashboard/admin/phoenix-lab",

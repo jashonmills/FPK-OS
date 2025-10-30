@@ -30,6 +30,7 @@ import { CreditCard, Users, Check, ArrowUpDown } from 'lucide-react';
 import { useOrganizationActions } from '@/hooks/useOrganizationActions';
 import { SUBSCRIPTION_TIERS } from '@/types/organization';
 import type { Organization, OrgSubscriptionTier } from '@/types/organization';
+import { shouldShowBetaFeatures } from '@/lib/featureFlags';
 
 interface ChangeSubscriptionDialogProps {
   organization: Organization;
@@ -60,7 +61,7 @@ export function ChangeSubscriptionDialog({ organization, open, onOpenChange }: C
   const isNoChange = watchedTier === currentTier;
 
   function getTierLevel(tier: OrgSubscriptionTier): number {
-    const levels = { basic: 1, standard: 2, premium: 3, beta: 4 };
+    const levels = { basic: 1, standard: 2, premium: 3, ...(shouldShowBetaFeatures() ? { beta: 4 } : {}) };
     return levels[tier] || 0;
   }
 
@@ -149,7 +150,9 @@ export function ChangeSubscriptionDialog({ organization, open, onOpenChange }: C
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent className="bg-background border border-border">
-                        {Object.entries(SUBSCRIPTION_TIERS).map(([key, tier]) => (
+                        {Object.entries(SUBSCRIPTION_TIERS)
+                          .filter(([key]) => shouldShowBetaFeatures() || key !== 'beta')
+                          .map(([key, tier]) => (
                           <SelectItem key={key} value={key} className="hover:bg-muted">
                             <div className="flex items-center justify-between w-full">
                               <div className="flex items-center gap-2">

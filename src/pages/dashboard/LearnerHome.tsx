@@ -20,6 +20,7 @@ import AIInsightsSection from '@/components/dashboard/AIInsightsSection';
 import BetaOnboarding from '@/components/beta/BetaOnboarding';
 import FeedbackSystem from '@/components/beta/FeedbackSystem';
 import OrgBanner from '@/components/dashboard/OrgBanner';
+import { shouldShowBetaFeatures } from '@/lib/featureFlags';
 
 const LearnerHome = () => {
   const { user } = useAuth();
@@ -69,7 +70,7 @@ const LearnerHome = () => {
   return (
     <div className="mobile-section-spacing">
       {/* Beta Onboarding */}
-      <BetaOnboarding autoShow={true} />
+      {shouldShowBetaFeatures() && <BetaOnboarding autoShow={true} />}
       
       {/* Mobile-Optimized Header Section */}
       <div className="mb-4 sm:mb-6 md:mb-8">
@@ -165,9 +166,11 @@ const LearnerHome = () => {
       </section>
 
       {/* Beta Feedback Section */}
-      <section>
-        <FeedbackSystem currentPage="/dashboard/learner" />
-      </section>
+      {shouldShowBetaFeatures() && (
+        <section>
+          <FeedbackSystem currentPage="/dashboard/learner" />
+        </section>
+      )}
 
       {/* Video Guide Modal */}
       <FirstVisitVideoModal

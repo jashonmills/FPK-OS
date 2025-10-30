@@ -12,8 +12,9 @@ import { Switch } from '@/components/ui/switch';
 import { useFirstVisitVideo } from '@/hooks/useFirstVisitVideo';
 import { FirstVisitVideoModal } from '@/components/common/FirstVisitVideoModal';
 import { PageHelpTrigger } from '@/components/common/PageHelpTrigger';
+import { shouldShowBetaFeatures } from '@/lib/featureFlags';
 
-const IS_BETA_MODE = true;
+const IS_BETA_MODE = shouldShowBetaFeatures();
 interface PlanType {
   name: string;
   monthly: number;

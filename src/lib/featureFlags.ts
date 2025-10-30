@@ -9,6 +9,7 @@ export const FeatureFlags = {
   USE_USER_HUB: import.meta.env.VITE_FEATURE_USE_USER_HUB === 'true',
   ENFORCE_SUBSCRIPTION: import.meta.env.VITE_FEATURE_ENFORCE_SUBSCRIPTION === 'true',
   ENABLE_PLATFORM_GUIDE: import.meta.env.VITE_FEATURE_ENABLE_PLATFORM_GUIDE !== 'false', // Default enabled
+  ENABLE_BETA_FEATURES: import.meta.env.VITE_FEATURE_ENABLE_BETA_FEATURES === 'true', // Default disabled
 } as const;
 
 export function isFeatureEnabled(flag: keyof typeof FeatureFlags): boolean {
@@ -34,4 +35,11 @@ export function shouldEnforceSubscription(): boolean {
  */
 export function shouldShowPlatformGuide(): boolean {
   return isFeatureEnabled('ENABLE_PLATFORM_GUIDE');
+}
+
+/**
+ * Check if beta features should be visible (access gate, onboarding, admin tools)
+ */
+export function shouldShowBetaFeatures(): boolean {
+  return isFeatureEnabled('ENABLE_BETA_FEATURES');
 }

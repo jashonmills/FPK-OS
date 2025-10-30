@@ -9,9 +9,10 @@ import { Check, Loader2, DollarSign, Euro, Sparkles } from 'lucide-react';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useOrganizations } from '@/hooks/useOrganizations';
 import { useToast } from '@/hooks/use-toast';
+import { shouldShowBetaFeatures } from '@/lib/featureFlags';
 
-// Beta mode flag - set to false to re-enable subscription buttons post-beta
-const IS_BETA_MODE = true;
+// Beta mode flag - controlled by feature flag
+const IS_BETA_MODE = shouldShowBetaFeatures();
 
 interface PlanType {
   name: string;

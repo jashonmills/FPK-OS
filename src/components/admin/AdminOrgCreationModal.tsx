@@ -19,6 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Building2, Users, CreditCard, Crown, Zap } from 'lucide-react';
+import { shouldShowBetaFeatures } from '@/lib/featureFlags';
 
 interface AdminOrgCreationModalProps {
   open: boolean;
@@ -60,7 +61,7 @@ const subscriptionTiers: SubscriptionTier[] = [
     features: ['Full analytics suite', 'Advanced reporting', 'Dedicated support', 'API access'],
     icon: <Crown className="h-4 w-4" />
   },
-  {
+  ...(shouldShowBetaFeatures() ? [{
     id: 'beta',
     name: 'Beta',
     price: 0,
@@ -68,7 +69,7 @@ const subscriptionTiers: SubscriptionTier[] = [
     features: ['Premium features', 'Early access', 'Beta testing', 'Direct feedback channel'],
     icon: <Zap className="h-4 w-4" />,
     badge: 'Free [Beta] - Limited Time'
-  }
+  }] : [])
 ];
 
 export const AdminOrgCreationModal: React.FC<AdminOrgCreationModalProps> = ({

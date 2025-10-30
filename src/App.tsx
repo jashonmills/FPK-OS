@@ -14,6 +14,7 @@ import RequireAdmin from '@/components/guards/RequireAdmin';
 import { performanceMonitor } from '@/utils/performanceMonitor';
 import { logger } from '@/utils/logger';
 import { setupGlobalScrollRestoration } from '@/utils/globalScrollManager';
+import { shouldShowBetaFeatures } from '@/lib/featureFlags';
 import "@/styles/mobile-responsive.css";
 import "./App.css";
 
@@ -283,7 +284,7 @@ const App: React.FC = () => {
     <AppProviders>
       <Toaster />
       <Sonner />
-      <BetaUpdateListener />
+      {shouldShowBetaFeatures() && <BetaUpdateListener />}
       <ConsentManager />
       <KeyboardShortcutHint />
       
@@ -503,7 +504,9 @@ const App: React.FC = () => {
             <Route path="admin/modules" element={<LazyRoute><ModuleManagerPage /></LazyRoute>} />
             <Route path="admin/lessons" element={<LazyRoute><LessonManager /></LazyRoute>} />
             <Route path="admin/thresholds" element={<LazyRoute><ThresholdManagement /></LazyRoute>} />
-            <Route path="admin/beta" element={<LazyRoute><BetaManagement /></LazyRoute>} />
+            {shouldShowBetaFeatures() && (
+              <Route path="admin/beta" element={<LazyRoute><BetaManagement /></LazyRoute>} />
+            )}
             <Route path="admin/partners" element={<LazyRoute><PartnersManagement /></LazyRoute>} />
             <Route path="admin/settings" element={<LazyRoute><AdminSettings /></LazyRoute>} />
             <Route path="admin/generate-backgrounds" element={<LazyRoute><GenerateBackgrounds /></LazyRoute>} />

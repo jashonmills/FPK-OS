@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { useOnboardingFlow } from '@/hooks/useOnboardingFlow';
 import BetaOnboarding from '@/components/beta/BetaOnboarding';
 import { useCleanup } from '@/utils/cleanupManager';
+import { shouldShowBetaFeatures } from '@/lib/featureFlags';
 
 interface OnboardingFlowManagerProps {
   children: React.ReactNode;
@@ -97,7 +98,7 @@ export const OnboardingFlowManager: React.FC<OnboardingFlowManagerProps> = ({ ch
   return (
     <>
       {children}
-      {shouldShowBetaOnboarding && (
+      {shouldShowBetaOnboarding && shouldShowBetaFeatures() && (
         <BetaOnboarding 
           autoShow={true}
           onComplete={completeOnboarding}

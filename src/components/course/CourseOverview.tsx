@@ -6,6 +6,7 @@ import { BookOpen } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import DualLanguageText from '@/components/DualLanguageText';
 import CourseOutline from './CourseOutline';
+import { shouldShowBetaFeatures } from '@/lib/featureFlags';
 
 interface CourseOverviewProps {
   onDashboard: () => void;
@@ -53,9 +54,11 @@ const CourseOverview: React.FC<CourseOverviewProps> = ({ onDashboard, onBackToCo
             <h1 className="text-xl sm:text-3xl font-bold text-gray-900">
               <DualLanguageText translationKey="courses.learningState.title" />
             </h1>
-            <Badge className="fpk-gradient text-white text-xs">
-              <DualLanguageText translationKey="common.beta" />
-            </Badge>
+            {shouldShowBetaFeatures() && (
+              <Badge className="fpk-gradient text-white text-xs">
+                <DualLanguageText translationKey="common.beta" />
+              </Badge>
+            )}
           </div>
         </div>
         

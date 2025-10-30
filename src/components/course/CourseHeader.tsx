@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { useIsMobile } from '@/hooks/use-mobile';
 import DualLanguageText from '@/components/DualLanguageText';
 import { useContextAwareNavigation } from '@/hooks/useContextAwareNavigation';
+import { shouldShowBetaFeatures } from '@/lib/featureFlags';
 
 interface CourseHeaderProps {
   title?: string;
@@ -37,7 +38,7 @@ const CourseHeader: React.FC<CourseHeaderProps> = ({
           <h1 className="text-sm sm:text-lg font-bold text-white truncate">
             {displayTitle}
           </h1>
-          {!isMobile && (
+          {!isMobile && shouldShowBetaFeatures() && (
             <Badge className="bg-white/20 text-white border-white/30">
               <DualLanguageText translationKey="common.beta" />
             </Badge>
