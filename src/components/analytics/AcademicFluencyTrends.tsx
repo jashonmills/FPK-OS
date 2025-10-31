@@ -36,11 +36,14 @@ export const AcademicFluencyTrends = ({ studentId, familyId, dateRange, sampleDa
       return { data: [], readingTarget: 0, mathTarget: 0 };
     }
 
-    const chartData = rawData.map((item: any) => ({
-      formattedDate: format(new Date(item.measurement_date), "MMM dd"),
-      reading: item.reading_fluency ? Number(item.reading_fluency) : undefined,
-      math: item.math_fluency ? Number(item.math_fluency) : undefined,
-    }));
+    const chartData = rawData.map((item: any) => {
+      const parsedDate = new Date(item.measurement_date);
+      return {
+        formattedDate: isNaN(parsedDate.getTime()) ? 'Invalid' : format(parsedDate, "MMM dd"),
+        reading: item.reading_fluency ? Number(item.reading_fluency) : undefined,
+        math: item.math_fluency ? Number(item.math_fluency) : undefined,
+      };
+    }).filter(item => item.formattedDate !== 'Invalid');
 
     const readingTarget = rawData.find((d: any) => d.reading_target)?.reading_target || 0;
     const mathTarget = rawData.find((d: any) => d.math_target)?.math_target || 0;

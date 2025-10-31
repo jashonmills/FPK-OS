@@ -51,7 +51,11 @@ export const WorkingMemorySuccessChart = ({ familyId, studentId, sampleData, mod
   // Transform data into format suitable for multi-line chart
   const dateMap = new Map();
   displayData.forEach((item: any) => {
-    const date = format(new Date(item.measurement_date), "MMM dd");
+    if (!item.measurement_date) return; // Skip invalid dates
+    const parsedDate = new Date(item.measurement_date);
+    if (isNaN(parsedDate.getTime())) return; // Skip invalid dates
+    
+    const date = format(parsedDate, "MMM dd");
     if (!dateMap.has(date)) {
       dateMap.set(date, { date });
     }

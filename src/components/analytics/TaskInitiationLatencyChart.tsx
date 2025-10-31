@@ -48,12 +48,15 @@ export const TaskInitiationLatencyChart = ({ familyId, studentId, sampleData, mo
     );
   }
 
-  const chartData = displayData.map((item: any) => ({
-    date: format(new Date(item.measurement_date), "MMM dd"),
-    latency: Number(item.avg_latency_seconds),
-    complexity: item.task_complexity || 'Standard',
-    promptLevel: item.prompt_level || 'None',
-  }));
+  const chartData = displayData.map((item: any) => {
+    const parsedDate = new Date(item.measurement_date);
+    return {
+      date: isNaN(parsedDate.getTime()) ? 'Invalid' : format(parsedDate, "MMM dd"),
+      latency: Number(item.avg_latency_seconds),
+      complexity: item.task_complexity || 'Standard',
+      promptLevel: item.prompt_level || 'None',
+    };
+  }).filter(item => item.date !== 'Invalid');
 
   return (
     <div className="h-full w-full p-2">
