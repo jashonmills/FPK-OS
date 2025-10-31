@@ -59,22 +59,29 @@ export const SmartChartWidget = ({
     enabled: isUnlocked && hasSubscription && !!config.rpcFunction
   });
 
-  // Determine final mode with robust error and data checking
-  let finalMode: ChartMode = "locked";
+  // Determine the final mode based on subscription, data availability, and unlock status
+  let finalMode: ChartMode = mode;
+  
   if (!hasSubscription) {
     finalMode = "locked";
-  } else if (isUnlocked && !error && liveData && Array.isArray(liveData) && liveData.length > 0) {
-    finalMode = "live";
-    console.log(`[${config.chartId}] LIVE MODE - Data count: ${liveData.length}`);
   } else if (isUnlocked) {
-    // Show demo mode but indicate whether it's truly "no data" or just waiting for uploads
-    finalMode = "demo";
-    if (error) {
-      console.warn(`[${config.chartId}] DEMO MODE (RPC Error):`, error.message);
-    } else if (liveData && Array.isArray(liveData) && liveData.length === 0) {
-      console.log(`[${config.chartId}] DEMO MODE - Empty data (needs specific data upload)`);
+    if (config.rpcFunction) {
+      // If we have an RPC function configured, check if we got ACTUAL data
+      if (isLoading) {
+        finalMode = "demo"; // Show demo while loading
+      } else if (liveData && !error && Array.isArray(liveData) && liveData.length > 0) {
+        finalMode = "live"; // We got actual data - show LIVE
+        console.log(`[${config.chartId}] LIVE MODE - Data count: ${liveData.length}`);
+      } else {
+        finalMode = "demo"; // Empty array or error - show demo data
+        if (error) {
+          console.warn(`[${config.chartId}] DEMO MODE (RPC Error):`, error.message);
+        } else {
+          console.log(`[${config.chartId}] DEMO MODE - Empty data (awaiting document uploads)`);
+        }
+      }
     } else {
-      console.log(`[${config.chartId}] DEMO MODE - No data available`);
+      finalMode = "demo"; // No RPC function, use demo data
     }
   }
 
