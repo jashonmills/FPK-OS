@@ -5,6 +5,8 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Briefcase, Users, TrendingUp } from 'lucide-react';
+import { TaskAnalytics } from '@/components/dashboard/TaskAnalytics';
+import { UpcomingDeadlines } from '@/components/dashboard/UpcomingDeadlines';
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -38,7 +40,9 @@ const Index = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <TaskAnalytics />
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card className="hover:shadow-lg transition-shadow">
             <CardHeader>
               <Briefcase className="h-8 w-8 text-primary mb-2" />
@@ -46,14 +50,22 @@ const Index = () => {
               <CardDescription>Across the FPK ecosystem</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2">
+              <div className="flex flex-wrap gap-2">
                 <Badge>FPK University</Badge>
                 <Badge>FPX Platform</Badge>
                 <Badge>FPK Nexus</Badge>
+                <Badge>FPK Studios</Badge>
+                <Badge>FPK Connect</Badge>
+                <Badge>FPK Analytics</Badge>
+                <Badge>FPK Mobile</Badge>
               </div>
             </CardContent>
           </Card>
 
+          <UpcomingDeadlines />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card className="hover:shadow-lg transition-shadow">
             <CardHeader>
               <Users className="h-8 w-8 text-primary mb-2" />
