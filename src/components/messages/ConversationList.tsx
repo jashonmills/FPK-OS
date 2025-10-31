@@ -199,8 +199,8 @@ export const ConversationList = ({ selectedConversationId, onSelectConversation 
 
         <ScrollArea className="flex-1">
           <div className="p-2 w-full">
-            {/* Channels Header - Sticky */}
-            <div className="sticky top-0 z-10 bg-background flex items-center justify-between gap-2 px-2 py-2 mb-1 rounded-md">
+            {/* Channels Header */}
+            <div className="bg-background flex items-center justify-between gap-2 px-2 py-2 mb-1 rounded-md">
               <h3 className="text-sm font-semibold text-muted-foreground min-w-0 flex-shrink">Channels</h3>
               <Button
                 variant="ghost"
@@ -265,8 +265,8 @@ export const ConversationList = ({ selectedConversationId, onSelectConversation 
             ))}
             </div>
 
-            {/* Direct Messages Header - Sticky */}
-            <div className="sticky top-0 z-10 bg-background flex items-center justify-between gap-2 px-2 py-2 mb-1 mt-4 rounded-md">
+            {/* Direct Messages Header */}
+            <div className="bg-background flex items-center justify-between gap-2 px-2 py-2 mb-1 mt-4 rounded-md">
               <h3 className="text-sm font-semibold text-muted-foreground">Direct Messages</h3>
               <Button
                 variant="ghost"
