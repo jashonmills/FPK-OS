@@ -35,7 +35,7 @@ const DataDeletion = () => {
             <section className="space-y-4">
               <h2 className="text-2xl font-semibold">Your Data Rights</h2>
               <p className="text-muted-foreground">
-                As a user of FPX CNS-App, you have comprehensive rights over your data:
+                As a user of FPK-X.com, you have comprehensive rights over your data:
               </p>
               <ul className="list-disc pl-6 text-muted-foreground space-y-2">
                 <li><strong>Right to Access:</strong> View all personal data we have about you</li>

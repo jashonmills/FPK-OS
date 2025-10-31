@@ -72,8 +72,8 @@ export default function FAQ() {
   return (
     <>
       <SEOHead
-        title="Frequently Asked Questions | FPX CNS-App"
-        description="Find answers to common questions about neurodiversity support, IEPs, special education, autism, ADHD, and using the FPX CNS-App platform."
+        title="Frequently Asked Questions | FPK-X.com"
+        description="Find answers to common questions about neurodiversity support, IEPs, special education, autism, ADHD, and using the FPK-X.com platform."
         keywords={['FAQ', 'questions', 'IEP help', 'special education', 'neurodiversity support']}
       />
       <SchemaMarkup

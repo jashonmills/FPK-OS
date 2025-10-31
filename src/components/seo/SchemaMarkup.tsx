@@ -110,10 +110,10 @@ export const SchemaMarkup = ({ schema }: SchemaMarkupProps) => {
           ...(schemaData.keywords && { keywords: schemaData.keywords.join(', ') }),
           publisher: {
             '@type': 'Organization',
-            name: 'FPX CNS-App',
+            name: 'FPK-X.com',
             logo: {
               '@type': 'ImageObject',
-              url: `${baseUrl}/assets/fpx-cns-logo.png`,
+              url: `${baseUrl}/assets/fpk-x-logo.png`,
             },
           },
         };

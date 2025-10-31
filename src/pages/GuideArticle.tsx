@@ -138,7 +138,7 @@ export default function GuideArticle() {
             headline: article.title,
             description: article.description || article.excerpt || '',
             author: {
-              name: article.author?.name || 'FPX CNS-App Team',
+              name: article.author?.name || 'FPK-X.com Team',
               credentials: article.author?.credentials,
             },
             datePublished: article.published_at || article.created_at,

@@ -14,7 +14,7 @@ import {
 import { useEffect } from 'react';
 import { AppBackground } from '@/components/layout/AppBackground';
 import { PricingTeaser } from '@/components/home/PricingTeaser';
-import fpxCnsLogo from '@/assets/fpx-cns-logo.png';
+import fpkxLogo from '@/assets/fpk-x-logo.png';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -66,8 +66,8 @@ const Index = () => {
         <div className="max-w-6xl mx-auto text-center text-foreground relative z-10">
             <div className="flex justify-center mb-6">
               <img 
-                src={fpxCnsLogo} 
-                alt="FPX CNS-app Logo" 
+                src={fpkxLogo} 
+                alt="FPK-X.com Logo" 
                 className="w-48 h-48 object-contain"
               />
             </div>

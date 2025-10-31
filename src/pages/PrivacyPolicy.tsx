@@ -26,7 +26,7 @@ const PrivacyPolicy = () => {
             <section className="space-y-4">
               <h2 className="text-2xl font-semibold">1. Introduction</h2>
               <p className="text-muted-foreground">
-                FPX CNS-App ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our mobile application and services.
+                FPK-X.com ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our mobile application and services.
               </p>
             </section>
 
@@ -82,7 +82,7 @@ const PrivacyPolicy = () => {
             <section className="space-y-4">
               <h2 className="text-2xl font-semibold">4. HIPAA Compliance</h2>
               <p className="text-muted-foreground">
-                FPX CNS-App is HIPAA compliant. We implement appropriate administrative, physical, and technical safeguards to protect your Protected Health Information (PHI):
+                FPK-X.com is HIPAA compliant. We implement appropriate administrative, physical, and technical safeguards to protect your Protected Health Information (PHI):
               </p>
               <ul className="list-disc pl-6 text-muted-foreground space-y-2">
                 <li>All PHI is encrypted in transit (TLS 1.3) and at rest (AES-256)</li>

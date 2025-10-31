@@ -45,7 +45,7 @@ export default function Guides() {
   return (
     <>
       <SEOHead
-        title="Neurodiversity Support Guides | FPX CNS-App"
+        title="Neurodiversity Support Guides | FPK-X.com"
         description="Expert guides and resources for parents, educators, and caregivers supporting neurodivergent children. Evidence-based strategies for IEPs, autism, ADHD, and more."
         keywords={['neurodiversity guides', 'IEP guide', 'autism resources', 'ADHD strategies', 'special education']}
       />
@@ -60,7 +60,7 @@ export default function Guides() {
           },
           {
             type: 'Organization',
-            name: 'FPX CNS-App',
+            name: 'FPK-X.com',
             url: window.location.origin,
             description: 'Care coordination and progress tracking for neurodivergent children',
           },

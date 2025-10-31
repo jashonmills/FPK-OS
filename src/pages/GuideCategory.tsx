@@ -51,7 +51,7 @@ export default function GuideCategory() {
   return (
     <>
       <SEOHead
-        title={`${category.name} Guides | FPX CNS-App`}
+        title={`${category.name} Guides | FPK-X.com`}
         description={category.description || `Expert guides and resources for ${category.name.toLowerCase()}`}
       />
       <SchemaMarkup

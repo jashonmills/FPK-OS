@@ -9,7 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import fpxCnsLogo from '@/assets/fpx-cns-logo.png';
+import fpkxLogo from '@/assets/fpk-x-logo.png';
 import { supabase } from '@/integrations/supabase/client';
 
 export const AppHeader = () => {
@@ -58,8 +58,8 @@ export const AppHeader = () => {
     <header className="sticky top-0 z-10 flex h-14 sm:h-16 items-center gap-1 sm:gap-2 md:gap-4 border-b bg-background px-2 sm:px-4 md:px-6 overflow-hidden">
       <SidebarTrigger className="shrink-0" />
       <img 
-        src={fpxCnsLogo} 
-        alt="FPX CNS-app Logo" 
+        src={fpkxLogo} 
+        alt="FPK-X.com Logo" 
         className="h-8 w-8 sm:h-10 sm:w-10 object-contain shrink-0"
       />
       <div className="flex items-center justify-between flex-1 min-w-0 gap-1 sm:gap-2">

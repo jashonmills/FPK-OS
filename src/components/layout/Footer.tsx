@@ -8,7 +8,7 @@ export const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* About Section */}
           <div className="space-y-3">
-            <h3 className="font-semibold text-foreground">FPX CNS-App</h3>
+            <h3 className="font-semibold text-foreground">FPK-X.com</h3>
             <p className="text-sm text-muted-foreground">
               Care coordination and progress tracking putting Parents in control.
             </p>
@@ -82,7 +82,7 @@ export const Footer = () => {
         <div className="mt-8 pt-8 border-t">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm text-muted-foreground">
-              © {new Date().getFullYear()} FPX CNS-App. All rights reserved.
+              © {new Date().getFullYear()} FPK-X.com. All rights reserved.
             </p>
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
               <span>HIPAA Compliant</span>

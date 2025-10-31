@@ -56,7 +56,7 @@ export default function AuthorProfile() {
   return (
     <>
       <SEOHead
-        title={`${author.name} - Expert Contributor | FPX CNS-App`}
+        title={`${author.name} - Expert Contributor | FPK-X.com`}
         description={author.bio || `Articles and resources by ${author.name}, ${author.credentials || 'expert contributor'}`}
         author={author.name}
       />
@@ -72,7 +72,7 @@ export default function AuthorProfile() {
           },
           {
             type: 'Organization',
-            name: 'FPX CNS-App',
+            name: 'FPK-X.com',
             url: window.location.origin,
           },
         ]}

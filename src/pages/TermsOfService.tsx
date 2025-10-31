@@ -26,14 +26,14 @@ const TermsOfService = () => {
             <section className="space-y-4">
               <h2 className="text-2xl font-semibold">1. Acceptance of Terms</h2>
               <p className="text-muted-foreground">
-                By accessing and using FPX CNS-App ("the Service"), you accept and agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use the Service.
+                By accessing and using FPK-X.com ("the Service"), you accept and agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use the Service.
               </p>
             </section>
 
             <section className="space-y-4">
               <h2 className="text-2xl font-semibold">2. Description of Service</h2>
               <p className="text-muted-foreground">
-                FPX CNS-App provides a care coordination and progress tracking platform designed to help parents, educators, and caregivers manage and monitor student development, behavior, and educational goals.
+                FPK-X.com provides a care coordination and progress tracking platform designed to help parents, educators, and caregivers manage and monitor student development, behavior, and educational goals.
               </p>
             </section>
 
@@ -111,7 +111,7 @@ const TermsOfService = () => {
               <h2 className="text-2xl font-semibold">7. Intellectual Property</h2>
               <h3 className="text-xl font-semibold">7.1 Our IP</h3>
               <p className="text-muted-foreground">
-                The Service, including all content, features, and functionality, is owned by FPX CNS-App and protected by copyright, trademark, and other laws.
+                The Service, including all content, features, and functionality, is owned by FPK-X.com and protected by copyright, trademark, and other laws.
               </p>
 
               <h3 className="text-xl font-semibold mt-4">7.2 License</h3>
@@ -140,7 +140,7 @@ const TermsOfService = () => {
             <section className="space-y-4">
               <h2 className="text-2xl font-semibold">10. Limitation of Liability</h2>
               <p className="text-muted-foreground">
-                TO THE MAXIMUM EXTENT PERMITTED BY LAW, FPX CNS-APP SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS OR REVENUES.
+                TO THE MAXIMUM EXTENT PERMITTED BY LAW, FPK-X.COM SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS OR REVENUES.
               </p>
               <p className="text-muted-foreground">
                 Our total liability shall not exceed the amount you paid us in the 12 months preceding the claim.
@@ -150,7 +150,7 @@ const TermsOfService = () => {
             <section className="space-y-4">
               <h2 className="text-2xl font-semibold">11. Indemnification</h2>
               <p className="text-muted-foreground">
-                You agree to indemnify and hold harmless FPX CNS-App from any claims, damages, or expenses arising from your use of the Service or violation of these Terms.
+                You agree to indemnify and hold harmless FPK-X.com from any claims, damages, or expenses arising from your use of the Service or violation of these Terms.
               </p>
             </section>
 
@@ -193,7 +193,7 @@ const TermsOfService = () => {
                 <li><strong>Severability:</strong> If any provision is invalid, the remaining provisions remain in effect</li>
                 <li><strong>Waiver:</strong> Failure to enforce any right does not waive that right</li>
                 <li><strong>Assignment:</strong> You may not assign these Terms without our consent</li>
-                <li><strong>Entire Agreement:</strong> These Terms constitute the entire agreement between you and FPX CNS-App</li>
+                <li><strong>Entire Agreement:</strong> These Terms constitute the entire agreement between you and FPK-X.com</li>
               </ul>
             </section>
 

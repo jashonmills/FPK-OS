@@ -149,7 +149,7 @@ export const AppSidebar = () => {
       <SidebarHeader>
         <div className="flex items-center gap-2 px-2 py-4">
           
-          {open && <span className="font-semibold text-lg">FPX My CNS-App  </span>}
+          {open && <span className="font-semibold text-lg">FPK-X.com</span>}
         </div>
       </SidebarHeader>
 

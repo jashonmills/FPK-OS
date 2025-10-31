@@ -51,8 +51,8 @@ export default function About() {
   return (
     <>
       <SEOHead
-        title="About FPX CNS-App - Supporting Neurodivergent Families"
-        description="Learn about FPX CNS-App's mission to empower families, educators, and therapists with evidence-based tools for supporting neurodivergent children."
+        title="About FPK-X.com - Supporting Neurodivergent Families"
+        description="Learn about FPK-X.com's mission to empower families, educators, and therapists with evidence-based tools for supporting neurodivergent children."
         keywords={['about us', 'neurodiversity support', 'special education platform', 'autism support', 'ADHD tools']}
       />
       <SchemaMarkup
@@ -66,7 +66,7 @@ export default function About() {
           },
           {
             type: 'Organization',
-            name: 'FPX CNS-App',
+            name: 'FPK-X.com',
             url: window.location.origin,
             description: 'A comprehensive platform for tracking and supporting neurodivergent children\'s progress across home, school, and therapy settings.',
           },
@@ -83,7 +83,7 @@ export default function About() {
               Empowering Families Through Better Data
             </h1>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              FPX CNS-App was created by parents and professionals who understand the challenges of coordinating 
+              FPK-X.com was created by parents and professionals who understand the challenges of coordinating 
               care for neurodivergent children. We're here to make progress tracking clearer, communication easier, 
               and advocacy more effective.
             </p>
@@ -232,7 +232,7 @@ export default function About() {
               Ready to Get Started?
             </h2>
             <p className="text-xl text-muted-foreground mb-8">
-              Join families and professionals using FPX CNS-App to track progress and improve outcomes
+              Join families and professionals using FPK-X.com to track progress and improve outcomes
             </p>
             <div className="flex gap-4 justify-center flex-wrap">
               <Button size="lg" onClick={() => navigate('/auth')}>

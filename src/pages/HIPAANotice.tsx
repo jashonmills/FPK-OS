@@ -30,7 +30,7 @@ const HIPAANotice = () => {
             <section className="space-y-4">
               <h2 className="text-2xl font-semibold">1. Our Commitment to Your Privacy</h2>
               <p className="text-muted-foreground">
-                FPX CNS-App is committed to protecting the privacy of your Protected Health Information (PHI). We are required by law to:
+                FPK-X.com is committed to protecting the privacy of your Protected Health Information (PHI). We are required by law to:
               </p>
               <ul className="list-disc pl-6 text-muted-foreground space-y-2">
                 <li>Maintain the privacy and security of your PHI</li>
@@ -52,7 +52,7 @@ const HIPAANotice = () => {
                 <li>Past, present, or future payment for healthcare services</li>
               </ul>
               <p className="text-muted-foreground mt-2">
-                In FPX CNS-App, PHI includes behavioral logs, incident reports, sleep records, medical documents, IEP/504 plans, progress notes, and biometric data from wearable devices.
+                In FPK-X.com, PHI includes behavioral logs, incident reports, sleep records, medical documents, IEP/504 plans, progress notes, and biometric data from wearable devices.
               </p>
             </section>
 
@@ -216,8 +216,8 @@ const HIPAANotice = () => {
                 If you believe your privacy rights have been violated, you may file a complaint with:
               </p>
               <div className="text-muted-foreground pl-6 space-y-2">
-                <p><strong>FPX CNS-App Privacy Officer:</strong></p>
-                <p>Email: privacy@fpxcns.app</p>
+                <p><strong>FPK-X.com Privacy Officer:</strong></p>
+                <p>Email: privacy@fpk-x.com</p>
                 <p className="mt-4"><strong>U.S. Department of Health and Human Services:</strong></p>
                 <p>Office for Civil Rights</p>
                 <p>200 Independence Avenue, S.W.</p>

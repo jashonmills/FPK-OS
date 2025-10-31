@@ -24,7 +24,7 @@ export default function Authors() {
   return (
     <>
       <SEOHead
-        title="Our Expert Contributors | FPX CNS-App"
+        title="Our Expert Contributors | FPK-X.com"
         description="Meet our team of experienced professionals contributing evidence-based content on neurodiversity, special education, autism, ADHD, and behavioral support."
         keywords={['expert authors', 'neurodiversity experts', 'special education professionals', 'BCBA', 'licensed therapists']}
       />
