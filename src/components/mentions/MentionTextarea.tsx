@@ -181,7 +181,7 @@ export const MentionTextarea = ({
       />
       
       {showSuggestions && (
-        <div className="absolute z-50 w-64 mt-1 bg-popover border border-border rounded-md shadow-lg max-h-48 overflow-y-auto">
+        <div className="absolute z-50 w-64 bottom-full mb-2 bg-popover border border-border rounded-md shadow-lg max-h-48 overflow-y-auto">
           {suggestionType === 'mention' && filteredUsers.length > 0 && (
             <>
               {filteredUsers.map((user, index) => (
