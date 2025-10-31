@@ -253,35 +253,52 @@ serve(async (req) => {
       console.log('\n🧠 ========== ANALYSIS PHASE - Starting ==========');
       console.log('✅ Extraction completed, triggering Claude Sonnet 4.5 analysis...');
 
-      try {
-        console.log('🚀 Invoking analyze-document function...');
-        console.log('📤 Request body:', JSON.stringify({ document_id: documentData.id }));
+      // Wait for database to fully update with extracted content
+      console.log('⏳ Waiting 2 seconds for database to update...');
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
-        const analysisStartTime = Date.now();
+      // Verify extraction is complete before proceeding
+      const { data: verifyDoc } = await supabase
+        .from('documents')
+        .select('extracted_content')
+        .eq('id', documentData.id)
+        .single();
 
-        const { data: analysisData, error: analyzeError } = await supabase.functions.invoke(
-          'analyze-document',
-          { body: { document_id: documentData.id } }
-        );
+      if (!verifyDoc?.extracted_content || verifyDoc.extracted_content.length < 100) {
+        console.error('⚠️ Extracted content not yet available in database, skipping analysis trigger');
+        console.log('ℹ️ Analysis can be triggered manually later');
+      } else {
+        try {
+          console.log('🚀 Invoking analyze-document function...');
+          console.log('📤 Request body:', JSON.stringify({ document_id: documentData.id }));
+          console.log(`📊 Verified extracted content length: ${verifyDoc.extracted_content.length} characters`);
 
-        const analysisEndTime = Date.now();
-        const analysisDuration = analysisEndTime - analysisStartTime;
+          const analysisStartTime = Date.now();
 
-        console.log(`⏱️  Analysis invocation took ${analysisDuration}ms`);
-        console.log('📥 Analysis response data:', JSON.stringify(analysisData, null, 2));
-        console.log('📥 Analysis response error:', analyzeError ? JSON.stringify(analyzeError, null, 2) : 'null');
+          const { data: analysisData, error: analyzeError } = await supabase.functions.invoke(
+            'analyze-document',
+            { body: { document_id: documentData.id } }
+          );
 
-        if (analyzeError) {
-          console.error('⚠️  Analysis invocation error (non-blocking):', analyzeError);
+          const analysisEndTime = Date.now();
+          const analysisDuration = analysisEndTime - analysisStartTime;
+
+          console.log(`⏱️  Analysis invocation took ${analysisDuration}ms`);
+          console.log('📥 Analysis response data:', JSON.stringify(analysisData, null, 2));
+          console.log('📥 Analysis response error:', analyzeError ? JSON.stringify(analyzeError, null, 2) : 'null');
+
+          if (analyzeError) {
+            console.error('⚠️  Analysis invocation error (non-blocking):', analyzeError);
+            // Don't fail the upload - analysis can be retried later
+          } else {
+            console.log('✅ Analysis triggered successfully');
+          }
+        } catch (analysisError) {
+          const errorMessage = analysisError instanceof Error ? analysisError.message : 'Unknown analysis error';
+          console.error('⚠️  Analysis trigger failed (non-blocking):', errorMessage);
+          console.error('💥 Analysis error details:', JSON.stringify(analysisError, null, 2));
           // Don't fail the upload - analysis can be retried later
-        } else {
-          console.log('✅ Analysis triggered successfully');
         }
-      } catch (analysisError) {
-        const errorMessage = analysisError instanceof Error ? analysisError.message : 'Unknown analysis error';
-        console.error('⚠️  Analysis trigger failed (non-blocking):', errorMessage);
-        console.error('💥 Analysis error details:', JSON.stringify(analysisError, null, 2));
-        // Don't fail the upload - analysis can be retried later
       }
     } else {
       console.log('⏭️  Skipping analysis - extraction did not succeed');
