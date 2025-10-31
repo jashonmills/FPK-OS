@@ -13,21 +13,19 @@ interface AcademicFluencyTrendsProps {
 }
 
 export const AcademicFluencyTrends = ({ studentId, familyId, dateRange, sampleData, mode }: AcademicFluencyTrendsProps) => {
-  // DEMO MODE: Show hardcoded data immediately  
+  // DEMO MODE: Return hardcoded chart immediately
   if (sampleData) {
-    const chartData = [
-      { formattedDate: 'Sep 01', reading: 25, math: 12 },
-      { formattedDate: 'Sep 08', reading: 28, math: 14 },
-      { formattedDate: 'Sep 15', reading: 30, math: 15 },
-      { formattedDate: 'Sep 22', reading: 32, math: 16 },
-      { formattedDate: 'Sep 29', reading: 35, math: 18 },
-      { formattedDate: 'Oct 06', reading: 38, math: 20 },
-    ];
-
     return (
       <div className="h-full w-full p-2">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={chartData}>
+          <LineChart data={[
+            { formattedDate: 'Sep 01', reading: 25, math: 12 },
+            { formattedDate: 'Sep 08', reading: 28, math: 14 },
+            { formattedDate: 'Sep 15', reading: 30, math: 15 },
+            { formattedDate: 'Sep 22', reading: 32, math: 16 },
+            { formattedDate: 'Sep 29', reading: 35, math: 18 },
+            { formattedDate: 'Oct 06', reading: 38, math: 20 },
+          ]}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(6, 182, 212, 0.1)" />
             <XAxis dataKey="formattedDate" tick={{ fill: '#a5f3fc', fontSize: 10 }} />
             <YAxis yAxisId="left" tick={{ fill: '#a5f3fc', fontSize: 10 }} />
