@@ -28,16 +28,13 @@ export const IncidentFrequencyChart = ({ familyId, studentId, days, sampleData }
 
       console.log(`[IncidentFrequency] Found ${data?.length || 0} date records from RPC`);
       
-      // Convert RPC response to expected format
-      const incidents = data?.flatMap((d: any) => 
-        Array(d.incident_count).fill({ incident_date: d.log_date })
-      ) || [];
-      
+      // RPC now returns complete date range with incident_count for each day
+      // No need to convert - just use it directly
       const hasManualData = data?.some((d: any) => d.incident_count > 0) || false;
       
       return {
         source: hasManualData ? 'logs' : 'documents',
-        data: incidents
+        data: data || []
       };
     },
     staleTime: 5 * 60 * 1000,
@@ -60,19 +57,11 @@ export const IncidentFrequencyChart = ({ familyId, studentId, days, sampleData }
     );
   }
 
-  // Group by date and count incidents
-  const incidentsByDate = displayData.reduce((acc: any, incident: any) => {
-    const date = incident.incident_date;
-    if (!acc[date]) {
-      acc[date] = 0;
-    }
-    acc[date]++;
-    return acc;
-  }, {});
-
-  const chartData = Object.keys(incidentsByDate).map(date => ({
-    date: format(new Date(date), "MMM dd"),
-    count: incidentsByDate[date],
+  // RPC returns data already grouped by date with incident_count
+  // Just format it for the chart
+  const chartData = displayData.map((item: any) => ({
+    date: format(new Date(item.log_date), "MMM dd"),
+    count: item.incident_count || 0,
   }));
 
   return (
@@ -89,6 +78,8 @@ export const IncidentFrequencyChart = ({ familyId, studentId, days, sampleData }
           dataKey="date" 
           className="text-xs"
           tick={{ fill: "hsl(var(--foreground))" }}
+          interval="preserveStartEnd"
+          minTickGap={20}
         />
         <YAxis tick={{ fill: "hsl(var(--foreground))" }} />
         <Tooltip 
