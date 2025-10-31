@@ -109,7 +109,7 @@ const Analytics = () => {
   };
 
   return (
-    <div className={`fixed inset-0 dark flex flex-col transition-opacity duration-300 ${isExiting ? 'opacity-0' : 'opacity-100'}`} style={{ zIndex: 9999 }}>
+    <div className={`fixed inset-0 flex flex-col transition-opacity duration-300 ${isExiting ? 'opacity-0' : 'opacity-100'}`} style={{ zIndex: 9999 }}>
       {/* Layer 1: Full-Screen Video Background */}
       <VideoBackground />
       
