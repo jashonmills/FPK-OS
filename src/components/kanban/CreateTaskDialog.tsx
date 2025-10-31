@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { TaskTypeIcon, getTaskTypeLabel, BUG_TEMPLATE } from '@/components/tasks/TaskTypeIcon';
+import { TaskTypeIcon, getTaskTypeLabel, getTaskTemplate } from '@/components/tasks/TaskTypeIcon';
 import { MentionTextarea } from '@/components/mentions/MentionTextarea';
 import { Card } from '@/components/ui/card';
 import { AssigneeSelect } from '@/components/assignee/AssigneeSelect';
@@ -40,9 +40,8 @@ export const CreateTaskDialog = ({ open, onOpenChange, projectId }: CreateTaskDi
 
   const handleTypeSelect = (type: 'story' | 'bug' | 'epic' | 'chore') => {
     setTaskType(type);
-    if (type === 'bug' && !description) {
-      setDescription(BUG_TEMPLATE);
-    }
+    // Set the template for the selected type
+    setDescription(getTaskTemplate(type));
     setStep('details');
   };
 
