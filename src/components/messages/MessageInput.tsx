@@ -1,6 +1,6 @@
 import { useState, KeyboardEvent } from 'react';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import { MentionTextarea } from '@/components/mentions/MentionTextarea';
 import { Send, Smile } from 'lucide-react';
 
 interface MessageInputProps {
@@ -28,14 +28,13 @@ export const MessageInput = ({ onSend, disabled }: MessageInputProps) => {
   return (
     <div className="flex gap-2 items-end">
       <div className="flex-1 relative">
-        <Textarea
-          placeholder="Type a message... (Shift+Enter for new line)"
+        <MentionTextarea
+          placeholder="Type a message... @mention or #channel (Shift+Enter for new line)"
           value={message}
-          onChange={(e) => setMessage(e.target.value)}
+          onChange={setMessage}
           onKeyDown={handleKeyDown}
-          disabled={disabled}
-          className="min-h-[60px] max-h-32 resize-none pr-10"
-          rows={1}
+          minHeight="min-h-[60px]"
+          className="max-h-32 resize-none pr-10"
         />
         <Button
           variant="ghost"

@@ -1,5 +1,6 @@
 import { formatDistanceToNow } from 'date-fns';
 import { UserAvatar } from '@/components/ui/avatar-with-initials';
+import { MessageContent } from './MessageContent';
 
 interface MessageBubbleProps {
   message: {
@@ -30,9 +31,7 @@ export const MessageBubble = ({ message, isOwn }: MessageBubbleProps) => {
             {formatDistanceToNow(new Date(message.created_at), { addSuffix: true })}
           </span>
         </div>
-        <div className="text-sm whitespace-pre-wrap break-words">
-          {message.content}
-        </div>
+        <MessageContent content={message.content} />
       </div>
     </div>
   );
