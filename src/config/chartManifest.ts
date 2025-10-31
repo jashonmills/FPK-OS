@@ -101,6 +101,7 @@ export const CHART_MANIFEST: ChartConfig[] = [
     tab: "overall",
     component: IncidentFrequencyChart,
     requiredDocuments: ["Incident Log"],
+    rpcFunction: "get_incident_frequency_data",
     mockDataGenerator: "generateIncidentMock",
     subscriptionTier: "free"
   },

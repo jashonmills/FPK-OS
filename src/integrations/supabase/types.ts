@@ -3463,10 +3463,7 @@ export type Database = {
         Args: { p_days?: number; p_family_id: string; p_student_id: string }
         Returns: {
           avg_attention_minutes: number
-          distraction_count: number
           log_date: string
-          redirection_count: number
-          task_type: string
         }[]
       }
       get_available_specialized_charts: {
@@ -3579,6 +3576,14 @@ export type Database = {
               goal_count: number
             }[]
           }
+      get_incident_frequency_data: {
+        Args: { p_days?: number; p_family_id: string; p_student_id: string }
+        Returns: {
+          incident_count: number
+          log_date: string
+          severity_avg: number
+        }[]
+      }
       get_intervention_effectiveness_data: {
         Args: { p_days?: number; p_family_id: string; p_student_id: string }
         Returns: {
