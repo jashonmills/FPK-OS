@@ -3411,22 +3411,9 @@ export type Database = {
         }
         Returns: Json
       }
-      binary_quantize: {
-        Args: { "": string } | { "": unknown }
-        Returns: unknown
-      }
-      can_add_family_member: {
-        Args: { _family_id: string }
-        Returns: boolean
-      }
-      can_add_student: {
-        Args: { _family_id: string }
-        Returns: boolean
-      }
-      check_user_onboarding_status: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
+      can_add_family_member: { Args: { _family_id: string }; Returns: boolean }
+      can_add_student: { Args: { _family_id: string }; Returns: boolean }
+      check_user_onboarding_status: { Args: never; Returns: boolean }
       consume_ai_credits: {
         Args: {
           p_action_type: string
@@ -3440,29 +3427,38 @@ export type Database = {
         Args: { user_id_to_delete: string }
         Returns: undefined
       }
-      get_academic_fluency_data: {
-        Args:
-          | {
+      get_academic_fluency_data:
+        | {
+            Args: {
+              p_end_date?: string
+              p_family_id: string
+              p_start_date?: string
+              p_student_id: string
+            }
+            Returns: {
+              math_fluency: number
+              math_target: number
+              measurement_date: string
+              reading_fluency: number
+              reading_target: number
+            }[]
+          }
+        | {
+            Args: {
               p_days?: number
               p_end_date?: string
               p_family_id: string
               p_start_date?: string
               p_student_id: string
             }
-          | {
-              p_end_date?: string
-              p_family_id: string
-              p_start_date?: string
-              p_student_id: string
-            }
-        Returns: {
-          math_fluency: number
-          math_target: number
-          measurement_date: string
-          reading_fluency: number
-          reading_target: number
-        }[]
-      }
+            Returns: {
+              math_fluency: number
+              math_target: number
+              measurement_date: string
+              reading_fluency: number
+              reading_target: number
+            }[]
+          }
       get_attention_span_data: {
         Args: { p_days?: number; p_family_id: string; p_student_id: string }
         Returns: {
@@ -3564,17 +3560,25 @@ export type Database = {
           trial_count: number
         }[]
       }
-      get_iep_goal_progress: {
-        Args:
-          | { p_days?: number; p_family_id: string; p_student_id: string }
-          | { p_family_id: string; p_student_id: string }
-        Returns: {
-          active_goals: number
-          avg_progress: number
-          goal_category: string
-          goal_count: number
-        }[]
-      }
+      get_iep_goal_progress:
+        | {
+            Args: { p_days?: number; p_family_id: string; p_student_id: string }
+            Returns: {
+              active_goals: number
+              avg_progress: number
+              goal_category: string
+              goal_count: number
+            }[]
+          }
+        | {
+            Args: { p_family_id: string; p_student_id: string }
+            Returns: {
+              active_goals: number
+              avg_progress: number
+              goal_category: string
+              goal_count: number
+            }[]
+          }
       get_intervention_effectiveness_data: {
         Args: { p_days?: number; p_family_id: string; p_student_id: string }
         Returns: {
@@ -3583,14 +3587,8 @@ export type Database = {
           log_date: string
         }[]
       }
-      get_max_users_for_tier: {
-        Args: { tier: string }
-        Returns: number
-      }
-      get_monthly_credit_allowance: {
-        Args: { tier: string }
-        Returns: number
-      }
+      get_max_users_for_tier: { Args: { tier: string }; Returns: number }
+      get_monthly_credit_allowance: { Args: { tier: string }; Returns: number }
       get_next_queue_items: {
         Args: { p_family_id: string; p_limit?: number }
         Returns: {
@@ -3610,6 +3608,12 @@ export type Database = {
           status: string
           updated_at: string
         }[]
+        SetofOptions: {
+          from: "*"
+          to: "analysis_queue"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       get_peer_interaction_data: {
         Args: { p_days?: number; p_family_id: string; p_student_id: string }
@@ -3670,17 +3674,25 @@ export type Database = {
           sensory_system: string
         }[]
       }
-      get_sensory_profile_data: {
-        Args:
-          | { p_days?: number; p_family_id: string; p_student_id: string }
-          | { p_family_id: string; p_student_id: string }
-        Returns: {
-          avg_value: number
-          frequency: number
-          intensity_level: string
-          sensory_category: string
-        }[]
-      }
+      get_sensory_profile_data:
+        | {
+            Args: { p_family_id: string; p_student_id: string }
+            Returns: {
+              avg_value: number
+              frequency: number
+              intensity_level: string
+              sensory_category: string
+            }[]
+          }
+        | {
+            Args: { p_days?: number; p_family_id: string; p_student_id: string }
+            Returns: {
+              avg_value: number
+              frequency: number
+              intensity_level: string
+              sensory_category: string
+            }[]
+          }
       get_session_activity_data: {
         Args: { p_days?: number; p_family_id: string; p_student_id: string }
         Returns: {
@@ -3748,20 +3760,31 @@ export type Database = {
           task_complexity: string
         }[]
       }
-      get_top_priority_goals_data: {
-        Args:
-          | { p_days?: number; p_family_id: string; p_student_id: string }
-          | { p_family_id: string; p_student_id: string }
-        Returns: {
-          current_value: number
-          goal_title: string
-          goal_type: string
-          is_active: boolean
-          progress_percentage: number
-          target_date: string
-          target_value: number
-        }[]
-      }
+      get_top_priority_goals_data:
+        | {
+            Args: { p_days?: number; p_family_id: string; p_student_id: string }
+            Returns: {
+              current_value: number
+              goal_title: string
+              goal_type: string
+              is_active: boolean
+              progress_percentage: number
+              target_date: string
+              target_value: number
+            }[]
+          }
+        | {
+            Args: { p_family_id: string; p_student_id: string }
+            Returns: {
+              current_value: number
+              goal_title: string
+              goal_type: string
+              is_active: boolean
+              progress_percentage: number
+              target_date: string
+              target_value: number
+            }[]
+          }
       get_transition_success_data: {
         Args: { p_days?: number; p_family_id: string; p_student_id: string }
         Returns: {
@@ -3772,21 +3795,28 @@ export type Database = {
           transition_type: string
         }[]
       }
-      get_user_family_role: {
-        Args: { _family_id: string; _user_id: string } | { p_family_id: string }
-        Returns: string
-      }
-      get_weekly_mood_counts: {
-        Args:
-          | { p_days?: number; p_family_id: string; p_student_id: string }
-          | { p_family_id: string; p_student_id: string }
-        Returns: {
-          count: number
-          day_of_week: string
-          day_order: number
-          mood: string
-        }[]
-      }
+      get_user_family_role:
+        | { Args: { p_family_id: string }; Returns: string }
+        | { Args: { _family_id: string; _user_id: string }; Returns: string }
+      get_weekly_mood_counts:
+        | {
+            Args: { p_days?: number; p_family_id: string; p_student_id: string }
+            Returns: {
+              count: number
+              day_of_week: string
+              day_order: number
+              mood: string
+            }[]
+          }
+        | {
+            Args: { p_family_id: string; p_student_id: string }
+            Returns: {
+              count: number
+              day_of_week: string
+              day_order: number
+              mood: string
+            }[]
+          }
       get_working_memory_data: {
         Args: { p_days?: number; p_family_id: string; p_student_id: string }
         Returns: {
@@ -3796,22 +3826,6 @@ export type Database = {
           trial_count: number
         }[]
       }
-      halfvec_avg: {
-        Args: { "": number[] }
-        Returns: unknown
-      }
-      halfvec_out: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      halfvec_send: {
-        Args: { "": unknown }
-        Returns: string
-      }
-      halfvec_typmod_in: {
-        Args: { "": unknown[] }
-        Returns: number
-      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -3819,26 +3833,7 @@ export type Database = {
         }
         Returns: boolean
       }
-      has_super_admin_role: {
-        Args: { _user_id: string }
-        Returns: boolean
-      }
-      hnsw_bit_support: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      hnsw_halfvec_support: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      hnsw_sparsevec_support: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      hnswhandler: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
+      has_super_admin_role: { Args: { _user_id: string }; Returns: boolean }
       is_family_member: {
         Args: { _family_id: string; _user_id: string }
         Returns: boolean
@@ -3847,30 +3842,7 @@ export type Database = {
         Args: { _family_id: string; _user_id: string }
         Returns: boolean
       }
-      ivfflat_bit_support: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      ivfflat_halfvec_support: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      ivfflathandler: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      l2_norm: {
-        Args: { "": unknown } | { "": unknown }
-        Returns: number
-      }
-      l2_normalize: {
-        Args: { "": string } | { "": unknown } | { "": unknown }
-        Returns: unknown
-      }
-      mark_expired_invites: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      mark_expired_invites: { Args: never; Returns: undefined }
       match_family_data: {
         Args: {
           match_count?: number
@@ -3916,45 +3888,9 @@ export type Database = {
         }
         Returns: undefined
       }
-      sparsevec_out: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      sparsevec_send: {
-        Args: { "": unknown }
-        Returns: string
-      }
-      sparsevec_typmod_in: {
-        Args: { "": unknown[] }
-        Returns: number
-      }
       users_share_family: {
         Args: { _user_id_1: string; _user_id_2: string }
         Returns: boolean
-      }
-      vector_avg: {
-        Args: { "": number[] }
-        Returns: string
-      }
-      vector_dims: {
-        Args: { "": string } | { "": unknown }
-        Returns: number
-      }
-      vector_norm: {
-        Args: { "": string }
-        Returns: number
-      }
-      vector_out: {
-        Args: { "": string }
-        Returns: unknown
-      }
-      vector_send: {
-        Args: { "": string }
-        Returns: string
-      }
-      vector_typmod_in: {
-        Args: { "": unknown[] }
-        Returns: number
       }
     }
     Enums: {
