@@ -114,27 +114,27 @@ export const ConversationList = ({ selectedConversationId, onSelectConversation 
 
   return (
     <>
-      <div className="h-full flex flex-col">
-        <div className="p-4 border-b border-border/50">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      <div className="h-full flex flex-col overflow-x-hidden w-full">
+        <div className="p-3 md:p-4 border-b border-border/50">
+          <div className="relative w-full">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
             <Input
               placeholder="Search conversations..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 bg-background"
+              className="pl-9 bg-background w-full"
             />
           </div>
         </div>
 
-        <ScrollArea className="flex-1">
-          <div className="p-2">
+        <ScrollArea className="flex-1 overflow-x-hidden">
+          <div className="p-2 overflow-x-hidden w-full">
             <div className="flex items-center justify-between px-2 py-1 mb-1">
               <h3 className="text-sm font-semibold text-muted-foreground">Channels</h3>
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-6 w-6 p-0"
+                className="h-6 w-6 p-0 flex-shrink-0"
                 onClick={() => setShowCreateChannel(true)}
               >
                 <Plus className="h-4 w-4" />
@@ -145,7 +145,7 @@ export const ConversationList = ({ selectedConversationId, onSelectConversation 
                 key={conv.id}
                 onClick={() => onSelectConversation(conv.id)}
                 className={cn(
-                  "w-full flex items-start gap-3 p-2.5 rounded-md hover:bg-muted/60 transition-colors text-left",
+                  "w-full flex items-start gap-3 p-2.5 rounded-md hover:bg-muted/60 transition-colors text-left overflow-hidden",
                   selectedConversationId === conv.id && "bg-muted/80"
                 )}
               >
@@ -154,9 +154,9 @@ export const ConversationList = ({ selectedConversationId, onSelectConversation 
                     <Hash className="h-4 w-4 text-primary" />
                   </div>
                 </div>
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0 overflow-hidden">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-medium truncate whitespace-nowrap overflow-hidden text-ellipsis">{conv.name}</span>
+                    <span className="font-medium truncate whitespace-nowrap overflow-hidden text-ellipsis max-w-full">{conv.name}</span>
                     {conv.unreadCount > 0 && (
                       <Badge variant="destructive" className="h-5 min-w-5 px-1.5 text-xs flex-shrink-0">
                         {conv.unreadCount}
@@ -164,7 +164,7 @@ export const ConversationList = ({ selectedConversationId, onSelectConversation 
                     )}
                   </div>
                   {conv.lastMessage && (
-                    <p className="text-xs text-muted-foreground truncate whitespace-nowrap overflow-hidden text-ellipsis">
+                    <p className="text-xs text-muted-foreground truncate whitespace-nowrap overflow-hidden text-ellipsis max-w-full">
                       {conv.lastMessage}
                     </p>
                   )}
@@ -177,7 +177,7 @@ export const ConversationList = ({ selectedConversationId, onSelectConversation 
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-6 w-6 p-0"
+                className="h-6 w-6 p-0 flex-shrink-0"
                 onClick={() => setShowStartDM(true)}
               >
                 <Plus className="h-4 w-4" />
@@ -188,7 +188,7 @@ export const ConversationList = ({ selectedConversationId, onSelectConversation 
                 key={conv.id}
                 onClick={() => onSelectConversation(conv.id)}
                 className={cn(
-                  "w-full flex items-start gap-3 p-2.5 rounded-md hover:bg-muted/60 transition-colors text-left",
+                  "w-full flex items-start gap-3 p-2.5 rounded-md hover:bg-muted/60 transition-colors text-left overflow-hidden",
                   selectedConversationId === conv.id && "bg-muted/80"
                 )}
               >
@@ -205,9 +205,9 @@ export const ConversationList = ({ selectedConversationId, onSelectConversation 
                     </div>
                   )}
                 </div>
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0 overflow-hidden">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-medium truncate whitespace-nowrap overflow-hidden text-ellipsis">{conv.name}</span>
+                    <span className="font-medium truncate whitespace-nowrap overflow-hidden text-ellipsis max-w-full">{conv.name}</span>
                     {conv.unreadCount > 0 && (
                       <Badge variant="destructive" className="h-5 min-w-5 px-1.5 text-xs flex-shrink-0">
                         {conv.unreadCount}
@@ -215,7 +215,7 @@ export const ConversationList = ({ selectedConversationId, onSelectConversation 
                     )}
                   </div>
                   {conv.lastMessage && (
-                    <p className="text-xs text-muted-foreground truncate whitespace-nowrap overflow-hidden text-ellipsis">
+                    <p className="text-xs text-muted-foreground truncate whitespace-nowrap overflow-hidden text-ellipsis max-w-full">
                       {conv.lastMessage}
                     </p>
                   )}

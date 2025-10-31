@@ -12,20 +12,20 @@ export const AppHeader = () => {
   const navigate = useNavigate();
 
   return (
-    <header className="h-14 border-b border-border bg-background flex items-center justify-between px-4">
-      <div className="flex items-center gap-3">
-        <SidebarTrigger />
-        <h1 className="text-lg font-semibold">FPK Pulse</h1>
+    <header className="h-14 border-b border-border bg-background flex items-center justify-between px-3 md:px-4 overflow-x-hidden w-full">
+      <div className="flex items-center gap-2 md:gap-3 min-w-0 flex-1">
+        <SidebarTrigger className="flex-shrink-0" />
+        <h1 className="text-base md:text-lg font-semibold truncate">FPK Pulse</h1>
       </div>
       
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1 md:gap-2 flex-shrink-0">
         <NotificationCenter />
         <ThemeToggle />
         
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <User className="h-5 w-5" />
+            <Button variant="ghost" size="icon" className="h-9 w-9 md:h-10 md:w-10">
+              <User className="h-4 w-4 md:h-5 md:w-5" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
