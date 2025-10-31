@@ -15,9 +15,10 @@ interface AcademicFluencyTrendsProps {
 export const AcademicFluencyTrends = ({ studentId, familyId, dateRange, sampleData, mode }: AcademicFluencyTrendsProps) => {
   // DEMO MODE: Return hardcoded chart immediately
   if (sampleData) {
+    console.log('AcademicFluencyTrends rendering with sampleData');
     return (
-      <div className="h-full w-full p-2">
-        <ResponsiveContainer width="100%" height="100%">
+      <div className="w-full h-full min-h-[300px] p-2">
+        <ResponsiveContainer width="100%" height={300}>
           <LineChart data={[
             { formattedDate: 'Sep 01', reading: 25, math: 12 },
             { formattedDate: 'Sep 08', reading: 28, math: 14 },

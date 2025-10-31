@@ -364,7 +364,7 @@ const ChartCard = ({ chart, isLocked, studentId, familyId, sampleData }: ChartCa
       </CardHeader>
       <CardContent>
         {/* Render chart with sample data for full interactive showroom */}
-        <div className="min-h-64">
+        <div className="h-[400px]">
             {chart.id === "academic_fluency_trends" && (
               <AcademicFluencyTrends 
                 studentId={studentId} 

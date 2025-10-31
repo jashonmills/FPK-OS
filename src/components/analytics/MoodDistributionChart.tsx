@@ -34,9 +34,10 @@ const MOOD_COLORS: Record<string, string> = {
 export const MoodDistributionChart = ({ familyId, studentId, sampleData, mode }: MoodDistributionChartProps) => {
   // DEMO MODE: Return hardcoded chart immediately
   if (sampleData) {
+    console.log('MoodDistributionChart rendering with sampleData');
     return (
-      <div className="h-full w-full p-2">
-        <ResponsiveContainer width="100%" height="100%">
+      <div className="w-full h-full min-h-[300px] p-2">
+        <ResponsiveContainer width="100%" height={300}>
           <BarChart data={[
             { day: 'Sunday', Happy: 6, Calm: 3, Anxious: 1, Agitated: 0, Tired: 0 },
             { day: 'Monday', Happy: 5, Calm: 3, Anxious: 1, Agitated: 0, Tired: 1 },

@@ -14,6 +14,7 @@ interface BehaviorFunctionAnalysisProps {
 export const BehaviorFunctionAnalysis = ({ studentId, familyId, sampleData, mode }: BehaviorFunctionAnalysisProps) => {
   // DEMO MODE: Return hardcoded chart immediately
   if (sampleData) {
+    console.log('BehaviorFunctionAnalysis rendering with sampleData');
     const demoData = [
       { name: 'Yelling', frequency: 4, function: 'Escape', x: 25, y: 70 },
       { name: 'Hitting', frequency: 3, function: 'Attention', x: 50, y: 55 },
@@ -34,8 +35,8 @@ export const BehaviorFunctionAnalysis = ({ studentId, familyId, sampleData, mode
     };
 
     return (
-      <div className="h-full w-full p-2">
-        <ResponsiveContainer width="100%" height="100%">
+      <div className="w-full h-full min-h-[300px] p-2">
+        <ResponsiveContainer width="100%" height={300}>
           <ScatterChart margin={{ top: 10, right: 10, bottom: 30, left: 10 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(6, 182, 212, 0.1)" />
             <XAxis type="number" dataKey="x" hide />
