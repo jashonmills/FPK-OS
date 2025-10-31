@@ -251,21 +251,41 @@ export const KanbanBoard = ({ projectId, tasks: externalTasks, onTaskUpdate: ext
       >
         {isMobile ? (
           <Tabs value={activeColumn} onValueChange={setActiveColumn} className="w-full overflow-hidden">
-            <TabsList className="w-full justify-start overflow-x-auto mb-4 flex-nowrap">
-              {COLUMNS.map(column => {
-                const columnTasks = tasks.filter(t => t.status === column.id);
-                return (
-                  <TabsTrigger 
-                    key={column.id} 
-                    value={column.id}
-                    className="flex-shrink-0 text-xs md:text-sm"
-                  >
-                    {column.title}
-                    <span className="ml-1 md:ml-2 text-xs opacity-70">({columnTasks.length})</span>
-                  </TabsTrigger>
-                );
-              })}
-            </TabsList>
+            <div className="w-full mb-3 flex justify-center">
+              <Button
+                onClick={() => setCreateDialogOpen(true)}
+                className="gap-2 px-6"
+              >
+                <Plus className="h-4 w-4" />
+                New Task
+              </Button>
+            </div>
+            <div className="flex flex-col gap-2 mb-4">
+              <TabsList className="w-full justify-center">
+                <TabsTrigger value="backlog" className="flex-1 text-xs">
+                  Backlog
+                  <span className="ml-1 opacity-70">({tasks.filter(t => t.status === 'backlog').length})</span>
+                </TabsTrigger>
+                <TabsTrigger value="todo" className="flex-1 text-xs">
+                  To Do
+                  <span className="ml-1 opacity-70">({tasks.filter(t => t.status === 'todo').length})</span>
+                </TabsTrigger>
+                <TabsTrigger value="in_progress" className="flex-1 text-xs">
+                  In Progress
+                  <span className="ml-1 opacity-70">({tasks.filter(t => t.status === 'in_progress').length})</span>
+                </TabsTrigger>
+              </TabsList>
+              <TabsList className="w-full justify-center">
+                <TabsTrigger value="review" className="flex-1 text-xs">
+                  Review
+                  <span className="ml-1 opacity-70">({tasks.filter(t => t.status === 'review').length})</span>
+                </TabsTrigger>
+                <TabsTrigger value="done" className="flex-1 text-xs">
+                  Done
+                  <span className="ml-1 opacity-70">({tasks.filter(t => t.status === 'done').length})</span>
+                </TabsTrigger>
+              </TabsList>
+            </div>
             {COLUMNS.map(column => {
               const columnTasks = tasks.filter(t => t.status === column.id);
               return (

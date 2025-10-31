@@ -197,7 +197,7 @@ const Kanban = () => {
             // Mobile-optimized layout
             <div className="flex flex-col gap-3 w-full">
               <ProjectSelector value={selectedProject} onChange={setSelectedProject} />
-              <div className="flex items-center gap-2 w-full">
+              <div className="flex items-center justify-center gap-2 w-full">
                 <MobileFilterDropdown 
                   showMyTasks={showMyTasks} 
                   onFilterChange={handleMobileFilterChange}
@@ -206,20 +206,6 @@ const Kanban = () => {
                   activeView={activeView} 
                   onViewChange={handleViewChange}
                 />
-                <Button 
-                  onClick={() => {
-                    if (selectedProject && selectedProject !== 'all' && activeView === 'kanban') {
-                      // Trigger the FAB or dialog
-                      const createBtn = document.querySelector('[data-create-task-btn]') as HTMLButtonElement;
-                      if (createBtn) createBtn.click();
-                    }
-                  }}
-                  size="sm"
-                  className="ml-auto gap-1"
-                >
-                  <Plus className="h-4 w-4" />
-                  <span className="text-xs">New</span>
-                </Button>
               </div>
             </div>
           ) : (
