@@ -17,6 +17,7 @@ import Dashboard from "./pages/Dashboard";
 import ActivityLog from "./pages/ActivityLog";
 import Documents from "./pages/Documents";
 import Goals from "./pages/Goals";
+import GoalDetails from "./pages/GoalDetails";
 import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
 import AdminKBManager from "./pages/AdminKBManager";
@@ -173,6 +174,16 @@ const App = () => (
                 <ProtectedRoute>
                   <AppLayout>
                     <Goals />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/goals/:goalId"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <GoalDetails />
                   </AppLayout>
                 </ProtectedRoute>
               }

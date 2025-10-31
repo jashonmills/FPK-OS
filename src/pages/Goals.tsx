@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useFamily } from '@/contexts/FamilyContext';
@@ -21,6 +22,7 @@ import { goalsTourSteps } from '@/components/onboarding/tourConfigs';
 import { useTourProgress } from '@/hooks/useTourProgress';
 
 const Goals = () => {
+  const navigate = useNavigate();
   const { selectedFamily, selectedStudent } = useFamily();
   const queryClient = useQueryClient();
   const { shouldRunTour, markTourAsSeen } = useTourProgress('has_seen_goals_tour');
@@ -251,7 +253,11 @@ const Goals = () => {
             : 0;
 
           return (
-            <Card key={goal.id}>
+            <Card 
+              key={goal.id}
+              className="cursor-pointer hover:shadow-lg transition-shadow"
+              onClick={() => navigate(`/goals/${goal.id}`)}
+            >
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
@@ -271,7 +277,7 @@ const Goals = () => {
                   )}
                 </div>
                 {goal.goal_description && (
-                  <CardDescription className="mt-2">
+                  <CardDescription className="mt-2 line-clamp-2">
                     {goal.goal_description}
                   </CardDescription>
                 )}
