@@ -8,6 +8,7 @@ import { FeatureFlagProvider } from "@/contexts/FeatureFlagContext";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Kanban from "./pages/Kanban";
+import Messages from "./pages/Messages";
 import Admin from "./pages/Admin";
 import Profile from "./pages/Profile";
 import SetupPassword from "./pages/SetupPassword";
@@ -86,7 +87,15 @@ const App = () => (
                 } 
               />
               <Route 
-                path="/admin" 
+                path="/messages" 
+                element={
+                  <ProtectedRoute>
+                    <Messages />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin"
                 element={
                   <ProtectedRoute>
                     <Admin />
