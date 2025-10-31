@@ -117,13 +117,13 @@ export const sampleMoodData = [
 ];
 
 export const sampleIncidentData = [
-  { incident_date: "2025-10-01", count: 2 },
-  { incident_date: "2025-10-02", count: 1 },
-  { incident_date: "2025-10-03", count: 4 },
-  { incident_date: "2025-10-04", count: 1 },
-  { incident_date: "2025-10-05", count: 0 },
-  { incident_date: "2025-10-06", count: 2 },
-  { incident_date: "2025-10-07", count: 5 },
+  { log_date: "2025-10-01", incident_count: 2 },
+  { log_date: "2025-10-02", incident_count: 1 },
+  { log_date: "2025-10-03", incident_count: 4 },
+  { log_date: "2025-10-04", incident_count: 1 },
+  { log_date: "2025-10-05", incident_count: 0 },
+  { log_date: "2025-10-06", incident_count: 2 },
+  { log_date: "2025-10-07", incident_count: 5 },
 ];
 
 export const sampleInterventionData = [
@@ -173,12 +173,12 @@ export const sampleStrategyData = [
 
 // For Prompting Level Fading chart
 export const samplePromptingData = [
-  { date: "Sep 01", "Hand-over-Hand": 5, "Physical": 2, "Model": 1, "Verbal": 0, "Gestural": 0, "Independent": 0 },
-  { date: "Sep 08", "Hand-over-Hand": 4, "Physical": 3, "Model": 2, "Verbal": 1, "Gestural": 0, "Independent": 0 },
-  { date: "Sep 15", "Hand-over-Hand": 2, "Physical": 4, "Model": 3, "Verbal": 2, "Gestural": 1, "Independent": 0 },
-  { date: "Sep 22", "Hand-over-Hand": 1, "Physical": 3, "Model": 4, "Verbal": 3, "Gestural": 2, "Independent": 1 },
-  { date: "Sep 29", "Hand-over-Hand": 0, "Physical": 2, "Model": 3, "Verbal": 5, "Gestural": 3, "Independent": 2 },
-  { date: "Oct 06", "Hand-over-Hand": 0, "Physical": 1, "Model": 2, "Verbal": 4, "Gestural": 5, "Independent": 4 },
+  { log_date: "2025-09-01", independent_count: 0, gestural_count: 0, verbal_count: 0, physical_count: 2, full_prompt_count: 5 },
+  { log_date: "2025-09-08", independent_count: 0, gestural_count: 0, verbal_count: 1, physical_count: 3, full_prompt_count: 4 },
+  { log_date: "2025-09-15", independent_count: 0, gestural_count: 1, verbal_count: 2, physical_count: 4, full_prompt_count: 2 },
+  { log_date: "2025-09-22", independent_count: 1, gestural_count: 2, verbal_count: 3, physical_count: 3, full_prompt_count: 1 },
+  { log_date: "2025-09-29", independent_count: 2, gestural_count: 3, verbal_count: 5, physical_count: 2, full_prompt_count: 0 },
+  { log_date: "2025-10-06", independent_count: 4, gestural_count: 5, verbal_count: 4, physical_count: 1, full_prompt_count: 0 },
 ];
 
 // For Sleep & Behavior Correlation chart
