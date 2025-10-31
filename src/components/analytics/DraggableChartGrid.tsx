@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { createPortal } from "react-dom";
 import RGL, { WidthProvider } from "react-grid-layout";
 import { SmartChartWidget } from "./SmartChartWidget";
