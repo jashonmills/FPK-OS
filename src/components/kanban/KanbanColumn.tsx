@@ -2,6 +2,8 @@ import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { KanbanCard } from './KanbanCard';
 import { cn } from '@/lib/utils';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface Task {
   id: string;
@@ -26,28 +28,70 @@ interface KanbanColumnProps {
   tasks: Task[];
   projectColor?: string;
   onTaskClick?: (task: Task) => void;
+  isCollapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
-export const KanbanColumn = ({ column, tasks, projectColor, onTaskClick }: KanbanColumnProps) => {
+export const KanbanColumn = ({ column, tasks, projectColor, onTaskClick, isCollapsed, onToggleCollapse }: KanbanColumnProps) => {
   const { setNodeRef, isOver } = useDroppable({
     id: column.id,
   });
+
+  if (isCollapsed) {
+    return (
+      <div
+        ref={setNodeRef}
+        className="flex-shrink-0 w-12 bg-muted/50 rounded-lg relative group hover:bg-muted transition-colors"
+      >
+        <div className="h-full flex flex-col items-center justify-between py-4">
+          <div className="writing-mode-vertical text-sm font-semibold uppercase tracking-wide text-muted-foreground whitespace-nowrap">
+            <span className="inline-block" style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}>
+              {column.title}
+            </span>
+          </div>
+          <span className="text-xs text-muted-foreground bg-background px-1.5 py-0.5 rounded-full">
+            {tasks.length}
+          </span>
+        </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="absolute top-2 right-0 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+          onClick={onToggleCollapse}
+        >
+          <ChevronRight className="h-3 w-3" />
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div
       ref={setNodeRef}
       className={cn(
-        'flex flex-col w-80 flex-shrink-0 bg-muted/50 rounded-lg p-4 transition-colors',
+        'flex flex-col w-[270px] flex-shrink-0 bg-muted/50 rounded-lg p-3 transition-colors',
         isOver && 'bg-muted'
       )}
     >
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-3">
         <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">
           {column.title}
         </h3>
-        <span className="text-xs text-muted-foreground bg-background px-2 py-1 rounded-full">
-          {tasks.length}
-        </span>
+        <div className="flex items-center gap-1">
+          <span className="text-xs text-muted-foreground bg-background px-2 py-1 rounded-full">
+            {tasks.length}
+          </span>
+          {onToggleCollapse && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6"
+              onClick={onToggleCollapse}
+            >
+              <ChevronLeft className="h-3 w-3" />
+            </Button>
+          )}
+        </div>
       </div>
 
       <SortableContext items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>

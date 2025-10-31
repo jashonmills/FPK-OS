@@ -8,7 +8,8 @@ import { KanbanCard } from './KanbanCard';
 import { CreateTaskDialog } from './CreateTaskDialog';
 import { TaskDetailsSheet } from './TaskDetailsSheet';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Plus, Maximize2, Minimize2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface Task {
   id: string;
@@ -44,6 +45,14 @@ export const KanbanBoard = ({ projectId, tasks: externalTasks, onTaskUpdate: ext
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [detailsSheetOpen, setDetailsSheetOpen] = useState(false);
   const [projectColor, setProjectColor] = useState<string>('');
+  const [isFullWidth, setIsFullWidth] = useState(() => {
+    const saved = localStorage.getItem('kanban-full-width');
+    return saved ? JSON.parse(saved) : false;
+  });
+  const [collapsedColumns, setCollapsedColumns] = useState<Set<string>>(() => {
+    const saved = localStorage.getItem('kanban-collapsed-columns');
+    return saved ? new Set(JSON.parse(saved)) : new Set();
+  });
   const { toast } = useToast();
 
   const tasks = externalTasks || internalTasks;
@@ -126,6 +135,25 @@ export const KanbanBoard = ({ projectId, tasks: externalTasks, onTaskUpdate: ext
     setActiveTask(task || null);
   };
 
+  const toggleFullWidth = () => {
+    const newValue = !isFullWidth;
+    setIsFullWidth(newValue);
+    localStorage.setItem('kanban-full-width', JSON.stringify(newValue));
+  };
+
+  const toggleColumnCollapse = (columnId: string) => {
+    setCollapsedColumns(prev => {
+      const next = new Set(prev);
+      if (next.has(columnId)) {
+        next.delete(columnId);
+      } else {
+        next.add(columnId);
+      }
+      localStorage.setItem('kanban-collapsed-columns', JSON.stringify([...next]));
+      return next;
+    });
+  };
+
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     setActiveTask(null);
@@ -186,14 +214,27 @@ export const KanbanBoard = ({ projectId, tasks: externalTasks, onTaskUpdate: ext
   };
 
   return (
-    <div className="h-full flex flex-col">
+    <div className={cn(
+      "h-full flex flex-col transition-all duration-300",
+      isFullWidth ? "w-full" : "max-w-7xl mx-auto"
+    )}>
       {!isAllProjects && (
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold">Project Board</h2>
-          <Button onClick={() => setCreateDialogOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            New Task
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={toggleFullWidth}
+              title={isFullWidth ? "Center view" : "Full width view"}
+            >
+              {isFullWidth ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+            </Button>
+            <Button onClick={() => setCreateDialogOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              New Task
+            </Button>
+          </div>
         </div>
       )}
 
@@ -203,7 +244,7 @@ export const KanbanBoard = ({ projectId, tasks: externalTasks, onTaskUpdate: ext
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <div className="flex gap-4 overflow-x-auto pb-4">
+        <div className="flex gap-3 overflow-x-auto pb-4">
           {COLUMNS.map(column => {
             const columnTasks = tasks.filter(t => t.status === column.id);
             return (
@@ -213,6 +254,8 @@ export const KanbanBoard = ({ projectId, tasks: externalTasks, onTaskUpdate: ext
                 tasks={columnTasks} 
                 projectColor={projectColor}
                 onTaskClick={handleTaskClick}
+                isCollapsed={collapsedColumns.has(column.id)}
+                onToggleCollapse={() => toggleColumnCollapse(column.id)}
               />
             );
           })}
