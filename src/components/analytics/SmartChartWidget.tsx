@@ -34,9 +34,9 @@ export const SmartChartWidget = ({
   const navigate = useNavigate();
   const [mode, setMode] = useState<ChartMode>("demo");
 
-  // Determine chart mode: all users see demo/live data (no subscription gating)
-  const isUnlocked = isSuperAdmin || unlockedCharts.includes(config.chartId) || config.tier === "standard";
-  const hasSubscription = true; // All users can access all charts
+  // All charts unlocked - no subscription gating
+  const isUnlocked = true;
+  const hasSubscription = true;
 
   // Fetch live data if unlocked and has subscription
   const { data: liveData, isLoading, error } = useQuery({
