@@ -1,4 +1,4 @@
-import { LayoutDashboard, Briefcase, DollarSign, Code, Calendar, MessageSquare, Bot, FileText, Files, LogOut } from 'lucide-react';
+import { LayoutDashboard, Briefcase, DollarSign, Code, Calendar, MessageSquare, Bot, FileText, Files, LogOut, Shield } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import {
   Sidebar,
@@ -17,27 +17,54 @@ import {
 import { useFeatureFlags } from '@/contexts/FeatureFlagContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 const navigationItems = [
-  { title: 'Dashboard', url: '/', icon: LayoutDashboard, feature: null },
-  { title: 'Kanban Board', url: '/kanban', icon: Briefcase, feature: 'FEATURE_KANBAN' as const },
-  { title: 'Budget', url: '/budget', icon: DollarSign, feature: 'FEATURE_BUDGET' as const },
-  { title: 'Development', url: '/development', icon: Code, feature: 'FEATURE_DEVELOPMENT' as const },
-  { title: 'Planning', url: '/planning', icon: Calendar, feature: 'FEATURE_PLANNING' as const },
-  { title: 'Messages', url: '/messages', icon: MessageSquare, feature: 'FEATURE_MESSAGES' as const },
-  { title: 'AI Assistant', url: '/ai', icon: Bot, feature: 'FEATURE_AI_CHATBOT' as const },
-  { title: 'Documentation', url: '/docs', icon: FileText, feature: 'FEATURE_DOCUMENTATION' as const },
-  { title: 'Files', url: '/files', icon: Files, feature: 'FEATURE_FILES' as const },
+  { title: 'Dashboard', url: '/', icon: LayoutDashboard, feature: null, adminOnly: false },
+  { title: 'Admin', url: '/admin', icon: Shield, feature: null, adminOnly: true },
+  { title: 'Kanban Board', url: '/kanban', icon: Briefcase, feature: 'FEATURE_KANBAN' as const, adminOnly: false },
+  { title: 'Budget', url: '/budget', icon: DollarSign, feature: 'FEATURE_BUDGET' as const, adminOnly: false },
+  { title: 'Development', url: '/development', icon: Code, feature: 'FEATURE_DEVELOPMENT' as const, adminOnly: false },
+  { title: 'Planning', url: '/planning', icon: Calendar, feature: 'FEATURE_PLANNING' as const, adminOnly: false },
+  { title: 'Messages', url: '/messages', icon: MessageSquare, feature: 'FEATURE_MESSAGES' as const, adminOnly: false },
+  { title: 'AI Assistant', url: '/ai', icon: Bot, feature: 'FEATURE_AI_CHATBOT' as const, adminOnly: false },
+  { title: 'Documentation', url: '/docs', icon: FileText, feature: 'FEATURE_DOCUMENTATION' as const, adminOnly: false },
+  { title: 'Files', url: '/files', icon: Files, feature: 'FEATURE_FILES' as const, adminOnly: false },
 ];
 
 export function AppSidebar() {
   const { state } = useSidebar();
   const { isFeatureEnabled } = useFeatureFlags();
-  const { signOut } = useAuth();
+  const { user, signOut } = useAuth();
   const collapsed = state === 'collapsed';
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const checkAdminRole = async () => {
+      if (!user) return;
+
+      try {
+        const { data } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', user.id)
+          .single();
+
+        setIsAdmin(data?.role === 'admin');
+      } catch (error) {
+        setIsAdmin(false);
+      }
+    };
+
+    checkAdminRole();
+  }, [user]);
 
   const visibleItems = navigationItems.filter(
-    item => !item.feature || isFeatureEnabled(item.feature)
+    item => {
+      if (item.adminOnly && !isAdmin) return false;
+      return !item.feature || isFeatureEnabled(item.feature);
+    }
   );
 
   return (
