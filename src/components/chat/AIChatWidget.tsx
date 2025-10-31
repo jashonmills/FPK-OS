@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { MessageCircle, X, Send, Loader2, Mic, MicOff, Volume2, VolumeX, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useFamily } from "@/contexts/FamilyContext";
@@ -31,9 +32,11 @@ export function AIChatWidget() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
-  const [embeddingStats, setEmbeddingStats] = useState({ total: 0, pending: 0 });
+  const [embeddingStats, setEmbeddingStats] = useState({ total: 0, pending: 0, processing: 0 });
   const [isProcessingEmbeddings, setIsProcessingEmbeddings] = useState(false);
+  const [processingProgress, setProcessingProgress] = useState({ current: 0, total: 0 });
   const [autoPlay, setAutoPlay] = useState(false);
+  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const { toast } = useToast();
   const { selectedFamily } = useFamily();
   
@@ -59,6 +62,15 @@ export function AIChatWidget() {
     }
   }, [isOpen, selectedFamily]);
 
+  // Cleanup polling on unmount
+  useEffect(() => {
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+      }
+    };
+  }, []);
+
   const fetchEmbeddingStats = async () => {
     if (!selectedFamily) return;
     
@@ -74,12 +86,67 @@ export function AIChatWidget() {
         .eq("family_id", selectedFamily.id)
         .eq("status", "pending");
 
+      const { count: processingQueue } = await supabase
+        .from("embedding_queue")
+        .select("*", { count: "exact", head: true })
+        .eq("family_id", selectedFamily.id)
+        .eq("status", "processing");
+
+      const { count: completedQueue } = await supabase
+        .from("embedding_queue")
+        .select("*", { count: "exact", head: true })
+        .eq("family_id", selectedFamily.id)
+        .eq("status", "completed");
+
       setEmbeddingStats({
         total: totalEmbeddings || 0,
         pending: pendingQueue || 0,
+        processing: processingQueue || 0,
       });
+
+      // Update progress if processing
+      const totalQueued = (pendingQueue || 0) + (processingQueue || 0) + (completedQueue || 0);
+      if (totalQueued > 0) {
+        setProcessingProgress({
+          current: completedQueue || 0,
+          total: totalQueued,
+        });
+      }
     } catch (error) {
       console.error("Error fetching embedding stats:", error);
+    }
+  };
+
+  const startPolling = () => {
+    // Clear any existing interval
+    if (pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current);
+    }
+    
+    // Poll every 2 seconds
+    pollingIntervalRef.current = setInterval(async () => {
+      await fetchEmbeddingStats();
+      
+      // Stop polling if no pending/processing items
+      if (embeddingStats.pending === 0 && embeddingStats.processing === 0) {
+        stopPolling();
+      }
+    }, 2000);
+  };
+
+  const stopPolling = () => {
+    if (pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current);
+      pollingIntervalRef.current = null;
+    }
+    setIsProcessingEmbeddings(false);
+    
+    // Show completion notification if we were processing
+    if (processingProgress.total > 0) {
+      toast({
+        title: "✅ Data Processing Complete!",
+        description: `Successfully indexed ${embeddingStats.total} records. Your AI assistant is ready!`,
+      });
     }
   };
 
@@ -89,23 +156,28 @@ export function AIChatWidget() {
     setIsProcessingEmbeddings(true);
     
     try {
+      const isFirstTime = embeddingStats.total === 0;
+      
       const { data, error } = await supabase.functions.invoke("process-embedding-queue", {
         body: { 
           family_id: selectedFamily.id,
-          batch_all: embeddingStats.total === 0,
+          batch_all: isFirstTime,
           limit: 20
         },
       });
 
       if (error) throw error;
 
+      const recordCount = data.batch_queued > 0 ? data.batch_queued : data.processed;
+      
       toast({
-        title: "Processing Data",
-        description: `Processing ${data.batch_queued > 0 ? data.batch_queued : data.processed} records. This may take a few minutes.`,
+        title: isFirstTime ? "⚙️ Processing Data" : "🔄 Reprocessing Data",
+        description: `Processing ${recordCount} ${isFirstTime ? 'records' : 'new records'}. This may take a few minutes.`,
       });
       
-      // Refresh stats
+      // Start polling for progress
       await fetchEmbeddingStats();
+      startPolling();
     } catch (error) {
       console.error("Error initializing embeddings:", error);
       toast({
@@ -113,7 +185,6 @@ export function AIChatWidget() {
         description: "Failed to process data. Please try again.",
         variant: "destructive",
       });
-    } finally {
       setIsProcessingEmbeddings(false);
     }
   };
@@ -283,43 +354,94 @@ export function AIChatWidget() {
                 
                 {/* Embedding Status */}
                 {embeddingStats.total === 0 ? (
-                  <div className="mt-4 p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg text-left">
-                    <p className="text-sm text-amber-700 dark:text-amber-300 mb-2">
-                      <strong>Setup Required:</strong> I need to process your data first to provide accurate insights.
-                    </p>
+                  <div className="mt-4 p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg text-left space-y-3">
+                    <div>
+                      <p className="text-sm font-semibold text-amber-700 dark:text-amber-300 mb-1">
+                        ⚙️ Setup Required
+                      </p>
+                      <p className="text-sm text-amber-700 dark:text-amber-300">
+                        I need to process your data first to provide accurate insights. This will analyze your logs, documents, and other data.
+                      </p>
+                    </div>
+                    {isProcessingEmbeddings && processingProgress.total > 0 && (
+                      <div className="space-y-2">
+                        <Progress value={(processingProgress.current / processingProgress.total) * 100} />
+                        <p className="text-xs text-amber-600 dark:text-amber-400">
+                          Processing {processingProgress.current} of {processingProgress.total} records...
+                        </p>
+                      </div>
+                    )}
                     <Button 
                       onClick={initializeEmbeddings}
                       disabled={isProcessingEmbeddings}
                       size="sm"
-                      className="mt-2"
+                      className="w-full"
                     >
                       {isProcessingEmbeddings ? (
-                        <>Processing...</>
+                        <>
+                          <Loader2 className="h-3 w-3 animate-spin mr-2" />
+                          Processing...
+                        </>
                       ) : (
                         <>Process My Data</>
                       )}
                     </Button>
                   </div>
-                ) : embeddingStats.pending > 0 ? (
-                  <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg text-left">
-                    <p className="text-sm text-blue-700 dark:text-blue-300">
-                      Processing {embeddingStats.pending} new records... ({embeddingStats.total} total indexed)
-                    </p>
+                ) : (embeddingStats.pending > 0 || embeddingStats.processing > 0) ? (
+                  <div className="mt-4 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg text-left space-y-3">
+                    <div>
+                      <p className="text-sm font-semibold text-blue-700 dark:text-blue-300 mb-1">
+                        ⏳ Processing Your Data
+                      </p>
+                      <p className="text-sm text-blue-700 dark:text-blue-300">
+                        {embeddingStats.pending + embeddingStats.processing} records remaining
+                        {embeddingStats.total > 0 && ` • ${embeddingStats.total} already indexed`}
+                      </p>
+                    </div>
+                    {isProcessingEmbeddings && processingProgress.total > 0 && (
+                      <div className="space-y-2">
+                        <Progress value={(processingProgress.current / processingProgress.total) * 100} />
+                        <p className="text-xs text-blue-600 dark:text-blue-400">
+                          {processingProgress.current} of {processingProgress.total} records processed
+                        </p>
+                      </div>
+                    )}
                     <Button 
                       onClick={initializeEmbeddings}
                       disabled={isProcessingEmbeddings}
                       size="sm"
                       variant="ghost"
-                      className="mt-2"
+                      className="w-full"
                     >
-                      Process Now
+                      {isProcessingEmbeddings ? (
+                        <>
+                          <Loader2 className="h-3 w-3 animate-spin mr-2" />
+                          Processing...
+                        </>
+                      ) : (
+                        <>Continue Processing</>
+                      )}
                     </Button>
                   </div>
                 ) : (
-                  <div className="mt-4 p-3 bg-green-500/10 border border-green-500/20 rounded-lg text-left">
-                    <p className="text-sm text-green-700 dark:text-green-300">
-                      ✓ Ready! {embeddingStats.total} records indexed
-                    </p>
+                  <div className="mt-4 p-4 bg-green-500/10 border border-green-500/20 rounded-lg text-left space-y-3">
+                    <div>
+                      <p className="text-sm font-semibold text-green-700 dark:text-green-300 mb-1">
+                        ✅ System Ready
+                      </p>
+                      <p className="text-sm text-green-700 dark:text-green-300">
+                        {embeddingStats.total} records indexed and ready for questions!
+                      </p>
+                    </div>
+                    <Button 
+                      onClick={initializeEmbeddings}
+                      disabled={isProcessingEmbeddings}
+                      size="sm"
+                      variant="outline"
+                      className="w-full"
+                    >
+                      Reprocess My Data
+                    </Button>
                   </div>
                 )}
               </div>
