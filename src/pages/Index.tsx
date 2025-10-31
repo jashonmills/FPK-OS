@@ -234,7 +234,7 @@ const Index = () => {
         <footer className="py-8 px-4 glass-subtle border-t">
           <div className="max-w-6xl mx-auto">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-              <p>&copy; 2025 FPX MyCNS app. Built for special education families.</p>
+              <p>&copy; 2025 FPK-X. Built for special education families.</p>
               <div className="flex gap-6">
                 <button onClick={() => navigate('/about')} className="hover:text-primary transition-colors">
                   About Us

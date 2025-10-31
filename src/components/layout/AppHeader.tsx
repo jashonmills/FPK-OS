@@ -31,7 +31,7 @@ export const AppHeader = () => {
       case '/settings':
         return 'Settings';
       default:
-        return 'FPX MyCNS app';
+        return 'FPK-X';
     }
   };
 

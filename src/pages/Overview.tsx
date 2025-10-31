@@ -79,7 +79,7 @@ export default function Overview() {
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="space-y-2">
-        <h1 className="text-4xl font-bold">Welcome to CNS</h1>
+        <h1 className="text-4xl font-bold">Welcome to FPK-X</h1>
         <p className="text-muted-foreground">
           Your central hub for managing student progress and team collaboration
         </p>
