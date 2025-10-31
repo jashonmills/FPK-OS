@@ -98,7 +98,12 @@ export const NotificationCenter = () => {
     
     // Navigate based on notification type
     if (notification.type === 'direct_message' || notification.type === 'channel_message' || notification.type === 'message_mention') {
-      navigate('/messages');
+      const conversationId = notification.metadata?.conversation_id;
+      if (conversationId) {
+        navigate(`/messages?conversation=${conversationId}`);
+      } else {
+        navigate('/messages');
+      }
     } else {
       navigate('/kanban');
     }
