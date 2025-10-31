@@ -187,16 +187,25 @@ serve(async (req) => {
           throw embedError;
         }
 
-        // Mark as completed
-        await supabase
-          .from("embedding_queue")
-          .update({ 
-            status: "completed",
-            processed_at: new Date().toISOString()
-          })
-          .eq("id", item.id);
+        // Check if embedding actually succeeded
+        const success = embedResult?.success === true && embedResult?.embeddings_created > 0;
+        
+        if (success) {
+          // Mark as completed only if embeddings were created
+          await supabase
+            .from("embedding_queue")
+            .update({ 
+              status: "completed",
+              processed_at: new Date().toISOString()
+            })
+            .eq("id", item.id);
 
-        processedCount++;
+          processedCount++;
+          console.log(`✅ Successfully processed ${item.source_table}:${item.source_id} - ${embedResult.embeddings_created} embeddings created`);
+        } else {
+          // Mark as failed if no embeddings were created
+          throw new Error(embedResult?.message || "No embeddings created");
+        }
         
         // Rate limiting - small delay between API calls
         await new Promise(resolve => setTimeout(resolve, 200));
