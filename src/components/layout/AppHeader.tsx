@@ -3,6 +3,7 @@ import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { useAuth } from '@/contexts/AuthContext';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
+import { SidebarTrigger } from '@/components/ui/sidebar';
 import { User, Settings, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -12,7 +13,8 @@ export const AppHeader = () => {
 
   return (
     <header className="h-14 border-b border-border bg-background flex items-center justify-between px-4">
-      <div className="flex-1">
+      <div className="flex items-center gap-3">
+        <SidebarTrigger />
         <h1 className="text-lg font-semibold">FPK Pulse</h1>
       </div>
       
