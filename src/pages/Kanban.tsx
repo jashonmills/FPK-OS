@@ -6,6 +6,8 @@ import { KanbanBoard } from '@/components/kanban/KanbanBoard';
 import { KanbanBoardAllProjects } from '@/components/kanban/KanbanBoardAllProjects';
 import { ProjectSelector } from '@/components/dashboard/ProjectSelector';
 import { ViewSwitcher, ViewType } from '@/components/project-views/ViewSwitcher';
+import { MobileFilterDropdown } from '@/components/kanban/MobileFilterDropdown';
+import { MobileViewDropdown } from '@/components/kanban/MobileViewDropdown';
 import { ListView } from '@/components/project-views/ListView';
 import { CalendarView } from '@/components/project-views/CalendarView';
 import { TimelineView } from '@/components/project-views/TimelineView';
@@ -15,6 +17,9 @@ import { AssigneeFilter } from '@/components/assignee/AssigneeFilter';
 import { MyTasksButton } from '@/components/assignee/MyTasksButton';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { Plus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface Task {
   id: string;
@@ -42,6 +47,7 @@ const Kanban = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (!loading && !user) {
@@ -161,6 +167,11 @@ const Kanban = () => {
     }
   };
 
+  const handleMobileFilterChange = (myTasks: boolean) => {
+    setShowMyTasks(myTasks);
+    setAssigneeFilter(null);
+  };
+
   const handleAssigneeFilterChange = (filter: string | null) => {
     setAssigneeFilter(filter);
     setShowMyTasks(false);
@@ -181,21 +192,52 @@ const Kanban = () => {
       <div className="p-4 md:p-6 space-y-4 md:space-y-6 w-full overflow-x-hidden">
         <div className="space-y-3 md:space-y-4">
           <h1 className="text-2xl md:text-3xl font-bold">Project Board</h1>
-          <div className="flex flex-col gap-3 w-full">
-            <div className="flex items-center gap-2 w-full">
-              <MyTasksButton active={showMyTasks} onClick={handleMyTasksClick} />
-              <AssigneeFilter value={assigneeFilter} onChange={handleAssigneeFilterChange} />
-            </div>
-            <div className="w-full">
-              <ViewSwitcher activeView={activeView} onViewChange={handleViewChange} />
-            </div>
-            <div className="flex items-center gap-2 w-full">
+          
+          {isMobile ? (
+            // Mobile-optimized layout
+            <div className="flex flex-col gap-3 w-full">
               <ProjectSelector value={selectedProject} onChange={setSelectedProject} />
-              {selectedProject && selectedProject !== 'all' && activeView !== 'kanban' && (
-                <CreateTaskButton projectId={selectedProject} variant="button" />
-              )}
+              <div className="flex items-center gap-2 w-full">
+                <MobileFilterDropdown 
+                  showMyTasks={showMyTasks} 
+                  onFilterChange={handleMobileFilterChange}
+                />
+                <MobileViewDropdown 
+                  activeView={activeView} 
+                  onViewChange={handleViewChange}
+                />
+                <Button 
+                  onClick={() => {
+                    if (selectedProject && selectedProject !== 'all' && activeView === 'kanban') {
+                      // Trigger the FAB or dialog
+                      const createBtn = document.querySelector('[data-create-task-btn]') as HTMLButtonElement;
+                      if (createBtn) createBtn.click();
+                    }
+                  }}
+                  size="sm"
+                  className="ml-auto gap-1"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span className="text-xs">New</span>
+                </Button>
+              </div>
             </div>
-          </div>
+          ) : (
+            // Desktop layout
+            <div className="flex flex-col md:flex-row md:items-center gap-3 w-full">
+              <div className="flex items-center gap-2 flex-wrap w-full md:w-auto">
+                <MyTasksButton active={showMyTasks} onClick={handleMyTasksClick} />
+                <AssigneeFilter value={assigneeFilter} onChange={handleAssigneeFilterChange} />
+              </div>
+              <div className="flex items-center gap-2 flex-wrap w-full md:w-auto md:ml-auto">
+                <ViewSwitcher activeView={activeView} onViewChange={handleViewChange} />
+                <ProjectSelector value={selectedProject} onChange={setSelectedProject} />
+                {selectedProject && selectedProject !== 'all' && activeView !== 'kanban' && (
+                  <CreateTaskButton projectId={selectedProject} variant="button" />
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         {selectedProject && (
@@ -247,11 +289,17 @@ const Kanban = () => {
       </div>
 
       {selectedProject && selectedProject !== 'all' && activeView === 'kanban' && (
-        <CreateTaskButton 
-          projectId={selectedProject} 
-          variant="fab" 
-          projectColor={projectColor}
-        />
+        <div data-create-task-btn onClick={() => {
+          const btn = document.createElement('button');
+          btn.style.display = 'none';
+          document.body.appendChild(btn);
+        }}>
+          <CreateTaskButton 
+            projectId={selectedProject} 
+            variant="fab" 
+            projectColor={projectColor}
+          />
+        </div>
       )}
 
       <TaskDetailsSheet
