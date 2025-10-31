@@ -104,6 +104,7 @@ export const IncidentFrequencyChart = ({ familyId, studentId, days, sampleData }
           stroke="hsl(var(--destructive))" 
           strokeWidth={2}
           dot={{ fill: "hsl(var(--destructive))", r: 4 }}
+          connectNulls={false}
         />
       </LineChart>
     </ResponsiveContainer>

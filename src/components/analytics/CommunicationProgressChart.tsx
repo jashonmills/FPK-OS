@@ -57,10 +57,10 @@ export const CommunicationProgressChart = ({ familyId, studentId, sampleData, mo
             labelStyle={{ color: '#a5f3fc' }}
           />
           <Legend wrapperStyle={{ fontSize: '10px', color: '#a5f3fc' }} />
-          <Line type="monotone" dataKey="expressive_language" stroke="rgba(139, 92, 246, 0.9)" strokeWidth={2} name="Expressive" />
-          <Line type="monotone" dataKey="receptive_language" stroke="rgba(59, 130, 246, 0.9)" strokeWidth={2} name="Receptive" />
-          <Line type="monotone" dataKey="pragmatic_skills" stroke="rgba(16, 185, 129, 0.9)" strokeWidth={2} name="Pragmatic" />
-          <Line type="monotone" dataKey="articulation" stroke="rgba(245, 158, 11, 0.9)" strokeWidth={2} name="Articulation" />
+          <Line type="monotone" dataKey="expressive_language" stroke="rgba(139, 92, 246, 0.9)" strokeWidth={2} name="Expressive" connectNulls={false} dot={{ r: 3 }} />
+          <Line type="monotone" dataKey="receptive_language" stroke="rgba(59, 130, 246, 0.9)" strokeWidth={2} name="Receptive" connectNulls={false} dot={{ r: 3 }} />
+          <Line type="monotone" dataKey="pragmatic_skills" stroke="rgba(16, 185, 129, 0.9)" strokeWidth={2} name="Pragmatic" connectNulls={false} dot={{ r: 3 }} />
+          <Line type="monotone" dataKey="articulation" stroke="rgba(245, 158, 11, 0.9)" strokeWidth={2} name="Articulation" connectNulls={false} dot={{ r: 3 }} />
         </LineChart>
       </ResponsiveContainer>
     </div>

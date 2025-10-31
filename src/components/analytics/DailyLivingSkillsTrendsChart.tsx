@@ -84,7 +84,7 @@ export const DailyLivingSkillsTrendsChart = ({ familyId, studentId, days = 30, s
             stroke="#06B6D4" 
             name="Teeth"
             strokeWidth={2}
-            connectNulls
+            connectNulls={false}
             dot={{ fill: "#06B6D4", r: 3 }}
           />
           <Line 
@@ -93,7 +93,7 @@ export const DailyLivingSkillsTrendsChart = ({ familyId, studentId, days = 30, s
             stroke="#8B5CF6" 
             name="Dressing"
             strokeWidth={2}
-            connectNulls
+            connectNulls={false}
             dot={{ fill: "#8B5CF6", r: 3 }}
           />
           <Line 
@@ -102,7 +102,7 @@ export const DailyLivingSkillsTrendsChart = ({ familyId, studentId, days = 30, s
             stroke="#F59E0B" 
             name="Toileting"
             strokeWidth={2}
-            connectNulls
+            connectNulls={false}
             dot={{ fill: "#F59E0B", r: 3 }}
           />
           <Line 
@@ -111,7 +111,7 @@ export const DailyLivingSkillsTrendsChart = ({ familyId, studentId, days = 30, s
             stroke="#10B981" 
             name="Hand Wash"
             strokeWidth={2}
-            connectNulls
+            connectNulls={false}
             dot={{ fill: "#10B981", r: 3 }}
           />
           <Line 
@@ -120,7 +120,7 @@ export const DailyLivingSkillsTrendsChart = ({ familyId, studentId, days = 30, s
             stroke="#EC4899" 
             name="Meal Prep"
             strokeWidth={2}
-            connectNulls
+            connectNulls={false}
             dot={{ fill: "#EC4899", r: 3 }}
           />
         </LineChart>

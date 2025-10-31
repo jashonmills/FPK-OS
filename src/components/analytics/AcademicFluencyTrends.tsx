@@ -82,8 +82,8 @@ export const AcademicFluencyTrends = ({ studentId, familyId, dateRange, sampleDa
             labelStyle={{ color: '#a5f3fc' }}
           />
           <Legend wrapperStyle={{ fontSize: '10px', color: '#a5f3fc' }} />
-          <Line yAxisId="left" type="monotone" dataKey="reading" stroke="rgba(6, 182, 212, 0.9)" name="Reading" strokeWidth={2} />
-          <Line yAxisId="right" type="monotone" dataKey="math" stroke="rgba(168, 85, 247, 0.9)" name="Math" strokeWidth={2} />
+          <Line yAxisId="left" type="monotone" dataKey="reading" stroke="rgba(6, 182, 212, 0.9)" name="Reading" strokeWidth={2} connectNulls={false} dot={{ r: 3 }} />
+          <Line yAxisId="right" type="monotone" dataKey="math" stroke="rgba(168, 85, 247, 0.9)" name="Math" strokeWidth={2} connectNulls={false} dot={{ r: 3 }} />
           {readingTarget > 0 && (
             <ReferenceLine yAxisId="left" y={readingTarget} stroke="rgba(6, 182, 212, 0.6)" strokeDasharray="3 3" />
           )}
