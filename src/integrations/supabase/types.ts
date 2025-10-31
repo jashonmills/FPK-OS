@@ -3084,6 +3084,53 @@ export type Database = {
           },
         ]
       }
+      team_discussion_notifications: {
+        Row: {
+          actor_user_id: string
+          created_at: string | null
+          discussion_id: string
+          entity_id: string
+          entity_type: string
+          id: string
+          is_read: boolean | null
+          notification_type: string
+          read_at: string | null
+          recipient_user_id: string
+        }
+        Insert: {
+          actor_user_id: string
+          created_at?: string | null
+          discussion_id: string
+          entity_id: string
+          entity_type: string
+          id?: string
+          is_read?: boolean | null
+          notification_type: string
+          read_at?: string | null
+          recipient_user_id: string
+        }
+        Update: {
+          actor_user_id?: string
+          created_at?: string | null
+          discussion_id?: string
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          is_read?: boolean | null
+          notification_type?: string
+          read_at?: string | null
+          recipient_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_discussion_notifications_discussion_id_fkey"
+            columns: ["discussion_id"]
+            isOneToOne: false
+            referencedRelation: "team_discussions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       team_discussions: {
         Row: {
           attachments: Json | null

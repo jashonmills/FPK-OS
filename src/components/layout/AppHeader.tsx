@@ -12,6 +12,7 @@ import {
 import fpkxLogo from '@/assets/fpk-x-logo.png';
 import { supabase } from '@/integrations/supabase/client';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
+import { NotificationBell } from '@/components/shared/NotificationBell';
 
 export const AppHeader = () => {
   const location = useLocation();
@@ -66,6 +67,7 @@ export const AppHeader = () => {
       <div className="flex items-center justify-between flex-1 min-w-0 gap-1 sm:gap-2">
         <h1 className="text-sm sm:text-base md:text-lg lg:text-xl font-semibold truncate">{getPageTitle()}</h1>
         <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+          <NotificationBell />
           <ThemeToggle />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
