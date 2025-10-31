@@ -8,8 +8,10 @@ import { KanbanCard } from './KanbanCard';
 import { CreateTaskDialog } from './CreateTaskDialog';
 import { TaskDetailsSheet } from './TaskDetailsSheet';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Plus, Maximize2, Minimize2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface Task {
   id: string;
@@ -53,7 +55,9 @@ export const KanbanBoard = ({ projectId, tasks: externalTasks, onTaskUpdate: ext
     const saved = localStorage.getItem('kanban-collapsed-columns');
     return saved ? new Set(JSON.parse(saved)) : new Set();
   });
+  const [activeColumn, setActiveColumn] = useState<string>('backlog');
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   const tasks = externalTasks || internalTasks;
   const isAllProjects = projectId === 'all';
@@ -244,22 +248,57 @@ export const KanbanBoard = ({ projectId, tasks: externalTasks, onTaskUpdate: ext
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <div className="flex gap-3 overflow-x-auto pb-4">
-          {COLUMNS.map(column => {
-            const columnTasks = tasks.filter(t => t.status === column.id);
-            return (
-              <KanbanColumn 
-                key={column.id} 
-                column={column} 
-                tasks={columnTasks} 
-                projectColor={projectColor}
-                onTaskClick={handleTaskClick}
-                isCollapsed={collapsedColumns.has(column.id)}
-                onToggleCollapse={() => toggleColumnCollapse(column.id)}
-              />
-            );
-          })}
-        </div>
+        {isMobile ? (
+          <Tabs value={activeColumn} onValueChange={setActiveColumn} className="w-full">
+            <TabsList className="w-full justify-start overflow-x-auto mb-4">
+              {COLUMNS.map(column => {
+                const columnTasks = tasks.filter(t => t.status === column.id);
+                return (
+                  <TabsTrigger 
+                    key={column.id} 
+                    value={column.id}
+                    className="flex-shrink-0"
+                  >
+                    {column.title}
+                    <span className="ml-2 text-xs opacity-70">({columnTasks.length})</span>
+                  </TabsTrigger>
+                );
+              })}
+            </TabsList>
+            {COLUMNS.map(column => {
+              const columnTasks = tasks.filter(t => t.status === column.id);
+              return (
+                <TabsContent key={column.id} value={column.id} className="mt-0">
+                  <KanbanColumn 
+                    column={column} 
+                    tasks={columnTasks} 
+                    projectColor={projectColor}
+                    onTaskClick={handleTaskClick}
+                    isCollapsed={false}
+                    onToggleCollapse={() => {}}
+                  />
+                </TabsContent>
+              );
+            })}
+          </Tabs>
+        ) : (
+          <div className="flex gap-3 overflow-x-auto pb-4">
+            {COLUMNS.map(column => {
+              const columnTasks = tasks.filter(t => t.status === column.id);
+              return (
+                <KanbanColumn 
+                  key={column.id} 
+                  column={column} 
+                  tasks={columnTasks} 
+                  projectColor={projectColor}
+                  onTaskClick={handleTaskClick}
+                  isCollapsed={collapsedColumns.has(column.id)}
+                  onToggleCollapse={() => toggleColumnCollapse(column.id)}
+                />
+              );
+            })}
+          </div>
+        )}
 
         <DragOverlay>
           {activeTask ? <KanbanCard task={activeTask} isDragging projectColor={projectColor} /> : null}

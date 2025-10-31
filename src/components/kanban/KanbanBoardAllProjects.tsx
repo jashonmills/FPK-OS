@@ -6,6 +6,8 @@ import { useToast } from '@/hooks/use-toast';
 import { KanbanColumn } from './KanbanColumn';
 import { KanbanCard } from './KanbanCard';
 import { Card } from '@/components/ui/card';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface Task {
   id: string;
@@ -44,7 +46,9 @@ const COLUMNS = [
 export const KanbanBoardAllProjects = ({ tasks, onTaskUpdate, onTaskClick }: KanbanBoardAllProjectsProps) => {
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [activeColumn, setActiveColumn] = useState<string>('backlog');
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -142,20 +146,53 @@ export const KanbanBoardAllProjects = ({ tasks, onTaskUpdate, onTaskClick }: Kan
                 </span>
               </div>
               
-              <div className="flex gap-4 overflow-x-auto pb-2">
-                {COLUMNS.map(column => {
-                  const columnTasks = projectTasks.filter(t => t.status === column.id);
-                  return (
-                    <KanbanColumn
-                      key={`${project.id}-${column.id}`}
-                      column={column}
-                      tasks={columnTasks}
-                      projectColor={project.color}
-                      onTaskClick={onTaskClick}
-                    />
-                  );
-                })}
-              </div>
+              {isMobile ? (
+                <Tabs value={activeColumn} onValueChange={setActiveColumn} className="w-full">
+                  <TabsList className="w-full justify-start overflow-x-auto mb-4">
+                    {COLUMNS.map(column => {
+                      const columnTasks = projectTasks.filter(t => t.status === column.id);
+                      return (
+                        <TabsTrigger 
+                          key={column.id} 
+                          value={column.id}
+                          className="flex-shrink-0"
+                        >
+                          {column.title}
+                          <span className="ml-2 text-xs opacity-70">({columnTasks.length})</span>
+                        </TabsTrigger>
+                      );
+                    })}
+                  </TabsList>
+                  {COLUMNS.map(column => {
+                    const columnTasks = projectTasks.filter(t => t.status === column.id);
+                    return (
+                      <TabsContent key={`${project.id}-${column.id}`} value={column.id} className="mt-0">
+                        <KanbanColumn
+                          column={column}
+                          tasks={columnTasks}
+                          projectColor={project.color}
+                          onTaskClick={onTaskClick}
+                        />
+                      </TabsContent>
+                    );
+                  })}
+                </Tabs>
+              ) : (
+                <div className="flex gap-4 overflow-x-auto pb-2">
+                  {COLUMNS.map(column => {
+                    const columnTasks = projectTasks.filter(t => t.status === column.id);
+                    return (
+                      <KanbanColumn
+                        key={`${project.id}-${column.id}`}
+                        column={column}
+                        tasks={columnTasks}
+                        projectColor={project.color}
+                        onTaskClick={onTaskClick}
+                      />
+                    );
+                  })}
+                </div>
+              )}
             </Card>
           );
         })}
