@@ -149,7 +149,22 @@ serve(async (req) => {
       });
 
       if (!embeddingResponse.ok) {
-        console.error(`Embedding API error for ${source_table}:${source_id}`);
+        const errorBody = await embeddingResponse.text();
+        console.error(`❌ Embedding API error for ${source_table}:${source_id}`);
+        console.error(`   Status: ${embeddingResponse.status} ${embeddingResponse.statusText}`);
+        console.error(`   Response: ${errorBody}`);
+        console.error(`   Headers: ${JSON.stringify(Object.fromEntries(embeddingResponse.headers.entries()))}`);
+        
+        // Specific error handling
+        if (embeddingResponse.status === 429) {
+          console.error(`   Rate limit exceeded - backing off`);
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+        } else if (embeddingResponse.status === 402) {
+          console.error(`   Payment required - check Lovable AI credits`);
+        } else if (embeddingResponse.status === 401 || embeddingResponse.status === 403) {
+          console.error(`   Authentication failed - check LOVABLE_API_KEY`);
+        }
+        
         continue;
       }
 
@@ -179,13 +194,19 @@ serve(async (req) => {
       await new Promise((resolve) => setTimeout(resolve, 100));
     }
 
+    const success = embeddingsCreated > 0;
+    const statusCode = success ? 200 : 500;
+    
+    console.log(`✅ Embedding completed: ${embeddingsCreated}/${chunks.length} chunks successful`);
+    
     return new Response(
       JSON.stringify({
-        message: "Family data embedded successfully",
+        message: success ? "Family data embedded successfully" : "Failed to create embeddings",
         chunks: chunks.length,
         embeddings_created: embeddingsCreated,
+        success,
       }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: statusCode, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
     console.error("Error in embed-family-data:", error);
