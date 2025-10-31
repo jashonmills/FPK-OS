@@ -33,11 +33,29 @@ export const InviteUserDialog = () => {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        // Check if it's a FunctionsHttpError with a response
+        const errorMessage = data?.error || error.message || 'Failed to send invitation';
+        
+        // If it's about user already being active, show as info not error
+        if (errorMessage.includes('already an active member') || errorMessage.includes('already registered and active')) {
+          toast({
+            title: 'User Already Exists',
+            description: errorMessage,
+          });
+          setEmail('');
+          setFullName('');
+          setRole('member');
+          setOpen(false);
+          return;
+        }
+        
+        throw new Error(errorMessage);
+      }
 
       toast({
         title: 'Success',
-        description: `Invitation sent to ${email}`,
+        description: data?.message || `Invitation sent to ${email}`,
       });
 
       setEmail('');
