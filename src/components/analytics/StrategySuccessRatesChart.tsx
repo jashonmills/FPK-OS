@@ -25,7 +25,15 @@ export const StrategySuccessRatesChart = ({ familyId, studentId, days = 30 }: St
         console.error(`[StrategySuccessRates] RPC Error:`, error);
         throw error;
       }
-      console.log(`[StrategySuccessRates] Found ${data?.length || 0} strategies`);
+      console.log(`[StrategySuccessRates] Found ${data?.length || 0} strategies`, data);
+      if (data && data.length > 0) {
+        console.log(`[StrategySuccessRates] Sample data:`, {
+          strategy: data[0].strategy_name,
+          totalUses: data[0].total_uses,
+          successfulUses: data[0].successful_uses,
+          successRate: data[0].success_rate
+        });
+      }
       return data;
     },
     staleTime: 5 * 60 * 1000,

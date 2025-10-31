@@ -15,54 +15,29 @@ export const IncidentFrequencyChart = ({ familyId, studentId, days, sampleData }
   const { data, isLoading } = useQuery({
     queryKey: ["incident-frequency", familyId, studentId, days],
     queryFn: async () => {
-      // Try incident_logs first (manual daily logging)
-      const { data: logs, error: logsError } = await supabase
-        .from("incident_logs")
-        .select("incident_date, behavior_description, reporter_role")
-        .eq("family_id", familyId)
-        .eq("student_id", studentId)
-        .gte("incident_date", new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
-        .order("incident_date", { ascending: true });
+      const { data, error } = await supabase.rpc("get_incident_frequency_data", {
+        p_family_id: familyId,
+        p_student_id: studentId,
+        p_days: days,
+      });
 
-      if (logsError) throw logsError;
-      
-      if (logs && logs.length > 0) {
-        console.log(`[IncidentFrequency] Found ${logs.length} incidents from incident_logs`);
-        const hasManualLogs = logs.some(log => log.reporter_role !== 'automated');
-        return { 
-          source: hasManualLogs ? 'logs' : 'documents', 
-          data: logs.map(l => ({ incident_date: l.incident_date, behavior_description: l.behavior_description }))
-        };
-      } else {
-        console.log(`[IncidentFrequency] No incidents found in incident_logs, checking document_metrics...`);
+      if (error) {
+        console.error(`[IncidentFrequency] RPC Error:`, error);
+        throw error;
       }
+
+      console.log(`[IncidentFrequency] Found ${data?.length || 0} date records from RPC`);
       
-      // Fallback to document_metrics (historical documents)
-      const cutoffDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      // Convert RPC response to expected format
+      const incidents = data?.flatMap((d: any) => 
+        Array(d.incident_count).fill({ incident_date: d.log_date })
+      ) || [];
       
-      const { data: metrics, error: metricsError } = await supabase
-        .from("document_metrics")
-        .select("measurement_date, metric_name")
-        .eq("family_id", familyId)
-        .eq("student_id", studentId)
-        .eq("metric_type", "behavioral_incident")
-        .not("measurement_date", "is", null)
-        .gte("measurement_date", cutoffDate)
-        .order("measurement_date", { ascending: true });
+      const hasManualData = data?.some((d: any) => d.incident_count > 0) || false;
       
-      if (metricsError) throw metricsError;
-      
-      // Log data quality
-      if (metrics && metrics.length > 0) {
-        const nullDates = metrics.filter(m => !m.measurement_date).length;
-        if (nullDates > 0) {
-          console.warn(`⚠️ [IncidentFrequency] ${nullDates} metrics missing measurement_date`);
-        }
-      }
-      
-      return { 
-        source: 'documents', 
-        data: metrics ? metrics.map(m => ({ incident_date: m.measurement_date, behavior_description: m.metric_name })) : []
+      return {
+        source: hasManualData ? 'logs' : 'documents',
+        data: incidents
       };
     },
     staleTime: 5 * 60 * 1000,
