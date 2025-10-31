@@ -792,6 +792,35 @@ export type Database = {
           },
         ]
       }
+      discussion_read_status: {
+        Row: {
+          discussion_id: string
+          id: string
+          read_at: string
+          user_id: string
+        }
+        Insert: {
+          discussion_id: string
+          id?: string
+          read_at?: string
+          user_id: string
+        }
+        Update: {
+          discussion_id?: string
+          id?: string
+          read_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "discussion_read_status_discussion_id_fkey"
+            columns: ["discussion_id"]
+            isOneToOne: false
+            referencedRelation: "team_discussions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       document_analysis_status: {
         Row: {
           completed_at: string | null
@@ -3051,6 +3080,72 @@ export type Database = {
             columns: ["family_id"]
             isOneToOne: false
             referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_discussions: {
+        Row: {
+          attachments: Json | null
+          content: string
+          created_at: string
+          deleted_at: string | null
+          edited_at: string | null
+          entity_id: string
+          entity_type: string
+          family_id: string
+          id: string
+          is_pinned: boolean | null
+          mentioned_user_ids: string[] | null
+          parent_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attachments?: Json | null
+          content: string
+          created_at?: string
+          deleted_at?: string | null
+          edited_at?: string | null
+          entity_id: string
+          entity_type: string
+          family_id: string
+          id?: string
+          is_pinned?: boolean | null
+          mentioned_user_ids?: string[] | null
+          parent_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attachments?: Json | null
+          content?: string
+          created_at?: string
+          deleted_at?: string | null
+          edited_at?: string | null
+          entity_id?: string
+          entity_type?: string
+          family_id?: string
+          id?: string
+          is_pinned?: boolean | null
+          mentioned_user_ids?: string[] | null
+          parent_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_discussions_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_discussions_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "team_discussions"
             referencedColumns: ["id"]
           },
         ]
