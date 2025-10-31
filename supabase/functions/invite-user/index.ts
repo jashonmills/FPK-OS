@@ -73,25 +73,80 @@ serve(async (req) => {
 
     console.log('Inviting user:', { email, fullName, role });
 
-    // Invite the user
-    const { data: inviteData, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(
-      email,
-      {
-        data: {
-          full_name: fullName,
-          role: role,
-        },
-        // Redirect to the app's auth page, not a confirm page
-        redirectTo: `${req.headers.get('origin')}/auth`,
+    // Check if user already exists
+    const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
+    const existingUser = existingUsers.users.find(u => u.email === email);
+
+    let inviteData;
+
+    if (existingUser) {
+      console.log('User already exists:', existingUser.id);
+      
+      // If user is confirmed, return error
+      if (existingUser.confirmed_at) {
+        return new Response(
+          JSON.stringify({ error: 'This user is already registered and active' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
       }
-    );
 
-    if (inviteError) {
-      console.error('Error inviting user:', inviteError);
-      throw inviteError;
+      // User exists but not confirmed - update metadata and resend invite
+      const { data: updateData, error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
+        existingUser.id,
+        {
+          user_metadata: {
+            full_name: fullName,
+            role: role,
+          }
+        }
+      );
+
+      if (updateError) {
+        console.error('Error updating user:', updateError);
+        throw updateError;
+      }
+
+      // Resend invite by using inviteUserByEmail again
+      const { data: resendData, error: resendError } = await supabaseAdmin.auth.admin.inviteUserByEmail(
+        email,
+        {
+          data: {
+            full_name: fullName,
+            role: role,
+          },
+          redirectTo: `${req.headers.get('origin')}/auth`,
+        }
+      );
+
+      // Ignore the error if it's about email already registered
+      if (resendError && resendError.message !== 'A user with this email address has already been registered') {
+        console.error('Error resending invite:', resendError);
+        throw resendError;
+      }
+
+      inviteData = updateData;
+      console.log('Invitation resent to existing user');
+    } else {
+      // New user - send invite
+      const { data, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(
+        email,
+        {
+          data: {
+            full_name: fullName,
+            role: role,
+          },
+          redirectTo: `${req.headers.get('origin')}/auth`,
+        }
+      );
+
+      if (inviteError) {
+        console.error('Error inviting user:', inviteError);
+        throw inviteError;
+      }
+
+      inviteData = data;
+      console.log('User invited successfully:', inviteData);
     }
-
-    console.log('User invited successfully:', inviteData);
 
     return new Response(
       JSON.stringify({ success: true, data: inviteData }),
