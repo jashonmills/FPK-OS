@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import RGL, { WidthProvider } from "react-grid-layout";
 import { SmartChartWidget } from "./SmartChartWidget";
 
@@ -60,10 +61,14 @@ export const DraggableChartGrid = ({
     );
   }
 
-  return (
-    <div className="relative h-full">
-      {/* Edit Mode Controls */}
-      <div className="absolute top-2 right-2 z-30 flex gap-2">
+  // Portal the edit controls to the header area
+  const EditControls = () => {
+    const portalTarget = document.getElementById("chart-edit-controls-portal");
+    
+    if (!portalTarget) return null;
+    
+    return createPortal(
+      <>
         {isEditMode && hasChanges && (
           <>
             <Button
@@ -101,7 +106,15 @@ export const DraggableChartGrid = ({
           <GripVertical className="h-4 w-4 mr-1" />
           {isEditMode ? "Done Editing" : "Edit Layout"}
         </Button>
-      </div>
+      </>,
+      portalTarget
+    );
+  };
+
+  return (
+    <div className="relative h-full">
+      {/* Render edit controls in portal */}
+      <EditControls />
 
       <GridLayout
         className="layout"

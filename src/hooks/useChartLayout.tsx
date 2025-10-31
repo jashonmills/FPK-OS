@@ -112,6 +112,11 @@ export const useChartLayout = (
   };
 
   const saveLayout = () => {
+    console.log('Saving layout:', { familyId, studentId, tabId, layout });
+    if (layout.length === 0) {
+      toast.error("No layout to save");
+      return;
+    }
     saveLayoutMutation.mutate(layout);
   };
 

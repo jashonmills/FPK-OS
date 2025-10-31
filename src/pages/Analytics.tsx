@@ -134,7 +134,7 @@ const Analytics = () => {
       )}
 
       <div className="flex-none px-4 pt-2 pb-1.5 relative" style={{ zIndex: 10 }}>
-        {/* Compact Mission Control Header */}
+        {/* Compact Mission Control Header with Edit Controls Placeholder */}
         <div className="flex items-center justify-between mb-1.5">
           <div>
             <h1 className="text-lg font-bold tracking-tight glow-text bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
@@ -144,6 +144,8 @@ const Analytics = () => {
               {selectedStudent.student_name}
             </p>
           </div>
+          {/* Edit controls will be rendered here by DraggableChartGrid */}
+          <div id="chart-edit-controls-portal" className="flex gap-2" />
         </div>
 
         {/* Compact Tabbed Navigation */}
