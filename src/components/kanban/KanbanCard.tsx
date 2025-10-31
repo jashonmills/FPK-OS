@@ -78,8 +78,8 @@ export const KanbanCard = ({ task, isDragging = false, projectColor, onClick }: 
           {task.type && (
             <TaskTypeIcon type={task.type} className="h-4 w-4 mt-1 flex-shrink-0" />
           )}
-          <div className="flex-1 cursor-pointer" onClick={onClick}>
-            <h4 className="font-medium text-sm leading-tight">{task.title}</h4>
+          <div className="flex-1 cursor-pointer min-w-0" onClick={onClick}>
+            <h4 className="font-medium text-sm leading-tight break-words">{task.title}</h4>
           </div>
         </div>
       </CardHeader>

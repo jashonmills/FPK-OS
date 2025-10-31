@@ -303,7 +303,7 @@ export const KanbanBoard = ({ projectId, tasks: externalTasks, onTaskUpdate: ext
             })}
           </Tabs>
         ) : (
-          <div className="flex gap-3 overflow-x-auto pb-4 w-full">
+          <div className="flex gap-3 pb-4 w-full">
             {COLUMNS.map(column => {
               const columnTasks = tasks.filter(t => t.status === column.id);
               return (
