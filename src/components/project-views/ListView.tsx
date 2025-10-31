@@ -6,6 +6,7 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { TaskTypeIcon } from '@/components/tasks/TaskTypeIcon';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface Task {
   id: string;
@@ -48,6 +49,7 @@ const statusLabels: Record<string, string> = {
 };
 
 export const ListView = ({ tasks, projectColor, onTaskClick, isAllProjects }: ListViewProps) => {
+  const isMobile = useIsMobile();
   const [sortField, setSortField] = useState<SortField | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>(null);
   const [projects, setProjects] = useState<Record<string, { name: string; color: string }>>({});
@@ -115,6 +117,82 @@ export const ListView = ({ tasks, projectColor, onTaskClick, isAllProjects }: Li
     return sortDirection === 'asc' ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />;
   };
 
+  // Mobile card layout
+  if (isMobile) {
+    return (
+      <div className="space-y-3 px-4">
+        {sortedTasks.map((task) => (
+          <div
+            key={task.id}
+            onClick={() => onTaskClick(task)}
+            className="bg-card border border-border rounded-lg p-4 space-y-3 cursor-pointer hover:bg-muted/50 transition-colors"
+          >
+            {/* Title */}
+            <div className="flex items-start gap-3">
+              <div 
+                className="w-1 h-8 rounded-full flex-shrink-0" 
+                style={{ backgroundColor: isAllProjects ? projects[task.project_id]?.color : projectColor }}
+              />
+              <h3 className="font-medium flex-1 break-words">{task.title}</h3>
+            </div>
+
+            {/* Type and Priority */}
+            <div className="flex items-center gap-3 flex-wrap">
+              {task.type && (
+                <div className="flex items-center gap-1.5">
+                  <TaskTypeIcon type={task.type} className="h-4 w-4" />
+                  <span className="text-sm text-muted-foreground capitalize">{task.type}</span>
+                </div>
+              )}
+              <Badge 
+                variant="secondary" 
+                className={cn(priorityColors[task.priority as keyof typeof priorityColors])}
+              >
+                {task.priority}
+              </Badge>
+            </div>
+
+            {/* Status */}
+            <div>
+              <Badge variant="outline">
+                {statusLabels[task.status] || task.status}
+              </Badge>
+            </div>
+
+            {/* Dates */}
+            {(task.start_date || task.due_date) && (
+              <div className="text-xs text-muted-foreground space-y-1">
+                {task.start_date && (
+                  <div>Start: {format(new Date(task.start_date), 'MMM d, yyyy')}</div>
+                )}
+                {task.due_date && (
+                  <div>Due: {format(new Date(task.due_date), 'MMM d, yyyy')}</div>
+                )}
+              </div>
+            )}
+
+            {/* Project (if all projects view) */}
+            {isAllProjects && (
+              <div className="flex items-center gap-2">
+                <div 
+                  className="w-3 h-3 rounded-full" 
+                  style={{ backgroundColor: projects[task.project_id]?.color }}
+                />
+                <span className="text-sm text-muted-foreground">{projects[task.project_id]?.name || 'Unknown'}</span>
+              </div>
+            )}
+          </div>
+        ))}
+        {sortedTasks.length === 0 && (
+          <div className="text-center text-muted-foreground py-8">
+            No tasks found
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Desktop table layout
   return (
     <div className="border rounded-lg overflow-hidden">
       <Table>

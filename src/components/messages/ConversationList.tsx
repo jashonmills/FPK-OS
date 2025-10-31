@@ -90,6 +90,7 @@ export const ConversationList = ({ selectedConversationId, onSelectConversation 
             lastMessageTime: lastMessage?.created_at,
             unreadCount: unreadCount || 0,
             dmPartner,
+            avatarUrl: dmPartner?.avatar_url,
           };
         })
       );
@@ -153,15 +154,15 @@ export const ConversationList = ({ selectedConversationId, onSelectConversation 
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-medium truncate">{conv.name}</span>
+                    <span className="font-medium truncate whitespace-nowrap overflow-hidden text-ellipsis">{conv.name}</span>
                     {conv.unreadCount > 0 && (
-                      <Badge variant="destructive" className="h-5 min-w-5 px-1.5 text-xs">
+                      <Badge variant="destructive" className="h-5 min-w-5 px-1.5 text-xs flex-shrink-0">
                         {conv.unreadCount}
                       </Badge>
                     )}
                   </div>
                   {conv.lastMessage && (
-                    <p className="text-xs text-muted-foreground truncate">
+                    <p className="text-xs text-muted-foreground truncate whitespace-nowrap overflow-hidden text-ellipsis">
                       {conv.lastMessage}
                     </p>
                   )}
@@ -204,15 +205,15 @@ export const ConversationList = ({ selectedConversationId, onSelectConversation 
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-medium truncate">{conv.name}</span>
+                    <span className="font-medium truncate whitespace-nowrap overflow-hidden text-ellipsis">{conv.name}</span>
                     {conv.unreadCount > 0 && (
-                      <Badge variant="destructive" className="h-5 min-w-5 px-1.5 text-xs">
+                      <Badge variant="destructive" className="h-5 min-w-5 px-1.5 text-xs flex-shrink-0">
                         {conv.unreadCount}
                       </Badge>
                     )}
                   </div>
                   {conv.lastMessage && (
-                    <p className="text-xs text-muted-foreground truncate">
+                    <p className="text-xs text-muted-foreground truncate whitespace-nowrap overflow-hidden text-ellipsis">
                       {conv.lastMessage}
                     </p>
                   )}
