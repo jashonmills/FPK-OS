@@ -25,6 +25,8 @@ interface Task {
 
 interface KanbanBoardProps {
   projectId: string;
+  tasks?: Task[];
+  onTaskUpdate?: () => void;
 }
 
 const COLUMNS = [
@@ -35,14 +37,17 @@ const COLUMNS = [
   { id: 'done', title: 'Done' },
 ];
 
-export const KanbanBoard = ({ projectId }: KanbanBoardProps) => {
-  const [tasks, setTasks] = useState<Task[]>([]);
+export const KanbanBoard = ({ projectId, tasks: externalTasks, onTaskUpdate: externalOnTaskUpdate }: KanbanBoardProps) => {
+  const [internalTasks, setInternalTasks] = useState<Task[]>([]);
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [detailsSheetOpen, setDetailsSheetOpen] = useState(false);
   const [projectColor, setProjectColor] = useState<string>('');
   const { toast } = useToast();
+
+  const tasks = externalTasks || internalTasks;
+  const isAllProjects = projectId === 'all';
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -53,29 +58,33 @@ export const KanbanBoard = ({ projectId }: KanbanBoardProps) => {
   );
 
   useEffect(() => {
-    fetchTasks();
-    fetchProjectColor();
-    
-    const channel = supabase
-      .channel('tasks-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'tasks',
-          filter: `project_id=eq.${projectId}`,
-        },
-        () => {
-          fetchTasks();
-        }
-      )
-      .subscribe();
+    if (!externalTasks) {
+      fetchTasks();
+      fetchProjectColor();
+      
+      const channel = supabase
+        .channel('tasks-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'tasks',
+            filter: `project_id=eq.${projectId}`,
+          },
+          () => {
+            fetchTasks();
+          }
+        )
+        .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [projectId]);
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    } else {
+      fetchProjectColor();
+    }
+  }, [projectId, externalTasks]);
 
   const fetchTasks = async () => {
     const { data, error } = await supabase
@@ -91,7 +100,7 @@ export const KanbanBoard = ({ projectId }: KanbanBoardProps) => {
         variant: 'destructive',
       });
     } else {
-      setTasks(data || []);
+      setInternalTasks(data || []);
     }
   };
 
@@ -148,7 +157,9 @@ export const KanbanBoard = ({ projectId }: KanbanBoardProps) => {
       status: task.id === String(active.id) ? newStatus : task.status,
     }));
 
-    setTasks(newTasks);
+    if (!externalTasks) {
+      setInternalTasks(newTasks);
+    }
 
     const updatedTask = newTasks.find(t => t.id === String(active.id));
     if (updatedTask) {
@@ -163,20 +174,28 @@ export const KanbanBoard = ({ projectId }: KanbanBoardProps) => {
           description: 'Failed to update task',
           variant: 'destructive',
         });
-        fetchTasks();
+        if (externalOnTaskUpdate) {
+          externalOnTaskUpdate();
+        } else {
+          fetchTasks();
+        }
+      } else if (externalOnTaskUpdate) {
+        externalOnTaskUpdate();
       }
     }
   };
 
   return (
     <div className="h-full flex flex-col">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold">Project Board</h2>
-        <Button onClick={() => setCreateDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          New Task
-        </Button>
-      </div>
+      {!isAllProjects && (
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold">Project Board</h2>
+          <Button onClick={() => setCreateDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            New Task
+          </Button>
+        </div>
+      )}
 
       <DndContext
         sensors={sensors}
@@ -204,17 +223,19 @@ export const KanbanBoard = ({ projectId }: KanbanBoardProps) => {
         </DragOverlay>
       </DndContext>
 
-      <CreateTaskDialog
-        open={createDialogOpen}
-        onOpenChange={setCreateDialogOpen}
-        projectId={projectId}
-      />
+      {!isAllProjects && (
+        <CreateTaskDialog
+          open={createDialogOpen}
+          onOpenChange={setCreateDialogOpen}
+          projectId={projectId}
+        />
+      )}
 
       <TaskDetailsSheet
         task={selectedTask}
         open={detailsSheetOpen}
         onOpenChange={setDetailsSheetOpen}
-        onTaskUpdate={fetchTasks}
+        onTaskUpdate={externalOnTaskUpdate || fetchTasks}
       />
     </div>
   );

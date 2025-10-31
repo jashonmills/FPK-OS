@@ -1,9 +1,10 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Task {
   id: string;
@@ -23,6 +24,7 @@ interface ListViewProps {
   tasks: Task[];
   projectColor: string;
   onTaskClick: (task: Task) => void;
+  isAllProjects?: boolean;
 }
 
 type SortField = 'title' | 'status' | 'priority' | 'due_date' | 'start_date';
@@ -43,9 +45,30 @@ const statusLabels: Record<string, string> = {
   done: 'Done',
 };
 
-export const ListView = ({ tasks, projectColor, onTaskClick }: ListViewProps) => {
+export const ListView = ({ tasks, projectColor, onTaskClick, isAllProjects }: ListViewProps) => {
   const [sortField, setSortField] = useState<SortField | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>(null);
+  const [projects, setProjects] = useState<Record<string, { name: string; color: string }>>({});
+
+  useEffect(() => {
+    if (isAllProjects) {
+      fetchProjects();
+    }
+  }, [isAllProjects]);
+
+  const fetchProjects = async () => {
+    const { data } = await supabase
+      .from('projects')
+      .select('id, name, color');
+
+    if (data) {
+      const projectMap = data.reduce((acc, project) => {
+        acc[project.id] = { name: project.name, color: project.color };
+        return acc;
+      }, {} as Record<string, { name: string; color: string }>);
+      setProjects(projectMap);
+    }
+  };
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -96,6 +119,7 @@ export const ListView = ({ tasks, projectColor, onTaskClick }: ListViewProps) =>
         <TableHeader>
           <TableRow>
             <TableHead className="w-12"></TableHead>
+            {isAllProjects && <TableHead>Project</TableHead>}
             <TableHead 
               className="cursor-pointer hover:bg-muted/50"
               onClick={() => handleSort('title')}
@@ -153,9 +177,20 @@ export const ListView = ({ tasks, projectColor, onTaskClick }: ListViewProps) =>
               <TableCell>
                 <div 
                   className="w-1 h-8 rounded-full" 
-                  style={{ backgroundColor: projectColor }}
+                  style={{ backgroundColor: isAllProjects ? projects[task.project_id]?.color : projectColor }}
                 />
               </TableCell>
+              {isAllProjects && (
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <div 
+                      className="w-3 h-3 rounded-full" 
+                      style={{ backgroundColor: projects[task.project_id]?.color }}
+                    />
+                    <span className="text-sm">{projects[task.project_id]?.name || 'Unknown'}</span>
+                  </div>
+                </TableCell>
+              )}
               <TableCell className="font-medium">{task.title}</TableCell>
               <TableCell>
                 <Badge variant="outline">
@@ -180,7 +215,7 @@ export const ListView = ({ tasks, projectColor, onTaskClick }: ListViewProps) =>
           ))}
           {sortedTasks.length === 0 && (
             <TableRow>
-              <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+              <TableCell colSpan={isAllProjects ? 7 : 6} className="text-center text-muted-foreground py-8">
                 No tasks found
               </TableCell>
             </TableRow>

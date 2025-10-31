@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { KanbanBoard } from '@/components/kanban/KanbanBoard';
+import { KanbanBoardAllProjects } from '@/components/kanban/KanbanBoardAllProjects';
 import { ProjectSelector } from '@/components/dashboard/ProjectSelector';
 import { ViewSwitcher, ViewType } from '@/components/project-views/ViewSwitcher';
 import { ListView } from '@/components/project-views/ListView';
@@ -83,11 +84,15 @@ const Kanban = () => {
   const fetchTasks = async () => {
     if (!selectedProject) return;
     
-    const { data, error } = await supabase
+    let query = supabase
       .from('tasks')
-      .select('*')
-      .eq('project_id', selectedProject)
-      .order('position');
+      .select('*');
+    
+    if (selectedProject !== 'all') {
+      query = query.eq('project_id', selectedProject);
+    }
+    
+    const { data, error } = await query.order('position');
 
     if (error) {
       toast({
@@ -101,7 +106,10 @@ const Kanban = () => {
   };
 
   const fetchProjectColor = async () => {
-    if (!selectedProject) return;
+    if (!selectedProject || selectedProject === 'all') {
+      setProjectColor('');
+      return;
+    }
     
     const { data, error } = await supabase
       .from('projects')
@@ -149,12 +157,23 @@ const Kanban = () => {
 
         {selectedProject && (
           <>
-            {activeView === 'kanban' && <KanbanBoard projectId={selectedProject} />}
+            {activeView === 'kanban' && (
+              selectedProject === 'all' ? (
+                <KanbanBoardAllProjects 
+                  tasks={tasks}
+                  onTaskUpdate={fetchTasks}
+                  onTaskClick={handleTaskClick}
+                />
+              ) : (
+                <KanbanBoard projectId={selectedProject} />
+              )
+            )}
             {activeView === 'list' && (
               <ListView 
                 tasks={tasks} 
                 projectColor={projectColor}
                 onTaskClick={handleTaskClick}
+                isAllProjects={selectedProject === 'all'}
               />
             )}
             {activeView === 'calendar' && (
@@ -171,6 +190,7 @@ const Kanban = () => {
                 projectColor={projectColor}
                 onTaskClick={handleTaskClick}
                 onTaskUpdate={fetchTasks}
+                isAllProjects={selectedProject === 'all'}
               />
             )}
           </>

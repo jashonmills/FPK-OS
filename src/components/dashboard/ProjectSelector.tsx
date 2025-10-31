@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { Grid3x3 } from 'lucide-react';
 
 interface Project {
   id: string;
@@ -48,6 +49,12 @@ export const ProjectSelector = ({ value, onChange }: ProjectSelectorProps) => {
         <SelectValue placeholder="Select a project" />
       </SelectTrigger>
       <SelectContent>
+        <SelectItem value="all" className="font-semibold">
+          <div className="flex items-center gap-2">
+            <Grid3x3 className="w-3 h-3" />
+            All Projects
+          </div>
+        </SelectItem>
         {projects.map((project) => (
           <SelectItem key={project.id} value={project.id}>
             <div className="flex items-center gap-2">
