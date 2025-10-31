@@ -121,7 +121,7 @@ export const KanbanBoardAllProjects = ({ tasks, onTaskUpdate, onTaskClick }: Kan
   };
 
   return (
-    <div className="h-full flex flex-col space-y-6">
+    <div className="h-full flex flex-col space-y-6 w-full overflow-x-hidden">
       <DndContext
         sensors={sensors}
         collisionDetection={closestCorners}
@@ -147,18 +147,18 @@ export const KanbanBoardAllProjects = ({ tasks, onTaskUpdate, onTaskClick }: Kan
               </div>
               
               {isMobile ? (
-                <Tabs value={activeColumn} onValueChange={setActiveColumn} className="w-full">
-                  <TabsList className="w-full justify-start overflow-x-auto mb-4">
+                <Tabs value={activeColumn} onValueChange={setActiveColumn} className="w-full overflow-hidden">
+                  <TabsList className="w-full justify-start overflow-x-auto mb-4 flex-nowrap">
                     {COLUMNS.map(column => {
                       const columnTasks = projectTasks.filter(t => t.status === column.id);
                       return (
                         <TabsTrigger 
                           key={column.id} 
                           value={column.id}
-                          className="flex-shrink-0"
+                          className="flex-shrink-0 text-xs md:text-sm"
                         >
                           {column.title}
-                          <span className="ml-2 text-xs opacity-70">({columnTasks.length})</span>
+                          <span className="ml-1 md:ml-2 text-xs opacity-70">({columnTasks.length})</span>
                         </TabsTrigger>
                       );
                     })}

@@ -219,22 +219,23 @@ export const KanbanBoard = ({ projectId, tasks: externalTasks, onTaskUpdate: ext
 
   return (
     <div className={cn(
-      "h-full flex flex-col transition-all duration-300",
-      isFullWidth ? "w-full" : "max-w-7xl mx-auto"
+      "h-full flex flex-col transition-all duration-300 w-full overflow-hidden",
+      isFullWidth ? "max-w-full" : "max-w-7xl mx-auto"
     )}>
       {!isAllProjects && (
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold">Project Board</h2>
-          <div className="flex items-center gap-2">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 md:mb-6 gap-3">
+          <h2 className="text-xl md:text-2xl font-bold">Project Board</h2>
+          <div className="flex items-center gap-2 w-full md:w-auto">
             <Button
               variant="outline"
               size="icon"
               onClick={toggleFullWidth}
               title={isFullWidth ? "Center view" : "Full width view"}
+              className="hidden md:flex"
             >
               {isFullWidth ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
             </Button>
-            <Button onClick={() => setCreateDialogOpen(true)}>
+            <Button onClick={() => setCreateDialogOpen(true)} className="flex-1 md:flex-none">
               <Plus className="h-4 w-4 mr-2" />
               New Task
             </Button>
@@ -249,18 +250,18 @@ export const KanbanBoard = ({ projectId, tasks: externalTasks, onTaskUpdate: ext
         onDragEnd={handleDragEnd}
       >
         {isMobile ? (
-          <Tabs value={activeColumn} onValueChange={setActiveColumn} className="w-full">
-            <TabsList className="w-full justify-start overflow-x-auto mb-4">
+          <Tabs value={activeColumn} onValueChange={setActiveColumn} className="w-full overflow-hidden">
+            <TabsList className="w-full justify-start overflow-x-auto mb-4 flex-nowrap">
               {COLUMNS.map(column => {
                 const columnTasks = tasks.filter(t => t.status === column.id);
                 return (
                   <TabsTrigger 
                     key={column.id} 
                     value={column.id}
-                    className="flex-shrink-0"
+                    className="flex-shrink-0 text-xs md:text-sm"
                   >
                     {column.title}
-                    <span className="ml-2 text-xs opacity-70">({columnTasks.length})</span>
+                    <span className="ml-1 md:ml-2 text-xs opacity-70">({columnTasks.length})</span>
                   </TabsTrigger>
                 );
               })}

@@ -178,7 +178,7 @@ const Kanban = () => {
 
   return (
     <AppLayout>
-      <div className="p-4 md:p-6 space-y-4 md:space-y-6">
+      <div className="p-4 md:p-6 space-y-4 md:space-y-6 w-full overflow-x-hidden">
         <div className="space-y-3 md:space-y-4">
           <h1 className="text-2xl md:text-3xl font-bold">Project Board</h1>
           <div className="flex flex-col gap-3 w-full">
