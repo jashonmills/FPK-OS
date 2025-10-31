@@ -45,7 +45,7 @@ export const ProjectSelector = ({ value, onChange }: ProjectSelectorProps) => {
 
   return (
     <Select value={value} onValueChange={onChange}>
-      <SelectTrigger className="w-[300px]">
+      <SelectTrigger className="w-full md:w-[300px]">
         <SelectValue placeholder="Select a project" />
       </SelectTrigger>
       <SelectContent>

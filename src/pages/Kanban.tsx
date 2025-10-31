@@ -179,15 +179,17 @@ const Kanban = () => {
   return (
     <AppLayout>
       <div className="p-4 md:p-6 space-y-4 md:space-y-6">
-        <div className="space-y-4">
+        <div className="space-y-3 md:space-y-4">
           <h1 className="text-2xl md:text-3xl font-bold">Project Board</h1>
-          <div className="flex flex-col md:flex-row md:items-center gap-3 w-full">
-            <div className="flex items-center gap-2 flex-wrap w-full md:w-auto">
+          <div className="flex flex-col gap-3 w-full">
+            <div className="flex items-center gap-2 w-full">
               <MyTasksButton active={showMyTasks} onClick={handleMyTasksClick} />
               <AssigneeFilter value={assigneeFilter} onChange={handleAssigneeFilterChange} />
             </div>
-            <div className="flex items-center gap-2 flex-wrap w-full md:w-auto md:ml-auto">
+            <div className="w-full">
               <ViewSwitcher activeView={activeView} onViewChange={handleViewChange} />
+            </div>
+            <div className="flex items-center gap-2 w-full">
               <ProjectSelector value={selectedProject} onChange={setSelectedProject} />
               {selectedProject && selectedProject !== 'all' && activeView !== 'kanban' && (
                 <CreateTaskButton projectId={selectedProject} variant="button" />

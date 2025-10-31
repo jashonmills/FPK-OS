@@ -37,14 +37,14 @@ export const MyTasksButton = ({ active, onClick }: MyTasksButtonProps) => {
       variant={active ? 'default' : 'outline'}
       size="sm"
       onClick={onClick}
-      className="gap-2 relative"
+      className="gap-1 md:gap-2 relative flex-1 md:flex-none"
     >
       <User className="h-4 w-4" />
-      <span>My Tasks</span>
+      <span className="text-xs md:text-sm">My Tasks</span>
       {count > 0 && (
         <Badge 
           variant="secondary" 
-          className="ml-1 h-5 min-w-5 px-1 flex items-center justify-center"
+          className="ml-1 h-5 min-w-5 px-1 flex items-center justify-center text-xs"
         >
           {count > 99 ? '99+' : count}
         </Badge>
