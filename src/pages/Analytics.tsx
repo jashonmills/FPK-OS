@@ -144,8 +144,8 @@ const Analytics = () => {
               {selectedStudent.student_name}
             </p>
           </div>
-          {/* Edit controls will be rendered here by DraggableChartGrid */}
-          <div id="chart-edit-controls-portal" className="flex gap-2" />
+          {/* Edit controls will be rendered here by DraggableChartGrid - with margin to avoid X button */}
+          <div id="chart-edit-controls-portal" className="flex gap-2 mr-12" />
         </div>
 
         {/* Compact Tabbed Navigation */}
