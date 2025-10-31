@@ -1,12 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Loader2 } from "lucide-react";
 import { format } from "date-fns";
 
 interface MoodDistributionChartProps {
   familyId: string;
   studentId: string;
+  dateRange?: { from: Date; to: Date };
+  mode?: "live" | "demo" | "locked";
   sampleData?: any;
 }
 
@@ -29,7 +31,7 @@ const MOOD_COLORS: Record<string, string> = {
   "irritable": "url(#irritableGradient)",
 };
 
-export const MoodDistributionChart = ({ familyId, studentId, sampleData }: MoodDistributionChartProps) => {
+export const MoodDistributionChart = ({ familyId, studentId, sampleData, mode }: MoodDistributionChartProps) => {
   const { data, isLoading } = useQuery({
     queryKey: ["weekly-mood", familyId, studentId],
     queryFn: async () => {
@@ -41,7 +43,6 @@ export const MoodDistributionChart = ({ familyId, studentId, sampleData }: MoodD
       });
 
       if (!logsError && logs && logs.length > 0) {
-        console.log(`[MoodDistribution] Found ${logs.length} mood entries from parent logs`);
         return { source: 'logs', data: logs };
       }
       
@@ -60,14 +61,6 @@ export const MoodDistributionChart = ({ familyId, studentId, sampleData }: MoodD
       
       if (metricsError) throw metricsError;
       
-      // Log data quality
-      if (metrics && metrics.length > 0) {
-        const nullDates = metrics.filter(m => !m.measurement_date).length;
-        if (nullDates > 0) {
-          console.warn(`⚠️ [MoodDistribution] ${nullDates} metrics missing measurement_date`);
-        }
-      }
-      
       // Transform metrics to mood count format
       const transformedData = metrics?.map(m => ({
         day_of_week: format(new Date(m.measurement_date), 'EEEE'),
@@ -79,21 +72,24 @@ export const MoodDistributionChart = ({ familyId, studentId, sampleData }: MoodD
       return { source: 'documents', data: transformedData };
     },
     staleTime: 5 * 60 * 1000,
-    enabled: !sampleData,
+    enabled: !sampleData && mode !== "demo",
   });
 
   const displayData = sampleData || data?.data;
   const dataSource = data?.source || 'unknown';
 
-  if (isLoading) {
-    return <Skeleton className="h-[300px] w-full" />;
+  if (isLoading && !sampleData) {
+    return (
+      <div className="flex justify-center items-center h-full">
+        <Loader2 className="h-8 w-8 animate-spin text-cyan-400" />
+      </div>
+    );
   }
 
   if (!displayData || displayData.length === 0) {
     return (
-      <div className="h-[300px] flex flex-col items-center justify-center text-center p-6 space-y-4">
-        <p className="text-muted-foreground">No mood data available yet.</p>
-        <p className="text-sm text-muted-foreground">Upload documents with mood data, or start logging daily moods.</p>
+      <div className="flex justify-center items-center h-full">
+        <p className="text-sm text-cyan-300/60">No mood data available</p>
       </div>
     );
   }
@@ -117,72 +113,63 @@ export const MoodDistributionChart = ({ familyId, studentId, sampleData }: MoodD
   });
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <span className={`text-xs px-2 py-1 rounded ${dataSource === 'logs' ? 'bg-primary/10 text-primary' : 'bg-secondary/50 text-secondary-foreground'}`}>
-          {dataSource === 'logs' ? '📝 Daily Logs' : '📚 Historical Documents'}
-        </span>
-      </div>
-      <ResponsiveContainer width="100%" height={300}>
-      <BarChart data={chartData}>
-        <defs>
-          <linearGradient id="happyGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="rgb(251, 191, 36)" stopOpacity={1} />
-            <stop offset="100%" stopColor="rgb(245, 158, 11)" stopOpacity={0.8} />
-          </linearGradient>
-          <linearGradient id="calmGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="rgb(96, 165, 250)" stopOpacity={1} />
-            <stop offset="100%" stopColor="rgb(59, 130, 246)" stopOpacity={0.8} />
-          </linearGradient>
-          <linearGradient id="anxiousGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="rgb(168, 85, 247)" stopOpacity={1} />
-            <stop offset="100%" stopColor="rgb(147, 51, 234)" stopOpacity={0.8} />
-          </linearGradient>
-          <linearGradient id="agitatedGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="rgb(248, 113, 113)" stopOpacity={1} />
-            <stop offset="100%" stopColor="rgb(239, 68, 68)" stopOpacity={0.8} />
-          </linearGradient>
-          <linearGradient id="tiredGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={FPX_VIBRANT_PALETTE.tired.from} stopOpacity={1} />
-            <stop offset="100%" stopColor={FPX_VIBRANT_PALETTE.tired.to} stopOpacity={0.8} />
-          </linearGradient>
-          <linearGradient id="irritableGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="rgb(239, 68, 68)" stopOpacity={1} />
-            <stop offset="100%" stopColor="rgb(220, 38, 38)" stopOpacity={0.8} />
-          </linearGradient>
-        </defs>
-        <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-        <XAxis 
-          dataKey="day" 
-          className="text-xs"
-          tick={{ fill: "hsl(var(--foreground))" }}
-          angle={-45}
-          textAnchor="end"
-          height={80}
-        />
-        <YAxis tick={{ fill: "hsl(var(--foreground))" }} />
-        <Tooltip 
-          contentStyle={{ 
-            backgroundColor: "rgba(10, 25, 47, 0.8)",
-            backdropFilter: "blur(5px)",
-            border: "1px solid rgba(0, 180, 255, 0.3)",
-            borderRadius: "8px",
-            boxShadow: "0 0 15px rgba(0, 180, 255, 0.2)"
-          }}
-          labelStyle={{ color: "#E0E0E0", fontSize: "0.8rem" }}
-          itemStyle={{ color: "#FFFFFF", fontWeight: 600 }}
-        />
-        <Legend />
-        {moods.map((mood: string) => (
-          <Bar 
-            key={mood} 
-            dataKey={mood as string} 
-            stackId="a" 
-            fill={MOOD_COLORS[mood] || "hsl(var(--muted))"}
+    <div className="h-full w-full p-2">
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={chartData}>
+          <defs>
+            <linearGradient id="happyGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="rgb(251, 191, 36)" stopOpacity={1} />
+              <stop offset="100%" stopColor="rgb(245, 158, 11)" stopOpacity={0.8} />
+            </linearGradient>
+            <linearGradient id="calmGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="rgb(96, 165, 250)" stopOpacity={1} />
+              <stop offset="100%" stopColor="rgb(59, 130, 246)" stopOpacity={0.8} />
+            </linearGradient>
+            <linearGradient id="anxiousGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="rgb(168, 85, 247)" stopOpacity={1} />
+              <stop offset="100%" stopColor="rgb(147, 51, 234)" stopOpacity={0.8} />
+            </linearGradient>
+            <linearGradient id="agitatedGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="rgb(248, 113, 113)" stopOpacity={1} />
+              <stop offset="100%" stopColor="rgb(239, 68, 68)" stopOpacity={0.8} />
+            </linearGradient>
+            <linearGradient id="tiredGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="rgb(34, 211, 238)" stopOpacity={1} />
+              <stop offset="100%" stopColor="rgb(6, 182, 212)" stopOpacity={0.8} />
+            </linearGradient>
+            <linearGradient id="irritableGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="rgb(239, 68, 68)" stopOpacity={1} />
+              <stop offset="100%" stopColor="rgb(220, 38, 38)" stopOpacity={0.8} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(6, 182, 212, 0.1)" />
+          <XAxis 
+            dataKey="day" 
+            tick={{ fill: '#a5f3fc', fontSize: 9 }}
+            angle={-30}
+            textAnchor="end"
+            height={60}
           />
-        ))}
-      </BarChart>
-    </ResponsiveContainer>
+          <YAxis tick={{ fill: '#a5f3fc', fontSize: 10 }} />
+          <Tooltip 
+            contentStyle={{ 
+              backgroundColor: "rgba(10, 25, 47, 0.9)",
+              border: "1px solid rgba(6, 182, 212, 0.3)",
+              borderRadius: "8px"
+            }}
+            labelStyle={{ color: '#a5f3fc' }}
+          />
+          <Legend wrapperStyle={{ fontSize: '10px', color: '#a5f3fc' }} />
+          {moods.map((mood: string) => (
+            <Bar 
+              key={mood} 
+              dataKey={mood as string} 
+              stackId="a" 
+              fill={MOOD_COLORS[mood] || "rgba(100, 100, 100, 0.5)"}
+            />
+          ))}
+        </BarChart>
+      </ResponsiveContainer>
     </div>
   );
 };

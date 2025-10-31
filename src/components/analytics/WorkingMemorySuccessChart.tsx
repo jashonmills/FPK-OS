@@ -1,18 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Brain } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { format } from "date-fns";
 
 interface WorkingMemorySuccessChartProps {
   familyId: string;
   studentId: string;
+  dateRange?: { from: Date; to: Date };
+  mode?: "live" | "demo" | "locked";
+  sampleData?: any;
   days?: number;
 }
 
-export const WorkingMemorySuccessChart = ({ familyId, studentId, days = 30 }: WorkingMemorySuccessChartProps) => {
+export const WorkingMemorySuccessChart = ({ familyId, studentId, sampleData, mode, days = 30 }: WorkingMemorySuccessChartProps) => {
   const { data, isLoading } = useQuery({
     queryKey: ["working-memory", familyId, studentId, days],
     queryFn: async () => {
@@ -25,48 +26,31 @@ export const WorkingMemorySuccessChart = ({ familyId, studentId, days = 30 }: Wo
       if (error) throw error;
       return data;
     },
+    enabled: !sampleData && mode !== "demo",
     staleTime: 5 * 60 * 1000,
   });
 
-  if (isLoading) {
+  const displayData = sampleData || data;
+
+  if (isLoading && !sampleData) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Brain className="h-5 w-5" />
-            Working Memory Success
-          </CardTitle>
-          <CardDescription>Multi-step direction success rates</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Skeleton className="h-[300px] w-full" />
-        </CardContent>
-      </Card>
+      <div className="flex justify-center items-center h-full">
+        <Loader2 className="h-8 w-8 animate-spin text-cyan-400" />
+      </div>
     );
   }
 
-  if (!data || data.length === 0) {
+  if (!displayData || displayData.length === 0) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Brain className="h-5 w-5" />
-            Working Memory Success
-          </CardTitle>
-          <CardDescription>Multi-step direction success rates</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-center h-[300px] text-muted-foreground">
-            No working memory data available yet. Data appears when cognitive assessments are analyzed.
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex justify-center items-center h-full">
+        <p className="text-sm text-cyan-300/60">No working memory data available</p>
+      </div>
     );
   }
 
   // Transform data into format suitable for multi-line chart
   const dateMap = new Map();
-  data.forEach((item: any) => {
+  displayData.forEach((item: any) => {
     const date = format(new Date(item.measurement_date), "MMM dd");
     if (!dateMap.has(date)) {
       dateMap.set(date, { date });
@@ -78,65 +62,53 @@ export const WorkingMemorySuccessChart = ({ familyId, studentId, days = 30 }: Wo
   const chartData = Array.from(dateMap.values());
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Brain className="h-5 w-5" />
-          Working Memory Success
-        </CardTitle>
-        <CardDescription>
-          Success rates by task complexity (1-step, 2-step, 3+ step)
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-            <XAxis 
-              dataKey="date" 
-              className="text-xs"
-              tick={{ fill: "hsl(var(--foreground))" }}
-            />
-            <YAxis 
-              label={{ value: 'Success Rate (%)', angle: -90, position: 'insideLeft' }}
-              tick={{ fill: "hsl(var(--foreground))" }}
-              domain={[0, 100]}
-            />
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: "hsl(var(--background))",
-                border: "1px solid hsl(var(--border))",
-                borderRadius: "var(--radius)"
-              }}
-            />
-            <Legend />
-            <Line 
-              type="monotone" 
-              dataKey="1Step" 
-              stroke="hsl(var(--chart-2))" 
-              name="1-Step Tasks"
-              strokeWidth={2}
-              dot={{ fill: "hsl(var(--chart-2))" }}
-            />
-            <Line 
-              type="monotone" 
-              dataKey="2Step" 
-              stroke="hsl(var(--chart-3))" 
-              name="2-Step Tasks"
-              strokeWidth={2}
-              dot={{ fill: "hsl(var(--chart-3))" }}
-            />
-            <Line 
-              type="monotone" 
-              dataKey="3Step" 
-              stroke="hsl(var(--chart-4))" 
-              name="3+ Step Tasks"
-              strokeWidth={2}
-              dot={{ fill: "hsl(var(--chart-4))" }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </CardContent>
-    </Card>
+    <div className="h-full w-full p-2">
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={chartData}>
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(6, 182, 212, 0.1)" />
+          <XAxis 
+            dataKey="date" 
+            tick={{ fill: '#a5f3fc', fontSize: 10 }}
+          />
+          <YAxis 
+            tick={{ fill: '#a5f3fc', fontSize: 10 }}
+            domain={[0, 100]}
+          />
+          <Tooltip 
+            contentStyle={{ 
+              backgroundColor: "rgba(10, 25, 47, 0.9)",
+              border: "1px solid rgba(6, 182, 212, 0.3)",
+              borderRadius: "8px"
+            }}
+            labelStyle={{ color: '#a5f3fc' }}
+          />
+          <Legend wrapperStyle={{ fontSize: '10px', color: '#a5f3fc' }} />
+          <Line 
+            type="monotone" 
+            dataKey="1Step" 
+            stroke="rgba(96, 165, 250, 0.9)" 
+            name="1-Step Tasks"
+            strokeWidth={2}
+            dot={{ fill: "rgba(96, 165, 250, 0.9)" }}
+          />
+          <Line 
+            type="monotone" 
+            dataKey="2Step" 
+            stroke="rgba(168, 85, 247, 0.9)" 
+            name="2-Step Tasks"
+            strokeWidth={2}
+            dot={{ fill: "rgba(168, 85, 247, 0.9)" }}
+          />
+          <Line 
+            type="monotone" 
+            dataKey="3Step" 
+            stroke="rgba(251, 191, 36, 0.9)" 
+            name="3+ Step Tasks"
+            strokeWidth={2}
+            dot={{ fill: "rgba(251, 191, 36, 0.9)" }}
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
   );
 };

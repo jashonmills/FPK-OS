@@ -1,8 +1,6 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 
 interface IEPGoalServiceTrackerProps {
@@ -36,11 +34,17 @@ export const IEPGoalServiceTracker = ({ studentId, familyId, sampleData, mode }:
 
   if (isLoading && !sampleData) {
     return (
-      <Card className="bg-transparent border-0">
-        <CardContent className="p-4">
-          <Skeleton className="h-full w-full bg-cyan-900/20" />
-        </CardContent>
-      </Card>
+      <div className="flex justify-center items-center h-full">
+        <Loader2 className="h-8 w-8 animate-spin text-cyan-400" />
+      </div>
+    );
+  }
+
+  if (categoryData.length === 0) {
+    return (
+      <div className="flex justify-center items-center h-full">
+        <p className="text-sm text-cyan-300/60">No IEP goal data available</p>
+      </div>
     );
   }
 
