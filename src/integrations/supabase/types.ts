@@ -3557,25 +3557,15 @@ export type Database = {
           trial_count: number
         }[]
       }
-      get_iep_goal_progress:
-        | {
-            Args: { p_days?: number; p_family_id: string; p_student_id: string }
-            Returns: {
-              active_goals: number
-              avg_progress: number
-              goal_category: string
-              goal_count: number
-            }[]
-          }
-        | {
-            Args: { p_family_id: string; p_student_id: string }
-            Returns: {
-              active_goals: number
-              avg_progress: number
-              goal_category: string
-              goal_count: number
-            }[]
-          }
+      get_iep_goal_progress: {
+        Args: { p_days?: number; p_family_id: string; p_student_id: string }
+        Returns: {
+          active_goals: number
+          avg_progress: number
+          goal_category: string
+          goal_count: number
+        }[]
+      }
       get_incident_frequency_data: {
         Args: { p_days?: number; p_family_id: string; p_student_id: string }
         Returns: {
@@ -3790,25 +3780,15 @@ export type Database = {
       get_user_family_role:
         | { Args: { p_family_id: string }; Returns: string }
         | { Args: { _family_id: string; _user_id: string }; Returns: string }
-      get_weekly_mood_counts:
-        | {
-            Args: { p_days?: number; p_family_id: string; p_student_id: string }
-            Returns: {
-              count: number
-              day_of_week: string
-              day_order: number
-              mood: string
-            }[]
-          }
-        | {
-            Args: { p_family_id: string; p_student_id: string }
-            Returns: {
-              count: number
-              day_of_week: string
-              day_order: number
-              mood: string
-            }[]
-          }
+      get_weekly_mood_counts: {
+        Args: { p_family_id: string; p_student_id: string }
+        Returns: {
+          count: number
+          day_of_week: string
+          day_order: number
+          mood: string
+        }[]
+      }
       get_working_memory_data: {
         Args: { p_days?: number; p_family_id: string; p_student_id: string }
         Returns: {
