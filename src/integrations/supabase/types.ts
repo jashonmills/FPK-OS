@@ -3760,31 +3760,18 @@ export type Database = {
           task_complexity: string
         }[]
       }
-      get_top_priority_goals_data:
-        | {
-            Args: { p_days?: number; p_family_id: string; p_student_id: string }
-            Returns: {
-              current_value: number
-              goal_title: string
-              goal_type: string
-              is_active: boolean
-              progress_percentage: number
-              target_date: string
-              target_value: number
-            }[]
-          }
-        | {
-            Args: { p_family_id: string; p_student_id: string }
-            Returns: {
-              current_value: number
-              goal_title: string
-              goal_type: string
-              is_active: boolean
-              progress_percentage: number
-              target_date: string
-              target_value: number
-            }[]
-          }
+      get_top_priority_goals_data: {
+        Args: { p_days?: number; p_family_id: string; p_student_id: string }
+        Returns: {
+          current_value: number
+          goal_title: string
+          goal_type: string
+          is_active: boolean
+          progress_percentage: number
+          target_date: string
+          target_value: number
+        }[]
+      }
       get_transition_success_data: {
         Args: { p_days?: number; p_family_id: string; p_student_id: string }
         Returns: {

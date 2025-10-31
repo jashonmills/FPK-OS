@@ -37,10 +37,8 @@ export const SmartChartWidget = ({
   // Determine chart mode based on unlock status and subscription
   // Super admins bypass ALL restrictions
   const isUnlocked = isSuperAdmin || unlockedCharts.includes(config.chartId) || config.tier === "standard";
-  const hasSubscription = isSuperAdmin ||
-    (config.subscriptionTier === "free") ||
-    (config.subscriptionTier === "team" && ["team", "pro"].includes(subscriptionTier)) ||
-    (config.subscriptionTier === "pro" && subscriptionTier === "pro");
+  // For now, all users can see demo data for all charts (no premium lock overlays)
+  const hasSubscription = true;
 
   // Fetch live data if unlocked and has subscription
   const { data: liveData, isLoading, error } = useQuery({
