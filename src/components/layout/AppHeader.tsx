@@ -56,7 +56,7 @@ export const AppHeader = () => {
   };
 
   return (
-    <header className="sticky top-0 z-10 flex h-14 sm:h-16 items-center gap-1 sm:gap-2 md:gap-4 border-b bg-background px-2 sm:px-4 md:px-6 overflow-hidden">
+    <header className="sticky top-0 z-10 flex h-14 sm:h-16 items-center gap-1 sm:gap-2 md:gap-4 glass-header px-2 sm:px-4 md:px-6 overflow-hidden">
       <SidebarTrigger className="shrink-0" />
       <img 
         src={fpkxLogo} 

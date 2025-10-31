@@ -100,60 +100,69 @@
   --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.dark {
-  /* Layer 0: Deepest Background */
-  --background: 240 10% 3.9%;
-  --foreground: 0 0% 98%;
-  
-  /* Layer 1: Panels / Sidebar / Popovers */
-  --popover: 240 5% 8%;
-  --popover-foreground: 0 0% 98%;
-  
-  /* Layer 2: Cards / Content Areas */
-  --card: 240 5% 14%;
-  --card-foreground: 0 0% 98%;
-  
-  /* Layer 3: Interactive Elements / Muted Backgrounds */
-  --primary: 195 100% 50%;
-  --primary-foreground: 240 6% 8%;
-  
-  --secondary: 240 4% 20%;
-  --secondary-foreground: 0 0% 98%;
-  
-  --muted: 240 4% 16%;
-  --muted-foreground: 240 4% 65%;
-  
-  --accent: 240 4% 16%;
-  --accent-foreground: 0 0% 98%;
-  
-  /* Destructive Actions */
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 0 0% 98%;
-  
-  /* Borders / Dividers */
-  --border: 240 4% 18%;
-  --input: 240 4% 18%;
-  --ring: 195 100% 50%;
-  
-  --radius: 0.5rem;
+  .dark {
+    /* Layer 0: Deepest Background */
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    
+    /* Layer 1: Panels / Sidebar / Popovers */
+    --popover: 240 5% 8%;
+    --popover-foreground: 0 0% 98%;
+    
+    /* Layer 2: Cards / Content Areas */
+    --card: 240 5% 14%;
+    --card-foreground: 0 0% 98%;
+    
+    /* Layer 3: Interactive Elements / Muted Backgrounds */
+    --primary: 195 100% 50%;
+    --primary-foreground: 240 6% 8%;
+    
+    --secondary: 240 4% 20%;
+    --secondary-foreground: 0 0% 98%;
+    
+    --muted: 240 4% 16%;
+    --muted-foreground: 240 4% 65%;
+    
+    --accent: 240 4% 16%;
+    --accent-foreground: 0 0% 98%;
+    
+    /* Destructive Actions */
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    
+    /* Borders / Dividers */
+    --border: 240 4% 18%;
+    --input: 240 4% 18%;
+    --ring: 195 100% 50%;
+    
+    --radius: 0.5rem;
 
-  /* Sidebar Specific (Dark Mode) */
-  --sidebar-background: 240 6% 8%;
-  --sidebar-foreground: 240 5% 90%;
-  --sidebar-primary: 195 100% 50%;
-  --sidebar-primary-foreground: 240 6% 8%;
-  --sidebar-accent: 240 4% 16%;
-  --sidebar-accent-foreground: 0 0% 98%;
-  --sidebar-border: 240 4% 18%;
-  --sidebar-ring: 195 100% 50%;
+    /* Sidebar Specific (Dark Mode) */
+    --sidebar-background: 240 6% 8%;
+    --sidebar-foreground: 240 5% 90%;
+    --sidebar-primary: 195 100% 50%;
+    --sidebar-primary-foreground: 240 6% 8%;
+    --sidebar-accent: 240 4% 16%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 240 4% 18%;
+    --sidebar-ring: 195 100% 50%;
 
-  /* Chart Colors */
-  --chart-1: 185 100% 50%;
-  --chart-2: 200 95% 55%;
-  --chart-3: 215 90% 60%;
-  --chart-4: 230 85% 65%;
-  --chart-5: 245 80% 70%;
-}
+    /* RGB equivalents for glassmorphism */
+    --background-rgb: 9, 10, 11;
+    --sidebar-background-rgb: 18, 19, 23;
+    --popover-rgb: 18, 19, 23;
+    --card-rgb: 33, 34, 39;
+
+    /* Enhanced text readability on glass surfaces */
+    --text-shadow-glass: 0 1px 2px rgba(0, 0, 0, 0.5);
+
+    /* Chart Colors */
+    --chart-1: 185 100% 50%;
+    --chart-2: 200 95% 55%;
+    --chart-3: 215 90% 60%;
+    --chart-4: 230 85% 65%;
+    --chart-5: 245 80% 70%;
+  }
 
 * {
   border-color: hsl(var(--border));
@@ -338,5 +347,40 @@ body {
       box-shadow: 0 0 35px rgba(56, 189, 248, 0.8),
                   0 0 20px rgba(56, 189, 248, 0.5); 
     }
+  }
+
+  /* Glassmorphism Effects */
+  .glass-sidebar {
+    background: rgba(var(--sidebar-background-rgb), 0.75);
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  
+  .glass-card {
+    background: rgba(var(--card-rgb), 0.65);
+    backdrop-filter: blur(10px) saturate(150%);
+    -webkit-backdrop-filter: blur(10px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .glass-popover {
+    background: rgba(var(--popover-rgb), 0.70);
+    backdrop-filter: blur(14px) saturate(180%);
+    -webkit-backdrop-filter: blur(14px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+  
+  .glass-header {
+    background: rgba(var(--sidebar-background-rgb), 0.60);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  /* Enhanced text readability on glass surfaces */
+  .glass-card .text-card-foreground,
+  .glass-sidebar .text-sidebar-foreground {
+    text-shadow: var(--text-shadow-glass);
   }
 }

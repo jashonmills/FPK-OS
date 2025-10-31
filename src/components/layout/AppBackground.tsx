@@ -76,12 +76,12 @@ export const AppBackground = () => {
         className="fixed inset-0 -z-50 bg-cover bg-center bg-no-repeat transition-opacity duration-1000"
         style={{ 
           backgroundImage: `url(${imageUrl})`,
-          filter: 'brightness(0.92) blur(1px)'
+          filter: 'brightness(0.85) blur(0px)'
         }}
       />
       
       {/* Overlay for readability */}
-      <div className="fixed inset-0 -z-40 bg-gradient-to-br from-background/70 via-background/50 to-background/70" />
+      <div className="fixed inset-0 -z-40 bg-gradient-to-br from-background/50 via-background/30 to-background/50" />
     </>
   );
 };
