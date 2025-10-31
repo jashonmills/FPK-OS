@@ -5,16 +5,19 @@ import { useAuth } from '@/contexts/AuthContext';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { MessageBubble } from './MessageBubble';
 import { MessageInput } from './MessageInput';
-import { Hash, MessageCircle, ArrowLeft } from 'lucide-react';
+import { Hash, MessageCircle, ArrowLeft, Info } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
+import { UserAvatar } from '@/components/ui/avatar-with-initials';
 
 interface ChatWindowProps {
   conversationId: string | null;
   onBack?: () => void;
+  onToggleDetails?: () => void;
+  detailsCollapsed?: boolean;
 }
 
-export const ChatWindow = ({ conversationId, onBack }: ChatWindowProps) => {
+export const ChatWindow = ({ conversationId, onBack, onToggleDetails, detailsCollapsed }: ChatWindowProps) => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -183,10 +186,12 @@ export const ChatWindow = ({ conversationId, onBack }: ChatWindowProps) => {
   const displayName = conversation?.type === 'channel' 
     ? conversation.name 
     : (conversation as any)?.dmPartner?.full_name || 'Direct Message';
+  
+  const dmPartner = (conversation as any)?.dmPartner;
 
   return (
-    <div className="flex-1 flex flex-col bg-background">
-      <div className="h-16 border-b border-border px-4 md:px-6 flex items-center gap-3">
+    <div className="h-full flex flex-col">
+      <div className="p-4 border-b border-border/50 flex items-center gap-3 bg-background">
         {onBack && (
           <Button
             variant="ghost"
@@ -197,19 +202,44 @@ export const ChatWindow = ({ conversationId, onBack }: ChatWindowProps) => {
             <ArrowLeft className="h-5 w-5" />
           </Button>
         )}
-        {conversation?.type === 'channel' ? (
-          <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-            <Hash className="h-5 w-5 text-primary" />
-          </div>
-        ) : (
-          <div className="h-10 w-10 rounded-full bg-muted flex-shrink-0" />
-        )}
-        <div className="flex-1 min-w-0">
-          <h2 className="font-semibold truncate">{displayName}</h2>
-          {conversation?.description && (
-            <p className="text-sm text-muted-foreground truncate">{conversation.description}</p>
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          {conversation?.type === 'channel' ? (
+            <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <Hash className="h-5 w-5 text-primary" />
+            </div>
+          ) : dmPartner ? (
+            <UserAvatar
+              fullName={dmPartner.full_name}
+              avatarUrl={dmPartner.avatar_url}
+              size={36}
+            />
+          ) : (
+            <div className="h-9 w-9 rounded-full bg-muted flex-shrink-0" />
           )}
+          <div className="min-w-0 flex-1">
+            <h2 className="font-semibold truncate">
+              {conversation?.type === 'channel' 
+                ? `# ${displayName}` 
+                : displayName}
+            </h2>
+            {conversation?.type === 'channel' && conversation.description && (
+              <p className="text-xs text-muted-foreground truncate">
+                {conversation.description}
+              </p>
+            )}
+          </div>
         </div>
+        {onToggleDetails && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onToggleDetails}
+            className="hidden md:flex flex-shrink-0"
+            title={detailsCollapsed ? "Show details" : "Hide details"}
+          >
+            <Info className="h-5 w-5" />
+          </Button>
+        )}
       </div>
 
       <ScrollArea ref={scrollAreaRef} className="flex-1 p-4">
@@ -224,7 +254,7 @@ export const ChatWindow = ({ conversationId, onBack }: ChatWindowProps) => {
         </div>
       </ScrollArea>
 
-      <div className="border-t border-border p-4">
+      <div className="p-4 border-t border-border/50 bg-background">
         <div className="max-w-4xl mx-auto">
           <MessageInput
             onSend={(content) => sendMessageMutation.mutate(content)}

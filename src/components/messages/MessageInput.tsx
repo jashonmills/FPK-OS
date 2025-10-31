@@ -26,32 +26,32 @@ export const MessageInput = ({ onSend, disabled }: MessageInputProps) => {
   };
 
   return (
-    <div className="flex gap-2 items-end">
+    <div className="flex gap-3 items-end">
       <div className="flex-1 relative">
         <MentionTextarea
-          placeholder="Type a message... @mention or #channel (Shift+Enter for new line)"
+          placeholder="Type a message... (Shift+Enter for new line)"
           value={message}
           onChange={setMessage}
           onKeyDown={handleKeyDown}
-          minHeight="min-h-[60px]"
-          className="max-h-32 resize-none pr-10"
+          minHeight="min-h-[48px]"
+          className="max-h-32 resize-none pr-10 border-input bg-background"
         />
         <Button
           variant="ghost"
           size="sm"
-          className="absolute right-2 bottom-2 h-8 w-8 p-0"
+          className="absolute right-2 bottom-2 h-7 w-7 p-0"
           type="button"
         >
-          <Smile className="h-4 w-4" />
+          <Smile className="h-4 w-4 text-muted-foreground" />
         </Button>
       </div>
       <Button
         onClick={handleSend}
         disabled={!message.trim() || disabled}
         size="icon"
-        className="h-[60px] w-[60px]"
+        className="h-12 w-12 flex-shrink-0"
       >
-        <Send className="h-5 w-5" />
+        <Send className="h-4 w-4" />
       </Button>
     </div>
   );

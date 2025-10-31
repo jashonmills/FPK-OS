@@ -7,6 +7,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 
 const Messages = () => {
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
+  const [detailsCollapsed, setDetailsCollapsed] = useState(false);
   const isMobile = useIsMobile();
 
   const handleSelectConversation = (id: string) => {
@@ -19,27 +20,39 @@ const Messages = () => {
 
   return (
     <AppLayout>
-      <div className="h-[calc(100vh-4rem)] flex">
-        {/* Conversation List - hidden on mobile when chat is open */}
-        <div className={`${isMobile && selectedConversationId ? 'hidden' : 'block'} ${isMobile ? 'w-full' : ''}`}>
+      <div className="h-[calc(100vh-4rem)] flex overflow-hidden">
+        {/* Conversation List - 280px fixed width on desktop */}
+        <div className={`
+          ${isMobile && selectedConversationId ? 'hidden' : 'block'} 
+          ${isMobile ? 'w-full' : 'w-[280px] flex-shrink-0'}
+          border-r border-border/50 bg-muted/30
+        `}>
           <ConversationList
             selectedConversationId={selectedConversationId}
             onSelectConversation={handleSelectConversation}
           />
         </div>
 
-        {/* Chat Window - hidden on mobile when no conversation selected */}
-        <div className={`${isMobile && !selectedConversationId ? 'hidden' : 'flex-1'}`}>
+        {/* Chat Window - flexible center panel */}
+        <div className={`
+          ${isMobile && !selectedConversationId ? 'hidden' : 'flex-1'} 
+          flex flex-col min-w-0 bg-background
+        `}>
           <ChatWindow 
             conversationId={selectedConversationId}
             onBack={isMobile ? handleBackToList : undefined}
+            onToggleDetails={() => setDetailsCollapsed(!detailsCollapsed)}
+            detailsCollapsed={detailsCollapsed}
           />
         </div>
 
-        {/* Conversation Details - hidden on mobile and tablet */}
-        {selectedConversationId && !isMobile && (
-          <div className="hidden lg:block">
-            <ConversationDetails conversationId={selectedConversationId} />
+        {/* Conversation Details - 320px fixed width, collapsible on desktop */}
+        {selectedConversationId && !isMobile && !detailsCollapsed && (
+          <div className="w-[320px] flex-shrink-0 border-l border-border/50 bg-muted/30">
+            <ConversationDetails 
+              conversationId={selectedConversationId}
+              onClose={() => setDetailsCollapsed(true)}
+            />
           </div>
         )}
       </div>

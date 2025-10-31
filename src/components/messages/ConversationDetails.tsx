@@ -2,14 +2,16 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
+import { Button } from '@/components/ui/button';
 import { UserAvatar } from '@/components/ui/avatar-with-initials';
-import { Users } from 'lucide-react';
+import { Users, X } from 'lucide-react';
 
 interface ConversationDetailsProps {
   conversationId: string;
+  onClose: () => void;
 }
 
-export const ConversationDetails = ({ conversationId }: ConversationDetailsProps) => {
+export const ConversationDetails = ({ conversationId, onClose }: ConversationDetailsProps) => {
   const { data: conversation } = useQuery({
     queryKey: ['conversation-details', conversationId],
     queryFn: async () => {
@@ -38,11 +40,19 @@ export const ConversationDetails = ({ conversationId }: ConversationDetailsProps
   });
 
   return (
-    <div className="w-80 border-l border-border bg-card">
-      <div className="p-4 border-b border-border">
-        <h3 className="font-semibold">
-          {conversation?.type === 'channel' ? 'Channel Details' : 'Conversation Details'}
+    <div className="h-full flex flex-col">
+      <div className="p-4 border-b border-border/50 flex items-center justify-between">
+        <h3 className="font-semibold text-sm">
+          {conversation?.type === 'channel' ? 'Channel Details' : 'Details'}
         </h3>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8"
+          onClick={onClose}
+        >
+          <X className="h-4 w-4" />
+        </Button>
       </div>
 
       <ScrollArea className="flex-1">

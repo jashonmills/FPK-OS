@@ -111,16 +111,15 @@ export const ConversationList = ({ selectedConversationId, onSelectConversation 
 
   return (
     <>
-      <div className="w-80 border-r border-border flex flex-col bg-card">
-        <div className="p-4 border-b border-border">
-          <h2 className="text-lg font-semibold mb-3">Messages</h2>
+      <div className="h-full flex flex-col">
+        <div className="p-4 border-b border-border/50">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search conversations..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
+              className="pl-9 bg-background"
             />
           </div>
         </div>
@@ -143,8 +142,8 @@ export const ConversationList = ({ selectedConversationId, onSelectConversation 
                 key={conv.id}
                 onClick={() => onSelectConversation(conv.id)}
                 className={cn(
-                  "w-full flex items-start gap-3 p-2 rounded-lg hover:bg-accent transition-colors text-left",
-                  selectedConversationId === conv.id && "bg-accent"
+                  "w-full flex items-start gap-3 p-2.5 rounded-md hover:bg-muted/60 transition-colors text-left",
+                  selectedConversationId === conv.id && "bg-muted/80"
                 )}
               >
                 <div className="flex-shrink-0 mt-1">
@@ -186,8 +185,8 @@ export const ConversationList = ({ selectedConversationId, onSelectConversation 
                 key={conv.id}
                 onClick={() => onSelectConversation(conv.id)}
                 className={cn(
-                  "w-full flex items-start gap-3 p-2 rounded-lg hover:bg-accent transition-colors text-left",
-                  selectedConversationId === conv.id && "bg-accent"
+                  "w-full flex items-start gap-3 p-2.5 rounded-md hover:bg-muted/60 transition-colors text-left",
+                  selectedConversationId === conv.id && "bg-muted/80"
                 )}
               >
                 <div className="flex-shrink-0 mt-1">
