@@ -117,7 +117,7 @@ serve(async (req) => {
             role: role,
             password_required: true,
           },
-          redirectTo: `${req.headers.get('origin')}/auth`,
+          redirectTo: `${req.headers.get('origin')}/auth?type=invite`,
         }
       );
 
@@ -139,7 +139,7 @@ serve(async (req) => {
             role: role,
             password_required: true,
           },
-          redirectTo: `${req.headers.get('origin')}/auth`,
+          redirectTo: `${req.headers.get('origin')}/auth?type=invite`,
         }
       );
 
