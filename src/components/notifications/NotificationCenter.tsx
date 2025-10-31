@@ -17,15 +17,16 @@ interface Notification {
   id: string;
   type: string;
   content: string;
-  task_id: string;
+  task_id: string | null;
   comment_id: string | null;
   read: boolean;
   created_at: string;
   sender_id: string;
-  profiles?: {
+  metadata?: any;
+  sender?: {
     full_name: string;
   };
-  tasks?: {
+  task?: {
     title: string;
   };
 }
@@ -70,8 +71,8 @@ export const NotificationCenter = () => {
       .from('notifications')
       .select(`
         *,
-        profiles:sender_id(full_name),
-        tasks:task_id(title)
+        sender:sender_id(full_name),
+        task:task_id(title)
       `)
       .eq('recipient_id', user.id)
       .order('created_at', { ascending: false })
@@ -94,10 +95,13 @@ export const NotificationCenter = () => {
 
   const handleNotificationClick = async (notification: Notification) => {
     await markAsRead(notification.id);
-    navigate('/kanban');
     
-    // TODO: Open task details and scroll to comment
-    // This would require passing the task ID and comment ID to the Kanban page
+    // Navigate based on notification type
+    if (notification.type === 'direct_message' || notification.type === 'channel_message' || notification.type === 'message_mention') {
+      navigate('/messages');
+    } else {
+      navigate('/kanban');
+    }
   };
 
   const markAllAsRead = async () => {
@@ -158,7 +162,7 @@ export const NotificationCenter = () => {
                   <div className="flex items-start justify-between gap-2">
                     <p className="text-sm">
                       <span className="font-medium">
-                        {(notification.profiles as any)?.full_name || 'Someone'}
+                        {notification.sender?.full_name || 'Someone'}
                       </span>
                       {' '}{notification.content}
                     </p>
@@ -166,11 +170,13 @@ export const NotificationCenter = () => {
                       <div className="h-2 w-2 rounded-full bg-primary flex-shrink-0 mt-1" />
                     )}
                   </div>
+                  {notification.task_id && (
+                    <p className="text-xs text-muted-foreground">
+                      {notification.task?.title || 'Task'}
+                    </p>
+                  )}
                   <p className="text-xs text-muted-foreground">
-                    {(notification.tasks as any)?.title || 'Unknown task'}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {new Date(notification.created_at).toLocaleDateString()}
+                    {new Date(notification.created_at).toLocaleDateString()} {new Date(notification.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
               </DropdownMenuItem>
