@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      calendar_subscriptions: {
+        Row: {
+          created_at: string
+          filter_settings: Json | null
+          id: string
+          token: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          filter_settings?: Json | null
+          id?: string
+          token: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          filter_settings?: Json | null
+          id?: string
+          token?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       conversation_participants: {
         Row: {
           conversation_id: string
