@@ -8,6 +8,7 @@ interface AuthContextType {
   session: Session | null;
   loading: boolean;
   hasPassword: boolean;
+  refreshPasswordStatus: () => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -75,8 +76,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     navigate('/auth');
   };
 
+  const refreshPasswordStatus = async () => {
+    if (user) {
+      await checkPasswordStatus(user.id);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, session, loading, hasPassword, signOut }}>
+    <AuthContext.Provider value={{ user, session, loading, hasPassword, refreshPasswordStatus, signOut }}>
       {children}
     </AuthContext.Provider>
   );

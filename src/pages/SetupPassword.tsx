@@ -13,7 +13,7 @@ const SetupPassword = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const { user } = useAuth();
+  const { user, refreshPasswordStatus } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -60,6 +60,9 @@ const SetupPassword = () => {
         title: 'Success',
         description: 'Your password has been set successfully',
       });
+
+      // Refresh password status in AuthContext before navigating
+      await refreshPasswordStatus();
 
       // Redirect to home page
       navigate('/');
