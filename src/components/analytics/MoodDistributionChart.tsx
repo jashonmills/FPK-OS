@@ -86,7 +86,64 @@ export const MoodDistributionChart = ({ familyId, studentId, sampleData, mode }:
     );
   }
 
-  if ((!displayData || displayData.length === 0) && !sampleData) {
+  // If sampleData is provided (demo mode), show hardcoded demo data
+  if (sampleData) {
+    const chartData = [
+      { day: 'Sunday', Happy: 6, Calm: 3, Anxious: 1, Agitated: 0, Tired: 0 },
+      { day: 'Monday', Happy: 5, Calm: 3, Anxious: 1, Agitated: 0, Tired: 1 },
+      { day: 'Tuesday', Happy: 6, Calm: 2, Anxious: 2, Agitated: 0, Tired: 0 },
+      { day: 'Wednesday', Happy: 4, Calm: 4, Anxious: 1, Agitated: 1, Tired: 0 },
+      { day: 'Thursday', Happy: 7, Calm: 2, Anxious: 0, Agitated: 1, Tired: 0 },
+      { day: 'Friday', Happy: 8, Calm: 1, Anxious: 1, Agitated: 0, Tired: 0 },
+      { day: 'Saturday', Happy: 5, Calm: 3, Anxious: 0, Agitated: 1, Tired: 1 },
+    ];
+
+    return (
+      <div className="h-full w-full p-2">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={chartData}>
+            <defs>
+              <linearGradient id="happyGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={FPX_VIBRANT_PALETTE.happy.from} stopOpacity={0.95} />
+                <stop offset="100%" stopColor={FPX_VIBRANT_PALETTE.happy.to} stopOpacity={0.85} />
+              </linearGradient>
+              <linearGradient id="calmGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={FPX_VIBRANT_PALETTE.calm.from} stopOpacity={0.95} />
+                <stop offset="100%" stopColor={FPX_VIBRANT_PALETTE.calm.to} stopOpacity={0.85} />
+              </linearGradient>
+              <linearGradient id="anxiousGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={FPX_VIBRANT_PALETTE.anxious.from} stopOpacity={0.95} />
+                <stop offset="100%" stopColor={FPX_VIBRANT_PALETTE.anxious.to} stopOpacity={0.85} />
+              </linearGradient>
+              <linearGradient id="agitatedGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={FPX_VIBRANT_PALETTE.agitated.from} stopOpacity={0.95} />
+                <stop offset="100%" stopColor={FPX_VIBRANT_PALETTE.agitated.to} stopOpacity={0.85} />
+              </linearGradient>
+              <linearGradient id="tiredGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={FPX_VIBRANT_PALETTE.tired.from} stopOpacity={0.95} />
+                <stop offset="100%" stopColor={FPX_VIBRANT_PALETTE.tired.to} stopOpacity={0.85} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(6, 182, 212, 0.1)" />
+            <XAxis dataKey="day" tick={{ fill: '#a5f3fc', fontSize: 10 }} />
+            <YAxis tick={{ fill: '#a5f3fc', fontSize: 10 }} />
+            <Tooltip 
+              contentStyle={{ backgroundColor: 'rgba(10, 25, 47, 0.9)', borderColor: 'rgba(6, 182, 212, 0.3)', borderRadius: '8px' }}
+              labelStyle={{ color: '#a5f3fc' }}
+            />
+            <Legend wrapperStyle={{ fontSize: '10px', color: '#a5f3fc' }} />
+            <Bar dataKey="Happy" stackId="a" fill="url(#happyGradient)" />
+            <Bar dataKey="Calm" stackId="a" fill="url(#calmGradient)" />
+            <Bar dataKey="Anxious" stackId="a" fill="url(#anxiousGradient)" />
+            <Bar dataKey="Agitated" stackId="a" fill="url(#agitatedGradient)" />
+            <Bar dataKey="Tired" stackId="a" fill="url(#tiredGradient)" />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    );
+  }
+
+  if (!displayData || displayData.length === 0) {
     return (
       <div className="flex justify-center items-center h-full">
         <p className="text-sm text-cyan-300/60">No mood data available</p>

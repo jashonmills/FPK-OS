@@ -31,7 +31,23 @@ export const AcademicFluencyTrends = ({ studentId, familyId, dateRange, sampleDa
   });
 
   const processChartData = () => {
-    const rawData = sampleData || fluencyData;
+    // If sampleData is provided (demo mode), show hardcoded demo data
+    if (sampleData) {
+      return {
+        data: [
+          { formattedDate: 'Jan 10', reading: 45, math: 38 },
+          { formattedDate: 'Jan 12', reading: 52, math: 42 },
+          { formattedDate: 'Jan 15', reading: 58, math: 45 },
+          { formattedDate: 'Jan 18', reading: 61, math: 50 },
+          { formattedDate: 'Jan 22', reading: 67, math: 53 },
+          { formattedDate: 'Jan 25', reading: 72, math: 58 },
+        ],
+        readingTarget: 80,
+        mathTarget: 65,
+      };
+    }
+
+    const rawData = fluencyData;
     if (!Array.isArray(rawData) || rawData.length === 0) {
       return { data: [], readingTarget: 0, mathTarget: 0 };
     }

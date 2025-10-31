@@ -41,14 +41,68 @@ export const IncidentFrequencyChart = ({ familyId, studentId, days, sampleData }
     enabled: !sampleData,
   });
 
-  const displayData = sampleData || data?.data;
+  // If sampleData is provided (demo mode), show hardcoded demo data
+  if (sampleData) {
+    const chartData = [
+      { date: 'Jan 15', count: 3 },
+      { date: 'Jan 16', count: 2 },
+      { date: 'Jan 17', count: 4 },
+      { date: 'Jan 18', count: 1 },
+      { date: 'Jan 19', count: 2 },
+      { date: 'Jan 20', count: 3 },
+      { date: 'Jan 21', count: 1 },
+      { date: 'Jan 22', count: 0 },
+      { date: 'Jan 23', count: 2 },
+      { date: 'Jan 24', count: 1 },
+    ];
+
+    return (
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <span className="text-xs px-2 py-1 rounded bg-primary/10 text-primary">
+            📝 Sample Data
+          </span>
+        </div>
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+            <XAxis 
+              dataKey="date" 
+              className="text-xs"
+              tick={{ fill: "hsl(var(--foreground))" }}
+              interval="preserveStartEnd"
+              minTickGap={20}
+            />
+            <YAxis tick={{ fill: "hsl(var(--foreground))" }} />
+            <Tooltip 
+              contentStyle={{ 
+                backgroundColor: "hsl(var(--background))",
+                border: "1px solid hsl(var(--border))",
+                borderRadius: "var(--radius)"
+              }}
+            />
+            <Line 
+              type="monotone" 
+              dataKey="count" 
+              stroke="hsl(var(--destructive))" 
+              strokeWidth={2}
+              dot={{ fill: "hsl(var(--destructive))", r: 4 }}
+              connectNulls={false}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    );
+  }
+
+  const displayData = data?.data;
   const dataSource = data?.source || 'unknown';
 
   if (isLoading) {
     return <Skeleton className="h-[300px] w-full" />;
   }
 
-  if ((!displayData || displayData.length === 0) && !sampleData) {
+  if (!displayData || displayData.length === 0) {
     return (
       <div className="h-[300px] flex flex-col items-center justify-center text-center p-6 space-y-4">
         <p className="text-muted-foreground">No incident data available yet.</p>
