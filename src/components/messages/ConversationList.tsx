@@ -69,6 +69,7 @@ export const ConversationList = ({ selectedConversationId, onSelectConversation 
 
           // For DMs, get the other participant
           let dmPartner = null;
+          let dmPartnerName = 'Unknown User';
           if (conv.type === 'dm') {
             const { data: participants } = await supabase
               .from('conversation_participants')
@@ -79,13 +80,14 @@ export const ConversationList = ({ selectedConversationId, onSelectConversation 
             
             if (participants) {
               dmPartner = participants.profiles as any;
+              dmPartnerName = dmPartner?.full_name || 'Unknown User';
             }
           }
 
           return {
             id: conv.id,
             type: conv.type,
-            name: conv.type === 'channel' ? conv.name : dmPartner?.full_name || 'Unknown User',
+            name: conv.type === 'channel' ? conv.name : dmPartnerName,
             lastMessage: lastMessage?.content,
             lastMessageTime: lastMessage?.created_at,
             unreadCount: unreadCount || 0,

@@ -4,6 +4,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Switch } from '@/components/ui/switch';
 import { Card } from '@/components/ui/card';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface FeatureFlag {
   id: string;
@@ -13,6 +14,7 @@ interface FeatureFlag {
 }
 
 export const FeatureFlagsTable = () => {
+  const isMobile = useIsMobile();
   const [flags, setFlags] = useState<FeatureFlag[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -93,6 +95,45 @@ export const FeatureFlagsTable = () => {
     return <div className="text-center py-8">Loading...</div>;
   }
 
+  // Mobile card layout
+  if (isMobile) {
+    return (
+      <div className="space-y-3">
+        {flags.length === 0 ? (
+          <div className="text-center text-muted-foreground py-8">
+            No feature flags found
+          </div>
+        ) : (
+          flags.map((flag) => (
+            <div
+              key={flag.id}
+              className="bg-card border border-border rounded-lg p-4 space-y-3"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-medium break-words">{flag.name}</h3>
+                  <p className="text-sm text-muted-foreground mt-1 break-words">
+                    {flag.description || 'No description'}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center justify-between pt-2 border-t border-border">
+                <span className="text-sm font-medium">
+                  {flag.enabled ? 'Enabled' : 'Disabled'}
+                </span>
+                <Switch
+                  checked={flag.enabled}
+                  onCheckedChange={() => handleToggle(flag.id, flag.enabled)}
+                />
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    );
+  }
+
+  // Desktop table layout
   return (
     <Card>
       <Table>
