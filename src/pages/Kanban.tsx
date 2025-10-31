@@ -10,6 +10,7 @@ import { MobileFilterDropdown } from '@/components/kanban/MobileFilterDropdown';
 import { MobileViewDropdown } from '@/components/kanban/MobileViewDropdown';
 import { ListView } from '@/components/project-views/ListView';
 import { CalendarView } from '@/components/project-views/CalendarView';
+import { CalendarSyncDialog } from '@/components/project-views/CalendarSyncDialog';
 import { TimelineView } from '@/components/project-views/TimelineView';
 import { TaskDetailsSheet } from '@/components/kanban/TaskDetailsSheet';
 import { CreateTaskButton } from '@/components/tasks/CreateTaskButton';
@@ -18,7 +19,8 @@ import { MyTasksButton } from '@/components/assignee/MyTasksButton';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Plus } from 'lucide-react';
+import { useFeatureFlags } from '@/contexts/FeatureFlagContext';
+import { Plus, CalendarDays } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface Task {
@@ -44,10 +46,12 @@ const Kanban = () => {
   const [detailsSheetOpen, setDetailsSheetOpen] = useState(false);
   const [assigneeFilter, setAssigneeFilter] = useState<string | null>(null);
   const [showMyTasks, setShowMyTasks] = useState(false);
+  const [syncDialogOpen, setSyncDialogOpen] = useState(false);
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const isMobile = useIsMobile();
+  const { isFeatureEnabled } = useFeatureFlags();
   const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
@@ -239,6 +243,17 @@ const Kanban = () => {
               </div>
               <div className="flex items-center gap-2 flex-wrap w-full md:w-auto md:ml-auto">
                 <ViewSwitcher activeView={activeView} onViewChange={handleViewChange} />
+                {isFeatureEnabled('FEATURE_CALENDAR_SYNC') && activeView === 'calendar' && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setSyncDialogOpen(true)}
+                    className="gap-2"
+                  >
+                    <CalendarDays className="h-4 w-4" />
+                    Sync to Calendar
+                  </Button>
+                )}
                 <ProjectSelector value={selectedProject} onChange={setSelectedProject} />
                 {selectedProject && selectedProject !== 'all' && activeView !== 'kanban' && (
                   <CreateTaskButton projectId={selectedProject} variant="button" />
@@ -279,8 +294,6 @@ const Kanban = () => {
                 projectColor={projectColor}
                 onTaskClick={handleTaskClick}
                 onTaskUpdate={fetchTasks}
-                projectId={selectedProject !== 'all' ? selectedProject : undefined}
-                myTasksOnly={showMyTasks}
               />
             )}
             {activeView === 'timeline' && (
@@ -321,6 +334,13 @@ const Kanban = () => {
         open={detailsSheetOpen}
         onOpenChange={setDetailsSheetOpen}
         onTaskUpdate={fetchTasks}
+      />
+
+      <CalendarSyncDialog
+        open={syncDialogOpen}
+        onOpenChange={setSyncDialogOpen}
+        projectId={selectedProject !== 'all' ? selectedProject : undefined}
+        myTasksOnly={showMyTasks}
       />
     </AppLayout>
   );
