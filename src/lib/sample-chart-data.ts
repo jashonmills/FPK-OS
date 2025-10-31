@@ -5,51 +5,56 @@
 export const sampleBehaviorData = [
   {
     behavior_type: "Elopement",
-    behavior_function: "Escape",
-    count: 8,
+    frequency: 8,
+    common_antecedent: "difficult task demand",
+    common_consequence: "allowed to escape/avoid work",
   },
   {
     behavior_type: "Verbal Outbursts",
-    behavior_function: "Attention",
-    count: 12,
+    frequency: 12,
+    common_antecedent: "peer nearby or teacher attention on others",
+    common_consequence: "gains adult or peer attention",
   },
   {
     behavior_type: "Property Destruction",
-    behavior_function: "Tangible",
-    count: 5,
+    frequency: 5,
+    common_antecedent: "denied access to preferred item",
+    common_consequence: "obtains desired tangible item",
   },
   {
     behavior_type: "Self-Stimulation",
-    behavior_function: "Sensory",
-    count: 15,
+    frequency: 15,
+    common_antecedent: "low stimulation environment",
+    common_consequence: "provides sensory stimulation/input",
   },
   {
     behavior_type: "Non-Compliance",
-    behavior_function: "Escape",
-    count: 10,
+    frequency: 10,
+    common_antecedent: "transition time or change in routine",
+    common_consequence: "escapes or avoids transition",
   },
 ];
 
 // For IEP Goal & Service Tracker
 export const sampleIEPGoals = [
   {
-    goal_type: "life_skill",
-    active_goals: 2,
+    goal_category: "Life Skills",
+    goal_count: 2,
     avg_progress: 75,
   },
   {
-    goal_type: "behavioral",
-    active_goals: 3,
+    goal_category: "Behavioral",
+    goal_count: 3,
     avg_progress: 45,
   },
   {
-    goal_type: "academic",
-    active_goals: 4,
+    goal_category: "Academic",
+    goal_count: 4,
     avg_progress: 60,
   },
   {
-    goal_type: "social",
-    active_goals: 2,
+    goal_category: "Social Communication",
+    goal_count: 2,
     avg_progress: 30,
   },
 ];
