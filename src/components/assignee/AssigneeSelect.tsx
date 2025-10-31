@@ -51,7 +51,7 @@ export const AssigneeSelect = ({ value, onChange, disabled }: AssigneeSelectProp
           {value && selectedUser ? (
             <div className="flex items-center gap-2">
               <UserAvatar 
-                name={selectedUser.full_name} 
+                fullName={selectedUser.full_name} 
                 avatarUrl={selectedUser.avatar_url}
                 size={20}
               />
@@ -76,7 +76,7 @@ export const AssigneeSelect = ({ value, onChange, disabled }: AssigneeSelectProp
           <SelectItem key={user.id} value={user.id}>
             <div className="flex items-center gap-2">
               <UserAvatar 
-                name={user.full_name} 
+                fullName={user.full_name} 
                 avatarUrl={user.avatar_url}
                 size={20}
               />

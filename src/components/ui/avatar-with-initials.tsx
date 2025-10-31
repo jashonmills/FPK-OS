@@ -1,15 +1,15 @@
 import { cn } from '@/lib/utils';
 
 interface UserAvatarProps {
-  name: string;
+  fullName: string;
   avatarUrl?: string | null;
-  size?: 16 | 20 | 24 | 32 | 40;
+  size?: number;
   className?: string;
 }
 
-export const UserAvatar = ({ name, avatarUrl, size = 32, className }: UserAvatarProps) => {
-  const getInitials = (fullName: string) => {
-    const parts = fullName.trim().split(' ');
+export const UserAvatar = ({ fullName, avatarUrl, size = 32, className }: UserAvatarProps) => {
+  const getInitials = (name: string) => {
+    const parts = name.trim().split(' ');
     if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   };
@@ -23,39 +23,30 @@ export const UserAvatar = ({ name, avatarUrl, size = 32, className }: UserAvatar
     return `hsl(${hue}, 65%, 55%)`;
   };
 
-  const sizeClasses = {
-    16: 'h-4 w-4 text-[8px]',
-    20: 'h-5 w-5 text-[9px]',
-    24: 'h-6 w-6 text-[10px]',
-    32: 'h-8 w-8 text-xs',
-    40: 'h-10 w-10 text-sm',
+  const sizeStyle = {
+    width: `${size}px`,
+    height: `${size}px`,
+    fontSize: `${Math.max(8, size / 3)}px`,
   };
 
   if (avatarUrl) {
     return (
       <img
         src={avatarUrl}
-        alt={name}
-        className={cn(
-          'rounded-full object-cover',
-          sizeClasses[size],
-          className
-        )}
+        alt={fullName}
+        className={cn('rounded-full object-cover', className)}
+        style={sizeStyle}
       />
     );
   }
 
   return (
     <div
-      className={cn(
-        'rounded-full flex items-center justify-center font-medium text-white',
-        sizeClasses[size],
-        className
-      )}
-      style={{ backgroundColor: getColorFromName(name) }}
-      title={name}
+      className={cn('rounded-full flex items-center justify-center font-medium text-white', className)}
+      style={{ ...sizeStyle, backgroundColor: getColorFromName(fullName) }}
+      title={fullName}
     >
-      {getInitials(name)}
+      {getInitials(fullName)}
     </div>
   );
 };

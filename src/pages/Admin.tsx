@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { InviteUserDialog } from '@/components/admin/InviteUserDialog';
+import { TeamMembersTable } from '@/components/admin/TeamMembersTable';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Shield, Users, Mail } from 'lucide-react';
+import { Shield, Users } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -80,74 +80,16 @@ const Admin = () => {
           <InviteUserDialog />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <Users className="h-8 w-8 text-primary mb-2" />
-              <CardTitle>Team Management</CardTitle>
-              <CardDescription>Invite and manage team members</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                  <div>
-                    <p className="font-medium">Invite-Only Access</p>
-                    <p className="text-sm text-muted-foreground">
-                      Only invited users can join FPK Pulse
-                    </p>
-                  </div>
-                  <Badge variant="secondary">Active</Badge>
-                </div>
-
-                <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                  <div>
-                    <p className="font-medium">Email Confirmation</p>
-                    <p className="text-sm text-muted-foreground">
-                      Auto-confirm enabled for faster onboarding
-                    </p>
-                  </div>
-                  <Badge variant="secondary">Enabled</Badge>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <Mail className="h-8 w-8 text-primary mb-2" />
-              <CardTitle>Invitation System</CardTitle>
-              <CardDescription>How invitations work</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ol className="space-y-2 text-sm">
-                <li className="flex items-start gap-2">
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
-                    1
-                  </span>
-                  <span>Admin sends invitation via email</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
-                    2
-                  </span>
-                  <span>User receives secure magic link</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
-                    3
-                  </span>
-                  <span>User clicks link and sets password</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
-                    4
-                  </span>
-                  <span>Account is activated and ready to use</span>
-                </li>
-              </ol>
-            </CardContent>
-          </Card>
-        </div>
+        <Card>
+          <CardHeader>
+            <Users className="h-8 w-8 text-primary mb-2" />
+            <CardTitle>Team Members</CardTitle>
+            <CardDescription>Manage your team and their roles</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <TeamMembersTable />
+          </CardContent>
+        </Card>
       </div>
     </AppLayout>
   );

@@ -79,7 +79,7 @@ export const AssigneeFilter = ({ value, onChange }: AssigneeFilterProps) => {
             >
               <div className="flex items-center gap-2">
                 <UserAvatar 
-                  name={u.full_name} 
+                  fullName={u.full_name} 
                   avatarUrl={u.avatar_url}
                   size={20}
                 />

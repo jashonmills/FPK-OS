@@ -101,7 +101,7 @@ export const KanbanCard = ({ task, isDragging = false, projectColor, onClick }: 
           )}
           {task.assignee && (
             <UserAvatar 
-              name={task.assignee.full_name} 
+              fullName={task.assignee.full_name} 
               avatarUrl={task.assignee.avatar_url}
               size={24}
               className="ml-auto"
