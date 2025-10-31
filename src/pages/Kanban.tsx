@@ -236,7 +236,11 @@ const Kanban = () => {
                   onTaskClick={handleTaskClick}
                 />
               ) : (
-                <KanbanBoard projectId={selectedProject} />
+                <KanbanBoard 
+                  projectId={selectedProject}
+                  tasks={tasks}
+                  onTaskUpdate={fetchTasks}
+                />
               )
             )}
             {activeView === 'list' && (
