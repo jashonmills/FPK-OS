@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { AppLayout } from '@/components/layout/AppLayout';
@@ -7,16 +7,41 @@ import { Badge } from '@/components/ui/badge';
 import { Briefcase, Users, TrendingUp } from 'lucide-react';
 import { TaskAnalytics } from '@/components/dashboard/TaskAnalytics';
 import { UpcomingDeadlines } from '@/components/dashboard/UpcomingDeadlines';
+import { supabase } from '@/integrations/supabase/client';
+
+interface Project {
+  id: string;
+  name: string;
+  color: string;
+}
 
 const Index = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const [projects, setProjects] = useState<Project[]>([]);
 
   useEffect(() => {
     if (!loading && !user) {
       navigate('/auth');
     }
   }, [user, loading, navigate]);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      const { data } = await supabase
+        .from('projects')
+        .select('id, name, color')
+        .order('name');
+      
+      if (data) {
+        setProjects(data);
+      }
+    };
+
+    if (user) {
+      fetchProjects();
+    }
+  }, [user]);
 
   if (loading) {
     return (
@@ -46,18 +71,16 @@ const Index = () => {
           <Card className="hover:shadow-lg transition-shadow">
             <CardHeader>
               <Briefcase className="h-8 w-8 text-primary mb-2" />
-              <CardTitle>7 Active Projects</CardTitle>
+              <CardTitle>{projects.length} Active Projects</CardTitle>
               <CardDescription>Across the FPK ecosystem</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-2">
-                <Badge>FPK University</Badge>
-                <Badge>FPX Platform</Badge>
-                <Badge>FPK Nexus</Badge>
-                <Badge>FPK Studios</Badge>
-                <Badge>FPK Connect</Badge>
-                <Badge>FPK Analytics</Badge>
-                <Badge>FPK Mobile</Badge>
+                {projects.map((project) => (
+                  <Badge key={project.id} style={{ backgroundColor: project.color }}>
+                    {project.name}
+                  </Badge>
+                ))}
               </div>
             </CardContent>
           </Card>
@@ -105,7 +128,7 @@ const Index = () => {
               </div>
               <div>
                 <h4 className="font-medium">Select a Project</h4>
-                <p className="text-sm text-muted-foreground">Choose from the 7 active FPK projects</p>
+                <p className="text-sm text-muted-foreground">Choose from the {projects.length} active FPK projects</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
