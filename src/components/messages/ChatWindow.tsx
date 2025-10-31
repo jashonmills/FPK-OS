@@ -81,6 +81,24 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
         .single();
 
       if (error) throw error;
+      
+      // Process mentions if content contains @mentions
+      if (content.includes('@[')) {
+        try {
+          await supabase.functions.invoke('process-message-mentions', {
+            body: {
+              messageId: data.id,
+              conversationId: conversationId,
+              content: content,
+              senderId: user!.id,
+            },
+          });
+        } catch (mentionError) {
+          console.error('Failed to process mentions:', mentionError);
+          // Don't fail the message send if mention processing fails
+        }
+      }
+      
       return data;
     },
     onSuccess: () => {
