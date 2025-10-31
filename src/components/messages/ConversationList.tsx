@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import { Hash, Plus, Search, MessageCircle, Trash2 } from 'lucide-react';
+import { Hash, Plus, Search, MessageCircle, Trash2, Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { UserAvatar } from '@/components/ui/avatar-with-initials';
 import { CreateChannelDialog } from './CreateChannelDialog';
@@ -69,7 +69,8 @@ export const ConversationList = ({ selectedConversationId, onSelectConversation 
             id,
             type,
             name,
-            created_at
+            created_at,
+            is_private
           )
         `)
         .eq('user_id', user!.id);
@@ -125,6 +126,7 @@ export const ConversationList = ({ selectedConversationId, onSelectConversation 
             unreadCount: unreadCount || 0,
             dmPartner,
             avatarUrl: dmPartner?.avatar_url,
+            isPrivate: conv.is_private,
           };
         })
       );
@@ -227,7 +229,10 @@ export const ConversationList = ({ selectedConversationId, onSelectConversation 
                   </div>
                   <div className="flex-1 min-w-0 overflow-hidden">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="font-medium truncate whitespace-nowrap overflow-hidden text-ellipsis max-w-full">{conv.name}</span>
+                      <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                        {conv.isPrivate && <Lock className="h-3 w-3 text-muted-foreground flex-shrink-0" />}
+                        <span className="font-medium truncate whitespace-nowrap overflow-hidden text-ellipsis">{conv.name}</span>
+                      </div>
                       {conv.unreadCount > 0 && (
                         <Badge variant="destructive" className="h-5 min-w-5 px-1.5 text-xs flex-shrink-0">
                           {conv.unreadCount}

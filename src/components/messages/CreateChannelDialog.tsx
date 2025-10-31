@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
 
 interface CreateChannelDialogProps {
@@ -26,6 +27,7 @@ export const CreateChannelDialog = ({ open, onOpenChange }: CreateChannelDialogP
   const queryClient = useQueryClient();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [isPrivate, setIsPrivate] = useState(false);
 
   const createChannelMutation = useMutation({
     mutationFn: async () => {
@@ -38,6 +40,7 @@ export const CreateChannelDialog = ({ open, onOpenChange }: CreateChannelDialogP
           name: channelName,
           description: description || null,
           created_by: user!.id,
+          is_private: isPrivate,
         })
         .select()
         .single();
@@ -63,6 +66,7 @@ export const CreateChannelDialog = ({ open, onOpenChange }: CreateChannelDialogP
       });
       setName('');
       setDescription('');
+      setIsPrivate(false);
       onOpenChange(false);
     },
     onError: () => {
@@ -112,6 +116,22 @@ export const CreateChannelDialog = ({ open, onOpenChange }: CreateChannelDialogP
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={3}
+              />
+            </div>
+
+            <div className="flex items-center justify-between space-x-2">
+              <div className="space-y-0.5">
+                <Label htmlFor="private-channel">Make this channel private</Label>
+                <p className="text-xs text-muted-foreground">
+                  {isPrivate 
+                    ? 'Only invited members can see and join this channel' 
+                    : 'All team members can see and join this channel'}
+                </p>
+              </div>
+              <Switch
+                id="private-channel"
+                checked={isPrivate}
+                onCheckedChange={setIsPrivate}
               />
             </div>
           </div>
