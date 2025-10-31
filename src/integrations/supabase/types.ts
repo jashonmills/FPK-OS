@@ -1559,6 +1559,57 @@ export type Database = {
           },
         ]
       }
+      embedding_queue: {
+        Row: {
+          created_at: string | null
+          error_message: string | null
+          family_id: string
+          id: string
+          processed_at: string | null
+          source_id: string
+          source_table: string
+          status: string | null
+          student_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          error_message?: string | null
+          family_id: string
+          id?: string
+          processed_at?: string | null
+          source_id: string
+          source_table: string
+          status?: string | null
+          student_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          error_message?: string | null
+          family_id?: string
+          id?: string
+          processed_at?: string | null
+          source_id?: string
+          source_table?: string
+          status?: string | null
+          student_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "embedding_queue_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "embedding_queue_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       external_integrations: {
         Row: {
           access_token: string | null

@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { consumeCredits, getChatCredits } from "@/lib/creditUtils";
 import { AIAttribution } from "@/components/shared/AIAttribution";
+import { Sparkles } from "lucide-react";
 
 interface Message {
   id: string;
@@ -30,6 +31,8 @@ export function AIChatWidget() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
+  const [embeddingStats, setEmbeddingStats] = useState({ total: 0, pending: 0 });
+  const [isProcessingEmbeddings, setIsProcessingEmbeddings] = useState(false);
   const [autoPlay, setAutoPlay] = useState(false);
   const { toast } = useToast();
   const { selectedFamily } = useFamily();
@@ -52,8 +55,68 @@ export function AIChatWidget() {
   useEffect(() => {
     if (isOpen && !conversationId && selectedFamily) {
       createConversation();
+      fetchEmbeddingStats();
     }
   }, [isOpen, selectedFamily]);
+
+  const fetchEmbeddingStats = async () => {
+    if (!selectedFamily) return;
+    
+    try {
+      const { count: totalEmbeddings } = await supabase
+        .from("family_data_embeddings")
+        .select("*", { count: "exact", head: true })
+        .eq("family_id", selectedFamily.id);
+
+      const { count: pendingQueue } = await supabase
+        .from("embedding_queue")
+        .select("*", { count: "exact", head: true })
+        .eq("family_id", selectedFamily.id)
+        .eq("status", "pending");
+
+      setEmbeddingStats({
+        total: totalEmbeddings || 0,
+        pending: pendingQueue || 0,
+      });
+    } catch (error) {
+      console.error("Error fetching embedding stats:", error);
+    }
+  };
+
+  const initializeEmbeddings = async () => {
+    if (!selectedFamily) return;
+    
+    setIsProcessingEmbeddings(true);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke("process-embedding-queue", {
+        body: { 
+          family_id: selectedFamily.id,
+          batch_all: embeddingStats.total === 0,
+          limit: 20
+        },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Processing Data",
+        description: `Processing ${data.batch_queued > 0 ? data.batch_queued : data.processed} records. This may take a few minutes.`,
+      });
+      
+      // Refresh stats
+      await fetchEmbeddingStats();
+    } catch (error) {
+      console.error("Error initializing embeddings:", error);
+      toast({
+        title: "Error",
+        description: "Failed to process data. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessingEmbeddings(false);
+    }
+  };
 
   const createConversation = async () => {
     if (!selectedFamily) return;
@@ -206,18 +269,59 @@ export function AIChatWidget() {
             </Button>
           </div>
 
-          {/* Welcome Message and Credit Balance */}
+          {/* Welcome Message and Status */}
           {messages.length === 0 && (
             <div className="p-4 space-y-4">
-              <div className="bg-muted/50 rounded-lg p-4 text-sm text-muted-foreground">
-                <p className="font-medium mb-2">Hi! I'm your personal AI assistant.</p>
-                <p>I've studied all of your family's data. Ask me anything about:</p>
-                <ul className="list-disc list-inside mt-2 space-y-1">
-                  <li>Logs and observations</li>
-                  <li>Patterns and trends</li>
-                  <li>IEPs and evaluations</li>
-                  <li>Clinical research</li>
-                </ul>
+              <div className="text-center space-y-3">
+                <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
+                  <Sparkles className="w-8 h-8 text-primary" />
+                </div>
+                <h3 className="text-lg font-semibold">Your AI Assistant</h3>
+                <p className="text-sm text-muted-foreground">
+                  Ask me anything about your family's data, patterns, and insights!
+                </p>
+                
+                {/* Embedding Status */}
+                {embeddingStats.total === 0 ? (
+                  <div className="mt-4 p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg text-left">
+                    <p className="text-sm text-amber-700 dark:text-amber-300 mb-2">
+                      <strong>Setup Required:</strong> I need to process your data first to provide accurate insights.
+                    </p>
+                    <Button 
+                      onClick={initializeEmbeddings}
+                      disabled={isProcessingEmbeddings}
+                      size="sm"
+                      className="mt-2"
+                    >
+                      {isProcessingEmbeddings ? (
+                        <>Processing...</>
+                      ) : (
+                        <>Process My Data</>
+                      )}
+                    </Button>
+                  </div>
+                ) : embeddingStats.pending > 0 ? (
+                  <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg text-left">
+                    <p className="text-sm text-blue-700 dark:text-blue-300">
+                      Processing {embeddingStats.pending} new records... ({embeddingStats.total} total indexed)
+                    </p>
+                    <Button 
+                      onClick={initializeEmbeddings}
+                      disabled={isProcessingEmbeddings}
+                      size="sm"
+                      variant="ghost"
+                      className="mt-2"
+                    >
+                      Process Now
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="mt-4 p-3 bg-green-500/10 border border-green-500/20 rounded-lg text-left">
+                    <p className="text-sm text-green-700 dark:text-green-300">
+                      ✓ Ready! {embeddingStats.total} records indexed
+                    </p>
+                  </div>
+                )}
               </div>
               
               {balance && (
