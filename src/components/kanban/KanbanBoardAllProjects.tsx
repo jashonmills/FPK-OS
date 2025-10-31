@@ -121,7 +121,7 @@ export const KanbanBoardAllProjects = ({ tasks, onTaskUpdate, onTaskClick }: Kan
   };
 
   return (
-    <div className="h-full flex flex-col space-y-6 w-full overflow-x-hidden">
+    <div className="h-full flex flex-col space-y-4 md:space-y-6 w-full">
       <DndContext
         sensors={sensors}
         collisionDetection={closestCorners}
@@ -134,31 +134,31 @@ export const KanbanBoardAllProjects = ({ tasks, onTaskUpdate, onTaskClick }: Kan
           if (projectTasks.length === 0) return null;
           
           return (
-            <Card key={project.id} className="p-4">
-              <div className="flex items-center gap-2 mb-4">
+            <Card key={project.id} className="p-3 md:p-4 overflow-hidden">
+              <div className="flex items-center gap-2 mb-3 md:mb-4 flex-wrap">
                 <div
-                  className="w-4 h-4 rounded-full"
+                  className="w-3 h-3 md:w-4 md:h-4 rounded-full flex-shrink-0"
                   style={{ backgroundColor: project.color }}
                 />
-                <h3 className="text-lg font-semibold">{project.name}</h3>
-                <span className="text-sm text-muted-foreground">
+                <h3 className="text-base md:text-lg font-semibold">{project.name}</h3>
+                <span className="text-xs md:text-sm text-muted-foreground">
                   ({projectTasks.length} {projectTasks.length === 1 ? 'task' : 'tasks'})
                 </span>
               </div>
               
               {isMobile ? (
-                <Tabs value={activeColumn} onValueChange={setActiveColumn} className="w-full overflow-hidden">
-                  <TabsList className="w-full justify-start overflow-x-auto mb-4 flex-nowrap">
+                <Tabs value={activeColumn} onValueChange={setActiveColumn} className="w-full">
+                  <TabsList className="w-full justify-start overflow-x-auto mb-3 flex-nowrap h-auto">
                     {COLUMNS.map(column => {
                       const columnTasks = projectTasks.filter(t => t.status === column.id);
                       return (
                         <TabsTrigger 
                           key={column.id} 
                           value={column.id}
-                          className="flex-shrink-0 text-xs md:text-sm"
+                          className="flex-shrink-0 text-xs whitespace-nowrap px-3 py-2"
                         >
                           {column.title}
-                          <span className="ml-1 md:ml-2 text-xs opacity-70">({columnTasks.length})</span>
+                          <span className="ml-1.5 text-xs opacity-70">({columnTasks.length})</span>
                         </TabsTrigger>
                       );
                     })}
@@ -178,7 +178,7 @@ export const KanbanBoardAllProjects = ({ tasks, onTaskUpdate, onTaskClick }: Kan
                   })}
                 </Tabs>
               ) : (
-                <div className="flex gap-4 overflow-x-auto pb-2">
+                <div className="flex gap-3 w-full pb-2">
                   {COLUMNS.map(column => {
                     const columnTasks = projectTasks.filter(t => t.status === column.id);
                     return (
