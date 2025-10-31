@@ -13,7 +13,8 @@ import { MetricConnectionStatus } from '@/components/analytics/MetricConnectionS
 import { ProductTour } from '@/components/onboarding/ProductTour';
 import { dashboardTourSteps } from '@/components/onboarding/tourConfigs';
 import { useTourProgress } from '@/hooks/useTourProgress';
-import { Plus, TrendingUp, BookOpen, Activity, FileText, Sparkles } from 'lucide-react';
+import { TeamDiscussion } from '@/components/shared/TeamDiscussion';
+import { Plus, TrendingUp, BookOpen, Activity, FileText, Sparkles, MessageSquare } from 'lucide-react';
 import { FeatureFlag } from '@/components/shared/FeatureFlag';
 
 const Dashboard = () => {
@@ -77,7 +78,7 @@ const Dashboard = () => {
 
           {/* Main Content Tabs */}
           <Tabs defaultValue="logs" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1 h-auto sm:h-10 p-1">
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 gap-1 h-auto sm:h-10 p-1">
               <TabsTrigger value="logs" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2.5 sm:py-1.5">
                 <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 <span className="truncate">Logs</span>
@@ -93,6 +94,10 @@ const Dashboard = () => {
               <TabsTrigger value="insights" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2.5 sm:py-1.5">
                 <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 <span className="truncate">Insights</span>
+              </TabsTrigger>
+              <TabsTrigger value="discussion" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2.5 sm:py-1.5">
+                <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="truncate">Team</span>
               </TabsTrigger>
             </TabsList>
 
@@ -112,6 +117,18 @@ const Dashboard = () => {
               <FeatureFlag flag="enable-ai-document-analysis">
                 <AIInsightsWidget />
               </FeatureFlag>
+            </TabsContent>
+
+            <TabsContent value="discussion" className="space-y-4">
+              {selectedFamily && (
+                <TeamDiscussion 
+                  entityType="dashboard"
+                  entityId={selectedFamily.id}
+                  familyId={selectedFamily.id}
+                  title="Family Discussion Board"
+                  placeholder="Share updates, coordinate schedules, or discuss general care topics with your team..."
+                />
+              )}
             </TabsContent>
           </Tabs>
       </div>
