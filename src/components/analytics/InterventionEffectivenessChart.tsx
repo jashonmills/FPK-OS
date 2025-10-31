@@ -78,6 +78,8 @@ export const InterventionEffectivenessChart = ({ familyId, studentId, days, samp
           stroke="hsl(var(--chart-1))" 
           name="Interventions Used"
           strokeWidth={2}
+          connectNulls={false}
+          dot={{ r: 3 }}
         />
       </ComposedChart>
     </ResponsiveContainer>

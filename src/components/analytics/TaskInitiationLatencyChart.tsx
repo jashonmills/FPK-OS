@@ -102,7 +102,8 @@ export const TaskInitiationLatencyChart = ({ familyId, studentId, sampleData, mo
             stroke="rgba(6, 182, 212, 0.9)" 
             name="Avg Latency (s)"
             strokeWidth={2}
-            dot={{ fill: "rgba(6, 182, 212, 0.9)" }}
+            dot={{ fill: "rgba(6, 182, 212, 0.9)", r: 3 }}
+            connectNulls={false}
           />
         </LineChart>
       </ResponsiveContainer>
