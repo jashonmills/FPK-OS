@@ -61,7 +61,7 @@ export const AcademicFluencyTrends = ({ studentId, familyId, dateRange, sampleDa
     );
   }
 
-  if (chartData.length === 0) {
+  if (chartData.length === 0 && !sampleData) {
     return (
       <div className="flex justify-center items-center h-full">
         <p className="text-sm text-cyan-300/60">No fluency data available</p>

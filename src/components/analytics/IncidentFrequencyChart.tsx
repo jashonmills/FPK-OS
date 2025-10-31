@@ -48,7 +48,7 @@ export const IncidentFrequencyChart = ({ familyId, studentId, days, sampleData }
     return <Skeleton className="h-[300px] w-full" />;
   }
 
-  if (!displayData || displayData.length === 0) {
+  if ((!displayData || displayData.length === 0) && !sampleData) {
     return (
       <div className="h-[300px] flex flex-col items-center justify-center text-center p-6 space-y-4">
         <p className="text-muted-foreground">No incident data available yet.</p>

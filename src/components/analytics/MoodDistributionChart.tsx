@@ -86,7 +86,7 @@ export const MoodDistributionChart = ({ familyId, studentId, sampleData, mode }:
     );
   }
 
-  if (!displayData || displayData.length === 0) {
+  if ((!displayData || displayData.length === 0) && !sampleData) {
     return (
       <div className="flex justify-center items-center h-full">
         <p className="text-sm text-cyan-300/60">No mood data available</p>
