@@ -3540,7 +3540,6 @@ export type Database = {
       get_fine_motor_data: {
         Args: { p_days?: number; p_family_id: string; p_student_id: string }
         Returns: {
-          current_level: number
           mastery_percentage: number
           measurement_date: string
           skill_name: string
@@ -3550,11 +3549,10 @@ export type Database = {
       get_gross_motor_data: {
         Args: { p_days?: number; p_family_id: string; p_student_id: string }
         Returns: {
-          complexity_level: string
+          balance_score: number
+          coordination_score: number
           measurement_date: string
           skill_name: string
-          success_rate: number
-          trial_count: number
         }[]
       }
       get_iep_goal_progress: {
@@ -3617,7 +3615,6 @@ export type Database = {
           log_date: string
           negative_interactions: number
           positive_interactions: number
-          reciprocal_play: number
         }[]
       }
       get_prompting_trend_data: {

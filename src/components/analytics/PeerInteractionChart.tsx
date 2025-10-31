@@ -51,7 +51,12 @@ export const PeerInteractionChart = ({ familyId, studentId, sampleData, mode }: 
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={displayData}>
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(6, 182, 212, 0.1)" />
-          <XAxis dataKey="log_date" tick={{ fill: '#a5f3fc', fontSize: 10 }} />
+          <XAxis 
+            dataKey="log_date" 
+            tick={{ fill: '#a5f3fc', fontSize: 10 }} 
+            interval="preserveStartEnd"
+            minTickGap={20}
+          />
           <YAxis tick={{ fill: '#a5f3fc', fontSize: 10 }} />
           <Tooltip 
             contentStyle={{ backgroundColor: 'rgba(10, 25, 47, 0.9)', borderColor: 'rgba(6, 182, 212, 0.3)', borderRadius: '8px' }}

@@ -50,7 +50,14 @@ export const EnvironmentalImpactChart = ({ familyId, studentId, sampleData, mode
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={displayData}>
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(6, 182, 212, 0.1)" />
-          <XAxis dataKey="factor_category" tick={{ fill: '#a5f3fc', fontSize: 9 }} angle={-30} textAnchor="end" height={60} />
+          <XAxis 
+            dataKey="factor_category" 
+            tick={{ fill: '#a5f3fc', fontSize: 9 }} 
+            angle={-30} 
+            textAnchor="end" 
+            height={60}
+            interval="preserveStartEnd"
+          />
           <YAxis tick={{ fill: '#a5f3fc', fontSize: 10 }} domain={[-1, 1]} />
           <Tooltip 
             contentStyle={{ backgroundColor: 'rgba(10, 25, 47, 0.9)', borderColor: 'rgba(6, 182, 212, 0.3)', borderRadius: '8px' }}
