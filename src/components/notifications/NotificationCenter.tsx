@@ -104,6 +104,9 @@ export const NotificationCenter = () => {
       } else {
         navigate('/messages');
       }
+    } else if (notification.task_id) {
+      // For task-related notifications, navigate to kanban with task parameter
+      navigate(`/kanban?task=${notification.task_id}`);
     } else {
       navigate('/kanban');
     }

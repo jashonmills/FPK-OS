@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { KanbanBoard } from '@/components/kanban/KanbanBoard';
@@ -48,12 +48,34 @@ const Kanban = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const isMobile = useIsMobile();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
     if (!loading && !user) {
       navigate('/auth');
     }
   }, [user, loading, navigate]);
+
+  // Handle task query parameter from notifications
+  useEffect(() => {
+    const taskId = searchParams.get('task');
+    if (taskId && tasks.length > 0) {
+      const task = tasks.find(t => t.id === taskId);
+      if (task) {
+        setSelectedTask(task);
+        setDetailsSheetOpen(true);
+        // Clear the query parameter
+        setSearchParams({});
+      } else {
+        toast({
+          title: 'Task not found',
+          description: 'The task may have been deleted or you may not have access to it.',
+          variant: 'destructive',
+        });
+        setSearchParams({});
+      }
+    }
+  }, [searchParams, tasks, setSearchParams, toast]);
 
   useEffect(() => {
     if (selectedProject) {
