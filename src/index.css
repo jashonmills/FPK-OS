@@ -115,12 +115,19 @@ All colors MUST be HSL.
   html,
   body {
     @apply bg-background text-foreground;
-    overflow-x: hidden;
     width: 100%;
   }
 
   #root {
-    overflow-x: hidden;
     width: 100%;
+  }
+
+  /* Only hide overflow on mobile to prevent horizontal scroll */
+  @media (max-width: 768px) {
+    html,
+    body,
+    #root {
+      overflow-x: hidden;
+    }
   }
 }

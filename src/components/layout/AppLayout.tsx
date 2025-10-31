@@ -30,7 +30,7 @@ const AppLayoutContent = ({ children }: AppLayoutProps) => {
 export const AppLayout = ({ children }: AppLayoutProps) => {
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full overflow-x-hidden">
+      <div className="min-h-screen flex w-full md:overflow-x-visible overflow-x-hidden">
         <AppSidebar />
         <AppLayoutContent>{children}</AppLayoutContent>
       </div>
