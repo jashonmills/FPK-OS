@@ -99,6 +99,7 @@ export type Database = {
           email: string
           full_name: string | null
           id: string
+          password_set: boolean | null
           updated_at: string
         }
         Insert: {
@@ -107,6 +108,7 @@ export type Database = {
           email: string
           full_name?: string | null
           id: string
+          password_set?: boolean | null
           updated_at?: string
         }
         Update: {
@@ -115,6 +117,7 @@ export type Database = {
           email?: string
           full_name?: string | null
           id?: string
+          password_set?: boolean | null
           updated_at?: string
         }
         Relationships: []
@@ -396,6 +399,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      user_has_password: { Args: { user_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "member"

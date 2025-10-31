@@ -155,6 +155,16 @@ const Profile = () => {
 
       if (error) throw error;
 
+      // Update password_set flag
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ password_set: true })
+        .eq('id', user?.id);
+
+      if (profileError) {
+        console.error('Error updating password_set flag:', profileError);
+      }
+
       toast({
         title: 'Success',
         description: 'Password updated successfully',

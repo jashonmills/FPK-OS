@@ -7,6 +7,7 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  hasPassword: boolean;
   signOut: () => Promise<void>;
 }
 
@@ -16,6 +17,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [hasPassword, setHasPassword] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,6 +27,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+        
+        // Check password status when user changes
+        if (session?.user) {
+          setTimeout(() => {
+            checkPasswordStatus(session.user.id);
+          }, 0);
+        } else {
+          setHasPassword(true); // Reset to true when no user
+        }
       }
     );
 
@@ -33,10 +44,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+      
+      if (session?.user) {
+        checkPasswordStatus(session.user.id);
+      }
     });
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const checkPasswordStatus = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('password_set')
+        .eq('id', userId)
+        .single();
+
+      if (!error && data) {
+        setHasPassword(data.password_set ?? true);
+      }
+    } catch (error) {
+      console.error('Error checking password status:', error);
+      setHasPassword(true); // Default to true on error to avoid blocking access
+    }
+  };
 
   const signOut = async () => {
     await supabase.auth.signOut();
@@ -44,7 +76,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, signOut }}>
+    <AuthContext.Provider value={{ user, session, loading, hasPassword, signOut }}>
       {children}
     </AuthContext.Provider>
   );

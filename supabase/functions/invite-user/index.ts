@@ -115,6 +115,7 @@ serve(async (req) => {
           data: {
             full_name: fullName,
             role: role,
+            password_required: true,
           },
           redirectTo: `${req.headers.get('origin')}/auth`,
         }
@@ -136,6 +137,7 @@ serve(async (req) => {
           data: {
             full_name: fullName,
             role: role,
+            password_required: true,
           },
           redirectTo: `${req.headers.get('origin')}/auth`,
         }

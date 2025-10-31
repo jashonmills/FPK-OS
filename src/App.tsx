@@ -2,15 +2,52 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/contexts/AuthContext";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { FeatureFlagProvider } from "@/contexts/FeatureFlagContext";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Kanban from "./pages/Kanban";
 import Admin from "./pages/Admin";
 import Profile from "./pages/Profile";
+import SetupPassword from "./pages/SetupPassword";
 import NotFound from "./pages/NotFound";
+
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, loading, hasPassword } = useAuth();
+
+  if (loading) {
+    return null; // Or a loading spinner
+  }
+
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  if (!hasPassword) {
+    return <Navigate to="/setup-password" replace />;
+  }
+
+  return <>{children}</>;
+};
+
+const PasswordSetupRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, loading, hasPassword } = useAuth();
+
+  if (loading) {
+    return null;
+  }
+
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  if (hasPassword) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <>{children}</>;
+};
 
 const queryClient = new QueryClient();
 
@@ -24,10 +61,46 @@ const App = () => (
           <FeatureFlagProvider>
             <Routes>
               <Route path="/auth" element={<Auth />} />
-              <Route path="/" element={<Index />} />
-              <Route path="/kanban" element={<Kanban />} />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="/profile" element={<Profile />} />
+              <Route 
+                path="/setup-password" 
+                element={
+                  <PasswordSetupRoute>
+                    <SetupPassword />
+                  </PasswordSetupRoute>
+                } 
+              />
+              <Route 
+                path="/" 
+                element={
+                  <ProtectedRoute>
+                    <Index />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/kanban" 
+                element={
+                  <ProtectedRoute>
+                    <Kanban />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin" 
+                element={
+                  <ProtectedRoute>
+                    <Admin />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/profile" 
+                element={
+                  <ProtectedRoute>
+                    <Profile />
+                  </ProtectedRoute>
+                } 
+              />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
