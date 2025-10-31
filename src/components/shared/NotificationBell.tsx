@@ -1,18 +1,20 @@
+import { Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Bell } from 'lucide-react';
 import { useNotifications } from '@/hooks/useNotifications';
 import { NotificationItem } from './NotificationItem';
 import { getNotificationUrl } from '@/utils/notificationNavigation';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
 
 export function NotificationBell() {
-  const navigate = useNavigate();
   const { notifications, unreadCount, isLoading, markAsRead, markAllAsRead } = useNotifications();
-  const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handleNotificationClick = (notification: any) => {
     // Mark as read
@@ -20,16 +22,18 @@ export function NotificationBell() {
       markAsRead(notification.id);
     }
 
-    // Navigate to context
-    const url = getNotificationUrl(notification);
-    navigate(url);
+    // Navigate to the relevant page
+    const url = getNotificationUrl({
+      entity_type: notification.entity_type,
+      entity_id: notification.entity_id,
+      discussion_id: notification.discussion_id,
+    });
     
-    // Close popover
-    setIsOpen(false);
+    navigate(url);
   };
 
   return (
-    <Popover open={isOpen} onOpenChange={setIsOpen}>
+    <Popover>
       <PopoverTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="h-5 w-5" />

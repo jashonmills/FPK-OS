@@ -1,6 +1,10 @@
-import { Notification } from '@/hooks/useNotifications';
+export interface NotificationContext {
+  entity_type: string;
+  entity_id: string;
+  discussion_id: string;
+}
 
-export function getNotificationUrl(notification: Notification): string {
+export function getNotificationUrl(notification: NotificationContext): string {
   const { entity_type, entity_id, discussion_id } = notification;
   
   switch (entity_type) {
@@ -23,20 +27,4 @@ export function getNotificationUrl(notification: Notification): string {
     default:
       return '/dashboard';
   }
-}
-
-export function getEntityDisplayName(entityType: string): string {
-  const displayNames: Record<string, string> = {
-    goal: 'Goal',
-    document: 'Document',
-    incident_log: 'Incident Log',
-    educator_log: 'Educator Log',
-    parent_log: 'Parent Log',
-    assessment: 'Assessment',
-    chart: 'Chart',
-    student: 'Student Profile',
-    dashboard: 'Family Discussion',
-  };
-
-  return displayNames[entityType] || 'Discussion';
 }
