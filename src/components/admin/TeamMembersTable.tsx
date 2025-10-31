@@ -153,9 +153,14 @@ export const TeamMembersTable = () => {
   const handleRemoveMember = async () => {
     if (!deleteDialog.memberId) return;
 
+    const memberToDelete = members.find(m => m.id === deleteDialog.memberId);
+    if (!memberToDelete) return;
+
     setActionLoading(deleteDialog.memberId);
     try {
-      const { error } = await supabase.auth.admin.deleteUser(deleteDialog.memberId);
+      const { error } = await supabase.functions.invoke('delete-user', {
+        body: { userId: deleteDialog.memberId },
+      });
 
       if (error) throw error;
 
