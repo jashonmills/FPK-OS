@@ -17,6 +17,7 @@ import {
 import { useFeatureFlags } from '@/contexts/FeatureFlagContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
+import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -109,14 +110,17 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border p-2">
-        <Button
-          variant="ghost"
-          className="w-full justify-start"
-          onClick={signOut}
-        >
-          <LogOut className="h-4 w-4" />
-          {!collapsed && <span className="ml-2">Sign Out</span>}
-        </Button>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <Button
+            variant="ghost"
+            className="flex-1 justify-start"
+            onClick={signOut}
+          >
+            <LogOut className="h-4 w-4" />
+            {!collapsed && <span className="ml-2">Sign Out</span>}
+          </Button>
+        </div>
       </SidebarFooter>
     </Sidebar>
   );
