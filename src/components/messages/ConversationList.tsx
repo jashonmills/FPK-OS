@@ -185,7 +185,8 @@ export const ConversationList = ({ selectedConversationId, onSelectConversation 
   return (
     <>
       <div className="h-full flex flex-col overflow-x-hidden w-full">
-        <div className="p-3 md:p-4 border-b border-border/50">
+        {/* Search Bar - Fixed at top */}
+        <div className="p-3 md:p-4 border-b border-border/50 flex-shrink-0">
           <div className="relative w-full">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
             <Input
@@ -197,10 +198,13 @@ export const ConversationList = ({ selectedConversationId, onSelectConversation 
           </div>
         </div>
 
-        <ScrollArea className="flex-1">
-          <div className="p-2 w-full">
-            {/* Channels Header */}
-            <div className="bg-background flex items-center justify-between gap-2 px-2 py-2 mb-1 rounded-md">
+        {/* Main content - Flexible, split between channels and DMs */}
+        <div className="flex-1 flex flex-col min-h-0">
+          
+          {/* Channels Section */}
+          <div className="flex-1 flex flex-col min-h-0 border-b border-border/50">
+            {/* Channels Header - Fixed */}
+            <div className="flex-shrink-0 bg-background flex items-center justify-between gap-2 px-4 py-2">
               <h3 className="text-sm font-semibold text-muted-foreground min-w-0 flex-shrink">Channels</h3>
               <Button
                 variant="ghost"
@@ -213,60 +217,65 @@ export const ConversationList = ({ selectedConversationId, onSelectConversation 
               </Button>
             </div>
             
-            {/* Channels List */}
-            <div className="space-y-1">
-            {channels.map((conv) => (
-              <div
-                key={conv.id}
-                className={cn(
-                  "w-full flex items-start gap-3 p-2.5 rounded-md hover:bg-muted/60 transition-colors overflow-hidden group",
-                  selectedConversationId === conv.id && "bg-muted/80"
-                )}
-              >
-                <button
-                  onClick={() => onSelectConversation(conv.id)}
-                  className="flex items-start gap-3 flex-1 min-w-0 text-left"
-                >
-                  <div className="flex-shrink-0 mt-1">
-                    <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <Hash className="h-4 w-4 text-primary" />
-                    </div>
-                  </div>
-                  <div className="flex-1 min-w-0 overflow-hidden">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-1.5 min-w-0 flex-1">
-                        {conv.isPrivate && <Lock className="h-3 w-3 text-muted-foreground flex-shrink-0" />}
-                        <span className="font-medium truncate whitespace-nowrap overflow-hidden text-ellipsis">{conv.name}</span>
+            {/* Channels List - Scrollable */}
+            <ScrollArea className="flex-1">
+              <div className="px-2 pb-2 space-y-1">
+                {channels.map((conv) => (
+                  <div
+                    key={conv.id}
+                    className={cn(
+                      "w-full flex items-start gap-3 p-2.5 rounded-md hover:bg-muted/60 transition-colors overflow-hidden group",
+                      selectedConversationId === conv.id && "bg-muted/80"
+                    )}
+                  >
+                    <button
+                      onClick={() => onSelectConversation(conv.id)}
+                      className="flex items-start gap-3 flex-1 min-w-0 text-left"
+                    >
+                      <div className="flex-shrink-0 mt-1">
+                        <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                          <Hash className="h-4 w-4 text-primary" />
+                        </div>
                       </div>
-                      {conv.unreadCount > 0 && (
-                        <Badge variant="destructive" className="h-5 min-w-5 px-1.5 text-xs flex-shrink-0">
-                          {conv.unreadCount}
-                        </Badge>
-                      )}
-                    </div>
-                    {conv.lastMessage && (
-                      <p className="text-xs text-muted-foreground truncate whitespace-nowrap overflow-hidden text-ellipsis max-w-full">
-                        {conv.lastMessage}
-                      </p>
+                      <div className="flex-1 min-w-0 overflow-hidden">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                            {conv.isPrivate && <Lock className="h-3 w-3 text-muted-foreground flex-shrink-0" />}
+                            <span className="font-medium truncate whitespace-nowrap overflow-hidden text-ellipsis">{conv.name}</span>
+                          </div>
+                          {conv.unreadCount > 0 && (
+                            <Badge variant="destructive" className="h-5 min-w-5 px-1.5 text-xs flex-shrink-0">
+                              {conv.unreadCount}
+                            </Badge>
+                          )}
+                        </div>
+                        {conv.lastMessage && (
+                          <p className="text-xs text-muted-foreground truncate whitespace-nowrap overflow-hidden text-ellipsis max-w-full">
+                            {conv.lastMessage}
+                          </p>
+                        )}
+                      </div>
+                    </button>
+                    {isAdmin && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
+                        onClick={(e) => handleDeleteClick(e, conv.id, conv.name)}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
                     )}
                   </div>
-                </button>
-                {isAdmin && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
-                    onClick={(e) => handleDeleteClick(e, conv.id, conv.name)}
-                  >
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
-                )}
+                ))}
               </div>
-            ))}
-            </div>
+            </ScrollArea>
+          </div>
 
-            {/* Direct Messages Header */}
-            <div className="bg-background flex items-center justify-between gap-2 px-2 py-2 mb-1 mt-4 rounded-md">
+          {/* Direct Messages Section */}
+          <div className="flex-1 flex flex-col min-h-0">
+            {/* DM Header - Fixed */}
+            <div className="flex-shrink-0 bg-background flex items-center justify-between gap-2 px-4 py-2">
               <h3 className="text-sm font-semibold text-muted-foreground">Direct Messages</h3>
               <Button
                 variant="ghost"
@@ -279,50 +288,53 @@ export const ConversationList = ({ selectedConversationId, onSelectConversation 
               </Button>
             </div>
             
-            {/* Direct Messages List */}
-            <div className="space-y-1">
-            {dms.map((conv) => (
-              <button
-                key={conv.id}
-                onClick={() => onSelectConversation(conv.id)}
-                className={cn(
-                  "w-full flex items-start gap-3 p-2.5 rounded-md hover:bg-muted/60 transition-colors text-left overflow-hidden",
-                  selectedConversationId === conv.id && "bg-muted/80"
-                )}
-              >
-                <div className="flex-shrink-0 mt-1">
-                  {conv.dmPartner ? (
-                    <UserAvatar
-                      fullName={conv.dmPartner.full_name}
-                      avatarUrl={conv.dmPartner.avatar_url}
-                      size={32}
-                    />
-                  ) : (
-                    <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
-                      <MessageCircle className="h-4 w-4" />
-                    </div>
-                  )}
-                </div>
-                <div className="flex-1 min-w-0 overflow-hidden">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="font-medium truncate whitespace-nowrap overflow-hidden text-ellipsis max-w-full">{conv.name}</span>
-                    {conv.unreadCount > 0 && (
-                      <Badge variant="destructive" className="h-5 min-w-5 px-1.5 text-xs flex-shrink-0">
-                        {conv.unreadCount}
-                      </Badge>
+            {/* DM List - Scrollable */}
+            <ScrollArea className="flex-1">
+              <div className="px-2 pb-2 space-y-1">
+                {dms.map((conv) => (
+                  <button
+                    key={conv.id}
+                    onClick={() => onSelectConversation(conv.id)}
+                    className={cn(
+                      "w-full flex items-start gap-3 p-2.5 rounded-md hover:bg-muted/60 transition-colors text-left overflow-hidden",
+                      selectedConversationId === conv.id && "bg-muted/80"
                     )}
-                  </div>
-                  {conv.lastMessage && (
-                    <p className="text-xs text-muted-foreground truncate whitespace-nowrap overflow-hidden text-ellipsis max-w-full">
-                      {conv.lastMessage}
-                    </p>
-                  )}
-                </div>
-              </button>
-            ))}
-            </div>
+                  >
+                    <div className="flex-shrink-0 mt-1">
+                      {conv.dmPartner ? (
+                        <UserAvatar
+                          fullName={conv.dmPartner.full_name}
+                          avatarUrl={conv.dmPartner.avatar_url}
+                          size={32}
+                        />
+                      ) : (
+                        <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
+                          <MessageCircle className="h-4 w-4" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0 overflow-hidden">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-medium truncate whitespace-nowrap overflow-hidden text-ellipsis max-w-full">{conv.name}</span>
+                        {conv.unreadCount > 0 && (
+                          <Badge variant="destructive" className="h-5 min-w-5 px-1.5 text-xs flex-shrink-0">
+                            {conv.unreadCount}
+                          </Badge>
+                        )}
+                      </div>
+                      {conv.lastMessage && (
+                        <p className="text-xs text-muted-foreground truncate whitespace-nowrap overflow-hidden text-ellipsis max-w-full">
+                          {conv.lastMessage}
+                        </p>
+                      )}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </ScrollArea>
           </div>
-        </ScrollArea>
+          
+        </div>
       </div>
 
       <CreateChannelDialog open={showCreateChannel} onOpenChange={setShowCreateChannel} />
