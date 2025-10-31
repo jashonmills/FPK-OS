@@ -10,6 +10,9 @@ import { ListView } from '@/components/project-views/ListView';
 import { CalendarView } from '@/components/project-views/CalendarView';
 import { TimelineView } from '@/components/project-views/TimelineView';
 import { TaskDetailsSheet } from '@/components/kanban/TaskDetailsSheet';
+import { CreateTaskButton } from '@/components/tasks/CreateTaskButton';
+import { AssigneeFilter } from '@/components/assignee/AssigneeFilter';
+import { MyTasksButton } from '@/components/assignee/MyTasksButton';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -34,6 +37,8 @@ const Kanban = () => {
   const [projectColor, setProjectColor] = useState<string>('');
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [detailsSheetOpen, setDetailsSheetOpen] = useState(false);
+  const [assigneeFilter, setAssigneeFilter] = useState<string | null>(null);
+  const [showMyTasks, setShowMyTasks] = useState(false);
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -79,17 +84,29 @@ const Kanban = () => {
         supabase.removeChannel(channel);
       };
     }
-  }, [selectedProject]);
+  }, [selectedProject, assigneeFilter, showMyTasks]);
 
   const fetchTasks = async () => {
     if (!selectedProject) return;
     
     let query = supabase
       .from('tasks')
-      .select('*');
+      .select(`
+        *,
+        assignee:assignee_id(id, full_name, email, avatar_url)
+      `);
     
     if (selectedProject !== 'all') {
       query = query.eq('project_id', selectedProject);
+    }
+
+    // Apply assignee filter
+    if (showMyTasks && user) {
+      query = query.eq('assignee_id', user.id);
+    } else if (assigneeFilter === 'unassigned') {
+      query = query.is('assignee_id', null);
+    } else if (assigneeFilter && assigneeFilter !== 'all') {
+      query = query.eq('assignee_id', assigneeFilter);
     }
     
     const { data, error } = await query.order('position');
@@ -134,6 +151,21 @@ const Kanban = () => {
     setDetailsSheetOpen(true);
   };
 
+  const handleMyTasksClick = () => {
+    if (showMyTasks) {
+      setShowMyTasks(false);
+      setAssigneeFilter(null);
+    } else {
+      setShowMyTasks(true);
+      setAssigneeFilter(null);
+    }
+  };
+
+  const handleAssigneeFilterChange = (filter: string | null) => {
+    setAssigneeFilter(filter);
+    setShowMyTasks(false);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -149,9 +181,14 @@ const Kanban = () => {
       <div className="p-6 space-y-6">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <h1 className="text-3xl font-bold">Project Board</h1>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 flex-wrap">
+            <MyTasksButton active={showMyTasks} onClick={handleMyTasksClick} />
+            <AssigneeFilter value={assigneeFilter} onChange={handleAssigneeFilterChange} />
             <ViewSwitcher activeView={activeView} onViewChange={handleViewChange} />
             <ProjectSelector value={selectedProject} onChange={setSelectedProject} />
+            {selectedProject && selectedProject !== 'all' && activeView !== 'kanban' && (
+              <CreateTaskButton projectId={selectedProject} variant="button" />
+            )}
           </div>
         </div>
 
@@ -202,6 +239,14 @@ const Kanban = () => {
           </div>
         )}
       </div>
+
+      {selectedProject && selectedProject !== 'all' && activeView === 'kanban' && (
+        <CreateTaskButton 
+          projectId={selectedProject} 
+          variant="fab" 
+          projectColor={projectColor}
+        />
+      )}
 
       <TaskDetailsSheet
         task={selectedTask}

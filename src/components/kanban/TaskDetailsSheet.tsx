@@ -18,6 +18,7 @@ import { cn } from '@/lib/utils';
 import { MentionTextarea } from '@/components/mentions/MentionTextarea';
 import { AIAssistButton } from '@/components/ai/AIAssistButton';
 import { TaskTypeIcon, getTaskTypeLabel } from '@/components/tasks/TaskTypeIcon';
+import { AssigneeSelect } from '@/components/assignee/AssigneeSelect';
 
 interface Task {
   id: string;
@@ -96,6 +97,7 @@ export const TaskDetailsSheet = ({ task, open, onOpenChange, onTaskUpdate }: Tas
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState('');
   const [priority, setPriority] = useState('');
+  const [assigneeId, setAssigneeId] = useState<string | null>(null);
   const [dueDate, setDueDate] = useState<Date | undefined>();
   const [subTasks, setSubTasks] = useState<SubTask[]>([]);
   const [newSubTask, setNewSubTask] = useState('');
@@ -111,6 +113,7 @@ export const TaskDetailsSheet = ({ task, open, onOpenChange, onTaskUpdate }: Tas
       setDescription(task.description || '');
       setStatus(task.status);
       setPriority(task.priority);
+      setAssigneeId(task.assignee_id);
       setDueDate(task.due_date ? new Date(task.due_date) : undefined);
       fetchSubTasks();
       fetchComments();
@@ -215,6 +218,11 @@ export const TaskDetailsSheet = ({ task, open, onOpenChange, onTaskUpdate }: Tas
   const handleDueDateChange = (date: Date | undefined) => {
     setDueDate(date);
     updateTask('due_date', date?.toISOString(), date ? `Set due date to ${format(date, 'PPP')}` : 'Removed due date');
+  };
+
+  const handleAssigneeChange = (newAssigneeId: string | null) => {
+    setAssigneeId(newAssigneeId);
+    updateTask('assignee_id', newAssigneeId, newAssigneeId ? 'Assigned task' : 'Unassigned task');
   };
 
   const addSubTask = async () => {
@@ -382,6 +390,12 @@ export const TaskDetailsSheet = ({ task, open, onOpenChange, onTaskUpdate }: Tas
                 <Calendar mode="single" selected={dueDate} onSelect={handleDueDateChange} initialFocus className="pointer-events-auto" />
               </PopoverContent>
             </Popover>
+          </div>
+
+          {/* Assignee */}
+          <div>
+            <label className="text-sm font-medium mb-2 block">Assignee</label>
+            <AssigneeSelect value={assigneeId} onChange={handleAssigneeChange} />
           </div>
 
           {/* Labels */}

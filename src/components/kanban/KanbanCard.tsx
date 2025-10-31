@@ -6,6 +6,7 @@ import { Calendar, GripVertical } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { TaskTypeIcon } from '@/components/tasks/TaskTypeIcon';
+import { UserAvatar } from '@/components/ui/avatar-with-initials';
 
 interface Task {
   id: string;
@@ -15,6 +16,10 @@ interface Task {
   priority: string;
   type?: 'story' | 'bug' | 'epic' | 'chore';
   assignee_id: string | null;
+  assignee?: {
+    full_name: string;
+    avatar_url: string | null;
+  };
   due_date: string | null;
   position: number;
   created_by: string;
@@ -93,6 +98,14 @@ export const KanbanCard = ({ task, isDragging = false, projectColor, onClick }: 
               <Calendar className="h-3 w-3" />
               <span>{format(new Date(task.due_date), 'MMM d')}</span>
             </div>
+          )}
+          {task.assignee && (
+            <UserAvatar 
+              name={task.assignee.full_name} 
+              avatarUrl={task.assignee.avatar_url}
+              size={24}
+              className="ml-auto"
+            />
           )}
         </div>
       </CardContent>

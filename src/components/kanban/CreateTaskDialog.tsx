@@ -10,6 +10,13 @@ import { useToast } from '@/hooks/use-toast';
 import { TaskTypeIcon, getTaskTypeLabel, BUG_TEMPLATE } from '@/components/tasks/TaskTypeIcon';
 import { MentionTextarea } from '@/components/mentions/MentionTextarea';
 import { Card } from '@/components/ui/card';
+import { AssigneeSelect } from '@/components/assignee/AssigneeSelect';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar as CalendarIcon } from 'lucide-react';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface CreateTaskDialogProps {
   open: boolean;
@@ -24,6 +31,9 @@ export const CreateTaskDialog = ({ open, onOpenChange, projectId }: CreateTaskDi
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState('medium');
   const [status, setStatus] = useState('backlog');
+  const [assigneeId, setAssigneeId] = useState<string | null>(null);
+  const [dueDate, setDueDate] = useState<Date | undefined>();
+  const [createAnother, setCreateAnother] = useState(false);
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
@@ -48,6 +58,8 @@ export const CreateTaskDialog = ({ open, onOpenChange, projectId }: CreateTaskDi
         priority: priority as any,
         status: status as any,
         type: taskType,
+        assignee_id: assigneeId,
+        due_date: dueDate?.toISOString() || null,
         project_id: projectId,
         created_by: user.id,
         position: 0,
@@ -71,13 +83,18 @@ export const CreateTaskDialog = ({ open, onOpenChange, projectId }: CreateTaskDi
         description: 'Task created successfully',
       });
 
-      setStep('type');
-      setTaskType('story');
+      if (!createAnother) {
+        setStep('type');
+        setTaskType('story');
+        onOpenChange(false);
+      }
+      
       setTitle('');
       setDescription('');
       setPriority('medium');
       setStatus('backlog');
-      onOpenChange(false);
+      setAssigneeId(null);
+      setDueDate(undefined);
     } catch (error: any) {
       toast({
         title: 'Error',
@@ -160,38 +177,81 @@ export const CreateTaskDialog = ({ open, onOpenChange, projectId }: CreateTaskDi
               />
             </div>
 
-          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="priority">Priority</Label>
-              <Select value={priority} onValueChange={setPriority}>
-                <SelectTrigger id="priority">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="low">Low</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
-                  <SelectItem value="urgent">Urgent</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label htmlFor="assignee">Assignee (Optional)</Label>
+              <AssigneeSelect value={assigneeId} onChange={setAssigneeId} />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="priority">Priority</Label>
+                <Select value={priority} onValueChange={setPriority}>
+                  <SelectTrigger id="priority">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="urgent">Urgent</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="status">Status</Label>
+                <Select value={status} onValueChange={setStatus}>
+                  <SelectTrigger id="status">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="backlog">Backlog</SelectItem>
+                    <SelectItem value="todo">To Do</SelectItem>
+                    <SelectItem value="in_progress">In Progress</SelectItem>
+                    <SelectItem value="review">Review</SelectItem>
+                    <SelectItem value="done">Done</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="status">Status</Label>
-              <Select value={status} onValueChange={setStatus}>
-                <SelectTrigger id="status">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="backlog">Backlog</SelectItem>
-                  <SelectItem value="todo">To Do</SelectItem>
-                  <SelectItem value="in_progress">In Progress</SelectItem>
-                  <SelectItem value="review">Review</SelectItem>
-                  <SelectItem value="done">Done</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label htmlFor="dueDate">Due Date (Optional)</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !dueDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dueDate ? format(dueDate, "PPP") : <span>Pick a date</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0 z-50" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={dueDate}
+                    onSelect={setDueDate}
+                    initialFocus
+                    className="pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
-          </div>
+
+            <div className="flex items-center gap-2">
+              <Checkbox 
+                id="createAnother" 
+                checked={createAnother}
+                onCheckedChange={(checked) => setCreateAnother(checked as boolean)}
+              />
+              <Label htmlFor="createAnother" className="cursor-pointer">
+                Create another task
+              </Label>
+            </div>
 
             <div className="flex justify-end gap-2">
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
