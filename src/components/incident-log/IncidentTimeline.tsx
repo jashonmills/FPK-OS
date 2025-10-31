@@ -4,9 +4,11 @@ import { useFamily } from '@/contexts/FamilyContext';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { AlertTriangle, Clock, MapPin, User, Trash2 } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { AlertTriangle, Clock, MapPin, User, Trash2, MessageSquare } from 'lucide-react';
 import { format } from 'date-fns';
 import { PotentialTriggersDisplay } from '@/components/incident/PotentialTriggersDisplay';
+import { TeamDiscussion } from '@/components/shared/TeamDiscussion';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 
@@ -157,11 +159,29 @@ export const IncidentTimeline = ({ refreshKey }: IncidentTimelineProps) => {
               </div>
             )}
 
-            {currentUserRole === 'owner' && (
-              <div className="pt-3 border-t">
+            <div className="pt-3 border-t space-y-2">
+              <Collapsible>
+                <CollapsibleTrigger asChild>
+                  <Button variant="ghost" size="sm" className="w-full justify-start">
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    Discussion
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="pt-3">
+                  <TeamDiscussion 
+                    entityType="incident_log"
+                    entityId={log.id}
+                    familyId={selectedFamily!.id}
+                    compact={true}
+                    placeholder="Discuss this incident, share observations, or suggest interventions..."
+                  />
+                </CollapsibleContent>
+              </Collapsible>
+
+              {currentUserRole === 'owner' && (
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
+                    <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive w-full justify-start">
                       <Trash2 className="h-4 w-4 mr-2" />
                       Delete Log
                     </Button>
@@ -184,8 +204,8 @@ export const IncidentTimeline = ({ refreshKey }: IncidentTimelineProps) => {
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
-              </div>
-            )}
+              )}
+            </div>
           </CardContent>
         </Card>
       ))}

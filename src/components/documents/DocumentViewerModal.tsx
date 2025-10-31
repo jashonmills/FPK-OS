@@ -2,9 +2,11 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Download, Loader2, RotateCw } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Download, Loader2, RotateCw, MessageSquare, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { Document, Page, pdfjs } from "react-pdf";
+import { TeamDiscussion } from "@/components/shared/TeamDiscussion";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "react-pdf/dist/esm/Page/TextLayer.css";
 
@@ -110,61 +112,83 @@ export function DocumentViewerModal({ open, onOpenChange, document }: DocumentVi
           </div>
         </DialogHeader>
 
-        <div className="flex-1 overflow-auto">
-          {loading ? (
-            <div className="flex items-center justify-center h-full">
-              <Loader2 className="h-8 w-8 animate-spin" />
-            </div>
-          ) : isPDF && signedUrl ? (
-            <div 
-              className="flex flex-col items-center"
-              style={{
-                transform: `rotate(${rotation}deg)`,
-                transition: 'transform 0.3s ease',
-              }}
-            >
-              <Document
-                file={signedUrl}
-                onLoadSuccess={onDocumentLoadSuccess}
-                loading={<Loader2 className="h-8 w-8 animate-spin" />}
+        <Tabs defaultValue="preview" className="flex-1 flex flex-col overflow-hidden">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="preview">
+              <FileText className="mr-2 h-4 w-4" />
+              Preview
+            </TabsTrigger>
+            <TabsTrigger value="discussion">
+              <MessageSquare className="mr-2 h-4 w-4" />
+              Discussion
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="preview" className="flex-1 overflow-auto mt-4">
+            {loading ? (
+              <div className="flex items-center justify-center h-full">
+                <Loader2 className="h-8 w-8 animate-spin" />
+              </div>
+            ) : isPDF && signedUrl ? (
+              <div 
+                className="flex flex-col items-center"
+                style={{
+                  transform: `rotate(${rotation}deg)`,
+                  transition: 'transform 0.3s ease',
+                }}
               >
-                <Page pageNumber={pageNumber} width={700} />
-              </Document>
-              
-              {numPages > 1 && (
-                <div className="flex items-center gap-4 mt-4">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPageNumber(Math.max(1, pageNumber - 1))}
-                    disabled={pageNumber <= 1}
-                  >
-                    Previous
-                  </Button>
-                  <span className="text-sm">
-                    Page {pageNumber} of {numPages}
-                  </span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPageNumber(Math.min(numPages, pageNumber + 1))}
-                    disabled={pageNumber >= numPages}
-                  >
-                    Next
-                  </Button>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center h-full gap-4">
-              <p className="text-muted-foreground">Preview not available for this file type</p>
-              <Button onClick={handleDownload}>
-                <Download className="mr-2 h-4 w-4" />
-                Download to View
-              </Button>
-            </div>
-          )}
-        </div>
+                <Document
+                  file={signedUrl}
+                  onLoadSuccess={onDocumentLoadSuccess}
+                  loading={<Loader2 className="h-8 w-8 animate-spin" />}
+                >
+                  <Page pageNumber={pageNumber} width={700} />
+                </Document>
+                
+                {numPages > 1 && (
+                  <div className="flex items-center gap-4 mt-4">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPageNumber(Math.max(1, pageNumber - 1))}
+                      disabled={pageNumber <= 1}
+                    >
+                      Previous
+                    </Button>
+                    <span className="text-sm">
+                      Page {pageNumber} of {numPages}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPageNumber(Math.min(numPages, pageNumber + 1))}
+                      disabled={pageNumber >= numPages}
+                    >
+                      Next
+                    </Button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-full gap-4">
+                <p className="text-muted-foreground">Preview not available for this file type</p>
+                <Button onClick={handleDownload}>
+                  <Download className="mr-2 h-4 w-4" />
+                  Download to View
+                </Button>
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="discussion" className="flex-1 overflow-auto mt-4">
+            <TeamDiscussion 
+              entityType="document"
+              entityId={document.id}
+              familyId={document.family_id}
+              placeholder="Ask questions, discuss findings, or share insights about this document..."
+            />
+          </TabsContent>
+        </Tabs>
       </DialogContent>
     </Dialog>
   );

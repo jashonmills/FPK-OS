@@ -14,7 +14,7 @@ import { format } from 'date-fns';
 import { GoalProgressUpdateForm } from '@/components/goals/GoalProgressUpdateForm';
 import { GoalProgressHistory } from '@/components/goals/GoalProgressHistory';
 import { GoalLinkedEvidence } from '@/components/goals/GoalLinkedEvidence';
-import { GoalComments } from '@/components/goals/GoalComments';
+import { TeamDiscussion } from '@/components/shared/TeamDiscussion';
 import { GoalEditDialog } from '@/components/goals/GoalEditDialog';
 
 export default function GoalDetails() {
@@ -178,7 +178,13 @@ export default function GoalDetails() {
         </TabsContent>
 
         <TabsContent value="discussion" className="mt-6">
-          <GoalComments goalId={goal.id} />
+          <TeamDiscussion 
+            entityType="goal"
+            entityId={goal.id}
+            familyId={goal.family_id}
+            title="Goal Discussion"
+            placeholder="Discuss strategies, share progress updates, or ask questions about this goal..."
+          />
         </TabsContent>
       </Tabs>
 
