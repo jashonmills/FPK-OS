@@ -21,7 +21,7 @@ export const HeroSection = () => {
       <div className="relative z-10 max-w-5xl mx-auto text-center space-y-10 animate-fade-in">
         {/* Logo */}
         <div className="flex justify-center mb-8 animate-fade-in">
-          <img src={fpkLogo} alt="FPK Nexus" className="h-16 sm:h-20 md:h-24 w-auto" />
+          <img src={fpkLogo} alt="FPK Nexus" className="h-32 sm:h-40 md:h-48 lg:h-56 w-auto" />
         </div>
         
         {/* Main Headline with Creative Layout */}
