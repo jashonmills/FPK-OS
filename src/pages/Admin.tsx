@@ -4,8 +4,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { InviteUserDialog } from '@/components/admin/InviteUserDialog';
 import { TeamMembersTable } from '@/components/admin/TeamMembersTable';
+import { FeatureFlagsTable } from '@/components/admin/FeatureFlagsTable';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Shield, Users } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Shield } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -74,22 +76,44 @@ const Admin = () => {
               Admin Dashboard
             </h1>
             <p className="text-muted-foreground">
-              Manage team members and system settings
+              Manage team members and feature flags
             </p>
           </div>
-          <InviteUserDialog />
         </div>
 
-        <Card>
-          <CardHeader>
-            <Users className="h-8 w-8 text-primary mb-2" />
-            <CardTitle>Team Members</CardTitle>
-            <CardDescription>Manage your team and their roles</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <TeamMembersTable />
-          </CardContent>
-        </Card>
+        <Tabs defaultValue="team" className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="team">Team Members</TabsTrigger>
+            <TabsTrigger value="features">Feature Flags</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="team" className="space-y-4">
+            <div className="flex justify-end">
+              <InviteUserDialog />
+            </div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Team Members</CardTitle>
+                <CardDescription>Manage your team and their roles</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <TeamMembersTable />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="features">
+            <Card>
+              <CardHeader>
+                <CardTitle>Feature Flags</CardTitle>
+                <CardDescription>Control which features are enabled or disabled</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <FeatureFlagsTable />
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </AppLayout>
   );
