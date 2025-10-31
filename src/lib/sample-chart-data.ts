@@ -56,12 +56,12 @@ export const sampleIEPGoals = [
 
 // For Academic Fluency Trends
 export const sampleAcademicFluency = [
-  { log_date: "2025-09-01", reading_wpm: 25, math_problems_per_min: 12 },
-  { log_date: "2025-09-08", reading_wpm: 28, math_problems_per_min: 14 },
-  { log_date: "2025-09-15", reading_wpm: 30, math_problems_per_min: 15 },
-  { log_date: "2025-09-22", reading_wpm: 32, math_problems_per_min: 16 },
-  { log_date: "2025-09-29", reading_wpm: 35, math_problems_per_min: 18 },
-  { log_date: "2025-10-06", reading_wpm: 38, math_problems_per_min: 20 },
+  { measurement_date: "2025-09-01", reading_fluency: 25, math_fluency: 12, reading_target: 40, math_target: 25 },
+  { measurement_date: "2025-09-08", reading_fluency: 28, math_fluency: 14, reading_target: 40, math_target: 25 },
+  { measurement_date: "2025-09-15", reading_fluency: 30, math_fluency: 15, reading_target: 40, math_target: 25 },
+  { measurement_date: "2025-09-22", reading_fluency: 32, math_fluency: 16, reading_target: 40, math_target: 25 },
+  { measurement_date: "2025-09-29", reading_fluency: 35, math_fluency: 18, reading_target: 40, math_target: 25 },
+  { measurement_date: "2025-10-06", reading_fluency: 38, math_fluency: 20, reading_target: 40, math_target: 25 },
 ];
 
 // For Social Interaction Funnel
@@ -74,13 +74,20 @@ export const sampleSocialSkills = [
 ];
 
 export const sampleSensoryProfile = [
-  { sensory_input: "Auditory", tolerance_level: 2, frequency: 8, notes: "Covers ears during loud noises" },
-  { sensory_input: "Visual", tolerance_level: 4, frequency: 3, notes: "Prefers dimmed lighting" },
-  { sensory_input: "Tactile", tolerance_level: 1, frequency: 12, notes: "Avoids certain textures" },
-  { sensory_input: "Vestibular", tolerance_level: 5, frequency: 2, notes: "Seeks spinning activities" },
-  { sensory_input: "Proprioceptive", tolerance_level: 4, frequency: 6, notes: "Enjoys deep pressure" },
-  { sensory_input: "Gustatory", tolerance_level: 2, frequency: 7, notes: "Limited food preferences" },
-  { sensory_input: "Olfactory", tolerance_level: 3, frequency: 5, notes: "Sensitive to strong smells" },
+  { sensory_category: "Auditory", intensity_level: "High", frequency: 8 },
+  { sensory_category: "Auditory", intensity_level: "Moderate", frequency: 3 },
+  { sensory_category: "Visual", intensity_level: "Low", frequency: 2 },
+  { sensory_category: "Visual", intensity_level: "Moderate", frequency: 5 },
+  { sensory_category: "Tactile", intensity_level: "High", frequency: 12 },
+  { sensory_category: "Tactile", intensity_level: "Moderate", frequency: 4 },
+  { sensory_category: "Vestibular", intensity_level: "Low", frequency: 6 },
+  { sensory_category: "Vestibular", intensity_level: "High", frequency: 2 },
+  { sensory_category: "Proprioceptive", intensity_level: "Moderate", frequency: 7 },
+  { sensory_category: "Proprioceptive", intensity_level: "High", frequency: 3 },
+  { sensory_category: "Gustatory", intensity_level: "High", frequency: 9 },
+  { sensory_category: "Gustatory", intensity_level: "Low", frequency: 2 },
+  { sensory_category: "Olfactory", intensity_level: "Moderate", frequency: 6 },
+  { sensory_category: "Olfactory", intensity_level: "High", frequency: 4 },
 ];
 
 export const sampleActivityLogs = [
@@ -163,13 +170,33 @@ export const sampleGoalProgress = [
   },
 ];
 
-export const sampleStrategyData = [
-  { strategy_name: "Visual Schedule", success_count: 18, total_uses: 20, success_rate: 90 },
-  { strategy_name: "Deep Pressure", success_count: 14, total_uses: 18, success_rate: 78 },
-  { strategy_name: "Break Card", success_count: 12, total_uses: 15, success_rate: 80 },
-  { strategy_name: "First-Then Board", success_count: 16, total_uses: 22, success_rate: 73 },
-  { strategy_name: "Sensory Bin", success_count: 9, total_uses: 12, success_rate: 75 },
-];
+// Generate individual intervention outcomes for StrategyEffectiveness component
+const generateInterventionOutcomes = () => {
+  const strategies = [
+    { name: "Visual Schedule", successCount: 18, totalUses: 20 },
+    { name: "Deep Pressure", successCount: 14, totalUses: 18 },
+    { name: "Break Card", successCount: 12, totalUses: 15 },
+    { name: "First-Then Board", successCount: 16, totalUses: 22 },
+    { name: "Sensory Bin", successCount: 9, totalUses: 12 },
+  ];
+
+  const outcomes: Array<{ intervention_name: string; outcome_success: boolean }> = [];
+  
+  strategies.forEach(strategy => {
+    // Add successful outcomes
+    for (let i = 0; i < strategy.successCount; i++) {
+      outcomes.push({ intervention_name: strategy.name, outcome_success: true });
+    }
+    // Add unsuccessful outcomes
+    for (let i = 0; i < strategy.totalUses - strategy.successCount; i++) {
+      outcomes.push({ intervention_name: strategy.name, outcome_success: false });
+    }
+  });
+
+  return outcomes;
+};
+
+export const sampleStrategyData = generateInterventionOutcomes();
 
 // For Prompting Level Fading chart
 export const samplePromptingData = [

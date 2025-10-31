@@ -12,9 +12,10 @@ interface GoalProgressCardsProps {
   familyId: string;
   studentId: string;
   sampleData?: any;
+  isDemo?: boolean;
 }
 
-export const GoalProgressCards = ({ familyId, studentId, sampleData }: GoalProgressCardsProps) => {
+export const GoalProgressCards = ({ familyId, studentId, sampleData, isDemo = false }: GoalProgressCardsProps) => {
   const [selectedGoal, setSelectedGoal] = useState<{ id: string; title: string } | null>(null);
   
   const { data: goals, isLoading } = useQuery({
@@ -105,15 +106,17 @@ export const GoalProgressCards = ({ familyId, studentId, sampleData }: GoalProgr
                     </p>
                   )}
                 </div>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full mt-auto"
-                  onClick={() => setSelectedGoal({ id: goal.id, title: goal.goal_title })}
-                >
-                  <Lightbulb className="h-4 w-4 mr-2" />
-                  Get Activity Ideas
-                </Button>
+                {!isDemo && (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full mt-auto"
+                    onClick={() => setSelectedGoal({ id: goal.id, title: goal.goal_title })}
+                  >
+                    <Lightbulb className="h-4 w-4 mr-2" />
+                    Get Activity Ideas
+                  </Button>
+                )}
               </CardContent>
             </Card>
           );

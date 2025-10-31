@@ -401,7 +401,7 @@ const ChartCard = ({ chart, isLocked, studentId, familyId, sampleData }: ChartCa
               <InterventionEffectivenessChart familyId={familyId} studentId={studentId} days={30} sampleData={sampleData} />
             )}
             {chart.id === "goal_progress_cards" && (
-              <GoalProgressCards familyId={familyId} studentId={studentId} sampleData={sampleData} />
+              <GoalProgressCards familyId={familyId} studentId={studentId} sampleData={sampleData} isDemo={true} />
             )}
           {chart.id === "strategy_effectiveness" && (
             <StrategyEffectiveness sampleData={sampleData} />
