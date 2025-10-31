@@ -24,9 +24,11 @@ interface Column {
 interface KanbanColumnProps {
   column: Column;
   tasks: Task[];
+  projectColor?: string;
+  onTaskClick?: (task: Task) => void;
 }
 
-export const KanbanColumn = ({ column, tasks }: KanbanColumnProps) => {
+export const KanbanColumn = ({ column, tasks, projectColor, onTaskClick }: KanbanColumnProps) => {
   const { setNodeRef, isOver } = useDroppable({
     id: column.id,
   });
@@ -51,7 +53,12 @@ export const KanbanColumn = ({ column, tasks }: KanbanColumnProps) => {
       <SortableContext items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
         <div className="flex flex-col gap-2 flex-1">
           {tasks.map(task => (
-            <KanbanCard key={task.id} task={task} />
+            <KanbanCard 
+              key={task.id} 
+              task={task} 
+              projectColor={projectColor}
+              onClick={() => onTaskClick?.(task)}
+            />
           ))}
         </div>
       </SortableContext>

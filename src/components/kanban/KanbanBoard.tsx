@@ -6,6 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 import { KanbanColumn } from './KanbanColumn';
 import { KanbanCard } from './KanbanCard';
 import { CreateTaskDialog } from './CreateTaskDialog';
+import { TaskDetailsSheet } from './TaskDetailsSheet';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 
@@ -38,6 +39,9 @@ export const KanbanBoard = ({ projectId }: KanbanBoardProps) => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [detailsSheetOpen, setDetailsSheetOpen] = useState(false);
+  const [projectColor, setProjectColor] = useState<string>('');
   const { toast } = useToast();
 
   const sensors = useSensors(
@@ -50,6 +54,7 @@ export const KanbanBoard = ({ projectId }: KanbanBoardProps) => {
 
   useEffect(() => {
     fetchTasks();
+    fetchProjectColor();
     
     const channel = supabase
       .channel('tasks-changes')
@@ -88,6 +93,23 @@ export const KanbanBoard = ({ projectId }: KanbanBoardProps) => {
     } else {
       setTasks(data || []);
     }
+  };
+
+  const fetchProjectColor = async () => {
+    const { data, error } = await supabase
+      .from('projects')
+      .select('color')
+      .eq('id', projectId)
+      .single();
+
+    if (!error && data) {
+      setProjectColor(data.color);
+    }
+  };
+
+  const handleTaskClick = (task: Task) => {
+    setSelectedTask(task);
+    setDetailsSheetOpen(true);
   };
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -166,13 +188,19 @@ export const KanbanBoard = ({ projectId }: KanbanBoardProps) => {
           {COLUMNS.map(column => {
             const columnTasks = tasks.filter(t => t.status === column.id);
             return (
-              <KanbanColumn key={column.id} column={column} tasks={columnTasks} />
+              <KanbanColumn 
+                key={column.id} 
+                column={column} 
+                tasks={columnTasks} 
+                projectColor={projectColor}
+                onTaskClick={handleTaskClick}
+              />
             );
           })}
         </div>
 
         <DragOverlay>
-          {activeTask ? <KanbanCard task={activeTask} isDragging /> : null}
+          {activeTask ? <KanbanCard task={activeTask} isDragging projectColor={projectColor} /> : null}
         </DragOverlay>
       </DndContext>
 
@@ -180,6 +208,13 @@ export const KanbanBoard = ({ projectId }: KanbanBoardProps) => {
         open={createDialogOpen}
         onOpenChange={setCreateDialogOpen}
         projectId={projectId}
+      />
+
+      <TaskDetailsSheet
+        task={selectedTask}
+        open={detailsSheetOpen}
+        onOpenChange={setDetailsSheetOpen}
+        onTaskUpdate={fetchTasks}
       />
     </div>
   );

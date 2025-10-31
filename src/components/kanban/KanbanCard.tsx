@@ -22,6 +22,8 @@ interface Task {
 interface KanbanCardProps {
   task: Task;
   isDragging?: boolean;
+  projectColor?: string;
+  onClick?: () => void;
 }
 
 const priorityColors = {
@@ -31,7 +33,7 @@ const priorityColors = {
   urgent: 'bg-red-500/10 text-red-700 dark:text-red-400',
 };
 
-export const KanbanCard = ({ task, isDragging = false }: KanbanCardProps) => {
+export const KanbanCard = ({ task, isDragging = false, projectColor, onClick }: KanbanCardProps) => {
   const {
     attributes,
     listeners,
@@ -51,21 +53,27 @@ export const KanbanCard = ({ task, isDragging = false }: KanbanCardProps) => {
       ref={setNodeRef}
       style={style}
       className={cn(
-        'cursor-grab active:cursor-grabbing shadow-sm hover:shadow-md transition-shadow',
+        'cursor-grab active:cursor-grabbing shadow-sm hover:shadow-md transition-shadow relative overflow-hidden',
         (isDragging || isSortableDragging) && 'opacity-50'
       )}
     >
-      <CardHeader className="p-3 pb-2">
+      {projectColor && (
+        <div 
+          className="absolute left-0 top-0 bottom-0 w-1" 
+          style={{ backgroundColor: projectColor }}
+        />
+      )}
+      <CardHeader className="p-3 pb-2 pl-4">
         <div className="flex items-start gap-2">
           <div {...attributes} {...listeners} className="mt-1 cursor-grab active:cursor-grabbing">
             <GripVertical className="h-4 w-4 text-muted-foreground" />
           </div>
-          <div className="flex-1">
+          <div className="flex-1 cursor-pointer" onClick={onClick}>
             <h4 className="font-medium text-sm leading-tight">{task.title}</h4>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="p-3 pt-0">
+      <CardContent className="p-3 pt-0 pl-4 cursor-pointer" onClick={onClick}>
         {task.description && (
           <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
             {task.description}
