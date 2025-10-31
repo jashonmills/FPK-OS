@@ -1,17 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Footprints } from "lucide-react";
 
 interface GrossMotorPlanningChartProps {
   familyId: string;
   studentId: string;
+  dateRange?: { from: Date; to: Date };
+  mode?: "live" | "demo" | "locked";
+  sampleData?: any;
   days?: number;
 }
 
-export const GrossMotorPlanningChart = ({ familyId, studentId, days = 30 }: GrossMotorPlanningChartProps) => {
+export const GrossMotorPlanningChart = ({ familyId, studentId, sampleData, mode, days = 30 }: GrossMotorPlanningChartProps) => {
   const { data, isLoading } = useQuery({
     queryKey: ["gross-motor", familyId, studentId, days],
     queryFn: async () => {
@@ -24,123 +25,81 @@ export const GrossMotorPlanningChart = ({ familyId, studentId, days = 30 }: Gros
       if (error) throw error;
       return data;
     },
+    enabled: !sampleData && mode !== "demo",
     staleTime: 5 * 60 * 1000,
   });
 
-  if (isLoading) {
+  const displayData = sampleData || data;
+
+  if (isLoading && !sampleData) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Footprints className="h-5 w-5" />
-            Gross Motor Planning
-          </CardTitle>
-          <CardDescription>Multi-step physical action success rates</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Skeleton className="h-[300px] w-full" />
-        </CardContent>
-      </Card>
+      <div className="flex justify-center items-center h-full">
+        <Skeleton className="h-full w-full bg-cyan-900/20" />
+      </div>
     );
   }
 
-  if (!data || data.length === 0) {
+  if (!displayData || displayData.length === 0) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Footprints className="h-5 w-5" />
-            Gross Motor Planning
-          </CardTitle>
-          <CardDescription>Multi-step physical action success rates</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-center h-[300px] text-muted-foreground">
-            No gross motor data available. Data appears when PT/APE evaluations are analyzed.
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex justify-center items-center h-full">
+        <p className="text-sm text-cyan-300/60">No gross motor data available</p>
+      </div>
     );
   }
 
-  // Group by skill name to get average success rate
+  // Group by skill name
   const skillMap = new Map();
-  data.forEach((item: any) => {
-    if (!skillMap.has(item.skill_name)) {
-      skillMap.set(item.skill_name, {
-        skill_name: item.skill_name,
-        success_rate: Number(item.success_rate),
-        trial_count: Number(item.trial_count),
+  (Array.isArray(displayData) ? displayData : [displayData]).forEach((item: any) => {
+    const skillName = item.skill || item.skill_name;
+    const coordinationScore = item.coordination_score || item.success_rate || 0;
+    
+    if (skillName && !skillMap.has(skillName)) {
+      skillMap.set(skillName, {
+        skill_name: skillName,
+        coordination_score: Number(coordinationScore) * 10, // Convert to percentage if needed
       });
     }
   });
 
   const chartData = Array.from(skillMap.values()).map(skill => ({
     ...skill,
-    skill: skill.skill_name.length > 15 
-      ? skill.skill_name.substring(0, 15) + '...' 
+    skill: skill.skill_name.length > 12 
+      ? skill.skill_name.substring(0, 12) + '...' 
       : skill.skill_name,
   }));
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Footprints className="h-5 w-5" />
-          Gross Motor Planning
-        </CardTitle>
-        <CardDescription>
-          Success rates for motor sequences and physical actions
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-            <XAxis 
-              dataKey="skill" 
-              className="text-xs"
-              tick={{ fill: "hsl(var(--foreground))" }}
-              angle={-45}
-              textAnchor="end"
-              height={80}
-            />
-            <YAxis 
-              label={{ value: 'Success Rate (%)', angle: -90, position: 'insideLeft' }}
-              tick={{ fill: "hsl(var(--foreground))" }}
-              domain={[0, 100]}
-            />
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: "hsl(var(--background))",
-                border: "1px solid hsl(var(--border))",
-                borderRadius: "var(--radius)"
-              }}
-              formatter={(value: any, name: string, props: any) => {
-                if (name === 'success_rate') {
-                  return [
-                    <div key="tooltip">
-                      <div>{props.payload.skill_name}</div>
-                      <div>Success Rate: {value}%</div>
-                      <div className="text-xs text-muted-foreground">
-                        {props.payload.trial_count} trials
-                      </div>
-                    </div>,
-                    ''
-                  ];
-                }
-                return [value, name];
-              }}
-            />
-            <Legend />
-            <Bar 
-              dataKey="success_rate" 
-              fill="hsl(var(--chart-2))" 
-              name="Success Rate (%)"
-            />
-          </BarChart>
-        </ResponsiveContainer>
-      </CardContent>
-    </Card>
+    <div className="h-full w-full p-2">
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={chartData}>
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(6, 182, 212, 0.1)" />
+          <XAxis 
+            dataKey="skill" 
+            tick={{ fill: '#a5f3fc', fontSize: 9 }}
+            angle={-45}
+            textAnchor="end"
+            height={60}
+          />
+          <YAxis 
+            tick={{ fill: '#a5f3fc', fontSize: 10 }}
+            domain={[0, 100]}
+          />
+          <Tooltip 
+            contentStyle={{ 
+              backgroundColor: 'rgba(10, 25, 47, 0.9)',
+              borderColor: 'rgba(6, 182, 212, 0.3)',
+              borderRadius: '8px'
+            }}
+            labelStyle={{ color: '#a5f3fc' }}
+          />
+          <Legend wrapperStyle={{ fontSize: '10px', color: '#a5f3fc' }} />
+          <Bar 
+            dataKey="coordination_score" 
+            fill="rgba(139, 92, 246, 0.7)" 
+            name="Coordination"
+          />
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
   );
 };

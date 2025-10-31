@@ -1,5 +1,3 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -7,10 +5,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 interface SensoryProfileHeatmapProps {
   studentId: string;
   familyId: string;
+  dateRange?: { from: Date; to: Date };
+  mode?: "live" | "demo" | "locked";
   sampleData?: any;
 }
 
-export const SensoryProfileHeatmap = ({ studentId, familyId, sampleData }: SensoryProfileHeatmapProps) => {
+export const SensoryProfileHeatmap = ({ studentId, familyId, sampleData, mode }: SensoryProfileHeatmapProps) => {
   const { data: sensoryData, isLoading } = useQuery({
     queryKey: ["sensory-profile-data", studentId, familyId],
     queryFn: async () => {
@@ -21,7 +21,7 @@ export const SensoryProfileHeatmap = ({ studentId, familyId, sampleData }: Senso
       if (error) throw error;
       return data;
     },
-    enabled: !sampleData,
+    enabled: !sampleData && mode !== "demo",
   });
 
   const processHeatmapData = () => {
@@ -50,118 +50,83 @@ export const SensoryProfileHeatmap = ({ studentId, familyId, sampleData }: Senso
   };
 
   const getIntensityColor = (count: number, max: number): string => {
-    if (count === 0) return "bg-muted";
+    if (count === 0) return "bg-cyan-950/20";
     const intensity = count / max;
-    if (intensity > 0.7) return "bg-destructive";
-    if (intensity > 0.4) return "bg-chart-3";
-    return "bg-chart-1";
+    if (intensity > 0.7) return "bg-gradient-to-br from-red-500/60 to-orange-500/60";
+    if (intensity > 0.4) return "bg-gradient-to-br from-amber-500/60 to-yellow-500/60";
+    return "bg-gradient-to-br from-green-500/60 to-emerald-500/60";
   };
 
   const { triggers, intensityLevels, heatmap, maxCount } = processHeatmapData();
 
-  if (isLoading) {
+  if (isLoading && !sampleData) {
     return (
-      <Card className="border-2 border-primary/20">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Sensory Profile Heatmap</CardTitle>
-              <CardDescription>Sensory trigger patterns by time of day</CardDescription>
-            </div>
-            <Badge variant="secondary">AI Recommended</Badge>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <Skeleton className="h-64 w-full" />
-        </CardContent>
-      </Card>
+      <div className="flex justify-center items-center h-full">
+        <Skeleton className="h-full w-full bg-cyan-900/20" />
+      </div>
     );
   }
 
   if (maxCount === 0) {
     return (
-      <Card className="border-2 border-primary/20">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Sensory Profile Heatmap</CardTitle>
-              <CardDescription>Sensory trigger patterns by time of day</CardDescription>
-            </div>
-            <Badge variant="secondary">AI Recommended</Badge>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="h-64 flex items-center justify-center bg-muted/30 rounded-lg">
-            <p className="text-muted-foreground">No sensory data available yet</p>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex justify-center items-center h-full">
+        <p className="text-sm text-cyan-300/60">No sensory data available yet</p>
+      </div>
     );
   }
 
   return (
-    <Card className="border-2 border-primary/20">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle>Sensory Profile Heatmap</CardTitle>
-            <CardDescription>Sensory trigger patterns by time of day</CardDescription>
-          </div>
-          <Badge variant="secondary">AI Recommended</Badge>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr>
-                <th className="border p-2 text-left font-semibold">Category</th>
-                {intensityLevels.map((level) => (
-                  <th key={level} className="border p-2 text-center font-semibold">
-                    {level}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {triggers.map((trigger) => (
-                <tr key={trigger}>
-                  <td className="border p-2 font-medium">{trigger}</td>
-                  {intensityLevels.map((level) => {
-                    const count = heatmap[trigger][level];
-                    return (
-                      <td key={level} className="border p-0">
-                        <div className={`h-12 flex items-center justify-center ${getIntensityColor(count, maxCount)} transition-colors`}>
-                          <span className="font-semibold">{count > 0 ? count : ""}</span>
-                        </div>
-                      </td>
-                    );
-                  })}
-                </tr>
+    <div className="h-full w-full p-3 overflow-auto">
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse">
+          <thead>
+            <tr>
+              <th className="border border-cyan-500/20 p-1.5 text-left font-semibold text-cyan-100 text-xs bg-cyan-950/30">Category</th>
+              {intensityLevels.map((level) => (
+                <th key={level} className="border border-cyan-500/20 p-1.5 text-center font-semibold text-cyan-100 text-xs bg-cyan-950/30">
+                  {level}
+                </th>
               ))}
-            </tbody>
-          </table>
+            </tr>
+          </thead>
+          <tbody>
+            {triggers.map((trigger) => (
+              <tr key={trigger}>
+                <td className="border border-cyan-500/20 p-1.5 font-medium text-cyan-200 text-xs">{trigger}</td>
+                {intensityLevels.map((level) => {
+                  const count = heatmap[trigger][level];
+                  return (
+                    <td key={level} className="border border-cyan-500/20 p-0">
+                      <div className={`h-10 flex items-center justify-center ${getIntensityColor(count, maxCount)} transition-colors`}>
+                        <span className="font-semibold text-white text-xs">{count > 0 ? count : ""}</span>
+                      </div>
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="mt-3 flex items-center gap-3 justify-center text-[10px]">
+        <span className="text-cyan-300">Intensity:</span>
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 bg-cyan-950/20 border border-cyan-500/20 rounded" />
+          <span className="text-cyan-300/70">None</span>
         </div>
-        <div className="mt-4 flex items-center gap-4 justify-center text-sm">
-          <span>Intensity:</span>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-muted border" />
-            <span>None</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-chart-1" />
-            <span>Low</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-chart-3" />
-            <span>Medium</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-destructive" />
-            <span>High</span>
-          </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 bg-gradient-to-br from-green-500/60 to-emerald-500/60 rounded" />
+          <span className="text-cyan-300/70">Low</span>
         </div>
-      </CardContent>
-    </Card>
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 bg-gradient-to-br from-amber-500/60 to-yellow-500/60 rounded" />
+          <span className="text-cyan-300/70">Medium</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 bg-gradient-to-br from-red-500/60 to-orange-500/60 rounded" />
+          <span className="text-cyan-300/70">High</span>
+        </div>
+      </div>
+    </div>
   );
 };
