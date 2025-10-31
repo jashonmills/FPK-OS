@@ -141,11 +141,22 @@ export function AIChatWidget() {
     }
     setIsProcessingEmbeddings(false);
     
-    // Show completion notification if we were processing
+    // Show completion or error notification based on results
     if (processingProgress.total > 0) {
-      toast({
-        title: "✅ Data Processing Complete!",
-        description: `Successfully indexed ${embeddingStats.total} records. Your AI assistant is ready!`,
+      // Fetch final stats to get accurate count
+      fetchEmbeddingStats().then(() => {
+        if (embeddingStats.total > 0) {
+          toast({
+            title: "✅ Data Processing Complete!",
+            description: `Successfully indexed ${embeddingStats.total} records. Your AI assistant is ready!`,
+          });
+        } else {
+          toast({
+            title: "⚠️ Processing Failed",
+            description: "Failed to create embeddings. Please check your Lovable AI credits or contact support.",
+            variant: "destructive",
+          });
+        }
       });
     }
   };
