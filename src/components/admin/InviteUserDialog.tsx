@@ -24,13 +24,13 @@ export const InviteUserDialog = () => {
 
     setLoading(true);
     try {
-      // Call Supabase Admin API to invite user
-      const { data, error } = await supabase.auth.admin.inviteUserByEmail(email, {
-        data: {
-          full_name: fullName,
-          role: role,
+      // Call the edge function to invite user
+      const { data, error } = await supabase.functions.invoke('invite-user', {
+        body: {
+          email,
+          fullName,
+          role,
         },
-        redirectTo: `${window.location.origin}/auth/confirm`,
       });
 
       if (error) throw error;
@@ -45,6 +45,7 @@ export const InviteUserDialog = () => {
       setRole('member');
       setOpen(false);
     } catch (error: any) {
+      console.error('Invitation error:', error);
       toast({
         title: 'Error',
         description: error.message || 'Failed to send invitation',
