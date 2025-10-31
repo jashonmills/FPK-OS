@@ -172,10 +172,11 @@ export type Database = {
           content: string
           created_at: string
           id: string
+          metadata: Json | null
           read: boolean
           recipient_id: string
           sender_id: string
-          task_id: string
+          task_id: string | null
           type: string
         }
         Insert: {
@@ -183,10 +184,11 @@ export type Database = {
           content: string
           created_at?: string
           id?: string
+          metadata?: Json | null
           read?: boolean
           recipient_id: string
           sender_id: string
-          task_id: string
+          task_id?: string | null
           type: string
         }
         Update: {
@@ -194,10 +196,11 @@ export type Database = {
           content?: string
           created_at?: string
           id?: string
+          metadata?: Json | null
           read?: boolean
           recipient_id?: string
           sender_id?: string
-          task_id?: string
+          task_id?: string | null
           type?: string
         }
         Relationships: [
