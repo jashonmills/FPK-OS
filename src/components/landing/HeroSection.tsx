@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import fpkLogo from '@/assets/fpk-nexus-logo.png';
 
 export const HeroSection = () => {
   const navigate = useNavigate();
@@ -18,6 +19,11 @@ export const HeroSection = () => {
       
       {/* Content */}
       <div className="relative z-10 max-w-5xl mx-auto text-center space-y-10 animate-fade-in">
+        {/* Logo */}
+        <div className="flex justify-center mb-8 animate-fade-in">
+          <img src={fpkLogo} alt="FPK Nexus" className="h-16 sm:h-20 md:h-24 w-auto" />
+        </div>
+        
         {/* Main Headline with Creative Layout */}
         <div className="space-y-2">
           <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-tight">

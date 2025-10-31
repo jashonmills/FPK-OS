@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import fpkLogo from '@/assets/fpk-nexus-logo.png';
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -126,8 +127,7 @@ const Community = () => {
           <>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Users className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-                <h1 className="text-xl sm:text-2xl font-bold text-primary">FPK Nexus</h1>
+                <img src={fpkLogo} alt="FPK Nexus" className="h-8 sm:h-10 w-auto" />
               </div>
               <div className="flex gap-2">
                 <Button
@@ -164,7 +164,7 @@ const Community = () => {
           </>
         ) : (
           <div className="flex justify-center">
-            <Users className="h-6 w-6 text-primary" />
+            <img src={fpkLogo} alt="FPK Nexus" className="h-8 w-auto" />
           </div>
         )}
       </div>
@@ -272,8 +272,7 @@ const Community = () => {
           </Sheet>
           
           <div className="flex items-center gap-2">
-            <Users className="h-5 w-5 text-primary" />
-            <h1 className="text-lg font-bold text-primary">FPK Nexus</h1>
+            <img src={fpkLogo} alt="FPK Nexus" className="h-7 w-auto" />
           </div>
           
           <div className="flex gap-2">
