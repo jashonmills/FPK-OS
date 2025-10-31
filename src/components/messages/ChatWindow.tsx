@@ -5,14 +5,16 @@ import { useAuth } from '@/contexts/AuthContext';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { MessageBubble } from './MessageBubble';
 import { MessageInput } from './MessageInput';
-import { Hash, MessageCircle } from 'lucide-react';
+import { Hash, MessageCircle, ArrowLeft } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
 
 interface ChatWindowProps {
   conversationId: string | null;
+  onBack?: () => void;
 }
 
-export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
+export const ChatWindow = ({ conversationId, onBack }: ChatWindowProps) => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -184,18 +186,28 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
 
   return (
     <div className="flex-1 flex flex-col bg-background">
-      <div className="h-16 border-b border-border px-6 flex items-center gap-3">
+      <div className="h-16 border-b border-border px-4 md:px-6 flex items-center gap-3">
+        {onBack && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onBack}
+            className="md:hidden"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+        )}
         {conversation?.type === 'channel' ? (
-          <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+          <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
             <Hash className="h-5 w-5 text-primary" />
           </div>
         ) : (
-          <div className="h-10 w-10 rounded-full bg-muted" />
+          <div className="h-10 w-10 rounded-full bg-muted flex-shrink-0" />
         )}
-        <div>
-          <h2 className="font-semibold">{displayName}</h2>
+        <div className="flex-1 min-w-0">
+          <h2 className="font-semibold truncate">{displayName}</h2>
           {conversation?.description && (
-            <p className="text-sm text-muted-foreground">{conversation.description}</p>
+            <p className="text-sm text-muted-foreground truncate">{conversation.description}</p>
           )}
         </div>
       </div>
