@@ -9,6 +9,8 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { UserAvatar } from '@/components/ui/avatar-with-initials';
 import { Upload, Loader2 } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { TIMEZONES } from '@/lib/timezones';
 
 const Profile = () => {
   const { user } = useAuth();
@@ -16,6 +18,9 @@ const Profile = () => {
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [fullName, setFullName] = useState('');
+  const [title, setTitle] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [timezone, setTimezone] = useState('America/New_York');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -33,7 +38,7 @@ const Profile = () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('full_name, avatar_url')
+        .select('full_name, avatar_url, title, phone_number, timezone')
         .eq('id', user.id)
         .single();
 
@@ -41,6 +46,9 @@ const Profile = () => {
 
       if (data) {
         setFullName(data.full_name || '');
+        setTitle(data.title || '');
+        setPhoneNumber(data.phone_number || '');
+        setTimezone(data.timezone || 'America/New_York');
         setAvatarUrl(data.avatar_url);
       }
     } catch (error: any) {
@@ -106,7 +114,12 @@ const Profile = () => {
     try {
       const { error } = await supabase
         .from('profiles')
-        .update({ full_name: fullName })
+        .update({ 
+          full_name: fullName,
+          title: title,
+          phone_number: phoneNumber,
+          timezone: timezone,
+        })
         .eq('id', user.id);
 
       if (error) throw error;
@@ -236,12 +249,6 @@ const Profile = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" value={user?.email || ''} disabled />
-              <p className="text-sm text-muted-foreground">Your email cannot be changed</p>
-            </div>
-
-            <div className="space-y-2">
               <Label htmlFor="full-name">Full Name</Label>
               <Input
                 id="full-name"
@@ -249,6 +256,49 @@ const Profile = () => {
                 onChange={(e) => setFullName(e.target.value)}
                 placeholder="Enter your full name"
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="title">Title / Position</Label>
+              <Input
+                id="title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="e.g. Lead Software Engineer"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input id="email" value={user?.email || ''} disabled />
+              <p className="text-sm text-muted-foreground">Your email cannot be changed</p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="phone-number">Phone Number</Label>
+              <Input
+                id="phone-number"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                placeholder="(555) 555-5555"
+                type="tel"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="timezone">Time Zone</Label>
+              <Select value={timezone} onValueChange={setTimezone}>
+                <SelectTrigger id="timezone">
+                  <SelectValue placeholder="Select your timezone" />
+                </SelectTrigger>
+                <SelectContent>
+                  {TIMEZONES.map((tz) => (
+                    <SelectItem key={tz.value} value={tz.value}>
+                      {tz.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <Button onClick={handleUpdateProfile} disabled={loading}>
