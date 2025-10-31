@@ -13,6 +13,41 @@ interface AcademicFluencyTrendsProps {
 }
 
 export const AcademicFluencyTrends = ({ studentId, familyId, dateRange, sampleData, mode }: AcademicFluencyTrendsProps) => {
+  // DEMO MODE: Show hardcoded data immediately  
+  if (sampleData) {
+    const chartData = [
+      { formattedDate: 'Sep 01', reading: 25, math: 12 },
+      { formattedDate: 'Sep 08', reading: 28, math: 14 },
+      { formattedDate: 'Sep 15', reading: 30, math: 15 },
+      { formattedDate: 'Sep 22', reading: 32, math: 16 },
+      { formattedDate: 'Sep 29', reading: 35, math: 18 },
+      { formattedDate: 'Oct 06', reading: 38, math: 20 },
+    ];
+
+    return (
+      <div className="h-full w-full p-2">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(6, 182, 212, 0.1)" />
+            <XAxis dataKey="formattedDate" tick={{ fill: '#a5f3fc', fontSize: 10 }} />
+            <YAxis yAxisId="left" tick={{ fill: '#a5f3fc', fontSize: 10 }} />
+            <YAxis yAxisId="right" orientation="right" tick={{ fill: '#a5f3fc', fontSize: 10 }} />
+            <Tooltip 
+              contentStyle={{ backgroundColor: 'rgba(10, 25, 47, 0.9)', borderColor: 'rgba(6, 182, 212, 0.3)', borderRadius: '8px' }}
+              labelStyle={{ color: '#a5f3fc' }}
+            />
+            <Legend wrapperStyle={{ fontSize: '10px', color: '#a5f3fc' }} />
+            <Line yAxisId="left" type="monotone" dataKey="reading" stroke="rgba(6, 182, 212, 0.9)" name="Reading" strokeWidth={2} connectNulls={false} dot={{ r: 3 }} />
+            <Line yAxisId="right" type="monotone" dataKey="math" stroke="rgba(168, 85, 247, 0.9)" name="Math" strokeWidth={2} connectNulls={false} dot={{ r: 3 }} />
+            <ReferenceLine yAxisId="left" y={40} stroke="rgba(6, 182, 212, 0.6)" strokeDasharray="3 3" />
+            <ReferenceLine yAxisId="right" y={25} stroke="rgba(168, 85, 247, 0.6)" strokeDasharray="3 3" />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    );
+  }
+
+
   const { data: fluencyData, isLoading } = useQuery({
     queryKey: ["academic-fluency-data", studentId, familyId, dateRange],
     queryFn: async () => {

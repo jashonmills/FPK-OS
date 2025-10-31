@@ -12,6 +12,56 @@ interface IncidentFrequencyChartProps {
 }
 
 export const IncidentFrequencyChart = ({ familyId, studentId, days, sampleData }: IncidentFrequencyChartProps) => {
+  // DEMO MODE: Show hardcoded data immediately
+  if (sampleData) {
+    const chartData = [
+      { date: 'Oct 01', count: 2 },
+      { date: 'Oct 02', count: 1 },
+      { date: 'Oct 03', count: 4 },
+      { date: 'Oct 04', count: 1 },
+      { date: 'Oct 05', count: 0 },
+      { date: 'Oct 06', count: 2 },
+      { date: 'Oct 07', count: 5 },
+      { date: 'Oct 08', count: 3 },
+      { date: 'Oct 09', count: 2 },
+      { date: 'Oct 10', count: 1 },
+    ];
+
+    return (
+      <div className="space-y-2">
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+            <XAxis 
+              dataKey="date" 
+              className="text-xs"
+              tick={{ fill: "hsl(var(--foreground))" }}
+              interval="preserveStartEnd"
+              minTickGap={20}
+            />
+            <YAxis tick={{ fill: "hsl(var(--foreground))" }} />
+            <Tooltip 
+              contentStyle={{ 
+                backgroundColor: "hsl(var(--background))",
+                border: "1px solid hsl(var(--border))",
+                borderRadius: "var(--radius)"
+              }}
+            />
+            <Line 
+              type="monotone" 
+              dataKey="count" 
+              stroke="hsl(var(--destructive))" 
+              strokeWidth={2}
+              dot={{ fill: "hsl(var(--destructive))", r: 4 }}
+              connectNulls={false}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    );
+  }
+
+
   const { data, isLoading } = useQuery({
     queryKey: ["incident-frequency", familyId, studentId, days],
     queryFn: async () => {
