@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Download, Loader2 } from "lucide-react";
+import { Download, Loader2, RotateCw } from "lucide-react";
 import { toast } from "sonner";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
@@ -22,6 +22,7 @@ export function DocumentViewerModal({ open, onOpenChange, document }: DocumentVi
   const [numPages, setNumPages] = useState<number>(0);
   const [pageNumber, setPageNumber] = useState<number>(1);
   const [loading, setLoading] = useState(true);
+  const [rotation, setRotation] = useState<number>(0);
 
   useEffect(() => {
     if (document && open) {
@@ -77,6 +78,10 @@ export function DocumentViewerModal({ open, onOpenChange, document }: DocumentVi
     }
   };
 
+  const handleRotate = () => {
+    setRotation((prev) => (prev + 90) % 360);
+  };
+
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
   };
@@ -91,10 +96,17 @@ export function DocumentViewerModal({ open, onOpenChange, document }: DocumentVi
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle>{document.file_name}</DialogTitle>
-            <Button variant="outline" size="sm" onClick={handleDownload}>
-              <Download className="mr-2 h-4 w-4" />
-              Download
-            </Button>
+            <div className="flex items-center gap-2">
+              {isPDF && (
+                <Button variant="outline" size="sm" onClick={handleRotate}>
+                  <RotateCw className="h-4 w-4" />
+                </Button>
+              )}
+              <Button variant="outline" size="sm" onClick={handleDownload}>
+                <Download className="mr-2 h-4 w-4" />
+                Download
+              </Button>
+            </div>
           </div>
         </DialogHeader>
 
@@ -104,7 +116,13 @@ export function DocumentViewerModal({ open, onOpenChange, document }: DocumentVi
               <Loader2 className="h-8 w-8 animate-spin" />
             </div>
           ) : isPDF && signedUrl ? (
-            <div className="flex flex-col items-center">
+            <div 
+              className="flex flex-col items-center"
+              style={{
+                transform: `rotate(${rotation}deg)`,
+                transition: 'transform 0.3s ease',
+              }}
+            >
               <Document
                 file={signedUrl}
                 onLoadSuccess={onDocumentLoadSuccess}
