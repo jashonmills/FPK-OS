@@ -75,7 +75,7 @@ export const ConversationList = ({ selectedConversationId, onSelectConversation 
               .select('user_id, profiles!inner(full_name, avatar_url)')
               .eq('conversation_id', conv.id)
               .neq('user_id', user!.id)
-              .single();
+              .maybeSingle();
             
             if (participants) {
               dmPartner = participants.profiles as any;
