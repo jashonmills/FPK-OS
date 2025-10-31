@@ -20,12 +20,12 @@ const Messages = () => {
 
   return (
     <AppLayout>
-      <div className="h-[calc(100vh-4rem)] flex overflow-hidden">
+      <div className="h-[calc(100vh-4rem)] flex overflow-x-hidden w-full">
         {/* Conversation List - 280px fixed width on desktop */}
         <div className={`
           ${isMobile && selectedConversationId ? 'hidden' : 'block'} 
           ${isMobile ? 'w-full' : 'w-[280px] flex-shrink-0'}
-          border-r border-border/50 bg-muted/30
+          border-r border-border/50 bg-muted/30 overflow-x-hidden
         `}>
           <ConversationList
             selectedConversationId={selectedConversationId}
@@ -36,7 +36,7 @@ const Messages = () => {
         {/* Chat Window - flexible center panel */}
         <div className={`
           ${isMobile && !selectedConversationId ? 'hidden' : 'flex-1'} 
-          flex flex-col min-w-0 bg-background
+          flex flex-col min-w-0 bg-background overflow-x-hidden
         `}>
           <ChatWindow 
             conversationId={selectedConversationId}
@@ -48,7 +48,7 @@ const Messages = () => {
 
         {/* Conversation Details - 320px fixed width, collapsible on desktop */}
         {selectedConversationId && !isMobile && !detailsCollapsed && (
-          <div className="w-[320px] flex-shrink-0 border-l border-border/50 bg-muted/30">
+          <div className="w-[320px] flex-shrink-0 border-l border-border/50 bg-muted/30 overflow-x-hidden">
             <ConversationDetails 
               conversationId={selectedConversationId}
               onClose={() => setDetailsCollapsed(true)}

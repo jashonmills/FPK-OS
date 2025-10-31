@@ -68,47 +68,47 @@ const Admin = () => {
 
   return (
     <AppLayout>
-      <div className="p-6 space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="p-4 md:p-6 space-y-4 md:space-y-6 w-full overflow-x-hidden">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
           <div className="space-y-1">
-            <h1 className="text-3xl font-bold flex items-center gap-2">
-              <Shield className="h-8 w-8 text-primary" />
+            <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
+              <Shield className="h-6 w-6 md:h-8 md:w-8 text-primary" />
               Admin Dashboard
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-sm md:text-base text-muted-foreground">
               Manage team members and feature flags
             </p>
           </div>
         </div>
 
-        <Tabs defaultValue="team" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="team">Team Members</TabsTrigger>
-            <TabsTrigger value="features">Feature Flags</TabsTrigger>
+        <Tabs defaultValue="team" className="space-y-4 md:space-y-6 w-full">
+          <TabsList className="w-full md:w-auto">
+            <TabsTrigger value="team" className="flex-1 md:flex-none">Team Members</TabsTrigger>
+            <TabsTrigger value="features" className="flex-1 md:flex-none">Feature Flags</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="team" className="space-y-4">
+          <TabsContent value="team" className="space-y-4 w-full overflow-x-hidden">
             <div className="flex justify-end">
               <InviteUserDialog />
             </div>
-            <Card>
+            <Card className="w-full overflow-x-hidden">
               <CardHeader>
                 <CardTitle>Team Members</CardTitle>
                 <CardDescription>Manage your team and their roles</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="overflow-x-auto">
                 <TeamMembersTable />
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="features">
-            <Card>
+          <TabsContent value="features" className="w-full overflow-x-hidden">
+            <Card className="w-full overflow-x-hidden">
               <CardHeader>
                 <CardTitle>Feature Flags</CardTitle>
                 <CardDescription>Control which features are enabled or disabled</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="overflow-x-auto">
                 <FeatureFlagsTable />
               </CardContent>
             </Card>
