@@ -50,28 +50,7 @@ export const KanbanBoard = ({ projectId }: KanbanBoardProps) => {
 
   useEffect(() => {
     fetchTasks();
-    subscribeToTasks();
-  }, [projectId]);
-
-  const fetchTasks = async () => {
-    const { data, error } = await supabase
-      .from('tasks')
-      .select('*')
-      .eq('project_id', projectId)
-      .order('position');
-
-    if (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to load tasks',
-        variant: 'destructive',
-      });
-    } else {
-      setTasks(data || []);
-    }
-  };
-
-  const subscribeToTasks = () => {
+    
     const channel = supabase
       .channel('tasks-changes')
       .on(
@@ -91,6 +70,24 @@ export const KanbanBoard = ({ projectId }: KanbanBoardProps) => {
     return () => {
       supabase.removeChannel(channel);
     };
+  }, [projectId]);
+
+  const fetchTasks = async () => {
+    const { data, error } = await supabase
+      .from('tasks')
+      .select('*')
+      .eq('project_id', projectId)
+      .order('position');
+
+    if (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to load tasks',
+        variant: 'destructive',
+      });
+    } else {
+      setTasks(data || []);
+    }
   };
 
   const handleDragStart = (event: DragStartEvent) => {
