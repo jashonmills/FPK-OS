@@ -81,7 +81,8 @@ serve(async (req) => {
           full_name: fullName,
           role: role,
         },
-        redirectTo: `${req.headers.get('origin')}/auth/confirm`,
+        // Redirect to the app's auth page, not a confirm page
+        redirectTo: `${req.headers.get('origin')}/auth`,
       }
     );
 
