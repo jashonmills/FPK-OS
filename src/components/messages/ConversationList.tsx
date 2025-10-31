@@ -197,15 +197,16 @@ export const ConversationList = ({ selectedConversationId, onSelectConversation 
           </div>
         </div>
 
-        <ScrollArea className="flex-1 overflow-x-hidden">
-          <div className="p-2 overflow-x-hidden w-full">
-            <div className="flex items-center justify-between px-2 py-1 mb-1">
-              <h3 className="text-sm font-semibold text-muted-foreground">Channels</h3>
+        <ScrollArea className="flex-1">
+          <div className="p-2 w-full">
+            <div className="flex items-center justify-between gap-2 px-2 py-1 mb-1 w-full">
+              <h3 className="text-sm font-semibold text-muted-foreground min-w-0 flex-shrink">Channels</h3>
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-6 w-6 p-0 flex-shrink-0"
+                className="h-7 w-7 p-0 flex-shrink-0 hover:bg-primary/10"
                 onClick={() => setShowCreateChannel(true)}
+                title="Create Channel"
               >
                 <Plus className="h-4 w-4" />
               </Button>
