@@ -69,7 +69,7 @@ export const KanbanColumn = ({ column, tasks, projectColor, onTaskClick, isColla
     <div
       ref={setNodeRef}
       className={cn(
-        'flex flex-col w-[270px] flex-shrink-0 bg-muted/50 rounded-lg p-3 transition-colors',
+        'flex flex-col flex-1 min-w-[280px] bg-muted/50 rounded-lg p-3 transition-colors',
         isOver && 'bg-muted'
       )}
     >
