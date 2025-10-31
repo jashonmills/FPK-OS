@@ -66,6 +66,8 @@ export const TaskInitiationLatencyChart = ({ familyId, studentId, sampleData, mo
           <XAxis 
             dataKey="date" 
             tick={{ fill: '#a5f3fc', fontSize: 10 }}
+            interval="preserveStartEnd"
+            minTickGap={20}
           />
           <YAxis 
             tick={{ fill: '#a5f3fc', fontSize: 10 }}
