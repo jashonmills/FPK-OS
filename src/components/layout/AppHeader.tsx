@@ -15,9 +15,9 @@ export const AppHeader = () => {
     <header className="h-14 border-b border-border bg-background flex items-center justify-between px-3 md:px-4 overflow-x-hidden w-full">
       <div className="flex items-center gap-2 md:gap-3 min-w-0 flex-1">
         <SidebarTrigger className="flex-shrink-0" />
-        <h1 className="text-base md:text-lg font-semibold truncate">FPK Pulse</h1>
+        <h1 className="text-base md:text-lg font-semibold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent truncate">FPK Pulse</h1>
       </div>
-      
+
       <div className="flex items-center gap-1 md:gap-2 flex-shrink-0">
         <NotificationCenter />
         <ThemeToggle />

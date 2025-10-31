@@ -73,11 +73,10 @@ export function AppSidebar() {
       <SidebarHeader className="border-b border-sidebar-border">
         <div className="flex items-center gap-2 px-2 py-4">
           {!collapsed && (
-            <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
+            <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
               FPK Pulse
             </h1>
           )}
-          <SidebarTrigger className="ml-auto" />
         </div>
       </SidebarHeader>
 
