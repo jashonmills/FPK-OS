@@ -1,17 +1,28 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import { Hash, Plus, Search, MessageCircle } from 'lucide-react';
+import { Hash, Plus, Search, MessageCircle, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { UserAvatar } from '@/components/ui/avatar-with-initials';
 import { CreateChannelDialog } from './CreateChannelDialog';
 import { StartDMDialog } from './StartDMDialog';
 import { formatDistanceToNow } from 'date-fns';
+import { toast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface ConversationListProps {
   selectedConversationId: string | null;
@@ -20,9 +31,30 @@ interface ConversationListProps {
 
 export const ConversationList = ({ selectedConversationId, onSelectConversation }: ConversationListProps) => {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState('');
   const [showCreateChannel, setShowCreateChannel] = useState(false);
   const [showStartDM, setShowStartDM] = useState(false);
+  const [deleteChannelId, setDeleteChannelId] = useState<string | null>(null);
+  const [deleteChannelName, setDeleteChannelName] = useState<string>('');
+
+  // Check if user is admin
+  const { data: userRole } = useQuery({
+    queryKey: ['user-role', user?.id],
+    enabled: !!user?.id,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user!.id)
+        .single();
+      
+      if (error) throw error;
+      return data?.role;
+    },
+  });
+
+  const isAdmin = userRole === 'admin';
 
   const { data: conversations = [] } = useQuery({
     queryKey: ['conversations', user?.id],
@@ -112,6 +144,42 @@ export const ConversationList = ({ selectedConversationId, onSelectConversation 
   const channels = filteredConversations.filter(c => c.type === 'channel');
   const dms = filteredConversations.filter(c => c.type === 'dm');
 
+  const deleteChannelMutation = useMutation({
+    mutationFn: async (channelId: string) => {
+      const { error } = await supabase
+        .from('conversations')
+        .delete()
+        .eq('id', channelId);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['conversations'] });
+      toast({
+        title: 'Channel deleted',
+        description: 'The channel has been deleted successfully.',
+      });
+      setDeleteChannelId(null);
+      setDeleteChannelName('');
+      if (selectedConversationId === deleteChannelId) {
+        onSelectConversation('');
+      }
+    },
+    onError: () => {
+      toast({
+        title: 'Error',
+        description: 'Failed to delete channel',
+        variant: 'destructive',
+      });
+    },
+  });
+
+  const handleDeleteClick = (e: React.MouseEvent, channelId: string, channelName: string) => {
+    e.stopPropagation();
+    setDeleteChannelId(channelId);
+    setDeleteChannelName(channelName);
+  };
+
   return (
     <>
       <div className="h-full flex flex-col overflow-x-hidden w-full">
@@ -141,35 +209,49 @@ export const ConversationList = ({ selectedConversationId, onSelectConversation 
               </Button>
             </div>
             {channels.map((conv) => (
-              <button
+              <div
                 key={conv.id}
-                onClick={() => onSelectConversation(conv.id)}
                 className={cn(
-                  "w-full flex items-start gap-3 p-2.5 rounded-md hover:bg-muted/60 transition-colors text-left overflow-hidden",
+                  "w-full flex items-start gap-3 p-2.5 rounded-md hover:bg-muted/60 transition-colors overflow-hidden group",
                   selectedConversationId === conv.id && "bg-muted/80"
                 )}
               >
-                <div className="flex-shrink-0 mt-1">
-                  <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <Hash className="h-4 w-4 text-primary" />
+                <button
+                  onClick={() => onSelectConversation(conv.id)}
+                  className="flex items-start gap-3 flex-1 min-w-0 text-left"
+                >
+                  <div className="flex-shrink-0 mt-1">
+                    <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <Hash className="h-4 w-4 text-primary" />
+                    </div>
                   </div>
-                </div>
-                <div className="flex-1 min-w-0 overflow-hidden">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="font-medium truncate whitespace-nowrap overflow-hidden text-ellipsis max-w-full">{conv.name}</span>
-                    {conv.unreadCount > 0 && (
-                      <Badge variant="destructive" className="h-5 min-w-5 px-1.5 text-xs flex-shrink-0">
-                        {conv.unreadCount}
-                      </Badge>
+                  <div className="flex-1 min-w-0 overflow-hidden">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-medium truncate whitespace-nowrap overflow-hidden text-ellipsis max-w-full">{conv.name}</span>
+                      {conv.unreadCount > 0 && (
+                        <Badge variant="destructive" className="h-5 min-w-5 px-1.5 text-xs flex-shrink-0">
+                          {conv.unreadCount}
+                        </Badge>
+                      )}
+                    </div>
+                    {conv.lastMessage && (
+                      <p className="text-xs text-muted-foreground truncate whitespace-nowrap overflow-hidden text-ellipsis max-w-full">
+                        {conv.lastMessage}
+                      </p>
                     )}
                   </div>
-                  {conv.lastMessage && (
-                    <p className="text-xs text-muted-foreground truncate whitespace-nowrap overflow-hidden text-ellipsis max-w-full">
-                      {conv.lastMessage}
-                    </p>
-                  )}
-                </div>
-              </button>
+                </button>
+                {isAdmin && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
+                    onClick={(e) => handleDeleteClick(e, conv.id, conv.name)}
+                  >
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                )}
+              </div>
             ))}
 
             <div className="flex items-center justify-between px-2 py-1 mb-1 mt-4">
@@ -228,6 +310,26 @@ export const ConversationList = ({ selectedConversationId, onSelectConversation 
 
       <CreateChannelDialog open={showCreateChannel} onOpenChange={setShowCreateChannel} />
       <StartDMDialog open={showStartDM} onOpenChange={setShowStartDM} onStartDM={onSelectConversation} />
+      
+      <AlertDialog open={!!deleteChannelId} onOpenChange={() => setDeleteChannelId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Channel</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete #{deleteChannelName}? This action cannot be undone and will delete all messages in this channel.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deleteChannelId && deleteChannelMutation.mutate(deleteChannelId)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
