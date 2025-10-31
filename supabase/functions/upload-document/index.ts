@@ -154,13 +154,21 @@ serve(async (req) => {
           throw new Error('Extract function returned no data');
         }
 
-        if (extractData.error) {
+        if (extractData.error || !extractData.success) {
           console.error('❌ Edge function returned error in data:', extractData.error);
-          throw new Error(`Extract function error: ${extractData.error}`);
+          throw new Error(`Extract function error: ${extractData.error || 'Unknown error'}`);
+        }
+
+        // Verify we have actual extracted content
+        if (!extractData.extracted_length || extractData.extracted_length < 100) {
+          console.error('❌ Extracted content too short or missing:', extractData.extracted_length);
+          throw new Error(`Extracted content too short: ${extractData.extracted_length} characters`);
         }
 
         console.log(`✅ Vision extraction completed successfully on attempt ${extractionAttempt}`);
-        console.log(`📊 Extracted content length: ${extractData.content?.length || 0} characters`);
+        console.log(`📊 Extracted content length: ${extractData.extracted_length} characters`);
+        console.log(`📊 Word count: ${extractData.word_count} words`);
+        console.log(`⭐ Quality score: ${extractData.quality_score}`);
         
         extractionSucceeded = true;
 
@@ -253,11 +261,11 @@ serve(async (req) => {
       console.log('\n🧠 ========== ANALYSIS PHASE - Starting ==========');
       console.log('✅ Extraction completed, triggering Claude Sonnet 4.5 analysis...');
 
-      // Wait for database to fully update with extracted content
-      console.log('⏳ Waiting 2 seconds for database to update...');
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Add a 3-second buffer to ensure database is fully committed
+      console.log('⏳ Waiting 3 seconds to ensure database commit...');
+      await new Promise(resolve => setTimeout(resolve, 3000));
 
-      // Verify extraction is complete before proceeding
+      // Double-check that content is actually in the database
       const { data: verifyDoc } = await supabase
         .from('documents')
         .select('extracted_content')
@@ -265,14 +273,14 @@ serve(async (req) => {
         .single();
 
       if (!verifyDoc?.extracted_content || verifyDoc.extracted_content.length < 100) {
-        console.error('⚠️ Extracted content not yet available in database, skipping analysis trigger');
-        console.log('ℹ️ Analysis can be triggered manually later');
+        console.error('⚠️ CRITICAL: Extracted content not in database after extraction success');
+        console.error(`📊 Content length in DB: ${verifyDoc?.extracted_content?.length || 0}`);
+        console.log('⏭️ Skipping analysis - will need to be triggered manually');
       } else {
+        console.log(`✅ Verified content in database: ${verifyDoc.extracted_content.length} characters`);
+        
         try {
           console.log('🚀 Invoking analyze-document function...');
-          console.log('📤 Request body:', JSON.stringify({ document_id: documentData.id }));
-          console.log(`📊 Verified extracted content length: ${verifyDoc.extracted_content.length} characters`);
-
           const analysisStartTime = Date.now();
 
           const { data: analysisData, error: analyzeError } = await supabase.functions.invoke(
