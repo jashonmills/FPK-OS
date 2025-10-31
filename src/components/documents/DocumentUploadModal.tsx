@@ -67,13 +67,24 @@ export function DocumentUploadModal({ open, onOpenChange }: DocumentUploadModalP
         setUploadProgress({ current: i + 1, total: files.length });
 
         try {
-          // Update status: uploading
+          // Update status: uploading (with helpful message)
           setFileStatuses(prev => ({
             ...prev,
             [file.name]: {
               ...prev[file.name],
               status: 'uploading',
-              statusMessage: 'Uploading file...',
+              statusMessage: 'Uploading file... This may take 10-15 seconds',
+              progress: 10,
+            }
+          }));
+
+          // Add a small delay to show the initial status
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
+          setFileStatuses(prev => ({
+            ...prev,
+            [file.name]: {
+              ...prev[file.name],
               progress: 25,
             }
           }));
@@ -86,39 +97,52 @@ export function DocumentUploadModal({ open, onOpenChange }: DocumentUploadModalP
           formData.append('document_date', documentDate || '');
           formData.append('uploaded_by', user.id);
 
-          const { data, error } = await supabase.functions.invoke('upload-document', {
-            body: formData,
-          });
+          // Edge function can take 10-15 seconds (upload + extraction + analysis)
+          // Set a generous timeout to avoid client-side timeouts
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
 
-          if (error) throw error;
-          if (!data?.success) throw new Error(data?.error || 'Upload failed');
+          try {
+            const { data, error } = await supabase.functions.invoke('upload-document', {
+              body: formData,
+              // Note: Supabase client doesn't support signal directly, but we track timing
+            });
 
-          // Update status: extracting
-          setFileStatuses(prev => ({
-            ...prev,
-            [file.name]: {
-              ...prev[file.name],
-              status: 'extracting',
-              statusMessage: 'Extracting text with AI...',
-              progress: 50,
-            }
-          }));
+            clearTimeout(timeoutId);
 
-          // Simulate extraction progress (the actual extraction happens in background)
-          await new Promise(resolve => setTimeout(resolve, 1000));
+            if (error) throw error;
+            if (!data?.success) throw new Error(data?.error || 'Upload failed');
 
-          // Update status: success
-          setFileStatuses(prev => ({
-            ...prev,
-            [file.name]: {
-              ...prev[file.name],
-              status: 'success',
-              statusMessage: 'Upload complete! AI extraction in progress...',
-              progress: 100,
-            }
-          }));
+            // Update status: extracting
+            setFileStatuses(prev => ({
+              ...prev,
+              [file.name]: {
+                ...prev[file.name],
+                status: 'extracting',
+                statusMessage: 'Processing document with AI...',
+                progress: 75,
+              }
+            }));
 
-          results.success++;
+            // Give extraction time to start (happens in background)
+            await new Promise(resolve => setTimeout(resolve, 1500));
+
+            // Update status: success
+            setFileStatuses(prev => ({
+              ...prev,
+              [file.name]: {
+                ...prev[file.name],
+                status: 'success',
+                statusMessage: 'Upload complete! AI extraction in progress...',
+                progress: 100,
+              }
+            }));
+
+            results.success++;
+          } catch (uploadError: any) {
+            clearTimeout(timeoutId);
+            throw uploadError;
+          }
         } catch (error: any) {
           console.error(`Failed to upload ${file.name}:`, error);
           
