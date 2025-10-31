@@ -73,9 +73,11 @@ serve(async (req) => {
 
     console.log('Inviting user:', { email, fullName, role });
 
-    // Check if user already exists
+    // Check if user already exists (case-insensitive email comparison)
     const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
-    const existingUser = existingUsers.users.find(u => u.email === email);
+    const existingUser = existingUsers.users.find(u => u.email?.toLowerCase() === email.toLowerCase());
+    
+    console.log('Found existing user:', existingUser ? existingUser.id : 'none', 'confirmed:', existingUser?.confirmed_at || 'no');
 
     let inviteData;
 
@@ -85,7 +87,7 @@ serve(async (req) => {
       // If user is confirmed, return error
       if (existingUser.confirmed_at) {
         return new Response(
-          JSON.stringify({ error: 'This user is already registered and active' }),
+          JSON.stringify({ error: 'This user is already an active member. They can log in using their existing credentials.' }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
