@@ -31,34 +31,14 @@ export const TeamMembersTable = () => {
 
   const fetchMembers = async () => {
     try {
-      // Get all users with their profiles and roles
-      const { data: profiles, error: profilesError } = await supabase
-        .from('profiles')
-        .select('id, email, full_name, avatar_url');
+      // Call edge function to get team members with proper status
+      const { data, error } = await supabase.functions.invoke('get-team-members');
 
-      if (profilesError) throw profilesError;
+      if (error) throw error;
 
-      const { data: roles, error: rolesError } = await supabase
-        .from('user_roles')
-        .select('user_id, role');
-
-      if (rolesError) throw rolesError;
-
-      // Combine data
-      const membersData: TeamMember[] = (profiles || []).map(profile => {
-        const roleData = roles?.find(r => r.user_id === profile.id);
-        
-        return {
-          id: profile.id,
-          email: profile.email,
-          full_name: profile.full_name,
-          avatar_url: profile.avatar_url,
-          role: (roleData?.role || 'member') as 'admin' | 'member',
-          confirmed_at: null, // Will be populated via auth API if needed
-        };
-      });
-
-      setMembers(membersData);
+      if (data?.members) {
+        setMembers(data.members);
+      }
     } catch (error: any) {
       console.error('Error fetching members:', error);
       toast({
