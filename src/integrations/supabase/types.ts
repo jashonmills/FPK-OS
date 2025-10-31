@@ -528,6 +528,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_conversation_participant: {
+        Args: { p_conversation_id: string; p_user_id: string }
+        Returns: boolean
+      }
       mark_conversation_read: {
         Args: { p_conversation_id: string; p_user_id: string }
         Returns: undefined
