@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Calendar, GripVertical } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
+import { TaskTypeIcon } from '@/components/tasks/TaskTypeIcon';
 
 interface Task {
   id: string;
@@ -12,6 +13,7 @@ interface Task {
   description: string | null;
   status: string;
   priority: string;
+  type?: 'story' | 'bug' | 'epic' | 'chore';
   assignee_id: string | null;
   due_date: string | null;
   position: number;
@@ -68,6 +70,9 @@ export const KanbanCard = ({ task, isDragging = false, projectColor, onClick }: 
           <div {...attributes} {...listeners} className="mt-1 cursor-grab active:cursor-grabbing">
             <GripVertical className="h-4 w-4 text-muted-foreground" />
           </div>
+          {task.type && (
+            <TaskTypeIcon type={task.type} className="h-4 w-4 mt-1 flex-shrink-0" />
+          )}
           <div className="flex-1 cursor-pointer" onClick={onClick}>
             <h4 className="font-medium text-sm leading-tight">{task.title}</h4>
           </div>

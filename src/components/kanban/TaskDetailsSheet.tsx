@@ -5,7 +5,6 @@ import { useToast } from '@/hooks/use-toast';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
@@ -16,6 +15,9 @@ import { Separator } from '@/components/ui/separator';
 import { format } from 'date-fns';
 import { Calendar as CalendarIcon, Plus, X, Trash2, Send } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { MentionTextarea } from '@/components/mentions/MentionTextarea';
+import { AIAssistButton } from '@/components/ai/AIAssistButton';
+import { TaskTypeIcon, getTaskTypeLabel } from '@/components/tasks/TaskTypeIcon';
 
 interface Task {
   id: string;
@@ -23,6 +25,7 @@ interface Task {
   description: string | null;
   status: string;
   priority: string;
+  type?: 'story' | 'bug' | 'epic' | 'chore';
   assignee_id: string | null;
   due_date: string | null;
   position: number;
@@ -257,11 +260,11 @@ export const TaskDetailsSheet = ({ task, open, onOpenChange, onTaskUpdate }: Tas
 
   const addComment = async () => {
     if (!task || !user || !newComment.trim()) return;
-    const { error } = await supabase.from('task_comments').insert({
+    const { data: insertedComment, error } = await supabase.from('task_comments').insert({
       task_id: task.id,
       user_id: user.id,
       content: newComment,
-    });
+    }).select().single();
 
     if (error) {
       toast({
@@ -270,6 +273,17 @@ export const TaskDetailsSheet = ({ task, open, onOpenChange, onTaskUpdate }: Tas
         variant: 'destructive',
       });
     } else {
+      // Process mentions
+      if (insertedComment) {
+        await supabase.functions.invoke('process-mentions', {
+          body: {
+            taskId: task.id,
+            commentId: insertedComment.id,
+            content: newComment,
+            senderId: user.id
+          }
+        });
+      }
       setNewComment('');
       fetchComments();
       logActivity('Added comment');
@@ -399,14 +413,23 @@ export const TaskDetailsSheet = ({ task, open, onOpenChange, onTaskUpdate }: Tas
           {/* Description */}
           <div>
             <label className="text-sm font-medium mb-2 block">Description</label>
-            <Textarea
+            <MentionTextarea
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              onBlur={handleDescriptionBlur}
-              placeholder="Add a description..."
-              className="min-h-[120px]"
+              onChange={setDescription}
+              placeholder="Add a description... Type @ to mention someone"
+              minHeight="min-h-[120px]"
             />
           </div>
+
+          {/* AI Assist */}
+          {task && (
+            <AIAssistButton
+              taskId={task.id}
+              taskTitle={title}
+              taskDescription={description}
+              onSubTasksAdded={fetchSubTasks}
+            />
+          )}
 
           {/* Sub-tasks */}
           <div>
@@ -469,11 +492,10 @@ export const TaskDetailsSheet = ({ task, open, onOpenChange, onTaskUpdate }: Tas
               ))}
             </div>
             <div className="flex gap-2">
-              <Textarea
+              <MentionTextarea
                 value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                placeholder="Add a comment..."
-                className="min-h-[80px]"
+                onChange={setNewComment}
+                placeholder="Add a comment... Type @ to mention someone"
               />
               <Button onClick={addComment} size="sm">
                 <Send className="h-4 w-4" />

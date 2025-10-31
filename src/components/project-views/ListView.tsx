@@ -5,6 +5,7 @@ import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
+import { TaskTypeIcon } from '@/components/tasks/TaskTypeIcon';
 
 interface Task {
   id: string;
@@ -12,6 +13,7 @@ interface Task {
   description: string | null;
   status: string;
   priority: string;
+  type?: 'story' | 'bug' | 'epic' | 'chore';
   assignee_id: string | null;
   due_date: string | null;
   start_date: string | null;
@@ -119,6 +121,7 @@ export const ListView = ({ tasks, projectColor, onTaskClick, isAllProjects }: Li
         <TableHeader>
           <TableRow>
             <TableHead className="w-12"></TableHead>
+            <TableHead className="w-12">Type</TableHead>
             {isAllProjects && <TableHead>Project</TableHead>}
             <TableHead 
               className="cursor-pointer hover:bg-muted/50"
@@ -180,6 +183,9 @@ export const ListView = ({ tasks, projectColor, onTaskClick, isAllProjects }: Li
                   style={{ backgroundColor: isAllProjects ? projects[task.project_id]?.color : projectColor }}
                 />
               </TableCell>
+              <TableCell>
+                {task.type && <TaskTypeIcon type={task.type} className="h-4 w-4" />}
+              </TableCell>
               {isAllProjects && (
                 <TableCell>
                   <div className="flex items-center gap-2">
@@ -215,7 +221,7 @@ export const ListView = ({ tasks, projectColor, onTaskClick, isAllProjects }: Li
           ))}
           {sortedTasks.length === 0 && (
             <TableRow>
-              <TableCell colSpan={isAllProjects ? 7 : 6} className="text-center text-muted-foreground py-8">
+              <TableCell colSpan={isAllProjects ? 8 : 7} className="text-center text-muted-foreground py-8">
                 No tasks found
               </TableCell>
             </TableRow>

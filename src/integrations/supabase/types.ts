@@ -41,6 +41,57 @@ export type Database = {
         }
         Relationships: []
       }
+      notifications: {
+        Row: {
+          comment_id: string | null
+          content: string
+          created_at: string
+          id: string
+          read: boolean
+          recipient_id: string
+          sender_id: string
+          task_id: string
+          type: string
+        }
+        Insert: {
+          comment_id?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          read?: boolean
+          recipient_id: string
+          sender_id: string
+          task_id: string
+          type: string
+        }
+        Update: {
+          comment_id?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          read?: boolean
+          recipient_id?: string
+          sender_id?: string
+          task_id?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "task_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -249,6 +300,7 @@ export type Database = {
           start_date: string | null
           status: Database["public"]["Enums"]["task_status"]
           title: string
+          type: Database["public"]["Enums"]["task_type"]
           updated_at: string
         }
         Insert: {
@@ -264,6 +316,7 @@ export type Database = {
           start_date?: string | null
           status?: Database["public"]["Enums"]["task_status"]
           title: string
+          type?: Database["public"]["Enums"]["task_type"]
           updated_at?: string
         }
         Update: {
@@ -279,6 +332,7 @@ export type Database = {
           start_date?: string | null
           status?: Database["public"]["Enums"]["task_status"]
           title?: string
+          type?: Database["public"]["Enums"]["task_type"]
           updated_at?: string
         }
         Relationships: [
@@ -347,6 +401,7 @@ export type Database = {
       app_role: "admin" | "member"
       task_priority: "low" | "medium" | "high" | "urgent"
       task_status: "backlog" | "todo" | "in_progress" | "review" | "done"
+      task_type: "story" | "bug" | "epic" | "chore"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -477,6 +532,7 @@ export const Constants = {
       app_role: ["admin", "member"],
       task_priority: ["low", "medium", "high", "urgent"],
       task_status: ["backlog", "todo", "in_progress", "review", "done"],
+      task_type: ["story", "bug", "epic", "chore"],
     },
   },
 } as const
