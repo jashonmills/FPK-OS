@@ -72,6 +72,8 @@ export const ActivityLogChart = ({ familyId, studentId, days, sampleData }: Acti
           dataKey="date" 
           className="text-xs"
           tick={{ fill: "hsl(var(--foreground))" }}
+          interval="preserveStartEnd"
+          minTickGap={20}
         />
         <YAxis tick={{ fill: "hsl(var(--foreground))" }} />
         <Tooltip 

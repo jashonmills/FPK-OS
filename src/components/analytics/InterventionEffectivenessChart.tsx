@@ -56,6 +56,8 @@ export const InterventionEffectivenessChart = ({ familyId, studentId, days, samp
           dataKey="date" 
           className="text-xs"
           tick={{ fill: "hsl(var(--foreground))" }}
+          interval="preserveStartEnd"
+          minTickGap={20}
         />
         <YAxis tick={{ fill: "hsl(var(--foreground))" }} />
         <Tooltip 
