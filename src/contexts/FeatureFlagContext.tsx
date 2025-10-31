@@ -11,6 +11,7 @@ interface FeatureFlags {
   FEATURE_AI_CHATBOT: boolean;
   FEATURE_DOCUMENTATION: boolean;
   FEATURE_FILES: boolean;
+  FEATURE_CALENDAR_SYNC: boolean;
 }
 
 interface FeatureFlagContextType {
@@ -31,6 +32,7 @@ export const FeatureFlagProvider: React.FC<{ children: React.ReactNode }> = ({ c
     FEATURE_AI_CHATBOT: false,
     FEATURE_DOCUMENTATION: false,
     FEATURE_FILES: false,
+    FEATURE_CALENDAR_SYNC: false,
   });
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();

@@ -279,6 +279,8 @@ const Kanban = () => {
                 projectColor={projectColor}
                 onTaskClick={handleTaskClick}
                 onTaskUpdate={fetchTasks}
+                projectId={selectedProject !== 'all' ? selectedProject : undefined}
+                myTasksOnly={showMyTasks}
               />
             )}
             {activeView === 'timeline' && (

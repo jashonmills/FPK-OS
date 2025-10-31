@@ -5,3 +5,6 @@ verify_jwt = true
 
 [functions.ai-task-assist]
 verify_jwt = true
+
+[functions.generate-calendar-feed]
+verify_jwt = false

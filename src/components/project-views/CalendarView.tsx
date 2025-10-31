@@ -1,4 +1,4 @@
-import { useMemo, useCallback } from 'react';
+import { useMemo, useCallback, useState } from 'react';
 import { Calendar, momentLocalizer, Event as BigCalendarEvent, View } from 'react-big-calendar';
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
 import moment from 'moment';
@@ -6,6 +6,10 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import { CalendarDays } from 'lucide-react';
+import { CalendarSyncDialog } from './CalendarSyncDialog';
+import { useFeatureFlags } from '@/contexts/FeatureFlagContext';
 import './calendar-styles.css';
 
 const localizer = momentLocalizer(moment);
@@ -30,6 +34,8 @@ interface CalendarViewProps {
   projectColor: string;
   onTaskClick: (task: Task) => void;
   onTaskUpdate: () => void;
+  projectId?: string;
+  myTasksOnly?: boolean;
 }
 
 interface CalendarEvent extends BigCalendarEvent {
@@ -37,8 +43,10 @@ interface CalendarEvent extends BigCalendarEvent {
   color: string;
 }
 
-export const CalendarView = ({ tasks, projectColor, onTaskClick, onTaskUpdate }: CalendarViewProps) => {
+export const CalendarView = ({ tasks, projectColor, onTaskClick, onTaskUpdate, projectId, myTasksOnly }: CalendarViewProps) => {
   const { toast } = useToast();
+  const { isFeatureEnabled } = useFeatureFlags();
+  const [syncDialogOpen, setSyncDialogOpen] = useState(false);
 
   const events: CalendarEvent[] = useMemo(() => {
     return tasks
@@ -91,21 +99,43 @@ export const CalendarView = ({ tasks, projectColor, onTaskClick, onTaskUpdate }:
   }, []);
 
   return (
-    <div className="h-[calc(100vh-250px)] bg-background p-4 border rounded-lg">
-      <DnDCalendar
-        localizer={localizer}
-        events={events}
-        startAccessor={(event: CalendarEvent) => event.start as Date}
-        endAccessor={(event: CalendarEvent) => event.end as Date}
-        onSelectEvent={handleSelectEvent}
-        onEventDrop={handleEventDrop}
-        onEventResize={handleEventDrop}
-        eventPropGetter={eventStyleGetter}
-        resizable
-        popup
-        views={['month', 'week', 'day', 'agenda']}
-        defaultView="month"
+    <>
+      <div className="h-[calc(100vh-250px)] bg-background p-4 border rounded-lg relative">
+        {isFeatureEnabled('FEATURE_CALENDAR_SYNC') && (
+          <div className="absolute top-6 right-6 z-10">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setSyncDialogOpen(true)}
+              className="gap-2"
+            >
+              <CalendarDays className="h-4 w-4" />
+              Sync to Calendar
+            </Button>
+          </div>
+        )}
+        <DnDCalendar
+          localizer={localizer}
+          events={events}
+          startAccessor={(event: CalendarEvent) => event.start as Date}
+          endAccessor={(event: CalendarEvent) => event.end as Date}
+          onSelectEvent={handleSelectEvent}
+          onEventDrop={handleEventDrop}
+          onEventResize={handleEventDrop}
+          eventPropGetter={eventStyleGetter}
+          resizable
+          popup
+          views={['month', 'week', 'day', 'agenda']}
+          defaultView="month"
+        />
+      </div>
+
+      <CalendarSyncDialog
+        open={syncDialogOpen}
+        onOpenChange={setSyncDialogOpen}
+        projectId={projectId}
+        myTasksOnly={myTasksOnly}
       />
-    </div>
+    </>
   );
 };
