@@ -116,7 +116,14 @@ export const MentionTextarea = ({
     setShowSuggestions(false);
     setSearch('');
     
-    setTimeout(() => textareaRef.current?.focus(), 0);
+    // Position cursor after the mention and space
+    setTimeout(() => {
+      if (textareaRef.current) {
+        const cursorPosition = before.length + mention.length + 1;
+        textareaRef.current.focus();
+        textareaRef.current.setSelectionRange(cursorPosition, cursorPosition);
+      }
+    }, 0);
   };
 
   const insertHashtag = (conversation: Conversation) => {
@@ -129,7 +136,14 @@ export const MentionTextarea = ({
     setShowSuggestions(false);
     setSearch('');
     
-    setTimeout(() => textareaRef.current?.focus(), 0);
+    // Position cursor after the hashtag and space
+    setTimeout(() => {
+      if (textareaRef.current) {
+        const cursorPosition = before.length + hashtag.length + 1;
+        textareaRef.current.focus();
+        textareaRef.current.setSelectionRange(cursorPosition, cursorPosition);
+      }
+    }, 0);
   };
 
   const filteredUsers = users.filter(user => 
