@@ -16,7 +16,9 @@ import CourseHeader from '@/components/course/CourseHeader';
 import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
 import CourseOverviewTTS from '@/components/course/CourseOverviewTTS';
 import { AdditionalResourcesSection } from '@/components/course/resources/AdditionalResourcesSection';
+import { StudentGuidesAccordion } from '@/components/course/resources/StudentGuidesAccordion';
 import { EnhancedCourseInfoAccordion } from '@/components/course/resources/EnhancedCourseInfoAccordion';
+import moneyManagementBg from '@/assets/money-management-teens-bg.jpg';
 
 // Import micro-lesson components
 import { FinancialFoundationsMicroLesson } from '@/components/micro-lessons/money-management/FinancialFoundationsMicroLesson';
@@ -187,7 +189,15 @@ export const MoneyManagementCoursePage: React.FC = () => {
           currentLesson={currentLesson}
           totalLessons={lessons.length}
         >
-          <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
+          <div 
+            className="min-h-screen bg-gradient-to-br from-background to-muted/20"
+            style={{
+              backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${moneyManagementBg})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundAttachment: 'fixed'
+            }}
+          >
             <CourseHeader 
               courseTitle={courseTitle}
             />
@@ -195,22 +205,22 @@ export const MoneyManagementCoursePage: React.FC = () => {
             <div className="container mx-auto px-4 py-8 space-y-8">
               {/* Course Title and Description */}
               <div className="text-center space-y-4">
-                <h1 className="text-4xl font-bold text-foreground drop-shadow-lg">Money Management for Teens</h1>
-                <p className="text-xl text-muted-foreground max-w-3xl mx-auto font-medium">
+                <h1 className="text-4xl font-bold text-white drop-shadow-lg">Money Management for Teens</h1>
+                <p className="text-xl text-white max-w-3xl mx-auto font-medium drop-shadow-md">
                   Build essential financial literacy skills for life success. Learn budgeting, saving, banking, and smart money decisions to secure your financial future.
                 </p>
                 
                 {/* Course badges */}
                 <div className="flex justify-center gap-4 flex-wrap">
-                  <Badge variant="secondary" className="text-sm px-3 py-1">
+                  <Badge variant="secondary" className="text-sm px-3 py-1 bg-white/90 text-gray-800 border-white/20">
                     <BookOpen className="w-4 h-4 mr-2" />
                     {lessons.length} Lessons
                   </Badge>
-                  <Badge variant="secondary" className="text-sm px-3 py-1">
+                  <Badge variant="secondary" className="text-sm px-3 py-1 bg-white/90 text-gray-800 border-white/20">
                     <Clock className="w-4 h-4 mr-2" />
                     ~4 Hours
                   </Badge>
-                  <Badge variant="secondary" className="text-sm px-3 py-1">
+                  <Badge variant="secondary" className="text-sm px-3 py-1 bg-white/90 text-gray-800 border-white/20">
                     <Users className="w-4 h-4 mr-2" />
                     Beginner Friendly
                   </Badge>
@@ -218,7 +228,7 @@ export const MoneyManagementCoursePage: React.FC = () => {
 
                 <div className="max-w-md mx-auto">
                   <Progress value={progress} className="h-2 mb-2" />
-                  <p className="text-xs text-muted-foreground mt-1 text-center font-medium">
+                  <p className="text-xs text-white mt-1 text-center font-medium drop-shadow">
                     {completedLessons.size} of {lessons.length} lessons completed
                   </p>
                 </div>
@@ -233,9 +243,15 @@ export const MoneyManagementCoursePage: React.FC = () => {
                 />
               </div>
 
-              {/* Enhanced Course Information */}
+              {/* Additional Resources */}
               <div className="max-w-4xl mx-auto">
                 <AdditionalResourcesSection>
+                  <StudentGuidesAccordion
+                    guideCount={15}
+                    courseId="money-management-teens"
+                    description="Explore our comprehensive collection of financial literacy guides and worksheets. Click any image to view in detail or open in a new tab."
+                  />
+                  
                   <EnhancedCourseInfoAccordion
                     title="Comprehensive Money Management Course"
                     introduction="Welcome to Money Management for Teens! This course is designed to provide you with practical financial literacy skills that will serve you throughout your life. Learn how to budget, save, invest, and make smart money decisions."
