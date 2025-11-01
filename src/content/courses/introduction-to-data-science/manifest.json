@@ -1,0 +1,385 @@
+{
+  "courseId": "introduction-to-data-science",
+  "courseSlug": "introduction-to-data-science",
+  "contentVersion": "v2",
+  "title": "Introduction to Data Science",
+  "description": "A forward-looking course that introduces the basics of data analysis, visualization, and interpretation using Python, preparing students for a data-driven world.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "What is Data Science?",
+      "description": "Define data science and understand the data science lifecycle.",
+      "contentType": "text",
+      "estimatedMinutes": 30,
+      "unit": "Unit 1: The World of Data",
+      "unitColor": "purple",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define data science as the process of extracting knowledge and insights from data.",
+            "Understand the main roles in data: Data Analyst, Data Engineer, and Data Scientist.",
+            "Recognize the data science lifecycle: from asking a question to communicating results."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Data science is a multidisciplinary field that uses scientific methods, processes, algorithms, and systems to extract insights from structured and unstructured data. It's about using data to tell a story, make predictions, and drive decisions. It combines statistics, computer science, and domain knowledge."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Netflix uses data science to analyze your viewing habits and recommend new shows you might like. A hospital uses data science to predict patient readmission rates. A city uses it to optimize traffic flow."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is the primary goal of data science?",
+          "options": ["To write complex code", "To store large amounts of data", "To extract knowledge and insights from data"],
+          "correctAnswer": "To extract knowledge and insights from data"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You now understand the 'what' and 'why' of data science. It's a powerful tool for understanding the world. In the next lessons, we'll learn the 'how' by acquiring the tools of the trade."
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "The Data Scientist's Toolkit",
+      "description": "Learn about essential Python libraries for data science.",
+      "contentType": "text",
+      "estimatedMinutes": 35,
+      "unit": "Unit 1: The World of Data",
+      "unitColor": "purple",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand why Python is the preferred language for data science.",
+            "Learn about essential Python libraries: Pandas, NumPy, and Matplotlib.",
+            "Set up a data science environment using Jupyter Notebooks."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Python is popular due to its simple syntax and powerful data science libraries. Pandas is used for data manipulation and analysis (think of it like Excel on steroids). NumPy is for numerical operations, especially with large arrays of data. Matplotlib is for creating charts and visualizations. Jupyter Notebooks provide an interactive environment to write code, see results, and document your work all in one place."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "code",
+          "content": "# A simple example of what these libraries do\nimport pandas as pd\n\n# Pandas creates a DataFrame (like a table)\ndata = {'Name': ['Alice', 'Bob'], 'Score': [85, 90]}\ndf = pd.DataFrame(data)\n\nprint(df)",
+          "language": "python"
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which Python library is primarily used for data manipulation and creating DataFrames?",
+          "options": ["NumPy", "Pandas", "Matplotlib"],
+          "correctAnswer": "Pandas"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You've been introduced to your new toolkit. These libraries are the workhorses of data science in Python. In the next unit, we'll start using them to explore and clean a real dataset."
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Getting and Knowing Your Data",
+      "description": "Learn to load a dataset and perform exploratory data analysis.",
+      "contentType": "text",
+      "estimatedMinutes": 40,
+      "unit": "Unit 2: Data Exploration and Cleaning",
+      "unitColor": "blue",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn to load a dataset from a CSV file into a Pandas DataFrame.",
+            "Use `.head()`, `.info()`, and `.describe()` to get a first look at your data.",
+            "Understand the importance of Exploratory Data Analysis (EDA)."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The first step in any data project is to understand your data. This is called Exploratory Data Analysis (EDA). Pandas makes this easy. After loading your data (e.g., from a CSV file), you can use simple commands to see the first few rows, check the data types of each column, and get summary statistics like mean, median, and standard deviation."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "code",
+          "content": "import pandas as pd\n\n# Load data from a CSV file\ndf = pd.read_csv('sales_data.csv')\n\n# See the first 5 rows\nprint(df.head())\n\n# Get information about columns and data types\nprint(df.info())\n\n# Get statistical summary\nprint(df.describe())",
+          "language": "python"
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which Pandas command shows you the first few rows of a DataFrame?",
+          "options": [".info()", ".head()", ".describe()"],
+          "correctAnswer": ".head()"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You've taken your first step as a data detective! You can now load and inspect a dataset to understand its basic structure. But real-world data is messy. Next, we'll learn how to clean it up."
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Data Cleaning - Handling Missing Values",
+      "description": "Learn strategies for handling missing data in your datasets.",
+      "contentType": "text",
+      "estimatedMinutes": 40,
+      "unit": "Unit 2: Data Exploration and Cleaning",
+      "unitColor": "blue",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand why data cleaning is a critical and time-consuming step.",
+            "Learn to identify missing values (NaNs) in a DataFrame.",
+            "Discover strategies for handling missing data: dropping it or filling it in (imputation)."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Data scientists often say they spend 80% of their time cleaning data. Missing data is a common problem. You can't perform calculations on a missing value. You have two main options: 1) Drop the rows or columns that contain missing data (easy, but you lose information). 2) Fill in the missing values with a substitute, like the mean or median of the column. This is called imputation."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "code",
+          "content": "# Check for missing values\nprint(df.isnull().sum())\n\n# Option 1: Drop rows with any missing values\ndf_dropped = df.dropna()\n\n# Option 2: Fill missing 'Age' values with the mean age\nmean_age = df['Age'].mean()\ndf_filled = df.fillna({'Age': mean_age})",
+          "language": "python"
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is the term for filling in missing data with a calculated value like the mean?",
+          "options": ["Dropping", "Imputation", "Exploration"],
+          "correctAnswer": "Imputation"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Excellent work. You can now handle one of the most common problems in data science. A clean dataset is the foundation for any reliable analysis. Next, we'll learn how to visualize our clean data to find patterns."
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Introduction to Data Visualization",
+      "description": "Learn to create basic plots with Matplotlib to visualize your data.",
+      "contentType": "text",
+      "estimatedMinutes": 40,
+      "unit": "Unit 3: Data Visualization and Storytelling",
+      "unitColor": "green",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand why data visualization is a powerful tool for finding insights.",
+            "Learn to create basic plots with Matplotlib: line charts, bar charts, and histograms.",
+            "Choose the right chart for the right type of data."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A picture is worth a thousand rows of data. Data visualization turns numbers into images, allowing our brains to quickly spot patterns, trends, and outliers that would be impossible to see in a table. Line charts are great for showing trends over time. Bar charts are for comparing quantities between categories. Histograms are for showing the distribution of a single variable."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "code",
+          "content": "import matplotlib.pyplot as plt\n\n# Bar chart of sales by category\ndf.groupby('Category')['Sales'].sum().plot(kind='bar')\nplt.title('Total Sales by Category')\nplt.ylabel('Total Sales')\nplt.show()",
+          "language": "python"
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which type of chart is best for showing a trend over time?",
+          "options": ["Bar Chart", "Pie Chart", "Line Chart"],
+          "correctAnswer": "Line Chart"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You can now make your data talk! Creating clear and effective visualizations is a core skill for any data analyst or scientist. You can now explore your data visually to uncover hidden stories."
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Telling a Story with Data",
+      "description": "Learn how to communicate insights effectively through data storytelling.",
+      "contentType": "text",
+      "estimatedMinutes": 35,
+      "unit": "Unit 3: Data Visualization and Storytelling",
+      "unitColor": "green",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand that data storytelling is about communicating insights effectively.",
+            "Learn to structure a data narrative: from question to insight to recommendation.",
+            "Combine text and visualizations to create a compelling story."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Having an insight is not enough; you must be able to communicate it to others to drive action. Data storytelling is the art of wrapping your data-driven insights in a compelling narrative. It's not just showing a chart; it's explaining what the chart means and why it matters."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Instead of just showing a chart of declining sales, a data storyteller would say: 'As you can see from this chart, our sales in the North region have declined by 30% over the last quarter. My analysis suggests this is due to a new competitor. I recommend we launch a targeted marketing campaign to regain market share.'"
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is the final goal of data storytelling?",
+          "options": ["To show as many charts as possible", "To use complex statistics", "To communicate insights and drive action"],
+          "correctAnswer": "To communicate insights and drive action"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Congratulations! You have completed the course. You've learned the full data science lifecycle: from asking a question, to cleaning data, to visualizing it, and finally, to communicating your findings. You have the foundational skills to start exploring datasets and uncovering your own insights."
+        }
+      ]
+    }
+  ]
+}
