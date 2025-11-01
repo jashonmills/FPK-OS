@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { getCourseImage } from '@/utils/courseImages';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -18,12 +18,9 @@ import {
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import { useVoiceSettings } from '@/contexts/VoiceSettingsContext';
+import { useCourses } from '@/hooks/useCourses';
 
-// Course image logic moved to shared utility
-
-// Course image logic moved to shared utility
-
-interface Course {
+interface DisplayCourse {
   id: string;
   title: string;
   description: string;
@@ -34,271 +31,27 @@ interface Course {
   category: string;
   features: string[];
   learningOutcomes: string[];
-  route?: string;
-  image?: string; // Added for course header images
+  route: string;
+  image?: string;
 }
 
-// Remove duplicate courseImageMap and getCourseImage - using shared utility
-
-const courses: Course[] = [
-  {
-    id: 'optimal-learning-state',
-    title: 'EL Optimal Learning State',
-    description: 'Master the optimal learning state through calming techniques and brain integration methods.',
-    summary: 'Learn essential techniques to achieve the most effective learning state, including breathing exercises, grounding methods, and brain integration activities designed to enhance focus and memory retention.',
-    duration: '~3 Hours',
-    level: 'Beginner',
-    lessons: 12,
-    category: 'Learning Skills',
-    features: ['Video Instructions', 'Calming Techniques', 'Brain Integration', 'Focus Enhancement'],
-    learningOutcomes: [
-      'Master breathing and grounding techniques',
-      'Achieve optimal learning states for better retention',
-      'Apply brain integration methods for enhanced focus',
-      'Build confidence and reduce learning anxiety'
-    ],
-    route: '/courses/optimal-learning-state'
-  },
-  {
-    id: 'empowering-learning-spelling',
-    title: 'Empowering Learning for Spelling',
-    description: 'Master spelling through visual memory techniques and optimal learning states.',
-    summary: 'A comprehensive program designed for visual learners to overcome spelling challenges using proven memory techniques and optimal learning states.',
-    duration: '~2 Hours',
-    level: 'Beginner',
-    lessons: 11,
-    category: 'Language Arts',
-    features: ['Video Instructions', 'Visual Memory Techniques', 'Interactive Exercises', 'Progress Tracking'],
-    learningOutcomes: [
-      'Master the visual spelling technique',
-      'Achieve optimal learning states for memory retention',
-      'Build confidence in spelling abilities',
-      'Apply techniques to any spelling challenge'
-    ],
-    route: '/courses/player/empowering-learning-for-spelling'
-  },
-  {
-      id: 'empowering-learning-reading',
-      title: 'EL Reading',
-    description: 'Master reading through visual memory techniques and optimal learning states.',
-    summary: 'A comprehensive program designed for visual learners to overcome reading challenges using proven memory techniques and optimal learning states.',
-    duration: '~2 Hours',
-    level: 'Beginner',
-    lessons: 10,
-    category: 'Language Arts',
-    features: ['Video Instructions', 'Visual Memory techniques', 'Interactive Exercises', 'Progress Tracking'],
-    learningOutcomes: [
-      'Master the visual reading technique',
-      'Achieve optimal learning states for comprehension',
-      'Build confidence in reading abilities',
-      'Apply techniques to any reading challenge'
-    ],
-    route: '/courses/empowering-learning-reading'
-  },
-  {
-      id: 'empowering-learning-numeracy',
-      title: 'EL Numeracy',
-    description: 'Master mathematics through visual memory techniques and number triangles.',
-    summary: 'Learn addition, subtraction, multiplication and division using number triangles and visual learning methods. A comprehensive program designed to make mathematics easier and more enjoyable.',
-    duration: '~2 Hours',
-    level: 'Beginner',
-    lessons: 12,
-    category: 'Mathematics',
-    features: ['Number Triangle Technique', 'Visual Memory Methods', 'Interactive Exercises', 'Progress Tracking'],
-    learningOutcomes: [
-      'Master the Number Triangle technique',
-      'Understand the historical origins of number shapes',
-      'Build confidence in mathematical abilities',
-      'Apply visual techniques to any math challenge'
-    ],
-    route: '/courses/empowering-learning-numeracy'
-  },
-  {
-    id: 'logic-critical-thinking',
-    title: 'Logic and Critical Thinking',
-    description: 'Develop analytical thinking skills and logical reasoning abilities.',
-    summary: 'Learn to think critically, analyze arguments, and develop sound reasoning skills through practical exercises and real-world examples.',
-    duration: '~3 Hours',
-    level: 'Intermediate',
-    lessons: 9,
-    category: 'Critical Thinking',
-    features: ['Interactive Examples', 'Logical Reasoning', 'Argument Analysis', 'Critical Evaluation'],
-    learningOutcomes: [
-      'Identify and evaluate arguments',
-      'Distinguish between deductive and inductive reasoning',
-      'Recognize logical fallacies',
-      'Apply critical thinking to real-world situations'
-    ],
-    route: '/courses/logic-critical-thinking'
-  },
-  {
-    id: 'interactive-science',
-    title: 'Introduction to Science',
-    description: 'Explore the fundamentals of scientific thinking and methodology.',
-    summary: 'A comprehensive introduction to scientific concepts, methods, and thinking that builds a strong foundation for further scientific study.',
-    duration: '~4 Hours',
-    level: 'Beginner',
-    lessons: 12,
-    category: 'Science',
-    features: ['Scientific Method', 'Interactive Experiments', 'Cell Biology', 'Physics Concepts'],
-    learningOutcomes: [
-      'Understand the scientific method',
-      'Learn basic concepts in biology and physics',
-      'Develop scientific thinking skills',
-      'Apply scientific principles to everyday life'
-    ],
-    route: '/courses/interactive-science'
-  },
-  {
-    id: 'interactive-algebra',
-    title: 'Interactive Algebra',
-    description: 'Master algebraic concepts through interactive lessons and practice.',
-    summary: 'Build a solid foundation in algebra with step-by-step guidance, interactive examples, and plenty of practice opportunities.',
-    duration: '~5 Hours',
-    level: 'Intermediate',
-    lessons: 7,
-    category: 'Mathematics',
-    features: ['Step-by-Step Solutions', 'Interactive Practice', 'Visual Representations', 'Problem Solving'],
-    learningOutcomes: [
-      'Solve linear and quadratic equations',
-      'Work with algebraic expressions',
-      'Understand functions and graphs',
-      'Apply algebra to real-world problems'
-    ],
-    route: '/courses/interactive-algebra'
-  },
-  {
-    id: 'interactive-linear-equations',
-    title: 'Interactive Linear Equations',
-    description: 'Master linear equations using the SOAP method and interactive practice.',
-    summary: 'Learn to solve linear equations systematically using the SOAP method with comprehensive practice and real-world applications.',
-    duration: '~3 Hours',
-    level: 'Intermediate',
-    lessons: 7,
-    category: 'Mathematics',
-    features: ['SOAP Method', 'Systematic Approach', 'Interactive Practice', 'Real Applications'],
-    learningOutcomes: [
-      'Master the SOAP method for solving equations',
-      'Solve various types of linear equations',
-      'Apply linear equations to practical problems',
-      'Build confidence in mathematical problem-solving'
-    ],
-    route: '/courses/interactive-linear-equations'
-  },
-  {
-    id: 'interactive-trigonometry',
-    title: 'Interactive Trigonometry',
-    description: 'Explore trigonometric functions and relationships through interactive learning.',
-    summary: 'Understand sine, cosine, tangent, and their applications using the SOHCAHTOA method and interactive visualizations.',
-    duration: '~4 Hours',
-    level: 'Advanced',
-    lessons: 7,
-    category: 'Mathematics',
-    features: ['SOHCAHTOA Method', 'Visual Trigonometry', 'Interactive Graphs', 'Practical Applications'],
-    learningOutcomes: [
-      'Master trigonometric functions and ratios',
-      'Apply SOHCAHTOA to solve triangles',
-      'Understand unit circle concepts',
-      'Solve real-world trigonometry problems'
-    ],
-    route: '/courses/interactive-trigonometry'
-  },
-  {
-    id: 'interactive-economics',
-    title: 'Interactive Economics',
-    description: 'Understand economic principles and their real-world applications.',
-    summary: 'Explore fundamental economic concepts, market dynamics, and decision-making processes through interactive lessons and case studies.',
-    duration: '~4 Hours',
-    level: 'Intermediate',
-    lessons: 8,
-    category: 'Social Studies',
-    features: ['Market Analysis', 'Economic Models', 'Case Studies', 'Decision Making'],
-    learningOutcomes: [
-      'Understand supply and demand principles',
-      'Analyze market structures and behavior',
-      'Apply economic thinking to real situations',
-      'Make informed economic decisions'
-    ],
-    route: '/courses/interactive-economics'
-  },
-  {
-    id: 'interactive-neurodiversity',
-    title: 'Interactive Neurodiversity',
-    description: 'Explore neurodiversity with a strengths-based approach to learning differences.',
-    summary: 'Learn about different neurological variations, celebrate diverse learning styles, and develop inclusive perspectives on neurodiversity.',
-    duration: '~3 Hours',
-    level: 'Beginner',
-    lessons: 8,
-    category: 'Psychology & Education',
-    features: ['Strengths-Based Approach', 'Inclusive Learning', 'Diverse Perspectives', 'Practical Strategies'],
-    learningOutcomes: [
-      'Understand various forms of neurodiversity',
-      'Appreciate different learning styles',
-      'Develop inclusive attitudes and practices',
-      'Support neurodiverse individuals effectively'
-    ],
-    route: '/courses/interactive-neurodiversity'
-  },
-  {
-    id: 'money-management-teens',
-    title: 'Money Management for Teens',
-    description: 'Learn essential financial skills including budgeting, saving, investing, and credit management.',
-    summary: 'Build a strong foundation for financial success with comprehensive lessons on personal finance, budgeting, smart saving strategies, and responsible money management designed specifically for teenagers.',
-    duration: '~6 Hours',
-    level: 'Beginner',
-    lessons: 6,
-    category: 'Life Skills',
-    features: ['Budget Planning', 'Savings Strategies', 'Investment Basics', 'Credit Education', 'Real-World Scenarios'],
-    learningOutcomes: [
-      'Create and manage personal budgets effectively',
-      'Understand different savings and investment options',
-      'Learn responsible credit and debt management',
-      'Make informed financial decisions',
-      'Develop long-term financial planning skills',
-      'Build healthy money habits for life'
-    ],
-    route: '/courses/money-management-teens'
-  },
-  {
-    id: 'elt-empowering-learning-techniques',
-    title: 'ELT: Empowering Learning Techniques',
-    description: 'Master evidence-based learning strategies specifically designed for neurodiverse minds.',
-    summary: 'Transform how you learn, study, and succeed in any academic environment with personalized strategies that work WITH your brain, not against it. This comprehensive course covers neurodiversity understanding, executive functioning, study techniques, self-advocacy, and real-world applications.',
-    duration: '~4 Hours',
-    level: 'Beginner',
-    lessons: 5,
-    category: 'Learning Skills',
-    features: ['Neurodiversity Focus', 'Executive Function Training', 'Evidence-Based Methods', 'Self-Advocacy Skills', 'Personalized Strategies'],
-    learningOutcomes: [
-      'Understand your unique brain and cognitive strengths',
-      'Develop personalized executive functioning systems',
-      'Master evidence-based study techniques for better retention',
-      'Transform perceived weaknesses into competitive advantages',
-      'Build effective self-advocacy skills',
-      'Create sustainable lifelong learning habits'
-    ],
-    route: '/courses/elt-empowering-learning-techniques'
-  },
-  {
-    id: 'el-handwriting',
-    title: 'EL Handwriting',
-    description: 'Master handwriting through visual emulation techniques and optimal learning states.',
-    summary: 'A comprehensive program using the emulation technique to improve handwriting through observation, practice, and optimal learning states. Includes deep dive modules exploring the neuroscience behind handwriting development.',
-    duration: '~4 Hours',
-    level: 'Beginner',
-    lessons: 9,
-    category: 'Language Arts',
-    features: ['Emulation Technique', 'Visual Learning', 'Interactive Activities', 'Deep Dive Modules', 'Neuroscience Content'],
-    learningOutcomes: [
-      'Master the emulation technique for handwriting improvement',
-      'Understand the neuroscience behind handwriting development',
-      'Apply optimal learning states for effective practice',
-      'Build confidence through systematic observation and practice',
-      'Transfer skills to other learning areas'
-    ],
-    route: '/courses/el-handwriting'
-  }
-];
+// Helper function to convert database course to display format
+const convertToDisplayCourse = (dbCourse: any): DisplayCourse => {
+  return {
+    id: dbCourse.id,
+    title: dbCourse.title || 'Untitled Course',
+    description: dbCourse.description || '',
+    summary: dbCourse.description || '',
+    duration: dbCourse.duration_minutes ? `~${Math.ceil(dbCourse.duration_minutes / 60)} Hours` : '~2 Hours',
+    level: dbCourse.difficulty_level ? dbCourse.difficulty_level.charAt(0).toUpperCase() + dbCourse.difficulty_level.slice(1) : 'Beginner',
+    lessons: 10, // Default, can be enriched from manifest
+    category: 'Learning Skills', // Default, can be enriched from tags
+    features: dbCourse.tags || ['Interactive Learning', 'Progress Tracking'],
+    learningOutcomes: ['Master key concepts', 'Build practical skills', 'Apply knowledge effectively'],
+    route: `/courses/player/${dbCourse.slug}`,
+    image: dbCourse.thumbnail_url
+  };
+};
 
 const CoursesPage: React.FC = () => {
   const navigate = useNavigate();
@@ -306,13 +59,19 @@ const CoursesPage: React.FC = () => {
   const [readingCourse, setReadingCourse] = useState<string | null>(null);
   const { speak, stop, isSpeaking } = useTextToSpeech();
   const { settings } = useVoiceSettings();
+  
+  // Fetch published courses from database
+  const { courses: dbCourses, isLoading } = useCourses({ status: 'published' });
+  
+  // Convert database courses to display format
+  const courses = dbCourses.map(convertToDisplayCourse);
 
   const handleEnroll = (courseId: string) => {
     // Redirect to sign up page when enrolling
     navigate('/login?enroll=' + courseId);
   };
 
-  const handleReadCourseOverview = (course: Course) => {
+  const handleReadCourseOverview = (course: DisplayCourse) => {
     if (readingCourse === course.id && isSpeaking) {
       stop();
       setReadingCourse(null);
@@ -356,8 +115,19 @@ const CoursesPage: React.FC = () => {
     return colors[level as keyof typeof colors] || 'bg-gray-100 text-gray-700';
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading courses...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div 
+    <div
       className="min-h-screen w-full"
       style={{
         backgroundImage: 'url(https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/home-page/home-page-background.png)',

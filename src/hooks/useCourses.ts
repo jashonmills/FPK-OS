@@ -199,6 +199,35 @@ export function useCourses(options?: {
     },
   });
 
+  const togglePublishMutation = useMutation({
+    mutationFn: async ({ courseId, newStatus }: { courseId: string; newStatus: 'draft' | 'published' }) => {
+      const { data, error } = await supabase
+        .from('courses')
+        .update({ status: newStatus })
+        .eq('id', courseId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['courses'] });
+      toast({
+        title: "Success",
+        description: `Course ${variables.newStatus === 'published' ? 'published' : 'unpublished'} successfully.`,
+      });
+    },
+    onError: (error) => {
+      console.error('Error toggling course status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update course status.",
+        variant: "destructive",
+      });
+    },
+  });
+
   return {
     courses,
     isLoading,
@@ -207,9 +236,11 @@ export function useCourses(options?: {
     createCourse: createCourseMutation.mutate,
     updateCourse: updateCourseMutation.mutate,
     deleteCourse: deleteCourseMutation.mutate,
+    togglePublish: togglePublishMutation.mutate,
     isCreating: createCourseMutation.isPending,
     isUpdating: updateCourseMutation.isPending,
     isDeleting: deleteCourseMutation.isPending,
+    isTogglingPublish: togglePublishMutation.isPending,
   };
 }
 

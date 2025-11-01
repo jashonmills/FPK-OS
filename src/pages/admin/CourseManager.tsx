@@ -10,20 +10,35 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Plus, Edit2, Trash2, RefreshCw } from 'lucide-react';
+import { Plus, Edit2, Trash2, RefreshCw, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useCourses } from '@/hooks/useCourses';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useQueryClient } from '@tanstack/react-query';
+import { validateCourseForPublishing } from '@/utils/courseValidation';
+import { useToast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 const CourseManager = () => {
   const { t } = useTranslation();
   const { isAdmin, isLoading: roleLoading } = useUserRole();
-  const { courses, isLoading, error, createCourse, updateCourse, deleteCourse, refetch } = useCourses();
+  const { courses, isLoading, error, createCourse, updateCourse, deleteCourse, togglePublish, refetch } = useCourses();
   const navigate = useNavigate();
   const [editingCourse, setEditingCourse] = useState<any>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const [publishDialogOpen, setPublishDialogOpen] = useState(false);
+  const [courseToToggle, setCourseToToggle] = useState<{ id: string; slug: string; title: string; currentStatus: string } | null>(null);
 
   // Force refresh courses cache on component mount to get latest slug data
   useEffect(() => {
@@ -102,6 +117,64 @@ const CourseManager = () => {
         console.error('Error deleting course:', error);
       }
     }
+  };
+
+  const handleTogglePublish = async (course: any) => {
+    const newStatus = course.status === 'published' ? 'draft' : 'published';
+    
+    // If publishing, validate first
+    if (newStatus === 'published') {
+      setCourseToToggle({
+        id: course.id,
+        slug: course.slug || '',
+        title: course.title || '',
+        currentStatus: course.status || 'draft'
+      });
+      setPublishDialogOpen(true);
+    } else {
+      // Unpublishing doesn't need validation
+      togglePublish({ courseId: course.id, newStatus });
+    }
+  };
+
+  const confirmPublish = async () => {
+    if (!courseToToggle) return;
+
+    // Validate before publishing
+    const validation = await validateCourseForPublishing(
+      courseToToggle.slug,
+      courseToToggle.title
+    );
+
+    if (!validation.isValid) {
+      toast({
+        title: "Cannot Publish Course",
+        description: (
+          <div className="space-y-2">
+            <p className="font-semibold">The following issues must be fixed:</p>
+            <ul className="list-disc list-inside space-y-1">
+              {validation.errors.map((error, idx) => (
+                <li key={idx} className="text-sm">{error}</li>
+              ))}
+            </ul>
+          </div>
+        ),
+        variant: "destructive",
+      });
+      setPublishDialogOpen(false);
+      setCourseToToggle(null);
+      return;
+    }
+
+    // Show warnings if any
+    if (validation.warnings.length > 0) {
+      console.warn('Course validation warnings:', validation.warnings);
+    }
+
+    // Proceed with publishing
+    togglePublish({ courseId: courseToToggle.id, newStatus: 'published' });
+    setPublishDialogOpen(false);
+    setCourseToToggle(null);
   };
 
   if (roleLoading) {
@@ -281,7 +354,25 @@ const CourseManager = () => {
             <CardHeader className="pb-3">
               <div className="flex justify-between items-start gap-2">
                 <div className="flex-1 min-w-0">
-                  <CardTitle className="text-base md:text-lg leading-tight break-words">{course.title}</CardTitle>
+                  <div className="flex items-center gap-2 mb-1">
+                    <CardTitle className="text-base md:text-lg leading-tight break-words">{course.title}</CardTitle>
+                    <Badge 
+                      variant={course.status === 'published' ? 'default' : 'secondary'} 
+                      className="text-xs flex items-center gap-1"
+                    >
+                      {course.status === 'published' ? (
+                        <>
+                          <CheckCircle2 className="h-3 w-3" />
+                          Published
+                        </>
+                      ) : (
+                        <>
+                          <AlertCircle className="h-3 w-3" />
+                          Draft
+                        </>
+                      )}
+                    </Badge>
+                  </div>
                   <CardDescription className="text-xs md:text-sm mt-1 line-clamp-2">{course.description}</CardDescription>
                 </div>
                 <div className="flex space-x-1 flex-shrink-0">
@@ -295,12 +386,18 @@ const CourseManager = () => {
               </div>
             </CardHeader>
             <CardContent className="pt-0 flex-1 flex flex-col">
-              <div className="space-y-2 flex-1">
-                <div className="flex justify-between items-center">
-                  <span className="text-xs md:text-sm text-gray-600">Status:</span>
-                  <Badge variant={course.status === 'published' ? 'default' : 'secondary'} className="text-xs">
-                    {course.status}
-                  </Badge>
+              <div className="space-y-3 flex-1">
+                <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg border">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium">
+                      {course.status === 'published' ? 'Published' : 'Draft'}
+                    </span>
+                  </div>
+                  <Switch
+                    checked={course.status === 'published'}
+                    onCheckedChange={() => handleTogglePublish(course)}
+                    aria-label="Toggle publish status"
+                  />
                 </div>
                 {course.instructor_name && (
                   <div className="flex justify-between items-center">
@@ -379,6 +476,24 @@ const CourseManager = () => {
           </Button>
         </div>
       )}
+
+      <AlertDialog open={publishDialogOpen} onOpenChange={setPublishDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Publish Course?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to publish "{courseToToggle?.title}"? 
+              <br /><br />
+              The system will validate that the course has all required content before publishing.
+              Once published, the course will be visible to all learners.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setCourseToToggle(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmPublish}>Publish Course</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
