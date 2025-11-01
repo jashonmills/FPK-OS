@@ -14,6 +14,7 @@ export const V2_SEQUENTIAL_COURSE_SLUGS = [
   'elt-empowering-learning-techniques',
   'introduction-video-production',
   'french-101',
+  'intro-drawing-sketching',
 ] as const;
 
 export type V2SequentialCourseSlug = typeof V2_SEQUENTIAL_COURSE_SLUGS[number];
