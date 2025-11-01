@@ -547,6 +547,40 @@
     @apply mobile-button-group-horizontal [&>*]:flex-1;
   }
 
+  /* ========================================
+     BACKGROUND IMAGE OVERLAY - UX ENHANCEMENT
+     ======================================== */
+
+  /**
+   * Global overlay for course background images.
+   * Purpose: Reduce visual noise and cognitive load for neurodiverse users.
+   * 
+   * Effects:
+   * - Subtle vignette (darker edges, lighter center)
+   * - 5px blur to soften fine details
+   * - Dark cool tone (rgba(25, 25, 35)) for natural appearance
+   */
+  .background-image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none; /* Ensures clicks pass through to content */
+    
+    /* Part 1: Radial vignette gradient */
+    background: radial-gradient(
+      circle, 
+      rgba(25, 25, 35, 0.1) 0%,     /* Very subtle at center */
+      rgba(25, 25, 35, 0.35) 90%    /* Darker at edges */
+    );
+    
+    /* Part 2: Blur effect to reduce detail */
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px); /* Safari support */
+  }
+
   /* Mobile-safe overflow handling */
   .mobile-overflow-safe {
     @apply max-w-full overflow-hidden;

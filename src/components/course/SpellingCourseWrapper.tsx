@@ -109,6 +109,9 @@ export const SpellingCourseWrapper: React.FC<SpellingCourseWrapperProps> = ({
         }}
       />
       
+      {/* Background overlay - reduces visual complexity */}
+      <div className="background-image-overlay fixed inset-0" style={{ zIndex: 1 }} />
+      
       {/* Content overlay */}
       <div className="relative z-10">
         {children}

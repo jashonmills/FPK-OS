@@ -243,7 +243,7 @@ export const SequentialCourseShell: React.FC<SequentialCourseShellProps> = ({ co
               backgroundRepeat: 'no-repeat'
             }}
           >
-            <div className="absolute inset-0 bg-black/10 backdrop-blur-[0.5px]" />
+            <div className="background-image-overlay" />
             
             <CourseHeader courseTitle={courseData.title} />
           
@@ -480,8 +480,8 @@ export const SequentialCourseShell: React.FC<SequentialCourseShellProps> = ({ co
             backgroundRepeat: 'no-repeat'
           }}
         >
-          {/* Background overlay */}
-          <div className="absolute inset-0 bg-black/10 backdrop-blur-[0.5px]" />
+          {/* Background overlay - reduces visual noise for better focus */}
+          <div className="background-image-overlay" />
           
           <CourseHeader courseTitle={courseData.title} />
           
