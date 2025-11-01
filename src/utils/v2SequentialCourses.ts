@@ -24,6 +24,7 @@ export const V2_SEQUENTIAL_COURSE_SLUGS = [
   'public-speaking-and-debate',
   'us-history-founding-to-civil-war',
   'creative-writing-short-stories-poetry',
+  'chemistry-the-central-science',
 ] as const;
 
 export type V2SequentialCourseSlug = typeof V2_SEQUENTIAL_COURSE_SLUGS[number];
