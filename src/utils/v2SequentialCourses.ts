@@ -19,6 +19,7 @@ export const V2_SEQUENTIAL_COURSE_SLUGS = [
   'music-theory-fundamentals',
   'personal-finance-and-investing',
   'german-for-beginners-101',
+  'cybersecurity-fundamentals',
 ] as const;
 
 export type V2SequentialCourseSlug = typeof V2_SEQUENTIAL_COURSE_SLUGS[number];
