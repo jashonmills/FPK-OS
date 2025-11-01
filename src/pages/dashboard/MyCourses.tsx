@@ -199,8 +199,11 @@ const MyCourses = () => {
     index === self.findIndex(c => c.id === course.id)
   );
   
+  // Filter enrolled courses to only show published courses
+  // This prevents users from seeing/clicking draft courses they were enrolled in during development
   const enrolledCourses = allAvailableCourses.filter(course => 
-    enrolledCourseIds.includes(course.id)
+    enrolledCourseIds.includes(course.id) &&
+    (!('status' in course) || course.status === 'published')
   );
   
   // Course aliases to prevent duplicates in Available Courses (based on actual DB values)
