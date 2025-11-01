@@ -116,6 +116,7 @@ const CourseInventory: React.FC = () => {
         validation.isReadyToPublish = 
           validation.hasManifest &&
           validation.manifestLessonCount > 0 &&
+          validation.hasBackgroundImage &&
           validation.hasDescription &&
           validation.hasFramework &&
           validation.hasVersion;
