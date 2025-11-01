@@ -320,35 +320,21 @@ const InteractiveNeurodiversityCoursePage: React.FC = () => {
                           <div className={`p-2 rounded-lg ${
                             isCompleted 
                               ? 'bg-primary text-primary-foreground' 
-                              : 'bg-muted text-muted-foreground'
+                              : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
                           }`}>
                             {isCompleted ? <CheckCircle className="w-5 h-5" /> : <Icon className="w-5 h-5" />}
                           </div>
                           <div>
-                            <Badge variant="outline" className="text-xs">
+                            <Badge variant="outline" className="bg-blue-100 text-blue-700">
                               Lesson {lesson.id}
                             </Badge>
                           </div>
                         </div>
-                        {isCompleted && (
-                          <Badge variant="default" className="text-xs">
-                            Completed
-                          </Badge>
-                        )}
                       </div>
-                      <CardTitle className="text-lg">{lesson.title}</CardTitle>
+                      <CardTitle className="text-lg mt-2">{lesson.title}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-sm text-muted-foreground mb-4">
-                        {lesson.description}
-                      </p>
-                      <Button 
-                        variant={isCompleted ? "secondary" : "default"}
-                        className="w-full"
-                        disabled={!isAccessible}
-                      >
-                        {lesson.id === 1 ? "Start Lesson" : isCompleted ? "Review Lesson" : isAccessible ? "Start Lesson" : "Locked"}
-                      </Button>
+                      <p className="text-sm text-white mb-3">{lesson.description}</p>
                     </CardContent>
                   </Card>
                 );

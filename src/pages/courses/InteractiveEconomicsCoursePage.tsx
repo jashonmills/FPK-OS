@@ -273,22 +273,11 @@ export const InteractiveEconomicsCoursePage: React.FC = () => {
                             {lesson.title}
                           </CardTitle>
                         </CardHeader>
-                        <CardContent className="pt-0">
-                          <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed">
-                            {lesson.description}
-                          </p>
-                          
-                          <div className="absolute bottom-4 right-4">
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
-                              isCompleted 
-                                ? 'bg-green-500 text-white' 
-                                : isAccessible 
-                                  ? 'bg-primary text-primary-foreground group-hover:bg-primary/80' 
-                                  : 'bg-muted text-muted-foreground'
-                            }`}>
-                              {isCompleted ? '✓' : lesson.id}
-                            </div>
-                          </div>
+                        <CardContent>
+                          <p className="text-sm text-white mb-3">{lesson.description}</p>
+                          <Badge variant="outline" className={lesson.unitColor}>
+                            {lesson.unit}
+                          </Badge>
                         </CardContent>
                       </Card>
                     );

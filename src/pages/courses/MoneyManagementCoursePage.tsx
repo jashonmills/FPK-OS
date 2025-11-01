@@ -189,15 +189,12 @@ export const MoneyManagementCoursePage: React.FC = () => {
           currentLesson={currentLesson}
           totalLessons={lessons.length}
         >
-          <div 
-            className="min-h-screen bg-gradient-to-br from-background to-muted/20"
-            style={{
-              backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${moneyManagementBg})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundAttachment: 'fixed'
-            }}
-          >
+          <div className="min-h-screen bg-gradient-to-br from-background to-muted/20" style={{
+            backgroundImage: `radial-gradient(ellipse at center, rgba(0,0,0,0) 0%, rgba(0,0,0,0.5) 100%), linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url(${moneyManagementBg})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundAttachment: 'fixed'
+          }}>
             <CourseHeader 
               courseTitle={courseTitle}
             />
@@ -205,8 +202,8 @@ export const MoneyManagementCoursePage: React.FC = () => {
             <div className="container mx-auto px-4 py-8 space-y-8">
               {/* Course Title and Description */}
               <div className="text-center space-y-4">
-                <h1 className="text-4xl font-bold text-white drop-shadow-lg">Money Management for Teens</h1>
-                <p className="text-xl text-white max-w-3xl mx-auto font-medium drop-shadow-md">
+                <h1 className="text-4xl font-bold text-white drop-shadow-lg" style={{ textShadow: '2px 2px 4px rgba(0, 0, 0, 0.8)' }}>Money Management for Teens</h1>
+                <p className="text-xl text-white max-w-3xl mx-auto font-medium" style={{ textShadow: '1px 1px 3px rgba(0, 0, 0, 0.7)' }}>
                   Build essential financial literacy skills for life success. Learn budgeting, saving, banking, and smart money decisions to secure your financial future.
                 </p>
                 
@@ -228,7 +225,7 @@ export const MoneyManagementCoursePage: React.FC = () => {
 
                 <div className="max-w-md mx-auto">
                   <Progress value={progress} className="h-2 mb-2" />
-                  <p className="text-xs text-white mt-1 text-center font-medium drop-shadow">
+                  <p className="text-xs text-white mt-1 text-center font-medium" style={{ textShadow: '1px 1px 2px rgba(0, 0, 0, 0.6)' }}>
                     {completedLessons.size} of {lessons.length} lessons completed
                   </p>
                 </div>
@@ -316,7 +313,7 @@ export const MoneyManagementCoursePage: React.FC = () => {
                             <div className={`p-2 rounded-lg ${
                               isCompleted 
                                 ? 'bg-primary text-primary-foreground' 
-                                : 'bg-muted text-muted-foreground'
+                                : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
                             }`}>
                               {isCompleted ? <Award className="w-5 h-5" /> : <BookOpen className="w-5 h-5" />}
                             </div>
@@ -330,7 +327,7 @@ export const MoneyManagementCoursePage: React.FC = () => {
                         <CardTitle className="text-lg mt-2">{lesson.title}</CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <p className="text-sm text-muted-foreground mb-3">{lesson.description}</p>
+                        <p className="text-sm text-white mb-3">{lesson.description}</p>
                         <Badge variant="outline" className={lesson.unitColor}>
                           {lesson.unit}
                         </Badge>
@@ -362,7 +359,12 @@ export const MoneyManagementCoursePage: React.FC = () => {
         currentLesson={currentLesson}
         totalLessons={lessons.length}
       >
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen bg-background" style={{
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${moneyManagementBg})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundAttachment: 'fixed'
+        }}>
           <div className="flex flex-col lg:flex-row h-screen">
             {/* Progress Sidebar */}
             <aside className="w-full lg:w-80 bg-card border-r border-border overflow-y-auto">

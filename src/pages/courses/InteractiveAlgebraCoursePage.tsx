@@ -281,14 +281,11 @@ const InteractiveAlgebraCoursePage: React.FC = () => {
                           </div>
                           <CardTitle className="text-lg">{lesson.title}</CardTitle>
                         </CardHeader>
-                        <CardContent>
-                          <p className="text-muted-foreground text-sm mb-4">{lesson.description}</p>
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs text-muted-foreground">Lesson {lesson.id}</span>
-                            {!isAccessible && (
-                              <span className="text-xs text-muted-foreground">Complete previous lesson</span>
-                            )}
-                          </div>
+                      <CardContent>
+                          <p className="text-sm text-white mb-3">{lesson.description}</p>
+                          <Badge variant="outline" className={lesson.unitColor}>
+                            {lesson.unit}
+                          </Badge>
                         </CardContent>
                       </Card>
                     );
