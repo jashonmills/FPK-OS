@@ -20,13 +20,29 @@ export interface VideoContent {
   duration?: number;
 }
 
-export interface TextSection {
+export interface BaseTextSection {
   type: 'paragraph' | 'heading' | 'list' | 'callout' | 'quote';
   content: string;
   level?: number; // For headings: 1-6
   style?: 'info' | 'warning' | 'success' | 'error' | 'teaching'; // For callouts
   items?: string[]; // For lists
 }
+
+export interface CodeBlockSection {
+  type: 'code';
+  content: string;
+  language?: string;
+}
+
+export interface QuizSection {
+  type: 'quiz';
+  question: string;
+  options: string[];
+  correctAnswer: string;
+  explanation?: string;
+}
+
+export type TextSection = BaseTextSection | CodeBlockSection | QuizSection;
 
 export interface LessonContentData {
   id: number;

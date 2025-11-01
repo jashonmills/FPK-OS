@@ -5,16 +5,20 @@
  * Renders structured text content with consistent styling.
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TextSection } from '@/types/lessonContent';
+import { Button } from '@/components/ui/button';
 import { 
   AlertCircle, 
   CheckCircle, 
   Info, 
   Lightbulb, 
-  AlertTriangle 
+  AlertTriangle,
+  Copy,
+  Check
 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 
 interface StandardTextRendererProps {
   sections: TextSection[];
@@ -76,7 +80,97 @@ const getCalloutTextColor = (style?: string) => {
   }
 };
 
+const CodeBlockRenderer: React.FC<{ content: string; language?: string }> = ({ content, language }) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(content);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="relative group mb-4">
+      <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleCopy}
+          className="h-8 px-2"
+        >
+          {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+        </Button>
+      </div>
+      <pre className="bg-muted p-4 rounded-lg overflow-x-auto">
+        <code className={`text-sm font-mono ${language ? `language-${language}` : ''}`}>
+          {content}
+        </code>
+      </pre>
+    </div>
+  );
+};
+
+const QuizRenderer: React.FC<{ section: Extract<TextSection, { type: 'quiz' }> }> = ({ section }) => {
+  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+  const [showResult, setShowResult] = useState(false);
+
+  const handleAnswer = (option: string) => {
+    setSelectedAnswer(option);
+    setShowResult(true);
+  };
+
+  const isCorrect = selectedAnswer === section.correctAnswer;
+
+  return (
+    <div className="mb-6 p-4 border rounded-lg bg-card">
+      <h4 className="font-semibold mb-3 text-lg">{section.question}</h4>
+      <div className="space-y-2">
+        {section.options.map((option, idx) => {
+          const isSelected = selectedAnswer === option;
+          const isCorrectOption = option === section.correctAnswer;
+          
+          return (
+            <button
+              key={idx}
+              onClick={() => !showResult && handleAnswer(option)}
+              disabled={showResult}
+              className={`w-full text-left p-3 rounded-lg border transition-colors ${
+                !showResult
+                  ? 'hover:bg-muted cursor-pointer'
+                  : isCorrectOption
+                  ? 'bg-green-50 border-green-400 dark:bg-green-950/30'
+                  : isSelected
+                  ? 'bg-red-50 border-red-400 dark:bg-red-950/30'
+                  : 'opacity-50'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                {showResult && isCorrectOption && <CheckCircle className="h-5 w-5 text-green-600" />}
+                {showResult && isSelected && !isCorrectOption && <AlertCircle className="h-5 w-5 text-red-600" />}
+                <span>{option}</span>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+      {showResult && section.explanation && (
+        <div className="mt-4 p-3 bg-muted rounded-lg">
+          <p className="text-sm">{section.explanation}</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const renderSection = (section: TextSection, index: number) => {
+  if (section.type === 'code') {
+    return <CodeBlockRenderer key={index} content={section.content} language={section.language} />;
+  }
+  
+  if (section.type === 'quiz') {
+    return <QuizRenderer key={index} section={section} />;
+  }
+  
   switch (section.type) {
     case 'heading':
       const HeadingTag = `h${section.level || 2}` as keyof JSX.IntrinsicElements;
@@ -88,7 +182,24 @@ const renderSection = (section: TextSection, index: number) => {
       return <HeadingTag key={index} className={headingClass}>{section.content}</HeadingTag>;
     
     case 'paragraph':
-      return <p key={index} className="mb-4 leading-relaxed">{section.content}</p>;
+      return (
+        <div key={index} className="mb-4 leading-relaxed prose prose-sm max-w-none dark:prose-invert">
+          <ReactMarkdown
+            components={{
+              code: ({ inline, children, ...props }: any) => 
+                inline ? (
+                  <code className="bg-muted px-1.5 py-0.5 rounded text-sm font-mono" {...props}>
+                    {children}
+                  </code>
+                ) : (
+                  <code {...props}>{children}</code>
+                ),
+            }}
+          >
+            {section.content}
+          </ReactMarkdown>
+        </div>
+      );
     
     case 'list':
       return (
@@ -135,7 +246,7 @@ const renderSection = (section: TextSection, index: number) => {
       );
     
     default:
-      return <p key={index}>{section.content}</p>;
+      return null;
   }
 };
 
