@@ -1,95 +1,121 @@
-import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { headers: corsHeaders })
   }
 
   try {
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-    );
+    const SUPABASE_URL = Deno.env.get('SUPABASE_URL')
+    const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
 
-    // Course image data (SVG images)
-    const courseImages = {
-      'learning-state-course.jpg': await generateCourseImage('Learning State', '#8B5CF6'),
-      'el-spelling-course.jpg': await generateCourseImage('EL Spelling', '#EC4899'), 
-      'algebra-pathfinder-course.jpg': await generateCourseImage('Algebra Pathfinder', '#F97316')
-    };
+    if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+      throw new Error('Supabase configuration is missing')
+    }
 
-    const results = [];
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 
-    for (const [filename, imageData] of Object.entries(courseImages)) {
-      console.log(`Uploading ${filename}...`);
-      
+    // List of course images to upload
+    const courseImages = [
+      'empowering-handwriting-bg.jpg',
+      'el-handwriting-bg.jpg',
+      'empowering-numeracy-bg.jpg',
+      'empowering-reading-bg.jpg',
+      'empowering-spelling-new-bg.jpg',
+      'learning-state-course-bg.jpg',
+      'linear-equations-unique-bg.jpg',
+      'trigonometry-background.jpg',
+      'linear-equations-background.jpg',
+      'logic-background.jpg',
+      'economics-background.jpg',
+      'neurodiversity-background.jpg',
+      'money-management-background.jpg',
+      'interactive-geometry-fundamentals-bg.jpg',
+      'elt-background-generated.jpg',
+      'science-background-generated.jpg',
+      'creative-writing-bg.jpg',
+      'drawing-sketching-bg.jpg',
+      'philosophy-bg.jpg'
+    ]
+
+    const results = {
+      success: [] as string[],
+      failed: [] as { file: string; error: string }[]
+    }
+
+    for (const filename of courseImages) {
+      try {
+        console.log(`Processing ${filename}...`)
+        
+        // Read the file from the local file system
+        const imagePath = `../../storage/course-images/${filename}`
+        let imageData: Uint8Array
+        
+        try {
+          imageData = await Deno.readFile(imagePath)
+        } catch (error) {
+          console.error(`Failed to read ${filename}:`, error)
+          results.failed.push({ file: filename, error: `File not found: ${error.message}` })
+          continue
+        }
+
+        // Determine content type
+        const contentType = filename.endsWith('.jpg') || filename.endsWith('.jpeg') 
+          ? 'image/jpeg' 
+          : filename.endsWith('.png') 
+          ? 'image/png' 
+          : 'image/jpeg'
+
+        // Upload to Supabase Storage
         const { data, error } = await supabase.storage
-          .from('home-page')
+          .from('course-images')
           .upload(filename, imageData, {
-            cacheControl: '3600',
+            contentType,
             upsert: true,
-            contentType: 'image/svg+xml'
-          });
+            cacheControl: '3600'
+          })
 
-      if (error) {
-        console.error(`Error uploading ${filename}:`, error);
-        results.push({ filename, success: false, error: error.message });
-      } else {
-        console.log(`Successfully uploaded ${filename}`);
-        results.push({ filename, success: true, path: data.path });
+        if (error) {
+          console.error(`Error uploading ${filename}:`, error)
+          results.failed.push({ file: filename, error: error.message })
+        } else {
+          console.log(`✓ Successfully uploaded ${filename}`)
+          results.success.push(filename)
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+        console.error(`Error processing ${filename}:`, errorMessage)
+        results.failed.push({ file: filename, error: errorMessage })
       }
     }
 
-    return new Response(JSON.stringify({ 
-      success: true, 
-      message: 'Course images upload completed',
-      results 
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-    });
+    console.log('\n=== Upload Summary ===')
+    console.log(`✓ Successful: ${results.success.length}/${courseImages.length}`)
+    console.log(`✗ Failed: ${results.failed.length}/${courseImages.length}`)
 
+    return new Response(
+      JSON.stringify({
+        success: true,
+        message: `Uploaded ${results.success.length}/${courseImages.length} images`,
+        results
+      }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
   } catch (error) {
-    console.error('Upload function error:', error);
-    return new Response(JSON.stringify({ 
-      success: false, 
-      error: error.message 
-    }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-    });
+    console.error('Error:', error)
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: 'An unexpected error occurred',
+        details: error.message
+      }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+    )
   }
-});
-
-async function generateCourseImage(title: string, color: string): Promise<Uint8Array> {
-  // Create an SVG image with gradient background and title
-  const svgContent = `<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" style="stop-color:${color};stop-opacity:1" />
-        <stop offset="100%" style="stop-color:#1f2937;stop-opacity:1" />
-      </linearGradient>
-    </defs>
-    <rect width="400" height="300" fill="url(#grad)" rx="8" />
-    <rect x="20" y="20" width="360" height="260" fill="rgba(255,255,255,0.1)" rx="4" />
-    <text x="200" y="120" font-family="Arial, sans-serif" font-size="28" font-weight="bold" 
-          text-anchor="middle" dominant-baseline="middle" fill="white">${title}</text>
-    <text x="200" y="160" font-family="Arial, sans-serif" font-size="16" 
-          text-anchor="middle" dominant-baseline="middle" fill="rgba(255,255,255,0.8)">Course</text>
-    <circle cx="50" cy="50" r="20" fill="rgba(255,255,255,0.3)" />
-    <circle cx="350" cy="250" r="15" fill="rgba(255,255,255,0.2)" />
-  </svg>`;
-
-  // Convert SVG to PNG using a simple approach
-  // Note: This is a simplified conversion - in production you'd use proper image processing
-  const encoder = new TextEncoder();
-  const svgBytes = encoder.encode(svgContent);
-  
-  // For now, return the SVG as bytes (browsers can render SVG directly)
-  return svgBytes;
-}
+})
