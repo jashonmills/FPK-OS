@@ -5,7 +5,7 @@
   "framework": "sequential",
   "courseTitle": "French for Beginners (French 101)",
   "description": "An interactive introduction to the French language and Francophone culture designed to build foundational vocabulary and conversational skills for travel and communication.",
-  "backgroundImage": "/src/assets/french-101-bg.jpg",
+  "backgroundImage": "/course-images/french-101-bg.jpg",
   "estimatedHours": 9,
   "difficultyLevel": "introductory",
   "category": "World Languages",
