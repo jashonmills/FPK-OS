@@ -507,6 +507,8 @@ const MyCourses = () => {
         isCompleted={progress?.completed || false}
         onEnroll={!isEnrolled ? handleEnrollment : undefined}
         isEnrolling={!isEnrolled ? enrollingCourseIds.has(course.id) : false}
+        background_image={course.background_image}
+        thumbnail_url={course.thumbnail_url}
       />
     );
   };
