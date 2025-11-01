@@ -1,0 +1,505 @@
+{
+  "courseId": "personal-finance-and-investing",
+  "courseSlug": "personal-finance-and-investing",
+  "contentVersion": "v2",
+  "title": "Personal Finance & Investing",
+  "description": "Master your money. This essential life-skills course covers everything from budgeting and saving to understanding debt, credit, and the fundamentals of long-term investing.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "The Mindset of Money",
+      "description": "Understand your personal relationship with money and learn the difference between assets and liabilities.",
+      "contentType": "text",
+      "estimatedMinutes": 25,
+      "unit": "Unit 1: The Foundations of Financial Health",
+      "unitColor": "emerald",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand your personal relationship with money.",
+            "Learn the difference between assets and liabilities.",
+            "Set your first meaningful financial goal."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Personal finance is 80% behavior and 20% knowledge. Before you can manage money, you must understand your habits and beliefs about it. The core goal is simple: acquire assets (things that make you money, like investments) and reduce liabilities (things that cost you money, like high-interest debt)."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "An asset could be a share of stock. A liability could be credit card debt. A good financial goal isn't just 'be rich,' but something specific, measurable, achievable, relevant, and time-bound (SMART), like: 'Save $1,000 for an emergency fund in the next 6 months.'"
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which of the following is an example of an asset?",
+          "options": ["A car loan", "A savings account", "A monthly subscription"],
+          "correctAnswer": "A savings account"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Excellent start! You've taken the most important step: thinking critically about your financial goals. Having a clear 'why' will motivate you through the rest of this course. Next, we'll create a tool to track your money."
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Budgeting - Where Your Money Goes",
+      "description": "Learn the 50/30/20 budgeting rule and track your income and expenses.",
+      "contentType": "text",
+      "estimatedMinutes": 30,
+      "unit": "Unit 1: The Foundations of Financial Health",
+      "unitColor": "emerald",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand why a budget is a tool for freedom, not restriction.",
+            "Learn the 50/30/20 budgeting rule.",
+            "Track your income and expenses for one week."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A budget is simply a plan for your money. It empowers you by telling your money where to go, instead of wondering where it went. The 50/30/20 rule is a simple starting point: 50% of your after-tax income goes to Needs (rent, groceries), 30% to Wants (hobbies, dining out), and 20% to Savings & Debt Repayment."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "If your monthly take-home pay is $2,000: $1,000 for needs (rent, utilities), $600 for wants (movies, travel), and $400 for savings or paying off debt. This is a guideline you can adjust to fit your life."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "In the 50/30/20 rule, what does the '20' stand for?",
+          "options": ["Wants", "Needs", "Savings & Debt Repayment"],
+          "correctAnswer": "Savings & Debt Repayment"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You now have a powerful framework for managing your cash flow. Knowledge is power, and knowing where your money goes is the most powerful financial knowledge there is. Next, we'll talk about how to make your savings work for you."
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Saving & Emergency Funds",
+      "description": "Learn the importance of an emergency fund and discover High-Yield Savings Accounts.",
+      "contentType": "text",
+      "estimatedMinutes": 25,
+      "unit": "Unit 1: The Foundations of Financial Health",
+      "unitColor": "emerald",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand the importance of an emergency fund.",
+            "Learn how much to save for an emergency (3-6 months of living expenses).",
+            "Discover High-Yield Savings Accounts (HYSAs) as a place to store your savings."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "An emergency fund is your financial safety net. It's money set aside specifically for unexpected events, like a job loss or medical bill. This fund prevents you from going into debt when life happens. It should be kept in a separate, easily accessible account, like a High-Yield Savings Account (HYSA), which pays much more interest than a traditional savings account."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "If your essential monthly expenses (rent, food, utilities) are $1,500, a good emergency fund goal would be between $4,500 (3 months) and $9,000 (6 months)."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is the primary purpose of an emergency fund?",
+          "options": ["To invest in the stock market", "To pay for planned vacations", "To cover unexpected expenses and prevent debt"],
+          "correctAnswer": "To cover unexpected expenses and prevent debt"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You've learned how to build a financial firewall. An emergency fund provides peace of mind and is the bedrock of a stable financial life. Now that we've covered defense, let's talk about the world of debt."
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Good Debt vs. Bad Debt",
+      "description": "Learn to differentiate between 'good debt' and 'bad debt' and prioritize elimination.",
+      "contentType": "text",
+      "estimatedMinutes": 25,
+      "unit": "Unit 2: Understanding Debt and Credit",
+      "unitColor": "amber",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand that not all debt is created equal.",
+            "Differentiate between 'good debt' (that can increase your net worth) and 'bad debt' (that depreciates).",
+            "Identify high-interest credit card debt as a financial priority to eliminate."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "'Good debt' is typically low-interest debt used to purchase assets that can grow in value, like a mortgage for a house or a student loan for an education. 'Bad debt' is high-interest debt used for consumable goods or depreciating assets, like credit card debt for clothes or a high-interest car loan."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A mortgage at 4% interest is generally considered good debt. A credit card balance at 22% interest is definitely bad debt and should be paid off as quickly as possible."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which of these is an example of 'bad debt'?",
+          "options": ["A student loan for a medical degree", "A mortgage on a home", "A large balance on a high-interest credit card"],
+          "correctAnswer": "A large balance on a high-interest credit card"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You can now analyze debt strategically. Understanding this difference helps you prioritize your repayment plan and make smarter borrowing decisions in the future. Next, we'll look at the system that tracks all this: your credit score."
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Your Credit Score Explained",
+      "description": "Understand what a credit score is, the five factors that affect it, and how to improve it.",
+      "contentType": "text",
+      "estimatedMinutes": 30,
+      "unit": "Unit 2: Understanding Debt and Credit",
+      "unitColor": "amber",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand what a credit score is and why it's important.",
+            "Learn the five factors that make up your credit score.",
+            "Discover how to check your credit report for free."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A credit score is a number between 300 and 850 that represents your creditworthiness. Lenders use it to decide whether to loan you money and at what interest rate. The five factors are: Payment History (most important!), Amounts Owed (credit utilization), Length of Credit History, New Credit, and Credit Mix."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Paying your bills on time, every time, has the biggest positive impact on your score. Using less than 30% of your available credit limit is also very important. A score above 740 is generally considered excellent."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is the single most important factor in your credit score?",
+          "options": ["Length of credit history", "Payment history", "How much money you make"],
+          "correctAnswer": "Payment history"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You've demystified the credit score! You now know what it is, how it's calculated, and how to improve it. Building good credit is a marathon, not a sprint. Now, let's move on to the exciting world of making your money grow: investing."
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "What is Investing?",
+      "description": "Learn the difference between saving and investing, and discover the power of compound interest.",
+      "contentType": "text",
+      "estimatedMinutes": 25,
+      "unit": "Unit 3: Introduction to Investing",
+      "unitColor": "blue",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand the difference between saving and investing.",
+            "Learn about risk and return.",
+            "Define 'compound interest' and why it's called the 'eighth wonder of the world'."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Saving is putting money aside for short-term goals with no risk. Investing is using your money to buy assets that have the potential to grow in value over the long term, but also carry risk. The magic of investing is compound interest: your earnings start generating their own earnings, creating exponential growth over time."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "If you invest $100 and it earns 10% ($10), you now have $110. The next year, you earn 10% on $110 ($11), not just the original $100. Over decades, this small difference becomes enormous."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is the concept of your investment earnings generating their own earnings called?",
+          "options": ["Simple Interest", "Compound Interest", "Inflation"],
+          "correctAnswer": "Compound Interest"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You now understand the fundamental principle of wealth creation. By harnessing the power of compound interest, you can turn small, consistent investments into significant wealth over the long term. Next, we'll look at where you can do this."
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Stocks, Bonds, and Funds",
+      "description": "Learn the basics of stocks, bonds, and index funds for diversified investing.",
+      "contentType": "text",
+      "estimatedMinutes": 30,
+      "unit": "Unit 3: Introduction to Investing",
+      "unitColor": "blue",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define what a stock is (a share of ownership in a company).",
+            "Define what a bond is (a loan to a company or government).",
+            "Understand that an index fund or ETF is a basket of many stocks or bonds."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Stocks offer higher potential growth but come with higher risk. Bonds are generally safer but offer lower returns. For most beginners, the best way to start is with a low-cost index fund or ETF. These funds let you buy a tiny piece of hundreds or thousands of companies at once, giving you instant diversification."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Buying one share of Apple stock makes you a part-owner of Apple. Buying an S&P 500 index fund makes you a part-owner of the 500 largest companies in the U.S. This is much less risky than owning just one stock."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is the main advantage of an index fund?",
+          "options": ["Guaranteed high returns", "No risk", "Instant diversification"],
+          "correctAnswer": "Instant diversification"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You've learned the basic language of investing! You now know the difference between the main types of assets. For most people, a simple, diversified portfolio of low-cost index funds is the most effective strategy for long-term success."
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "How to Start Investing",
+      "description": "Learn about retirement accounts and how to begin your investing journey with a simple strategy.",
+      "contentType": "text",
+      "estimatedMinutes": 30,
+      "unit": "Unit 3: Introduction to Investing",
+      "unitColor": "blue",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn about retirement accounts like a 401(k) and a Roth IRA.",
+            "Understand the basics of opening a brokerage account.",
+            "Commit to a simple, long-term investing strategy."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The easiest way to start is through a tax-advantaged retirement account. If your employer offers a 401(k) with a match, contribute enough to get the full match—it's free money! A Roth IRA is another powerful account where your money can grow and be withdrawn tax-free in retirement. You can open these accounts at any major brokerage firm."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A simple, powerful strategy is to open a Roth IRA, and automatically invest a set amount each month into a low-cost S&P 500 index fund or a Target-Date fund. Then, don't touch it for decades. This is called passive investing."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is a major benefit of a Roth IRA?",
+          "options": ["You get a tax deduction now", "Your money grows and can be withdrawn tax-free in retirement", "It has no contribution limits"],
+          "correctAnswer": "Your money grows and can be withdrawn tax-free in retirement"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Congratulations! You have completed the course and have a clear, actionable plan to take control of your financial future. You know how to budget, save, manage debt, and invest for the long term. The most important step is the first one. Start today, even if it's small."
+        }
+      ]
+    }
+  ]
+}
