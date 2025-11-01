@@ -65,9 +65,9 @@ export function CourseCard({ course, showAssignButton = false, onAssign }: Cours
         </div>
         
         <div className="aspect-video bg-muted rounded-md mb-3 overflow-hidden">
-          {course.thumbnail_url ? (
+          {(course.background_image || course.thumbnail_url) ? (
             <img 
-              src={course.thumbnail_url} 
+              src={course.background_image || course.thumbnail_url} 
               alt={course.title}
               className="w-full h-full object-cover"
             />

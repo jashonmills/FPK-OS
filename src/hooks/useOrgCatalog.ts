@@ -9,6 +9,7 @@ interface PlatformCourse {
   title: string;
   description?: string;
   thumbnail_url?: string;
+  background_image?: string;
   instructor_name?: string;
   duration_minutes?: number;
   difficulty_level?: string;
@@ -24,6 +25,7 @@ interface OrgCourse {
   title: string;
   description?: string;
   thumbnail_url?: string;
+  background_image?: string;
   level?: string;
   duration_estimate_mins?: number;
   status: string;
@@ -47,6 +49,7 @@ function mapPlatformCoursesToCards(courses: PlatformCourse[]): CourseCard[] {
       title: course.title,
       description: course.description,
       thumbnail_url: course.thumbnail_url,
+      background_image: course.background_image,
       instructor_name: course.instructor_name,
       duration_minutes: course.duration_minutes,
       difficulty_level: course.difficulty_level,
@@ -77,6 +80,7 @@ function mapOrgCoursesToCards(courses: OrgCourse[], orgId: string): CourseCard[]
       title: course.title,
       description: course.description,
       thumbnail_url: course.thumbnail_url,
+      background_image: course.background_image,
       duration_minutes: course.duration_estimate_mins,
       difficulty_level: course.level,
       source: (course.source as any) || 'builder',

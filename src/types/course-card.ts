@@ -3,6 +3,7 @@ export interface CourseCard {
   title: string;
   description?: string;
   thumbnail_url?: string;
+  background_image?: string;
   instructor_name?: string;
   duration_minutes?: number;
   difficulty_level?: string;

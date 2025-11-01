@@ -8,6 +8,7 @@ export interface PlatformCourse {
   difficulty_level?: string;
   course_visibility: string;
   thumbnail_url?: string;
+  background_image?: string;
   duration_minutes?: number;
   instructor_name?: string;
   featured?: boolean;
