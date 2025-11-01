@@ -16,6 +16,8 @@ export const V2_SEQUENTIAL_COURSE_SLUGS = [
   'french-101',
   'intro-drawing-sketching',
   'web-dev-basics',
+  'music-theory-fundamentals',
+  'personal-finance-and-investing',
 ] as const;
 
 export type V2SequentialCourseSlug = typeof V2_SEQUENTIAL_COURSE_SLUGS[number];
