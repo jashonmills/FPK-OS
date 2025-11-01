@@ -21,6 +21,7 @@ export const V2_SEQUENTIAL_COURSE_SLUGS = [
   'german-for-beginners-101',
   'cybersecurity-fundamentals',
   'introduction-to-data-science',
+  'public-speaking-and-debate',
 ] as const;
 
 export type V2SequentialCourseSlug = typeof V2_SEQUENTIAL_COURSE_SLUGS[number];
