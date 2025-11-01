@@ -3,96 +3,759 @@
   "courseSlug": "french-101",
   "contentVersion": "v2",
   "framework": "sequential",
-  "courseTitle": "French 101",
-  "description": "Begin your French language journey with essential vocabulary, grammar, and conversational skills.",
-  "backgroundImage": "/lovable-uploads/french-101-bg.jpg",
-  "estimatedHours": 4,
+  "courseTitle": "French for Beginners (French 101)",
+  "description": "An interactive introduction to the French language and Francophone culture designed to build foundational vocabulary and conversational skills for travel and communication.",
+  "backgroundImage": "/src/assets/french-101-bg.jpg",
+  "estimatedHours": 9,
   "difficultyLevel": "introductory",
   "category": "World Languages",
   "lessons": [
     {
       "id": 1,
-      "title": "Introduction to French",
-      "description": "Learn the French alphabet and pronunciation",
-      "contentType": "mixed",
-      "videoUrl": "",
-      "audioUrl": "",
-      "textContent": "",
-      "estimatedMinutes": 25,
-      "unit": "Unit 1: Getting Started",
-      "unitColor": "bg-blue-100 text-blue-700"
+      "title": "Greetings & Basic Politeness",
+      "description": "Learn essential French greetings and polite phrases for daily interactions",
+      "contentType": "text",
+      "estimatedMinutes": 45,
+      "unit": "Unit 1: The Absolute Basics",
+      "unitColor": "bg-blue-100 text-blue-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn how to say hello and goodbye in different situations.",
+            "Master essential polite phrases like 'please' and 'thank you'.",
+            "Understand the difference between formal and informal greetings."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "In French, greetings change based on the time of day and how well you know someone. 'Bonjour' is a universal 'hello' for the daytime. Politeness is key in French culture, so 's'il vous plaît' (please) and 'merci' (thank you) are your most important words!"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "To a shopkeeper in the morning, you say: 'Bonjour, madame.' When leaving, you say: 'Merci, au revoir.' To a friend, you can simply say: 'Salut!'"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Practice",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**Question 1**: What is the most common way to say 'hello' during the day?\n\nA) Bonsoir\nB) Salut\nC) Bonjour ✓\n\n*Correct Answer: Bonjour*"
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**Question 2**: How do you say 'thank you' in French?\n\nA) S'il vous plaît\nB) Merci ✓\nC) Au revoir\n\n*Correct Answer: Merci*"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 5: Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Fantastic work! You've learned the fundamental building blocks of any French conversation: how to greet people politely and say thank you. Practice saying 'Bonjour' to someone today!"
+        }
+      ]
     },
     {
       "id": 2,
-      "title": "Greetings and Introductions",
-      "description": "Master basic French greetings and self-introduction",
-      "contentType": "mixed",
-      "videoUrl": "",
-      "audioUrl": "",
-      "textContent": "",
-      "estimatedMinutes": 30,
-      "unit": "Unit 1: Getting Started",
-      "unitColor": "bg-blue-100 text-blue-700"
+      "title": "Introducing Yourself",
+      "description": "Master the art of self-introduction in French",
+      "contentType": "text",
+      "estimatedMinutes": 45,
+      "unit": "Unit 1: The Absolute Basics",
+      "unitColor": "bg-blue-100 text-blue-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn how to state your name.",
+            "Learn how to ask for someone else's name.",
+            "Practice a short introductory conversation."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "To introduce yourself, you use the phrase 'Je m'appelle...' which literally means 'I call myself...'. To ask someone their name formally, you say 'Comment vous appelez-vous?'. Informally, with a friend, you'd say 'Comment t'appelles-tu?'"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You: 'Bonjour, je m'appelle David.' (Hello, my name is David.)\nThem: 'Bonjour, je m'appelle Marie.' (Hello, my name is Marie.)"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Practice",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**Question**: How do you say 'My name is...' in French?\n\nA) Je suis...\nB) J'ai...\nC) Je m'appelle... ✓\n\n*Correct Answer: Je m'appelle...*"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 5: Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Excellent! You can now introduce yourself in French. This is a huge step towards your first real conversation. Try introducing yourself to a friend or family member in French!"
+        }
+      ]
     },
     {
       "id": 3,
-      "title": "Numbers and Time",
-      "description": "Learn to count and tell time in French",
-      "contentType": "mixed",
-      "videoUrl": "",
-      "audioUrl": "",
-      "textContent": "",
-      "estimatedMinutes": 30,
-      "unit": "Unit 2: Basics",
-      "unitColor": "bg-purple-100 text-purple-700"
+      "title": "The Alphabet & Pronunciation",
+      "description": "Master French letter sounds and spelling",
+      "contentType": "text",
+      "estimatedMinutes": 45,
+      "unit": "Unit 1: The Absolute Basics",
+      "unitColor": "bg-blue-100 text-blue-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn the pronunciation of the 26 letters of the French alphabet.",
+            "Identify key sounds that differ from English.",
+            "Practice spelling your name out loud."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The French alphabet is the same as in English, but the letter sounds are different. Vowels are especially important. For example, 'e' can have many sounds, and 'u' is pronounced differently than in English. Mastering these sounds is key to being understood."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "To spell 'Paris': 'Pé' (P), 'Ah' (A), 'Erre' (R), 'Ee' (I), 'Esse' (S)."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Practice",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**Question**: Which letter is pronounced 'Ah' in French?\n\nA) E\nB) A ✓\nC) O\n\n*Correct Answer: A*"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 5: Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Bravo! You've taken a deep dive into the sounds of French. Being able to spell your name is a very useful skill, especially when making reservations or formal introductions. Keep practicing!"
+        }
+      ]
     },
     {
       "id": 4,
-      "title": "Family and Relationships",
-      "description": "Describe family members and relationships",
-      "contentType": "mixed",
-      "videoUrl": "",
-      "audioUrl": "",
-      "textContent": "",
-      "estimatedMinutes": 30,
-      "unit": "Unit 2: Basics",
-      "unitColor": "bg-purple-100 text-purple-700"
+      "title": "Numbers, Days, and Months",
+      "description": "Learn to count and talk about time in French",
+      "contentType": "text",
+      "estimatedMinutes": 45,
+      "unit": "Unit 2: Building Your World",
+      "unitColor": "bg-purple-100 text-purple-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn to count from 1 to 20.",
+            "Memorize the seven days of the week.",
+            "Recognize the twelve months of the year."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Numbers, days, and months are the building blocks for talking about time and dates. French numbers have some quirks (especially after 60!), but we'll start simple. The days of the week in French are not capitalized."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "One, two, three is 'un, deux, trois'. Monday is 'lundi'. January is 'janvier'."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Practice",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**Question 1**: How do you say 'Monday' in French?\n\nA) Mardi\nB) Mercredi\nC) Lundi ✓\n\n*Correct Answer: Lundi*"
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**Question 2**: What is the French word for 'three'?\n\nA) Deux\nB) Trois ✓\nC) Un\n\n*Correct Answer: Trois*"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 5: Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Well done! You can now count and talk about the calendar. This is essential for making plans, understanding opening hours, and booking appointments. What is today's date in French?"
+        }
+      ]
     },
     {
       "id": 5,
-      "title": "Present Tense Verbs",
-      "description": "Master regular and common irregular verbs",
-      "contentType": "mixed",
-      "videoUrl": "",
-      "audioUrl": "",
-      "textContent": "",
-      "estimatedMinutes": 35,
-      "unit": "Unit 3: Grammar",
-      "unitColor": "bg-green-100 text-green-700"
+      "title": "Common Objects & Gender",
+      "description": "Learn noun gender and everyday vocabulary",
+      "contentType": "text",
+      "estimatedMinutes": 45,
+      "unit": "Unit 2: Building Your World",
+      "unitColor": "bg-purple-100 text-purple-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn the names of 10 common classroom and household objects.",
+            "Understand the concept of grammatical gender (masculine/feminine).",
+            "Use the correct articles 'un/une' (a/an) and 'le/la' (the)."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "In French, every noun has a gender: it's either masculine or feminine. This affects the articles and adjectives you use. For example, 'a book' is 'un livre' (masculine), but 'a table' is 'une table' (feminine). There's often no logic; you just have to learn the gender with the noun."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A masculine object: 'le livre' (the book). A feminine object: 'la chaise' (the chair)."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Practice",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**Question**: 'Livre' (book) is a masculine noun. How do you say 'a book'?\n\nA) Une livre\nB) Un livre ✓\nC) La livre\n\n*Correct Answer: Un livre*"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 5: Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "This is a huge concept to grasp, and you did it! Understanding noun gender is fundamental to speaking French correctly. Look around you and try to name objects in French, thinking about their gender."
+        }
+      ]
     },
     {
       "id": 6,
-      "title": "Food and Dining",
-      "description": "Learn vocabulary for meals and restaurants",
-      "contentType": "mixed",
-      "videoUrl": "",
-      "audioUrl": "",
-      "textContent": "",
-      "estimatedMinutes": 30,
-      "unit": "Unit 4: Daily Life",
-      "unitColor": "bg-orange-100 text-orange-700"
+      "title": "Colors & Basic Adjectives",
+      "description": "Add descriptive power to your French vocabulary",
+      "contentType": "text",
+      "estimatedMinutes": 45,
+      "unit": "Unit 2: Building Your World",
+      "unitColor": "bg-purple-100 text-purple-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn the names of primary colors.",
+            "Understand how adjectives change to agree with noun gender.",
+            "Describe a simple object using a color and size."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Adjectives in French must 'agree' with the noun they describe in both gender and number. For many adjectives, you add an '-e' to make them feminine. For example, 'a green book' is 'un livre vert', but 'a green chair' is 'une chaise verte'."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "'Le grand livre rouge' (The big red book). 'La petite chaise bleue' (The small blue chair)."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Practice",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**Question**: If 'un garçon' is a boy, and 'petit' means small, how would you say 'a small boy'?\n\nA) Un petit garçon ✓\nB) Une petite garçon\nC) Un petit garçone\n\n*Correct Answer: Un petit garçon*"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 5: Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Magnifique! You can now add color and description to your French. This makes your language much more expressive. Try describing your clothes in French using the colors you've learned."
+        }
+      ]
     },
     {
       "id": 7,
-      "title": "Conversational French",
-      "description": "Practice real-world conversations and dialogues",
-      "contentType": "mixed",
-      "videoUrl": "",
-      "audioUrl": "",
-      "textContent": "",
-      "estimatedMinutes": 30,
-      "unit": "Unit 4: Daily Life",
-      "unitColor": "bg-orange-100 text-orange-700"
+      "title": "Asking Simple Questions",
+      "description": "Master question formation in French",
+      "contentType": "text",
+      "estimatedMinutes": 45,
+      "unit": "Unit 3: Starting to Communicate",
+      "unitColor": "bg-green-100 text-green-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn key question words: Où (Where), Quand (When), Comment (How), Pourquoi (Why).",
+            "Form simple questions using these words.",
+            "Understand the 'est-ce que' structure for asking yes/no questions."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The easiest way to form a yes/no question in French is to add 'Est-ce que' (pronounced 'ess-kuh') to the beginning of a statement. For example, 'Vous parlez anglais' (You speak English) becomes 'Est-ce que vous parlez anglais?' (Do you speak English?)."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "'Où est la gare?' (Where is the train station?). 'Quand est-ce que le magasin ouvre?' (When does the store open?)."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Practice",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**Question**: Which question word means 'Where'?\n\nA) Quand\nB) Où ✓\nC) Comment\n\n*Correct Answer: Où*"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 5: Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You've unlocked a superpower: asking questions! This allows you to gather information and engage in real conversations. Practice turning simple statements into questions with 'est-ce que'."
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "The Verbs 'être' and 'avoir'",
+      "description": "Master the two most important French verbs",
+      "contentType": "text",
+      "estimatedMinutes": 45,
+      "unit": "Unit 3: Starting to Communicate",
+      "unitColor": "bg-green-100 text-green-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn the present tense conjugations of 'être' (to be).",
+            "Learn the present tense conjugations of 'avoir' (to have).",
+            "Use 'être' and 'avoir' to describe yourself and what you have."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "'Être' and 'avoir' are the two most important verbs in French. They are irregular, meaning their forms don't follow a standard pattern. 'Être' is used for descriptions, nationality, and profession (Je suis américain - I am American). 'Avoir' is used for age, possessions, and many expressions (J'ai 30 ans - I am 30 years old)."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "'Je suis grand.' (I am tall.) 'Tu as un livre.' (You have a book.) 'Il est docteur.' (He is a doctor.) 'Nous avons une voiture.' (We have a car.)"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Practice",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**Question 1**: Which verb would you use to say 'I am happy'?\n\nA) Avoir\nB) Être ✓\n\n*Correct Answer: Être*"
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**Question 2**: How do you say 'I have a cat'?\n\nA) Je suis un chat\nB) J'ai un chat ✓\n\n*Correct Answer: J'ai un chat*"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 5: Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Mastering 'être' and 'avoir' is like getting the keys to the kingdom of French. You've done an amazing job. You can now form thousands of basic sentences. Practice describing yourself and your friends using these two essential verbs."
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Family & Descriptions",
+      "description": "Talk about family members and relationships",
+      "contentType": "text",
+      "estimatedMinutes": 45,
+      "unit": "Unit 3: Starting to Communicate",
+      "unitColor": "bg-green-100 text-green-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn the vocabulary for immediate family members (mother, father, sister, brother).",
+            "Use possessive adjectives (my, your, his/her).",
+            "Combine family vocabulary with 'être' and 'avoir' to describe your family."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Talking about family is a great way to practice your French. The words for 'my' are 'mon' (masculine), 'ma' (feminine), and 'mes' (plural). For example, 'mon père' (my father), 'ma mère' (my mother), but 'mes parents' (my parents)."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "'Voici ma famille. Mon père s'appelle Marc et ma mère s'appelle Julie. J'ai un frère et une sœur.' (Here is my family. My father's name is Marc and my mother's name is Julie. I have a brother and a sister.)"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Practice",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**Question**: How do you say 'my mother'?\n\nA) Mon mère\nB) Ma mère ✓\nC) Mes mère\n\n*Correct Answer: Ma mère*"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 5: Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "C'est super! You can now talk about the most important people in your life. This is a wonderful way to connect with French speakers. Try to write two or three sentences describing your family."
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Ordering Food & Drinks",
+      "description": "Navigate French cafés with confidence",
+      "contentType": "text",
+      "estimatedMinutes": 45,
+      "unit": "Unit 4: Everyday Life",
+      "unitColor": "bg-orange-100 text-orange-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn essential vocabulary for a café (coffee, croissant, water).",
+            "Master the phrase 'Je voudrais...' (I would like...).",
+            "Practice a short dialogue for ordering and paying."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Ordering in a French café is a rite of passage! The most polite and common way to order is 'Je voudrais...', which means 'I would like...'. To ask for the bill, you say 'L'addition, s'il vous plaît.'"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You: 'Bonjour, monsieur. Je voudrais un café et un croissant, s'il vous plaît.' (Hello, sir. I would like a coffee and a croissant, please.)\nWaiter: 'Oui, tout de suite.' (Yes, right away.)"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Practice",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**Question**: What is the most polite way to say 'I want a coffee'?\n\nA) Je veux un café\nB) Donnez-moi un café\nC) Je voudrais un café ✓\n\n*Correct Answer: Je voudrais un café*"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 5: Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Félicitations! You are now ready to visit a French café. This is a practical skill you can use immediately on any trip to a French-speaking country. What would you order?"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "title": "Telling Time & Appointments",
+      "description": "Master time-telling in French",
+      "contentType": "text",
+      "estimatedMinutes": 45,
+      "unit": "Unit 4: Everyday Life",
+      "unitColor": "bg-orange-100 text-orange-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn how to ask for the time.",
+            "Learn how to state the time using the 24-hour clock.",
+            "Practice setting a simple appointment."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "To ask the time, you say 'Quelle heure est-il?'. To state the time, you use the structure 'Il est... heure(s)...'. France primarily uses the 24-hour clock, so 3 PM is 'quinze heures' (15:00)."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "'Il est dix heures.' (It is 10 o'clock.) 'Le rendez-vous est à quatorze heures trente.' (The appointment is at 14:30 / 2:30 PM.)"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Practice",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**Question**: How would you say 'It is 8 o'clock'?\n\nA) Il est huit heures ✓\nB) J'ai huit heures\nC) C'est huit heures\n\n*Correct Answer: Il est huit heures*"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 5: Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Time is on your side! You can now ask for and tell the time in French, a crucial skill for navigating daily life and being on time for important events. What time is it now? Say it in French!"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "title": "Hobbies & Weather",
+      "description": "Express your interests and discuss the weather",
+      "contentType": "text",
+      "estimatedMinutes": 45,
+      "unit": "Unit 4: Everyday Life",
+      "unitColor": "bg-orange-100 text-orange-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn vocabulary for common hobbies (reading, cinema, sports).",
+            "Learn basic phrases to describe the weather.",
+            "Practice talking about what you like to do."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Talking about hobbies and the weather are classic small-talk topics. To say you like something, you use 'J'aime...'. For weather, you often use the phrase 'Il fait...'. For example, 'Il fait beau' (The weather is nice) or 'Il fait froid' (It's cold)."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "'J'aime lire et aller au cinéma.' (I like to read and go to the cinema.) 'Aujourd'hui, il pleut.' (Today, it is raining.)"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Practice",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**Question**: How do you say 'The weather is nice'?\n\nA) Il fait chaud\nB) Il fait beau ✓\nC) Il fait mauvais\n\n*Correct Answer: Il fait beau*"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 5: Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You've completed the final lesson! You can now make small talk about hobbies and the weather, a perfect way to start a conversation. You have built an amazing foundation in French. Keep practicing every day. Félicitations!"
+        }
+      ]
     }
   ]
 }
