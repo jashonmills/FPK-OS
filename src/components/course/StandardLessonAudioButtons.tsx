@@ -32,12 +32,12 @@ export const StandardLessonAudioButtons: React.FC<StandardLessonAudioButtonsProp
   };
 
   return (
-    <div className={`bg-white/30 backdrop-blur-sm border border-white/10 rounded-xl p-6 ${className}`}>
+    <div className={`course-glass-tile rounded-xl p-6 ${className}`}>
       <div className="text-center mb-4">
-        <h3 className="text-white font-semibold text-lg mb-2">
+        <h3 className="course-hero-text font-semibold text-lg mb-2">
           Or listen to individual lesson descriptions:
         </h3>
-        <p className="text-white/70 text-sm">
+        <p className="course-hero-text text-sm">
           Click any lesson below to hear its description
         </p>
       </div>

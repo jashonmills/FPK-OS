@@ -250,8 +250,8 @@ export const SequentialCourseShell: React.FC<SequentialCourseShellProps> = ({ co
             <div className="container mx-auto px-4 py-8 space-y-8 relative z-10">
               {/* Header Section */}
               <div className="text-center space-y-4">
-                <h1 className="text-4xl font-bold text-white drop-shadow-lg">{courseData.title}</h1>
-                <p className="text-xl text-white/90 max-w-3xl mx-auto drop-shadow-md">
+                <h1 className="course-hero-title text-4xl">{courseData.title}</h1>
+                <p className="course-hero-subtitle text-xl max-w-3xl mx-auto">
                   {courseData.description}
                 </p>
                 
@@ -278,7 +278,7 @@ export const SequentialCourseShell: React.FC<SequentialCourseShellProps> = ({ co
                 {/* Progress Bar */}
                 <div className="max-w-md mx-auto">
                   <Progress value={progress} className="h-2 mb-2" />
-                  <p className="text-xs text-white/80 mt-1 text-center drop-shadow-sm">
+                  <p className="text-xs course-hero-text mt-1 text-center">
                     {completedLessons.length} of {manifest.lessons.length} lessons completed
                   </p>
                 </div>
