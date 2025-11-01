@@ -2,85 +2,378 @@
   "courseId": "creative-writing-short-stories-poetry",
   "courseSlug": "creative-writing-short-stories-poetry",
   "contentVersion": "v2",
-  "framework": "sequential",
-  "courseTitle": "Creative Writing: Short Stories & Poetry",
-  "description": "Unleash your inner author. This course provides the tools to craft compelling short stories and evocative poetry focusing on character development plot imagery and voice.",
-  "backgroundImage": "https://images.unsplash.com/photo-1516410529446-addc68786424?q=80&w=2070&auto=format&fit=crop",
-  "estimatedHours": 7,
-  "difficultyLevel": "beginner",
-  "category": "Arts",
+  "title": "Creative Writing: Short Stories & Poetry",
+  "description": "Unleash your inner author. This course provides the tools to craft compelling short stories and evocative poetry, focusing on character development, plot, imagery, and voice.",
   "lessons": [
     {
       "id": 1,
-      "title": "Introduction to Creative Writing",
-      "description": "Explore the creative writing process and genres",
-      "contentType": "mixed",
-      "videoUrl": "",
-      "audioUrl": "",
-      "textContent": "",
-      "estimatedMinutes": 20,
-      "unit": "Unit 1: Getting Started",
-      "unitColor": "bg-purple-100 text-purple-700"
+      "title": "Finding Your Idea",
+      "description": "Learn to see the world as a writer and capture story ideas.",
+      "contentType": "text",
+      "estimatedMinutes": 70,
+      "unit": "Unit 1: The Building Blocks of Story",
+      "unitColor": "hsl(280, 70%, 55%)",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand that story ideas are everywhere.",
+            "Learn techniques for brainstorming, such as 'What if...?' scenarios and people-watching.",
+            "Start a writer's notebook to capture observations and ideas."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The first step to writing is learning to see the world as a writer. Ideas don't appear from thin air; they come from observation and curiosity. A writer's notebook (digital or physical) is your most important tool. Use it to jot down interesting snippets of conversation, intriguing people you see, and powerful images. Ask 'What if...?' to turn an ordinary observation into a story premise."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You see someone at a café who looks sad. Observation: 'A man in a grey suit is crying into his coffee.' Idea: 'What if he just found out he inherited a haunted mansion?' or 'What if he's a time traveler who just missed his chance to go home?'"
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is a powerful question to ask to turn an observation into a story idea?",
+          "options": ["'Why?'", "'What if...?'", "'Who?'"],
+          "correctAnswer": "'What if...?'"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You've learned to activate your writer's brain! Ideas are not a matter of inspiration, but of practice and observation. Keep your notebook with you at all times. Next, we'll learn how to turn an idea into a compelling character."
+        }
+      ]
     },
     {
       "id": 2,
-      "title": "Elements of Story",
-      "description": "Learn about plot, character, setting, and theme",
-      "contentType": "mixed",
-      "videoUrl": "",
-      "audioUrl": "",
-      "textContent": "",
-      "estimatedMinutes": 30,
-      "unit": "Unit 2: Fiction Writing",
-      "unitColor": "bg-blue-100 text-blue-700"
+      "title": "Creating Compelling Characters",
+      "description": "Develop characters with depth using want versus need.",
+      "contentType": "text",
+      "estimatedMinutes": 70,
+      "unit": "Unit 1: The Building Blocks of Story",
+      "unitColor": "hsl(280, 70%, 55%)",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand that character is the heart of story.",
+            "Learn the difference between a character's 'want' and their 'need'.",
+            "Develop a simple character profile."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Great stories are about people. A compelling character is one who wants something badly (the 'want' or external goal) but also has a deeper, often unconscious, internal 'need' (e.g., to find belonging, to forgive themselves). The conflict between the want and the need is what makes a character interesting and drives the story forward."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "In 'Finding Nemo,' Marlin's WANT is to find his son, Nemo. His NEED is to learn to trust others and let go of his fear. The journey to achieve his want forces him to confront his need."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "A character's external goal is often referred to as their...?",
+          "options": ["Need", "Want", "Backstory"],
+          "correctAnswer": "Want"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You can now create characters with depth. Thinking about a character's want versus their need will give your stories an emotional core that resonates with readers. Next, we'll learn how to structure the events of your story."
+        }
+      ]
     },
     {
       "id": 3,
-      "title": "Character Development",
-      "description": "Create believable and compelling characters",
-      "contentType": "mixed",
-      "videoUrl": "",
-      "audioUrl": "",
-      "textContent": "",
-      "estimatedMinutes": 30,
-      "unit": "Unit 2: Fiction Writing",
-      "unitColor": "bg-blue-100 text-blue-700"
+      "title": "Plot and Structure",
+      "description": "Master the three-act structure and the role of conflict.",
+      "contentType": "text",
+      "estimatedMinutes": 70,
+      "unit": "Unit 1: The Building Blocks of Story",
+      "unitColor": "hsl(280, 70%, 55%)",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define plot as a series of connected events.",
+            "Learn the classic three-act structure: Beginning, Middle, and End.",
+            "Understand the role of conflict in driving the plot."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Plot is the engine of your story. It's not just 'what happens,' but 'what happens because of what happened before.' The three-act structure is a simple, powerful model. Act 1 (The Beginning): Introduce your character and their world, and present them with an 'inciting incident' that kicks off the story. Act 2 (The Middle): The character faces a series of escalating conflicts and obstacles in pursuit of their goal. Act 3 (The End): The story reaches a climax where the character confronts the main conflict, and the story resolves."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "In 'The Hunger Games,' Act 1 is Katniss's life in District 12 and her volunteering as tribute. Act 2 is the entirety of the Games themselves, with all their challenges. Act 3 is the final confrontation with the Gamemakers and the resolution."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "In which act does the 'inciting incident' typically occur?",
+          "options": ["Act 1 (Beginning)", "Act 2 (Middle)", "Act 3 (End)"],
+          "correctAnswer": "Act 1 (Beginning)"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You now have a blueprint for structuring a compelling narrative. The three-act structure provides a framework to ensure your story has momentum and a satisfying conclusion. Now, let's switch gears and explore the world of poetry."
+        }
+      ]
     },
     {
       "id": 4,
-      "title": "Dialogue and Voice",
-      "description": "Master realistic dialogue and narrative voice",
-      "contentType": "mixed",
-      "videoUrl": "",
-      "audioUrl": "",
-      "textContent": "",
-      "estimatedMinutes": 25,
-      "unit": "Unit 3: Craft",
-      "unitColor": "bg-green-100 text-green-700"
+      "title": "What is Poetry? Imagery and Metaphor",
+      "description": "Explore imagery, simile, and metaphor in poetry.",
+      "contentType": "text",
+      "estimatedMinutes": 70,
+      "unit": "Unit 2: The Art of Poetry",
+      "unitColor": "hsl(340, 75%, 55%)",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define poetry as language that uses aesthetic and rhythmic qualities.",
+            "Understand imagery as language that appeals to the five senses.",
+            "Learn to use simile and metaphor to create powerful comparisons."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Poetry is about using language in a condensed, powerful way to evoke emotion and create a specific experience for the reader. Its primary tool is imagery—language that helps the reader see, hear, smell, taste, or touch what you're describing. Similes (using 'like' or 'as') and metaphors (a direct comparison) are ways to create surprising and insightful images."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Imagery: 'The winter evening settles down / With smell of steaks in passageways.' (T.S. Eliot). Simile: 'My love is like a red, red rose.' (Robert Burns). Metaphor: 'All the world's a stage.' (Shakespeare)."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which device makes a comparison using 'like' or 'as'?",
+          "options": ["Metaphor", "Imagery", "Simile"],
+          "correctAnswer": "Simile"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You've learned the heart of poetry: creating powerful images with carefully chosen words. By using sensory details and comparisons, you can make your writing vivid and memorable. Next, we'll explore the music of poetry."
+        }
+      ]
     },
     {
       "id": 5,
-      "title": "Poetry Writing",
-      "description": "Explore poetic forms, imagery, and devices",
-      "contentType": "mixed",
-      "videoUrl": "",
-      "audioUrl": "",
-      "textContent": "",
-      "estimatedMinutes": 30,
-      "unit": "Unit 4: Poetry",
-      "unitColor": "bg-pink-100 text-pink-700"
+      "title": "The Sound of Poetry - Rhythm and Rhyme",
+      "description": "Learn about rhythm, rhyme schemes, and sound devices.",
+      "contentType": "text",
+      "estimatedMinutes": 70,
+      "unit": "Unit 2: The Art of Poetry",
+      "unitColor": "hsl(340, 75%, 55%)",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand rhythm as the pattern of stressed and unstressed syllables.",
+            "Learn about different rhyme schemes (like AABB and ABAB).",
+            "Explore other sound devices like alliteration and assonance."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Poetry has a musical quality. Rhythm (or meter) gives a poem its beat. Rhyme creates a pleasing sense of pattern and connection. But sound is more than just rhyme. Alliteration (repetition of initial consonant sounds, e.g., 'Peter Piper picked') and assonance (repetition of vowel sounds, e.g., 'the rain in Spain') add to the poem's texture and musicality."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "AABB Rhyme Scheme:\n'Twinkle, twinkle, little star, (A)\nHow I wonder what you are. (A)\nUp above the world so high, (B)\nLike a diamond in the sky. (B)'"
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "The phrase 'slippery snake' is an example of what?",
+          "options": ["Rhyme", "Assonance", "Alliteration"],
+          "correctAnswer": "Alliteration"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You can now hear the music in language. By paying attention to rhythm, rhyme, and other sound devices, you can make your poetry more engaging and memorable for the reader. Now, let's put all our skills to use."
+        }
+      ]
     },
     {
       "id": 6,
-      "title": "Revision and Editing",
-      "description": "Learn to polish and improve your writing",
-      "contentType": "mixed",
-      "videoUrl": "",
-      "audioUrl": "",
-      "textContent": "",
-      "estimatedMinutes": 25,
-      "unit": "Unit 5: Refinement",
-      "unitColor": "bg-orange-100 text-orange-700"
+      "title": "Writing Workshop",
+      "description": "Apply your skills to write and revise your own creative piece.",
+      "contentType": "text",
+      "estimatedMinutes": 70,
+      "unit": "Unit 2: The Art of Poetry",
+      "unitColor": "hsl(340, 75%, 55%)",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Choose to write either a short story (1-2 pages) or a short poem (10-20 lines).",
+            "Apply the concepts of character, plot, imagery, and sound.",
+            "Understand the importance of revision."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Writing is rewriting. Your first draft is just you telling yourself the story. The real work begins in revision, where you clarify your ideas, strengthen your language, and polish your work. Read your work aloud to catch awkward phrasing and check the rhythm."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "If you're writing a story, check: Does your character have a clear want and need? Is there conflict? If you're writing a poem, check: Are your images specific? Can you replace a weak word with a stronger one? How does it sound when read aloud?"
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "This entire lesson is the practice. Take an idea from your notebook and start writing. Don't worry about making it perfect on the first try. Just get the ideas down. Then, go back and revise with a critical eye."
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Congratulations! You have completed the course and have written your own original piece of creative writing. You've learned the fundamental tools of both prose and poetry. The most important lesson is to keep writing, keep observing, and keep revising. You are an author."
+        }
+      ]
     }
   ]
 }
