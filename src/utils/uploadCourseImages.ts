@@ -1,21 +1,20 @@
-import { supabase } from '@/integrations/supabase/client';
+import { uploadAllCourseImages } from './uploadAllCourseImages';
 
 export async function uploadCourseImages() {
   try {
-    console.log('Calling upload-course-images function...');
-    const { data, error } = await supabase.functions.invoke('upload-course-images', {
-      method: 'POST'
-    });
+    console.log('Starting course image upload process...');
+    const results = await uploadAllCourseImages();
     
-    if (error) {
-      console.error('Function invocation error:', error);
-      throw error;
-    }
-    
-    console.log('Upload function response:', data);
-    return data;
+    console.log('Upload completed:', results);
+    return results;
   } catch (error) {
     console.error('Error uploading course images:', error);
     throw error;
   }
+}
+
+// Expose to window for easy console access
+if (typeof window !== 'undefined') {
+  (window as any).uploadCourseImages = uploadCourseImages;
+  (window as any).uploadAllCourseImages = uploadAllCourseImages;
 }
