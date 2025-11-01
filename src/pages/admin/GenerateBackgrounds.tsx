@@ -14,15 +14,15 @@ export default function GenerateBackgrounds() {
     setResults(null);
 
     try {
-      const { data, error } = await supabase.functions.invoke('generate-course-backgrounds');
+      const { data, error } = await supabase.functions.invoke('regenerate-course-images');
 
       if (error) throw error;
 
       setResults(data);
-      toast.success('Course backgrounds generated successfully!');
+      toast.success(data.message || 'Course images regenerated successfully!');
     } catch (error: any) {
-      console.error('Error generating backgrounds:', error);
-      toast.error(error.message || 'Failed to generate backgrounds');
+      console.error('Error regenerating images:', error);
+      toast.error(error.message || 'Failed to regenerate images');
     } finally {
       setIsGenerating(false);
     }
@@ -32,9 +32,9 @@ export default function GenerateBackgrounds() {
     <div className="container max-w-4xl mx-auto py-8">
       <Card>
         <CardHeader>
-          <CardTitle>Generate Course Backgrounds</CardTitle>
+          <CardTitle>Regenerate Course Images</CardTitle>
           <CardDescription>
-            Use AI to generate background images for ELT and Interactive Science courses
+            Generate all missing course images using Lovable AI (Nano Banana model)
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -46,10 +46,10 @@ export default function GenerateBackgrounds() {
             {isGenerating ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Generating Images...
+                Regenerating All Images...
               </>
             ) : (
-              'Generate Background Images'
+              'Regenerate All Course Images'
             )}
           </Button>
 

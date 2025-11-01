@@ -144,6 +144,9 @@ verify_jwt = true
 [functions.generate-course-backgrounds]
 verify_jwt = false
 
+[functions.regenerate-course-images]
+verify_jwt = false
+
 [functions.ai-coach-orchestrator]
 verify_jwt = true
 
