@@ -4,83 +4,78 @@
   "contentVersion": "v2",
   "framework": "sequential",
   "courseTitle": "Music Theory Fundamentals",
-  "description": "Understand the building blocks of music including notation, scales, chords, and rhythm.",
-  "backgroundImage": "/lovable-uploads/music-theory-fundamentals-bg.jpg",
-  "estimatedHours": 3,
+  "description": "Learn the language of music. This course covers the essential building blocks of music, including reading sheet music, understanding scales, chords, and rhythm.",
+  "backgroundImage": "/course-images/music-theory-fundamentals-bg.jpg",
+  "estimatedHours": 8,
   "difficultyLevel": "introductory",
   "category": "Arts",
   "lessons": [
     {
       "id": 1,
-      "title": "Introduction to Music Theory",
-      "description": "Explore the basics of musical sound and notation",
-      "contentType": "mixed",
-      "videoUrl": "",
-      "audioUrl": "",
-      "textContent": "",
-      "estimatedMinutes": 20,
-      "unit": "Unit 1: Foundations",
-      "unitColor": "bg-purple-100 text-purple-700"
-    },
-    {
-      "id": 2,
-      "title": "The Staff and Clefs",
-      "description": "Learn to read music notation",
-      "contentType": "mixed",
-      "videoUrl": "",
-      "audioUrl": "",
-      "textContent": "",
-      "estimatedMinutes": 25,
-      "unit": "Unit 1: Foundations",
-      "unitColor": "bg-purple-100 text-purple-700"
-    },
-    {
-      "id": 3,
-      "title": "Rhythm and Time Signatures",
-      "description": "Understand beats, measures, and note values",
-      "contentType": "mixed",
-      "videoUrl": "",
-      "audioUrl": "",
-      "textContent": "",
-      "estimatedMinutes": 30,
-      "unit": "Unit 2: Rhythm",
-      "unitColor": "bg-blue-100 text-blue-700"
-    },
-    {
-      "id": 4,
-      "title": "Scales and Key Signatures",
-      "description": "Master major and minor scales",
-      "contentType": "mixed",
-      "videoUrl": "",
-      "audioUrl": "",
-      "textContent": "",
-      "estimatedMinutes": 30,
-      "unit": "Unit 3: Melody",
-      "unitColor": "bg-green-100 text-green-700"
-    },
-    {
-      "id": 5,
-      "title": "Intervals",
-      "description": "Learn about the distance between notes",
-      "contentType": "mixed",
-      "videoUrl": "",
-      "audioUrl": "",
-      "textContent": "",
-      "estimatedMinutes": 25,
-      "unit": "Unit 3: Melody",
-      "unitColor": "bg-green-100 text-green-700"
-    },
-    {
-      "id": 6,
-      "title": "Chords and Harmony",
-      "description": "Build and understand triads and progressions",
-      "contentType": "mixed",
-      "videoUrl": "",
-      "audioUrl": "",
-      "textContent": "",
-      "estimatedMinutes": 30,
-      "unit": "Unit 4: Harmony",
-      "unitColor": "bg-orange-100 text-orange-700"
+      "title": "The Staff, Clefs, and Notes",
+      "description": "Learn to read the musical staff and identify notes",
+      "contentType": "text",
+      "estimatedMinutes": 40,
+      "unit": "Unit 1: The Building Blocks of Music",
+      "unitColor": "bg-blue-100 text-blue-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Identify the 5 lines and 4 spaces of the musical staff.",
+            "Recognize the Treble Clef (G-Clef) and the Bass Clef (F-Clef).",
+            "Learn the names of the notes on the lines and spaces of the Treble Clef."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Music is written on a staff, which has five lines and four spaces. A clef at the beginning of the staff tells you which notes correspond to those lines and spaces. The **Treble Clef** is for higher-pitched instruments (like a flute or violin), while the **Bass Clef** is for lower-pitched ones (like a cello or bass guitar)."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "In the Treble Clef, the lines are E, G, B, D, F (Every Good Boy Does Fine). The spaces are F, A, C, E. This is a fundamental mnemonic for reading music."
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "Think of the staff as a ladder. Each line and space represents a different note, just like each rung represents a step up or down."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "In the Treble Clef, what note is on the bottom line of the staff?",
+          "options": ["F", "E", "G"],
+          "correctAnswer": "E"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Excellent work! You've learned to read the map of music. Knowing the staff and clefs is the first and most important step to reading and writing music. Next, we'll learn what the different shapes of notes mean."
+        }
+      ]
     }
   ]
 }
