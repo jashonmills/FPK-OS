@@ -29,7 +29,7 @@ export const EnhancedCourseInfoAccordion: React.FC<EnhancedCourseInfoAccordionPr
   modules,
   accordionOpen,
   onAccordionChange,
-  className = "bg-white/30 hover:bg-white/40 px-4 py-3 rounded-lg text-white border border-white/20"
+  className = "course-accordion-trigger text-white px-4 py-3"
 }) => {
   return (
     <Accordion 
@@ -43,7 +43,7 @@ export const EnhancedCourseInfoAccordion: React.FC<EnhancedCourseInfoAccordionPr
         <AccordionTrigger className={`flex items-center justify-center text-center text-xl font-semibold ${className}`}>
           {title}
         </AccordionTrigger>
-        <AccordionContent className="bg-white/30 backdrop-blur-sm border border-white/10 rounded-lg p-6 mt-2">
+        <AccordionContent className="course-accordion-content text-white p-6 mt-2">
           <div className="space-y-6 text-white">
             <div>
               <h3 className="text-lg font-semibold mb-3">Introduction</h3>

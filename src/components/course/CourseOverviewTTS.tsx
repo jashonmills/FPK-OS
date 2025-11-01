@@ -97,7 +97,7 @@ const CourseOverviewTTS: React.FC<CourseOverviewTTSProps> = ({
   return (
     <div className={`space-y-4 ${className}`}>
       {/* Course Overview TTS */}
-      <div className="flex items-center justify-center gap-4 p-6 bg-white/40 backdrop-blur-sm rounded-lg border border-white/30 shadow-lg">
+      <div className="flex items-center justify-center gap-4 p-6 course-glass-tile-strong shadow-lg">
         <div className="flex items-center gap-2">
           <Headphones className="h-5 w-5 text-primary" />
           <span className="font-semibold text-white drop-shadow-lg">Listen to Course Overview</span>
