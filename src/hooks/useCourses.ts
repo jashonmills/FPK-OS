@@ -38,15 +38,48 @@ export function useCourses(options?: {
   status?: string;
   limit?: number;
   organizationId?: string;
+  includeDrafts?: boolean; // Phase 1: Support draft previews
 }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const { data: courses = [], isLoading, error, refetch } = useQuery({
-    queryKey: ['courses-v3', options], // v3 to force cache invalidation
+    queryKey: ['courses-v4', options], // v4 for draft support
     refetchOnMount: 'always', // Force refetch on mount
     queryFn: async () => {
       console.log('[useCourses] Query options:', options);
+      
+      // Phase 1: If includeDrafts is true, use direct query with user auth
+      if (options?.includeDrafts) {
+        console.log('[useCourses] Fetching with draft support');
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user) {
+          console.error('[useCourses] No user found for draft preview');
+          throw new Error('Authentication required for draft preview');
+        }
+
+        // Use direct table query to get all courses (published + drafts user has access to)
+        let query = supabase
+          .from('courses')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        // Apply filters if provided
+        if (options?.status && options.status !== 'draft') {
+          query = query.eq('status', options.status);
+        }
+
+        const { data, error } = await query;
+
+        if (error) {
+          console.error('[useCourses] Draft query error:', error);
+          throw error;
+        }
+
+        console.log('[useCourses] Draft-aware query returned', data?.length, 'courses');
+        return data as Course[];
+      }
       
       // Use RPC function for published courses to bypass RLS issues
       if (options?.status === 'published' && !options?.organizationId) {
@@ -264,16 +297,44 @@ export function useCourses(options?: {
   };
 }
 
-export function useCourse(slugOrId: string) {
+export function useCourse(slugOrId: string, options?: { allowDrafts?: boolean }) {
   const { data: course, isLoading, error, refetch } = useQuery({
-    queryKey: ['course-v3', slugOrId], // v3 to force cache invalidation
+    queryKey: ['course-v4', slugOrId, options], // v4 for draft support
     refetchOnMount: 'always', // Force refetch on mount
     queryFn: async () => {
       if (!slugOrId) return null;
 
-      console.log('[useCourse] Fetching course:', slugOrId);
+      console.log('[useCourse] Fetching course:', slugOrId, 'allowDrafts:', options?.allowDrafts);
       
-      // Try RPC function first (for slug lookups)
+      // Phase 1: If allowDrafts is true, use the new RPC function
+      if (options?.allowDrafts) {
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user) {
+          console.error('[useCourse] No user found for draft preview');
+          return null;
+        }
+
+        const { data: rpcData, error: rpcError } = await supabase.rpc('get_course_by_slug_with_drafts', {
+          p_slug: slugOrId,
+          p_user_id: user.id
+        });
+
+        console.log('[useCourse] RPC with drafts result:', { 
+          foundCourses: rpcData?.length, 
+          hasError: !!rpcError,
+          error: rpcError 
+        });
+
+        if (!rpcError && rpcData && rpcData.length > 0) {
+          console.log('[useCourse] Returning course (possibly draft):', rpcData[0].slug, 'status:', rpcData[0].status);
+          return rpcData[0] as Course;
+        }
+        
+        return null;
+      }
+      
+      // Try RPC function first (for slug lookups of published courses)
       const { data: rpcData, error: rpcError } = await supabase.rpc('get_published_course_by_slug', {
         p_slug: slugOrId
       });

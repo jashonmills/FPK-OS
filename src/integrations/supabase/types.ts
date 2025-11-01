@@ -11308,6 +11308,44 @@ export type Database = {
           status: string
         }[]
       }
+      get_course_by_slug_with_drafts: {
+        Args: { p_slug: string; p_user_id: string }
+        Returns: {
+          asset_path: string | null
+          background_image: string
+          content_component: string | null
+          content_version: string | null
+          course_visibility: string | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          difficulty_level: string | null
+          discoverable: boolean | null
+          duration_minutes: number | null
+          featured: boolean | null
+          framework_type: string | null
+          id: string
+          instructor_name: string | null
+          is_free: boolean | null
+          org_id: string | null
+          organization_id: string | null
+          price: number | null
+          published_at: string | null
+          slug: string | null
+          source: string | null
+          status: string | null
+          tags: string[] | null
+          thumbnail_url: string | null
+          title: string
+          updated_at: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "courses"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       get_course_enrollment_stats: {
         Args: never
         Returns: {
@@ -11390,6 +11428,44 @@ export type Database = {
       get_phoenix_performance_summary: {
         Args: { p_days_back?: number; p_user_id?: string }
         Returns: Json
+      }
+      get_preview_courses: {
+        Args: { p_user_id: string }
+        Returns: {
+          asset_path: string | null
+          background_image: string
+          content_component: string | null
+          content_version: string | null
+          course_visibility: string | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          difficulty_level: string | null
+          discoverable: boolean | null
+          duration_minutes: number | null
+          featured: boolean | null
+          framework_type: string | null
+          id: string
+          instructor_name: string | null
+          is_free: boolean | null
+          org_id: string | null
+          organization_id: string | null
+          price: number | null
+          published_at: string | null
+          slug: string | null
+          source: string | null
+          status: string | null
+          tags: string[] | null
+          thumbnail_url: string | null
+          title: string
+          updated_at: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "courses"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       get_public_platform_metrics: { Args: never; Returns: Json }
       get_published_course_by_slug: {

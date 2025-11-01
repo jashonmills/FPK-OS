@@ -100,6 +100,7 @@ const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const UserManagement = lazy(() => import("./pages/admin/UserManagement"));
 const AdminUserAnalytics = lazy(() => import("./pages/admin/AdminUserAnalytics"));
 const CourseManager = lazy(() => import("./pages/admin/CourseManager"));
+const CourseInventory = lazy(() => import("./pages/admin/CourseInventory")); // Phase 3: Course Inventory
 const Analytics = lazy(() => import("./pages/admin/Analytics"));
 const ModuleManagerPage = lazy(() => import("./pages/admin/ModuleManagerPage"));
 const LessonManager = lazy(() => import("./components/admin/LessonManager"));
@@ -498,6 +499,7 @@ const App: React.FC = () => {
             <Route path="admin/analytics" element={<LazyRoute><Analytics /></LazyRoute>} />
             <Route path="admin/audit" element={<LazyRoute><AuditLogs /></LazyRoute>} />
             <Route path="admin/courses" element={<LazyRoute><CourseManager /></LazyRoute>} />
+            <Route path="admin/course-inventory" element={<LazyRoute><CourseInventory /></LazyRoute>} /> {/* Phase 3 */}
             <Route path="admin/courses/:slug/modules" element={<LazyRoute><ModuleManagerPage /></LazyRoute>} />
             <Route path="admin/courses/:slug/lessons" element={<LazyRoute><LessonManager /></LazyRoute>} />
             <Route path="admin/scorm" element={<LazyRoute><ScormPackages /></LazyRoute>} />
@@ -661,6 +663,12 @@ const App: React.FC = () => {
           
           {/* Interactive Course Routes */}
           {/* Universal Course Player - Project Phoenix POC */}
+          {/* Phase 4: Preview route pattern for drafts */}
+          <Route path="/courses/preview/:courseSlug" element={
+            <RouteProtector>
+              <LazyRoute><UniversalCoursePlayer /></LazyRoute>
+            </RouteProtector>
+          } />
           <Route path="/courses/player/:courseSlug" element={
             <RouteProtector>
               <LazyRoute><UniversalCoursePlayer /></LazyRoute>

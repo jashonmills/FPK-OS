@@ -7,26 +7,35 @@
  * Project Phoenix: "Flow Factory" - A forced reset to perfection.
  */
 
-import React from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useMemo } from 'react';
+import { useParams, useSearchParams, useLocation } from 'react-router-dom';
 import { useCourses } from '@/hooks/useCourses';
+import { useAppUser } from '@/hooks/useAppUser';
 import { SequentialCourseShell } from './SequentialCourseShell';
 import { SingleContentEmbedShell } from './SingleContentEmbedShell';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { AlertCircle, Loader2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { AlertCircle, Loader2, Eye } from 'lucide-react';
 import { useContextAwareNavigation } from '@/hooks/useContextAwareNavigation';
 
 export const UniversalCoursePlayer: React.FC = () => {
   const { courseSlug } = useParams<{ courseSlug: string }>();
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
   const { goToCourses } = useContextAwareNavigation();
+  const { user, isAdmin, isInstructor, loading: userLoading } = useAppUser();
   
-  console.log('[UniversalCoursePlayer] Initializing with slug:', courseSlug);
+  // Phase 1 & 4: Check for preview mode via query param OR /preview/ route
+  const isPreviewMode = searchParams.get('preview') === 'true' || location.pathname.includes('/preview/');
   
-  // Fetch course data from database
+  console.log('[UniversalCoursePlayer] Initializing with slug:', courseSlug, 'preview:', isPreviewMode);
+  
+  // Fetch course data from database (with draft support if in preview mode)
   const { courses, isLoading, error } = useCourses({ 
-    status: 'published',
-    limit: 1000 // Get all to find by slug
+    status: isPreviewMode ? undefined : 'published',
+    limit: 1000, // Get all to find by slug
+    includeDrafts: isPreviewMode // Phase 1: Include drafts in preview mode
   });
 
   console.log('[UniversalCoursePlayer] Hook state:', { 
@@ -64,15 +73,43 @@ export const UniversalCoursePlayer: React.FC = () => {
   }, [courses, courseSlug]);
 
   // Loading state
-  if (isLoading) {
+  if (isLoading || userLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
           <Loader2 className="w-12 h-12 animate-spin mx-auto text-primary" />
-          <p className="text-muted-foreground">Loading course...</p>
+          <p className="text-muted-foreground">
+            {isPreviewMode ? 'Loading draft preview...' : 'Loading course...'}
+          </p>
         </div>
       </div>
     );
+  }
+
+  // Phase 1: Authorization check for preview mode
+  if (isPreviewMode && courseData) {
+    const isDraft = (courseData as any).status === 'draft';
+    const isCreator = (courseData as any).created_by === user?.id;
+    const canPreview = isAdmin || isInstructor || isCreator;
+
+    if (isDraft && !canPreview) {
+      return (
+        <div className="container mx-auto px-4 py-8">
+          <Card>
+            <CardContent className="p-8 text-center space-y-4">
+              <AlertCircle className="w-12 h-12 mx-auto text-destructive" />
+              <h2 className="text-2xl font-bold">Access Denied</h2>
+              <p className="text-muted-foreground">
+                You don't have permission to preview this draft course.
+              </p>
+              <Button onClick={() => goToCourses()}>
+                Back to Courses
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
   }
 
   // Error state
@@ -136,22 +173,35 @@ export const UniversalCoursePlayer: React.FC = () => {
     );
   }
 
+  // Phase 1: Show draft preview badge
+  const isDraft = (courseData as any).status === 'draft';
+  
   // Route to appropriate shell based on framework_type
   switch (frameworkType) {
     case 'sequential':
       return (
-        <SequentialCourseShell
-          courseData={{
-            id: courseData.id,
-            title: courseData.title,
-            description: courseData.description || '',
-            slug: courseSlug || '',
-            background_image: (courseData as any).background_image || courseData.thumbnail_url || undefined,
-            estimated_hours: courseData.duration_minutes ? Math.ceil(courseData.duration_minutes / 60) : undefined,
-            difficulty_level: (courseData as any).difficulty || 'Beginner',
-            content_version: (courseData as any).content_version
-          }}
-        />
+        <>
+          {isDraft && isPreviewMode && (
+            <div className="fixed top-4 right-4 z-50">
+              <Badge variant="destructive" className="text-lg px-4 py-2 shadow-lg">
+                <Eye className="w-4 h-4 mr-2" />
+                DRAFT PREVIEW
+              </Badge>
+            </div>
+          )}
+          <SequentialCourseShell
+            courseData={{
+              id: courseData.id,
+              title: courseData.title,
+              description: courseData.description || '',
+              slug: courseSlug || '',
+              background_image: (courseData as any).background_image || courseData.thumbnail_url || undefined,
+              estimated_hours: courseData.duration_minutes ? Math.ceil(courseData.duration_minutes / 60) : undefined,
+              difficulty_level: (courseData as any).difficulty || 'Beginner',
+              content_version: (courseData as any).content_version
+            }}
+          />
+        </>
       );
 
     case 'micro-learning':

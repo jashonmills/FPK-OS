@@ -225,6 +225,13 @@ const CourseManager = () => {
         <div className="flex gap-2">
           <Button 
             variant="outline" 
+            onClick={() => navigate('/admin/course-inventory')}
+            className="w-full sm:w-auto min-h-[44px] touch-manipulation"
+          >
+            Course Inventory
+          </Button>
+          <Button 
+            variant="outline" 
             onClick={handleRefresh}
             disabled={isRefreshing}
             className="w-full sm:w-auto min-h-[44px] touch-manipulation"
@@ -473,10 +480,18 @@ const CourseManager = () => {
                   className="w-full min-h-[36px] text-xs md:text-sm touch-manipulation"
                   onClick={() => {
                     if (!course.slug) {
-                      alert('Course slug is missing. Please edit the course and add a slug first.');
+                      toast({
+                        title: 'Error',
+                        description: 'Course slug is missing',
+                        variant: 'destructive',
+                      });
                       return;
                     }
-                    navigate(`/courses/player/${course.slug}`);
+                    // Phase 1: Use preview mode for draft courses
+                    const isDraft = course.status === 'draft';
+                    const route = `/courses/player/${course.slug}${isDraft ? '?preview=true' : ''}`;
+                    console.log('[CourseManager] Preview:', route, 'isDraft:', isDraft);
+                    navigate(route);
                   }}
                 >
                   Preview Course
