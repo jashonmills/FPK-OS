@@ -190,6 +190,9 @@ const CourseCreationWizard = lazy(() => import("./components/course-builder/Cour
 // Native Course Player
 const NativeCoursePlayer = lazy(() => import("./components/native-courses/NativeCoursePlayer"));
 
+// Money Management Course Player (uses micro-lesson components)
+const MoneyManagementCoursePlayer = lazy(() => import("./components/native-courses/MoneyManagementCoursePlayer"));
+
 // Universal Course Player - Project Phoenix
 const UniversalCoursePlayer = lazy(() => import("./components/course-player/UniversalCoursePlayer").then(m => ({ default: m.UniversalCoursePlayer })));
 
@@ -870,8 +873,19 @@ const App: React.FC = () => {
           <Route path="/courses/empowering-learning-handwriting" element={<Navigate to="/courses/player/empowering-learning-handwriting" replace />} />
           <Route path="/courses/optimal-learning-state" element={<Navigate to="/courses/player/optimal-learning-state" replace />} />
           <Route path="/courses/elt-empowering-learning-techniques" element={<Navigate to="/courses/player/elt-empowering-learning-techniques" replace />} />
-          <Route path="/courses/money-management-teens" element={<Navigate to="/courses/player/money-management-teens" replace />} />
           <Route path="/courses/introduction-video-production" element={<Navigate to="/courses/player/introduction-video-production" replace />} />
+          
+          {/* Money Management uses dedicated player with micro-lesson components */}
+          <Route path="/courses/money-management-teens" element={
+            <RouteProtector>
+              <LazyRoute><MoneyManagementCoursePlayer /></LazyRoute>
+            </RouteProtector>
+          } />
+          <Route path="/courses/player/money-management-teens" element={
+            <RouteProtector>
+              <LazyRoute><MoneyManagementCoursePlayer /></LazyRoute>
+            </RouteProtector>
+          } />
           
           <Route path="/courses/:slug" element={
             <RouteProtector>
