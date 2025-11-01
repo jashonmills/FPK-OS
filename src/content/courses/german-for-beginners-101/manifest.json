@@ -1,0 +1,635 @@
+{
+  "courseId": "german-for-beginners-101",
+  "courseSlug": "german-for-beginners-101",
+  "contentVersion": "v2",
+  "title": "German for Beginners (German 101)",
+  "description": "An interactive introduction to the German language and culture. This course builds a strong foundation in grammar, vocabulary, and conversation for beginners.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Greetings & Basic Politeness",
+      "description": "Learn how to say hello and goodbye in German and master essential polite phrases.",
+      "contentType": "text",
+      "estimatedMinutes": 30,
+      "unit": "Unit 1: Die Grundlagen (The Basics)",
+      "unitColor": "red",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn how to say hello and goodbye in German.",
+            "Master essential polite phrases like 'bitte' and 'danke'.",
+            "Understand the difference between formal ('Sie') and informal ('du') address."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "'Hallo' is the universal 'hello'. 'Guten Tag' is a more formal 'good day'. For goodbyes, 'Tschüss' is informal, while 'Auf Wiedersehen' is formal. The word 'bitte' is incredibly versatile, meaning 'please', 'you're welcome', and 'pardon'. 'Danke' means 'thank you'."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "To a shopkeeper: 'Guten Tag.' When receiving your item: 'Danke schön.' When leaving: 'Auf Wiedersehen.' To a friend: 'Hallo, wie geht's?' (Hello, how's it going?)."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is a formal way to say 'goodbye'?",
+          "options": ["Tschüss", "Hallo", "Auf Wiedersehen"],
+          "correctAnswer": "Auf Wiedersehen"
+        },
+        {
+          "type": "quiz",
+          "question": "Which word can mean both 'please' and 'you're welcome'?",
+          "options": ["Danke", "Bitte", "Hallo"],
+          "correctAnswer": "Bitte"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Sehr gut! (Very good!) You've learned the essential phrases for any German interaction. Politeness is key, and you now have the tools for it. Next, we'll learn how to introduce yourself."
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Introducing Yourself",
+      "description": "Learn how to state your name and ask for someone else's name in German.",
+      "contentType": "text",
+      "estimatedMinutes": 25,
+      "unit": "Unit 1: Die Grundlagen (The Basics)",
+      "unitColor": "red",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn how to state your name using 'Ich heiße...'.",
+            "Learn how to ask for someone else's name.",
+            "Practice a short introductory conversation."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "To introduce yourself, you say 'Ich heiße...' (I am called...). You can also say 'Ich bin...' (I am...). To ask a friend their name, you say 'Wie heißt du?'. To ask formally, you say 'Wie heißen Sie?'"
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You: 'Hallo, ich heiße Anna.' (Hello, my name is Anna.)\nThem: 'Guten Tag. Ich heiße Klaus. Freut mich.' (Good day. My name is Klaus. Pleased to meet you.)"
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "How do you say 'My name is...' in German?",
+          "options": ["Ich bin...", "Ich habe...", "Ich heiße..."],
+          "correctAnswer": "Ich heiße..."
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Ausgezeichnet! (Excellent!) You can now introduce yourself in German. This is the first step to making connections and new friends. Try introducing yourself to a family member in German!"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "The Alphabet & Pronunciation",
+      "description": "Learn the pronunciation of the German alphabet including special characters.",
+      "contentType": "text",
+      "estimatedMinutes": 30,
+      "unit": "Unit 1: Die Grundlagen (The Basics)",
+      "unitColor": "red",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn the pronunciation of the German alphabet.",
+            "Identify special characters like the umlauts (ä, ö, ü) and the Eszett (ß).",
+            "Practice spelling your name out loud."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "German pronunciation is very consistent. Once you learn the rules, you can pronounce almost any word. Key sounds to learn are 'W' (pronounced like an English 'V'), 'V' (pronounced like an English 'F'), and the guttural 'ch' sound."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The word 'Wasser' (water) is pronounced 'Vasser'. The word 'Volkswagen' is pronounced 'Folks-vagen'. The umlaut in 'schön' (beautiful) changes the 'o' sound to 'oe'."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "In German, how is the letter 'W' typically pronounced?",
+          "options": ["Like the English 'W'", "Like the English 'V'", "Like the English 'F'"],
+          "correctAnswer": "Like the English 'V'"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Wunderbar! You've learned the sounds of German. This consistency will make it much easier to read and speak with confidence. Practice the special sounds like 'ch' and the umlauts."
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Numbers, Days, and Months",
+      "description": "Learn to count and recognize the days of the week and months of the year.",
+      "contentType": "text",
+      "estimatedMinutes": 35,
+      "unit": "Unit 2: Building Your World",
+      "unitColor": "yellow",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn to count from 1 to 20.",
+            "Memorize the seven days of the week.",
+            "Recognize the twelve months of the year."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "German numbers have a famous quirk: after 20, you say the one's digit first! For example, 21 is 'einundzwanzig' (one-and-twenty). We'll start with 1-20 for now. The days of the week ('Wochentage') and months ('Monate') are not capitalized unless they are at the beginning of a sentence."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "One, two, three is 'eins, zwei, drei'. Monday is 'Montag'. January is 'Januar'."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "How do you say 'two' in German?",
+          "options": ["Eins", "Drei", "Zwei"],
+          "correctAnswer": "Zwei"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Toll! (Great!) You can now handle basic numbers and calendar dates. This is essential for making plans and understanding prices. Try to say today's date in German."
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Grammatical Gender and Cases",
+      "description": "Understand the three grammatical genders and introduction to cases.",
+      "contentType": "text",
+      "estimatedMinutes": 40,
+      "unit": "Unit 2: Building Your World",
+      "unitColor": "yellow",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand the three grammatical genders: masculine, feminine, and neuter.",
+            "Learn the definite articles: der (masc), die (fem), das (neut).",
+            "Be introduced to the concept of cases (Nominative and Accusative)."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "German has three genders for nouns, and you must learn the gender with the noun. The article (the 'the' word) changes based on the noun's gender and its role in the sentence (its 'case'). The Nominative case is for the subject of a sentence. The Accusative case is for the direct object."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Masculine: 'Der Hund' (the dog). Feminine: 'Die Katze' (the cat). Neuter: 'Das Buch' (the book). In the accusative case, only the masculine article changes: 'Ich sehe den Hund.' (I see the dog.)"
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is the definite article for a masculine noun in the nominative case?",
+          "options": ["Die", "Das", "Der"],
+          "correctAnswer": "Der"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "This is the biggest challenge in German, and you've taken the first step! Understanding gender and cases is the key to building correct sentences. Don't worry about memorizing everything at once; this is a concept we will build on."
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Basic Verbs and Sentence Structure",
+      "description": "Learn present tense conjugations and German sentence structure rules.",
+      "contentType": "text",
+      "estimatedMinutes": 35,
+      "unit": "Unit 2: Building Your World",
+      "unitColor": "yellow",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn the present tense conjugations of 'sein' (to be) and 'haben' (to have).",
+            "Understand basic German sentence structure (Verb in the second position).",
+            "Create simple sentences."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "In a simple German statement, the verb always comes in the second position. This is a very important rule. The verbs 'sein' and 'haben' are irregular and essential, just like in English."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "'Ich bin Student.' (I am a student.) The verb 'bin' is in the second position. 'Heute habe ich keine Zeit.' (Today I have no time.) Even though 'Heute' is first, the verb 'habe' is still second."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "In a simple German sentence, where does the verb go?",
+          "options": ["First position", "Second position", "Last position"],
+          "correctAnswer": "Second position"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Prima! You can now build basic, grammatically correct German sentences. Mastering the 'verb-second' rule and the verbs 'sein' and 'haben' is a huge accomplishment. Next, we'll learn to ask questions."
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Asking Questions",
+      "description": "Learn to form Yes/No questions and information questions with W-words.",
+      "contentType": "text",
+      "estimatedMinutes": 30,
+      "unit": "Unit 3: Starting to Communicate",
+      "unitColor": "blue",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn to form Yes/No questions by inverting the subject and verb.",
+            "Learn key question words (W-Fragen): Wer (Who), Was (What), Wo (Where), Wann (When).",
+            "Practice asking and answering simple questions."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "To ask a Yes/No question, you simply put the verb in the first position. For information questions, you start with a 'W-Frage' word, and the verb still comes in the second position."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Statement: 'Du kommst aus Irland.' (You come from Ireland.)\nYes/No Question: 'Kommst du aus Irland?' (Do you come from Ireland?)\nInformation Question: 'Woher kommst du?' (Where do you come from?)"
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which German question word means 'Where'?",
+          "options": ["Wer", "Was", "Wo"],
+          "correctAnswer": "Wo"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You can now start real conversations! Asking questions is the key to learning more about people and the world around you. Practice turning simple statements into questions."
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Family & Hobbies",
+      "description": "Learn vocabulary for family members and how to talk about hobbies.",
+      "contentType": "text",
+      "estimatedMinutes": 30,
+      "unit": "Unit 3: Starting to Communicate",
+      "unitColor": "blue",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn vocabulary for immediate family members.",
+            "Learn to talk about hobbies using 'Ich spiele gern...' (I like to play...) and 'Ich mag...' (I like...).",
+            "Describe your family and hobbies in simple sentences."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Talking about your family and hobbies is a great way to practice your vocabulary and sentence structure. Remember to use the correct articles for family members (der Vater, die Mutter, das Kind)."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "'Das ist mein Vater. Er heißt Thomas.' (This is my father. His name is Thomas.) 'Ich spiele gern Fußball.' (I like to play football.) 'Ich mag Musik.' (I like music.)"
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "How would you say 'I like to play tennis'?",
+          "options": ["Ich spiele gern Tennis", "Ich habe gern Tennis", "Ich bin gern Tennis"],
+          "correctAnswer": "Ich spiele gern Tennis"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Super! You can now share personal information in German. This makes conversations much more interesting. Try to write a few sentences about your family and what you like to do."
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Ordering Food & Drinks",
+      "description": "Learn essential vocabulary and phrases for ordering in a café.",
+      "contentType": "text",
+      "estimatedMinutes": 30,
+      "unit": "Unit 4: Everyday Life",
+      "unitColor": "green",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn essential vocabulary for a café (Kaffee, Wasser, Kuchen).",
+            "Master the phrase 'Ich hätte gern...' (I would like...).",
+            "Practice a short dialogue for ordering and paying."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Ordering food is a practical skill you'll use often. The most polite way to order is 'Ich hätte gern...', which is the equivalent of 'I would like...'. To ask for the bill, you say 'Die Rechnung, bitte.' or simply 'Zahlen, bitte.' (To pay, please)."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You: 'Guten Tag. Ich hätte gern einen Kaffee und ein Stück Kuchen, bitte.' (Good day. I would like a coffee and a piece of cake, please.)\nWaiter: 'Kommt sofort.' (Coming right up.)"
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is a polite way to say 'I would like a water'?",
+          "options": ["Ich will ein Wasser", "Geben Sie mir ein Wasser", "Ich hätte gern ein Wasser"],
+          "correctAnswer": "Ich hätte gern ein Wasser"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Lecker! (Delicious!) You are now ready to order at a German café. This is a rewarding way to practice your German in a real-world situation. What would you order?"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Telling Time",
+      "description": "Learn to ask for the time and tell time using both official and informal methods.",
+      "contentType": "text",
+      "estimatedMinutes": 35,
+      "unit": "Unit 4: Everyday Life",
+      "unitColor": "green",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn to ask for the time ('Wie spät ist es?').",
+            "Learn official (24-hour clock) and informal ways of telling time.",
+            "Practice setting a simple meeting time."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Germany uses the 24-hour clock for official time (e.g., train schedules). In conversation, people use informal time. A key difference is that 'halb drei' (half three) means 2:30, not 3:30. It means 'halfway to three'."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Official time: 'Es ist vierzehn Uhr.' (It is 14:00). Informal time: 'Es ist zwei Uhr.' (It is 2 o'clock). 'Es ist halb zehn.' (It is 9:30)."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "In informal German, what time is 'halb vier'?",
+          "options": ["4:30", "3:30", "3:00"],
+          "correctAnswer": "3:30"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You'll always be on time now! Understanding the nuances of telling time in German is a big step toward sounding like a native. What time is it now? Try to say it the informal German way."
+        }
+      ]
+    }
+  ]
+}
