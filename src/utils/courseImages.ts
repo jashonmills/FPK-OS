@@ -1,3 +1,14 @@
+/**
+ * ⚠️ DEPRECATED - This utility is being phased out
+ * 
+ * DO NOT USE FOR NEW CODE
+ * 
+ * Single Source of Truth: Use course.background_image from database instead.
+ * This file exists only for legacy fallback support and will be removed in future versions.
+ * 
+ * Migration: All components should read course.background_image directly from the database.
+ */
+
 // Course image imports
 import linearEquationsBg from '@/assets/linear-equations-unique-bg.jpg';
 import trigBg from '@/assets/trigonometry-background.jpg';
@@ -47,8 +58,9 @@ export const courseImageMap: Record<string, string> = {
 };
 
 /**
+ * @deprecated Use course.background_image from database instead
+ * 
  * Get the appropriate course image based on course ID and title
- * This is the single source of truth for course images across the entire application
  * @param id - Course ID
  * @param title - Course title (used for fallback matching)
  * @returns The appropriate background image URL

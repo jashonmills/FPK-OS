@@ -9,6 +9,8 @@ export interface NativeCourse {
   summary?: string;
   est_minutes: number;
   cover_url?: string;
+  background_image?: string;
+  thumbnail_url?: string;
   visibility: 'draft' | 'published' | 'archived';
   created_by?: string;
   created_at: string;

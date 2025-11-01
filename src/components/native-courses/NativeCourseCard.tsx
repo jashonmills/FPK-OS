@@ -35,6 +35,8 @@ export function NativeCourseCard({
       onEnroll={onEnroll}
       isEnrolling={isEnrolling}
       isCompleted={enrollment?.status === 'completed'}
+      background_image={course.background_image}
+      thumbnail_url={course.thumbnail_url}
     />
   );
 }

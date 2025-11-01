@@ -5,7 +5,6 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { BookOpen, Clock, Play, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { getCourseImage } from '@/utils/courseImages';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 
@@ -22,6 +21,8 @@ interface StyledCourseCardProps {
   onEnroll?: () => void;
   isEnrolling?: boolean;
   isCompleted?: boolean;
+  background_image?: string;
+  thumbnail_url?: string;
 }
 
 // Course image logic moved to shared utility
@@ -38,9 +39,12 @@ export function StyledCourseCard({
   route,
   onEnroll,
   isEnrolling = false,
-  isCompleted = false
+  isCompleted = false,
+  background_image,
+  thumbnail_url
 }: StyledCourseCardProps) {
-  const courseImage = getCourseImage(id, title);
+  // Single source of truth: database background_image field
+  const courseImage = background_image || thumbnail_url || 'https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=1200&h=800&fit=crop';
   const isMobile = useIsMobile();
   
   // Check if this is an Empowering Learning course

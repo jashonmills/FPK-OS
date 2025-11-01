@@ -27,7 +27,6 @@ import { StandardVideoPlayer } from '@/components/course-player/StandardVideoPla
 import { StandardTextRenderer } from '@/components/course-player/StandardTextRenderer';
 import { CourseContentManifest, LessonContentData } from '@/types/lessonContent';
 import { loadCourseContent, getLessonContent } from '@/utils/courseContentLoader';
-import { getCourseImage } from '@/utils/courseImages';
 
 interface SequentialCourseShellProps {
   courseData: {
@@ -52,8 +51,8 @@ export const SequentialCourseShell: React.FC<SequentialCourseShellProps> = ({ co
   const [loading, setLoading] = useState(true);
   const [manifestError, setManifestError] = useState<string | null>(null);
   
-  // Get course background image from utility or use provided one
-  const backgroundImage = courseData.background_image || getCourseImage(courseData.id, courseData.title);
+  // Single source of truth: database background_image field
+  const backgroundImage = courseData.background_image || 'https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=1200&h=800&fit=crop';
 
   // Load course manifest
   useEffect(() => {
