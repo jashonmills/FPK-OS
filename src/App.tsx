@@ -204,6 +204,7 @@ const InteractiveEconomicsCoursePage = lazy(() => import("./pages/courses/Intera
 const InteractiveNeurodiversityCoursePage = lazy(() => import("./pages/courses/InteractiveNeurodiversityCoursePage"));
 const GeometryCoursePage = lazy(() => import("./pages/courses/GeometryCoursePage"));
 const LogicCriticalThinkingCoursePage = lazy(() => import("./pages/courses/LogicCriticalThinkingCoursePage"));
+const InteractiveSciencePage = lazy(() => import("./pages/courses/InteractiveSciencePage"));
 
 // NOTE: All sequential courses now use UniversalCoursePlayer via /courses/player/:slug
 // Legacy course page components have been deleted as part of Project Phoenix
@@ -759,6 +760,16 @@ const App: React.FC = () => {
           <Route path="/courses/logic-critical-thinking/:lessonId" element={
             <RouteProtector>
               <LazyRoute><LogicCriticalThinkingCoursePage /></LazyRoute>
+            </RouteProtector>
+          } />
+          <Route path="/courses/interactive-science" element={
+            <RouteProtector>
+              <LazyRoute><InteractiveSciencePage /></LazyRoute>
+            </RouteProtector>
+          } />
+          <Route path="/courses/interactive-science/:lessonId" element={
+            <RouteProtector>
+              <LazyRoute><InteractiveSciencePage /></LazyRoute>
             </RouteProtector>
           } />
           
