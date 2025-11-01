@@ -1,0 +1,393 @@
+{
+  "courseId": "introduction-to-philosophy",
+  "courseSlug": "introduction-to-philosophy",
+  "contentVersion": "v2",
+  "framework": "sequential",
+  "courseTitle": "Introduction to Philosophy",
+  "description": "Explore fundamental philosophical questions about existence, knowledge, ethics, and the nature of reality through engaging lessons and thought experiments.",
+  "backgroundImage": "",
+  "estimatedHours": 10,
+  "difficultyLevel": "intermediate",
+  "category": "Humanities",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "What is Philosophy?",
+      "description": "Introduction to philosophical thinking and the branches of philosophy",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Welcome to Philosophy",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Philosophy is the love of wisdom. It's the systematic study of fundamental questions about existence, knowledge, values, reason, mind, and language. Unlike other disciplines that focus on specific aspects of reality, philosophy asks the big questions that underlie all human inquiry."
+        },
+        {
+          "type": "heading",
+          "content": "The Branches of Philosophy",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Metaphysics: The nature of reality and existence",
+            "Epistemology: The theory of knowledge",
+            "Ethics: Moral philosophy and values",
+            "Logic: The principles of valid reasoning",
+            "Aesthetics: Philosophy of art and beauty",
+            "Political Philosophy: Justice, rights, and government"
+          ]
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "Philosophy doesn't just give you answers—it teaches you how to ask better questions and think critically about everything you encounter."
+        }
+      ],
+      "estimatedMinutes": 35,
+      "unit": "Unit 1: Foundations",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 2,
+      "title": "Ancient Greek Philosophy",
+      "description": "Exploring the foundations laid by Socrates, Plato, and Aristotle",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "The Birth of Western Philosophy",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Ancient Greece gave birth to systematic philosophical thinking. The trio of Socrates, Plato, and Aristotle established methods and questions that continue to influence philosophy today."
+        },
+        {
+          "type": "heading",
+          "content": "Key Philosophers",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Socrates: The Socratic method and examined life",
+            "Plato: Theory of Forms and ideal state",
+            "Aristotle: Logic, virtue ethics, and empiricism",
+            "Pre-Socratics: Early theories about nature and reality"
+          ]
+        },
+        {
+          "type": "quote",
+          "content": "The unexamined life is not worth living. - Socrates"
+        }
+      ],
+      "estimatedMinutes": 40,
+      "unit": "Unit 1: Foundations",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 3,
+      "title": "Epistemology: What Can We Know?",
+      "description": "Theories of knowledge, truth, and belief",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "The Theory of Knowledge",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Epistemology asks fundamental questions: What is knowledge? How do we know what we know? Can we ever be certain of anything? These questions have profound implications for science, religion, and everyday life."
+        },
+        {
+          "type": "heading",
+          "content": "Key Concepts",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Justified true belief: The traditional definition of knowledge",
+            "Skepticism: Can we know anything with certainty?",
+            "Rationalism vs. Empiricism: Reason or experience?",
+            "The problem of induction: Can we trust patterns?",
+            "Gettier problems: Challenges to traditional definitions"
+          ]
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "Knowledge traditionally requires three conditions: it must be true, you must believe it, and you must have justification for your belief."
+        }
+      ],
+      "estimatedMinutes": 45,
+      "unit": "Unit 2: Core Questions",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 4,
+      "title": "Metaphysics: The Nature of Reality",
+      "description": "Exploring existence, identity, time, and causation",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "What Is Real?",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Metaphysics investigates the fundamental nature of reality. It asks questions about what exists, what it means to exist, and how different things relate to each other in the fabric of reality."
+        },
+        {
+          "type": "heading",
+          "content": "Major Topics",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Ontology: What kinds of things exist?",
+            "Identity: What makes something the same over time?",
+            "Time: Is time real or an illusion?",
+            "Causation: How do causes produce effects?",
+            "Free will vs. Determinism: Are we truly free?",
+            "Mind-body problem: How does consciousness relate to physical matter?"
+          ]
+        }
+      ],
+      "estimatedMinutes": 45,
+      "unit": "Unit 2: Core Questions",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 5,
+      "title": "Ethics: How Should We Live?",
+      "description": "Moral theories and ethical decision-making",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Moral Philosophy",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Ethics is the branch of philosophy concerned with questions of morality—how we ought to live, what makes actions right or wrong, and what constitutes a good life."
+        },
+        {
+          "type": "heading",
+          "content": "Major Ethical Theories",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Consequentialism: Actions judged by outcomes (Utilitarianism)",
+            "Deontology: Actions judged by duties and rules (Kant)",
+            "Virtue Ethics: Focus on character and virtues (Aristotle)",
+            "Care Ethics: Emphasis on relationships and compassion",
+            "Moral Relativism: Are moral truths universal or cultural?"
+          ]
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "Different ethical frameworks can lead to different conclusions about the same situation. Understanding multiple perspectives helps us make more thoughtful moral decisions."
+        }
+      ],
+      "estimatedMinutes": 45,
+      "unit": "Unit 3: Applied Philosophy",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 6,
+      "title": "Logic and Reasoning",
+      "description": "Valid arguments, fallacies, and critical thinking",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "The Tools of Philosophy",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Logic is the study of correct reasoning. It provides the foundation for all philosophical inquiry and helps us distinguish good arguments from bad ones."
+        },
+        {
+          "type": "heading",
+          "content": "Core Concepts",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Deductive reasoning: Arguments that guarantee their conclusions",
+            "Inductive reasoning: Arguments that support probable conclusions",
+            "Validity vs. Soundness: Structure vs. truth",
+            "Common fallacies: Recognizing flawed reasoning",
+            "Symbolic logic: Formal systems of reasoning"
+          ]
+        }
+      ],
+      "estimatedMinutes": 40,
+      "unit": "Unit 3: Applied Philosophy",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 7,
+      "title": "Modern and Contemporary Philosophy",
+      "description": "From Descartes to present-day philosophical movements",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "The Modern Turn",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Modern philosophy began with a radical shift in how philosophers approached fundamental questions. Descartes' famous 'I think, therefore I am' marked the beginning of a new era focused on certainty and the nature of the self."
+        },
+        {
+          "type": "heading",
+          "content": "Key Movements and Thinkers",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Rationalism: Descartes, Spinoza, Leibniz",
+            "Empiricism: Locke, Berkeley, Hume",
+            "Kant's Critical Philosophy: Synthesis of rationalism and empiricism",
+            "Existentialism: Kierkegaard, Nietzsche, Sartre, Camus",
+            "Phenomenology: Husserl, Heidegger, Merleau-Ponty",
+            "Analytic Philosophy: Russell, Wittgenstein, Quine"
+          ]
+        }
+      ],
+      "estimatedMinutes": 45,
+      "unit": "Unit 4: Historical Development",
+      "unitColor": "bg-orange-100 text-orange-700"
+    },
+    {
+      "id": 8,
+      "title": "Political Philosophy",
+      "description": "Justice, rights, and the ideal society",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Philosophy of Government and Society",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Political philosophy examines fundamental questions about government, justice, rights, liberty, and political obligation. What makes a government legitimate? What rights do individuals have? How should society be organized?"
+        },
+        {
+          "type": "heading",
+          "content": "Major Topics",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Social Contract Theory: Hobbes, Locke, Rousseau",
+            "Theories of Justice: Rawls, Nozick, Sen",
+            "Liberty and Rights: Mill, Berlin",
+            "Democracy and its critics",
+            "Feminism and political philosophy",
+            "Global justice and cosmopolitanism"
+          ]
+        }
+      ],
+      "estimatedMinutes": 45,
+      "unit": "Unit 4: Historical Development",
+      "unitColor": "bg-orange-100 text-orange-700"
+    },
+    {
+      "id": 9,
+      "title": "Philosophy of Mind and Consciousness",
+      "description": "The mind-body problem and theories of consciousness",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "The Hard Problem of Consciousness",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "How does physical matter give rise to subjective experience? This is one of philosophy's most challenging questions, sitting at the intersection of philosophy, neuroscience, and cognitive science."
+        },
+        {
+          "type": "heading",
+          "content": "Key Theories",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Dualism: Mind and body are distinct substances",
+            "Physicalism: Everything is ultimately physical",
+            "Functionalism: Mental states defined by their functions",
+            "Property Dualism: One substance, two types of properties",
+            "Panpsychism: Consciousness is fundamental",
+            "The problem of qualia: Subjective experience"
+          ]
+        }
+      ],
+      "estimatedMinutes": 45,
+      "unit": "Unit 5: Specialized Topics",
+      "unitColor": "bg-red-100 text-red-700"
+    },
+    {
+      "id": 10,
+      "title": "Philosophy Today and Practical Applications",
+      "description": "Contemporary issues and applying philosophy to life",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Philosophy in the Modern World",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Philosophy isn't just about abstract questions—it has practical applications in ethics, technology, science, and everyday life. Modern philosophers tackle contemporary challenges from AI ethics to climate change."
+        },
+        {
+          "type": "heading",
+          "content": "Contemporary Applications",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Bioethics: Medical decisions and biotechnology",
+            "Environmental ethics: Our obligations to nature",
+            "AI and technology ethics: Digital rights and responsibilities",
+            "Applied epistemology: Fake news and knowledge",
+            "Philosophy of science: Understanding scientific methods",
+            "Personal philosophy: Living an examined life"
+          ]
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "Congratulations on completing Introduction to Philosophy! You now have the tools to think critically about fundamental questions and engage thoughtfully with complex ideas."
+        }
+      ],
+      "estimatedMinutes": 40,
+      "unit": "Unit 5: Specialized Topics",
+      "unitColor": "bg-red-100 text-red-700"
+    }
+  ]
+}
