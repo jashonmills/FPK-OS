@@ -25,6 +25,9 @@ serve(async (req) => {
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 
+    // Get batch parameters from request
+    const { batchSize = 4, startIndex = 0 } = await req.json().catch(() => ({}))
+
     // Course configurations with detailed prompts
     const courses = [
       {
@@ -89,9 +92,13 @@ serve(async (req) => {
       }
     ]
 
+    // Process only a batch of courses
+    const batch = courses.slice(startIndex, startIndex + batchSize)
     const results = []
 
-    for (const course of courses) {
+    console.log(`Processing batch: ${startIndex} to ${startIndex + batchSize} (${batch.length} courses)`)
+
+    for (const course of batch) {
       console.log(`Generating image for ${course.id}...`)
 
       try {
@@ -185,12 +192,21 @@ serve(async (req) => {
 
     const successCount = results.filter(r => r.success).length
     const failCount = results.filter(r => !r.success).length
+    const hasMore = startIndex + batchSize < courses.length
+    const nextIndex = startIndex + batchSize
 
     return new Response(
       JSON.stringify({ 
         success: true,
-        message: `Image generation complete: ${successCount} succeeded, ${failCount} failed`,
-        summary: { successCount, failCount },
+        message: `Batch complete: ${successCount} succeeded, ${failCount} failed`,
+        summary: { 
+          successCount, 
+          failCount, 
+          hasMore,
+          nextIndex,
+          totalCourses: courses.length,
+          processed: startIndex + batch.length
+        },
         results 
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
