@@ -49,7 +49,7 @@ import { useUserRole } from "@/hooks/useUserRole";
 import { useGlobalTranslation } from "@/hooks/useGlobalTranslation";
 import DualLanguageText from "@/components/DualLanguageText";
 import { useOrgContext } from "@/components/organizations/OrgContext";
-import { shouldShowBetaFeatures } from '@/lib/featureFlags';
+import { shouldShowBetaFeatures, shouldShowLibrary } from '@/lib/featureFlags';
 
 // Safe hook that works with or without OrgProvider
 function useSafeOrgContext() {
@@ -98,11 +98,11 @@ export function AppSidebar() {
       url: "/dashboard/learner/courses",
       icon: Book,
     },
-    {
+    ...(shouldShowLibrary() ? [{
       title: 'Library',
       url: "/dashboard/learner/library",
       icon: BookOpen,
-    },
+    }] : []),
     {
       title: 'Analytics',
       url: "/dashboard/learner/analytics",

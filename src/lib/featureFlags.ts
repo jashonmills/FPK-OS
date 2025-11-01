@@ -10,6 +10,7 @@ export const FeatureFlags = {
   ENFORCE_SUBSCRIPTION: import.meta.env.VITE_FEATURE_ENFORCE_SUBSCRIPTION === 'true',
   ENABLE_PLATFORM_GUIDE: import.meta.env.VITE_FEATURE_ENABLE_PLATFORM_GUIDE !== 'false', // Default enabled
   ENABLE_BETA_FEATURES: import.meta.env.VITE_FEATURE_ENABLE_BETA_FEATURES === 'true', // Default disabled
+  ENABLE_LIBRARY: import.meta.env.VITE_FEATURE_ENABLE_LIBRARY === 'true', // Default disabled
 } as const;
 
 export function isFeatureEnabled(flag: keyof typeof FeatureFlags): boolean {
@@ -42,4 +43,11 @@ export function shouldShowPlatformGuide(): boolean {
  */
 export function shouldShowBetaFeatures(): boolean {
   return isFeatureEnabled('ENABLE_BETA_FEATURES');
+}
+
+/**
+ * Check if Library feature should be visible
+ */
+export function shouldShowLibrary(): boolean {
+  return isFeatureEnabled('ENABLE_LIBRARY');
 }

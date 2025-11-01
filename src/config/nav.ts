@@ -17,6 +17,7 @@ import {
   Sparkles,
   Gamepad2
 } from 'lucide-react';
+import { shouldShowLibrary } from '@/lib/featureFlags';
 
 export type NavItem = {
   label: string;
@@ -30,7 +31,7 @@ export const navPersonal: NavItem[] = [
   { label: 'Home', icon: React.createElement(Home), to: '/dashboard/learner' },
   { label: 'Organizations', icon: React.createElement(Building2), to: '/dashboard/organizations' },
   { label: 'Courses', icon: React.createElement(BookOpen), to: '/dashboard/learner/courses' },
-  { label: 'Library', icon: React.createElement(Library), to: '/dashboard/learner/library' },
+  ...(shouldShowLibrary() ? [{ label: 'Library', icon: React.createElement(Library), to: '/dashboard/learner/library' }] : []),
   { label: 'Analytics', icon: React.createElement(BarChart3), to: '/dashboard/learner/analytics' },
   { label: 'Live Learning Hub', icon: React.createElement(Compass), to: '/dashboard/learner/live-hub' },
   { label: 'AI Assistant', icon: React.createElement(Sparkles), to: '/dashboard/learner/ai-coach' },
@@ -40,7 +41,7 @@ export const navPersonal: NavItem[] = [
 export const navOrgStudent: NavItem[] = [
   { label: 'Home', icon: React.createElement(Home), to: '/dashboard/learner?org=:orgId' },
   { label: 'Courses', icon: React.createElement(BookOpen), to: '/dashboard/learner/courses?org=:orgId' },
-  { label: 'Library', icon: React.createElement(Library), to: '/dashboard/learner/library?org=:orgId' },
+  ...(shouldShowLibrary() ? [{ label: 'Library', icon: React.createElement(Library), to: '/dashboard/learner/library?org=:orgId' }] : []),
   { label: 'Analytics', icon: React.createElement(BarChart3), to: '/dashboard/learner/analytics?org=:orgId' },
   { label: 'Live Learning Hub', icon: React.createElement(Compass), to: '/dashboard/learner/live-hub?org=:orgId' },
   { label: 'AI Assistant', icon: React.createElement(Sparkles), to: '/dashboard/learner/ai-coach?org=:orgId' },
