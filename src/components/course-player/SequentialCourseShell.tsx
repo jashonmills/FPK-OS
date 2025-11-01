@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { BookOpen, Clock, Users, Award, ChevronLeft, ChevronRight, PenTool } from 'lucide-react';
+import { BookOpen, Clock, Users, Award, ChevronLeft, ChevronRight, PenTool, AlertCircle } from 'lucide-react';
 import CourseHeader from '@/components/course/CourseHeader';
 import { VoiceSettingsProvider } from '@/contexts/VoiceSettingsContext';
 import { StandardCourseAudioSection } from '@/components/course/StandardCourseAudioSection';
@@ -50,6 +50,7 @@ export const SequentialCourseShell: React.FC<SequentialCourseShellProps> = ({ co
   const [completedLessons, setCompletedLessons] = useState<number[]>([]);
   const [manifest, setManifest] = useState<CourseContentManifest | null>(null);
   const [loading, setLoading] = useState(true);
+  const [manifestError, setManifestError] = useState<string | null>(null);
   
   // Get course background image from utility or use provided one
   const backgroundImage = courseData.background_image || getCourseImage(courseData.id, courseData.title);
@@ -59,6 +60,7 @@ export const SequentialCourseShell: React.FC<SequentialCourseShellProps> = ({ co
     const loadManifest = async () => {
       console.log('[SequentialCourseShell] Loading manifest for:', courseData.slug);
       setLoading(true);
+      setManifestError(null);
       try {
         const content = await loadCourseContent(courseData.slug);
         console.log('[SequentialCourseShell] Manifest loaded:', { 
@@ -68,10 +70,14 @@ export const SequentialCourseShell: React.FC<SequentialCourseShellProps> = ({ co
         if (content) {
           setManifest(content);
         } else {
-          console.error('[SequentialCourseShell] No content returned for:', courseData.slug);
+          const errorMsg = `Course content not found for "${courseData.title}". The manifest file may be missing.`;
+          console.error('[SequentialCourseShell]', errorMsg);
+          setManifestError(errorMsg);
         }
       } catch (error) {
-        console.error('[SequentialCourseShell] Error loading manifest:', error);
+        const errorMsg = `Failed to load course content: ${error instanceof Error ? error.message : 'Unknown error'}`;
+        console.error('[SequentialCourseShell]', errorMsg, error);
+        setManifestError(errorMsg);
       } finally {
         setLoading(false);
       }
@@ -81,8 +87,10 @@ export const SequentialCourseShell: React.FC<SequentialCourseShellProps> = ({ co
       loadManifest();
     } else {
       console.warn('[SequentialCourseShell] Missing courseData.slug');
+      setManifestError('Invalid course configuration');
+      setLoading(false);
     }
-  }, [courseData.slug]);
+  }, [courseData.slug, courseData.title]);
 
   // Load completed lessons from localStorage
   useEffect(() => {
@@ -176,10 +184,40 @@ export const SequentialCourseShell: React.FC<SequentialCourseShellProps> = ({ co
     return (completedLessons.length / manifest.lessons.length) * 100;
   }, [completedLessons.length, manifest]);
 
-  if (loading || !manifest) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <p className="text-muted-foreground">Loading course content...</p>
+      </div>
+    );
+  }
+
+  // Error state - manifest failed to load
+  if (manifestError || !manifest) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <Card className="max-w-2xl w-full">
+          <CardContent className="p-8 text-center space-y-6">
+            <AlertCircle className="w-16 h-16 mx-auto text-destructive" />
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold">Course Content Unavailable</h2>
+              <p className="text-muted-foreground">
+                {manifestError || 'Course content could not be loaded.'}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                This course is being prepared. Please check back later.
+              </p>
+            </div>
+            <div className="flex gap-4 justify-center">
+              <Button onClick={() => goToCourses()}>
+                Browse Other Courses
+              </Button>
+              <Button variant="outline" onClick={() => goToDashboard()}>
+                Return to Dashboard
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
