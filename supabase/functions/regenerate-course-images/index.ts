@@ -29,7 +29,7 @@ serve(async (req) => {
     // Get batch parameters from request
     const { batchSize = 4, startIndex = 0 } = await req.json().catch(() => ({}))
 
-    // Course configurations with detailed prompts
+    // Course configurations with detailed prompts - ALL 19 COURSES
     const courses = [
       {
         id: 'el-handwriting',
@@ -90,6 +90,41 @@ serve(async (req) => {
         id: 'creative-writing-short-stories-poetry',
         filename: 'creative-writing-bg.jpg',
         prompt: 'Creative writing scene with vintage typewriter, literary atmosphere, books and manuscripts, inspiring writing environment, warm artistic lighting. 16:9 aspect ratio, high quality, professional photography style.'
+      },
+      {
+        id: 'interactive-science',
+        filename: 'science-background-generated.jpg',
+        prompt: 'Science laboratory with beakers, test tubes, microscope, colorful chemical reactions, STEM education theme, modern scientific equipment, inspiring learning environment. 16:9 aspect ratio, high quality, professional educational photography.'
+      },
+      {
+        id: 'logic-critical-thinking',
+        filename: 'logic-background.jpg',
+        prompt: 'Abstract representation of logical thinking, puzzle pieces connecting, brain pathways, philosophical symbols, critical thinking concepts, modern intellectual design. 16:9 aspect ratio, high quality, professional educational design.'
+      },
+      {
+        id: 'introduction-to-philosophy',
+        filename: 'philosophy-bg.jpg',
+        prompt: 'Ancient philosophical scene with classical columns, thoughtful atmosphere, books of philosophy, contemplative mood, intellectual and inspiring environment. 16:9 aspect ratio, high quality, professional photography style.'
+      },
+      {
+        id: 'introduction-modern-economics',
+        filename: 'economics-background.jpg',
+        prompt: 'Modern economics visualization with financial charts, graphs, stock market displays, currency symbols, professional business atmosphere, economic concepts. 16:9 aspect ratio, high quality, professional educational design.'
+      },
+      {
+        id: 'money-management-teens',
+        filename: 'money-management-background.jpg',
+        prompt: 'Teen-friendly money management concept, piggy bank, coins, budgeting tools, savings goals, modern financial literacy theme, bright and approachable design. 16:9 aspect ratio, high quality, professional educational photography.'
+      },
+      {
+        id: 'neurodiversity-strengths-based-approach',
+        filename: 'neurodiversity-background.jpg',
+        prompt: 'Diverse brain visualization, colorful neural connections, celebration of different thinking styles, inclusive education theme, vibrant and empowering design. 16:9 aspect ratio, high quality, professional educational design.'
+      },
+      {
+        id: 'intro-drawing-sketching',
+        filename: 'drawing-sketching-bg.jpg',
+        prompt: 'Art supplies with pencils, sketchbook, drawing tools, creative workspace, artistic inspiration, sketches and artwork, warm creative atmosphere. 16:9 aspect ratio, high quality, professional photography style.'
       }
     ]
 

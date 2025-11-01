@@ -68,7 +68,7 @@ export default function GenerateBackgrounds() {
         <CardHeader>
           <CardTitle>Regenerate Course Images</CardTitle>
           <CardDescription>
-            Generate all missing course images using Lovable AI (Nano Banana model)
+            Generate all 19 course background images using Lovable AI (Nano Banana model). Processing in batches of 4 to avoid timeouts.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
