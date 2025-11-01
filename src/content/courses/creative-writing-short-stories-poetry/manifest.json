@@ -1,14 +1,14 @@
 {
-  "courseId": "creative-writing",
-  "courseSlug": "creative-writing",
+  "courseId": "creative-writing-short-stories-poetry",
+  "courseSlug": "creative-writing-short-stories-poetry",
   "contentVersion": "v2",
   "framework": "sequential",
-  "courseTitle": "Creative Writing",
-  "description": "Develop your storytelling skills through fiction, poetry, and creative expression techniques.",
-  "backgroundImage": "/lovable-uploads/creative-writing-bg.jpg",
-  "estimatedHours": 3,
-  "difficultyLevel": "intermediate",
-  "category": "English",
+  "courseTitle": "Creative Writing: Short Stories & Poetry",
+  "description": "Unleash your inner author. This course provides the tools to craft compelling short stories and evocative poetry focusing on character development plot imagery and voice.",
+  "backgroundImage": "https://images.unsplash.com/photo-1516410529446-addc68786424?q=80&w=2070&auto=format&fit=crop",
+  "estimatedHours": 7,
+  "difficultyLevel": "beginner",
+  "category": "Arts",
   "lessons": [
     {
       "id": 1,
