@@ -544,7 +544,7 @@ export type Database = {
         Row: {
           action: string
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           legal_basis: string | null
           new_values: Json | null
           old_values: Json | null
@@ -558,7 +558,7 @@ export type Database = {
         Insert: {
           action: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           legal_basis?: string | null
           new_values?: Json | null
           old_values?: Json | null
@@ -572,7 +572,7 @@ export type Database = {
         Update: {
           action?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           legal_basis?: string | null
           new_values?: Json | null
           old_values?: Json | null
@@ -592,7 +592,7 @@ export type Database = {
           created_at: string
           details: Json | null
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           justification: string | null
           organization_id: string | null
           resource_id: string | null
@@ -608,7 +608,7 @@ export type Database = {
           created_at?: string
           details?: Json | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           justification?: string | null
           organization_id?: string | null
           resource_id?: string | null
@@ -624,7 +624,7 @@ export type Database = {
           created_at?: string
           details?: Json | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           justification?: string | null
           organization_id?: string | null
           resource_id?: string | null
@@ -3326,7 +3326,7 @@ export type Database = {
           action_type: string
           audit_trail_hash: string | null
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           minimum_necessary_justified: boolean | null
           patient_id: string | null
           phi_accessed: boolean
@@ -3343,7 +3343,7 @@ export type Database = {
           action_type: string
           audit_trail_hash?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           minimum_necessary_justified?: boolean | null
           patient_id?: string | null
           phi_accessed?: boolean
@@ -3360,7 +3360,7 @@ export type Database = {
           action_type?: string
           audit_trail_hash?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           minimum_necessary_justified?: boolean | null
           patient_id?: string | null
           phi_accessed?: boolean
@@ -8129,7 +8129,7 @@ export type Database = {
           event_data: Json | null
           event_type: string
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           package_id: string | null
           sco_id: string | null
           score_achieved: number | null
@@ -8144,7 +8144,7 @@ export type Database = {
           event_data?: Json | null
           event_type: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           package_id?: string | null
           sco_id?: string | null
           score_achieved?: number | null
@@ -8159,7 +8159,7 @@ export type Database = {
           event_data?: Json | null
           event_type?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           package_id?: string | null
           sco_id?: string | null
           score_achieved?: number | null
@@ -8235,7 +8235,7 @@ export type Database = {
           started_at: string | null
           success_status: string | null
           suspend_data: string | null
-          total_time: unknown | null
+          total_time: unknown
         }
         Insert: {
           attempt_no?: number
@@ -8258,7 +8258,7 @@ export type Database = {
           started_at?: string | null
           success_status?: string | null
           suspend_data?: string | null
-          total_time?: unknown | null
+          total_time?: unknown
         }
         Update: {
           attempt_no?: number
@@ -8281,7 +8281,7 @@ export type Database = {
           started_at?: string | null
           success_status?: string | null
           suspend_data?: string | null
-          total_time?: unknown | null
+          total_time?: unknown
         }
         Relationships: []
       }
@@ -9515,7 +9515,7 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           metadata: Json | null
           org_id: string
           session_id: string | null
@@ -9527,7 +9527,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           metadata?: Json | null
           org_id: string
           session_id?: string | null
@@ -9539,7 +9539,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           metadata?: Json | null
           org_id?: string
           session_id?: string | null
@@ -10356,7 +10356,7 @@ export type Database = {
           created_at: string
           granted_at: string | null
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           is_granted: boolean
           legal_basis: string | null
           purpose: string | null
@@ -10370,7 +10370,7 @@ export type Database = {
           created_at?: string
           granted_at?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           is_granted?: boolean
           legal_basis?: string | null
           purpose?: string | null
@@ -10384,7 +10384,7 @@ export type Database = {
           created_at?: string
           granted_at?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           is_granted?: boolean
           legal_basis?: string | null
           purpose?: string | null
@@ -11106,10 +11106,7 @@ export type Database = {
       }
     }
     Functions: {
-      accept_invite: {
-        Args: { p_code: string }
-        Returns: Json
-      }
+      accept_invite: { Args: { p_code: string }; Returns: Json }
       activate_student_account: {
         Args: { p_full_name: string; p_pin_hash: string; p_token: string }
         Returns: {
@@ -11130,18 +11127,8 @@ export type Database = {
         }
         Returns: Json
       }
-      auth_is_admin: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
-      auto_publish_scheduled_posts: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      binary_quantize: {
-        Args: { "": string } | { "": unknown }
-        Returns: unknown
-      }
+      auth_is_admin: { Args: never; Returns: boolean }
+      auto_publish_scheduled_posts: { Args: never; Returns: undefined }
       calculate_level_from_xp: {
         Args: { total_xp: number }
         Returns: {
@@ -11159,19 +11146,16 @@ export type Database = {
         Returns: boolean
       }
       cleanup_expired_data: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           cleanup_date: string
           records_deleted: number
           table_name: string
         }[]
       }
-      cleanup_expired_iep_sessions: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      cleanup_expired_iep_sessions: { Args: never; Returns: undefined }
       cleanup_expired_invitations: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           cleanup_type: string
           deleted_count: number
@@ -11196,17 +11180,20 @@ export type Database = {
         }
         Returns: undefined
       }
-      create_organization: {
-        Args:
-          | { p_name: string; p_plan?: string; p_slug: string }
-          | {
+      create_organization:
+        | {
+            Args: {
               p_name: string
               p_plan?: string
               p_slug: string
               p_user_id?: string
             }
-        Returns: string
-      }
+            Returns: string
+          }
+        | {
+            Args: { p_name: string; p_plan?: string; p_slug: string }
+            Returns: string
+          }
       create_organization_with_membership: {
         Args: {
           p_description?: string
@@ -11220,14 +11207,8 @@ export type Database = {
         }
         Returns: string
       }
-      current_user_has_admin_role: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
-      current_user_role: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      current_user_has_admin_role: { Args: never; Returns: boolean }
+      current_user_role: { Args: never; Returns: string }
       deduct_ai_credits: {
         Args: {
           p_amount: number
@@ -11248,30 +11229,12 @@ export type Database = {
         }
         Returns: string
       }
-      extract_chat_topics: {
-        Args: { session_id: string }
-        Returns: Json
-      }
-      generate_activation_token: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      generate_iep_invite_code: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      generate_invitation_code: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      generate_invitation_link: {
-        Args: { org_id: string }
-        Returns: string
-      }
-      generate_scorm_package_slug: {
-        Args: { title: string }
-        Returns: string
-      }
+      extract_chat_topics: { Args: { session_id: string }; Returns: Json }
+      generate_activation_token: { Args: never; Returns: string }
+      generate_iep_invite_code: { Args: never; Returns: string }
+      generate_invitation_code: { Args: never; Returns: string }
+      generate_invitation_link: { Args: { org_id: string }; Returns: string }
+      generate_scorm_package_slug: { Args: { title: string }; Returns: string }
       get_activity_heatmap: {
         Args: { days_back?: number; user_uuid: string }
         Returns: {
@@ -11281,22 +11244,13 @@ export type Database = {
           total_duration_minutes: number
         }[]
       }
-      get_admin_analytics: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
-      }
-      get_ai_credits: {
-        Args: { p_user_id: string }
-        Returns: number
-      }
+      get_admin_analytics: { Args: never; Returns: Json }
+      get_ai_credits: { Args: { p_user_id: string }; Returns: number }
       get_analytics_by_role: {
         Args: { p_org_id?: string; p_scope?: string; p_time_range?: unknown }
         Returns: Json
       }
-      get_analytics_kpis: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
-      }
+      get_analytics_kpis: { Args: never; Returns: Json }
       get_analytics_trends: {
         Args: { date_from?: string; date_to?: string; package_id?: string }
         Returns: {
@@ -11315,26 +11269,22 @@ export type Database = {
         Args: { p_date_range?: string; p_user_id: string }
         Returns: Json
       }
-      get_coach_learning_time: {
-        Args: { p_source?: string; p_user_id: string } | { p_user_id: string }
-        Returns: number
-      }
+      get_coach_learning_time:
+        | { Args: { p_source?: string; p_user_id: string }; Returns: number }
+        | { Args: { p_user_id: string }; Returns: number }
       get_coach_mastery_over_time: {
         Args: { p_date_range?: string; p_user_id: string }
         Returns: Json
       }
-      get_coach_mastery_score: {
-        Args: { p_source?: string; p_user_id: string } | { p_user_id: string }
-        Returns: number
-      }
-      get_coach_mode_ratio: {
-        Args: { p_source?: string; p_user_id: string } | { p_user_id: string }
-        Returns: Json
-      }
-      get_coach_streak: {
-        Args: { p_source?: string; p_user_id: string } | { p_user_id: string }
-        Returns: number
-      }
+      get_coach_mastery_score:
+        | { Args: { p_user_id: string }; Returns: number }
+        | { Args: { p_source?: string; p_user_id: string }; Returns: number }
+      get_coach_mode_ratio:
+        | { Args: { p_source?: string; p_user_id: string }; Returns: Json }
+        | { Args: { p_user_id: string }; Returns: Json }
+      get_coach_streak:
+        | { Args: { p_user_id: string }; Returns: number }
+        | { Args: { p_source?: string; p_user_id: string }; Returns: number }
       get_coach_time_by_day: {
         Args: { p_date_range?: string; p_user_id: string }
         Returns: Json
@@ -11347,12 +11297,11 @@ export type Database = {
         Args: { p_date_range?: string; p_user_id: string }
         Returns: Json
       }
-      get_coach_topics: {
-        Args: { p_source?: string; p_user_id: string } | { p_user_id: string }
-        Returns: string[]
-      }
+      get_coach_topics:
+        | { Args: { p_user_id: string }; Returns: string[] }
+        | { Args: { p_source?: string; p_user_id: string }; Returns: string[] }
       get_completion_breakdown: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           count: number
           percentage: number
@@ -11360,7 +11309,7 @@ export type Database = {
         }[]
       }
       get_course_enrollment_stats: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           completion_rate: number
           course_id: string
@@ -11375,26 +11324,20 @@ export type Database = {
           activity_date: string
         }[]
       }
-      get_feature_usage_stats: {
-        Args: { p_days_back?: number }
-        Returns: Json
-      }
+      get_feature_usage_stats: { Args: { p_days_back?: number }; Returns: Json }
       get_global_avg_score: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           avg_score: number
         }[]
       }
       get_global_completion_rate: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           completion_rate: number
         }[]
       }
-      get_iep_wizard_steps: {
-        Args: { p_jurisdiction?: string }
-        Returns: Json
-      }
+      get_iep_wizard_steps: { Args: { p_jurisdiction?: string }; Returns: Json }
       get_intent_accuracy_report: {
         Args: { p_days_back?: number }
         Returns: Json
@@ -11418,12 +11361,9 @@ export type Database = {
           time_spent_today_minutes: number
         }[]
       }
-      get_organization_analytics: {
-        Args: { p_org_id: string }
-        Returns: Json
-      }
+      get_organization_analytics: { Args: { p_org_id: string }; Returns: Json }
       get_organization_leaderboard: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           avg_progress: number
           member_count: number
@@ -11432,10 +11372,7 @@ export type Database = {
           total_enrollments: number
         }[]
       }
-      get_organization_statistics: {
-        Args: { p_org_id: string }
-        Returns: Json
-      }
+      get_organization_statistics: { Args: { p_org_id: string }; Returns: Json }
       get_package_avg_score: {
         Args: { date_from?: string; date_to?: string; package_id: string }
         Returns: {
@@ -11449,18 +11386,12 @@ export type Database = {
           completions: number
         }[]
       }
-      get_phoenix_analytics: {
-        Args: { p_user_id?: string }
-        Returns: Json
-      }
+      get_phoenix_analytics: { Args: { p_user_id?: string }; Returns: Json }
       get_phoenix_performance_summary: {
         Args: { p_days_back?: number; p_user_id?: string }
         Returns: Json
       }
-      get_public_platform_metrics: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
-      }
+      get_public_platform_metrics: { Args: never; Returns: Json }
       get_published_course_by_slug: {
         Args: { p_slug: string }
         Returns: {
@@ -11492,9 +11423,15 @@ export type Database = {
           title: string
           updated_at: string | null
         }[]
+        SetofOptions: {
+          from: "*"
+          to: "courses"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       get_published_courses: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           asset_path: string | null
           background_image: string | null
@@ -11524,6 +11461,12 @@ export type Database = {
           title: string
           updated_at: string | null
         }[]
+        SetofOptions: {
+          from: "*"
+          to: "courses"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       get_recommended_concepts: {
         Args: { p_limit?: number; p_user_id: string }
@@ -11560,35 +11503,23 @@ export type Database = {
           relevance_score: number
         }[]
       }
-      get_student_analytics: {
-        Args:
-          | { p_org_id: string; p_student_id: string }
-          | { p_user_id?: string }
-        Returns: Json
-      }
-      get_student_knowledge_pack: {
-        Args: { p_user_id: string }
-        Returns: Json
-      }
+      get_student_analytics:
+        | { Args: { p_org_id: string; p_student_id: string }; Returns: Json }
+        | { Args: { p_user_id?: string }; Returns: Json }
+      get_student_knowledge_pack: { Args: { p_user_id: string }; Returns: Json }
       get_time_spent_by_day: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           day_name: string
           total_hours: number
         }[]
       }
-      get_user_entitlements: {
-        Args: { p_user_id: string }
-        Returns: Json
-      }
+      get_user_entitlements: { Args: { p_user_id: string }; Returns: Json }
       get_user_frustration_report: {
         Args: { p_days_back?: number }
         Returns: Json
       }
-      get_user_id_by_email: {
-        Args: { user_email: string }
-        Returns: string
-      }
+      get_user_id_by_email: { Args: { user_email: string }; Returns: string }
       get_user_learning_path: {
         Args: { p_domain?: string; p_user_id: string }
         Returns: {
@@ -11605,28 +11536,12 @@ export type Database = {
         }[]
       }
       get_user_role: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: Database["public"]["Enums"]["app_role"]
       }
       get_user_subscription_status: {
         Args: { check_user_id?: string }
         Returns: string
-      }
-      halfvec_avg: {
-        Args: { "": number[] }
-        Returns: unknown
-      }
-      halfvec_out: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      halfvec_send: {
-        Args: { "": unknown }
-        Returns: string
-      }
-      halfvec_typmod_in: {
-        Args: { "": unknown[] }
-        Returns: number
       }
       has_permission: {
         Args: {
@@ -11642,22 +11557,6 @@ export type Database = {
         }
         Returns: boolean
       }
-      hnsw_bit_support: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      hnsw_halfvec_support: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      hnsw_sparsevec_support: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      hnswhandler: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
       increment_blog_post_views: {
         Args: { post_slug: string }
         Returns: {
@@ -11672,10 +11571,7 @@ export type Database = {
         Args: { p_subscription_tier?: string; p_user_id: string }
         Returns: undefined
       }
-      is_admin: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
+      is_admin: { Args: never; Returns: boolean }
       is_admin_or_coach_user: {
         Args: { check_user_id: string }
         Returns: boolean
@@ -11687,26 +11583,6 @@ export type Database = {
       is_org_owner: {
         Args: { p_org_id: string; p_user_id: string }
         Returns: boolean
-      }
-      ivfflat_bit_support: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      ivfflat_halfvec_support: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      ivfflathandler: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      l2_norm: {
-        Args: { "": unknown } | { "": unknown }
-        Returns: number
-      }
-      l2_normalize: {
-        Args: { "": string } | { "": unknown } | { "": unknown }
-        Returns: unknown
       }
       log_hipaa_access: {
         Args: {
@@ -11743,10 +11619,7 @@ export type Database = {
           source_name: string
         }[]
       }
-      migrate_existing_scorm_lessons: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      migrate_existing_scorm_lessons: { Args: never; Returns: undefined }
       org_change_plan: {
         Args: { p_org_id: string; p_plan: string }
         Returns: undefined
@@ -11769,13 +11642,10 @@ export type Database = {
         Args: { p_org_id: string; p_role: string }
         Returns: undefined
       }
-      org_seat_available: {
-        Args: { p_org_id: string }
-        Returns: boolean
-      }
-      record_audit_event: {
-        Args:
-          | {
+      org_seat_available: { Args: { p_org_id: string }; Returns: boolean }
+      record_audit_event:
+        | {
+            Args: {
               p_action: string
               p_legal_basis?: string
               p_new_values?: Json
@@ -11785,7 +11655,10 @@ export type Database = {
               p_table_name: string
               p_user_id: string
             }
-          | {
+            Returns: string
+          }
+        | {
+            Args: {
               p_action: string
               p_legal_basis?: string
               p_new_values?: Json
@@ -11795,16 +11668,10 @@ export type Database = {
               p_table_name: string
               p_user_id: string
             }
-        Returns: string
-      }
-      reset_monthly_quotas: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      safe_table_count: {
-        Args: { p_table_name: string }
-        Returns: number
-      }
+            Returns: undefined
+          }
+      reset_monthly_quotas: { Args: never; Returns: undefined }
+      safe_table_count: { Args: { p_table_name: string }; Returns: number }
       scorm_commit_runtime: {
         Args: {
           p_analytics_data?: Json
@@ -11826,18 +11693,6 @@ export type Database = {
           similarity: number
         }[]
       }
-      sparsevec_out: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      sparsevec_send: {
-        Args: { "": unknown }
-        Returns: string
-      }
-      sparsevec_typmod_in: {
-        Args: { "": unknown[] }
-        Returns: number
-      }
       track_usage: {
         Args: {
           p_feature_type: string
@@ -11855,14 +11710,8 @@ export type Database = {
         Args: { check_user_id?: string; org_id: string }
         Returns: boolean
       }
-      user_exists_check: {
-        Args: { user_id: string }
-        Returns: boolean
-      }
-      user_has_admin_role: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
+      user_exists_check: { Args: { user_id: string }; Returns: boolean }
+      user_has_admin_role: { Args: never; Returns: boolean }
       user_has_org_role: {
         Args: { _org_id: string; _roles: string[]; _user_id: string }
         Returns: boolean
@@ -11879,10 +11728,9 @@ export type Database = {
         Args: { check_org_id: string; check_user_id: string }
         Returns: boolean
       }
-      user_is_org_member: {
-        Args: { check_user_id: string; org_id: string } | { org_id: string }
-        Returns: boolean
-      }
+      user_is_org_member:
+        | { Args: { org_id: string }; Returns: boolean }
+        | { Args: { check_user_id: string; org_id: string }; Returns: boolean }
       user_is_org_member_direct: {
         Args: { check_user_id: string; org_id: string }
         Returns: boolean
@@ -11891,10 +11739,7 @@ export type Database = {
         Args: { check_user_id: string; org_id: string }
         Returns: boolean
       }
-      user_is_org_owner: {
-        Args: { org_id: string }
-        Returns: boolean
-      }
+      user_is_org_owner: { Args: { org_id: string }; Returns: boolean }
       user_is_org_owner_direct: {
         Args: { check_user_id: string; org_id: string }
         Returns: boolean
@@ -11903,10 +11748,7 @@ export type Database = {
         Args: { org_id: string }
         Returns: Database["public"]["Enums"]["member_role"]
       }
-      validate_iep_invite: {
-        Args: { p_code: string }
-        Returns: Json
-      }
+      validate_iep_invite: { Args: { p_code: string }; Returns: Json }
       validate_legal_basis: {
         Args: {
           p_data_categories: string[]
@@ -11915,10 +11757,7 @@ export type Database = {
         }
         Returns: Json
       }
-      validate_org_invite: {
-        Args: { code: string }
-        Returns: Json
-      }
+      validate_org_invite: { Args: { code: string }; Returns: Json }
       validate_student_pin: {
         Args: { p_full_name: string; p_org_id: string; p_pin_hash: string }
         Returns: {
@@ -11926,30 +11765,6 @@ export type Database = {
           linked_user_id: string
           student_id: string
         }[]
-      }
-      vector_avg: {
-        Args: { "": number[] }
-        Returns: string
-      }
-      vector_dims: {
-        Args: { "": string } | { "": unknown }
-        Returns: number
-      }
-      vector_norm: {
-        Args: { "": string }
-        Returns: number
-      }
-      vector_out: {
-        Args: { "": string }
-        Returns: unknown
-      }
-      vector_send: {
-        Args: { "": string }
-        Returns: string
-      }
-      vector_typmod_in: {
-        Args: { "": unknown[] }
-        Returns: number
       }
       withdraw_user_consent: {
         Args: { p_consent_type: string; p_reason?: string; p_user_id: string }
