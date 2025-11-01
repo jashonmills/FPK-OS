@@ -43,8 +43,16 @@ export function useCourses(options?: {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // Duplicate course IDs to exclude (moved to review-later)
+  const excludedDuplicateIds = [
+    'cafa546e-92f0-4807-b4eb-50e8f81ccaa4', // chemistry-the-central-science (duplicate)
+    '71ea4884-098b-4854-bfa1-1715689bbb25', // introduction-to-data-science (duplicate)
+    '2def03d8-35bc-48d2-995c-5a774219177f', // public-speaking-and-debate (duplicate)
+    'e397be7a-1e74-48a7-a3d4-69c8e52568f6', // personal-finance-and-investing (duplicate)
+  ];
+
   const { data: courses = [], isLoading, error, refetch } = useQuery({
-    queryKey: ['courses-v4', options], // v4 for draft support
+    queryKey: ['courses-v5', options], // v5 to exclude duplicates
     refetchOnMount: 'always', // Force refetch on mount
     queryFn: async () => {
       console.log('[useCourses] Query options:', options);
@@ -63,6 +71,7 @@ export function useCourses(options?: {
         let query = supabase
           .from('courses')
           .select('*')
+          .not('id', 'in', `(${excludedDuplicateIds.join(',')})`)
           .order('created_at', { ascending: false });
 
         // Apply filters if provided
@@ -92,7 +101,7 @@ export function useCourses(options?: {
         }
 
         console.log('[useCourses] RPC returned', data?.length, 'courses');
-        let filteredData = data as Course[];
+        let filteredData = (data as Course[]).filter(c => !excludedDuplicateIds.includes(c.id));
 
         // Apply client-side filtering for featured and limit
         if (options?.featured === true) {
@@ -114,6 +123,7 @@ export function useCourses(options?: {
       let query = supabase
         .from('courses')
         .select('*')
+        .not('id', 'in', `(${excludedDuplicateIds.join(',')})`)
         .order('created_at', { ascending: false });
 
       if (options?.featured === true) {
