@@ -452,32 +452,24 @@ const App: React.FC = () => {
             } />
             <Route path="learner/course/:courseId" element={
               <LazyRoute>
-                <RequireFpkUniversityAccess>
-                  <DynamicCourse />
-                </RequireFpkUniversityAccess>
+                <DynamicCourse />
               </LazyRoute>
             } />
             <Route path="learner/learning-state/:courseId" element={
               <LazyRoute>
-                <RequireFpkUniversityAccess>
-                  <LearningStateCourse />
-                </RequireFpkUniversityAccess>
+                <LearningStateCourse />
               </LazyRoute>
             } />
             <Route path="learner/learning-state-embed/:moduleId" element={
               <LazyRoute>
-                <RequireFpkUniversityAccess>
-                  <LearningStateEmbed />
-                </RequireFpkUniversityAccess>
+                <LearningStateEmbed />
               </LazyRoute>
             } />
             
             {/* Study Session Routes */}
             <Route path="learner/study/:mode" element={
               <LazyRoute>
-                <RequireFpkUniversityAccess>
-                  <StudySessionRouter />
-                </RequireFpkUniversityAccess>
+                <StudySessionRouter />
               </LazyRoute>
             } />
             
