@@ -15,6 +15,9 @@ import empoweringSpellingBg from '@/assets/empowering-spelling-new-bg.jpg';
 import learningStateBg from '@/assets/learning-state-course-bg.jpg';
 import eltBackground from '@/assets/elt-background-generated.jpg';
 import scienceCourseBg from '@/assets/science-background-generated.jpg';
+import creativeWritingBg from '@/assets/creative-writing-bg.jpg';
+import drawingSketchingBg from '@/assets/drawing-sketching-bg.jpg';
+import philosophyBg from '@/assets/philosophy-bg.jpg';
 
 /**
  * Single source of truth for course images
@@ -38,6 +41,9 @@ export const courseImageMap: Record<string, string> = {
   'geometry': interactiveGeometryBg,
   'learning-state-course': learningStateBg,
   'elt-empowering-learning-techniques': eltBackground,
+  'creative-writing-short-stories-poetry': creativeWritingBg,
+  'intro-drawing-sketching': drawingSketchingBg,
+  'introduction-to-philosophy': philosophyBg,
 };
 
 /**
@@ -70,6 +76,9 @@ export const getCourseImage = (id: string, title: string): string => {
   if (titleLower.includes('geometry')) return interactiveGeometryBg;
   if (titleLower.includes('learning state')) return learningStateBg;
   if (titleLower.includes('elt') || titleLower.includes('empowering learning techniques')) return eltBackground;
+  if (titleLower.includes('creative writing') || titleLower.includes('poetry') || titleLower.includes('short stories')) return creativeWritingBg;
+  if (titleLower.includes('drawing') || titleLower.includes('sketching') || titleLower.includes('art')) return drawingSketchingBg;
+  if (titleLower.includes('philosophy') || titleLower.includes('ethics')) return philosophyBg;
   
   // Default fallback
   return scienceCourseBg;

@@ -1,0 +1,185 @@
+{
+  "courseId": "intro-drawing-sketching",
+  "courseSlug": "intro-drawing-sketching",
+  "contentVersion": "v2",
+  "framework": "sequential",
+  "courseTitle": "Introduction to Drawing and Sketching",
+  "description": "Learn fundamental drawing techniques, from basic shapes to advanced shading and composition.",
+  "backgroundImage": "",
+  "estimatedHours": 12,
+  "difficultyLevel": "beginner",
+  "category": "Arts",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Drawing Basics and Materials",
+      "description": "Essential tools, materials, and foundational concepts",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Starting Your Artistic Journey",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Drawing is a skill anyone can learn with practice and patience. We'll start with the essential materials and basic concepts that form the foundation of all drawing."
+        },
+        {
+          "type": "list",
+          "items": [
+            "Pencils, papers, and erasers",
+            "Basic shapes and forms",
+            "Line quality and pressure",
+            "Gesture drawing",
+            "Proportions and measurements",
+            "Observational skills"
+          ]
+        }
+      ],
+      "estimatedMinutes": 40,
+      "unit": "Unit 1: Foundations",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 2,
+      "title": "Lines, Shapes, and Forms",
+      "description": "Understanding basic geometric shapes and 3D forms",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Building Blocks of Drawing",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "All complex drawings begin with simple shapes. Learning to see and construct forms using basic geometry is essential to drawing anything."
+        }
+      ],
+      "estimatedMinutes": 45,
+      "unit": "Unit 1: Foundations",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 3,
+      "title": "Perspective Drawing",
+      "description": "One-point, two-point, and three-point perspective",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Creating Depth and Space",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Perspective is the technique that creates the illusion of three-dimensional space on a two-dimensional surface. It's crucial for realistic drawing."
+        }
+      ],
+      "estimatedMinutes": 50,
+      "unit": "Unit 2: Depth & Space",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 4,
+      "title": "Light and Shadow",
+      "description": "Understanding light sources, values, and shading techniques",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Bringing Drawings to Life",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Light and shadow give drawings dimension and realism. Understanding how light interacts with forms is key to creating believable artwork."
+        }
+      ],
+      "estimatedMinutes": 50,
+      "unit": "Unit 2: Depth & Space",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 5,
+      "title": "Texture and Surface Quality",
+      "description": "Creating different textures and material appearances",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Surface Details",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Texture adds richness and realism to drawings. Learn techniques for rendering different materials from smooth glass to rough bark."
+        }
+      ],
+      "estimatedMinutes": 45,
+      "unit": "Unit 3: Detail Work",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 6,
+      "title": "Composition and Design",
+      "description": "Arranging elements for strong visual impact",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Creating Balanced Artwork",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Good composition guides the viewer's eye and creates visual interest. Learn the principles that make artwork compelling and well-organized."
+        }
+      ],
+      "estimatedMinutes": 40,
+      "unit": "Unit 3: Detail Work",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 7,
+      "title": "Drawing Natural Objects",
+      "description": "Techniques for drawing plants, trees, and landscapes",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Nature as Your Subject",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Natural forms offer endless variety and challenge. Learn approaches for capturing the organic beauty of plants, trees, and outdoor scenes."
+        }
+      ],
+      "estimatedMinutes": 50,
+      "unit": "Unit 4: Subject Matter",
+      "unitColor": "bg-orange-100 text-orange-700"
+    },
+    {
+      "id": 8,
+      "title": "Portrait Fundamentals",
+      "description": "Basic proportions and features of the human face",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Drawing Faces",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Portrait drawing requires understanding facial proportions and capturing likeness. We'll explore the structure and features that make each face unique."
+        }
+      ],
+      "estimatedMinutes": 50,
+      "unit": "Unit 4: Subject Matter",
+      "unitColor": "bg-orange-100 text-orange-700"
+    }
+  ]
+}
