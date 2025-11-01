@@ -22,186 +22,12 @@ import { useStudentAssignments } from '@/hooks/useStudentAssignments';
 import { NativeCourseCard } from '@/components/native-courses/NativeCourseCard';
 import { StyledCourseCard } from '@/components/common/StyledCourseCard';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { usePlatformCourses } from '@/hooks/usePlatformCourses';
 
-// Import course card background
-import geometryCourseCardBg from '@/assets/geometry-course-card-bg.jpg';
-import courseMoneyManagement from '@/assets/course-money-management.jpg';
-import courseSpellingReading from '@/assets/course-spelling-reading.jpg';
-import courseAlgebra from '@/assets/course-algebra.jpg';
-import courseHandwritingBg from '@/assets/course-handwriting-bg.jpg';
-import elHandwritingBg from '@/assets/el-handwriting-bg.jpg';
-import courseNeurodiversityBg from '@/assets/course-neurodiversity-bg.jpg';
-import learningStateBg from '@/assets/learning-state-course-bg.jpg';
-import empoweringSpellingBg from '@/assets/empowering-spelling-unique-bg.jpg';
-import courseLinearEquationsBg from '@/assets/course-linear-equations-bg.jpg';
-import courseTrigonometryBg from '@/assets/course-trigonometry-bg.jpg';
-import courseEconomicsBg from '@/assets/course-economics-bg.jpg';
-import courseLogicBg from '@/assets/course-logic-bg.jpg';
-import courseScienceBg from '@/assets/course-science-bg.jpg';
-import eltBackground from '@/assets/elt-background.jpg';
 import { useFirstVisitVideo } from '@/hooks/useFirstVisitVideo';
 import { FirstVisitVideoModal } from '@/components/common/FirstVisitVideoModal';
 import { PageHelpTrigger } from '@/components/common/PageHelpTrigger';
 import { Link } from 'react-router-dom';
-
-// Hard-coded Interactive Courses
-const INTERACTIVE_LINEAR_EQUATIONS_COURSE = {
-  id: 'interactive-linear-equations',
-  title: 'Interactive Linear Equations',
-  description: 'Master solving linear equations through interactive lessons and practice problems. Learn step-by-step problem solving with immediate feedback.',
-  thumbnail_url: courseLinearEquationsBg,
-  difficulty_level: 'beginner',
-  duration_minutes: 240,
-  instructor_name: 'FPK University',
-  featured: true,
-  status: 'published'
-};
-
-const INTERACTIVE_TRIGONOMETRY_COURSE = {
-  id: 'interactive-trigonometry',
-  title: 'Interactive Trigonometry',
-  description: 'Master trigonometry through interactive lessons, visual demonstrations, and practical applications. From basic SOHCAHTOA to complex real-world problem solving.',
-  thumbnail_url: courseTrigonometryBg,
-  difficulty_level: 'intermediate',
-  duration_minutes: 300,
-  instructor_name: 'FPK University',
-  featured: true,
-  status: 'published'
-};
-
-const INTERACTIVE_ALGEBRA_COURSE = {
-  id: 'interactive-algebra',
-  title: 'Interactive Algebra',
-  description: 'Master algebra fundamentals through interactive lessons and practice problems. Learn algebraic expressions, equations, and problem-solving techniques.',
-  thumbnail_url: courseAlgebra,
-  difficulty_level: 'beginner',
-  duration_minutes: 320,
-  instructor_name: 'FPK University',
-  featured: true,
-  status: 'published'
-};
-
-const LOGIC_CRITICAL_THINKING_COURSE = {
-  id: 'logic-critical-thinking',
-  title: 'Logic and Critical Thinking',
-  description: 'Develop essential reasoning skills through systematic study of logic and critical thinking. Learn to analyze arguments, identify fallacies, and construct sound reasoning.',
-  thumbnail_url: courseLogicBg,
-  difficulty_level: 'beginner',
-  duration_minutes: 400,
-  instructor_name: 'FPK University',
-  featured: true,
-  status: 'published'
-};
-
-const NEURODIVERSITY_STRENGTHS_COURSE = {
-  id: 'neurodiversity-strengths-based-approach',
-  title: 'Neurodiversity: A Strengths-Based Approach',
-  description: 'Your guide to leveraging your unique brain for academic success. Discover how neurodivergence is an asset and learn to harness your cognitive superpowers.',
-  thumbnail_url: courseNeurodiversityBg,
-  difficulty_level: 'beginner',
-  duration_minutes: 360,
-  instructor_name: 'FPK University',
-  featured: true,
-  status: 'published'
-};
-
-const INTRODUCTION_TO_SCIENCE_COURSE = {
-  id: 'interactive-science',
-  title: 'Introduction to Science',
-  description: 'Get to grips with the basics of biology, chemistry, and physics. Learn the scientific method and explore the building blocks of life and matter.',
-  thumbnail_url: courseScienceBg,
-  difficulty_level: 'beginner',
-  duration_minutes: 360,
-  instructor_name: 'FPK University',
-  featured: true,
-  status: 'published'
-};
-
-const ELT_EMPOWERING_LEARNING_TECHNIQUES_COURSE = {
-  id: 'elt-empowering-learning-techniques',
-  title: 'ELT: Empowering Learning Techniques',
-  description: 'Master evidence-based learning strategies specifically designed for neurodiverse minds. Transform how you learn, study, and succeed in any academic environment.',
-  thumbnail_url: eltBackground,
-  difficulty_level: 'beginner',
-  duration_minutes: 240,
-  instructor_name: 'FPK University',
-  featured: true,
-  status: 'published'
-};
-
-const GEOMETRY_FUNDAMENTALS_COURSE = {
-  id: 'geometry',
-  title: 'Interactive Geometry Fundamentals',
-  description: 'Master the essential concepts of geometry, from basic shapes and angles to advanced proofs and transformations. Build a solid foundation in spatial reasoning and mathematical thinking.',
-  thumbnail_url: geometryCourseCardBg,
-  difficulty_level: 'beginner',
-  duration_minutes: 480,
-  instructor_name: 'FPK University',
-  featured: true,
-  status: 'published'
-};
-
-// Additional static courses for display
-const additionalCourses = [
-  {
-    id: 'money-management-teens',
-    title: 'Money Management for Teens',
-    description: 'Learn essential financial skills including budgeting, saving, investing, and credit management. Build a strong foundation for financial success.',
-    instructor_name: 'FPK University',
-    duration_minutes: 360,
-    difficulty_level: 'beginner',
-    featured: true,
-    is_free: true,
-    price: 0,
-    tags: ['Life Skills', 'Personal Finance', 'Budgeting', 'Investing'],
-    thumbnail_url: courseMoneyManagement,
-  }
-];
-
-const EMPOWERING_LEARNING_READING_COURSE = {
-  id: 'empowering-learning-reading',
-  title: 'EL Reading',
-  description: 'Master reading through visual memory techniques and optimal learning states. A comprehensive program designed for visual learners to overcome reading challenges.',
-  instructor_name: 'FPK University',
-  duration_minutes: 120,
-  difficulty_level: 'beginner',
-  featured: true,
-  is_free: true,
-  price: 0,
-  tags: ['Language Arts', 'Reading', 'Visual Learning', 'Memory Techniques'],
-  thumbnail_url: courseSpellingReading,
-  status: 'published'
-};
-
-const EMPOWERING_LEARNING_NUMERACY_COURSE = {
-  id: 'empowering-learning-numeracy',
-  title: 'EL Numeracy',
-  description: 'Master mathematics through visual memory techniques and number triangles. Learn addition, subtraction, multiplication and division using proven visual learning methods.',
-  instructor_name: 'FPK University',
-  duration_minutes: 120,
-  difficulty_level: 'beginner',
-  featured: true,
-  is_free: true,
-  price: 0,
-  tags: ['Mathematics', 'Numeracy', 'Visual Learning', 'Number Triangles'],
-  thumbnail_url: courseSpellingReading,
-  status: 'published'
-};
-
-const MONEY_MANAGEMENT_COURSE = {
-  id: 'money-management-teens',
-  title: 'Money Management for Teens',
-  description: 'Learn essential financial skills including budgeting, saving, investing, and credit management. Build a strong foundation for financial success.',
-  instructor_name: 'FPK University',
-  duration_minutes: 360,
-  difficulty_level: 'beginner',
-  featured: true,
-  is_free: true,
-  price: 0,
-  tags: ['Life Skills', 'Personal Finance', 'Budgeting', 'Investing'],
-  thumbnail_url: courseMoneyManagement,
-  status: 'published'
-};
 
 // FPK University Games data
 const FPK_GAMES = [
@@ -249,43 +75,16 @@ const FPK_GAMES = [
   }
 ];
 
-const EMPOWERING_LEARNING_HANDWRITING_COURSE = {
-  id: 'empowering-learning-handwriting',
-  title: 'Advanced EL Handwriting',
-  description: 'Master handwriting techniques through systematic practice and understanding. Develop fluency, readability, and confidence in written communication.',
-  instructor_name: 'FPK University',
-  duration_minutes: 180,
-  difficulty_level: 'beginner',
-  featured: true,
-  is_free: true,
-  price: 0,
-  tags: ['Writing Skills', 'Handwriting', 'Motor Skills', 'Education'],
-  thumbnail_url: courseHandwritingBg,
-  status: 'published'
-};
-
-const EL_HANDWRITING_COURSE = {
-  id: 'el-handwriting',
-  title: 'EL Handwriting',
-  description: 'Master handwriting through visual emulation techniques and optimal learning states. Includes deep dive modules exploring the neuroscience behind handwriting development.',
-  instructor_name: 'FPK University',
-  duration_minutes: 240,
-  difficulty_level: 'beginner',
-  featured: true,
-  is_free: true,
-  price: 0,
-  tags: ['Writing Skills', 'Handwriting', 'Emulation Technique', 'Visual Learning', 'Neuroscience'],
-  thumbnail_url: elHandwritingBg,
-  status: 'published'
-};
-
 const MyCourses = () => {
   const { t } = useTranslation('dashboard');
   
   // Get user's organization membership
   const { organization: userOrganization } = useUserPrimaryOrganization();
   
-  // Fetch courses based on organization membership
+  // Fetch platform courses (global published courses)
+  const { courses: platformCourses, isLoading: platformLoading } = usePlatformCourses();
+  
+  // Fetch courses based on organization membership  
   const { courses, isLoading, error } = useCourses({
     organizationId: userOrganization?.organization_id,
   });
@@ -302,8 +101,18 @@ const MyCourses = () => {
   // Track enrollment state per course
   const [enrollingCourseIds, setEnrollingCourseIds] = useState<Set<string>>(new Set());
   
-  // Handle course enrollment with per-course state tracking
+  // Handle course enrollment with per-course state tracking and validation
   const handleCourseEnroll = async (courseId: string) => {
+    // Validate course exists in database before attempting enrollment
+    const courseExists = platformCourses.some(c => c.id === courseId) || 
+                        courses.some(c => c.id === courseId);
+    
+    if (!courseExists) {
+      toast.error('Course not found. Please refresh the page and try again.');
+      console.error('Attempted to enroll in non-existent course:', courseId);
+      return;
+    }
+    
     setEnrollingCourseIds(prev => new Set([...prev, courseId]));
     try {
       await enrollInInteractiveCourse.mutateAsync(courseId);
@@ -315,9 +124,10 @@ const MyCourses = () => {
           enrolledTab.click();
         }
       }, 1000);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to enroll in course:', courseId, error);
-      toast.error(`Failed to enroll in course: ${error.message}`);
+      const errorMessage = error?.message || 'Failed to enroll in course';
+      toast.error(errorMessage);
     } finally {
       setEnrollingCourseIds(prev => {
         const newSet = new Set(prev);
@@ -377,74 +187,13 @@ const MyCourses = () => {
   };
 
   const enrolledCourseIds = enrollments.map(e => e.course_id);
-  
 
-const EL_SPELLING_READING_COURSE = {
-  id: 'el-spelling-reading',
-  title: 'EL Spelling',
-  description: 'Master spelling and reading through visual memory techniques and optimal learning states. A comprehensive program designed for visual learners.',
-  instructor_name: 'FPK University',
-  duration_minutes: 120,
-  difficulty_level: 'beginner',
-  featured: true,
-  is_free: true,
-  price: 0,
-  tags: ['Language Arts', 'Spelling', 'Reading', 'Visual Learning', 'Memory Techniques'],
-  thumbnail_url: empoweringSpellingBg,
-  status: 'published'
-};
-
-const OPTIMAL_LEARNING_STATE_COURSE = {
-  id: 'optimal-learning-state',
-  title: 'EL Optimal Learning State',
-  description: 'Master the optimal learning state through calming techniques and brain integration methods. Learn essential techniques to achieve the most effective learning state.',
-  instructor_name: 'FPK University',
-  duration_minutes: 180,
-  difficulty_level: 'beginner',
-  featured: true,
-  is_free: true,
-  price: 0,
-  tags: ['Learning Skills', 'Brain Integration', 'Focus Enhancement', 'Calming Techniques'],
-  thumbnail_url: learningStateBg,
-  status: 'published'
-};
-
-const VIDEO_PRODUCTION_COURSE = {
-  id: 'introduction-video-production',
-  title: 'Meditation with David Scullion',
-  description: 'Learn the fundamentals of video production from start to finish in this introductory lesson.',
-  thumbnail_url: 'https://i.vimeocdn.com/video/1596743275-b4263b12c58916c739173b84e4510b423985312d41872956a59ed7a551989569-d_1920x1080',
-  difficulty_level: 'beginner',
-  duration_minutes: 20,
-  instructor_name: 'FPK University',
-  featured: false,
-  is_free: true,
-  price: 0,
-  tags: ['Video Production', 'Media', 'Creative Skills'],
-  status: 'published'
-};
-
-  // Combine global and organization courses - ensuring handwriting course is prioritized
+  // Combine global and organization courses from database
   const allAvailableCourses = [
-    EL_HANDWRITING_COURSE, // New EL Handwriting course
-    EMPOWERING_LEARNING_HANDWRITING_COURSE, // Original handwriting course
-    EL_SPELLING_READING_COURSE, // Add the primary EL Spelling & Reading course
-    OPTIMAL_LEARNING_STATE_COURSE, // Add the new Learning State course
-    ELT_EMPOWERING_LEARNING_TECHNIQUES_COURSE, // Add the new ELT course
-    VIDEO_PRODUCTION_COURSE, // Add the new Video Production course
+    ...platformCourses, // All global published courses from database
     ...courses,
     ...(orgCourses?.assignedCourses || []),
     ...(orgCourses?.organizationOwnedCourses || []),
-    INTERACTIVE_LINEAR_EQUATIONS_COURSE, // Add hardcoded courses
-    INTERACTIVE_TRIGONOMETRY_COURSE,
-    INTERACTIVE_ALGEBRA_COURSE,
-    LOGIC_CRITICAL_THINKING_COURSE,
-    NEURODIVERSITY_STRENGTHS_COURSE,
-    INTRODUCTION_TO_SCIENCE_COURSE,
-    GEOMETRY_FUNDAMENTALS_COURSE,
-    EMPOWERING_LEARNING_READING_COURSE,
-    EMPOWERING_LEARNING_NUMERACY_COURSE,
-    MONEY_MANAGEMENT_COURSE,
   ].filter((course, index, self) => 
     // Remove duplicates by id
     index === self.findIndex(c => c.id === course.id)
@@ -454,10 +203,10 @@ const VIDEO_PRODUCTION_COURSE = {
     enrolledCourseIds.includes(course.id)
   );
   
-  // Course aliases to prevent duplicates in Available Courses
+  // Course aliases to prevent duplicates in Available Courses (based on actual DB values)
   const courseAliases: Record<string, string[]> = {
-    'optimal-learning-state': ['learning-state-beta', 'empowering-learning-state'],
-    'el-spelling-reading': ['empowering-learning-spelling', '06efda03-9f0b-4c00-a064-eb65ada9fbae'],
+    'learning-state-beta': ['optimal-learning-state', 'empowering-learning-state'],
+    'el-spelling': ['el-spelling-reading', 'empowering-learning-spelling'],
   };
   
   const availableCourses = allAvailableCourses.filter(course => {
@@ -472,7 +221,9 @@ const VIDEO_PRODUCTION_COURSE = {
       if (hasAlias) return false;
     }
     
-    return course.status === 'published';
+    // Platform courses don't have a 'status' property - they're always published
+    // Only check status for org courses
+    return !('status' in course) || course.status === 'published';
   });
 
   // Native course filtering
@@ -508,7 +259,7 @@ const VIDEO_PRODUCTION_COURSE = {
   ];
 
   // Helper function to separate EL courses from other courses
-  const separateELCourses = (courseList: typeof courses) => {
+  const separateELCourses = (courseList: Array<typeof courses[0] | typeof platformCourses[0]>) => {
     const filtered = courseList.filter(course => {
       const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            course.description?.toLowerCase().includes(searchTerm.toLowerCase());
