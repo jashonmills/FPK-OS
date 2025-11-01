@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
-import { Upload, Plus, Edit2, Trash2, Eye, ArrowLeft } from 'lucide-react';
+import { Upload, Plus, Edit2, Trash2, Eye, ArrowLeft, Package } from 'lucide-react';
 import { useModules } from '@/hooks/useModules';
 import { useCourse } from '@/hooks/useCourses';
 import { useModuleMutations } from '@/hooks/useModuleMutations';
@@ -186,27 +186,132 @@ const handleEdit = (module: ModuleData) => {
           Back to Courses
         </Button>
         <div className="flex-1">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Module Manager</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+            Module Manager
+            {modules.length > 0 && (
+              <Badge variant="secondary" className="ml-2 text-base font-normal">
+                {modules.length} {modules.length === 1 ? 'Module' : 'Modules'}
+              </Badge>
+            )}
+          </h1>
           <p className="text-sm md:text-base text-gray-600">Managing modules for: {course.title}</p>
         </div>
-        <Button 
-          onClick={() => setIsCreating(true)}
-          className="w-full sm:w-auto min-h-[44px] text-sm md:text-base touch-manipulation"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          New Module
-        </Button>
+        {!isCreating && (
+          <Button 
+            onClick={() => setIsCreating(true)}
+            className="w-full sm:w-auto min-h-[44px] text-sm md:text-base touch-manipulation"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            New Module
+          </Button>
+        )}
       </div>
 
-      {isCreating && (
+      {/* Existing Modules List - Show FIRST */}
+      {!isCreating && modules.length > 0 && (
+        <div className="space-y-4 md:space-y-6">
+          {modules.map((module) => (
+            <Card key={module.id}>
+              <CardHeader>
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+                  <div className="flex-1">
+                    <CardTitle className="flex flex-col sm:flex-row sm:items-center gap-2 text-base md:text-lg">
+                      <Badge variant="outline" className="w-fit">Module {module.module_number}</Badge>
+                      {module.title}
+                    </CardTitle>
+                    <CardDescription className="text-sm md:text-base mt-2">
+                      {module.description || 'No description provided'}
+                    </CardDescription>
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleEdit(module)}
+                      className="h-9 w-9 p-0 touch-manipulation"
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleDelete(module.id)}
+                      className="h-9 w-9 p-0 touch-manipulation"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  <div>
+                    <span className="text-xs text-muted-foreground">Type</span>
+                    <p className="text-sm font-medium capitalize">{module.content_type}</p>
+                  </div>
+                  <div>
+                    <span className="text-xs text-muted-foreground">Duration</span>
+                    <p className="text-sm font-medium">{module.duration_minutes || 0} mins</p>
+                  </div>
+                  <div>
+                    <span className="text-xs text-muted-foreground">Status</span>
+                    <Badge variant={module.is_published ? "default" : "secondary"} className="text-xs">
+                      {module.is_published ? "Published" : "Draft"}
+                    </Badge>
+                  </div>
+                  <div>
+                    <span className="text-xs text-muted-foreground">Assets</span>
+                    <div className="flex gap-1 mt-1">
+                      {module.video_url && <Badge variant="outline" className="text-[10px] px-1">Video</Badge>}
+                      {module.audio_url && <Badge variant="outline" className="text-[10px] px-1">Audio</Badge>}
+                      {module.pdf_url && <Badge variant="outline" className="text-[10px] px-1">PDF</Badge>}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {/* Empty State */}
+      {!isCreating && modules.length === 0 && (
         <Card>
+          <CardContent className="flex flex-col items-center justify-center py-12">
+            <Package className="h-16 w-16 text-muted-foreground mb-4" />
+            <h3 className="text-lg font-semibold mb-2">No modules yet</h3>
+            <p className="text-sm text-muted-foreground mb-4 text-center">
+              Create your first module to start building course content.
+            </p>
+            <Button onClick={() => setIsCreating(true)} className="min-h-[44px]">
+              <Plus className="h-4 w-4 mr-2" />
+              Create First Module
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Create/Edit Form - Show when isCreating is true */}
+      {isCreating && (
+        <Card className="border-2 border-primary/20">
           <CardHeader>
-            <CardTitle className="text-lg md:text-xl">
-              {editingModule ? 'Edit Module' : 'Create New Module'}
-            </CardTitle>
-            <CardDescription className="text-sm md:text-base">
-              {editingModule ? 'Update module information and assets' : 'Add a new module to this course'}
-            </CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-lg md:text-xl flex items-center gap-2">
+                  {editingModule ? (
+                    <>
+                      <Badge variant="outline" className="bg-primary/10">Editing</Badge>
+                      Module {editingModule.module_number}
+                    </>
+                  ) : (
+                    'Create New Module'
+                  )}
+                </CardTitle>
+                <CardDescription className="text-sm md:text-base">
+                  {editingModule ? 'Update module information and assets' : 'Add a new module to this course'}
+                </CardDescription>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
@@ -440,93 +545,6 @@ const handleEdit = (module: ModuleData) => {
           </CardContent>
         </Card>
       )}
-
-      <div className="space-y-4 md:space-y-6">
-        {modules.map((module) => (
-          <Card key={module.id}>
-            <CardHeader>
-              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
-                <div className="flex-1">
-                  <CardTitle className="flex flex-col sm:flex-row sm:items-center gap-2 text-base md:text-lg">
-                    <span>Module {module.module_number}: {module.title}</span>
-                    <Badge variant={module.is_published ? 'default' : 'secondary'} className="w-fit">
-                      {module.is_published ? 'Published' : 'Draft'}
-                    </Badge>
-                  </CardTitle>
-                  {module.description && (
-                    <CardDescription className="text-sm md:text-base mt-2">{module.description}</CardDescription>
-                  )}
-                </div>
-                <div className="flex gap-1">
-                  <Button 
-                    size="sm" 
-                    variant="ghost" 
-                    onClick={() => handleEdit(module)}
-                    className="h-9 w-9 p-0 touch-manipulation"
-                  >
-                    <Edit2 className="h-4 w-4" />
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    variant="ghost" 
-                    onClick={() => handleDelete(module.id)}
-                    className="h-9 w-9 p-0 touch-manipulation"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
-                <div>
-                  <span className="font-medium">Type:</span> {module.content_type}
-                </div>
-                <div>
-                  <span className="font-medium">Duration:</span> {module.duration_minutes} mins
-                </div>
-                <div>
-                  <span className="font-medium">Assets:</span>
-                  <div className="flex flex-wrap gap-1 mt-1">
-                    {module.video_url && <Badge variant="outline" className="text-xs">Video</Badge>}
-                    {module.audio_url && <Badge variant="outline" className="text-xs">Audio</Badge>}
-                    {module.pdf_url && <Badge variant="outline" className="text-xs">PDF</Badge>}
-                    {module.word_url && <Badge variant="outline" className="text-xs">Word</Badge>}
-                    {module.image_url && <Badge variant="outline" className="text-xs">Image</Badge>}
-                  </div>
-                </div>
-                <div>
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    asChild
-                    className="w-full min-h-[36px] text-xs md:text-sm touch-manipulation"
-                  >
-                    <a href={`/dashboard/learner/course/${course.slug}?module=${module.module_number}`} target="_blank">
-                      <Eye className="h-4 w-4 mr-1" />
-                      Preview
-                    </a>
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-
-        {modules.length === 0 && (
-          <div className="text-center py-8 md:py-12">
-            <h3 className="text-base md:text-lg font-medium text-gray-900 mb-2">No modules yet</h3>
-            <p className="text-sm md:text-base text-gray-600 mb-4">Get started by creating your first module for this course.</p>
-            <Button 
-              onClick={() => setIsCreating(true)}
-              className="min-h-[44px] text-sm md:text-base touch-manipulation"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Create First Module
-            </Button>
-          </div>
-        )}
-      </div>
     </div>
   );
 };

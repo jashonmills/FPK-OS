@@ -20,6 +20,7 @@ import {
 import { useCourse } from '@/hooks/useCourses';
 import { useLessons, useLessonMutations } from '@/hooks/useLessons';
 import { useUserRole } from '@/hooks/useUserRole';
+import { useToast } from '@/hooks/use-toast';
 import ScormUploader from './ScormUploader';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
@@ -30,6 +31,7 @@ const LessonManager = () => {
   const { course, isLoading: courseLoading } = useCourse(slug || '');
   const { data: lessons = [], isLoading: lessonsLoading, refetch } = useLessons(course?.id || '');
   const { deleteLesson, isDeleting } = useLessonMutations();
+  const { toast } = useToast();
   
   const [activeTab, setActiveTab] = useState('list');
 
@@ -123,7 +125,14 @@ const LessonManager = () => {
           Back to Courses
         </Button>
         <div className="flex-1">
-          <h1 className="text-2xl md:text-3xl font-bold">Lesson Management</h1>
+          <h1 className="text-2xl md:text-3xl font-bold">
+            Lesson Management
+            {lessons.length > 0 && (
+              <Badge variant="secondary" className="ml-2 text-base font-normal">
+                {lessons.length} {lessons.length === 1 ? 'Lesson' : 'Lessons'}
+              </Badge>
+            )}
+          </h1>
           {course && (
             <p className="text-sm md:text-base text-muted-foreground">
               Managing lessons for: <span className="font-semibold">{course.title}</span>
@@ -205,9 +214,17 @@ const LessonManager = () => {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => {
-                                  // Feature coming soon: Lesson preview
-                                  // Navigate to lesson preview when implemented
+                                  if (lesson.scorm_package_url) {
+                                    window.open(lesson.scorm_package_url, '_blank');
+                                  } else {
+                                    toast({
+                                      title: "Preview Not Available",
+                                      description: "No SCORM package URL found for this lesson.",
+                                      variant: "destructive"
+                                    });
+                                  }
                                 }}
+                                title="Preview lesson"
                               >
                                 <Eye className="h-4 w-4" />
                               </Button>
@@ -215,9 +232,12 @@ const LessonManager = () => {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => {
-                                  // Feature coming soon: Lesson editing
-                                  // Open lesson edit modal when implemented
+                                  toast({
+                                    title: "Coming Soon",
+                                    description: "Lesson editing interface will be available in the next update.",
+                                  });
                                 }}
+                                title="Edit lesson"
                               >
                                 <Edit2 className="h-4 w-4" />
                               </Button>

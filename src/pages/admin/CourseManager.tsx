@@ -107,6 +107,14 @@ const CourseManager = () => {
       status: course.status || 'draft'
     });
     setIsCreating(true);
+    
+    // Scroll to form after state updates
+    setTimeout(() => {
+      const formElement = document.querySelector('form');
+      if (formElement) {
+        formElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
   };
 
   const handleDelete = async (courseId: string) => {
@@ -232,12 +240,25 @@ const CourseManager = () => {
       </div>
 
       {isCreating && (
-        <Card>
+        <Card className="border-2 border-primary/20">
           <CardHeader>
-            <CardTitle className="text-lg md:text-xl">{editingCourse ? 'Edit Course' : 'Create New Course'}</CardTitle>
-            <CardDescription className="text-sm md:text-base">
-              {editingCourse ? 'Update course information' : 'Add a new course to the platform'}
-            </CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-lg md:text-xl flex items-center gap-2">
+                  {editingCourse ? (
+                    <>
+                      <Badge variant="outline" className="bg-primary/10">Editing</Badge>
+                      {editingCourse.title}
+                    </>
+                  ) : (
+                    'Create New Course'
+                  )}
+                </CardTitle>
+                <CardDescription className="text-sm md:text-base">
+                  {editingCourse ? 'Update course information' : 'Add a new course to the platform'}
+                </CardDescription>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
@@ -455,7 +476,7 @@ const CourseManager = () => {
                       alert('Course slug is missing. Please edit the course and add a slug first.');
                       return;
                     }
-                    navigate(`/dashboard/learner/course/${course.slug}`);
+                    navigate(`/courses/player/${course.slug}`);
                   }}
                 >
                   Preview Course
