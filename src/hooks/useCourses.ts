@@ -43,7 +43,8 @@ export function useCourses(options?: {
   const queryClient = useQueryClient();
 
   const { data: courses = [], isLoading, error, refetch } = useQuery({
-    queryKey: ['courses-v2', options], // v2 to force cache invalidation
+    queryKey: ['courses-v3', options], // v3 to force cache invalidation
+    refetchOnMount: 'always', // Force refetch on mount
     queryFn: async () => {
       console.log('[useCourses] Query options:', options);
       
@@ -201,6 +202,8 @@ export function useCourses(options?: {
 
   const togglePublishMutation = useMutation({
     mutationFn: async ({ courseId, newStatus }: { courseId: string; newStatus: 'draft' | 'published' }) => {
+      console.log('[togglePublish] Attempting to update course:', { courseId, newStatus });
+      
       const { data, error } = await supabase
         .from('courses')
         .update({ status: newStatus })
@@ -208,21 +211,38 @@ export function useCourses(options?: {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('[togglePublish] Update failed:', {
+          error,
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+        });
+        throw error;
+      }
+      
+      console.log('[togglePublish] Update successful:', data);
       return data;
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['courses'] });
+      queryClient.invalidateQueries({ queryKey: ['platform-courses'] });
       toast({
         title: "Success",
         description: `Course ${variables.newStatus === 'published' ? 'published' : 'unpublished'} successfully.`,
       });
     },
-    onError: (error) => {
-      console.error('Error toggling course status:', error);
+    onError: (error: any) => {
+      console.error('[togglePublish] Error toggling course status:', error);
+      
+      const errorMessage = error?.message || 'Failed to update course status.';
+      const errorHint = error?.hint ? ` (${error.hint})` : '';
+      const errorCode = error?.code ? ` [Code: ${error.code}]` : '';
+      
       toast({
         title: "Error",
-        description: "Failed to update course status.",
+        description: `${errorMessage}${errorHint}${errorCode}`,
         variant: "destructive",
       });
     },
@@ -246,7 +266,8 @@ export function useCourses(options?: {
 
 export function useCourse(slugOrId: string) {
   const { data: course, isLoading, error, refetch } = useQuery({
-    queryKey: ['course-v2', slugOrId], // v2 to force cache invalidation
+    queryKey: ['course-v3', slugOrId], // v3 to force cache invalidation
+    refetchOnMount: 'always', // Force refetch on mount
     queryFn: async () => {
       if (!slugOrId) return null;
 

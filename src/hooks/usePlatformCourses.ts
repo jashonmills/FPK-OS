@@ -19,7 +19,7 @@ export interface PlatformCourse {
 
 export function usePlatformCourses() {
   const { data: courses = [], isLoading, error } = useQuery({
-    queryKey: ['platform-courses'],
+    queryKey: ['platform-courses-v3'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('courses')
@@ -36,6 +36,7 @@ export function usePlatformCourses() {
       return data as PlatformCourse[];
     },
     staleTime: 0, // Always fetch fresh data
+    refetchOnMount: 'always', // Force refetch on mount
   });
 
   return {
