@@ -18,7 +18,6 @@ import { useOrgMembers } from '@/hooks/useOrgMembers';
 import { useOrgGroups } from '@/hooks/useOrgGroups';
 import { useOrgAssignments } from '@/hooks/useOrgAssignments';
 import { BookOpen, Users, UserPlus, Loader2, Calendar } from 'lucide-react';
-import { getCourseImage } from '@/utils/courseImages';
 import type { CourseCard } from '@/types/course-card';
 import { Progress } from '@/components/ui/progress';
 
@@ -155,7 +154,7 @@ export function BulkAssignmentDialog({
                 {courses.map((course) => (
                   <div key={course.id} className="flex items-center gap-3 p-2 rounded bg-muted/50">
                     <img
-                      src={getCourseImage(course.id, course.title)}
+                      src={course.thumbnail_url || 'https://images.unsplash.com/photo-1501504905252-473c47e087f8'}
                       alt={course.title}
                       className="w-12 h-12 object-cover rounded"
                     />

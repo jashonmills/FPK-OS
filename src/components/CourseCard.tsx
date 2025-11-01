@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { BookOpen, Star, CheckCircle, Clock } from 'lucide-react';
 import type { Course } from '@/hooks/useEnrolledCourses';
-import { getCourseImage } from '@/utils/courseImages';
 import { shouldShowBetaFeatures } from '@/lib/featureFlags';
 
 interface CourseCardProps {
@@ -31,8 +30,8 @@ const CourseCard: React.FC<CourseCardProps> = ({
   const completedModules = progress?.completed_modules?.length || 0;
   const isCompleted = progress?.completed || false;
 
-  // Get the course image using the shared utility
-  const courseImage = getCourseImage(course.id, course.title);
+  // Get the course image from database
+  const courseImage = (course as any).background_image || (course as any).thumbnail_url || 'https://images.unsplash.com/photo-1501504905252-473c47e087f8';
 
   return (
     <Card className="fpk-card border-0 shadow-lg hover:shadow-xl transition-shadow">

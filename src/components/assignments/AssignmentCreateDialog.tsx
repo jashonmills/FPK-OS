@@ -18,7 +18,6 @@ import { useOrgMembers } from '@/hooks/useOrgMembers';
 import { useOrgGroups } from '@/hooks/useOrgGroups';
 import { useOrgAssignments } from '@/hooks/useOrgAssignments';
 import { Calendar, Loader2, User, Users, UserPlus } from 'lucide-react';
-import { getCourseImage } from '@/utils/courseImages';
 import type { CourseCard } from '@/types/course-card';
 
 interface AssignmentCreateDialogProps {
@@ -128,7 +127,7 @@ export function AssignmentCreateDialog({ course, trigger, open: controlledOpen, 
           {/* Course Info */}
           <div className="flex items-center gap-3 p-4 rounded-lg bg-muted/50">
             <img
-              src={getCourseImage(course.id, course.title)}
+              src={course.thumbnail_url || 'https://images.unsplash.com/photo-1501504905252-473c47e087f8'}
               alt={course.title}
               className="w-16 h-16 object-cover rounded"
             />

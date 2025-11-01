@@ -15,7 +15,6 @@ import {
 import { useNavigate } from 'react-router-dom';
 import type { CourseCardModel, CourseCardActions } from '@/types/enhanced-course-card';
 import type { StudentAssignment } from '@/hooks/useStudentAssignments';
-import { getCourseImage } from '@/utils/courseImages';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 
@@ -32,7 +31,7 @@ export function StudentEnhancedCourseCard({
   viewType = 'grid',
   assignment 
 }: StudentEnhancedCourseCardProps) {
-  const courseImage = getCourseImage(course.id, course.title);
+  const courseImage = course.thumbnailUrl || 'https://images.unsplash.com/photo-1501504905252-473c47e087f8';
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   

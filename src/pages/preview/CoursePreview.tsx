@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, BookOpen, Clock, User, Star, Play } from 'lucide-react';
-import { getCourseImage } from '@/utils/courseImages';
 import { useAuth } from '@/hooks/useAuth';
 import { useContextAwareNavigation } from '@/hooks/useContextAwareNavigation';
 
@@ -163,7 +162,7 @@ export default function CoursePreview() {
     );
   }
 
-  const courseImage = getCourseImage(course.id, course.title);
+  const courseImage = course.thumbnail_url || 'https://images.unsplash.com/photo-1501504905252-473c47e087f8';
 
   return (
     <div className="min-h-screen bg-background">

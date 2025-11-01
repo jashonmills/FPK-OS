@@ -10,7 +10,7 @@ import { BookOpen, Clock, Users, Eye, UserPlus, MoreVertical, Edit, Copy, BarCha
 import { ConfirmModal } from './ConfirmModal';
 import type { CourseCardModel, CourseCardActions, ConfirmModalData } from '@/types/enhanced-course-card';
 import { useOrgPermissions } from '@/hooks/useOrgPermissions';
-import { getCourseImage } from '@/utils/courseImages';
+
 interface EnhancedCourseCardProps {
   course: CourseCardModel;
   actions: CourseCardActions;
@@ -110,7 +110,7 @@ export function EnhancedCourseCard({
   const canPublish = isOrgCourse && canManageOrg() && course.status !== 'published';
   const canUnpublish = isOrgCourse && canManageOrg() && course.status === 'published';
   const canDelete = isOrgCourse && canManageOrg();
-  const courseImage = getCourseImage(course.id, course.title);
+  const courseImage = course.thumbnailUrl || 'https://images.unsplash.com/photo-1501504905252-473c47e087f8';
 
   // Render compact view
   if (viewType === 'compact') {

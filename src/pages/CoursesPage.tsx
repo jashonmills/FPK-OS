@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { getCourseImage } from '@/utils/courseImages';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -179,7 +178,7 @@ const CoursesPage: React.FC = () => {
       <div className="container mx-auto px-6 sm:px-8 lg:px-12 py-8 sm:py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {courses.map((course) => {
-            const courseImage = getCourseImage(course.id, course.title);
+            const courseImage = course.image || 'https://images.unsplash.com/photo-1501504905252-473c47e087f8';
             
             return (
               <Card key={course.id} className="relative flex flex-col h-full hover:shadow-xl transition-all duration-300 overflow-hidden group bg-white/40 backdrop-blur-md border-white/20 shadow-lg">
