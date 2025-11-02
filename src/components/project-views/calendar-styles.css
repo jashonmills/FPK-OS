@@ -139,3 +139,54 @@
   color: hsl(var(--foreground));
   font-size: 0.875rem;
 }
+
+/* Agenda view styles */
+.rbc-agenda-table {
+  background-color: hsl(var(--card)) !important;
+  border: 1px solid hsl(var(--border));
+}
+
+.rbc-agenda-table thead > tr > th,
+.rbc-agenda-table tbody > tr > td {
+  background-color: hsl(var(--card)) !important;
+  color: hsl(var(--foreground)) !important;
+  border-color: hsl(var(--border)) !important;
+  padding: 12px 10px;
+}
+
+.rbc-agenda-table thead > tr > th {
+  font-weight: 600;
+  border-bottom: 2px solid hsl(var(--border));
+}
+
+.rbc-agenda-date-cell {
+  background-color: hsl(var(--card)) !important;
+  color: hsl(var(--foreground)) !important;
+  padding: 12px 10px !important;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.rbc-agenda-time-cell {
+  background-color: hsl(var(--card)) !important;
+  color: hsl(var(--muted-foreground)) !important;
+  padding: 12px 10px !important;
+  white-space: nowrap;
+}
+
+.rbc-agenda-event-cell {
+  background-color: hsl(var(--card)) !important;
+  color: hsl(var(--foreground)) !important;
+  padding: 12px 10px !important;
+}
+
+.rbc-agenda-empty {
+  background-color: hsl(var(--card)) !important;
+  color: hsl(var(--muted-foreground)) !important;
+  padding: 20px;
+  text-align: center;
+}
+
+.rbc-agenda-content {
+  padding-bottom: 0;
+}
