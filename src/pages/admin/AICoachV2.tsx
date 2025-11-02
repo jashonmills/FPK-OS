@@ -38,10 +38,10 @@ export default function AICoachV2() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pt-4">
       {/* Header */}
       <div className="border-b bg-card">
-        <div className="container mx-auto px-4 py-6">
+        <div className="container mx-auto px-4 py-6 pt-8">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500">
               <Sparkles className="h-6 w-6 text-white" />
