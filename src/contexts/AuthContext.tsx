@@ -72,8 +72,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
-    navigate('/auth');
+    try {
+      // Clear local state immediately
+      setUser(null);
+      setSession(null);
+      
+      // Try to sign out from Supabase, but don't block on errors
+      await supabase.auth.signOut();
+    } catch (error) {
+      // Ignore errors - session might already be invalid (403 errors are common)
+      console.log('Sign out error (ignored):', error);
+    } finally {
+      // Always clear local storage and navigate, regardless of API response
+      localStorage.removeItem('sb-blkcxbyloxzmgwjbbcqd-auth-token');
+      navigate('/auth');
+    }
   };
 
   const refreshPasswordStatus = async () => {
