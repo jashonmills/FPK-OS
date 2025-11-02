@@ -37,6 +37,7 @@ export const V2_SEQUENTIAL_COURSE_SLUGS = [
   'pre-calculus',
   'world-history-ancient-to-modern',
   'introduction-to-philosophy',
+  'math-6-3-algebra-stats-probability',
 ] as const;
 
 export type V2SequentialCourseSlug = typeof V2_SEQUENTIAL_COURSE_SLUGS[number];
