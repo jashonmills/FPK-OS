@@ -1,0 +1,57 @@
+{
+  "courseId": "earth-science-our-planet-in-space",
+  "courseSlug": "earth-science-our-planet-in-space",
+  "contentVersion": "v2",
+  "title": "Earth Science: Our Planet in Space",
+  "description": "A comprehensive overview of our planet and its place in the universe, covering geology, meteorology, oceanography, and astronomy.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Earth's Structure and Plate Tectonics",
+      "description": "Identify Earth's layers and understand how plate movement causes earthquakes and volcanoes.",
+      "contentType": "text",
+      "unit": "Unit 1: The Solid Earth - Geology",
+      "unitColor": "from-amber-500 to-orange-600"
+    },
+    {
+      "id": 2,
+      "title": "Rocks and the Rock Cycle",
+      "description": "Learn about the three main types of rock and how they transform through the rock cycle.",
+      "contentType": "text",
+      "unit": "Unit 1: The Solid Earth - Geology",
+      "unitColor": "from-amber-500 to-orange-600"
+    },
+    {
+      "id": 3,
+      "title": "The World's Oceans",
+      "description": "Understand the role of oceans in climate regulation and learn about ocean currents and tides.",
+      "contentType": "text",
+      "unit": "Unit 2: The Fluid Earth - Oceanography & Meteorology",
+      "unitColor": "from-blue-500 to-cyan-600"
+    },
+    {
+      "id": 4,
+      "title": "The Atmosphere and Weather",
+      "description": "Identify atmospheric layers and understand how air pressure differences create weather patterns.",
+      "contentType": "text",
+      "unit": "Unit 2: The Fluid Earth - Oceanography & Meteorology",
+      "unitColor": "from-blue-500 to-cyan-600"
+    },
+    {
+      "id": 5,
+      "title": "The Earth, Moon, and Sun System",
+      "description": "Explore how Earth's tilt causes seasons, understand moon phases, and learn about eclipses.",
+      "contentType": "text",
+      "unit": "Unit 3: The Celestial Sphere - Astronomy",
+      "unitColor": "from-indigo-500 to-purple-600"
+    },
+    {
+      "id": 6,
+      "title": "The Solar System and Beyond",
+      "description": "Journey through our solar system and understand the vast scale of the cosmos.",
+      "contentType": "text",
+      "unit": "Unit 3: The Celestial Sphere - Astronomy",
+      "unitColor": "from-indigo-500 to-purple-600"
+    }
+  ]
+}
