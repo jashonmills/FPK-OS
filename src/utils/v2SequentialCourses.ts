@@ -32,6 +32,7 @@ export const V2_SEQUENTIAL_COURSE_SLUGS = [
   'writing-and-composition-the-complete-essay',
   'biology-the-study-of-life',
   'introduction-to-literature-analyzing-fiction',
+  'ap-biology',
 ] as const;
 
 export type V2SequentialCourseSlug = typeof V2_SEQUENTIAL_COURSE_SLUGS[number];
