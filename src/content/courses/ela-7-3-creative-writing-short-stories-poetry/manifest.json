@@ -1,0 +1,416 @@
+{
+  "courseId": "ela-7-3-creative-writing-short-stories-poetry",
+  "courseSlug": "ela-7-3-creative-writing-short-stories-poetry",
+  "contentVersion": "v2",
+  "title": "ELA 7.3: Creative Writing - Short Stories & Poetry",
+  "description": "Discover the building blocks of powerful storytelling and expressive poetry, and learn the techniques to craft your own original works.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Lesson 1: Generating Ideas and Finding Your Voice",
+      "description": "Learn techniques for brainstorming story ideas and discover your unique writer's voice.",
+      "contentType": "text",
+      "unit": "Unit 1: The Art of the Short Story",
+      "unitColor": "violet",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn techniques for brainstorming story ideas (e.g., 'what if' scenarios, observation journals).",
+            "Understand the concept of 'voice' in writing.",
+            "Practice freewriting to overcome writer's block and discover ideas."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - Where Do Stories Come From?",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Stories are everywhere. They come from our experiences, our fears, our dreams, and our observations of the world around us. The first step for any writer is learning how to pay attention. A great story can be sparked by a snippet of conversation you overhear, a peculiar object you see, or a simple 'what if' question. For example, 'What if a girl could talk to animals?' or 'What if a boy woke up one day and could fly?'"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Finding Your Voice",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Your writer's 'voice' is your unique personality on the page. It's the combination of your word choice (diction), your sentence structure (syntax), and your attitude toward the subject (tone). Are you funny and sarcastic? Serious and poetic? Your voice is what makes your writing sound like you and no one else. The best way to develop your voice is simply to write a lot and be authentic to yourself."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "A writer's unique personality on the page is called their...?",
+          "options": ["Plot", "Theme", "Voice"],
+          "correctAnswer": "Voice",
+          "explanation": "Remember, 'voice' is what makes your writing uniquely yours."
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Lesson 2: Crafting Compelling Characters",
+      "description": "Understand that character desire drives plot and learn to show character through actions.",
+      "contentType": "text",
+      "unit": "Unit 1: The Art of the Short Story",
+      "unitColor": "violet",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand that character desire is the engine of plot.",
+            "Learn to show, not tell, a character's personality through actions and dialogue.",
+            "Create a basic character profile, including motivations, flaws, and fears."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - What Does Your Character Want?",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A story only becomes interesting when a character wants something badly and has trouble getting it. This desire creates the central conflict. A character might want to win a competition, escape a dangerous situation, or earn someone's forgiveness. The stronger the desire and the bigger the obstacles, the more compelling the story will be. Before you write, you must know what your protagonist wants more than anything."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Show, Don't Tell",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Telling:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "'Jane was angry.'"
+        },
+        {
+          "type": "heading",
+          "content": "Showing:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "'Jane clenched her fists, her knuckles turning white. She stared at the floor, refusing to meet his gaze.' The second example is much more powerful because it allows the reader to experience Jane's anger through her actions, rather than just being told about it."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is the 'engine' that drives the plot of a story?",
+          "options": ["The setting", "The character's desire", "The weather"],
+          "correctAnswer": "The character's desire",
+          "explanation": "While setting is important, the story doesn't start until a character wants something."
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Lesson 3: Building a World with Setting and Mood",
+      "description": "Learn to use sensory details to bring settings to life and create mood.",
+      "contentType": "text",
+      "unit": "Unit 1: The Art of the Short Story",
+      "unitColor": "violet",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand that setting is more than just a location; it's a time and a place.",
+            "Learn to use sensory details (sight, sound, smell, touch, taste) to bring a setting to life.",
+            "Analyze how setting can create a specific mood or atmosphere."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - The World of the Story",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The setting is the world where your story takes place. It can be a real place, like modern-day Dublin, or a fantastical one, like a castle on Mars. A strong setting does more than just provide a backdrop; it influences the characters and the plot. The mood, or atmosphere, of a story is the emotional feeling the reader gets from the setting. A story set in a dark, crumbling mansion will have a very different mood from one set on a sunny beach."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Using Sensory Details",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Instead of:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "'It was a forest.'"
+        },
+        {
+          "type": "heading",
+          "content": "Try:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "'The scent of damp earth and pine filled the air (smell). A single ray of sunlight cut through the thick canopy, illuminating a carpet of moss (sight). The only sound was the distant caw of a crow (sound).'"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "The emotional feeling that a setting creates is called the...?",
+          "options": ["Plot", "Mood", "Theme"],
+          "correctAnswer": "Mood",
+          "explanation": "The mood is the atmosphere or feeling created by the setting."
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Lesson 4: Imagery and Sensory Details in Poetry",
+      "description": "Learn to create vivid imagery using sensory language.",
+      "contentType": "text",
+      "unit": "Unit 2: The Poet's Toolkit",
+      "unitColor": "pink",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define imagery as language that appeals to the five senses.",
+            "Understand that poetry often communicates through images rather than direct statements.",
+            "Practice writing lines of poetry using vivid sensory details."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - Painting a Picture with Words",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Poetry works by creating powerful images in the reader's mind. An image is a word or phrase that appeals to one of the five senses: sight, sound, smell, taste, or touch. Instead of telling the reader how something feels, a poet shows them. The goal is to create a sensory experience for the reader, making them feel like they are right there in the moment."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Examples of Imagery",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Sight:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "'The red wheelbarrow / glazed with rain water'"
+        },
+        {
+          "type": "heading",
+          "content": "Sound:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "'the buzz-saw snarled and rattled'"
+        },
+        {
+          "type": "heading",
+          "content": "Smell:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "'The smell of coffee and old books'"
+        },
+        {
+          "type": "heading",
+          "content": "Touch:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "'The smooth, cool stone under my hand'"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "The line 'The crackle of a burning log' appeals to which sense?",
+          "options": ["Sight", "Smell", "Sound"],
+          "correctAnswer": "Sound",
+          "explanation": "'Crackle' is a word that describes a sound."
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Lesson 5: Figurative Language in Poetry",
+      "description": "Review figurative language and analyze its effect in poetry.",
+      "contentType": "text",
+      "unit": "Unit 2: The Poet's Toolkit",
+      "unitColor": "pink",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Review simile, metaphor, and personification.",
+            "Understand how these devices create layers of meaning in a poem.",
+            "Analyze the effect of a specific metaphor or simile in a poem."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - The Language of Comparison",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Figurative language is the heart of poetry. It allows a poet to express complex ideas and emotions by making surprising connections between things. A metaphor doesn't just say something is like something else; it says it IS something else, forcing us to see it in a new and powerful way. For example, saying 'Hope is the thing with feathers' gives the abstract idea of hope the living, breathing qualities of a bird."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Analyzing a Metaphor",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "When you see a metaphor, ask yourself: What two things are being compared? What qualities does the second thing have? How does transferring those qualities to the first thing change my understanding of it? This deepens your reading and uncovers the poet's intended meaning."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is the main purpose of using a metaphor in a poem?",
+          "options": ["To make the poem longer", "To create a surprising comparison that reveals a deeper meaning", "To make the poem rhyme"],
+          "correctAnswer": "To create a surprising comparison that reveals a deeper meaning",
+          "explanation": "Metaphors are all about creating new meaning through comparison."
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Lesson 6: The Music of Poetry - Sound Devices",
+      "description": "Learn key sound devices and understand their effect on poetry.",
+      "contentType": "text",
+      "unit": "Unit 2: The Poet's Toolkit",
+      "unitColor": "pink",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define and identify key sound devices: alliteration, assonance, and onomatopoeia.",
+            "Understand how sound devices contribute to the rhythm and mood of a poem.",
+            "Analyze the effect of sound in a poem."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - More Than Just Words",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Poetry is meant to be heard as much as it is meant to be read. Poets carefully choose words not just for their meaning, but for their sound. Sound devices create the 'music' of a poem, contributing to its rhythm, mood, and overall effect on the reader."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Key Sound Devices",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Alliteration:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "The repetition of the same consonant sound at the beginning of words (e.g., 'Peter Piper picked a peck of pickled peppers')."
+        },
+        {
+          "type": "heading",
+          "content": "Assonance:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "The repetition of the same vowel sound within words (e.g., 'The rain in Spain falls mainly on the plain')."
+        },
+        {
+          "type": "heading",
+          "content": "Onomatopoeia:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "A word that imitates the sound it represents (e.g., 'buzz,' 'hiss,' 'crash')."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "The phrase 'The snake slithered silently' is an example of...?",
+          "options": ["Assonance", "Alliteration", "Onomatopoeia"],
+          "correctAnswer": "Alliteration",
+          "explanation": "Notice the repetition of the 's' sound at the beginning of the words."
+        }
+      ]
+    }
+  ]
+}
