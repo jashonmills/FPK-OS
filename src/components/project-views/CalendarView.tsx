@@ -2,6 +2,8 @@ import { useMemo, useCallback } from 'react';
 import { Calendar, momentLocalizer, Event as BigCalendarEvent, View } from 'react-big-calendar';
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
 import moment from 'moment';
+import 'react-big-calendar/lib/css/react-big-calendar.css';
+import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { getEventTypeColor } from '@/components/calendar/EventTypeIcon';
@@ -45,13 +47,24 @@ export const CalendarView = ({ tasks, projectColor, projectId, onTaskClick, onTa
   const { toast } = useToast();
 
   const { events, tasksWithDates, tasksWithoutDates } = useMemo(() => {
+    console.log('=== CalendarView Debug ===');
+    console.log('Input tasks:', tasks);
+    console.log('Project color:', projectColor);
+    
     const withDates = tasks.filter(task => task.due_date);
     const withoutDates = tasks.filter(task => !task.due_date);
+    
+    console.log('Tasks with dates:', withDates);
+    console.log('Tasks without dates:', withoutDates);
     
     const calendarEvents = withDates
       .filter(task => {
         const dueDate = new Date(task.due_date!);
-        return !isNaN(dueDate.getTime());
+        const isValid = !isNaN(dueDate.getTime());
+        if (!isValid) {
+          console.warn(`Invalid date for task ${task.id}:`, task.due_date);
+        }
+        return isValid;
       })
       .map(task => {
         // Create dates and normalize to midnight for all-day events
@@ -62,15 +75,24 @@ export const CalendarView = ({ tasks, projectColor, projectId, onTaskClick, onTa
         start.setHours(0, 0, 0, 0);
         end.setHours(23, 59, 59, 999);
         
+        console.log(`Task: ${task.title}`);
+        console.log(`  Due date string: ${task.due_date}`);
+        console.log(`  Start date object:`, start);
+        console.log(`  End date object:`, end);
+        console.log(`  Color:`, projectColor || 'rgba(139, 92, 246, 0.9)');
+        
         return {
           title: task.title,
           start,
           end,
           task,
           color: projectColor || 'rgba(139, 92, 246, 0.9)',
-          allDay: true,
+          allDay: true, // Mark as all-day event for month view
         };
       });
+
+    console.log('Final calendar events:', calendarEvents);
+    console.log('=== End CalendarView Debug ===');
 
     return {
       events: calendarEvents,
@@ -117,14 +139,6 @@ export const CalendarView = ({ tasks, projectColor, projectId, onTaskClick, onTa
         backgroundColor: eventColor,
         borderColor: eventColor,
         color: 'white',
-        border: `1px solid ${eventColor}`,
-        display: 'block',
-        opacity: '1',
-        minHeight: '20px',
-        fontSize: '0.8125rem',
-        padding: '2px 5px',
-        borderRadius: '4px',
-        cursor: 'pointer',
       },
     };
   }, []);

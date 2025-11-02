@@ -1,70 +1,23 @@
 /* Custom styles for react-big-calendar */
 .rbc-calendar {
   font-family: inherit;
-  background-color: hsl(var(--background));
-  color: hsl(var(--foreground));
 }
 
 .rbc-header {
   padding: 10px 6px;
   font-weight: 600;
   font-size: 0.875rem;
-  background-color: hsl(var(--card));
-  color: hsl(var(--foreground));
-  border-bottom: 1px solid hsl(var(--border));
 }
 
 .rbc-today {
   background-color: hsl(var(--accent) / 0.1);
 }
 
-/* Fix calendar backgrounds for dark mode */
-.rbc-month-view,
-.rbc-time-view,
-.rbc-agenda-view {
-  background-color: hsl(var(--background));
-  color: hsl(var(--foreground));
-}
-
-.rbc-day-bg,
-.rbc-time-slot {
-  background-color: hsl(var(--card));
-}
-
-.rbc-time-header-content {
-  border-left: 1px solid hsl(var(--border));
-}
-
-/* Ensure events are always visible with high specificity */
-.rbc-calendar .rbc-event,
-.rbc-month-view .rbc-event,
-.rbc-day-slot .rbc-event {
-  padding: 2px 5px !important;
-  border-radius: 4px !important;
-  font-size: 0.8125rem !important;
-  cursor: pointer !important;
-  display: block !important;
-  min-height: 20px !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-}
-
-.rbc-calendar .rbc-event-content {
-  display: block !important;
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-}
-
-/* Ensure all-day events in month view are visible */
-.rbc-month-view .rbc-row-segment {
-  padding: 1px 2px !important;
-  min-height: 22px !important;
-}
-
-.rbc-month-view .rbc-event-content {
-  color: white !important;
-  font-weight: 500 !important;
+.rbc-event {
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-size: 0.8125rem;
+  cursor: pointer;
 }
 
 .rbc-event:focus {
@@ -87,11 +40,7 @@
 }
 
 .rbc-off-range-bg {
-  background-color: hsl(var(--muted) / 0.2);
-}
-
-.rbc-off-range {
-  color: hsl(var(--muted-foreground));
+  background-color: hsl(var(--muted) / 0.3);
 }
 
 .rbc-toolbar {
