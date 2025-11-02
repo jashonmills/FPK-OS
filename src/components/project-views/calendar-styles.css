@@ -13,19 +13,11 @@
   background-color: hsl(var(--accent) / 0.1);
 }
 
-.rbc-event {
-  padding: 2px 5px;
-  border-radius: 4px;
-  font-size: 0.8125rem;
-  cursor: pointer;
-}
-
-.rbc-event:focus {
-  outline: 2px solid hsl(var(--ring));
-  outline-offset: 2px;
-}
-
-.rbc-month-view {
+/* Fix calendar backgrounds for dark mode */
+.rbc-month-view,
+.rbc-time-view,
+.rbc-agenda-view {
+  background-color: hsl(var(--card)) !important;
   border: 1px solid hsl(var(--border));
   border-radius: 8px;
   overflow: hidden;
@@ -36,11 +28,42 @@
 }
 
 .rbc-day-bg {
+  background-color: hsl(var(--card)) !important;
   border-left: 1px solid hsl(var(--border));
+}
+
+.rbc-time-slot {
+  background-color: hsl(var(--card)) !important;
 }
 
 .rbc-off-range-bg {
   background-color: hsl(var(--muted) / 0.3);
+}
+
+/* Ensure events are fully visible */
+.rbc-event {
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  min-height: 20px !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+
+.rbc-event:focus {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+.rbc-event-content {
+  overflow: visible !important;
+  white-space: normal !important;
+  line-height: 1.2;
+}
+
+.rbc-row-segment {
+  padding: 2px 1px !important;
 }
 
 .rbc-toolbar {
