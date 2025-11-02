@@ -1,14 +1,11 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, ChevronUp, Clock, GraduationCap } from 'lucide-react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import type { PlatformCourse } from '@/hooks/usePlatformCourses';
 import type { Course } from '@/hooks/useCourses';
 import { groupCoursesByHierarchy } from '@/hooks/usePlatformCourses';
-import { Loader2 } from 'lucide-react';
+import { StyledCourseCard } from '@/components/common/StyledCourseCard';
 
 // Union type to accept both PlatformCourse and Course
 type DisplayCourse = PlatformCourse | Course;
@@ -45,58 +42,29 @@ export function HierarchicalCourseCatalog({ courses, onEnroll, enrollingCourseId
   };
   
   const renderCourseCard = (course: DisplayCourse) => {
-    const courseImage = course.thumbnail_url || 
-      'https://images.unsplash.com/photo-1501504905252-473c47e087f8';
+    // Derive course type from grade level and subject
+    const getCourseType = () => {
+      if ('grade_level' in course && course.grade_level) {
+        const gradeName = course.grade_level.us_name || course.grade_level.irish_name;
+        return course.subject ? `${gradeName} - ${course.subject}` : gradeName;
+      }
+      return 'K-12 Course';
+    };
     
     return (
-      <Card 
-        key={course.id} 
-        className="flex flex-col h-full hover:shadow-xl transition-all duration-300 bg-card/40 backdrop-blur-md border-border"
-      >
-        <div 
-          className="relative h-32 bg-cover bg-center rounded-t-lg overflow-hidden"
-          style={{ backgroundImage: `url(${courseImage})` }}
-        >
-          <div className="absolute inset-0 bg-black/60" />
-          <div className="relative z-10 p-3 h-full flex flex-col justify-end">
-            <CardTitle className="text-card-foreground font-bold text-sm leading-tight drop-shadow-2xl">
-              {course.title}
-            </CardTitle>
-          </div>
-        </div>
-        
-        <CardContent className="flex-1 flex flex-col p-4">
-          <p className="text-muted-foreground text-xs mb-3 line-clamp-2">
-            {course.description}
-          </p>
-          
-          <div className="flex items-center justify-between text-xs text-muted-foreground mb-3">
-            <div className="flex items-center gap-1">
-              <Clock className="h-3 w-3" />
-              <span>{course.duration_minutes ? `${Math.ceil(course.duration_minutes / 60)}h` : '2h'}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <GraduationCap className="h-3 w-3" />
-              <span className="capitalize">{course.difficulty_level || 'Beginner'}</span>
-            </div>
-          </div>
-          
-          <Button
-            onClick={() => onEnroll(course.id)}
-            className="w-full text-xs py-2 mt-auto"
-            disabled={enrollingCourseIds.has(course.id)}
-          >
-            {enrollingCourseIds.has(course.id) ? (
-              <>
-                <Loader2 className="h-3 w-3 animate-spin mr-1" />
-                Enrolling...
-              </>
-            ) : (
-              'Enroll Now'
-            )}
-          </Button>
-        </CardContent>
-      </Card>
+      <StyledCourseCard
+        key={course.id}
+        id={course.id}
+        title={course.title}
+        description={course.description || ''}
+        courseType={getCourseType()}
+        isEnrolled={false}
+        duration={course.duration_minutes}
+        instructor="FPK University"
+        thumbnail_url={course.thumbnail_url}
+        onEnroll={() => onEnroll(course.id)}
+        isEnrolling={enrollingCourseIds.has(course.id)}
+      />
     );
   };
   
