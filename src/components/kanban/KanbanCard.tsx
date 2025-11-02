@@ -14,7 +14,7 @@ interface Task {
   description: string | null;
   status: string;
   priority: string;
-  type?: 'story' | 'bug' | 'epic' | 'chore';
+  type?: 'story' | 'bug' | 'epic' | 'chore' | 'meeting' | 'deadline' | 'focus_time' | 'personal' | 'reminder';
   assignee_id: string | null;
   assignee?: {
     full_name: string;

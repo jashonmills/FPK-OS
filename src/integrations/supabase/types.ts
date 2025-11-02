@@ -595,7 +595,16 @@ export type Database = {
       app_role: "admin" | "member"
       task_priority: "low" | "medium" | "high" | "urgent"
       task_status: "backlog" | "todo" | "in_progress" | "review" | "done"
-      task_type: "story" | "bug" | "epic" | "chore"
+      task_type:
+        | "story"
+        | "bug"
+        | "epic"
+        | "chore"
+        | "meeting"
+        | "deadline"
+        | "focus_time"
+        | "personal"
+        | "reminder"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -726,7 +735,17 @@ export const Constants = {
       app_role: ["admin", "member"],
       task_priority: ["low", "medium", "high", "urgent"],
       task_status: ["backlog", "todo", "in_progress", "review", "done"],
-      task_type: ["story", "bug", "epic", "chore"],
+      task_type: [
+        "story",
+        "bug",
+        "epic",
+        "chore",
+        "meeting",
+        "deadline",
+        "focus_time",
+        "personal",
+        "reminder",
+      ],
     },
   },
 } as const

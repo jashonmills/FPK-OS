@@ -1,6 +1,6 @@
 import { Users, CheckSquare, Flag, Brain, User, Bell, LucideIcon } from 'lucide-react';
 
-export type CalendarEventType = 'meeting' | 'task' | 'deadline' | 'focus_time' | 'personal' | 'reminder';
+export type CalendarEventType = 'meeting' | 'deadline' | 'focus_time' | 'personal' | 'reminder' | 'story';
 
 interface EventTypeConfig {
   icon: LucideIcon;
@@ -16,7 +16,7 @@ const eventTypeConfig: Record<CalendarEventType, EventTypeConfig> = {
     color: '#3B82F6',
     description: 'Schedule a call or meeting with team members',
   },
-  task: {
+  story: {
     icon: CheckSquare,
     label: 'Task',
     color: '#10B981',

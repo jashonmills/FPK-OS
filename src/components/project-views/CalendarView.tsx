@@ -6,6 +6,7 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { getEventTypeColor } from '@/components/calendar/EventTypeIcon';
 import './calendar-styles.css';
 
 const localizer = momentLocalizer(moment);
@@ -17,6 +18,7 @@ interface Task {
   description: string | null;
   status: string;
   priority: string;
+  type?: 'story' | 'bug' | 'epic' | 'chore' | 'meeting' | 'deadline' | 'focus_time' | 'personal' | 'reminder';
   assignee_id: string | null;
   due_date: string | null;
   start_date: string | null;
@@ -83,10 +85,14 @@ export const CalendarView = ({ tasks, projectColor, projectId, onTaskClick, onTa
   }, [onTaskClick]);
 
   const eventStyleGetter = useCallback((event: CalendarEvent) => {
+    // Use event type color if it's a calendar event (meeting, deadline, etc.)
+    const isCalendarEvent = ['meeting', 'deadline', 'focus_time', 'personal', 'reminder'].includes(event.task.type);
+    const eventColor = isCalendarEvent ? getEventTypeColor(event.task.type) : event.color;
+    
     return {
       style: {
-        backgroundColor: event.color,
-        borderColor: event.color,
+        backgroundColor: eventColor,
+        borderColor: eventColor,
         color: 'white',
       },
     };

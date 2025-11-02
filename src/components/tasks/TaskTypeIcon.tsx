@@ -1,6 +1,6 @@
-import { Star, Bug, Mountain, Settings } from 'lucide-react';
+import { Star, Bug, Mountain, Settings, Users, CheckSquare, Flag, Brain, User, Bell } from 'lucide-react';
 
-type TaskType = 'story' | 'bug' | 'epic' | 'chore';
+type TaskType = 'story' | 'bug' | 'epic' | 'chore' | 'meeting' | 'deadline' | 'focus_time' | 'personal' | 'reminder';
 
 interface TaskTypeIconProps {
   type: TaskType;
@@ -12,7 +12,12 @@ export const TaskTypeIcon = ({ type, className = "h-4 w-4" }: TaskTypeIconProps)
     story: <Star className={className} />,
     bug: <Bug className={className} />,
     epic: <Mountain className={className} />,
-    chore: <Settings className={className} />
+    chore: <Settings className={className} />,
+    meeting: <Users className={className} />,
+    deadline: <Flag className={className} />,
+    focus_time: <Brain className={className} />,
+    personal: <User className={className} />,
+    reminder: <Bell className={className} />
   };
 
   return icons[type] || icons.story;
@@ -23,7 +28,12 @@ export const getTaskTypeLabel = (type: TaskType): string => {
     story: 'Story',
     bug: 'Bug',
     epic: 'Epic',
-    chore: 'Chore'
+    chore: 'Chore',
+    meeting: 'Meeting',
+    deadline: 'Deadline',
+    focus_time: 'Focus Time',
+    personal: 'Personal',
+    reminder: 'Reminder'
   };
   return labels[type] || 'Story';
 };

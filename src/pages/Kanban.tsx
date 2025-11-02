@@ -13,6 +13,7 @@ import { CalendarView } from '@/components/project-views/CalendarView';
 import { CalendarSyncDialog } from '@/components/project-views/CalendarSyncDialog';
 import { CreateTaskDialog } from '@/components/kanban/CreateTaskDialog';
 import { ProjectSelectionDialog } from '@/components/kanban/ProjectSelectionDialog';
+import { CreateCalendarEventDialog } from '@/components/calendar/CreateCalendarEventDialog';
 import { TimelineView } from '@/components/project-views/TimelineView';
 import { TaskDetailsSheet } from '@/components/kanban/TaskDetailsSheet';
 import { CreateTaskButton } from '@/components/tasks/CreateTaskButton';
@@ -31,6 +32,7 @@ interface Task {
   description: string | null;
   status: string;
   priority: string;
+  type?: 'story' | 'bug' | 'epic' | 'chore' | 'meeting' | 'deadline' | 'focus_time' | 'personal' | 'reminder';
   assignee_id: string | null;
   due_date: string | null;
   start_date: string | null;
@@ -51,7 +53,9 @@ const Kanban = () => {
   const [syncDialogOpen, setSyncDialogOpen] = useState(false);
   const [projectSelectionDialogOpen, setProjectSelectionDialogOpen] = useState(false);
   const [createTaskDialogOpen, setCreateTaskDialogOpen] = useState(false);
+  const [calendarEventDialogOpen, setCalendarEventDialogOpen] = useState(false);
   const [prefilledDates, setPrefilledDates] = useState<{ start: Date; end: Date } | null>(null);
+  const [isCalendarView, setIsCalendarView] = useState(false);
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -215,14 +219,25 @@ const Kanban = () => {
     if (selectedProject === 'all') {
       setProjectSelectionDialogOpen(true);
     } else {
-      setCreateTaskDialogOpen(true);
+      // Use calendar event dialog when in calendar view
+      if (isCalendarView) {
+        setCalendarEventDialogOpen(true);
+      } else {
+        setCreateTaskDialogOpen(true);
+      }
     }
   };
 
   const handleProjectSelected = (projectId: string) => {
     setSelectedProject(projectId);
     setProjectSelectionDialogOpen(false);
-    setCreateTaskDialogOpen(true);
+    
+    // Use appropriate dialog based on current view
+    if (isCalendarView) {
+      setCalendarEventDialogOpen(true);
+    } else {
+      setCreateTaskDialogOpen(true);
+    }
   };
 
   const handleMyTasksClick = () => {
@@ -337,7 +352,10 @@ const Kanban = () => {
               projectId={selectedProject}
               onTaskClick={handleTaskClick}
               onTaskUpdate={fetchTasks}
-              onSlotSelect={handleSlotSelect}
+              onSlotSelect={(start, end) => {
+                setIsCalendarView(true);
+                handleSlotSelect(start, end);
+              }}
             />
           )}
             {activeView === 'timeline' && (
@@ -395,10 +413,24 @@ const Kanban = () => {
       
       <CreateTaskDialog
         open={createTaskDialogOpen}
-        onOpenChange={setCreateTaskDialogOpen}
+        onOpenChange={(open) => {
+          setCreateTaskDialogOpen(open);
+          if (!open) setIsCalendarView(false);
+        }}
         projectId={selectedProject !== 'all' ? selectedProject : undefined}
         prefilledDates={prefilledDates}
         onTaskCreated={fetchTasks}
+      />
+
+      <CreateCalendarEventDialog
+        open={calendarEventDialogOpen}
+        onOpenChange={(open) => {
+          setCalendarEventDialogOpen(open);
+          if (!open) setIsCalendarView(false);
+        }}
+        projectId={selectedProject !== 'all' ? selectedProject : undefined}
+        prefilledDates={prefilledDates}
+        onEventCreated={fetchTasks}
       />
     </AppLayout>
   );

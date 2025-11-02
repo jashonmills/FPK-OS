@@ -39,7 +39,7 @@ export const CreateCalendarEventDialog = ({
   const [startDate, setStartDate] = useState('');
   const [startTime, setStartTime] = useState('09:00');
   const [endTime, setEndTime] = useState('10:00');
-  const [assigneeId, setAssigneeId] = useState<string>('');
+  const [assigneeId, setAssigneeId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -48,7 +48,7 @@ export const CreateCalendarEventDialog = ({
       setStep('type');
       setTitle('');
       setDescription('');
-      setAssigneeId('');
+      setAssigneeId(null);
       
       if (prefilledDates?.start) {
         const date = new Date(prefilledDates.start);
@@ -81,20 +81,30 @@ export const CreateCalendarEventDialog = ({
 
     const { data: { user } } = await supabase.auth.getUser();
     
+    if (!user) {
+      toast({
+        title: 'Error',
+        description: 'You must be logged in to create events',
+        variant: 'destructive',
+      });
+      setLoading(false);
+      return;
+    }
+    
     const { error } = await supabase
       .from('tasks')
-      .insert({
+      .insert([{
         title,
         description,
         type: eventType,
         status: 'todo',
         priority: 'medium',
         project_id: projectId,
-        created_by: user?.id,
-        assignee_id: assigneeId || null,
+        created_by: user.id,
+        assignee_id: assigneeId,
         start_date: startDateTime.toISOString(),
         due_date: endDateTime.toISOString(),
-      });
+      }]);
 
     setLoading(false);
 
@@ -193,13 +203,12 @@ export const CreateCalendarEventDialog = ({
                 </div>
               </div>
 
-              {(eventType === 'task' || eventType === 'deadline') && (
+              {(eventType === 'story' || eventType === 'deadline') && (
                 <div>
                   <Label htmlFor="assignee">Assignee</Label>
                   <AssigneeSelect
                     value={assigneeId}
-                    onValueChange={setAssigneeId}
-                    placeholder="Select assignee (optional)"
+                    onChange={setAssigneeId}
                   />
                 </div>
               )}
@@ -216,7 +225,7 @@ export const CreateCalendarEventDialog = ({
                       ? 'Add meeting notes and mention attendees with @...'
                       : 'Add additional details...'
                   }
-                  minRows={3}
+                  minHeight="min-h-[80px]"
                 />
               </div>
 
