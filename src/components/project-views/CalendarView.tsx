@@ -1,7 +1,8 @@
-import { useMemo, useCallback } from 'react';
-import { Calendar, momentLocalizer, Event as BigCalendarEvent, View } from 'react-big-calendar';
+import { useMemo, useCallback, useState } from 'react';
+import { Calendar, dateFnsLocalizer, Event as BigCalendarEvent } from 'react-big-calendar';
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
-import moment from 'moment';
+import { format, parse, startOfWeek, getDay, parseISO, set } from 'date-fns';
+import { enUS } from 'date-fns/locale';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { getEventTypeColor } from '@/components/calendar/EventTypeIcon';
@@ -9,7 +10,14 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Calendar as CalendarIcon, Info } from 'lucide-react';
 import './calendar-styles.css';
 
-const localizer = momentLocalizer(moment);
+const locales = { 'en-US': enUS };
+const localizer = dateFnsLocalizer({
+  format,
+  parse,
+  startOfWeek,
+  getDay,
+  locales,
+});
 const DnDCalendar = withDragAndDrop(Calendar);
 
 interface Task {
@@ -43,6 +51,10 @@ interface CalendarEvent extends BigCalendarEvent {
 
 export const CalendarView = ({ tasks, projectColor, projectId, onTaskClick, onTaskUpdate, onSlotSelect }: CalendarViewProps) => {
   const { toast } = useToast();
+  
+  // Controlled state for calendar - fixes state corruption bug
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [currentView, setCurrentView] = useState<'month' | 'week' | 'day' | 'agenda'>('month');
 
   const { events, tasksWithDates, tasksWithoutDates } = useMemo(() => {
     console.log('=== CalendarView Debug ===');
@@ -65,36 +77,42 @@ export const CalendarView = ({ tasks, projectColor, projectId, onTaskClick, onTa
         return isValid;
       })
       .map(task => {
-        const start = new Date(task.due_date!);
-        const end = new Date(task.due_date!);
-        
+        let start: Date;
+        let end: Date;
+
         if (task.start_date) {
-          // If we have a specific start_date, use it and make sure end is after start
-          start.setTime(new Date(task.start_date).getTime());
-          // If start and end would be the same, add 1 hour to end
+          // Task has specific start and end times
+          // Parse as ISO strings - no timezone mutation
+          start = parseISO(task.start_date);
+          end = parseISO(task.due_date!);
+          
+          // Ensure end is after start
           if (end.getTime() <= start.getTime()) {
-            end.setTime(start.getTime() + (60 * 60 * 1000)); // Add 1 hour
+            end = new Date(start.getTime() + 60 * 60 * 1000); // Add 1 hour
           }
         } else {
-          // No specific time, treat as all-day event
-          // Set start to beginning of day
-          start.setHours(0, 0, 0, 0);
-          // Set end to end of day
-          end.setHours(23, 59, 59, 999);
+          // Task is "all-day" - give it a specific time range (9 AM - 5 PM)
+          // This completely eliminates the allDay flag bug
+          const dueDate = parseISO(task.due_date!);
+          
+          // Set to 9 AM using immutable set function
+          start = set(dueDate, { hours: 9, minutes: 0, seconds: 0, milliseconds: 0 });
+          
+          // Set to 5 PM using immutable set function
+          end = set(dueDate, { hours: 17, minutes: 0, seconds: 0, milliseconds: 0 });
         }
         
         console.log(`Task: ${task.title}`);
         console.log(`  Due date string: ${task.due_date}`);
-        console.log(`  Start date object:`, start);
-        console.log(`  End date object:`, end);
-        console.log(`  Duration (ms):`, end.getTime() - start.getTime());
-        console.log(`  Color:`, projectColor || 'rgba(139, 92, 246, 0.9)');
+        console.log(`  Start:`, start.toISOString());
+        console.log(`  End:`, end.toISOString());
+        console.log(`  Duration (hours):`, (end.getTime() - start.getTime()) / (1000 * 60 * 60));
         
         return {
           title: task.title,
           start,
           end,
-          allDay: !task.start_date, // Mark as all-day if no specific start time
+          // NEVER USE allDay flag - this eliminates the Agenda view bug
           task,
           color: projectColor || 'rgba(139, 92, 246, 0.9)',
         };
@@ -158,6 +176,16 @@ export const CalendarView = ({ tasks, projectColor, projectId, onTaskClick, onTa
     }
   }, [onSlotSelect]);
 
+  const handleNavigate = useCallback((newDate: Date) => {
+    console.log('Calendar navigated to:', newDate);
+    setCurrentDate(newDate);
+  }, []);
+
+  const handleViewChange = useCallback((newView: 'month' | 'week' | 'day' | 'agenda') => {
+    console.log('View changed to:', newView);
+    setCurrentView(newView);
+  }, []);
+
   return (
     <div className="space-y-4">
       {tasksWithoutDates > 0 && (
@@ -186,16 +214,26 @@ export const CalendarView = ({ tasks, projectColor, projectId, onTaskClick, onTa
           events={events}
           startAccessor={(event: CalendarEvent) => event.start as Date}
           endAccessor={(event: CalendarEvent) => event.end as Date}
+          style={{ height: 600 }}
+          
+          // CONTROLLED PROPS - This fixes state corruption bug
+          view={currentView}
+          date={currentDate}
+          onView={handleViewChange}
+          onNavigate={handleNavigate}
+          
+          // Event handlers
           onSelectEvent={handleSelectEvent}
           onEventDrop={handleEventDrop}
           onEventResize={handleEventDrop}
           onSelectSlot={handleSelectSlot}
           eventPropGetter={eventStyleGetter}
+          
+          // Configuration
+          views={['month', 'week', 'day', 'agenda']}
           selectable
           resizable
           popup
-          views={['month', 'week', 'day', 'agenda']}
-          defaultView="month"
         />
       </div>
     </div>
