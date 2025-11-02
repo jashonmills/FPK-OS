@@ -23,7 +23,7 @@
 }
 
 .rbc-month-row {
-  min-height: 100px !important;
+  height: auto !important;
   border-top: 1px solid hsl(var(--border));
 }
 
@@ -31,6 +31,7 @@
   background-color: hsl(var(--card)) !important;
   border-left: 1px solid hsl(var(--border));
   min-height: 100px !important;
+  height: auto !important;
 }
 
 .rbc-time-slot {
@@ -65,6 +66,11 @@
 
 .rbc-row-segment {
   padding: 2px 1px !important;
+}
+
+.rbc-row-content {
+  height: auto !important;
+  min-height: 100px !important;
 }
 
 .rbc-toolbar {
