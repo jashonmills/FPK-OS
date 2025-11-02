@@ -48,6 +48,7 @@ export const V2_SEQUENTIAL_COURSE_SLUGS = [
   'ela-7-2-research-writing-information-literacy',
   'ela-7-3-creative-writing-short-stories-poetry',
   'math-7-1-expressions-equations-inequalities',
+  'math-7-2-geometry-angles-area-volume-scale',
 ] as const;
 
 export type V2SequentialCourseSlug = typeof V2_SEQUENTIAL_COURSE_SLUGS[number];
