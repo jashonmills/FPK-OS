@@ -20,8 +20,6 @@
   background-color: hsl(var(--card)) !important;
   border: 1px solid hsl(var(--border));
   border-radius: 8px;
-  overflow: auto !important;
-  height: 100%;
 }
 
 .rbc-month-row {
