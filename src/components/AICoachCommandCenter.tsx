@@ -67,7 +67,7 @@ const ContextHistoryColumn: React.FC<{
             <p className="text-sm text-gray-500 italic">No materials uploaded yet</p>
           ) : (
             studyMaterials.map((material) => (
-              <div key={material.id} className="p-3 bg-gray-50 rounded border border-gray-200 hover:bg-gray-100 cursor-pointer transition">
+              <div key={material.id} className="p-3 bg-purple-50/80 rounded border border-purple-200/60 hover:bg-purple-100/80 cursor-pointer transition">
                 <p className="text-sm font-medium text-gray-800">{material.title}</p>
                 <p className="text-xs text-gray-500 mt-1">
                   {material.type.toUpperCase()} • {new Date(material.uploadedAt).toLocaleDateString()}
@@ -75,7 +75,7 @@ const ContextHistoryColumn: React.FC<{
               </div>
             ))
           )}
-          <button className="w-full mt-3 px-4 py-2 bg-fpk-primary text-white rounded hover:bg-blue-700 transition flex items-center justify-center gap-2 text-sm">
+          <button className="w-full mt-3 px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition flex items-center justify-center gap-2 text-sm">
             <Upload className="w-4 h-4" />
             Upload Material
           </button>
@@ -96,7 +96,7 @@ const ContextHistoryColumn: React.FC<{
               <div
                 key={chat.id}
                 onClick={() => onLoadChat(chat.id)}
-                className="p-3 bg-gray-50 rounded border border-gray-200 hover:bg-gray-100 cursor-pointer transition"
+                className="p-3 bg-blue-50/80 rounded border border-blue-200/60 hover:bg-blue-100/80 cursor-pointer transition"
               >
                 <p className="text-sm font-medium text-gray-800">{chat.title}</p>
                 <p className="text-xs text-gray-500 mt-1 line-clamp-1">{chat.lastMessage}</p>
@@ -190,7 +190,7 @@ const InsightsAnalyticsColumn: React.FC<{
             <p className="text-sm text-gray-500 italic">No drills available yet</p>
           ) : (
             drills.slice(0, 3).map((drill) => (
-              <div key={drill.id} className="p-3 bg-gray-50 rounded border border-gray-200 hover:bg-gray-100 cursor-pointer transition">
+              <div key={drill.id} className="p-3 bg-amber-50/80 rounded border border-amber-200/60 hover:bg-amber-100/80 cursor-pointer transition">
                 <div className="flex items-start justify-between mb-1">
                   <span className={cn(
                     'text-xs px-2 py-0.5 rounded',
@@ -429,7 +429,7 @@ export const AICoachCommandCenter: React.FC = () => {
         </header>
 
         {/* Three-Column Layout with Frosted Glass Effect */}
-        <div className="p-8 bg-white/60 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg">
+        <div className="p-8 bg-white/30 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[calc(100vh-240px)]">
           {/* Left Column - Context & History */}
           <div className="lg:col-span-3 overflow-hidden">
