@@ -169,7 +169,7 @@ export const CalendarView = ({ tasks, projectColor, projectId, onTaskClick, onTa
         </Alert>
       )}
       
-      <div className="h-[calc(100vh-250px)] bg-background p-4 border rounded-lg">
+      <div className="h-[calc(100vh-200px)] bg-background p-4 border rounded-lg">
         <DnDCalendar
           localizer={localizer}
           events={events}
