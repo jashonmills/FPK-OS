@@ -45,24 +45,13 @@ export const CalendarView = ({ tasks, projectColor, projectId, onTaskClick, onTa
   const { toast } = useToast();
 
   const { events, tasksWithDates, tasksWithoutDates } = useMemo(() => {
-    console.log('=== CalendarView Debug ===');
-    console.log('Input tasks:', tasks);
-    console.log('Project color:', projectColor);
-    
     const withDates = tasks.filter(task => task.due_date);
     const withoutDates = tasks.filter(task => !task.due_date);
-    
-    console.log('Tasks with dates:', withDates);
-    console.log('Tasks without dates:', withoutDates);
     
     const calendarEvents = withDates
       .filter(task => {
         const dueDate = new Date(task.due_date!);
-        const isValid = !isNaN(dueDate.getTime());
-        if (!isValid) {
-          console.warn(`Invalid date for task ${task.id}:`, task.due_date);
-        }
-        return isValid;
+        return !isNaN(dueDate.getTime());
       })
       .map(task => {
         // Create dates and normalize to midnight for all-day events
@@ -73,24 +62,15 @@ export const CalendarView = ({ tasks, projectColor, projectId, onTaskClick, onTa
         start.setHours(0, 0, 0, 0);
         end.setHours(23, 59, 59, 999);
         
-        console.log(`Task: ${task.title}`);
-        console.log(`  Due date string: ${task.due_date}`);
-        console.log(`  Start date object:`, start);
-        console.log(`  End date object:`, end);
-        console.log(`  Color:`, projectColor || 'rgba(139, 92, 246, 0.9)');
-        
         return {
           title: task.title,
           start,
           end,
           task,
           color: projectColor || 'rgba(139, 92, 246, 0.9)',
-          allDay: true, // Mark as all-day event for month view
+          allDay: true,
         };
       });
-
-    console.log('Final calendar events:', calendarEvents);
-    console.log('=== End CalendarView Debug ===');
 
     return {
       events: calendarEvents,

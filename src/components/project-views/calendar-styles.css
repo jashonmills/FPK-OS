@@ -1,16 +1,38 @@
 /* Custom styles for react-big-calendar */
 .rbc-calendar {
   font-family: inherit;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
 }
 
 .rbc-header {
   padding: 10px 6px;
   font-weight: 600;
   font-size: 0.875rem;
+  background-color: hsl(var(--card));
+  color: hsl(var(--foreground));
+  border-bottom: 1px solid hsl(var(--border));
 }
 
 .rbc-today {
   background-color: hsl(var(--accent) / 0.1);
+}
+
+/* Fix calendar backgrounds for dark mode */
+.rbc-month-view,
+.rbc-time-view,
+.rbc-agenda-view {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
+.rbc-day-bg,
+.rbc-time-slot {
+  background-color: hsl(var(--card));
+}
+
+.rbc-time-header-content {
+  border-left: 1px solid hsl(var(--border));
 }
 
 /* Ensure events are always visible with high specificity */
@@ -65,7 +87,11 @@
 }
 
 .rbc-off-range-bg {
-  background-color: hsl(var(--muted) / 0.3);
+  background-color: hsl(var(--muted) / 0.2);
+}
+
+.rbc-off-range {
+  color: hsl(var(--muted-foreground));
 }
 
 .rbc-toolbar {
