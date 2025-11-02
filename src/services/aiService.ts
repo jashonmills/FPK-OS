@@ -13,14 +13,22 @@ export class AIService {
     userId: string,
     message: string,
     conversationHistory: Message[],
-    context?: string
+    conversationId?: string
   ): Promise<OrchestratorResponse> {
     try {
-      const request: OrchestratorRequest = {
-        userId,
+      // Format conversation history to match existing orchestrator format
+      const formattedHistory = conversationHistory.map(msg => ({
+        persona: msg.persona,
+        content: msg.content,
+      }));
+
+      // Use existing conversation ID or create a new one
+      const convId = conversationId || `conv_${Date.now()}_${userId.substring(0, 8)}`;
+
+      const request = {
         message,
-        conversationHistory,
-        context,
+        conversationId: convId,
+        conversationHistory: formattedHistory,
       };
 
       const { data, error } = await supabase.functions.invoke('ai-coach-orchestrator', {
@@ -31,7 +39,13 @@ export class AIService {
         throw new Error(`AI Orchestrator Error: ${error.message}`);
       }
 
-      return data as OrchestratorResponse;
+      // Transform response to match expected format
+      return {
+        persona: data.persona || 'betty',
+        message: data.message || data.response || '',
+        tokensUsed: data.tokensUsed || data.tokens_used || 0,
+        cost: data.cost || 0,
+      } as OrchestratorResponse;
     } catch (error) {
       console.error('Error calling AI service:', error);
       throw error;
@@ -49,33 +63,82 @@ export class AIService {
    * 2. Ensure RLS policies allow user to read their own analytics
    */
   static async fetchUserAnalytics(userId: string) {
-    // Placeholder implementation
-    return {
-      totalStudyTime: 47,
-      sessionsCompleted: 12,
-      topicsStudied: ['Biology', 'Chemistry', 'Physics', 'Math'],
-      averageScore: 87,
-      streakDays: 5,
-    };
+    try {
+      // Query the ai_coach_analytics table
+      const { data, error } = await supabase
+        .from('ai_coach_analytics')
+        .select('*')
+        .eq('user_id', userId)
+        .order('session_date', { ascending: false })
+        .limit(30); // Last 30 sessions
 
-    // Production implementation (commented out):
-    /*
-    const { data, error } = await supabase
-      .from('user_analytics')
-      .select('*')
-      .eq('user_id', userId)
-      .single();
+      if (error) {
+        console.warn('Analytics query error, using defaults:', error);
+        // Return default values if no data yet
+        return {
+          totalStudyTime: 0,
+          sessionsCompleted: 0,
+          topicsStudied: [],
+          averageScore: 0,
+          streakDays: 0,
+        };
+      }
 
-    if (error) throw error;
-    
-    return {
-      totalStudyTime: data.total_study_time_hours,
-      sessionsCompleted: data.sessions_completed,
-      topicsStudied: data.topics_studied,
-      averageScore: data.average_score,
-      streakDays: data.streak_days,
-    };
-    */
+      if (!data || data.length === 0) {
+        return {
+          totalStudyTime: 0,
+          sessionsCompleted: 0,
+          topicsStudied: [],
+          averageScore: 0,
+          streakDays: 0,
+        };
+      }
+
+      // Aggregate the analytics data
+      const totalStudyTime = data.reduce((sum, session) => sum + (session.study_time_minutes || 0), 0) / 60;
+      const sessionsCompleted = data.length;
+      const topicsStudied = [...new Set(data.flatMap(session => session.topics_explored || []))];
+      const averageScore = data.reduce((sum, session) => sum + (session.comprehension_score || 0), 0) / data.length;
+      
+      // Calculate streak
+      let streakDays = 0;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const sortedDates = data
+        .map(s => new Date(s.session_date))
+        .sort((a, b) => b.getTime() - a.getTime());
+      
+      for (let i = 0; i < sortedDates.length; i++) {
+        const sessionDate = new Date(sortedDates[i]);
+        sessionDate.setHours(0, 0, 0, 0);
+        const expectedDate = new Date(today);
+        expectedDate.setDate(expectedDate.getDate() - i);
+        
+        if (sessionDate.getTime() === expectedDate.getTime()) {
+          streakDays++;
+        } else {
+          break;
+        }
+      }
+
+      return {
+        totalStudyTime: Math.round(totalStudyTime),
+        sessionsCompleted,
+        topicsStudied,
+        averageScore: Math.round(averageScore),
+        streakDays,
+      };
+    } catch (error) {
+      console.error('Error fetching analytics:', error);
+      return {
+        totalStudyTime: 0,
+        sessionsCompleted: 0,
+        topicsStudied: [],
+        averageScore: 0,
+        streakDays: 0,
+      };
+    }
   }
 
   /**
@@ -90,52 +153,54 @@ export class AIService {
    * 3. Order by updated_at DESC
    */
   static async fetchSavedChats(userId: string) {
-    // Placeholder implementation
-    return [
-      {
-        id: '1',
-        title: 'Photosynthesis Discussion',
-        lastMessage: 'So the light-dependent reactions occur in the thylakoid membrane...',
-        timestamp: new Date('2024-01-14'),
-        messageCount: 23,
-      },
-      {
-        id: '2',
-        title: 'Cell Division Study',
-        lastMessage: 'The phases of mitosis are prophase, metaphase, anaphase, and telophase.',
-        timestamp: new Date('2024-01-13'),
-        messageCount: 15,
-      },
-    ];
+    try {
+      // Query ai_coach_conversations with message count
+      const { data, error } = await supabase
+        .from('ai_coach_conversations')
+        .select('id, title, updated_at')
+        .eq('user_id', userId)
+        .order('updated_at', { ascending: false })
+        .limit(10);
 
-    // Production implementation (commented out):
-    /*
-    const { data, error } = await supabase
-      .from('conversations')
-      .select(`
-        id,
-        title,
-        updated_at,
-        message_count,
-        messages (
-          content
-        )
-      `)
-      .eq('user_id', userId)
-      .eq('is_archived', false)
-      .order('updated_at', { ascending: false })
-      .limit(10);
+      if (error) {
+        console.warn('Saved chats query error:', error);
+        return [];
+      }
 
-    if (error) throw error;
+      if (!data || data.length === 0) {
+        return [];
+      }
 
-    return data.map(conv => ({
-      id: conv.id,
-      title: conv.title,
-      lastMessage: conv.messages[conv.messages.length - 1]?.content || '',
-      timestamp: new Date(conv.updated_at),
-      messageCount: conv.message_count,
-    }));
-    */
+      // For each conversation, get the message count and last message
+      const chatsWithDetails = await Promise.all(
+        data.map(async (conv) => {
+          const { data: messages, error: msgError } = await supabase
+            .from('ai_coach_messages')
+            .select('content, created_at')
+            .eq('conversation_id', conv.id)
+            .order('created_at', { ascending: false })
+            .limit(1);
+
+          const { count } = await supabase
+            .from('ai_coach_messages')
+            .select('*', { count: 'exact', head: true })
+            .eq('conversation_id', conv.id);
+
+          return {
+            id: conv.id,
+            title: conv.title,
+            lastMessage: messages?.[0]?.content || 'No messages yet',
+            timestamp: new Date(conv.updated_at),
+            messageCount: count || 0,
+          };
+        })
+      );
+
+      return chatsWithDetails;
+    } catch (error) {
+      console.error('Error fetching saved chats:', error);
+      return [];
+    }
   }
 
   /**
@@ -212,74 +277,67 @@ export class AIService {
    * Fetch study materials for a user
    */
   static async fetchStudyMaterials(userId: string) {
-    // Placeholder implementation
-    return [
-      {
-        id: '1',
-        title: 'Biology Chapter 5: Cell Division',
-        type: 'pdf' as const,
-        uploadedAt: new Date('2024-01-15'),
-        size: 2048,
-      },
-    ];
+    try {
+      const { data, error } = await supabase
+        .from('ai_coach_study_materials')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
 
-    // Production implementation (commented out):
-    /*
-    const { data, error } = await supabase
-      .from('study_materials')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false });
+      if (error) {
+        console.warn('Study materials query error:', error);
+        return [];
+      }
 
-    if (error) throw error;
+      if (!data || data.length === 0) {
+        return [];
+      }
 
-    return data.map(material => ({
-      id: material.id,
-      title: material.title,
-      type: material.file_type,
-      uploadedAt: new Date(material.created_at),
-      size: material.file_size,
-    }));
-    */
+      return data.map(material => ({
+        id: material.id,
+        title: material.title,
+        type: material.file_type,
+        uploadedAt: new Date(material.created_at),
+        size: material.file_size,
+      }));
+    } catch (error) {
+      console.error('Error fetching study materials:', error);
+      return [];
+    }
   }
 
   /**
    * Fetch active study plan for a user
    */
   static async fetchStudyPlan(userId: string) {
-    // Placeholder implementation
-    return {
-      id: '1',
-      title: 'Master Cell Biology',
-      description: 'Complete understanding of cellular processes and structures',
-      topics: ['Cell Division', 'Photosynthesis', 'Cellular Respiration'],
-      estimatedTime: 8,
-      progress: 65,
-    };
+    try {
+      const { data, error } = await supabase
+        .from('ai_coach_study_plans')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
 
-    // Production implementation (commented out):
-    /*
-    const { data, error } = await supabase
-      .from('study_plans')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('is_active', true)
-      .single();
+      if (error) {
+        if (error.code === 'PGRST116') return null; // No active plan
+        console.warn('Study plan query error:', error);
+        return null;
+      }
 
-    if (error) {
-      if (error.code === 'PGRST116') return null; // No active plan
-      throw error;
+      return {
+        id: data.id,
+        title: data.title,
+        description: data.description,
+        topics: data.topics,
+        estimatedTime: data.estimated_hours,
+        progress: data.progress_percentage,
+      };
+    } catch (error) {
+      console.error('Error fetching study plan:', error);
+      return null;
     }
-
-    return {
-      id: data.id,
-      title: data.title,
-      description: data.description,
-      topics: data.topics,
-      estimatedTime: data.estimated_hours,
-      progress: data.progress,
-    };
-    */
   }
 
   /**
