@@ -23,6 +23,7 @@
 }
 
 .rbc-month-row {
+  min-height: 100px !important;
   height: auto !important;
   border-top: 1px solid hsl(var(--border));
 }
