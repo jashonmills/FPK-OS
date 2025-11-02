@@ -151,36 +151,55 @@ const Kanban = () => {
   const fetchTasks = async () => {
     if (!selectedProject) return;
     
-    let query = supabase
-      .from('tasks')
-      .select(`
-        *,
-        assignee:assignee_id(id, full_name, email, avatar_url)
-      `);
-    
-    if (selectedProject !== 'all') {
-      query = query.eq('project_id', selectedProject);
-    }
+    try {
+      let query = supabase
+        .from('tasks')
+        .select(`
+          *,
+          assignee:assignee_id(id, full_name, email, avatar_url)
+        `);
+      
+      if (selectedProject !== 'all') {
+        query = query.eq('project_id', selectedProject);
+      }
 
-    // Apply assignee filter
-    if (showMyTasks && user) {
-      query = query.or(`assignee_id.eq.${user.id},created_by.eq.${user.id}`);
-    } else if (assigneeFilter === 'unassigned') {
-      query = query.is('assignee_id', null);
-    } else if (assigneeFilter && assigneeFilter !== 'all') {
-      query = query.eq('assignee_id', assigneeFilter);
-    }
-    
-    const { data, error } = await query.order('position');
+      // Apply assignee filter
+      if (showMyTasks && user) {
+        query = query.or(`assignee_id.eq.${user.id},created_by.eq.${user.id}`);
+      } else if (assigneeFilter === 'unassigned') {
+        query = query.is('assignee_id', null);
+      } else if (assigneeFilter && assigneeFilter !== 'all') {
+        query = query.eq('assignee_id', assigneeFilter);
+      }
+      
+      let { data, error } = await query.order('position');
 
-    if (error) {
+      // Retry without ordering if we get a 406 or ordering error
+      if (error && (error.message.includes('406') || error.code === '406')) {
+        console.warn('Query failed with 406, retrying without ordering:', error);
+        const fallback = await query;
+        data = fallback.data;
+        error = fallback.error;
+      }
+
+      if (error) {
+        console.error('Error fetching tasks:', error);
+        toast({
+          title: 'Error',
+          description: `Failed to load tasks: ${error.message}`,
+          variant: 'destructive',
+        });
+        return;
+      }
+      
+      setTasks(data || []);
+    } catch (error: any) {
+      console.error('Unexpected error fetching tasks:', error);
       toast({
         title: 'Error',
-        description: 'Failed to load tasks',
+        description: 'An unexpected error occurred while loading tasks',
         variant: 'destructive',
       });
-    } else {
-      setTasks(data || []);
     }
   };
 

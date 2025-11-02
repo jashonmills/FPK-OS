@@ -57,24 +57,38 @@ export const CalendarView = ({ tasks, projectColor, projectId, onTaskClick, onTa
     console.log('Tasks with dates:', withDates);
     console.log('Tasks without dates:', withoutDates);
     
-    const calendarEvents = withDates.map(task => {
-      const start = task.start_date ? new Date(task.start_date) : new Date(task.due_date!);
-      const end = new Date(task.due_date!);
-      
-      console.log(`Task: ${task.title}`);
-      console.log(`  Due date string: ${task.due_date}`);
-      console.log(`  Start date object:`, start);
-      console.log(`  End date object:`, end);
-      console.log(`  Is valid date:`, !isNaN(start.getTime()) && !isNaN(end.getTime()));
-      
-      return {
-        title: task.title,
-        start,
-        end,
-        task,
-        color: projectColor || '#3b82f6', // Fallback color
-      };
-    });
+    const calendarEvents = withDates
+      .filter(task => {
+        const dueDate = new Date(task.due_date!);
+        const isValid = !isNaN(dueDate.getTime());
+        if (!isValid) {
+          console.warn(`Invalid date for task ${task.id}:`, task.due_date);
+        }
+        return isValid;
+      })
+      .map(task => {
+        const start = task.start_date ? new Date(task.start_date) : new Date(task.due_date!);
+        const end = new Date(task.due_date!);
+        
+        // Ensure end is after start (minimum 1-hour event)
+        if (end <= start) {
+          end.setTime(start.getTime() + 60 * 60 * 1000);
+        }
+        
+        console.log(`Task: ${task.title}`);
+        console.log(`  Due date string: ${task.due_date}`);
+        console.log(`  Start date object:`, start);
+        console.log(`  End date object:`, end);
+        console.log(`  Color:`, projectColor || 'rgba(139, 92, 246, 0.9)');
+        
+        return {
+          title: task.title,
+          start,
+          end,
+          task,
+          color: projectColor || 'rgba(139, 92, 246, 0.9)',
+        };
+      });
 
     console.log('Final calendar events:', calendarEvents);
     console.log('=== End CalendarView Debug ===');

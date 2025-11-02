@@ -28,17 +28,17 @@ export const FeatureFlagProvider: React.FC<{ children: React.ReactNode }> = ({ c
     FEATURE_BUDGET: false,
     FEATURE_DEVELOPMENT: false,
     FEATURE_PLANNING: false,
-    FEATURE_MESSAGES: false,
+    FEATURE_MESSAGES: true,
     FEATURE_AI_CHATBOT: false,
     FEATURE_DOCUMENTATION: false,
     FEATURE_FILES: false,
-    FEATURE_CALENDAR_SYNC: false,
+    FEATURE_CALENDAR_SYNC: true,
   });
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
-    const fetchFeatureFlags = async () => {
+    const fetchFeatureFlags = async (retryCount = 0) => {
       try {
         const { data, error } = await supabase
           .from('feature_flags')
@@ -47,26 +47,48 @@ export const FeatureFlagProvider: React.FC<{ children: React.ReactNode }> = ({ c
         if (error) throw error;
 
         if (data) {
-          const flagsMap = data.reduce((acc, flag) => {
-            acc[flag.name as keyof FeatureFlags] = flag.enabled;
-            return acc;
-          }, {} as FeatureFlags);
-
-          setFeatures(flagsMap);
+          const flagsMap: Record<string, boolean> = {};
+          data.forEach(flag => {
+            flagsMap[flag.name] = flag.enabled;
+          });
+          setFeatures(prev => ({ ...prev, ...flagsMap }));
         }
-      } catch (error) {
-        console.error('Error fetching feature flags:', error);
-        toast({
-          title: 'Error',
-          description: 'Failed to load feature flags. Using defaults.',
-          variant: 'destructive',
-        });
-      } finally {
         setLoading(false);
+      } catch (error) {
+        console.error('Error fetching feature flags (attempt ' + (retryCount + 1) + '):', error);
+        
+        // Retry with exponential backoff (max 3 retries)
+        if (retryCount < 3) {
+          const delay = Math.pow(2, retryCount) * 500;
+          setTimeout(() => fetchFeatureFlags(retryCount + 1), delay);
+        } else {
+          setLoading(false);
+        }
       }
     };
 
     fetchFeatureFlags();
+
+    // Subscribe to real-time updates
+    const channel = supabase
+      .channel('feature_flags_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'feature_flags',
+        },
+        () => {
+          console.log('Feature flags updated, refetching...');
+          fetchFeatureFlags();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [toast]);
 
   const isFeatureEnabled = (featureName: keyof FeatureFlags): boolean => {
