@@ -61,6 +61,21 @@ Deno.serve(async (req) => {
       return new Response('Error fetching tasks', { status: 500, headers: corsHeaders });
     }
 
+    // Helper functions for date formatting
+    const isAllDay = (date: Date) => {
+      return date.getUTCHours() === 0 && 
+             date.getUTCMinutes() === 0 && 
+             date.getUTCSeconds() === 0;
+    };
+
+    const formatDateOnly = (date: Date) => {
+      return date.toISOString().split('T')[0].replace(/-/g, '');
+    };
+
+    const formatDateTime = (date: Date) => {
+      return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    };
+
     // Generate iCalendar format
     const icsLines = [
       'BEGIN:VCALENDAR',
@@ -74,21 +89,42 @@ Deno.serve(async (req) => {
 
     // Add each task as an event
     for (const task of tasks || []) {
-      const startDate = task.start_date ? new Date(task.start_date) : new Date(task.due_date);
-      const endDate = new Date(task.due_date);
-      
-      // Format dates as YYYYMMDDTHHMMSSZ
-      const formatDate = (date: Date) => {
-        return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-      };
+      let startDate: Date;
+      let endDate: Date;
+      let isAllDayEvent = false;
 
-      const now = formatDate(new Date());
+      if (task.start_date) {
+        startDate = new Date(task.start_date);
+        endDate = new Date(task.due_date);
+      } else {
+        // No start date - create a 1-hour event ending at due date
+        endDate = new Date(task.due_date);
+        startDate = new Date(endDate.getTime() - (60 * 60 * 1000)); // 1 hour before
+      }
+
+      // Check if both dates are at midnight (all-day event)
+      if (isAllDay(startDate) && isAllDay(endDate)) {
+        isAllDayEvent = true;
+        // For all-day events, end date should be the day AFTER
+        if (startDate.getTime() === endDate.getTime()) {
+          endDate = new Date(endDate.getTime() + (24 * 60 * 60 * 1000));
+        }
+      }
+
+      const now = formatDateTime(new Date());
       
       icsLines.push('BEGIN:VEVENT');
       icsLines.push(`UID:${task.id}@fpkpulse.app`);
       icsLines.push(`DTSTAMP:${now}`);
-      icsLines.push(`DTSTART:${formatDate(startDate)}`);
-      icsLines.push(`DTEND:${formatDate(endDate)}`);
+      
+      if (isAllDayEvent) {
+        icsLines.push(`DTSTART;VALUE=DATE:${formatDateOnly(new Date(task.start_date || task.due_date))}`);
+        icsLines.push(`DTEND;VALUE=DATE:${formatDateOnly(endDate)}`);
+      } else {
+        icsLines.push(`DTSTART:${formatDateTime(startDate)}`);
+        icsLines.push(`DTEND:${formatDateTime(endDate)}`);
+      }
+      
       icsLines.push(`SUMMARY:${escapeICalText(task.title)}`);
       
       if (task.description) {

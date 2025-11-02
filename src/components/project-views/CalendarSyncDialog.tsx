@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Copy, RefreshCw, CalendarDays } from 'lucide-react';
+import { Copy, RefreshCw, CalendarDays, AlertCircle } from 'lucide-react';
 
 interface CalendarSyncDialogProps {
   open: boolean;
@@ -193,6 +194,33 @@ export const CalendarSyncDialog = ({ open, onOpenChange, projectId, myTasksOnly 
             <p className="text-xs text-muted-foreground mt-2">
               Your calendar will automatically update with task changes from FPK Pulse.
             </p>
+          </div>
+
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Important: Sync Timing</AlertTitle>
+            <AlertDescription>
+              <p className="mb-2">
+                Google Calendar and Outlook may take <strong>24-48 hours</strong> to 
+                display events after subscribing. This delay is controlled by your 
+                calendar provider, not FPK Pulse.
+              </p>
+              <p className="mb-1">To verify the sync is working immediately:</p>
+              <ul className="list-disc list-inside text-xs space-y-0.5">
+                <li>Use Apple Calendar (syncs faster)</li>
+                <li>Test the URL at <a href="https://icalendar.org/validator.html" target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">iCal Validator</a></li>
+              </ul>
+            </AlertDescription>
+          </Alert>
+
+          <div className="rounded-lg bg-blue-50 dark:bg-blue-950 p-3 text-sm">
+            <p className="font-medium mb-1">📋 What's being synced:</p>
+            <ul className="text-xs space-y-1">
+              {projectId && <li>✓ Tasks from a specific project</li>}
+              {!projectId && <li>✓ Tasks from all projects</li>}
+              {myTasksOnly && <li>✓ Only tasks assigned to you</li>}
+              {!myTasksOnly && <li>✓ All team tasks (not just yours)</li>}
+            </ul>
           </div>
 
           <div className="flex justify-between items-center pt-2">
