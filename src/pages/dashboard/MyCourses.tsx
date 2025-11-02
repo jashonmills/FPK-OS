@@ -230,6 +230,82 @@ const MyCourses = () => {
     return !('status' in course) || course.status === 'published';
   });
 
+  // Calculate course counts for filter dropdown - MUST be at top level
+  const courseCounts = useMemo(() => {
+    const counts = {
+      all: availableCourses.length,
+      lifeSkills: 0,
+      stageSenior: 0,
+      stageJunior: 0,
+      stagePrimary: 0,
+      grade12: 0,
+      grade11: 0,
+      grade10: 0,
+      grade9: 0,
+      grade8: 0,
+      grade7: 0,
+      grade6: 0,
+      grade5: 0,
+      grade4: 0,
+      grade3: 0,
+      grade2: 0,
+      grade1: 0,
+    };
+    
+    availableCourses.forEach(course => {
+      if (!course.grade_level_id) {
+        counts.lifeSkills++;
+      } else {
+        const gradeId = course.grade_level_id;
+        
+        // Senior Cycle
+        if (gradeId === 12) {
+          counts.grade12++;
+          counts.stageSenior++;
+        } else if (gradeId === 11) {
+          counts.grade11++;
+          counts.stageSenior++;
+        }
+        // Junior Cycle
+        else if (gradeId === 10) {
+          counts.grade10++;
+          counts.stageJunior++;
+        } else if (gradeId === 9) {
+          counts.grade9++;
+          counts.stageJunior++;
+        } else if (gradeId === 8) {
+          counts.grade8++;
+          counts.stageJunior++;
+        }
+        // Primary School
+        else if (gradeId === 7) {
+          counts.grade7++;
+          counts.stagePrimary++;
+        } else if (gradeId === 6) {
+          counts.grade6++;
+          counts.stagePrimary++;
+        } else if (gradeId === 5) {
+          counts.grade5++;
+          counts.stagePrimary++;
+        } else if (gradeId === 4) {
+          counts.grade4++;
+          counts.stagePrimary++;
+        } else if (gradeId === 3) {
+          counts.grade3++;
+          counts.stagePrimary++;
+        } else if (gradeId === 2) {
+          counts.grade2++;
+          counts.stagePrimary++;
+        } else if (gradeId === 1) {
+          counts.grade1++;
+          counts.stagePrimary++;
+        }
+      }
+    });
+    
+    return counts;
+  }, [availableCourses]);
+
   // Native course filtering
   const enrolledNativeCourseIds = nativeEnrollments.map(e => e.course_id);
   
@@ -563,84 +639,6 @@ const MyCourses = () => {
         videoUrl="https://www.youtube.com/embed/aTzBu_VJ2gM?si=UcVUJGmUwbEbDGvy"
       />
 
-      {/* Calculate course counts for filter dropdown */}
-      {useMemo(() => {
-        const counts = {
-          all: availableCourses.length,
-          lifeSkills: 0,
-          stageSenior: 0,
-          stageJunior: 0,
-          stagePrimary: 0,
-          grade12: 0,
-          grade11: 0,
-          grade10: 0,
-          grade9: 0,
-          grade8: 0,
-          grade7: 0,
-          grade6: 0,
-          grade5: 0,
-          grade4: 0,
-          grade3: 0,
-          grade2: 0,
-          grade1: 0,
-        };
-        
-        availableCourses.forEach(course => {
-          if (!course.grade_level_id) {
-            counts.lifeSkills++;
-          } else {
-            const gradeId = course.grade_level_id;
-            
-            // Senior Cycle
-            if (gradeId === 12) {
-              counts.grade12++;
-              counts.stageSenior++;
-            } else if (gradeId === 11) {
-              counts.grade11++;
-              counts.stageSenior++;
-            }
-            // Junior Cycle
-            else if (gradeId === 10) {
-              counts.grade10++;
-              counts.stageJunior++;
-            } else if (gradeId === 9) {
-              counts.grade9++;
-              counts.stageJunior++;
-            } else if (gradeId === 8) {
-              counts.grade8++;
-              counts.stageJunior++;
-            }
-            // Primary School
-            else if (gradeId === 7) {
-              counts.grade7++;
-              counts.stagePrimary++;
-            } else if (gradeId === 6) {
-              counts.grade6++;
-              counts.stagePrimary++;
-            } else if (gradeId === 5) {
-              counts.grade5++;
-              counts.stagePrimary++;
-            } else if (gradeId === 4) {
-              counts.grade4++;
-              counts.stagePrimary++;
-            } else if (gradeId === 3) {
-              counts.grade3++;
-              counts.stagePrimary++;
-            } else if (gradeId === 2) {
-              counts.grade2++;
-              counts.stagePrimary++;
-            } else if (gradeId === 1) {
-              counts.grade1++;
-              counts.stagePrimary++;
-            }
-          }
-        });
-        
-        // Store in a ref-like way by returning and using it immediately
-        (window as any).__courseCountsCache = counts;
-        return null;
-      }, [availableCourses])}
-
       {/* Search and Filters */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
@@ -658,109 +656,102 @@ const MyCourses = () => {
             <SelectValue placeholder="Filter by grade level" />
           </SelectTrigger>
           <SelectContent className="max-h-96 bg-background z-[100] border border-border">
-            {(() => {
-              const counts = (window as any).__courseCountsCache || {};
-              return (
-                <>
-                  <SelectItem value="all">
-                    All Levels ({counts.all || 0} {counts.all === 1 ? 'course' : 'courses'})
+            <SelectItem value="all">
+              All Levels ({courseCounts.all || 0} {courseCounts.all === 1 ? 'course' : 'courses'})
+            </SelectItem>
+            
+            {courseCounts.lifeSkills > 0 && (
+              <SelectItem value="life-skills">
+                🎓 Life Skills Collection ({courseCounts.lifeSkills})
+              </SelectItem>
+            )}
+            
+            {/* Senior Cycle */}
+            {courseCounts.stageSenior > 0 && (
+              <>
+                <SelectItem value="stage-senior" className="font-semibold text-blue-600">
+                  Senior Cycle (Grades 11-12) - {courseCounts.stageSenior} {courseCounts.stageSenior === 1 ? 'course' : 'courses'}
+                </SelectItem>
+                {courseCounts.grade12 > 0 && (
+                  <SelectItem value="grade-12" className="pl-6">
+                    └ 6th Year (12th Grade) - {courseCounts.grade12}
                   </SelectItem>
-                  
-                  {counts.lifeSkills > 0 && (
-                    <SelectItem value="life-skills">
-                      🎓 Life Skills Collection ({counts.lifeSkills})
-                    </SelectItem>
-                  )}
-                  
-                  {/* Senior Cycle */}
-                  {counts.stageSenior > 0 && (
-                    <>
-                      <SelectItem value="stage-senior" className="font-semibold text-blue-600">
-                        Senior Cycle (Grades 11-12) - {counts.stageSenior} {counts.stageSenior === 1 ? 'course' : 'courses'}
-                      </SelectItem>
-                      {counts.grade12 > 0 && (
-                        <SelectItem value="grade-12" className="pl-6">
-                          └ 6th Year (12th Grade) - {counts.grade12}
-                        </SelectItem>
-                      )}
-                      {counts.grade11 > 0 && (
-                        <SelectItem value="grade-11" className="pl-6">
-                          └ 5th Year (11th Grade) - {counts.grade11}
-                        </SelectItem>
-                      )}
-                    </>
-                  )}
-                  
-                  {/* Junior Cycle */}
-                  {counts.stageJunior > 0 && (
-                    <>
-                      <SelectItem value="stage-junior" className="font-semibold text-purple-600">
-                        Junior Cycle (Grades 8-10) - {counts.stageJunior} {counts.stageJunior === 1 ? 'course' : 'courses'}
-                      </SelectItem>
-                      {counts.grade10 > 0 && (
-                        <SelectItem value="grade-10" className="pl-6">
-                          └ 3rd Year (10th Grade) - {counts.grade10}
-                        </SelectItem>
-                      )}
-                      {counts.grade9 > 0 && (
-                        <SelectItem value="grade-9" className="pl-6">
-                          └ 2nd Year (9th Grade) - {counts.grade9}
-                        </SelectItem>
-                      )}
-                      {counts.grade8 > 0 && (
-                        <SelectItem value="grade-8" className="pl-6">
-                          └ 1st Year (8th Grade) - {counts.grade8}
-                        </SelectItem>
-                      )}
-                    </>
-                  )}
-                  
-                  {/* Primary School */}
-                  {counts.stagePrimary > 0 && (
-                    <>
-                      <SelectItem value="stage-primary" className="font-semibold text-green-600">
-                        Primary School (Grades K-7) - {counts.stagePrimary} {counts.stagePrimary === 1 ? 'course' : 'courses'}
-                      </SelectItem>
-                      {counts.grade7 > 0 && (
-                        <SelectItem value="grade-7" className="pl-6">
-                          └ 6th Class (7th Grade) - {counts.grade7}
-                        </SelectItem>
-                      )}
-                      {counts.grade6 > 0 && (
-                        <SelectItem value="grade-6" className="pl-6">
-                          └ 5th Class (6th Grade) - {counts.grade6}
-                        </SelectItem>
-                      )}
-                      {counts.grade5 > 0 && (
-                        <SelectItem value="grade-5" className="pl-6">
-                          └ 5th Class (5th Grade) - {counts.grade5}
-                        </SelectItem>
-                      )}
-                      {counts.grade4 > 0 && (
-                        <SelectItem value="grade-4" className="pl-6">
-                          └ 4th Class (4th Grade) - {counts.grade4}
-                        </SelectItem>
-                      )}
-                      {counts.grade3 > 0 && (
-                        <SelectItem value="grade-3" className="pl-6">
-                          └ 3rd Class (3rd Grade) - {counts.grade3}
-                        </SelectItem>
-                      )}
-                      {counts.grade2 > 0 && (
-                        <SelectItem value="grade-2" className="pl-6">
-                          └ 2nd Class (2nd Grade) - {counts.grade2}
-                        </SelectItem>
-                      )}
-                      {counts.grade1 > 0 && (
-                        <SelectItem value="grade-1" className="pl-6">
-                          └ 1st Class (1st Grade) - {counts.grade1}
-                        </SelectItem>
-                      )}
-                    </>
-                  )}
-                </>
-              );
-            })()}
+                )}
+                {courseCounts.grade11 > 0 && (
+                  <SelectItem value="grade-11" className="pl-6">
+                    └ 5th Year (11th Grade) - {courseCounts.grade11}
+                  </SelectItem>
+                )}
+              </>
+            )}
+            
+            {/* Junior Cycle */}
+            {courseCounts.stageJunior > 0 && (
+              <>
+                <SelectItem value="stage-junior" className="font-semibold text-purple-600">
+                  Junior Cycle (Grades 8-10) - {courseCounts.stageJunior} {courseCounts.stageJunior === 1 ? 'course' : 'courses'}
+                </SelectItem>
+                {courseCounts.grade10 > 0 && (
+                  <SelectItem value="grade-10" className="pl-6">
+                    └ 3rd Year (10th Grade) - {courseCounts.grade10}
+                  </SelectItem>
+                )}
+                {courseCounts.grade9 > 0 && (
+                  <SelectItem value="grade-9" className="pl-6">
+                    └ 2nd Year (9th Grade) - {courseCounts.grade9}
+                  </SelectItem>
+                )}
+                {courseCounts.grade8 > 0 && (
+                  <SelectItem value="grade-8" className="pl-6">
+                    └ 1st Year (8th Grade) - {courseCounts.grade8}
+                  </SelectItem>
+                )}
+              </>
+            )}
+            
+            {/* Primary School */}
+            {courseCounts.stagePrimary > 0 && (
+              <>
+                <SelectItem value="stage-primary" className="font-semibold text-green-600">
+                  Primary School (Grades K-7) - {courseCounts.stagePrimary} {courseCounts.stagePrimary === 1 ? 'course' : 'courses'}
+                </SelectItem>
+                {courseCounts.grade7 > 0 && (
+                  <SelectItem value="grade-7" className="pl-6">
+                    └ 6th Class (7th Grade) - {courseCounts.grade7}
+                  </SelectItem>
+                )}
+                {courseCounts.grade6 > 0 && (
+                  <SelectItem value="grade-6" className="pl-6">
+                    └ 5th Class (6th Grade) - {courseCounts.grade6}
+                  </SelectItem>
+                )}
+                {courseCounts.grade5 > 0 && (
+                  <SelectItem value="grade-5" className="pl-6">
+                    └ 5th Class (5th Grade) - {courseCounts.grade5}
+                  </SelectItem>
+                )}
+                {courseCounts.grade4 > 0 && (
+                  <SelectItem value="grade-4" className="pl-6">
+                    └ 4th Class (4th Grade) - {courseCounts.grade4}
+                  </SelectItem>
+                )}
+                {courseCounts.grade3 > 0 && (
+                  <SelectItem value="grade-3" className="pl-6">
+                    └ 3rd Class (3rd Grade) - {courseCounts.grade3}
+                  </SelectItem>
+                )}
+                {courseCounts.grade2 > 0 && (
+                  <SelectItem value="grade-2" className="pl-6">
+                    └ 2nd Class (2nd Grade) - {courseCounts.grade2}
+                  </SelectItem>
+                )}
+                {courseCounts.grade1 > 0 && (
+                  <SelectItem value="grade-1" className="pl-6">
+                    └ 1st Class (1st Grade) - {courseCounts.grade1}
+                  </SelectItem>
+                )}
+              </>
+            )}
           </SelectContent>
         </Select>
       </div>
