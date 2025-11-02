@@ -5,17 +5,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Send, Mic, Volume2, VolumeX } from 'lucide-react';
 import { useCommandCenterChat } from '@/hooks/useCommandCenterChat';
-import { CoachPersona } from '@/hooks/useCoachSelection';
-import { CoachSwitchButton } from './CoachSwitchButton';
 import { MessageBubble } from './MessageBubble';
 
 interface CommandCenterChatProps {
   userId?: string;
-  selectedCoach: CoachPersona;
-  onSwitchCoach: () => void;
 }
 
-export function CommandCenterChat({ userId, selectedCoach, onSwitchCoach }: CommandCenterChatProps) {
+export function CommandCenterChat({ userId }: CommandCenterChatProps) {
   const {
     messages,
     loading,
@@ -28,6 +24,10 @@ export function CommandCenterChat({ userId, selectedCoach, onSwitchCoach }: Comm
   const [isListening, setIsListening] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
+  
+  // Get current speaker from last AI message
+  const lastAiMessage = [...messages].reverse().find(m => m.persona !== 'USER');
+  const currentSpeaker = lastAiMessage?.persona || 'BETTY';
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -70,7 +70,7 @@ export function CommandCenterChat({ userId, selectedCoach, onSwitchCoach }: Comm
     
     const messageText = input;
     setInput('');
-    await sendMessage(messageText, selectedCoach);
+    await sendMessage(messageText);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -92,8 +92,22 @@ export function CommandCenterChat({ userId, selectedCoach, onSwitchCoach }: Comm
     }
   };
 
-  const coachName = selectedCoach === 'BETTY' ? 'Betty' : 'Al';
-  const coachColor = selectedCoach === 'BETTY' ? 'from-purple-500 to-pink-500' : 'from-blue-500 to-cyan-500';
+  const getCoachDisplay = (persona: string) => {
+    switch (persona) {
+      case 'BETTY':
+        return { name: 'Betty', subtitle: 'Socratic Guide', color: 'from-purple-500 to-pink-500' };
+      case 'AL':
+        return { name: 'Al', subtitle: 'Direct Expert', color: 'from-blue-500 to-cyan-500' };
+      case 'NITE_OWL':
+        return { name: 'Nite Owl', subtitle: 'Fun Facts', color: 'from-amber-500 to-orange-500' };
+      default:
+        return { name: 'AI Coach', subtitle: 'Learning Assistant', color: 'from-blue-500 to-cyan-500' };
+    }
+  };
+  
+  const currentCoach = getCoachDisplay(currentSpeaker);
+  const coachName = currentCoach.name;
+  const coachColor = currentCoach.color;
 
   return (
     <Card className="flex flex-col flex-1 min-h-0">
@@ -105,10 +119,10 @@ export function CommandCenterChat({ userId, selectedCoach, onSwitchCoach }: Comm
             </div>
             <div>
               <h2 className="text-lg font-bold">
-                {coachName} - Your AI Coach
+                Currently chatting with {coachName}
               </h2>
               <p className="text-sm text-muted-foreground">
-                {selectedCoach === 'BETTY' ? 'Socratic Guide' : 'Direct Expert'}
+                {currentCoach.subtitle}
               </p>
             </div>
           </div>
@@ -125,12 +139,6 @@ export function CommandCenterChat({ userId, selectedCoach, onSwitchCoach }: Comm
                 <VolumeX className="h-4 w-4" />
               )}
             </Button>
-            
-            <CoachSwitchButton
-              currentCoach={selectedCoach}
-              onSwitch={onSwitchCoach}
-              disabled={loading}
-            />
           </div>
         </div>
       </CardHeader>
@@ -147,10 +155,7 @@ export function CommandCenterChat({ userId, selectedCoach, onSwitchCoach }: Comm
                   Welcome to your AI Command Center
                 </h3>
                 <p className="text-sm">
-                  {selectedCoach === 'BETTY' 
-                    ? "Betty will guide you through questions to help you discover concepts and think deeply."
-                    : "Al will provide clear, direct answers to help you learn efficiently."
-                  }
+                  Betty and Al are ready to help you learn! Betty will guide you with questions, and Al will provide clear answers when you need them.
                 </p>
                 <p className="text-sm mt-2">Start by asking a question or sharing what you'd like to learn.</p>
               </div>
@@ -184,7 +189,7 @@ export function CommandCenterChat({ userId, selectedCoach, onSwitchCoach }: Comm
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder={`Ask ${coachName} anything...`}
+              placeholder="Ask anything..."
               className="min-h-[60px] resize-none"
               disabled={loading}
             />

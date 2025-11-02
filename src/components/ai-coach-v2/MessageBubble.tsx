@@ -1,7 +1,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { CommandCenterMessage } from '@/hooks/useCommandCenterChat';
-import { MessageCircle, Lightbulb, User } from 'lucide-react';
+import { User, Sparkles, Brain, Podcast } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 
 interface MessageBubbleProps {
@@ -12,12 +12,21 @@ export function MessageBubble({ message }: MessageBubbleProps) {
   const isUser = message.persona === 'USER';
   const isBetty = message.persona === 'BETTY';
   const isAl = message.persona === 'AL';
+  const isNiteOwl = message.persona === 'NITE_OWL';
 
   const getIcon = () => {
     if (isUser) return <User className="h-4 w-4" />;
-    if (isBetty) return <MessageCircle className="h-4 w-4" />;
-    if (isAl) return <Lightbulb className="h-4 w-4" />;
-    return null;
+    if (isBetty) return <Sparkles className="h-4 w-4" />;
+    if (isNiteOwl) return <Podcast className="h-4 w-4" />;
+    if (isAl) return <Brain className="h-4 w-4" />;
+    return <Brain className="h-4 w-4" />;
+  };
+
+  const getPersonaLabel = () => {
+    if (isBetty) return 'Betty - Socratic Guide';
+    if (isAl) return 'Al - Direct Expert';
+    if (isNiteOwl) return 'Nite Owl - Fun Facts';
+    return 'AI';
   };
 
   const getStyles = () => {
@@ -31,14 +40,21 @@ export function MessageBubble({ message }: MessageBubbleProps) {
     if (isBetty) {
       return {
         container: 'justify-start',
-        bubble: 'bg-gradient-to-br from-purple-500 to-pink-500 text-white',
+        bubble: 'bg-muted',
         icon: 'bg-gradient-to-br from-purple-500 to-pink-500 text-white'
+      };
+    }
+    if (isNiteOwl) {
+      return {
+        container: 'justify-start',
+        bubble: 'bg-muted border-2 border-amber-500/30',
+        icon: 'bg-gradient-to-br from-amber-500 to-orange-500 text-white'
       };
     }
     if (isAl) {
       return {
         container: 'justify-start',
-        bubble: 'bg-gradient-to-br from-blue-500 to-cyan-500 text-white',
+        bubble: 'bg-muted',
         icon: 'bg-gradient-to-br from-blue-500 to-cyan-500 text-white'
       };
     }
@@ -59,18 +75,25 @@ export function MessageBubble({ message }: MessageBubbleProps) {
         </div>
       )}
       
-      <div className={cn('max-w-[70%] rounded-2xl px-4 py-3', styles.bubble)}>
+      <div className="flex flex-col gap-1 max-w-[70%]">
         {!isUser && (
-          <div className="font-semibold text-sm mb-1">
-            {isBetty ? 'Betty' : isAl ? 'Al' : 'System'}
+          <div className="text-xs text-muted-foreground font-medium px-2">
+            {getPersonaLabel()}
           </div>
         )}
-        <div className={cn('text-sm prose prose-sm max-w-none', isUser ? 'prose-invert' : '')}>
-          {isUser ? (
-            <p className="whitespace-pre-wrap">{message.content}</p>
-          ) : (
-            <ReactMarkdown>{message.content}</ReactMarkdown>
-          )}
+        <div className={cn('rounded-2xl px-4 py-3', styles.bubble)}>
+          <div className={cn('text-sm prose prose-sm max-w-none', isUser ? 'prose-invert' : 'dark:prose-invert')}>
+            {isUser ? (
+              <p className="whitespace-pre-wrap">{message.content}</p>
+            ) : (
+              <>
+                <ReactMarkdown>{message.content}</ReactMarkdown>
+                {message.isStreaming && (
+                  <span className="inline-block w-2 h-4 bg-current ml-1 animate-pulse" />
+                )}
+              </>
+            )}
+          </div>
         </div>
       </div>
 

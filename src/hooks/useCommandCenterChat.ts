@@ -23,11 +23,7 @@ export function useCommandCenterChat(userId?: string) {
   const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const sendMessage = useCallback(async (
-    messageText: string, 
-    selectedCoach: CoachPersona,
-    previousCoach?: CoachPersona
-  ) => {
+  const sendMessage = useCallback(async (messageText: string) => {
     if (!userId || !messageText.trim()) return;
 
     const userMessage: CommandCenterMessage = {
@@ -41,35 +37,123 @@ export function useCommandCenterChat(userId?: string) {
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('ai-study-chat', {
-        body: {
-          message: messageText,
-          conversationId,
-          userId,
-          persona: selectedCoach,
-          sessionId: conversationId,
-          metadata: {
-            source: 'ai_command_center_v2',
-            previousPersona: previousCoach,
-            audioEnabled
+      // Get auth session for streaming
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('No active session');
+      }
+
+      // Call Phoenix orchestrator with streaming
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-coach-orchestrator`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY
+          },
+          body: JSON.stringify({
+            message: messageText,
+            conversationId,
+            conversationHistory: messages
+              .filter(m => m.persona !== 'USER' || !m.isStreaming)
+              .map(m => ({
+                persona: m.persona,
+                content: m.content
+              })),
+            metadata: {
+              source: 'ai_command_center_v2',
+              audioEnabled
+            }
+          })
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
+      }
+
+      if (!response.body) {
+        throw new Error('No response body');
+      }
+
+      // Handle streaming SSE response
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let aiMessageId = crypto.randomUUID();
+      let currentPersona: CommandCenterMessage['persona'] = 'AL';
+      let fullText = '';
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        buffer += chunk;
+        
+        // Process complete SSE lines
+        let newlineIndex;
+        while ((newlineIndex = buffer.indexOf('\n\n')) !== -1) {
+          const line = buffer.slice(0, newlineIndex).trim();
+          buffer = buffer.slice(newlineIndex + 2);
+          
+          if (!line || !line.startsWith('data: ')) continue;
+          
+          try {
+            const jsonStr = line.slice(6);
+            if (jsonStr === '[DONE]') continue;
+            
+            const data = JSON.parse(jsonStr);
+
+            if (data.type === 'chunk') {
+              fullText += data.content;
+              currentPersona = data.persona;
+              
+              // Update or create streaming message
+              setMessages(prev => {
+                const existing = prev.find(m => m.id === aiMessageId);
+                if (existing) {
+                  return prev.map(m => 
+                    m.id === aiMessageId 
+                      ? { ...m, content: fullText, persona: currentPersona, isStreaming: true }
+                      : m
+                  );
+                }
+                return [...prev, {
+                  id: aiMessageId,
+                  persona: currentPersona,
+                  content: fullText,
+                  created_at: new Date().toISOString(),
+                  isStreaming: true
+                }];
+              });
+            } else if (data.type === 'handoff') {
+              // Nite Owl handoff or persona transition
+              const handoffMessage: CommandCenterMessage = {
+                id: crypto.randomUUID(),
+                persona: data.persona,
+                content: data.content,
+                created_at: new Date().toISOString(),
+                audioUrl: data.audioUrl
+              };
+              setMessages(prev => [...prev, handoffMessage]);
+            }
+          } catch (e) {
+            console.error('Error parsing SSE data:', e);
           }
         }
-      });
+      }
 
-      if (error) throw error;
-
-      const aiMessage: CommandCenterMessage = {
-        id: data.messageId || crypto.randomUUID(),
-        persona: selectedCoach,
-        content: data.response,
-        intent: data.intent,
-        sentiment: data.sentiment,
-        metadata: data.metadata,
-        created_at: new Date().toISOString(),
-        audioUrl: data.audioUrl,
-      };
-
-      setMessages(prev => [...prev, aiMessage]);
+      // Mark final message as complete
+      setMessages(prev => 
+        prev.map(m => 
+          m.id === aiMessageId 
+            ? { ...m, isStreaming: false }
+            : m
+        )
+      );
 
     } catch (error: any) {
       console.error('Chat error:', error);
@@ -81,7 +165,7 @@ export function useCommandCenterChat(userId?: string) {
     } finally {
       setLoading(false);
     }
-  }, [userId, conversationId, audioEnabled, toast]);
+  }, [userId, conversationId, messages, audioEnabled, toast]);
 
   const clearMessages = useCallback(() => {
     setMessages([]);
