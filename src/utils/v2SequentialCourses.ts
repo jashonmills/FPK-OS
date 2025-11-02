@@ -60,6 +60,7 @@ export const V2_SEQUENTIAL_COURSE_SLUGS = [
   'math-8-2-pythagorean-theorem-geometric-transformations',
   'math-8-3-data-analysis-intro-algebra-ii',
   'science-8-1-physical-science-physics-fundamentals',
+  'science-8-2-chemistry-chemical-reactions-periodic-table',
 ] as const;
 
 export type V2SequentialCourseSlug = typeof V2_SEQUENTIAL_COURSE_SLUGS[number];
