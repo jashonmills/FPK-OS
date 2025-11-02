@@ -134,7 +134,7 @@ const Kanban = () => {
 
     // Apply assignee filter
     if (showMyTasks && user) {
-      query = query.eq('assignee_id', user.id);
+      query = query.or(`assignee_id.eq.${user.id},created_by.eq.${user.id}`);
     } else if (assigneeFilter === 'unassigned') {
       query = query.is('assignee_id', null);
     } else if (assigneeFilter && assigneeFilter !== 'all') {

@@ -26,7 +26,7 @@ export const MyTasksButton = ({ active, onClick }: MyTasksButtonProps) => {
     const { count: taskCount } = await supabase
       .from('tasks')
       .select('*', { count: 'exact', head: true })
-      .eq('assignee_id', user.id)
+      .or(`assignee_id.eq.${user.id},created_by.eq.${user.id}`)
       .neq('status', 'done');
 
     setCount(taskCount || 0);
