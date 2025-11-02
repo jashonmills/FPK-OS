@@ -39,7 +39,8 @@ import {
   Building2,
   FileText,
   TestTube,
-  Edit
+  Edit,
+  Sparkles
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -218,6 +219,11 @@ export function AppSidebar() {
       title: 'Phoenix Lab',
       url: "/dashboard/admin/phoenix-lab",
       icon: TestTube,
+    },
+    {
+      title: 'AI Command Center (V2)',
+      url: "/dashboard/admin/ai-coach-v2",
+      icon: Sparkles,
     },
     {
       title: 'Content Manager',
