@@ -26,6 +26,7 @@ export const V2_SEQUENTIAL_COURSE_SLUGS = [
   'earth-science-our-planet-in-space',
   'irish-history-union-to-famine',
   'ap-us-history',
+  'irish-government-and-civics',
 ] as const;
 
 export type V2SequentialCourseSlug = typeof V2_SEQUENTIAL_COURSE_SLUGS[number];

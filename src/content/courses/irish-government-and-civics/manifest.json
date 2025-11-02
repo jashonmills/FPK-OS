@@ -1,0 +1,57 @@
+{
+  "courseId": "irish-government-and-civics",
+  "courseSlug": "irish-government-and-civics",
+  "contentVersion": "v2",
+  "title": "Irish Government & Civics: Understanding the Republic",
+  "description": "An essential guide to the Irish political system. Explore the Oireachtas, the Taoiseach, the President, and discover your rights and responsibilities as an Irish and EU citizen.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "The Constitution of Ireland (Bunreacht na hÉireann)",
+      "slug": "bunreacht-na-heireann",
+      "contentType": "text",
+      "unit": "Unit 1: The Foundations of the State",
+      "unitColor": "emerald"
+    },
+    {
+      "id": 2,
+      "title": "The President (Uachtarán na hÉireann)",
+      "slug": "uachtaran-na-heireann",
+      "contentType": "text",
+      "unit": "Unit 1: The Foundations of the State",
+      "unitColor": "emerald"
+    },
+    {
+      "id": 3,
+      "title": "Dáil Éireann (The Lower House)",
+      "slug": "dail-eireann",
+      "contentType": "text",
+      "unit": "Unit 2: The Houses of the Oireachtas",
+      "unitColor": "blue"
+    },
+    {
+      "id": 4,
+      "title": "Seanad Éireann (The Upper House)",
+      "slug": "seanad-eireann",
+      "contentType": "text",
+      "unit": "Unit 2: The Houses of the Oireachtas",
+      "unitColor": "blue"
+    },
+    {
+      "id": 5,
+      "title": "The Government and the Taoiseach",
+      "slug": "government-and-taoiseach",
+      "contentType": "text",
+      "unit": "Unit 3: The Government and You",
+      "unitColor": "orange"
+    },
+    {
+      "id": 6,
+      "title": "Your Rights and Responsibilities as a Citizen",
+      "slug": "citizen-rights-and-responsibilities",
+      "contentType": "text",
+      "unit": "Unit 3: The Government and You",
+      "unitColor": "orange"
+    }
+  ]
+}
