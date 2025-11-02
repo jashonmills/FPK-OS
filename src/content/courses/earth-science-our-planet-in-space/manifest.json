@@ -11,7 +11,62 @@
       "description": "Identify Earth's layers and understand how plate movement causes earthquakes and volcanoes.",
       "contentType": "text",
       "unit": "Unit 1: The Solid Earth - Geology",
-      "unitColor": "from-amber-500 to-orange-600"
+      "unitColor": "from-amber-500 to-orange-600",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Learning Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Identify Earth's four major layers.",
+            "Define plate tectonics.",
+            "Understand how plate movement can cause earthquakes and volcanoes."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Structure of Our Planet",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Earth is made up of four main layers: the crust (the thin, rocky outer layer we live on), the mantle (a thick layer of hot, slowly flowing rock), the outer core (liquid iron and nickel), and the inner core (solid iron and nickel). These layers were formed billions of years ago as heavier elements sank to the center during Earth's formation."
+        },
+        {
+          "type": "paragraph",
+          "content": "The crust is broken into large pieces called tectonic plates, which float on the partially molten mantle. These plates are constantly moving, though very slowly (about as fast as your fingernails grow). When plates collide, pull apart, or slide past each other, we get earthquakes and volcanic activity."
+        },
+        {
+          "type": "heading",
+          "content": "Real-World Examples",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "**The San Andreas Fault** in California is a boundary where two tectonic plates slide past each other. This causes frequent earthquakes.\n\n**The Ring of Fire** is a zone of intense volcanic and earthquake activity that circles the Pacific Ocean, marking the edges of several tectonic plates.",
+          "style": "info"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What causes most earthquakes?",
+          "options": ["Wind erosion", "Ocean currents", "The movement of tectonic plates"],
+          "correctAnswer": "The movement of tectonic plates"
+        },
+        {
+          "type": "quiz",
+          "question": "Which layer of Earth is liquid?",
+          "options": ["The mantle", "The outer core", "The inner core"],
+          "correctAnswer": "The outer core"
+        }
+      ]
     },
     {
       "id": 2,
@@ -19,7 +74,65 @@
       "description": "Learn about the three main types of rock and how they transform through the rock cycle.",
       "contentType": "text",
       "unit": "Unit 1: The Solid Earth - Geology",
-      "unitColor": "from-amber-500 to-orange-600"
+      "unitColor": "from-amber-500 to-orange-600",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Learning Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define the three main types of rock: igneous, sedimentary, and metamorphic.",
+            "Understand the rock cycle and how rocks transform.",
+            "Provide examples of each rock type."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Rock Cycle",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The rock cycle is a continuous process where rocks are constantly changing from one type to another over long periods of time."
+        },
+        {
+          "type": "list",
+          "items": [
+            "**Igneous rocks** form when magma (molten rock) cools and solidifies. They can form underground (intrusive, like granite) or on the surface from lava (extrusive, like basalt).",
+            "**Sedimentary rocks** form when layers of sediment (bits of rock, sand, shells) are compressed and cemented together over time. Examples include sandstone and limestone.",
+            "**Metamorphic rocks** form when existing rocks are changed by intense heat and/or pressure, but don't melt. Marble (from limestone) and slate (from shale) are examples."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "How it Works",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Heat and pressure from Earth's interior can transform any rock type into a metamorphic rock. Weathering and erosion can break down any rock into sediment, which forms sedimentary rock. Melting any rock deep underground creates magma, which will eventually cool to form igneous rock. The cycle repeats endlessly."
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which type of rock forms from cooled magma?",
+          "options": ["Sedimentary", "Igneous", "Metamorphic"],
+          "correctAnswer": "Igneous"
+        },
+        {
+          "type": "quiz",
+          "question": "Marble is an example of which type of rock?",
+          "options": ["Sedimentary", "Igneous", "Metamorphic"],
+          "correctAnswer": "Metamorphic"
+        }
+      ]
     },
     {
       "id": 3,
@@ -27,7 +140,56 @@
       "description": "Understand the role of oceans in climate regulation and learn about ocean currents and tides.",
       "contentType": "text",
       "unit": "Unit 2: The Fluid Earth - Oceanography & Meteorology",
-      "unitColor": "from-blue-500 to-cyan-600"
+      "unitColor": "from-blue-500 to-cyan-600",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Learning Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand the role of oceans in regulating Earth's climate.",
+            "Learn about ocean currents and tides.",
+            "Identify the major zones of the ocean."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Vital Role of Oceans",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Oceans cover over 70% of our planet's surface and play a vital role in our climate system by absorbing heat and carbon dioxide. Giant ocean currents, like the Gulf Stream, act like a conveyor belt, transporting warm and cold water around the globe."
+        },
+        {
+          "type": "paragraph",
+          "content": "Tides are the regular rise and fall of sea level caused by the gravitational pull of the Moon and Sun. These tidal forces create predictable patterns that have shaped coastal ecosystems for millions of years."
+        },
+        {
+          "type": "heading",
+          "content": "Real-World Example",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "**The Gulf Stream** brings warm water from the tropics to Northern Europe, making countries like the UK and Ireland much warmer than they would otherwise be at their latitude. Without this current, these regions would have climates similar to Canada!",
+          "style": "info"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is the primary cause of ocean tides?",
+          "options": ["Wind", "The Earth's rotation", "The gravitational pull of the Moon and Sun"],
+          "correctAnswer": "The gravitational pull of the Moon and Sun"
+        }
+      ]
     },
     {
       "id": 4,
@@ -35,7 +197,56 @@
       "description": "Identify atmospheric layers and understand how air pressure differences create weather patterns.",
       "contentType": "text",
       "unit": "Unit 2: The Fluid Earth - Oceanography & Meteorology",
-      "unitColor": "from-blue-500 to-cyan-600"
+      "unitColor": "from-blue-500 to-cyan-600",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Learning Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Identify the layers of the atmosphere.",
+            "Understand how differences in air pressure create wind.",
+            "Learn the basics of weather fronts and how they create weather."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Understanding Weather",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Weather is the state of the atmosphere at a specific time and place. The atmosphere is a blanket of gases surrounding the Earth, protecting us and providing the air we breathe."
+        },
+        {
+          "type": "paragraph",
+          "content": "Wind is simply air moving from an area of high pressure to an area of low pressure. Weather fronts are boundaries between large masses of cold air and warm air. When these fronts meet, they can cause clouds, rain, and storms."
+        },
+        {
+          "type": "heading",
+          "content": "Weather Front Example",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "When a **cold front** moves in, the dense, cold air pushes under the lighter, warm air, forcing the warm air to rise rapidly. This often creates dramatic storm clouds and heavy rain. Cold fronts typically move faster than warm fronts and can bring sudden weather changes.",
+          "style": "info"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Wind is caused by air moving from an area of ____ pressure to ____ pressure.",
+          "options": ["Low to High", "High to Low", "It is not related to pressure"],
+          "correctAnswer": "High to Low"
+        }
+      ]
     },
     {
       "id": 5,

@@ -12,75 +12,426 @@
   "lessons": [
     {
       "id": 1,
-      "title": "Period 1: 1491–1607",
-      "description": "Societies of the Americas, the Columbian Exchange, and early European colonization",
-      "contentType": "video+text",
-      "videoUrl": "https://player.vimeo.com/video/902092468",
-      "audioUrl": "",
-      "textContent": "### Introduction\nThis period covers the Americas before European contact and the initial wave of exploration and conquest that followed Columbus's arrival in 1492. We will examine the diverse societies of Native Americans and the profound, often devastating, impact of the Columbian Exchange.\n\n### Key Concepts\n*   **Native American Societies:** Before 1492, the Americas were home to millions of people in societies ranging from nomadic hunter-gatherers to large, settled agricultural empires like the Aztec and Inca. Different environments led to vastly different cultures, from the maize-based societies of the Southwest to the fishing and foraging communities of the Northwest.\n*   **The Columbian Exchange:** The transatlantic exchange of plants, animals, diseases, technologies, and ideas between the Old World (Europe, Africa) and the New World (the Americas). European diseases like smallpox decimated Native American populations, while American crops like maize and potatoes revolutionized European diets and fueled population growth in Europe.\n*   **Spanish Colonization:** Spain established a vast empire in the New World based on extracting wealth (gold and silver) and exploiting native labor through the encomienda system. A rigid caste system developed based on racial hierarchy, with Peninsulares (native Spaniards) at the top and enslaved Africans and Native Americans at the bottom.",
-      "estimatedMinutes": 90,
-      "unit": "AP Period 1",
-      "unitColor": "bg-amber-100 text-amber-700"
+      "title": "Native Societies Before Contact",
+      "description": "Explore diverse Native American societies before 1492",
+      "contentType": "text",
+      "estimatedMinutes": 45,
+      "unit": "Unit 1: Pre-Contact to Colonial Period",
+      "unitColor": "bg-amber-100 text-amber-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Learning Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand that the Americas were home to diverse societies before European contact.",
+            "Identify the major cultural regions of Native America (Southwest, Northeast, Great Plains).",
+            "Recognize that environment shaped the different ways of life."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Pre-Contact North America",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Before Europeans arrived in 1492, the Americas were home to an estimated 50 million people, with societies ranging from small bands of hunter-gatherers to complex agricultural empires. Each group developed unique cultures and technologies suited to their environment."
+        },
+        {
+          "type": "heading",
+          "content": "Regional Diversity",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "**The Southwest:** Societies like the Ancestral Puebloans built impressive cliff dwellings and practiced irrigation-based agriculture, growing maize, beans, and squash."
+        },
+        {
+          "type": "paragraph",
+          "content": "**The Northeast:** Groups like the Haudenosaunee (Iroquois) lived in longhouses and formed confederacies. They relied on a mix of farming (the 'three sisters': corn, beans, squash) and hunting."
+        },
+        {
+          "type": "paragraph",
+          "content": "**The Great Plains:** Nomadic tribes followed buffalo herds and developed portable dwellings (tipis). Life was centered around the hunt."
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which statement best describes Native American societies before 1492?",
+          "options": [
+            "They were all nomadic hunter-gatherers",
+            "They all built large stone cities",
+            "They were diverse, with cultures shaped by their environment"
+          ],
+          "correctAnswer": "They were diverse, with cultures shaped by their environment"
+        }
+      ]
     },
     {
       "id": 2,
-      "title": "Period 2: 1607–1754",
-      "description": "The founding of English, French, and Dutch colonies and the development of distinct colonial societies",
-      "contentType": "video+text",
-      "videoUrl": "https://player.vimeo.com/video/902092468",
-      "audioUrl": "",
-      "textContent": "### Introduction\nThis period focuses on the establishment and growth of European colonies in North America. We will compare the different goals and characteristics of the Spanish, French, Dutch, and English colonies, with a focus on the development of the British thirteen colonies.\n\n### Key Concepts\n*   **Regional Differences in British Colonies:**\n    *   **New England:** Settled by Puritans seeking religious freedom (for themselves). Based on small towns, family farms, and a mixed economy of agriculture and commerce. Characterized by a strong sense of community and religious governance.\n    *   **Middle Colonies:** The most diverse region, with a mix of religions (Quakers, Lutherans), ethnicities (English, German, Dutch), and economic activities. Focused on cereal crops like wheat.\n    *   **Southern Colonies:** Developed a plantation-based economy centered on cash crops like tobacco (in the Chesapeake) and rice/indigo (in the Carolinas), relying heavily on the labor of indentured servants and, increasingly, enslaved Africans.\n*   **The Atlantic Slave Trade:** The forced migration of millions of Africans to the Americas to provide labor for plantations. This brutal system became central to the economy of the Southern colonies and created a society defined by a strict racial hierarchy.\n*   **Salutary Neglect:** An unofficial British policy of loosely enforcing trade regulations (like the Navigation Acts) on the colonies. This allowed the colonies to develop a degree of economic and political autonomy, including their own representative assemblies.",
-      "estimatedMinutes": 100,
-      "unit": "AP Period 2",
-      "unitColor": "bg-blue-100 text-blue-700"
+      "title": "The Columbian Exchange",
+      "description": "Understand the transformative exchange between Old and New Worlds",
+      "contentType": "text",
+      "estimatedMinutes": 45,
+      "unit": "Unit 1: Pre-Contact to Colonial Period",
+      "unitColor": "bg-amber-100 text-amber-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Learning Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define the Columbian Exchange.",
+            "Understand the devastating impact of disease on Native populations.",
+            "Identify key items exchanged in both directions (crops, animals, diseases)."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "What Was the Columbian Exchange?",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The Columbian Exchange refers to the widespread transfer of plants, animals, diseases, technology, and ideas between the Americas, Europe, and Africa following Christopher Columbus's voyages beginning in 1492. This exchange had profound and lasting consequences for all involved."
+        },
+        {
+          "type": "heading",
+          "content": "The Exchange in Both Directions",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "**From the Americas to Europe/Africa:** Crops like maize (corn), potatoes, tomatoes, and cacao revolutionized European diets and led to population growth. These crops became staples around the world."
+        },
+        {
+          "type": "paragraph",
+          "content": "**From Europe/Africa to the Americas:** Wheat, rice, sugar, horses, cattle, and pigs were introduced. Most devastatingly, Europeans brought diseases like smallpox, measles, and typhus. Native Americans had no immunity to these diseases, leading to a catastrophic population decline—an estimated 90% of the indigenous population died within the first century of contact."
+        },
+        {
+          "type": "heading",
+          "content": "The Most Devastating Impact",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "The disease exchange was the most significant and tragic aspect of the Columbian Exchange. The depopulation of the Americas weakened Native societies and made European conquest easier.",
+          "style": "warning"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What was the most significant effect of the Columbian Exchange on Native Americans?",
+          "options": [
+            "They gained access to new crops",
+            "European diseases caused massive population loss",
+            "They learned new technologies"
+          ],
+          "correctAnswer": "European diseases caused massive population loss"
+        }
+      ]
     },
     {
       "id": 3,
-      "title": "Period 3: 1754–1800",
-      "description": "The American Revolution, the creation of the Constitution, and the founding of the new republic",
-      "contentType": "video+text",
-      "videoUrl": "https://player.vimeo.com/video/902092468",
-      "audioUrl": "",
-      "textContent": "### Introduction\nThis pivotal period sees the colonies unite to fight for independence, win a revolutionary war, and then struggle to create a stable and effective government for their new nation.\n\n### Key Concepts\n*   **The French and Indian War (1754-1763):** A war between Britain and France that left Britain with huge debts. To pay these debts, Britain ended its policy of salutary neglect and began imposing new taxes on the colonies (e.g., Stamp Act, Townshend Acts), sparking colonial resistance.\n*   **The American Revolution:** Caused by disputes over taxation without representation, British military measures, and Enlightenment ideals of liberty and self-government. The colonists, inspired by thinkers like John Locke and Thomas Paine, declared independence in 1776 and, with crucial help from France, won the war.\n*   **The Constitution:** After the failure of the weak Articles of Confederation, the U.S. Constitution was created through a series of compromises (e.g., the Great Compromise, the 3/5 Compromise), establishing a federal system with checks and balances. The addition of the Bill of Rights protected individual liberties.\n*   **Washington & Adams:** The first two presidencies established key precedents (like the cabinet and two-term limit) but also saw the rise of political factions (Hamilton's Federalists and Jefferson's Democratic-Republicans) and debates over the power of the federal government.",
-      "estimatedMinutes": 120,
-      "unit": "AP Period 3",
-      "unitColor": "bg-green-100 text-green-700"
+      "title": "European Colonization Models",
+      "description": "Compare Spanish, French, Dutch, and British approaches to colonization",
+      "contentType": "text",
+      "estimatedMinutes": 50,
+      "unit": "Unit 1: Pre-Contact to Colonial Period",
+      "unitColor": "bg-amber-100 text-amber-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Learning Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Compare the colonization strategies of Spain, France, the Netherlands, and England.",
+            "Understand why the Spanish Empire was based on extraction of wealth.",
+            "Identify key differences in how each European power treated Native populations."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Competing Colonial Models",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Different European nations pursued colonization with different goals and methods, creating distinct types of colonies in the Americas."
+        },
+        {
+          "type": "heading",
+          "content": "Spanish Colonization",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Spain's primary goal was **extraction of wealth**—gold, silver, and other resources. The Spanish used the **encomienda system** to force Native Americans to work in mines and on plantations. They also established a rigid **caste system** based on race. The Spanish introduced Catholicism through missions. Intermarriage between Spanish settlers and Native people was more common than in English colonies."
+        },
+        {
+          "type": "heading",
+          "content": "French and Dutch Colonization",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "France and the Netherlands focused on the **fur trade** rather than large-scale settlement. They established trading posts and developed relatively cooperative relationships with Native tribes, relying on them as partners in the fur trade. Both established limited settlements (e.g., New Amsterdam for the Dutch, Quebec for the French)."
+        },
+        {
+          "type": "heading",
+          "content": "British Colonization",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "England pursued a strategy of **permanent settlement** and **agriculture**. English colonists came in larger numbers with families, seeking land and economic opportunity. They had little interest in cooperation with Native Americans and often viewed them as obstacles to expansion, leading to displacement and conflict."
+        },
+        {
+          "type": "heading",
+          "content": "The Atlantic Slave Trade",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "All European powers participated in the brutal Atlantic slave trade. Millions of Africans were forcibly brought to the Americas to work on plantations, especially in sugar production in the Caribbean and tobacco/rice in the Southern English colonies. This system of chattel slavery was racialized, hereditary, and dehumanizing."
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which European power focused primarily on the fur trade in North America?",
+          "options": ["Spain", "France", "England"],
+          "correctAnswer": "France"
+        }
+      ]
     },
     {
       "id": 4,
-      "title": "Period 4: 1800–1848",
-      "description": "The growth of democracy, westward expansion, and the Market Revolution",
-      "contentType": "video+text",
-      "videoUrl": "https://player.vimeo.com/video/902092468",
-      "audioUrl": "",
-      "textContent": "### Introduction\nThe nation grew dramatically in size and population during this era. The 'Age of Jackson' saw an expansion of democracy for white men, while the Market Revolution transformed the economy and society. Westward expansion raised contentious questions about the future of slavery.\n\n### Key Concepts\n*   **Jeffersonian & Jacksonian Democracy:** The period saw a shift towards greater political participation for white males and the growth of a more populist style of politics. The power of the presidency grew under Andrew Jackson, who championed the 'common man' while also enforcing controversial policies like the Indian Removal Act.\n*   **The Second Great Awakening:** A religious revival that inspired numerous social reform movements, including abolitionism, temperance, and women's rights (e.g., the Seneca Falls Convention of 1848).\n*   **The Market Revolution:** New technologies like the cotton gin, canals (Erie Canal), steamboats, and railroads linked the country together, creating a national market. This led to a shift from subsistence farming to producing goods for sale, but also increased sectional economic differences between the industrial North and the agricultural South.\n*   **Manifest Destiny:** The belief in America's divine right to expand westward to the Pacific Ocean. This ideology drove the Louisiana Purchase, the annexation of Texas, and the Mexican-American War, which continually forced the issue of whether new territories would permit slavery (e.g., the Missouri Compromise).",
-      "estimatedMinutes": 110,
-      "unit": "AP Period 4",
-      "unitColor": "bg-purple-100 text-purple-700"
+      "title": "The British Colonies",
+      "description": "Explore regional differences in British colonial America",
+      "contentType": "text",
+      "estimatedMinutes": 50,
+      "unit": "Unit 2: Colonial Development",
+      "unitColor": "bg-blue-100 text-blue-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Learning Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Identify the three main regions of the British colonies.",
+            "Understand the economic and social differences between regions.",
+            "Learn about major colonial conflicts like King Philip's War and Bacon's Rebellion."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Regional Differences in British America",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The thirteen British colonies that would become the United States developed into three distinct regions with different economies, societies, and cultures."
+        },
+        {
+          "type": "heading",
+          "content": "The Three Colonial Regions",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "**New England (Massachusetts, Connecticut, Rhode Island, New Hampshire):** Characterized by rocky soil, a cooler climate, small farms, fishing, shipbuilding, and trade. Puritan values dominated, emphasizing education, community, and religious conformity. Town meetings were an early form of self-government."
+        },
+        {
+          "type": "paragraph",
+          "content": "**Middle Colonies (New York, Pennsylvania, New Jersey, Delaware):** Known as the 'breadbasket' due to wheat production. This region was the most diverse in terms of religion (Quakers, Catholics, Jews, Lutherans) and ethnicity (English, German, Dutch, Swedish). Cities like Philadelphia became major commercial centers."
+        },
+        {
+          "type": "paragraph",
+          "content": "**Southern Colonies (Virginia, Maryland, North Carolina, South Carolina, Georgia):** Dominated by large plantations growing cash crops (tobacco in the Chesapeake, rice and indigo in the Carolinas). This economy relied heavily on enslaved African labor. Society was hierarchical, with wealthy plantation owners holding most political power."
+        },
+        {
+          "type": "heading",
+          "content": "Major Colonial Conflicts",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "**King Philip's War (1675-1676):** A devastating conflict in New England between colonists and a Native American alliance led by Metacom (King Philip). It was one of the bloodiest wars in American history per capita and resulted in the near destruction of Native power in the region.\n\n**Bacon's Rebellion (1676):** An uprising in Virginia led by Nathaniel Bacon against the colonial governor. It highlighted tensions between wealthy planters and poorer colonists and accelerated the shift from indentured servitude to African slavery.",
+          "style": "info"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which colonial region was known for its large plantations and reliance on enslaved labor?",
+          "options": ["New England", "Middle Colonies", "Southern Colonies"],
+          "correctAnswer": "Southern Colonies"
+        }
+      ]
     },
     {
       "id": 5,
-      "title": "Period 5: 1844–1877",
-      "description": "The causes, course, and consequences of the Civil War and the failures of Reconstruction",
-      "contentType": "video+text",
-      "videoUrl": "https://player.vimeo.com/video/902092468",
-      "audioUrl": "",
-      "textContent": "### Introduction\nThis period is dominated by the nation's greatest crisis. Escalating tensions over slavery led to the Civil War, a brutal conflict that preserved the Union and ended slavery but was followed by a difficult and ultimately unsuccessful effort to rebuild the South and protect the rights of newly freed African Americans.\n\n### Key Concepts\n*   **Causes of the Civil War:** Sectional disagreements over slavery's expansion into new territories (e.g., Compromise of 1850, Kansas-Nebraska Act), states' rights, and economic differences led to the secession of Southern states following the election of Abraham Lincoln in 1860.\n*   **The Civil War (1861-1865):** A Union victory was achieved through advantages in industrial capacity, population, and effective leadership. Key turning points included the Battle of Gettysburg and the Vicksburg Campaign. Lincoln's Emancipation Proclamation reframed the war as a fight against slavery and helped prevent foreign intervention.\n*   **Reconstruction (1865-1877):** The period after the war. The 13th, 14th, and 15th Amendments were passed to abolish slavery, grant citizenship and equal protection, and provide voting rights for African American men. However, Southern resistance (e.g., Black Codes, KKK), political compromises (Compromise of 1877), and waning Northern resolve led to the failure of Reconstruction to secure long-term civil rights for African Americans.",
-      "estimatedMinutes": 130,
-      "unit": "AP Period 5",
-      "unitColor": "bg-red-100 text-red-700"
+      "title": "The Road to Revolution",
+      "description": "Understand the growing tensions that led to American independence",
+      "contentType": "text",
+      "estimatedMinutes": 55,
+      "unit": "Unit 2: Colonial Development",
+      "unitColor": "bg-blue-100 text-blue-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Learning Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand how the French and Indian War led to colonial resistance.",
+            "Identify key events on the road to independence (Stamp Act, Boston Massacre, etc.).",
+            "Explain the influence of Enlightenment ideas and Common Sense."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "From the French and Indian War to Colonial Resistance",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The French and Indian War (1754-1763) left Britain with massive war debts. To pay these debts, Britain ended its policy of 'salutary neglect' and began imposing new taxes on the colonies. The colonists, who had enjoyed a degree of self-governance, resisted these taxes, arguing they had no representation in Parliament ('No taxation without representation')."
+        },
+        {
+          "type": "paragraph",
+          "content": "Key acts that sparked resistance included the **Stamp Act (1765)**, the **Townshend Acts (1767)**, and the **Tea Act (1773)**, which led to the Boston Tea Party. Britain responded with the **Coercive (Intolerable) Acts (1774)**, further inflaming tensions."
+        },
+        {
+          "type": "heading",
+          "content": "Enlightenment Ideas and Common Sense",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Enlightenment thinkers like John Locke argued that people had natural rights (life, liberty, property) and that governments derived their power from the consent of the governed. If a government violated these rights, the people had the right to overthrow it."
+        },
+        {
+          "type": "paragraph",
+          "content": "Thomas Paine's pamphlet **Common Sense (1776)** applied these ideas directly to the American situation, making a powerful and accessible argument for independence. It became a bestseller and convinced many colonists that breaking with Britain was both necessary and justified."
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What Enlightenment philosopher's ideas about natural rights heavily influenced the American Revolution?",
+          "options": ["Thomas Hobbes", "Jean-Jacques Rousseau", "John Locke"],
+          "correctAnswer": "John Locke"
+        }
+      ]
     },
     {
       "id": 6,
-      "title": "Period 6: 1865–1898",
-      "description": "The Gilded Age, industrialization, urbanization, and the 'New South'",
-      "contentType": "video+text",
-      "videoUrl": "https://player.vimeo.com/video/902092468",
-      "audioUrl": "",
-      "textContent": "### Introduction\nThis era, known as the 'Gilded Age,' was a time of rapid industrialization, massive immigration, and the growth of cities. While great fortunes were made by industrial titans ('robber barons'), this period was also marked by political corruption, labor strife, and growing inequality.\n\n### Key Concepts\n*   **Industrialization & Big Business:** The rise of big business (trusts and monopolies) in industries like steel (Carnegie), oil (Rockefeller), and railroads (Vanderbilt), fueled by new technologies and a laissez-faire government approach.\n*   **Urbanization and Immigration:** Millions of 'New Immigrants' from Southern and Eastern Europe flocked to cities to work in factories, leading to overcrowded and unsanitary urban conditions. This sparked debates over assimilation and nativism.\n*   **The 'New South':** Despite efforts to industrialize, the South remained largely agricultural and economically impoverished. Systems of racial segregation (Jim Crow laws) were implemented, and the Supreme Court case Plessy v. Ferguson (1896) upheld the doctrine of 'separate but equal.'\n*   **The West:** The final settlement of the West was completed, driven by mining, ranching, and farming (aided by the Homestead Act). This led to further conflicts with Native Americans, the destruction of the buffalo herds, and policies aimed at forced assimilation (e.g., the Dawes Act).",
-      "estimatedMinutes": 120,
-      "unit": "AP Period 6",
-      "unitColor": "bg-orange-100 text-orange-700"
+      "title": "The Constitution and the New Republic",
+      "description": "Learn how the Constitution was created and the first government established",
+      "contentType": "text",
+      "estimatedMinutes": 55,
+      "unit": "Unit 3: The New Nation",
+      "unitColor": "bg-green-100 text-green-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Learning Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand why the Articles of Confederation failed.",
+            "Identify the major compromises of the Constitutional Convention.",
+            "Explain the rise of the first political parties (Federalists vs. Democratic-Republicans)."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Creating a New Government",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "After independence, the United States was governed by the **Articles of Confederation**, which created a very weak central government. It could not tax, regulate trade, or enforce laws effectively. Economic chaos and events like **Shays' Rebellion (1786)** convinced many leaders that a stronger national government was needed."
+        },
+        {
+          "type": "paragraph",
+          "content": "At the **Constitutional Convention (1787)**, delegates debated how to balance power between large and small states, between the national and state governments, and between slave and free states. Key compromises included the **Great Compromise** (creating a bicameral legislature), the **Three-Fifths Compromise** (counting enslaved people for representation), and the addition of the **Bill of Rights** to protect individual liberties."
+        },
+        {
+          "type": "heading",
+          "content": "The First Political Parties",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "During George Washington's presidency, two factions emerged:"
+        },
+        {
+          "type": "paragraph",
+          "content": "**Federalists (led by Alexander Hamilton):** Favored a strong central government, a national bank, and close ties with Britain. They supported Hamilton's financial plan to assume state debts and promote manufacturing."
+        },
+        {
+          "type": "paragraph",
+          "content": "**Democratic-Republicans (led by Thomas Jefferson and James Madison):** Favored states' rights, an agrarian economy, and sympathy for France. They opposed Hamilton's financial plan and the expansion of federal power."
+        },
+        {
+          "type": "heading",
+          "content": "Hamilton's Financial Plan",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "Hamilton's plan included: 1) The federal government assuming state Revolutionary War debts, 2) Creating a national bank, and 3) Implementing tariffs to protect American industry. This plan was controversial but established the financial foundation of the new nation.",
+          "style": "info"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which political faction favored a strong central government and a national bank?",
+          "options": ["Democratic-Republicans", "Federalists", "Whigs"],
+          "correctAnswer": "Federalists"
+        }
+      ]
     },
     {
       "id": 7,

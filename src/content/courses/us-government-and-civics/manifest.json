@@ -11,7 +11,58 @@
       "slug": "us-constitution-bill-of-rights",
       "contentType": "text",
       "unit": "Unit 1: Foundations of American Democracy",
-      "unitColor": "blue"
+      "unitColor": "blue",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand that the Constitution is the supreme law of the United States.",
+            "Identify the three branches of government established by the Constitution.",
+            "Define the purpose of the Bill of Rights."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The U.S. Constitution is the blueprint for the American government. Ratified in 1788, it establishes a federal system with three distinct branches to ensure a separation of powers: the Legislative (Congress), the Executive (the President), and the Judicial (the Supreme Court). To protect individual liberties from the power of the government, the first ten amendments, known as the Bill of Rights, were added in 1791."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "The First Amendment in the Bill of Rights guarantees several key freedoms, including freedom of speech, freedom of the press, and freedom of religion. These rights are considered fundamental to American democracy.",
+          "style": "info"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is the name for the first ten amendments to the Constitution?",
+          "options": ["The Preamble", "The Articles of Confederation", "The Bill of Rights"],
+          "correctAnswer": "The Bill of Rights"
+        },
+        {
+          "type": "quiz",
+          "question": "Which of these is NOT one of the three branches of the U.S. government?",
+          "options": ["Legislative", "Executive", "The Military"],
+          "correctAnswer": "The Military"
+        }
+      ]
     },
     {
       "id": 2,
@@ -19,7 +70,52 @@
       "slug": "federalism",
       "contentType": "text",
       "unit": "Unit 1: Foundations of American Democracy",
-      "unitColor": "blue"
+      "unitColor": "blue",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define federalism as the division of power between the national and state governments.",
+            "Differentiate between federal, state, and local governments.",
+            "Provide an example of a power held by the federal government and one held by state governments."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Federalism is a core principle of the U.S. system. It means that power is shared between the national (federal) government in Washington, D.C., and the individual state governments. The Constitution grants certain powers to the federal government (like declaring war and printing money), while reserving other powers for the states (like running schools and issuing driver's licenses). This creates a balance of power."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "The federal government is responsible for the U.S. Postal Service. Your state government is responsible for maintaining state highways. Your local city or county government is responsible for services like trash collection and local parks.",
+          "style": "info"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which of the following is a power reserved for state governments?",
+          "options": ["Declaring war", "Printing money", "Running public schools"],
+          "correctAnswer": "Running public schools"
+        }
+      ]
     },
     {
       "id": 3,
@@ -27,7 +123,52 @@
       "slug": "legislative-branch-congress",
       "contentType": "text",
       "unit": "Unit 2: The Three Branches of Government",
-      "unitColor": "purple"
+      "unitColor": "purple",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Identify Congress as the legislative (law-making) branch.",
+            "Differentiate between the two houses of Congress: the Senate and the House of Representatives.",
+            "Understand the process of how a bill becomes a law."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Congress is the part of the government that makes laws. It is bicameral, meaning it has two chambers. The House of Representatives has 435 members, with representation based on a state's population. The Senate has 100 members, with two from each state regardless of size. For a bill to become a law, it must be passed by a majority vote in both the House and the Senate and then be signed by the President."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "A bill to fund national parks is introduced in the House. It passes a vote. It then goes to the Senate, which also passes it. It is then sent to the President. If the President signs it, it becomes law. If the President vetoes it, Congress can override the veto with a two-thirds vote in both houses.",
+          "style": "info"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "How many Senators does each state have?",
+          "options": ["It depends on the population", "Two", "Four"],
+          "correctAnswer": "Two"
+        }
+      ]
     },
     {
       "id": 4,
@@ -35,7 +176,52 @@
       "slug": "executive-branch-president",
       "contentType": "text",
       "unit": "Unit 2: The Three Branches of Government",
-      "unitColor": "purple"
+      "unitColor": "purple",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Identify the President as the head of the executive branch.",
+            "Understand the President's roles, including Commander-in-Chief and chief diplomat.",
+            "Learn about the Electoral College system used to elect the President."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The executive branch is responsible for implementing and enforcing the laws written by Congress. The President of the United States is the head of this branch. The President's powers are extensive and include being the Commander-in-Chief of the armed forces, appointing federal judges and cabinet members, and conducting foreign policy. The President is not elected by a direct popular vote, but by the Electoral College, a system where each state is assigned a number of electors."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "When the President signs a treaty with another country, that is an example of their role as chief diplomat. When the President sends troops into a conflict, they are acting as Commander-in-Chief.",
+          "style": "info"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "The President is the head of which branch of government?",
+          "options": ["Legislative", "Executive", "Judicial"],
+          "correctAnswer": "Executive"
+        }
+      ]
     },
     {
       "id": 5,
@@ -43,7 +229,52 @@
       "slug": "judicial-branch-supreme-court",
       "contentType": "text",
       "unit": "Unit 2: The Three Branches of Government",
-      "unitColor": "purple"
+      "unitColor": "purple",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Identify the judicial branch as the system of federal courts.",
+            "Understand the role of the Supreme Court as the highest court in the nation.",
+            "Define the power of 'judicial review'."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The judicial branch is responsible for interpreting the laws. It is made up of the Supreme Court and lower federal courts. The Supreme Court is the final judge in all cases involving laws of Congress and the Constitution. Its most important power is 'judicial review'—the ability to declare a law passed by Congress or an action by the President to be unconstitutional, and therefore void."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "In the landmark case Marbury v. Madison (1803), the Supreme Court established the principle of judicial review. In Brown v. Board of Education (1954), the Court used this power to declare that state laws establishing separate public schools for black and white students were unconstitutional.",
+          "style": "info"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is the power of the Supreme Court to declare a law unconstitutional called?",
+          "options": ["Veto", "Judicial Review", "Federalism"],
+          "correctAnswer": "Judicial Review"
+        }
+      ]
     },
     {
       "id": 6,
@@ -51,7 +282,52 @@
       "slug": "us-citizen-rights-responsibilities",
       "contentType": "text",
       "unit": "Unit 3: Citizenship and Participation",
-      "unitColor": "red"
+      "unitColor": "red",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Identify the rights guaranteed to citizens in the Bill of Rights.",
+            "Understand the responsibilities of citizenship, such as voting and jury duty.",
+            "Learn how citizens can participate in their democracy."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Citizenship in a democracy comes with both rights and responsibilities. Rights, such as freedom of speech and the right to a fair trial, are protections from government overreach. Responsibilities are duties that citizens are expected to perform to help the democracy function. These include obeying laws, paying taxes, serving on a jury if called, and, most importantly, being an informed and active voter."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "Voting in local, state, and federal elections is the most direct way to participate. Other ways include contacting your elected officials, volunteering for a campaign, participating in a peaceful protest, or staying informed about current events.",
+          "style": "info"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which of the following is considered both a right and a responsibility of a U.S. citizen?",
+          "options": ["Serving in the military", "Voting in elections", "Owning property"],
+          "correctAnswer": "Voting in elections"
+        }
+      ]
     }
   ]
 }

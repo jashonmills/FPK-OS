@@ -11,7 +11,58 @@
       "slug": "bunreacht-na-heireann",
       "contentType": "text",
       "unit": "Unit 1: The Foundations of the State",
-      "unitColor": "emerald"
+      "unitColor": "emerald",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand that the Constitution is the fundamental law of the Irish State.",
+            "Learn that it was enacted by a vote of the people in 1937.",
+            "Identify the key principles, including national sovereignty and fundamental rights."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Bunreacht na hÉireann is the constitution of Ireland. It is the supreme law of the land, and all other laws must comply with it. It can only be changed by a referendum, which is a direct vote of the people. The Constitution establishes the organs of government (the President, the Oireachtas, the Courts) and guarantees certain fundamental rights to citizens, such as equality before the law, freedom of expression, and freedom of religion."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "Article 40.3.1° states: 'The State guarantees in its laws to respect, and, as far as practicable, by its laws to defend and vindicate the personal rights of the citizen.' This is the basis for many rights that have been established by the courts over the years.",
+          "style": "info"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is the name for the Constitution of Ireland?",
+          "options": ["The Act of Union", "The Proclamation of the Republic", "Bunreacht na hÉireann"],
+          "correctAnswer": "Bunreacht na hÉireann"
+        },
+        {
+          "type": "quiz",
+          "question": "How can the Irish Constitution be changed?",
+          "options": ["By a vote in the Dáil", "By a decision of the President", "By a referendum of the people"],
+          "correctAnswer": "By a referendum of the people"
+        }
+      ]
     },
     {
       "id": 2,
@@ -19,7 +70,52 @@
       "slug": "uachtaran-na-heireann",
       "contentType": "text",
       "unit": "Unit 1: The Foundations of the State",
-      "unitColor": "emerald"
+      "unitColor": "emerald",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand the role of the President as the Head of State.",
+            "Differentiate the President's role from the Taoiseach's role (Head of Government).",
+            "Identify the key powers of the President, such as referring a bill to the Supreme Court."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The President of Ireland is the Head of State, representing the people of Ireland on the world stage. This role is largely ceremonial, as the real political power lies with the Taoiseach (Prime Minister). The President is directly elected by the people for a seven-year term and can serve a maximum of two terms. While mainly ceremonial, the President has some important powers, such as signing bills into law or, if they have concerns about a bill's constitutionality, referring it to the Supreme Court for a decision before signing it."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "If the Dáil and Seanad pass a new law, it is sent to the President. The President usually signs it, making it official. However, if the President believes the law might violate the Constitution, they can consult the Council of State and then send the bill to the Supreme Court. This is a crucial check and balance in the Irish system.",
+          "style": "info"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "The President of Ireland is the Head of...?",
+          "options": ["Government", "State", "The Army"],
+          "correctAnswer": "State"
+        }
+      ]
     },
     {
       "id": 3,
@@ -27,7 +123,52 @@
       "slug": "dail-eireann",
       "contentType": "text",
       "unit": "Unit 2: The Houses of the Oireachtas",
-      "unitColor": "blue"
+      "unitColor": "blue",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Identify Dáil Éireann as the principal house of the Oireachtas (Irish Parliament).",
+            "Understand the role of a Teachta Dála (TD).",
+            "Learn about Ireland's system of proportional representation (PR-STV)."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Dáil Éireann is the main decision-making body in Ireland. It is where new laws are debated and passed, and where the government is formed. Its members are called Teachtaí Dála (TDs), and they are directly elected by the people at least every five years. Ireland uses a voting system called Proportional Representation by means of the Single Transferable Vote (PR-STV). This system is designed to ensure that the number of seats a party gets in the Dáil is roughly proportional to the number of votes it receives nationwide."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "In the PR-STV system, you don't just vote for one candidate. You rank the candidates in order of preference (1, 2, 3...). This allows your vote to transfer to your second or third choice if your first choice is eliminated or has a surplus of votes, making your vote more powerful.",
+          "style": "info"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is a member of Dáil Éireann called?",
+          "options": ["A Senator", "A Councillor", "A Teachta Dála (TD)"],
+          "correctAnswer": "A Teachta Dála (TD)"
+        }
+      ]
     },
     {
       "id": 4,
@@ -35,7 +176,52 @@
       "slug": "seanad-eireann",
       "contentType": "text",
       "unit": "Unit 2: The Houses of the Oireachtas",
-      "unitColor": "blue"
+      "unitColor": "blue",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Identify Seanad Éireann as the upper house of the Oireachtas.",
+            "Understand that the Seanad's primary role is to review and amend legislation from the Dáil.",
+            "Learn how its members (Senators) are chosen, not directly elected by the public."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Seanad Éireann, or the Senate, is the upper house. It has less power than the Dáil. Its main function is to review, debate, and suggest amendments to laws passed by the Dáil. It can delay a bill, but it cannot block it indefinitely. Most of its 60 members are not directly elected by the public. They are chosen by specific vocational panels (e.g., culture, agriculture, industry), university graduates, and by the Taoiseach."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "If the Dáil passes a controversial bill quickly, the Seanad can act as a 'cooling off' chamber, providing more time for debate and public discussion. It can propose amendments which the Dáil can then choose to accept or reject.",
+          "style": "info"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Can the Seanad permanently block a law passed by the Dáil?",
+          "options": ["Yes", "No, it can only delay it"],
+          "correctAnswer": "No, it can only delay it"
+        }
+      ]
     },
     {
       "id": 5,
@@ -43,7 +229,52 @@
       "slug": "government-and-taoiseach",
       "contentType": "text",
       "unit": "Unit 3: The Government and You",
-      "unitColor": "orange"
+      "unitColor": "orange",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define the Government as the executive branch of the State.",
+            "Identify the Taoiseach as the Head of Government (Prime Minister).",
+            "Understand how a government is formed, usually through a coalition of parties."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The Government is the cabinet of ministers that runs the country day-to-day. It is led by the Taoiseach, who is the most powerful political figure in Ireland. After a general election, the Taoiseach is nominated by the Dáil and appointed by the President. Because of Ireland's PR-STV voting system, it is rare for one party to win an outright majority, so most governments are coalitions, where two or more parties agree to govern together."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "If Party A wins 40% of the seats and Party B wins 15%, they might agree to form a coalition government to get over the 50% mark needed to command a majority in the Dáil. The leader of the larger party (Party A) would typically become Taoiseach.",
+          "style": "info"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Who is the Head of Government in Ireland?",
+          "options": ["The President", "The Taoiseach", "The Ceann Comhairle"],
+          "correctAnswer": "The Taoiseach"
+        }
+      ]
     },
     {
       "id": 6,
@@ -51,7 +282,52 @@
       "slug": "citizen-rights-and-responsibilities",
       "contentType": "text",
       "unit": "Unit 3: The Government and You",
-      "unitColor": "orange"
+      "unitColor": "orange",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Identify the rights guaranteed to Irish citizens in the Constitution and through EU membership.",
+            "Understand the responsibilities of citizenship, such as voting and jury duty.",
+            "Learn how citizens can participate in their democracy."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Citizenship in a democracy comes with both rights and responsibilities. Rights, such as freedom of expression, equality before the law, and the right to a fair trial, are protections from government overreach. As members of the European Union, Irish citizens also have additional rights, including the right to live and work in other EU countries. Responsibilities are duties that citizens are expected to perform to help the democracy function. These include obeying laws, paying taxes, serving on a jury if called, and, most importantly, being an informed and active voter."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "Voting in local, national, and European elections is the most direct way to participate. Other ways include contacting your elected representatives, volunteering for a campaign, participating in a peaceful protest, or staying informed about current events and policies.",
+          "style": "info"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which of the following is considered both a right and a responsibility of an Irish citizen?",
+          "options": ["Serving in the Defence Forces", "Voting in elections", "Owning property"],
+          "correctAnswer": "Voting in elections"
+        }
+      ]
     }
   ]
 }
