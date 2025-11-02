@@ -44,7 +44,7 @@
         },
         {
           "type": "image",
-          "src": "/course-images/introduction-to-philosophy/branches-metaphysics-epistemology.png",
+          "src": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-images/intro-philosophy/branches-metaphysics-epistemology.png",
           "alt": "A diagram showing Metaphysics represented by a galaxy icon and Epistemology represented by a human head with a question mark",
           "caption": "The two core branches of philosophy"
         },
@@ -111,7 +111,7 @@
         },
         {
           "type": "image",
-          "src": "/course-images/introduction-to-philosophy/logic-deductive-inductive.png",
+          "src": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-images/intro-philosophy/logic-deductive-inductive.png",
           "alt": "A diagram contrasting deductive reasoning (top-down) with inductive reasoning (bottom-up)",
           "caption": "Two types of logical arguments"
         },
@@ -136,7 +136,7 @@
         },
         {
           "type": "image",
-          "src": "/course-images/introduction-to-philosophy/fallacy-ad-hominem.png",
+          "src": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-images/intro-philosophy/fallacy-ad-hominem.png",
           "alt": "An icon showing one person attacking another person instead of their argument, representing an ad hominem fallacy",
           "caption": "Ad Hominem fallacy: attacking the person, not the argument"
         },
@@ -183,7 +183,7 @@
         },
         {
           "type": "image",
-          "src": "/course-images/introduction-to-philosophy/plato-theory-of-forms.png",
+          "src": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-images/intro-philosophy/plato-theory-of-forms.png",
           "alt": "An illustration showing a perfect, glowing Form of a chair casting a shadow as an imperfect physical chair",
           "caption": "The perfect Form vs. the imperfect copy"
         },
@@ -198,7 +198,7 @@
         },
         {
           "type": "image",
-          "src": "/course-images/introduction-to-philosophy/plato-allegory-of-cave.png",
+          "src": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-images/intro-philosophy/plato-allegory-of-cave.png",
           "alt": "A symbolic diagram of Plato's Allegory of the Cave, showing a prisoner, a shadow, and the escape to the real world",
           "caption": "From shadows to enlightenment"
         },
@@ -245,7 +245,7 @@
         },
         {
           "type": "image",
-          "src": "/course-images/introduction-to-philosophy/aristotle-empiricism.png",
+          "src": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-images/intro-philosophy/aristotle-empiricism.png",
           "alt": "An illustration showing observation with a magnifying glass, representing empiricism",
           "caption": "Knowledge through observation and experience"
         },
@@ -260,7 +260,7 @@
         },
         {
           "type": "image",
-          "src": "/course-images/introduction-to-philosophy/aristotle-concept-of-telos.png",
+          "src": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-images/intro-philosophy/aristotle-concept-of-telos.png",
           "alt": "A diagram showing an acorn transforming into an oak tree, representing telos",
           "caption": "The acorn's purpose is to become an oak"
         },
@@ -307,7 +307,7 @@
         },
         {
           "type": "image",
-          "src": "/course-images/introduction-to-philosophy/ethics-utilitarianism-deontology.png",
+          "src": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-images/intro-philosophy/ethics-utilitarianism-deontology.png",
           "alt": "A diagram contrasting Utilitarianism (balancing scales) with Deontology (following rules)",
           "caption": "Two major approaches to ethics"
         },
@@ -364,7 +364,7 @@
         },
         {
           "type": "image",
-          "src": "/course-images/introduction-to-philosophy/existentialism-existence-precedes-essence.png",
+          "src": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-images/intro-philosophy/existentialism-existence-precedes-essence.png",
           "alt": "An illustration showing a blank figure with question mark transforming into self-sculpted individual",
           "caption": "We create our own essence through our choices"
         },
