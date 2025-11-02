@@ -1,0 +1,425 @@
+{
+  "courseId": "science-7-1-life-science-human-body-systems",
+  "courseSlug": "science-7-1-life-science-human-body-systems",
+  "contentVersion": "v2",
+  "title": "Science 7.1: Life Science - Human Body Systems",
+  "description": "Take a journey through the intricate and interconnected systems that make up the human body, from the skeleton that supports you to the brain that directs you.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Lesson 1: The Skeletal System",
+      "description": "Identify the major functions of the skeletal system and understand its structure.",
+      "contentType": "text",
+      "unit": "Unit 1: Structure, Support, and Movement",
+      "unitColor": "blue",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Identify the major functions of the skeletal system (support, protection, movement, storage, blood cell formation).",
+            "Describe the basic structure of a bone.",
+            "Differentiate between the axial skeleton and the appendicular skeleton."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - The Body's Framework",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The skeletal system is the internal framework of the human body. It is composed of bones, cartilage, ligaments, and tendons. While we often think of it as just a scaffold, the skeletal system has many vital functions. It provides the structure that supports our body, protects our delicate internal organs (like the skull protecting the brain), allows for movement by providing attachment points for muscles, stores important minerals like calcium, and even produces blood cells in the bone marrow."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Axial vs. Appendicular Skeleton",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Axial Skeleton:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Forms the central axis of the body. It includes the skull, the vertebral column (spine), and the rib cage. Its main job is protection of vital organs."
+        },
+        {
+          "type": "heading",
+          "content": "Appendicular Skeleton:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Consists of the bones of the limbs (arms and legs) as well as the pectoral (shoulder) and pelvic (hip) girdles that attach the limbs to the axial skeleton. Its main job is movement."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which of the following is a primary function of the rib cage?",
+          "options": ["To help you move your arms", "To protect the heart and lungs", "To produce calcium"],
+          "correctAnswer": "To protect the heart and lungs",
+          "explanation": "Good start. Remember that a key part of the axial skeleton, like the rib cage, is to protect our most important organs."
+        }
+      ],
+      "estimatedMinutes": 15
+    },
+    {
+      "id": 2,
+      "title": "Lesson 2: The Muscular System",
+      "description": "Identify the three types of muscle tissue and understand how muscles produce movement.",
+      "contentType": "text",
+      "unit": "Unit 1: Structure, Support, and Movement",
+      "unitColor": "blue",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Identify the three types of muscle tissue: skeletal, smooth, and cardiac.",
+            "Differentiate between voluntary and involuntary muscles.",
+            "Explain how muscles work in pairs to produce movement."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - The Engines of the Body",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The muscular system is responsible for all the movement in your body, from walking and lifting to the beating of your heart. Muscles are tissues that have the unique ability to contract, or shorten, which creates force and produces motion."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Types of Muscle",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Skeletal Muscle:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "These are the muscles attached to your bones that you control consciously. They are voluntary muscles. (e.g., biceps, quadriceps)."
+        },
+        {
+          "type": "heading",
+          "content": "Smooth Muscle:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Found in the walls of internal organs like the stomach and intestines. They are involuntary, meaning they work automatically without you thinking about it."
+        },
+        {
+          "type": "heading",
+          "content": "Cardiac Muscle:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "This is a special type of involuntary muscle found only in the heart. It is designed to contract rhythmically for your entire life."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "The muscle that makes up the heart is called...?",
+          "options": ["Skeletal muscle", "Smooth muscle", "Cardiac muscle"],
+          "correctAnswer": "Cardiac muscle",
+          "explanation": "Not quite. Remember, 'cardiac' refers to the heart."
+        }
+      ],
+      "estimatedMinutes": 15
+    },
+    {
+      "id": 3,
+      "title": "Lesson 3: The Circulatory System",
+      "description": "Identify the main components of the circulatory system and trace the path of blood.",
+      "contentType": "text",
+      "unit": "Unit 2: Transport and Defense",
+      "unitColor": "green",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Identify the main components of the circulatory system: the heart, blood vessels, and blood.",
+            "Trace the path of blood through the heart and lungs.",
+            "Differentiate between arteries, veins, and capillaries."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - The Body's Delivery Service",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The circulatory system is the body's transportation network. It is responsible for delivering oxygen and nutrients to all the cells in your body and carrying away waste products like carbon dioxide. The heart acts as the pump, blood vessels act as the roads, and blood is the vehicle carrying the precious cargo."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: The Blood Vessels",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Arteries:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Carry oxygen-rich blood away from the heart to the rest of the body."
+        },
+        {
+          "type": "heading",
+          "content": "Veins:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Carry oxygen-poor blood back to the heart."
+        },
+        {
+          "type": "heading",
+          "content": "Capillaries:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Tiny, microscopic vessels where the actual exchange of oxygen, nutrients, and waste takes place with the body's cells."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which type of blood vessel carries blood away from the heart?",
+          "options": ["Vein", "Artery", "Capillary"],
+          "correctAnswer": "Artery",
+          "explanation": "Good try. A helpful way to remember is 'Artery' and 'Away' both start with 'A'."
+        }
+      ],
+      "estimatedMinutes": 15
+    },
+    {
+      "id": 4,
+      "title": "Lesson 4: The Respiratory System",
+      "description": "Identify the main organs of the respiratory system and describe gas exchange.",
+      "contentType": "text",
+      "unit": "Unit 2: Transport and Defense",
+      "unitColor": "green",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Identify the main organs of the respiratory system (lungs, diaphragm, trachea).",
+            "Describe the process of gas exchange that occurs in the alveoli.",
+            "Explain the mechanics of breathing (inhalation and exhalation)."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - The Breath of Life",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The respiratory system's main job is to supply the body with oxygen and remove carbon dioxide. It works in close partnership with the circulatory system. You breathe in air, your lungs extract the oxygen, and the circulatory system picks it up and delivers it to your cells. The cells use the oxygen and produce carbon dioxide as waste, which the circulatory system carries back to the lungs to be exhaled."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Gas Exchange in the Alveoli",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Deep inside your lungs are millions of tiny, balloon-like air sacs called alveoli. These alveoli are surrounded by a network of capillaries. This is where the magic happens: oxygen from the air you breathed in passes through the thin walls of the alveoli into the blood in the capillaries. At the same time, carbon dioxide from the blood passes into the alveoli to be breathed out."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "In which part of the lungs does the exchange of oxygen and carbon dioxide take place?",
+          "options": ["The trachea", "The diaphragm", "The alveoli"],
+          "correctAnswer": "The alveoli",
+          "explanation": "Not quite. The trachea is the windpipe and the diaphragm is the muscle for breathing. The alveoli are the tiny air sacs where the exchange happens."
+        }
+      ],
+      "estimatedMinutes": 15
+    },
+    {
+      "id": 5,
+      "title": "Lesson 5: The Digestive System",
+      "description": "Trace the path of food through the digestive system and understand digestion.",
+      "contentType": "text",
+      "unit": "Unit 3: Processing and Control",
+      "unitColor": "purple",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Trace the path of food through the major organs of the digestive system.",
+            "Differentiate between mechanical digestion and chemical digestion.",
+            "Understand the role of enzymes in breaking down food."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - From Food to Fuel",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The digestive system is a long tube that runs through your body, responsible for breaking down the food you eat into smaller molecules that your body can absorb and use for energy, growth, and repair. This process involves both mechanical digestion (physically breaking food down, like chewing) and chemical digestion (using special proteins called enzymes to break down chemical bonds)."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: The Path of Food",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Mouth:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Mechanical digestion (chewing) and chemical digestion (saliva) begin."
+        },
+        {
+          "type": "heading",
+          "content": "Stomach:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Food is mixed with stomach acid and enzymes to break down proteins."
+        },
+        {
+          "type": "heading",
+          "content": "Small Intestine:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "The most important site for chemical digestion and absorption of nutrients into the bloodstream."
+        },
+        {
+          "type": "heading",
+          "content": "Large Intestine:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Absorbs water from the remaining indigestible food matter and then passes useless waste material from the body."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "In which organ does most of the absorption of nutrients into the blood occur?",
+          "options": ["Stomach", "Small Intestine", "Large Intestine"],
+          "correctAnswer": "Small Intestine",
+          "explanation": "Good try. While the stomach breaks down food, the small intestine is where the body absorbs most of the useful nutrients."
+        }
+      ],
+      "estimatedMinutes": 15
+    },
+    {
+      "id": 6,
+      "title": "Lesson 6: The Nervous System",
+      "description": "Identify the parts of the nervous system and understand the brain's role.",
+      "contentType": "text",
+      "unit": "Unit 3: Processing and Control",
+      "unitColor": "purple",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Identify the main parts of the nervous system: the central nervous system (CNS) and the peripheral nervous system (PNS).",
+            "Describe the function of a neuron (nerve cell).",
+            "Understand the role of the brain as the body's control center."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - The Body's Command Center",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The nervous system is the body's fast, electrochemical communication network. It consists of all the nerve cells of the body. It is responsible for controlling all your actions, thoughts, and senses. It is divided into two main parts: the Central Nervous System (the brain and spinal cord) and the Peripheral Nervous System (the network of nerves that connects the CNS to the rest of the body)."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: The Neuron",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The basic building block of the nervous system is the neuron, or nerve cell. Neurons transmit information as electrical signals, called nerve impulses. They receive signals through dendrites, process them in the cell body, and send signals out through the axon to the next neuron. This allows for rapid communication across the entire body."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "The brain and spinal cord make up the...?",
+          "options": ["Peripheral Nervous System", "Central Nervous System", "Digestive System"],
+          "correctAnswer": "Central Nervous System",
+          "explanation": "Not quite. Remember, the 'central' part of the system is the brain and spinal cord."
+        }
+      ],
+      "estimatedMinutes": 15
+    }
+  ]
+}
