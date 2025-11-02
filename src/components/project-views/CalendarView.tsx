@@ -2,8 +2,6 @@ import { useMemo, useCallback } from 'react';
 import { Calendar, momentLocalizer, Event as BigCalendarEvent, View } from 'react-big-calendar';
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
 import moment from 'moment';
-import 'react-big-calendar/lib/css/react-big-calendar.css';
-import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { getEventTypeColor } from '@/components/calendar/EventTypeIcon';
@@ -139,6 +137,14 @@ export const CalendarView = ({ tasks, projectColor, projectId, onTaskClick, onTa
         backgroundColor: eventColor,
         borderColor: eventColor,
         color: 'white',
+        border: `1px solid ${eventColor}`,
+        display: 'block',
+        opacity: '1',
+        minHeight: '20px',
+        fontSize: '0.8125rem',
+        padding: '2px 5px',
+        borderRadius: '4px',
+        cursor: 'pointer',
       },
     };
   }, []);
@@ -171,7 +177,75 @@ export const CalendarView = ({ tasks, projectColor, projectId, onTaskClick, onTa
         </Alert>
       )}
       
-      <div className="h-[calc(100vh-250px)] bg-background p-4 border rounded-lg">
+      {/* Temporary debug indicator - remove after fixing */}
+      {events.length > 0 && (
+        <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg p-3 mb-4">
+          <div className="flex items-start gap-2">
+            <div className="text-amber-600 dark:text-amber-400 text-sm font-medium">
+              🔍 Debug Info:
+            </div>
+            <div className="flex-1 text-xs text-amber-700 dark:text-amber-300">
+              <div className="font-medium mb-1">
+                {events.length} events loaded for calendar
+              </div>
+              <div className="space-y-0.5">
+                {events.slice(0, 3).map((event, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <div 
+                      className="w-3 h-3 rounded-sm" 
+                      style={{ backgroundColor: event.color }}
+                    />
+                    <span>{event.title} - {new Date(event.start).toLocaleDateString()}</span>
+                  </div>
+                ))}
+                {events.length > 3 && (
+                  <div className="text-amber-600 dark:text-amber-400 font-medium">
+                    ...and {events.length - 3} more
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      <div className="h-[calc(100vh-250px)] bg-background p-4 border rounded-lg calendar-wrapper">
+        {/* Critical inline styles to ensure events render in production */}
+        <style>{`
+          .calendar-wrapper .rbc-event {
+            padding: 2px 5px !important;
+            border-radius: 4px !important;
+            font-size: 0.8125rem !important;
+            cursor: pointer !important;
+            display: block !important;
+            position: relative !important;
+            min-height: 20px !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+          }
+          
+          .calendar-wrapper .rbc-event-content {
+            display: block !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            color: white !important;
+          }
+          
+          .calendar-wrapper .rbc-event-label {
+            display: none !important;
+          }
+          
+          /* Force all-day events to be visible */
+          .calendar-wrapper .rbc-row-segment {
+            padding: 1px 2px !important;
+          }
+          
+          .calendar-wrapper .rbc-date-cell {
+            padding: 4px !important;
+          }
+        `}</style>
+        
         <DnDCalendar
           localizer={localizer}
           events={events}

@@ -13,11 +13,36 @@
   background-color: hsl(var(--accent) / 0.1);
 }
 
-.rbc-event {
-  padding: 2px 5px;
-  border-radius: 4px;
-  font-size: 0.8125rem;
-  cursor: pointer;
+/* Ensure events are always visible with high specificity */
+.rbc-calendar .rbc-event,
+.rbc-month-view .rbc-event,
+.rbc-day-slot .rbc-event {
+  padding: 2px 5px !important;
+  border-radius: 4px !important;
+  font-size: 0.8125rem !important;
+  cursor: pointer !important;
+  display: block !important;
+  min-height: 20px !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.rbc-calendar .rbc-event-content {
+  display: block !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* Ensure all-day events in month view are visible */
+.rbc-month-view .rbc-row-segment {
+  padding: 1px 2px !important;
+  min-height: 22px !important;
+}
+
+.rbc-month-view .rbc-event-content {
+  color: white !important;
+  font-weight: 500 !important;
 }
 
 .rbc-event:focus {
