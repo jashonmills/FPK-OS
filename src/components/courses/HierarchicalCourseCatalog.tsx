@@ -6,19 +6,25 @@ import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown, ChevronUp, Clock, GraduationCap } from 'lucide-react';
 import type { PlatformCourse } from '@/hooks/usePlatformCourses';
+import type { Course } from '@/hooks/useCourses';
 import { groupCoursesByHierarchy } from '@/hooks/usePlatformCourses';
+import { Loader2 } from 'lucide-react';
+
+// Union type to accept both PlatformCourse and Course
+type DisplayCourse = PlatformCourse | Course;
 
 interface Props {
-  courses: PlatformCourse[];
+  courses: DisplayCourse[];
   onEnroll: (courseId: string) => void;
+  enrollingCourseIds?: Set<string>;
 }
 
-export function HierarchicalCourseCatalog({ courses, onEnroll }: Props) {
+export function HierarchicalCourseCatalog({ courses, onEnroll, enrollingCourseIds = new Set() }: Props) {
   const [expandedStages, setExpandedStages] = useState<Set<string>>(new Set(['Senior Cycle']));
   const [expandedGrades, setExpandedGrades] = useState<Set<number>>(new Set());
   
-  const hierarchy = groupCoursesByHierarchy(courses);
-  const specialCourses = courses.filter(c => c.grade_level_id == null);
+  const hierarchy = groupCoursesByHierarchy(courses as PlatformCourse[]);
+  const specialCourses = courses.filter(c => !('grade_level_id' in c) || c.grade_level_id == null);
   
   const toggleStage = (stage: string) => {
     setExpandedStages(prev => {
@@ -38,7 +44,7 @@ export function HierarchicalCourseCatalog({ courses, onEnroll }: Props) {
     });
   };
   
-  const renderCourseCard = (course: PlatformCourse) => {
+  const renderCourseCard = (course: DisplayCourse) => {
     const courseImage = course.thumbnail_url || 
       'https://images.unsplash.com/photo-1501504905252-473c47e087f8';
     
@@ -78,8 +84,16 @@ export function HierarchicalCourseCatalog({ courses, onEnroll }: Props) {
           <Button
             onClick={() => onEnroll(course.id)}
             className="w-full text-xs py-2 mt-auto"
+            disabled={enrollingCourseIds.has(course.id)}
           >
-            Enroll Now
+            {enrollingCourseIds.has(course.id) ? (
+              <>
+                <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                Enrolling...
+              </>
+            ) : (
+              'Enroll Now'
+            )}
           </Button>
         </CardContent>
       </Card>

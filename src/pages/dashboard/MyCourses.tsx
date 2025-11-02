@@ -22,7 +22,8 @@ import { useStudentAssignments } from '@/hooks/useStudentAssignments';
 import { NativeCourseCard } from '@/components/native-courses/NativeCourseCard';
 import { StyledCourseCard } from '@/components/common/StyledCourseCard';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { usePlatformCourses } from '@/hooks/usePlatformCourses';
+import { usePlatformCourses, groupCoursesByHierarchy } from '@/hooks/usePlatformCourses';
+import { HierarchicalCourseCatalog } from '@/components/courses/HierarchicalCourseCatalog';
 
 import { useFirstVisitVideo } from '@/hooks/useFirstVisitVideo';
 import { FirstVisitVideoModal } from '@/components/common/FirstVisitVideoModal';
@@ -771,35 +772,42 @@ const MyCourses = () => {
                   </div>
                 )}
 
-                {/* Divider between EL courses and other courses */}
-                {elCourses.length > 0 && (otherCourses.length > 0 || filteredNative.length > 0) && (
-                  <div className="flex items-center gap-4 py-4">
-                    <Separator className="flex-1 bg-white/30" />
-                    <span className="text-white/80 font-semibold text-sm uppercase tracking-wider">
-                      Other Courses
-                    </span>
-                    <Separator className="flex-1 bg-white/30" />
-                  </div>
-                )}
-
-                {/* Other Courses Section */}
+                {/* Hierarchical Course Catalog - replacing flat "Other Courses" grid */}
                 {(otherCourses.length > 0 || filteredNative.length > 0) && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
-                    {/* Available Native Courses */}
-                    {filteredNative.map((course) => (
-                      <NativeCourseCard 
-                        key={course.id} 
-                        course={course}
-                        onEnroll={() => handleNativeCourseEnroll(course.id)}
-                        isEnrolling={enrollingCourseIds.has(course.id)}
-                      />
-                    ))}
+                  <>
+                    {elCourses.length > 0 && (
+                      <div className="flex items-center gap-4 py-4">
+                        <Separator className="flex-1 bg-white/30" />
+                        <span className="text-white/80 font-semibold text-sm uppercase tracking-wider">
+                          Other Courses
+                        </span>
+                        <Separator className="flex-1 bg-white/30" />
+                      </div>
+                    )}
                     
-                    {/* Available Regular Other Courses */}
-                    {otherCourses.map((course) => (
-                      <CourseCard key={course.id} course={course} isEnrolled={false} />
-                    ))}
-                  </div>
+                    <HierarchicalCourseCatalog 
+                      courses={otherCourses}
+                      onEnroll={handleCourseEnroll}
+                      enrollingCourseIds={enrollingCourseIds}
+                    />
+                    
+                    {/* Native Courses Section (if any) */}
+                    {filteredNative.length > 0 && (
+                      <div className="space-y-4">
+                        <h3 className="text-lg font-semibold text-white">Native Courses</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
+                          {filteredNative.map((course) => (
+                            <NativeCourseCard 
+                              key={course.id} 
+                              course={course}
+                              onEnroll={() => handleNativeCourseEnroll(course.id)}
+                              isEnrolling={enrollingCourseIds.has(course.id)}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             );
