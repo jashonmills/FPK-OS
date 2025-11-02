@@ -54,6 +54,7 @@ export const V2_SEQUENTIAL_COURSE_SLUGS = [
   'science-7-2-physical-science-chemistry-basics',
   'science-7-3-earth-science-space-astronomy',
   'ela-8-1-rhetoric-persuasion-media-literacy',
+  'ela-8-2-american-literature-historical-context',
 ] as const;
 
 export type V2SequentialCourseSlug = typeof V2_SEQUENTIAL_COURSE_SLUGS[number];
