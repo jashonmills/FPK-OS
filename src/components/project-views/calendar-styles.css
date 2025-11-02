@@ -117,6 +117,13 @@
   background-color: hsl(var(--accent));
 }
 
+.rbc-toolbar button:active,
+.rbc-toolbar button:focus {
+  background-color: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+  border-color: hsl(var(--primary)) !important;
+}
+
 .rbc-toolbar button.rbc-active {
   background-color: hsl(var(--primary)) !important;
   color: hsl(var(--primary-foreground)) !important;
