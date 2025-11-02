@@ -60,26 +60,47 @@ const Kanban = () => {
     }
   }, [user, loading, navigate]);
 
-  // Handle task query parameter from notifications
+  // Handle task query parameter from notifications and upcoming deadlines
   useEffect(() => {
     const taskId = searchParams.get('task');
-    if (taskId && tasks.length > 0) {
-      const task = tasks.find(t => t.id === taskId);
-      if (task) {
+    if (taskId) {
+      const fetchTaskAndOpen = async () => {
+        const { data: task, error } = await supabase
+          .from('tasks')
+          .select(`
+            *,
+            project:projects(*),
+            assignee:assignee_id(id, full_name, email, avatar_url)
+          `)
+          .eq('id', taskId)
+          .maybeSingle();
+
+        if (error || !task) {
+          toast({
+            title: 'Task not found',
+            description: 'The task may have been deleted or you may not have access to it.',
+            variant: 'destructive',
+          });
+          setSearchParams({});
+          return;
+        }
+
+        // Set the project first so tasks load correctly
+        if (task.project_id !== selectedProject) {
+          setSelectedProject(task.project_id);
+        }
+
+        // Open the task details
         setSelectedTask(task);
         setDetailsSheetOpen(true);
+        
         // Clear the query parameter
         setSearchParams({});
-      } else {
-        toast({
-          title: 'Task not found',
-          description: 'The task may have been deleted or you may not have access to it.',
-          variant: 'destructive',
-        });
-        setSearchParams({});
-      }
+      };
+
+      fetchTaskAndOpen();
     }
-  }, [searchParams, tasks, setSearchParams, toast]);
+  }, [searchParams, setSearchParams, toast, selectedProject]);
 
   useEffect(() => {
     if (selectedProject) {
