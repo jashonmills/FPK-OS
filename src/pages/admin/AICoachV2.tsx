@@ -55,7 +55,7 @@ export default function AICoachV2() {
             </div>
 
             {/* Right Sidebar - Insights & Analytics */}
-            <div className="w-[320px] flex-shrink-0 hidden xl:block">
+            <div className="w-[320px] flex-shrink-0 hidden lg:block">
               <InsightsPanel />
             </div>
           </div>
