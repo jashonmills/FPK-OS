@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Mic, Upload, BookOpen, Clock, TrendingUp, Target, Award, Zap } from 'lucide-react';
 import { cn } from '../lib/utils';
-import type { Message, Persona, UserAnalytics, StudyPlan, SavedChat, StudyMaterial, AIDrill } from '../types';
+import type { Message, Persona, UserAnalytics, StudyPlan, SavedChat, StudyMaterial, AIDrill } from '@/types/aiCoach';
 import { AIService } from '../services/aiService';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -389,7 +389,7 @@ export const AICoachCommandCenter: React.FC = () => {
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         persona: response.persona.toUpperCase() as Persona,
-        content: response.message,
+        content: response.content,
         timestamp: new Date(),
       };
       

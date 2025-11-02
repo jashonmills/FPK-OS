@@ -41,11 +41,11 @@ export class AIService {
 
       // Transform response to match expected format
       return {
-        persona: data.persona || 'betty',
-        message: data.message || data.response || '',
-        tokensUsed: data.tokensUsed || data.tokens_used || 0,
-        cost: data.cost || 0,
-      } as OrchestratorResponse;
+        persona: (data.persona || 'BETTY').toUpperCase() as 'USER' | 'BETTY' | 'AL' | 'NITE_OWL',
+        content: data.message || data.response || '',
+        creditsUsed: data.tokensUsed || data.tokens_used || 0,
+        remainingCredits: data.remainingCredits || 0,
+      };
     } catch (error) {
       console.error('Error calling AI service:', error);
       throw error;
@@ -63,82 +63,15 @@ export class AIService {
    * 2. Ensure RLS policies allow user to read their own analytics
    */
   static async fetchUserAnalytics(userId: string) {
-    try {
-      // Query the ai_coach_analytics table
-      const { data, error } = await supabase
-        .from('ai_coach_analytics')
-        .select('*')
-        .eq('user_id', userId)
-        .order('session_date', { ascending: false })
-        .limit(30); // Last 30 sessions
-
-      if (error) {
-        console.warn('Analytics query error, using defaults:', error);
-        // Return default values if no data yet
-        return {
-          totalStudyTime: 0,
-          sessionsCompleted: 0,
-          topicsStudied: [],
-          averageScore: 0,
-          streakDays: 0,
-        };
-      }
-
-      if (!data || data.length === 0) {
-        return {
-          totalStudyTime: 0,
-          sessionsCompleted: 0,
-          topicsStudied: [],
-          averageScore: 0,
-          streakDays: 0,
-        };
-      }
-
-      // Aggregate the analytics data
-      const totalStudyTime = data.reduce((sum, session) => sum + (session.study_time_minutes || 0), 0) / 60;
-      const sessionsCompleted = data.length;
-      const topicsStudied = [...new Set(data.flatMap(session => session.topics_explored || []))];
-      const averageScore = data.reduce((sum, session) => sum + (session.comprehension_score || 0), 0) / data.length;
-      
-      // Calculate streak
-      let streakDays = 0;
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      
-      const sortedDates = data
-        .map(s => new Date(s.session_date))
-        .sort((a, b) => b.getTime() - a.getTime());
-      
-      for (let i = 0; i < sortedDates.length; i++) {
-        const sessionDate = new Date(sortedDates[i]);
-        sessionDate.setHours(0, 0, 0, 0);
-        const expectedDate = new Date(today);
-        expectedDate.setDate(expectedDate.getDate() - i);
-        
-        if (sessionDate.getTime() === expectedDate.getTime()) {
-          streakDays++;
-        } else {
-          break;
-        }
-      }
-
-      return {
-        totalStudyTime: Math.round(totalStudyTime),
-        sessionsCompleted,
-        topicsStudied,
-        averageScore: Math.round(averageScore),
-        streakDays,
-      };
-    } catch (error) {
-      console.error('Error fetching analytics:', error);
-      return {
-        totalStudyTime: 0,
-        sessionsCompleted: 0,
-        topicsStudied: [],
-        averageScore: 0,
-        streakDays: 0,
-      };
-    }
+    // TODO: Implement when ai_coach_analytics table is created
+    // Placeholder data for now
+    return {
+      totalStudyTime: 0,
+      sessionsCompleted: 0,
+      topicsStudied: [],
+      averageScore: 0,
+      streakDays: 0,
+    };
   }
 
   /**
@@ -153,54 +86,9 @@ export class AIService {
    * 3. Order by updated_at DESC
    */
   static async fetchSavedChats(userId: string) {
-    try {
-      // Query ai_coach_conversations with message count
-      const { data, error } = await supabase
-        .from('ai_coach_conversations')
-        .select('id, title, updated_at')
-        .eq('user_id', userId)
-        .order('updated_at', { ascending: false })
-        .limit(10);
-
-      if (error) {
-        console.warn('Saved chats query error:', error);
-        return [];
-      }
-
-      if (!data || data.length === 0) {
-        return [];
-      }
-
-      // For each conversation, get the message count and last message
-      const chatsWithDetails = await Promise.all(
-        data.map(async (conv) => {
-          const { data: messages, error: msgError } = await supabase
-            .from('ai_coach_messages')
-            .select('content, created_at')
-            .eq('conversation_id', conv.id)
-            .order('created_at', { ascending: false })
-            .limit(1);
-
-          const { count } = await supabase
-            .from('ai_coach_messages')
-            .select('*', { count: 'exact', head: true })
-            .eq('conversation_id', conv.id);
-
-          return {
-            id: conv.id,
-            title: conv.title,
-            lastMessage: messages?.[0]?.content || 'No messages yet',
-            timestamp: new Date(conv.updated_at),
-            messageCount: count || 0,
-          };
-        })
-      );
-
-      return chatsWithDetails;
-    } catch (error) {
-      console.error('Error fetching saved chats:', error);
-      return [];
-    }
+    // TODO: Implement when ai_coach_conversations table is created
+    // Placeholder data for now
+    return [];
   }
 
   /**
@@ -277,67 +165,18 @@ export class AIService {
    * Fetch study materials for a user
    */
   static async fetchStudyMaterials(userId: string) {
-    try {
-      const { data, error } = await supabase
-        .from('ai_coach_study_materials')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.warn('Study materials query error:', error);
-        return [];
-      }
-
-      if (!data || data.length === 0) {
-        return [];
-      }
-
-      return data.map(material => ({
-        id: material.id,
-        title: material.title,
-        type: material.file_type,
-        uploadedAt: new Date(material.created_at),
-        size: material.file_size,
-      }));
-    } catch (error) {
-      console.error('Error fetching study materials:', error);
-      return [];
-    }
+    // TODO: Implement when ai_coach_study_materials table is created
+    // Placeholder data for now
+    return [];
   }
 
   /**
    * Fetch active study plan for a user
    */
   static async fetchStudyPlan(userId: string) {
-    try {
-      const { data, error } = await supabase
-        .from('ai_coach_study_plans')
-        .select('*')
-        .eq('user_id', userId)
-        .eq('is_active', true)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
-
-      if (error) {
-        if (error.code === 'PGRST116') return null; // No active plan
-        console.warn('Study plan query error:', error);
-        return null;
-      }
-
-      return {
-        id: data.id,
-        title: data.title,
-        description: data.description,
-        topics: data.topics,
-        estimatedTime: data.estimated_hours,
-        progress: data.progress_percentage,
-      };
-    } catch (error) {
-      console.error('Error fetching study plan:', error);
-      return null;
-    }
+    // TODO: Implement when ai_coach_study_plans table is created
+    // Placeholder data for now
+    return null;
   }
 
   /**
