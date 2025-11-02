@@ -1,74 +1,74 @@
 {
-  "courseTitle": "Introduction to Philosophy",
+  "courseId": "introduction-to-philosophy",
   "courseSlug": "introduction-to-philosophy",
+  "contentVersion": "v2",
+  "title": "Introduction to Philosophy",
   "description": "What is real? How do we know what we know? What does it mean to be good? This course tackles the biggest questions in life, introducing you to the foundational ideas of the world's greatest thinkers.",
-  "duration": 420,
   "lessons": [
     {
       "id": 1,
       "title": "What is Philosophy? Metaphysics and Epistemology",
       "description": "Define philosophy and explore its two core branches: Metaphysics (the study of reality) and Epistemology (the study of knowledge).",
+      "contentType": "text",
+      "estimatedMinutes": 40,
       "unit": "Unit 1: Core Questions",
       "unitColor": "bg-purple-100 text-purple-700",
-      "contentSections": [
+      "sections": [
         {
           "type": "heading",
-          "text": "Screen 1: Objectives"
+          "content": "Learning Objectives",
+          "level": 2
         },
         {
           "type": "list",
+          "content": "Key objectives for this lesson",
           "items": [
-            "Define philosophy as the love of wisdom and the study of fundamental questions.",
-            "Identify the two core branches: Metaphysics (the study of reality) and Epistemology (the study of knowledge).",
-            "Understand the difference between a philosophical question and a scientific one."
+            "Define philosophy as the love of wisdom and the study of fundamental questions",
+            "Identify the two core branches: Metaphysics (the study of reality) and Epistemology (the study of knowledge)",
+            "Understand the difference between a philosophical question and a scientific one"
           ]
         },
         {
           "type": "heading",
-          "text": "Screen 2: Concept - The Love of Wisdom"
+          "content": "The Love of Wisdom",
+          "level": 2
         },
         {
           "type": "paragraph",
-          "text": "Philosophy, from the Greek 'philosophia', literally means 'love of wisdom'. It is the systematic study of the most fundamental questions about existence, knowledge, values, reason, mind, and language. While science asks 'how' the universe works, philosophy often asks 'why' it works the way it does, or what it means for us. It challenges our most basic assumptions and teaches us how to think more clearly and critically."
+          "content": "Philosophy, from the Greek 'philosophia', literally means 'love of wisdom'. It is the systematic study of the most fundamental questions about existence, knowledge, values, reason, mind, and language. While science asks 'how' the universe works, philosophy often asks 'why' it works the way it does, or what it means for us. It challenges our most basic assumptions and teaches us how to think more clearly and critically."
         },
         {
           "type": "heading",
-          "text": "Screen 3: The Two Foundational Branches"
+          "content": "The Two Foundational Branches",
+          "level": 2
         },
         {
           "type": "image",
           "src": "/course-images/introduction-to-philosophy/branches-metaphysics-epistemology.png",
-          "alt": "A diagram showing Metaphysics represented by a galaxy icon and Epistemology represented by a human head with a question mark."
+          "alt": "A diagram showing Metaphysics represented by a galaxy icon and Epistemology represented by a human head with a question mark",
+          "caption": "The two core branches of philosophy"
         },
         {
-          "type": "richText",
-          "content": [
-            { "type": "subheading", "text": "Metaphysics:" },
-            { "type": "text", "text": "This is the study of the nature of reality. It asks questions like: What is real? What is the relationship between mind and matter? Do we have free will? Is there a God? It explores the fundamental structure of existence itself." },
-            { "type": "subheading", "text": "Epistemology:" },
-            { "type": "text", "text": "This is the theory of knowledge. It asks: What does it mean to 'know' something? How do we acquire knowledge? Can we ever be certain of anything? It explores the difference between belief, opinion, and justified, true knowledge." }
-          ]
+          "type": "callout",
+          "content": "**Metaphysics:** The study of the nature of reality. It asks: What is real? What is the relationship between mind and matter? Do we have free will? Is there a God? It explores the fundamental structure of existence itself.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "**Epistemology:** The theory of knowledge. It asks: What does it mean to 'know' something? How do we acquire knowledge? Can we ever be certain of anything? It explores the difference between belief, opinion, and justified, true knowledge.",
+          "style": "info"
         },
         {
           "type": "heading",
-          "text": "Screen 4: Knowledge Check"
+          "content": "Knowledge Check",
+          "level": 2
         },
         {
           "type": "quiz",
-          "quizTitle": "Lesson 1 Knowledge Check",
-          "questions": [
-            {
-              "questionText": "The branch of philosophy that studies the nature of reality is called...?",
-              "options": ["Epistemology", "Ethics", "Metaphysics"],
-              "correctAnswer": "Metaphysics",
-              "points": 10
-            }
-          ],
-          "passingScore": 8,
-          "feedback": {
-            "pass": "Excellent! You understand the foundational branches of philosophy.",
-            "fail": "Good start. Remember, Metaphysics deals with reality, while Epistemology deals with knowledge."
-          }
+          "question": "The branch of philosophy that studies the nature of reality is called...?",
+          "options": ["Epistemology", "Ethics", "Metaphysics"],
+          "correctAnswer": "Metaphysics",
+          "explanation": "Metaphysics deals with the fundamental nature of reality, while Epistemology deals with knowledge."
         }
       ]
     },
@@ -76,80 +76,76 @@
       "id": 2,
       "title": "Logic and Argument",
       "description": "Learn the essential tools of philosophical reasoning: logic, deductive vs inductive arguments, and common logical fallacies.",
+      "contentType": "text",
+      "estimatedMinutes": 45,
       "unit": "Unit 1: Core Questions",
       "unitColor": "bg-purple-100 text-purple-700",
-      "contentSections": [
+      "sections": [
         {
           "type": "heading",
-          "text": "Screen 1: Objectives"
+          "content": "Learning Objectives",
+          "level": 2
         },
         {
           "type": "list",
+          "content": "Key objectives for this lesson",
           "items": [
-            "Define logic as the study of reasoning.",
-            "Differentiate between deductive and inductive arguments.",
-            "Identify a common logical fallacy."
+            "Define logic as the study of reasoning",
+            "Differentiate between deductive and inductive arguments",
+            "Identify common logical fallacies"
           ]
         },
         {
           "type": "heading",
-          "text": "Screen 2: Concept - The Toolbox of Philosophy"
+          "content": "The Toolbox of Philosophy",
+          "level": 2
         },
         {
           "type": "paragraph",
-          "text": "Logic is the essential tool that philosophers use to construct and evaluate arguments. An argument in philosophy isn't a heated dispute; it's a set of statements (premises) that are offered as reasons for another statement (the conclusion). Logic provides the rules for determining whether the conclusion truly follows from the premises."
+          "content": "Logic is the essential tool that philosophers use to construct and evaluate arguments. An argument in philosophy isn't a heated dispute; it's a set of statements (premises) that are offered as reasons for another statement (the conclusion). Logic provides the rules for determining whether the conclusion truly follows from the premises."
         },
         {
           "type": "heading",
-          "text": "Screen 3: Types of Arguments"
+          "content": "Types of Arguments",
+          "level": 2
         },
         {
           "type": "image",
           "src": "/course-images/introduction-to-philosophy/logic-deductive-inductive.png",
-          "alt": "A diagram contrasting deductive reasoning (top-down) with inductive reasoning (bottom-up)."
+          "alt": "A diagram contrasting deductive reasoning (top-down) with inductive reasoning (bottom-up)",
+          "caption": "Two types of logical arguments"
         },
         {
-          "type": "richText",
-          "content": [
-            { "type": "subheading", "text": "Deductive Arguments:" },
-            { "type": "text", "text": "These aim to provide conclusive proof. If the premises are true, the conclusion MUST be true. (e.g., All men are mortal. Socrates is a man. Therefore, Socrates is mortal.)" },
-            { "type": "subheading", "text": "Inductive Arguments:" },
-            { "type": "text", "text": "These aim to provide probable support. The premises make the conclusion likely, but not guaranteed. (e.g., The sun has risen every day in the past. Therefore, the sun will rise tomorrow.)" }
-          ]
+          "type": "callout",
+          "content": "**Deductive Arguments:** Aim to provide conclusive proof. If the premises are true, the conclusion MUST be true. Example: All men are mortal. Socrates is a man. Therefore, Socrates is mortal.",
+          "style": "teaching"
+        },
+        {
+          "type": "callout",
+          "content": "**Inductive Arguments:** Aim to provide probable support. The premises make the conclusion likely, but not guaranteed. Example: The sun has risen every day in the past. Therefore, the sun will rise tomorrow.",
+          "style": "teaching"
         },
         {
           "type": "heading",
-          "text": "Screen 4: Logical Fallacies"
+          "content": "Logical Fallacies",
+          "level": 2
         },
         {
           "type": "paragraph",
-          "text": "These are common errors in reasoning that weaken an argument. A famous example is the 'ad hominem' attack, which attacks the person making the argument instead of the argument itself."
+          "content": "These are common errors in reasoning that weaken an argument. A famous example is the 'ad hominem' attack, which attacks the person making the argument instead of the argument itself."
         },
         {
           "type": "image",
           "src": "/course-images/introduction-to-philosophy/fallacy-ad-hominem.png",
-          "alt": "An icon showing one person attacking another person instead of their argument, representing an ad hominem fallacy."
-        },
-        {
-          "type": "heading",
-          "text": "Screen 5: Knowledge Check"
+          "alt": "An icon showing one person attacking another person instead of their argument, representing an ad hominem fallacy",
+          "caption": "Ad Hominem fallacy: attacking the person, not the argument"
         },
         {
           "type": "quiz",
-          "quizTitle": "Lesson 2 Knowledge Check",
-          "questions": [
-            {
-              "questionText": "An argument that aims for a guaranteed, certain conclusion is called...?",
-              "options": ["Inductive", "Deductive", "A Fallacy"],
-              "correctAnswer": "Deductive",
-              "points": 10
-            }
-          ],
-          "passingScore": 8,
-          "feedback": {
-            "pass": "Great job! You understand the basic tools of philosophical reasoning.",
-            "fail": "Not quite. Remember, Deductive arguments aim for certainty."
-          }
+          "question": "An argument that aims for a guaranteed, certain conclusion is called...?",
+          "options": ["Inductive", "Deductive", "A Fallacy"],
+          "correctAnswer": "Deductive",
+          "explanation": "Deductive arguments aim for certainty - if the premises are true, the conclusion must be true."
         }
       ]
     },
@@ -157,67 +153,61 @@
       "id": 3,
       "title": "Plato and the World of Forms",
       "description": "Explore Plato's Theory of Forms and his famous Allegory of the Cave, foundational concepts in Western philosophy.",
+      "contentType": "text",
+      "estimatedMinutes": 50,
       "unit": "Unit 2: Great Thinkers",
       "unitColor": "bg-blue-100 text-blue-700",
-      "contentSections": [
+      "sections": [
         {
           "type": "heading",
-          "text": "Screen 1: Objectives"
+          "content": "Learning Objectives",
+          "level": 2
         },
         {
           "type": "list",
+          "content": "Key objectives for this lesson",
           "items": [
-            "Identify Plato as a foundational figure in Western philosophy.",
-            "Explain Plato's Theory of Forms.",
-            "Understand the Allegory of the Cave."
+            "Identify Plato as a foundational figure in Western philosophy",
+            "Explain Plato's Theory of Forms",
+            "Understand the Allegory of the Cave"
           ]
         },
         {
           "type": "heading",
-          "text": "Screen 2: Concept - The Theory of Forms"
+          "content": "The Theory of Forms",
+          "level": 2
         },
         {
           "type": "paragraph",
-          "text": "Plato believed that the physical world we perceive is not the real world; it is merely a shadow or imperfect copy of a higher, eternal reality called the World of Forms. For Plato, there is a perfect 'Form' of Justice, Beauty, and even a Chair. The things we see are just pale imitations."
+          "content": "Plato believed that the physical world we perceive is not the real world; it is merely a shadow or imperfect copy of a higher, eternal reality called the World of Forms. For Plato, there is a perfect 'Form' of Justice, Beauty, and even a Chair. The things we see are just pale imitations."
         },
         {
           "type": "image",
           "src": "/course-images/introduction-to-philosophy/plato-theory-of-forms.png",
-          "alt": "An illustration showing a perfect, glowing 'Form' of a chair casting a shadow as an imperfect, physical chair."
+          "alt": "An illustration showing a perfect, glowing Form of a chair casting a shadow as an imperfect physical chair",
+          "caption": "The perfect Form vs. the imperfect copy"
         },
         {
           "type": "heading",
-          "text": "Screen 3: The Allegory of the Cave"
+          "content": "The Allegory of the Cave",
+          "level": 2
         },
         {
           "type": "paragraph",
-          "text": "To explain this, Plato used the Allegory of the Cave. He imagined prisoners chained in a cave, seeing only shadows on a wall, believing them to be reality. If one prisoner escapes, they see the true objects (the Forms) and the sun (the Form of the Good). For Plato, the philosopher is like the escaped prisoner, seeking truth beyond mere appearances."
+          "content": "To explain this, Plato used the Allegory of the Cave. He imagined prisoners chained in a cave, seeing only shadows on a wall, believing them to be reality. If one prisoner escapes, they see the true objects (the Forms) and the sun (the Form of the Good). For Plato, the philosopher is like the escaped prisoner, seeking truth beyond mere appearances."
         },
         {
           "type": "image",
           "src": "/course-images/introduction-to-philosophy/plato-allegory-of-cave.png",
-          "alt": "A symbolic diagram of Plato's Allegory of the Cave, showing a prisoner, a shadow, and the escape to the real world."
-        },
-        {
-          "type": "heading",
-          "text": "Screen 4: Knowledge Check"
+          "alt": "A symbolic diagram of Plato's Allegory of the Cave, showing a prisoner, a shadow, and the escape to the real world",
+          "caption": "From shadows to enlightenment"
         },
         {
           "type": "quiz",
-          "quizTitle": "Lesson 3 Knowledge Check",
-          "questions": [
-            {
-              "questionText": "In Plato's Allegory of the Cave, what do the shadows on the wall represent?",
-              "options": ["The World of Forms", "The physical world we perceive", "Philosophical truth"],
-              "correctAnswer": "The physical world we perceive",
-              "points": 10
-            }
-          ],
-          "passingScore": 8,
-          "feedback": {
-            "pass": "Excellent! You understand the core of Plato's metaphysical theory.",
-            "fail": "Good try. Remember, the shadows are the imperfect copies, not the true reality."
-          }
+          "question": "In Plato's Allegory of the Cave, what do the shadows on the wall represent?",
+          "options": ["The World of Forms", "The physical world we perceive", "Philosophical truth"],
+          "correctAnswer": "The physical world we perceive",
+          "explanation": "The shadows represent the imperfect physical world, not the true reality of the Forms."
         }
       ]
     },
@@ -225,67 +215,61 @@
       "id": 4,
       "title": "Aristotle and Empirical Observation",
       "description": "Discover how Aristotle diverged from his teacher Plato, focusing on empiricism and the concept of telos (purpose).",
+      "contentType": "text",
+      "estimatedMinutes": 50,
       "unit": "Unit 2: Great Thinkers",
       "unitColor": "bg-blue-100 text-blue-700",
-      "contentSections": [
+      "sections": [
         {
           "type": "heading",
-          "text": "Screen 1: Objectives"
+          "content": "Learning Objectives",
+          "level": 2
         },
         {
           "type": "list",
+          "content": "Key objectives for this lesson",
           "items": [
-            "Identify Aristotle as a student of Plato who diverged from his teacher's ideas.",
-            "Understand Aristotle's focus on empiricism and the natural world.",
-            "Define the concept of 'telos' or purpose."
+            "Identify Aristotle as Plato's student who diverged from his ideas",
+            "Understand Aristotle's focus on empiricism and observation",
+            "Define the concept of 'telos' or purpose"
           ]
         },
         {
           "type": "heading",
-          "text": "Screen 2: Concept - The World is Here and Now"
+          "content": "The World is Here and Now",
+          "level": 2
         },
         {
           "type": "paragraph",
-          "text": "While Plato looked to a higher world for truth, his student Aristotle was an empiricist, believing knowledge comes from observation and experience. He systematically studied the physical world, arguing that the 'form' of a thing was inherent within the object itself."
+          "content": "While Plato looked to a higher world for truth, his student Aristotle was an empiricist, believing knowledge comes from observation and experience. He systematically studied the physical world, arguing that the 'form' of a thing was inherent within the object itself."
         },
         {
           "type": "image",
           "src": "/course-images/introduction-to-philosophy/aristotle-empiricism.png",
-          "alt": "An illustration showing a person observing a leaf with a magnifying glass, representing empiricism."
+          "alt": "An illustration showing observation with a magnifying glass, representing empiricism",
+          "caption": "Knowledge through observation and experience"
         },
         {
           "type": "heading",
-          "text": "Screen 3: Telos and Virtue Ethics"
+          "content": "Telos and Virtue Ethics",
+          "level": 2
         },
         {
           "type": "paragraph",
-          "text": "A core concept for Aristotle is 'telos', which means end or purpose. He believed everything has a purpose. The telos of an acorn is to become an oak tree. The telos of a human, he argued, is to achieve 'eudaimonia'—a state of flourishing—by cultivating virtues and living a life of reason."
+          "content": "A core concept for Aristotle is 'telos', which means end or purpose. He believed everything has a purpose. The telos of an acorn is to become an oak tree. The telos of a human is to achieve 'eudaimonia'—flourishing—by cultivating virtues and living a life of reason."
         },
         {
           "type": "image",
           "src": "/course-images/introduction-to-philosophy/aristotle-concept-of-telos.png",
-          "alt": "A diagram showing an acorn on the left and an arrow pointing to a large oak tree on the right, representing 'telos'."
-        },
-        {
-          "type": "heading",
-          "text": "Screen 4: Knowledge Check"
+          "alt": "A diagram showing an acorn transforming into an oak tree, representing telos",
+          "caption": "The acorn's purpose is to become an oak"
         },
         {
           "type": "quiz",
-          "quizTitle": "Lesson 4 Knowledge Check",
-          "questions": [
-            {
-              "questionText": "The belief that knowledge comes from observation and experience is called...?",
-              "options": ["Rationalism", "Empiricism", "Idealism"],
-              "correctAnswer": "Empiricism",
-              "points": 10
-            }
-          ],
-          "passingScore": 8,
-          "feedback": {
-            "pass": "Great job! You can distinguish between the philosophical approaches of Plato and Aristotle.",
-            "fail": "Not quite. Remember, Aristotle was the great observer of the natural world."
-          }
+          "question": "The belief that knowledge comes from observation and experience is called...?",
+          "options": ["Rationalism", "Empiricism", "Idealism"],
+          "correctAnswer": "Empiricism",
+          "explanation": "Empiricism emphasizes observation and experience as the source of knowledge, which was Aristotle's approach."
         }
       ]
     },
@@ -293,63 +277,56 @@
       "id": 5,
       "title": "Ethics - What is the Right Thing to Do?",
       "description": "Explore the major frameworks of moral philosophy: Utilitarianism and Deontology, and learn how to apply them.",
+      "contentType": "text",
+      "estimatedMinutes": 45,
       "unit": "Unit 3: Ethics & Modern",
       "unitColor": "bg-green-100 text-green-700",
-      "contentSections": [
+      "sections": [
         {
           "type": "heading",
-          "text": "Screen 1: Objectives"
+          "content": "Learning Objectives",
+          "level": 2
         },
         {
           "type": "list",
+          "content": "Key objectives for this lesson",
           "items": [
-            "Define ethics as the branch of philosophy concerning moral principles.",
-            "Differentiate between Utilitarianism and Deontology.",
-            "Apply these ethical frameworks to a simple moral dilemma."
+            "Define ethics as the branch of philosophy concerning moral principles",
+            "Differentiate between Utilitarianism and Deontology",
+            "Apply ethical frameworks to moral dilemmas"
           ]
         },
         {
           "type": "heading",
-          "text": "Screen 2: Frameworks for Morality"
+          "content": "Frameworks for Morality",
+          "level": 2
         },
         {
           "type": "paragraph",
-          "text": "Ethics, or moral philosophy, explores questions of right and wrong. Philosophers have developed several major frameworks to guide moral reasoning."
+          "content": "Ethics, or moral philosophy, explores questions of right and wrong. Philosophers have developed several major frameworks to guide moral reasoning."
         },
         {
           "type": "image",
           "src": "/course-images/introduction-to-philosophy/ethics-utilitarianism-deontology.png",
-          "alt": "A diagram contrasting Utilitarianism (balancing scales) with Deontology (following a rule)."
+          "alt": "A diagram contrasting Utilitarianism (balancing scales) with Deontology (following rules)",
+          "caption": "Two major approaches to ethics"
         },
         {
-          "type": "richText",
-          "content": [
-            { "type": "subheading", "text": "Utilitarianism:" },
-            { "type": "text", "text": "A consequentialist theory stating the right action produces the greatest good for the greatest number. The consequences are what matter." },
-            { "type": "subheading", "text": "Deontology:" },
-            { "type": "text", "text": "Argues that actions are inherently right or wrong, regardless of consequences. Morality is based on duty and following universal rules." }
-          ]
+          "type": "callout",
+          "content": "**Utilitarianism:** A consequentialist theory stating the right action produces the greatest good for the greatest number. The consequences are what matter.",
+          "style": "info"
         },
         {
-          "type": "heading",
-          "text": "Screen 3: Knowledge Check"
+          "type": "callout",
+          "content": "**Deontology:** Argues that actions are inherently right or wrong, regardless of consequences. Morality is based on duty and following universal rules.",
+          "style": "info"
         },
         {
           "type": "quiz",
-          "quizTitle": "Lesson 5 Knowledge Check",
-          "questions": [
-            {
-              "questionText": "Which ethical theory focuses on the consequences of an action to determine if it's right?",
-              "options": ["Deontology", "Virtue Ethics", "Utilitarianism"],
-              "correctAnswer": "Utilitarianism",
-              "points": 10
-            }
-          ],
-          "passingScore": 8,
-          "feedback": {
-            "pass": "Excellent! You can differentiate between major ethical frameworks.",
-            "fail": "Good try. Remember, Utilitarianism is all about the 'utility' or outcome of an action."
-          }
+          "question": "Which ethical theory focuses on the consequences of an action to determine if it's right?",
+          "options": ["Deontology", "Virtue Ethics", "Utilitarianism"],
+          "correctAnswer": "Utilitarianism",
+          "explanation": "Utilitarianism evaluates the morality of actions based on their outcomes and consequences."
         }
       ]
     },
@@ -357,62 +334,55 @@
       "id": 6,
       "title": "Existentialism - Freedom and Responsibility",
       "description": "Understand existentialist philosophy, Sartre's 'existence precedes essence', and the burden of radical freedom.",
+      "contentType": "text",
+      "estimatedMinutes": 50,
       "unit": "Unit 3: Ethics & Modern",
       "unitColor": "bg-green-100 text-green-700",
-      "contentSections": [
+      "sections": [
         {
           "type": "heading",
-          "text": "Screen 1: Objectives"
+          "content": "Learning Objectives",
+          "level": 2
         },
         {
           "type": "list",
+          "content": "Key objectives for this lesson",
           "items": [
-            "Define existentialism as a philosophy focused on individual freedom and responsibility.",
-            "Understand Jean-Paul Sartre's concept that 'existence precedes essence'.",
-            "Explore the ideas of radical freedom and creating one's own meaning."
+            "Define existentialism as a philosophy of freedom and responsibility",
+            "Understand Sartre's concept that 'existence precedes essence'",
+            "Explore radical freedom and creating one's own meaning"
           ]
         },
         {
           "type": "heading",
-          "text": "Screen 2: Concept - Existence Precedes Essence"
+          "content": "Existence Precedes Essence",
+          "level": 2
         },
         {
           "type": "paragraph",
-          "text": "Existentialism puts the individual at the center. Thinkers like Jean-Paul Sartre argued that for humans, 'existence precedes essence'. This means we are born without a pre-defined purpose. We simply exist first. It is then up to us, through our choices, to create our own 'essence'—our own meaning in a meaningless world."
+          "content": "Existentialism puts the individual at the center. Jean-Paul Sartre argued that for humans, 'existence precedes essence'. This means we are born without a pre-defined purpose. We simply exist first. It is then up to us, through our choices, to create our own 'essence'—our own meaning in a meaningless world."
         },
         {
           "type": "image",
           "src": "/course-images/introduction-to-philosophy/existentialism-existence-precedes-essence.png",
-          "alt": "An illustration showing a blank figure with a question mark transforming into a self-sculpted, defined individual."
+          "alt": "An illustration showing a blank figure with question mark transforming into self-sculpted individual",
+          "caption": "We create our own essence through our choices"
         },
         {
           "type": "heading",
-          "text": "Screen 3: Radical Freedom and Responsibility"
+          "content": "Radical Freedom and Responsibility",
+          "level": 2
         },
         {
           "type": "paragraph",
-          "text": "This leads to the idea of 'radical freedom'. We are completely free to choose who we become. However, this freedom comes with a heavy burden of responsibility. We are responsible for everything we do and for creating our own values. This can cause 'existential angst', but it is also what makes human life uniquely meaningful."
-        },
-        {
-          "type": "heading",
-          "text": "Screen 4: Knowledge Check"
+          "content": "This leads to 'radical freedom'. We are completely free to choose who we become. However, this freedom comes with a heavy burden of responsibility. We are responsible for everything we do and for creating our own values. This can cause 'existential angst', but it also makes human life uniquely meaningful."
         },
         {
           "type": "quiz",
-          "quizTitle": "Lesson 6 Knowledge Check",
-          "questions": [
-            {
-              "questionText": "The idea that we are born without a pre-defined purpose is summarized by the phrase...",
-              "options": ["I think, therefore I am", "Existence precedes essence", "The greatest good for the greatest number"],
-              "correctAnswer": "Existence precedes essence",
-              "points": 10
-            }
-          ],
-          "passingScore": 8,
-          "feedback": {
-            "pass": "Great job! You understand the core tenet of existentialist thought.",
-            "fail": "Not quite. This is Sartre's famous phrase that puts existence before any pre-determined 'essence' or purpose."
-          }
+          "question": "The idea that we are born without a pre-defined purpose is summarized by the phrase...",
+          "options": ["I think, therefore I am", "Existence precedes essence", "The greatest good for the greatest number"],
+          "correctAnswer": "Existence precedes essence",
+          "explanation": "This is Sartre's famous phrase indicating that we exist first, then define ourselves through our choices."
         }
       ]
     }
