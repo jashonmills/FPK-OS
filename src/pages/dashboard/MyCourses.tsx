@@ -161,7 +161,7 @@ const MyCourses = () => {
   const { assignments: studentAssignments = [] } = useStudentAssignments(userOrganization?.organization_id);
   
   const [searchTerm, setSearchTerm] = useState('');
-  const [difficultyFilter, setDifficultyFilter] = useState('all');
+  const [gradeFilter, setGradeFilter] = useState<string | null>(null);
   const [showVideoModal, setShowVideoModal] = useState(false);
   const [isGamesOpen, setIsGamesOpen] = useState(false);
   
@@ -266,9 +266,25 @@ const MyCourses = () => {
   const separateELCourses = (courseList: Array<typeof courses[0] | typeof platformCourses[0]>) => {
     const filtered = courseList.filter(course => {
       const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           course.description?.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesDifficulty = difficultyFilter === 'all' || course.difficulty_level === difficultyFilter;
-      return matchesSearch && matchesDifficulty;
+                           course.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           course.subject?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           course.grade_level?.us_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           course.grade_level?.irish_name?.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesGradeFilter = (() => {
+        if (!gradeFilter) return true;
+        if (gradeFilter === 'life-skills') return !course.grade_level_id;
+        if (gradeFilter === 'stage-senior') return course.grade_level_id === 11 || course.grade_level_id === 12;
+        if (gradeFilter === 'stage-junior') return course.grade_level_id === 8 || course.grade_level_id === 9 || course.grade_level_id === 10;
+        if (gradeFilter === 'stage-primary') return course.grade_level_id !== null && course.grade_level_id >= 1 && course.grade_level_id <= 7;
+        if (gradeFilter.startsWith('grade-')) {
+          const gradeId = parseInt(gradeFilter.replace('grade-', ''));
+          return course.grade_level_id === gradeId;
+        }
+        return true;
+      })();
+      
+      return matchesSearch && matchesGradeFilter;
     });
 
     const elCourses = filtered.filter(course => EL_COURSE_IDS.includes(course.id));
@@ -280,9 +296,25 @@ const MyCourses = () => {
   const filteredCourses = (courseList: typeof courses) => {
     return courseList.filter(course => {
       const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           course.description?.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesDifficulty = difficultyFilter === 'all' || course.difficulty_level === difficultyFilter;
-      return matchesSearch && matchesDifficulty;
+                           course.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           course.subject?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           course.grade_level?.us_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           course.grade_level?.irish_name?.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesGradeFilter = (() => {
+        if (!gradeFilter) return true;
+        if (gradeFilter === 'life-skills') return !course.grade_level_id;
+        if (gradeFilter === 'stage-senior') return course.grade_level_id === 11 || course.grade_level_id === 12;
+        if (gradeFilter === 'stage-junior') return course.grade_level_id === 8 || course.grade_level_id === 9 || course.grade_level_id === 10;
+        if (gradeFilter === 'stage-primary') return course.grade_level_id !== null && course.grade_level_id >= 1 && course.grade_level_id <= 7;
+        if (gradeFilter.startsWith('grade-')) {
+          const gradeId = parseInt(gradeFilter.replace('grade-', ''));
+          return course.grade_level_id === gradeId;
+        }
+        return true;
+      })();
+      
+      return matchesSearch && matchesGradeFilter;
     }).sort((a, b) => {
       // Use centralized EL_COURSE_IDS array for consistency
       const aIsEL = EL_COURSE_IDS.includes(a.id);
@@ -542,16 +574,32 @@ const MyCourses = () => {
             className="pl-10"
           />
         </div>
-        <Select value={difficultyFilter} onValueChange={setDifficultyFilter}>
-          <SelectTrigger className="w-full sm:w-48">
+        <Select value={gradeFilter || 'all'} onValueChange={(value) => setGradeFilter(value === 'all' ? null : value)}>
+          <SelectTrigger className="w-full sm:w-64">
             <Filter className="h-4 w-4 mr-2" />
-            <SelectValue placeholder="Filter by difficulty" />
+            <SelectValue placeholder="Filter by grade level" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="max-h-96 bg-background z-[100] border border-border">
             <SelectItem value="all">All Levels</SelectItem>
-            <SelectItem value="beginner">Beginner</SelectItem>
-            <SelectItem value="intermediate">Intermediate</SelectItem>
-            <SelectItem value="advanced">Advanced</SelectItem>
+            <SelectItem value="life-skills">🎓 Life Skills Collection</SelectItem>
+            
+            <SelectItem value="stage-senior" className="font-semibold text-blue-600">Senior Cycle (Grades 11-12)</SelectItem>
+            <SelectItem value="grade-12" className="pl-6">└ 6th Year (12th Grade)</SelectItem>
+            <SelectItem value="grade-11" className="pl-6">└ 5th Year (11th Grade)</SelectItem>
+            
+            <SelectItem value="stage-junior" className="font-semibold text-purple-600">Junior Cycle (Grades 8-10)</SelectItem>
+            <SelectItem value="grade-10" className="pl-6">└ 3rd Year (10th Grade)</SelectItem>
+            <SelectItem value="grade-9" className="pl-6">└ 2nd Year (9th Grade)</SelectItem>
+            <SelectItem value="grade-8" className="pl-6">└ 1st Year (8th Grade)</SelectItem>
+            
+            <SelectItem value="stage-primary" className="font-semibold text-green-600">Primary School (Grades K-7)</SelectItem>
+            <SelectItem value="grade-7" className="pl-6">└ 6th Class (7th Grade)</SelectItem>
+            <SelectItem value="grade-6" className="pl-6">└ 5th Class (6th Grade)</SelectItem>
+            <SelectItem value="grade-5" className="pl-6">└ 5th Class (5th Grade)</SelectItem>
+            <SelectItem value="grade-4" className="pl-6">└ 4th Class (4th Grade)</SelectItem>
+            <SelectItem value="grade-3" className="pl-6">└ 3rd Class (3rd Grade)</SelectItem>
+            <SelectItem value="grade-2" className="pl-6">└ 2nd Class (2nd Grade)</SelectItem>
+            <SelectItem value="grade-1" className="pl-6">└ 1st Class (1st Grade)</SelectItem>
           </SelectContent>
         </Select>
       </div>

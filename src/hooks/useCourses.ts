@@ -28,6 +28,17 @@ export interface Course {
   framework_type?: string;
   content_version?: string;
   content_component?: string;
+  // Hierarchical organization fields
+  grade_level_id?: number;
+  subject?: string;
+  sequence_order?: number;
+  grade_level?: {
+    id: number;
+    us_name: string;
+    irish_name: string;
+    stage: string;
+    display_order: number;
+  };
 }
 
 // Type for creating a new course (without id, created_at, updated_at)
@@ -71,7 +82,10 @@ export function useCourses(options?: {
         // Use direct table query to get all courses (published + drafts user has access to)
         let query = supabase
           .from('courses')
-          .select('*')
+          .select(`
+            *,
+            grade_level:grade_levels(id, us_name, irish_name, stage, display_order)
+          `)
           .not('id', 'in', `(${excludedDuplicateIds.join(',')})`)
           .order('created_at', { ascending: false });
 
@@ -123,7 +137,10 @@ export function useCourses(options?: {
       console.log('[useCourses] Using direct table query (fallback)');
       let query = supabase
         .from('courses')
-        .select('*')
+        .select(`
+          *,
+          grade_level:grade_levels(id, us_name, irish_name, stage, display_order)
+        `)
         .not('id', 'in', `(${excludedDuplicateIds.join(',')})`)
         .order('created_at', { ascending: false });
 
