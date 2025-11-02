@@ -14,7 +14,7 @@ import RequireAdmin from '@/components/guards/RequireAdmin';
 import { performanceMonitor } from '@/utils/performanceMonitor';
 import { logger } from '@/utils/logger';
 import { setupGlobalScrollRestoration } from '@/utils/globalScrollManager';
-import { shouldShowBetaFeatures } from '@/lib/featureFlags';
+import { shouldShowBetaFeatures, shouldShowLegacyAIAssistant } from '@/lib/featureFlags';
 import "@/styles/mobile-responsive.css";
 import "./App.css";
 
@@ -438,7 +438,9 @@ const App: React.FC = () => {
             <Route path="learner/settings" element={<LazyRoute><Settings /></LazyRoute>} />
             <Route path="learner/analytics" element={<LazyRoute><LearningAnalytics /></LazyRoute>} />
             <Route path="learner/analytics-debug" element={<LazyRoute><AnalyticsDebug /></LazyRoute>} />
-            <Route path="learner/ai-coach" element={<LazyRoute><AIStudyCoach /></LazyRoute>} />
+            {shouldShowLegacyAIAssistant() && (
+              <Route path="learner/ai-coach" element={<LazyRoute><AIStudyCoach /></LazyRoute>} />
+            )}
             <Route path="learner/ai-command-center" element={<LazyRoute><AICoachPage /></LazyRoute>} />
             <Route path="learner/flashcards" element={<LazyRoute><FlashcardManagerPage /></LazyRoute>} />
             <Route path="learner/live-hub" element={
@@ -857,7 +859,9 @@ const App: React.FC = () => {
             <Route path=":orgId/groups/:groupId" element={<LazyRoute><GroupDetailPage /></LazyRoute>} />
             <Route path=":orgId/games" element={<LazyRoute><OrganizationGamesPage /></LazyRoute>} />
             <Route path=":orgId/goals-notes" element={<LazyRoute><GoalsAndNotes /></LazyRoute>} />
-            <Route path=":orgId/ai-coach" element={<LazyRoute><OrgAIStudyCoach /></LazyRoute>} />
+            {shouldShowLegacyAIAssistant() && (
+              <Route path=":orgId/ai-coach" element={<LazyRoute><OrgAIStudyCoach /></LazyRoute>} />
+            )}
             <Route path=":orgId/analytics/courses/:courseId" element={<LazyRoute><CourseAnalytics /></LazyRoute>} />
             <Route path=":orgId/website" element={<LazyRoute><OrgWebsitePage /></LazyRoute>} />
             <Route path=":orgId/student-settings" element={<LazyRoute><StudentSettings /></LazyRoute>} />

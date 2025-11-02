@@ -12,6 +12,7 @@ export const FeatureFlags = {
   ENABLE_BETA_FEATURES: import.meta.env.VITE_FEATURE_ENABLE_BETA_FEATURES === 'true', // Default disabled
   ENABLE_LIBRARY: import.meta.env.VITE_FEATURE_ENABLE_LIBRARY === 'true', // Default disabled
   ENABLE_LIVE_HUB: import.meta.env.VITE_FEATURE_ENABLE_LIVE_HUB !== 'false', // Default enabled
+  LEGACY_AI_ASSISTANT_ENABLED: import.meta.env.VITE_FEATURE_LEGACY_AI_ASSISTANT_ENABLED === 'true', // Default disabled
 } as const;
 
 export function isFeatureEnabled(flag: keyof typeof FeatureFlags): boolean {
@@ -58,4 +59,12 @@ export function shouldShowLibrary(): boolean {
  */
 export function shouldShowLiveHub(): boolean {
   return isFeatureEnabled('ENABLE_LIVE_HUB');
+}
+
+/**
+ * Check if legacy AI Assistant page should be accessible
+ * (Default: false - the old AI Assistant is hidden in favor of AI Command Center)
+ */
+export function shouldShowLegacyAIAssistant(): boolean {
+  return isFeatureEnabled('LEGACY_AI_ASSISTANT_ENABLED');
 }
