@@ -4,8 +4,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Clock } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 
 export const UpcomingDeadlines = () => {
+  const navigate = useNavigate();
+  
   const { data: upcomingTasks } = useQuery({
     queryKey: ['upcoming-deadlines'],
     queryFn: async () => {
@@ -25,6 +28,10 @@ export const UpcomingDeadlines = () => {
       return data;
     },
   });
+
+  const handleTaskClick = (taskId: string) => {
+    navigate(`/kanban?task=${taskId}`);
+  };
 
   const getPriorityColor = (dueDate: string) => {
     const daysUntil = Math.floor((new Date(dueDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
@@ -52,7 +59,16 @@ export const UpcomingDeadlines = () => {
             {upcomingTasks.map((task) => (
               <div
                 key={task.id}
-                className="flex items-start justify-between gap-3 p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
+                onClick={() => handleTaskClick(task.id)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleTaskClick(task.id);
+                  }
+                }}
+                role="button"
+                tabIndex={0}
+                className="flex items-start justify-between gap-3 p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors cursor-pointer"
               >
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-sm truncate">{task.title}</p>
