@@ -38,7 +38,7 @@
         },
         {
           "type": "image",
-          "src": "/course-images/math-8-2/labeled-right-triangle.jpg",
+          "src": "/course-images/math-8-2/labeled-right-triangle.png",
           "alt": "A diagram of a right triangle clearly labeling Leg (a), Leg (b), and the Hypotenuse (c).",
           "caption": "The three parts of a right triangle: legs (a and b) and hypotenuse (c)"
         },
@@ -62,7 +62,7 @@
         },
         {
           "type": "image",
-          "src": "/course-images/math-8-2/theorem-visual-proof.jpg",
+          "src": "/course-images/math-8-2/theorem-visual-proof.png",
           "alt": "A visual proof of the Pythagorean Theorem showing squares on each side of a right triangle with the formula a² + b² = c².",
           "caption": "Visual proof: The sum of squares on the legs equals the square on the hypotenuse"
         },
@@ -106,7 +106,7 @@
         },
         {
           "type": "image",
-          "src": "/course-images/math-8-2/example-ladder-problem.jpg",
+          "src": "/course-images/math-8-2/example-ladder-problem.png",
           "alt": "A diagram showing a ladder leaning against a wall, illustrating a real-world application of the Pythagorean Theorem.",
           "caption": "Real-world example: Using the Pythagorean Theorem to solve problems"
         },
@@ -170,7 +170,7 @@
         },
         {
           "type": "image",
-          "src": "/course-images/math-8-2/converse-test-diagram.jpg",
+          "src": "/course-images/math-8-2/converse-test-diagram.png",
           "alt": "A diagram showing two triangles. One with sides 6, 8, 10 passes the Pythagorean test, while one with sides 5, 8, 10 fails the test.",
           "caption": "Testing triangles: Which ones satisfy the Pythagorean Theorem?"
         },
@@ -235,7 +235,7 @@
         },
         {
           "type": "image",
-          "src": "/course-images/math-8-2/coordinate-plane-base.jpg",
+          "src": "/course-images/math-8-2/coordinate-plane-base.png",
           "alt": "A blank coordinate plane with labeled axes, origin, and grid lines for plotting transformations.",
           "caption": "The coordinate plane: Our canvas for geometric transformations"
         },
@@ -250,7 +250,7 @@
         },
         {
           "type": "image",
-          "src": "/course-images/math-8-2/transformation-translation.jpg",
+          "src": "/course-images/math-8-2/transformation-translation.png",
           "alt": "A diagram showing a triangle sliding across the coordinate plane to a new position.",
           "caption": "Translation in action: A shape slides to a new position"
         },
@@ -311,7 +311,7 @@
         },
         {
           "type": "image",
-          "src": "/course-images/math-8-2/transformation-reflection.jpg",
+          "src": "/course-images/math-8-2/transformation-reflection.png",
           "alt": "A diagram showing an L-shape being flipped across the x-axis to create a mirror image.",
           "caption": "Reflection: Creating a mirror image across a line"
         },
@@ -386,7 +386,7 @@
         },
         {
           "type": "image",
-          "src": "/course-images/math-8-2/transformation-rotation.jpg",
+          "src": "/course-images/math-8-2/transformation-rotation.png",
           "alt": "A diagram showing a shape being turned around the origin on the coordinate plane.",
           "caption": "Rotation: Turning a shape around a fixed point"
         },
