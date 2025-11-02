@@ -11,6 +11,7 @@ export const FeatureFlags = {
   ENABLE_PLATFORM_GUIDE: import.meta.env.VITE_FEATURE_ENABLE_PLATFORM_GUIDE !== 'false', // Default enabled
   ENABLE_BETA_FEATURES: import.meta.env.VITE_FEATURE_ENABLE_BETA_FEATURES === 'true', // Default disabled
   ENABLE_LIBRARY: import.meta.env.VITE_FEATURE_ENABLE_LIBRARY === 'true', // Default disabled
+  ENABLE_LIVE_HUB: import.meta.env.VITE_FEATURE_ENABLE_LIVE_HUB !== 'false', // Default enabled
 } as const;
 
 export function isFeatureEnabled(flag: keyof typeof FeatureFlags): boolean {
@@ -50,4 +51,11 @@ export function shouldShowBetaFeatures(): boolean {
  */
 export function shouldShowLibrary(): boolean {
   return isFeatureEnabled('ENABLE_LIBRARY');
+}
+
+/**
+ * Check if Live Learning Hub should be visible
+ */
+export function shouldShowLiveHub(): boolean {
+  return isFeatureEnabled('ENABLE_LIVE_HUB');
 }

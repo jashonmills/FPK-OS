@@ -50,7 +50,7 @@ import { useUserRole } from "@/hooks/useUserRole";
 import { useGlobalTranslation } from "@/hooks/useGlobalTranslation";
 import DualLanguageText from "@/components/DualLanguageText";
 import { useOrgContext } from "@/components/organizations/OrgContext";
-import { shouldShowBetaFeatures, shouldShowLibrary } from '@/lib/featureFlags';
+import { shouldShowBetaFeatures, shouldShowLibrary, shouldShowLiveHub } from '@/lib/featureFlags';
 
 // Safe hook that works with or without OrgProvider
 function useSafeOrgContext() {
@@ -109,11 +109,11 @@ export function AppSidebar() {
       url: "/dashboard/learner/analytics",
       icon: BarChart,
     },
-    {
+    ...(shouldShowLiveHub() ? [{
       title: 'Live Hub',
       url: "/dashboard/learner/live-hub",
       icon: Compass,
-    },
+    }] : []),
     {
       title: 'AI Study Coach',
       url: "/dashboard/learner/ai-coach",
