@@ -2,392 +2,335 @@
   "courseId": "introduction-to-philosophy",
   "courseSlug": "introduction-to-philosophy",
   "contentVersion": "v2",
-  "framework": "sequential",
-  "courseTitle": "Introduction to Philosophy",
-  "description": "Explore fundamental philosophical questions about existence, knowledge, ethics, and the nature of reality through engaging lessons and thought experiments.",
-  "backgroundImage": "",
-  "estimatedHours": 10,
-  "difficultyLevel": "intermediate",
-  "category": "Humanities",
+  "title": "Introduction to Philosophy",
+  "description": "What is real? How do we know what we know? What does it mean to be good? This course tackles the biggest questions in life, introducing you to the foundational ideas of the world's greatest thinkers.",
+  "backgroundImage": "/course-images/introduction-to-philosophy-bg.jpg",
+  "estimatedHours": 7,
+  "difficultyLevel": "beginner",
+  "category": "Philosophy & Humanities",
   "lessons": [
     {
       "id": 1,
-      "title": "What is Philosophy?",
-      "description": "Introduction to philosophical thinking and the branches of philosophy",
+      "title": "What is Philosophy? Metaphysics and Epistemology",
+      "description": "Define philosophy and identify the two core branches: Metaphysics and Epistemology.",
       "contentType": "text",
+      "estimatedMinutes": 25,
+      "unit": "The Core Questions",
+      "unitColor": "purple",
       "sections": [
         {
           "type": "heading",
-          "content": "Welcome to Philosophy",
-          "level": 1
-        },
-        {
-          "type": "paragraph",
-          "content": "Philosophy is the love of wisdom. It's the systematic study of fundamental questions about existence, knowledge, values, reason, mind, and language. Unlike other disciplines that focus on specific aspects of reality, philosophy asks the big questions that underlie all human inquiry."
-        },
-        {
-          "type": "heading",
-          "content": "The Branches of Philosophy",
+          "content": "Objectives",
           "level": 2
         },
         {
           "type": "list",
+          "content": "Learning objectives for this lesson",
           "items": [
-            "Metaphysics: The nature of reality and existence",
-            "Epistemology: The theory of knowledge",
-            "Ethics: Moral philosophy and values",
-            "Logic: The principles of valid reasoning",
-            "Aesthetics: Philosophy of art and beauty",
-            "Political Philosophy: Justice, rights, and government"
+            "Define philosophy as the love of wisdom and the study of fundamental questions.",
+            "Identify the two core branches: Metaphysics (the study of reality) and Epistemology (the study of knowledge).",
+            "Understand the difference between a philosophical question and a scientific one."
           ]
         },
         {
+          "type": "heading",
+          "content": "The Love of Wisdom",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Philosophy, from the Greek 'philosophia', literally means 'love of wisdom'. It is the systematic study of the most fundamental questions about existence, knowledge, values, reason, mind, and language. While science asks 'how' the universe works, philosophy often asks 'why' it works the way it does, or what it means for us. It challenges our most basic assumptions and teaches us how to think more clearly and critically."
+        },
+        {
+          "type": "heading",
+          "content": "The Two Foundational Branches",
+          "level": 2
+        },
+        {
           "type": "callout",
-          "style": "teaching",
-          "content": "Philosophy doesn't just give you answers—it teaches you how to ask better questions and think critically about everything you encounter."
+          "content": "Metaphysics: This is the study of the nature of reality. It asks questions like: What is real? What is the relationship between mind and matter? Do we have free will? Is there a God? It explores the fundamental structure of existence itself.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "Epistemology: This is the theory of knowledge. It asks: What does it mean to 'know' something? How do we acquire knowledge? Can we ever be certain of anything? It explores the difference between belief, opinion, and justified, true knowledge.",
+          "style": "info"
+        },
+        {
+          "type": "quiz",
+          "question": "The branch of philosophy that studies the nature of reality is called...?",
+          "options": ["Epistemology", "Ethics", "Metaphysics"],
+          "correctAnswer": "Metaphysics",
+          "explanation": "Remember, Metaphysics deals with reality, while Epistemology deals with knowledge."
         }
-      ],
-      "estimatedMinutes": 35,
-      "unit": "Unit 1: Foundations",
-      "unitColor": "bg-blue-100 text-blue-700"
+      ]
     },
     {
       "id": 2,
-      "title": "Ancient Greek Philosophy",
-      "description": "Exploring the foundations laid by Socrates, Plato, and Aristotle",
+      "title": "Logic and Argument",
+      "description": "Define logic as the study of reasoning and differentiate between types of arguments.",
       "contentType": "text",
+      "estimatedMinutes": 25,
+      "unit": "The Core Questions",
+      "unitColor": "purple",
       "sections": [
         {
           "type": "heading",
-          "content": "The Birth of Western Philosophy",
-          "level": 1
-        },
-        {
-          "type": "paragraph",
-          "content": "Ancient Greece gave birth to systematic philosophical thinking. The trio of Socrates, Plato, and Aristotle established methods and questions that continue to influence philosophy today."
-        },
-        {
-          "type": "heading",
-          "content": "Key Philosophers",
+          "content": "Objectives",
           "level": 2
         },
         {
           "type": "list",
+          "content": "Learning objectives for this lesson",
           "items": [
-            "Socrates: The Socratic method and examined life",
-            "Plato: Theory of Forms and ideal state",
-            "Aristotle: Logic, virtue ethics, and empiricism",
-            "Pre-Socratics: Early theories about nature and reality"
+            "Define logic as the study of reasoning.",
+            "Differentiate between deductive and inductive arguments.",
+            "Identify a common logical fallacy."
           ]
         },
         {
-          "type": "quote",
-          "content": "The unexamined life is not worth living. - Socrates"
+          "type": "heading",
+          "content": "The Toolbox of Philosophy",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Logic is the essential tool that philosophers use to construct and evaluate arguments. An argument in philosophy isn't a heated dispute; it's a set of statements (premises) that are offered as reasons for another statement (the conclusion). Logic provides the rules for determining whether the conclusion truly follows from the premises."
+        },
+        {
+          "type": "heading",
+          "content": "Types of Arguments",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "Deductive Arguments: These aim to provide conclusive proof. If the premises are true, the conclusion MUST be true. (e.g., All men are mortal. Socrates is a man. Therefore, Socrates is mortal.)",
+          "style": "teaching"
+        },
+        {
+          "type": "callout",
+          "content": "Inductive Arguments: These aim to provide probable support. The premises make the conclusion likely, but not guaranteed. (e.g., The sun has risen every day in the past. Therefore, the sun will rise tomorrow.)",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "Logical Fallacies: These are common errors in reasoning that weaken an argument, such as an 'ad hominem' attack, which attacks the person making the argument instead of the argument itself.",
+          "style": "warning"
+        },
+        {
+          "type": "quiz",
+          "question": "An argument that aims for a guaranteed, certain conclusion is called...?",
+          "options": ["Inductive", "Deductive", "A Fallacy"],
+          "correctAnswer": "Deductive",
+          "explanation": "Remember, Deductive arguments aim for certainty."
         }
-      ],
-      "estimatedMinutes": 40,
-      "unit": "Unit 1: Foundations",
-      "unitColor": "bg-blue-100 text-blue-700"
+      ]
     },
     {
       "id": 3,
-      "title": "Epistemology: What Can We Know?",
-      "description": "Theories of knowledge, truth, and belief",
+      "title": "Plato and the World of Forms",
+      "description": "Explore Plato's Theory of Forms and the Allegory of the Cave.",
       "contentType": "text",
+      "estimatedMinutes": 30,
+      "unit": "The Great Thinkers",
+      "unitColor": "blue",
       "sections": [
         {
           "type": "heading",
-          "content": "The Theory of Knowledge",
-          "level": 1
-        },
-        {
-          "type": "paragraph",
-          "content": "Epistemology asks fundamental questions: What is knowledge? How do we know what we know? Can we ever be certain of anything? These questions have profound implications for science, religion, and everyday life."
-        },
-        {
-          "type": "heading",
-          "content": "Key Concepts",
+          "content": "Objectives",
           "level": 2
         },
         {
           "type": "list",
+          "content": "Learning objectives for this lesson",
           "items": [
-            "Justified true belief: The traditional definition of knowledge",
-            "Skepticism: Can we know anything with certainty?",
-            "Rationalism vs. Empiricism: Reason or experience?",
-            "The problem of induction: Can we trust patterns?",
-            "Gettier problems: Challenges to traditional definitions"
+            "Identify Plato as a foundational figure in Western philosophy.",
+            "Explain Plato's Theory of Forms.",
+            "Understand the Allegory of the Cave."
           ]
         },
         {
-          "type": "callout",
-          "style": "info",
-          "content": "Knowledge traditionally requires three conditions: it must be true, you must believe it, and you must have justification for your belief."
+          "type": "heading",
+          "content": "The Theory of Forms",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Plato, a student of Socrates, believed that the physical world we perceive with our senses is not the real world; it is merely a shadow or imperfect copy of a higher, eternal, and unchanging reality called the World of Forms. For Plato, there is a perfect 'Form' of Justice, a perfect 'Form' of Beauty, and even a perfect 'Form' of a Chair. The things we see in our world are just pale imitations of these perfect Forms."
+        },
+        {
+          "type": "heading",
+          "content": "The Allegory of the Cave",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "To explain this, Plato used the Allegory of the Cave. He imagined prisoners chained in a cave, able to see only shadows projected on a wall. They believe these shadows are reality. If one prisoner escapes into the outside world, they see the true objects (the Forms) and the sun (the Form of the Good). When they return to the cave to tell the others, they are not believed. For Plato, the philosopher is like the escaped prisoner, seeking to understand the true nature of reality beyond mere appearances."
+        },
+        {
+          "type": "quiz",
+          "question": "In Plato's Allegory of the Cave, what do the shadows on the wall represent?",
+          "options": ["The World of Forms", "The physical world we perceive", "Philosophical truth"],
+          "correctAnswer": "The physical world we perceive",
+          "explanation": "Remember, the shadows are the imperfect copies, not the true reality."
         }
-      ],
-      "estimatedMinutes": 45,
-      "unit": "Unit 2: Core Questions",
-      "unitColor": "bg-green-100 text-green-700"
+      ]
     },
     {
       "id": 4,
-      "title": "Metaphysics: The Nature of Reality",
-      "description": "Exploring existence, identity, time, and causation",
+      "title": "Aristotle and Empirical Observation",
+      "description": "Understand Aristotle's focus on empiricism and the concept of telos.",
       "contentType": "text",
+      "estimatedMinutes": 30,
+      "unit": "The Great Thinkers",
+      "unitColor": "blue",
       "sections": [
         {
           "type": "heading",
-          "content": "What Is Real?",
-          "level": 1
-        },
-        {
-          "type": "paragraph",
-          "content": "Metaphysics investigates the fundamental nature of reality. It asks questions about what exists, what it means to exist, and how different things relate to each other in the fabric of reality."
-        },
-        {
-          "type": "heading",
-          "content": "Major Topics",
+          "content": "Objectives",
           "level": 2
         },
         {
           "type": "list",
+          "content": "Learning objectives for this lesson",
           "items": [
-            "Ontology: What kinds of things exist?",
-            "Identity: What makes something the same over time?",
-            "Time: Is time real or an illusion?",
-            "Causation: How do causes produce effects?",
-            "Free will vs. Determinism: Are we truly free?",
-            "Mind-body problem: How does consciousness relate to physical matter?"
+            "Identify Aristotle as a student of Plato who diverged from his teacher's ideas.",
+            "Understand Aristotle's focus on empiricism and the natural world.",
+            "Define the concept of 'telos' or purpose."
           ]
+        },
+        {
+          "type": "heading",
+          "content": "The World is Here and Now",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "While Plato looked to a higher, abstract world for truth, his student Aristotle was deeply interested in the physical world right in front of us. Aristotle was an empiricist, meaning he believed that knowledge comes from observation and experience. He systematically studied biology, physics, ethics, and politics by observing the world around him. For Aristotle, the 'form' of a thing was not in some other world, but inherent within the object itself."
+        },
+        {
+          "type": "heading",
+          "content": "Telos and Virtue Ethics",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A core concept for Aristotle is 'telos', which means end, purpose, or goal. He believed everything in nature has a purpose. The telos of an acorn is to become an oak tree. The telos of a human being, he argued, is to achieve 'eudaimonia'—a state of flourishing or living well. We achieve this by cultivating virtues (like courage, temperance, and justice) and living a life of reason."
+        },
+        {
+          "type": "quiz",
+          "question": "The belief that knowledge comes from observation and experience is called...?",
+          "options": ["Rationalism", "Empiricism", "Idealism"],
+          "correctAnswer": "Empiricism",
+          "explanation": "Remember, Aristotle was the great observer of the natural world."
         }
-      ],
-      "estimatedMinutes": 45,
-      "unit": "Unit 2: Core Questions",
-      "unitColor": "bg-green-100 text-green-700"
+      ]
     },
     {
       "id": 5,
-      "title": "Ethics: How Should We Live?",
-      "description": "Moral theories and ethical decision-making",
+      "title": "Ethics - What is the Right Thing to Do?",
+      "description": "Differentiate between Utilitarianism and Deontology as ethical frameworks.",
       "contentType": "text",
+      "estimatedMinutes": 30,
+      "unit": "Ethics & Modern Philosophy",
+      "unitColor": "green",
       "sections": [
         {
           "type": "heading",
-          "content": "Moral Philosophy",
-          "level": 1
-        },
-        {
-          "type": "paragraph",
-          "content": "Ethics is the branch of philosophy concerned with questions of morality—how we ought to live, what makes actions right or wrong, and what constitutes a good life."
-        },
-        {
-          "type": "heading",
-          "content": "Major Ethical Theories",
+          "content": "Objectives",
           "level": 2
         },
         {
           "type": "list",
+          "content": "Learning objectives for this lesson",
           "items": [
-            "Consequentialism: Actions judged by outcomes (Utilitarianism)",
-            "Deontology: Actions judged by duties and rules (Kant)",
-            "Virtue Ethics: Focus on character and virtues (Aristotle)",
-            "Care Ethics: Emphasis on relationships and compassion",
-            "Moral Relativism: Are moral truths universal or cultural?"
+            "Define ethics as the branch of philosophy concerning moral principles.",
+            "Differentiate between Utilitarianism and Deontology.",
+            "Apply these ethical frameworks to a simple moral dilemma."
           ]
         },
         {
+          "type": "heading",
+          "content": "Frameworks for Morality",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Ethics, or moral philosophy, explores questions of right and wrong. It's not just about what people *do* believe is right, but what *should* be considered right. Philosophers have developed several major frameworks to guide moral reasoning."
+        },
+        {
+          "type": "heading",
+          "content": "Two Major Theories",
+          "level": 2
+        },
+        {
           "type": "callout",
-          "style": "teaching",
-          "content": "Different ethical frameworks can lead to different conclusions about the same situation. Understanding multiple perspectives helps us make more thoughtful moral decisions."
+          "content": "Utilitarianism: Championed by thinkers like Jeremy Bentham and John Stuart Mill, this is a consequentialist theory. It states that the morally right action is the one that produces the greatest good for the greatest number of people. The consequences of the action are what matter.",
+          "style": "teaching"
+        },
+        {
+          "type": "callout",
+          "content": "Deontology: Associated with Immanuel Kant, this theory argues that certain actions are inherently right or wrong, regardless of their consequences. Morality is based on duty and following universal moral rules. For Kant, you should never lie, even if lying might produce a good outcome.",
+          "style": "teaching"
+        },
+        {
+          "type": "quiz",
+          "question": "Which ethical theory focuses on the consequences of an action to determine if it's right?",
+          "options": ["Deontology", "Virtue Ethics", "Utilitarianism"],
+          "correctAnswer": "Utilitarianism",
+          "explanation": "Remember, Utilitarianism is all about the 'utility' or outcome of an action."
         }
-      ],
-      "estimatedMinutes": 45,
-      "unit": "Unit 3: Applied Philosophy",
-      "unitColor": "bg-purple-100 text-purple-700"
+      ]
     },
     {
       "id": 6,
-      "title": "Logic and Reasoning",
-      "description": "Valid arguments, fallacies, and critical thinking",
+      "title": "Existentialism - Freedom and Responsibility",
+      "description": "Explore existentialist philosophy and the concept that existence precedes essence.",
       "contentType": "text",
+      "estimatedMinutes": 30,
+      "unit": "Ethics & Modern Philosophy",
+      "unitColor": "green",
       "sections": [
         {
           "type": "heading",
-          "content": "The Tools of Philosophy",
-          "level": 1
-        },
-        {
-          "type": "paragraph",
-          "content": "Logic is the study of correct reasoning. It provides the foundation for all philosophical inquiry and helps us distinguish good arguments from bad ones."
-        },
-        {
-          "type": "heading",
-          "content": "Core Concepts",
+          "content": "Objectives",
           "level": 2
         },
         {
           "type": "list",
+          "content": "Learning objectives for this lesson",
           "items": [
-            "Deductive reasoning: Arguments that guarantee their conclusions",
-            "Inductive reasoning: Arguments that support probable conclusions",
-            "Validity vs. Soundness: Structure vs. truth",
-            "Common fallacies: Recognizing flawed reasoning",
-            "Symbolic logic: Formal systems of reasoning"
+            "Define existentialism as a philosophy focused on individual freedom and responsibility.",
+            "Understand Jean-Paul Sartre's concept that 'existence precedes essence'.",
+            "Explore the ideas of radical freedom and creating one's own meaning."
           ]
-        }
-      ],
-      "estimatedMinutes": 40,
-      "unit": "Unit 3: Applied Philosophy",
-      "unitColor": "bg-purple-100 text-purple-700"
-    },
-    {
-      "id": 7,
-      "title": "Modern and Contemporary Philosophy",
-      "description": "From Descartes to present-day philosophical movements",
-      "contentType": "text",
-      "sections": [
-        {
-          "type": "heading",
-          "content": "The Modern Turn",
-          "level": 1
-        },
-        {
-          "type": "paragraph",
-          "content": "Modern philosophy began with a radical shift in how philosophers approached fundamental questions. Descartes' famous 'I think, therefore I am' marked the beginning of a new era focused on certainty and the nature of the self."
         },
         {
           "type": "heading",
-          "content": "Key Movements and Thinkers",
+          "content": "Existence Precedes Essence",
           "level": 2
         },
         {
-          "type": "list",
-          "items": [
-            "Rationalism: Descartes, Spinoza, Leibniz",
-            "Empiricism: Locke, Berkeley, Hume",
-            "Kant's Critical Philosophy: Synthesis of rationalism and empiricism",
-            "Existentialism: Kierkegaard, Nietzsche, Sartre, Camus",
-            "Phenomenology: Husserl, Heidegger, Merleau-Ponty",
-            "Analytic Philosophy: Russell, Wittgenstein, Quine"
-          ]
-        }
-      ],
-      "estimatedMinutes": 45,
-      "unit": "Unit 4: Historical Development",
-      "unitColor": "bg-orange-100 text-orange-700"
-    },
-    {
-      "id": 8,
-      "title": "Political Philosophy",
-      "description": "Justice, rights, and the ideal society",
-      "contentType": "text",
-      "sections": [
-        {
-          "type": "heading",
-          "content": "Philosophy of Government and Society",
-          "level": 1
-        },
-        {
           "type": "paragraph",
-          "content": "Political philosophy examines fundamental questions about government, justice, rights, liberty, and political obligation. What makes a government legitimate? What rights do individuals have? How should society be organized?"
+          "content": "Existentialism, a major 20th-century philosophy, puts the individual at the center. Thinkers like Jean-Paul Sartre argued that for humans, 'existence precedes essence'. This means that we are born without a pre-defined purpose or nature. We simply exist first. It is then up to us, through our choices and actions, to create our own 'essence'—our own meaning and purpose in a meaningless world."
         },
         {
           "type": "heading",
-          "content": "Major Topics",
+          "content": "Radical Freedom and Responsibility",
           "level": 2
         },
         {
-          "type": "list",
-          "items": [
-            "Social Contract Theory: Hobbes, Locke, Rousseau",
-            "Theories of Justice: Rawls, Nozick, Sen",
-            "Liberty and Rights: Mill, Berlin",
-            "Democracy and its critics",
-            "Feminism and political philosophy",
-            "Global justice and cosmopolitanism"
-          ]
-        }
-      ],
-      "estimatedMinutes": 45,
-      "unit": "Unit 4: Historical Development",
-      "unitColor": "bg-orange-100 text-orange-700"
-    },
-    {
-      "id": 9,
-      "title": "Philosophy of Mind and Consciousness",
-      "description": "The mind-body problem and theories of consciousness",
-      "contentType": "text",
-      "sections": [
-        {
-          "type": "heading",
-          "content": "The Hard Problem of Consciousness",
-          "level": 1
-        },
-        {
           "type": "paragraph",
-          "content": "How does physical matter give rise to subjective experience? This is one of philosophy's most challenging questions, sitting at the intersection of philosophy, neuroscience, and cognitive science."
+          "content": "This leads to the idea of 'radical freedom'. We are completely free to choose who we become. However, this freedom comes with a heavy burden of responsibility. We are responsible for everything we do and, in a sense, for creating our own values. This can cause 'existential angst' or dread, but it is also what makes human life uniquely meaningful."
         },
         {
-          "type": "heading",
-          "content": "Key Theories",
-          "level": 2
-        },
-        {
-          "type": "list",
-          "items": [
-            "Dualism: Mind and body are distinct substances",
-            "Physicalism: Everything is ultimately physical",
-            "Functionalism: Mental states defined by their functions",
-            "Property Dualism: One substance, two types of properties",
-            "Panpsychism: Consciousness is fundamental",
-            "The problem of qualia: Subjective experience"
-          ]
+          "type": "quiz",
+          "question": "The idea that we are born without a pre-defined purpose is summarized by the phrase...",
+          "options": ["I think, therefore I am", "Existence precedes essence", "The greatest good for the greatest number"],
+          "correctAnswer": "Existence precedes essence",
+          "explanation": "This is Sartre's famous phrase that puts existence before any pre-determined 'essence' or purpose."
         }
-      ],
-      "estimatedMinutes": 45,
-      "unit": "Unit 5: Specialized Topics",
-      "unitColor": "bg-red-100 text-red-700"
-    },
-    {
-      "id": 10,
-      "title": "Philosophy Today and Practical Applications",
-      "description": "Contemporary issues and applying philosophy to life",
-      "contentType": "text",
-      "sections": [
-        {
-          "type": "heading",
-          "content": "Philosophy in the Modern World",
-          "level": 1
-        },
-        {
-          "type": "paragraph",
-          "content": "Philosophy isn't just about abstract questions—it has practical applications in ethics, technology, science, and everyday life. Modern philosophers tackle contemporary challenges from AI ethics to climate change."
-        },
-        {
-          "type": "heading",
-          "content": "Contemporary Applications",
-          "level": 2
-        },
-        {
-          "type": "list",
-          "items": [
-            "Bioethics: Medical decisions and biotechnology",
-            "Environmental ethics: Our obligations to nature",
-            "AI and technology ethics: Digital rights and responsibilities",
-            "Applied epistemology: Fake news and knowledge",
-            "Philosophy of science: Understanding scientific methods",
-            "Personal philosophy: Living an examined life"
-          ]
-        },
-        {
-          "type": "callout",
-          "style": "success",
-          "content": "Congratulations on completing Introduction to Philosophy! You now have the tools to think critically about fundamental questions and engage thoughtfully with complex ideas."
-        }
-      ],
-      "estimatedMinutes": 40,
-      "unit": "Unit 5: Specialized Topics",
-      "unitColor": "bg-red-100 text-red-700"
+      ]
     }
   ]
 }
