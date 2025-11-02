@@ -184,6 +184,7 @@ export const CalendarView = ({ tasks, projectColor, projectId, onTaskClick, onTa
           popup
           views={['month', 'week', 'day', 'agenda']}
           defaultView="month"
+          length={90}
         />
       </div>
     </div>
