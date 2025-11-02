@@ -38,7 +38,7 @@ interface Task {
 }
 
 const Kanban = () => {
-  const [selectedProject, setSelectedProject] = useState<string>('');
+  const [selectedProject, setSelectedProject] = useState<string>('all');
   const [activeView, setActiveView] = useState<ViewType>('kanban');
   const [tasks, setTasks] = useState<Task[]>([]);
   const [projectColor, setProjectColor] = useState<string>('');
