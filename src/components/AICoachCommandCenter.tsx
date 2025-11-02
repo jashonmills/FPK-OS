@@ -1,7 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Send, Mic, Upload, BookOpen, Clock, TrendingUp, Target, Award, Zap } from 'lucide-react';
 import { cn } from '../lib/utils';
 import type { Message, Persona, UserAnalytics, StudyPlan, SavedChat, StudyMaterial, AIDrill } from '../types';
+import { AIService } from '../services/aiService';
+import { useAuth } from '@/hooks/useAuth';
 
 // Persona avatar components
 const PersonaAvatar: React.FC<{ persona: Persona }> = ({ persona }) => {
@@ -371,21 +373,40 @@ export const AICoachCommandCenter: React.FC = () => {
     };
 
     setMessages((prev) => [...prev, userMessage]);
+    const currentInput = inputValue;
     setInputValue('');
     setIsLoading(true);
 
-    // TODO: Replace with actual API call to Supabase Edge Function
-    // Simulated response for now
-    setTimeout(() => {
+    try {
+      // Call the real AI orchestrator
+      const userId = 'current-user-id'; // TODO: Get from auth context
+      const response = await AIService.sendMessage(
+        userId,
+        currentInput,
+        messages
+      );
+
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
-        persona: 'BETTY',
-        content: "That's a great question! Before we dive in, what do you already know about this topic? This will help me guide you more effectively.",
+        persona: response.persona.toUpperCase() as Persona,
+        content: response.message,
         timestamp: new Date(),
       };
+      
       setMessages((prev) => [...prev, aiMessage]);
+    } catch (error) {
+      console.error('Error sending message:', error);
+      // Show error message to user
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        persona: 'BETTY',
+        content: "I'm sorry, I'm having trouble connecting right now. Please try again in a moment.",
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   const handleVoiceInput = () => {
