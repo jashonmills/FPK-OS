@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect } from 'react';
 import { Gantt, Task as GanttTask, ViewMode } from 'gantt-task-react';
 import 'gantt-task-react/dist/index.css';
+import './timeline-styles.css';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';

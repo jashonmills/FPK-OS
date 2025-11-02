@@ -1,0 +1,70 @@
+/* Dark mode styles for gantt-task-react */
+
+/* Main container backgrounds */
+._3vNau,
+._1i0bO,
+._2p1_J {
+  background-color: hsl(var(--card)) !important;
+}
+
+/* Header cells */
+._1EY94,
+._2kZhR,
+._Q6cw1 {
+  background-color: hsl(var(--card)) !important;
+  color: hsl(var(--foreground)) !important;
+  border-color: hsl(var(--border)) !important;
+}
+
+/* Calendar grid */
+._1aW_M {
+  background-color: hsl(var(--card)) !important;
+}
+
+/* Grid rows */
+._3zRJQ {
+  background-color: hsl(var(--card)) !important;
+  border-color: hsl(var(--border)) !important;
+}
+
+/* Grid cells */
+._2pmXp {
+  background-color: hsl(var(--card)) !important;
+  border-color: hsl(var(--border)) !important;
+}
+
+/* Today column highlight */
+._u-GSO {
+  background-color: hsl(var(--accent) / 0.2) !important;
+}
+
+/* Text colors */
+._3lLk3,
+._1EY94 span,
+._2kZhR span,
+._3TN5J {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Vertical lines */
+._1hYFu {
+  stroke: hsl(var(--border)) !important;
+}
+
+/* Arrow connections */
+._3FrfT {
+  stroke: hsl(var(--muted-foreground)) !important;
+}
+
+/* Task list table */
+._1aW_M table {
+  background-color: hsl(var(--card)) !important;
+}
+
+/* All text elements */
+._1aW_M text,
+._1aW_M td,
+._1aW_M th {
+  fill: hsl(var(--foreground)) !important;
+  color: hsl(var(--foreground)) !important;
+}
