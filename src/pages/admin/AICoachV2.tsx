@@ -38,9 +38,9 @@ export default function AICoachV2() {
   }
 
   return (
-    <div className="min-h-screen bg-background pt-4">
+    <div className="flex flex-col h-screen bg-background overflow-hidden">
       {/* Header */}
-      <div className="border-b bg-card">
+      <div className="border-b bg-card flex-shrink-0">
         <div className="container mx-auto px-4 py-6 pt-8">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500">
@@ -57,16 +57,16 @@ export default function AICoachV2() {
       </div>
 
       {/* Three-Column Layout */}
-      <div className="container mx-auto px-4 py-6">
-        <div className="bg-white/60 backdrop-blur-lg border border-white/20 rounded-xl shadow-2xl p-6">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-200px)]">
+      <div className="flex-1 overflow-hidden px-4 py-6">
+        <div className="h-full bg-white/60 backdrop-blur-lg border border-white/20 rounded-xl shadow-2xl p-6 overflow-hidden">
+          <div className="flex flex-col lg:flex-row gap-6 h-full overflow-hidden">
             {/* Left Column: Context & History */}
-            <div className="lg:col-span-3 space-y-4">
+            <div className="hidden lg:flex lg:flex-col w-[280px] overflow-y-auto">
               <ContextHistoryPanel />
             </div>
 
             {/* Center Column: AI Interaction */}
-            <div className="lg:col-span-6">
+            <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
               {selectedCoach ? (
                 <CommandCenterChat
                   userId={user.id}
@@ -84,7 +84,7 @@ export default function AICoachV2() {
             </div>
 
             {/* Right Column: Insights & Analytics */}
-            <div className="lg:col-span-3 space-y-4">
+            <div className="hidden lg:flex lg:flex-col w-[320px] overflow-y-auto">
               <InsightsPanel />
             </div>
           </div>

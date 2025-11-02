@@ -9,7 +9,7 @@ interface ContextHistoryPanelProps {
 
 export function ContextHistoryPanel({ onLoadChat }: ContextHistoryPanelProps) {
   return (
-    <div className="space-y-4">
+    <div className="h-full overflow-y-auto space-y-4 pr-2">
       <FileUploadCard />
       <SavedCoachChats 
         onLoadChat={onLoadChat as any}

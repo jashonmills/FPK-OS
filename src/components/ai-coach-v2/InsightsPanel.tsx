@@ -5,7 +5,7 @@ import { BarChart3, Zap, TrendingUp } from 'lucide-react';
 
 export function InsightsPanel() {
   return (
-    <div className="space-y-4">
+    <div className="h-full overflow-y-auto space-y-4 pr-2">
       <StudyPlanCard todaysFocus={[]} />
       
       <Card>

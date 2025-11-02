@@ -96,8 +96,8 @@ export function CommandCenterChat({ userId, selectedCoach, onSwitchCoach }: Comm
   const coachColor = selectedCoach === 'BETTY' ? 'from-purple-500 to-pink-500' : 'from-blue-500 to-cyan-500';
 
   return (
-    <Card className="flex flex-col h-full">
-      <CardHeader className="border-b">
+    <Card className="flex flex-col flex-1 min-h-0">
+      <CardHeader className="border-b flex-shrink-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className={`h-10 w-10 rounded-full bg-gradient-to-br ${coachColor} flex items-center justify-center text-white font-bold`}>
@@ -135,8 +135,8 @@ export function CommandCenterChat({ userId, selectedCoach, onSwitchCoach }: Comm
         </div>
       </CardHeader>
 
-      <CardContent className="flex-1 flex flex-col p-0">
-        <ScrollArea className="flex-1 p-4" ref={scrollRef}>
+      <CardContent className="flex-1 min-h-0 flex flex-col p-0">
+        <ScrollArea className="flex-1 min-h-0 p-4" ref={scrollRef}>
           {messages.length === 0 ? (
             <div className="flex items-center justify-center h-full text-center text-muted-foreground p-8">
               <div>
@@ -178,7 +178,7 @@ export function CommandCenterChat({ userId, selectedCoach, onSwitchCoach }: Comm
           )}
         </ScrollArea>
 
-        <div className="border-t p-4">
+        <div className="border-t p-4 flex-shrink-0">
           <div className="flex gap-2">
             <Textarea
               value={input}
