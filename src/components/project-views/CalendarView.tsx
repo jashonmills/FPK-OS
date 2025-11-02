@@ -7,6 +7,8 @@ import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { getEventTypeColor } from '@/components/calendar/EventTypeIcon';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Calendar as CalendarIcon, Info } from 'lucide-react';
 import './calendar-styles.css';
 
 const localizer = momentLocalizer(moment);
@@ -44,16 +46,23 @@ interface CalendarEvent extends BigCalendarEvent {
 export const CalendarView = ({ tasks, projectColor, projectId, onTaskClick, onTaskUpdate, onSlotSelect }: CalendarViewProps) => {
   const { toast } = useToast();
 
-  const events: CalendarEvent[] = useMemo(() => {
-    return tasks
-      .filter(task => task.due_date)
-      .map(task => ({
-        title: task.title,
-        start: task.start_date ? new Date(task.start_date) : new Date(task.due_date!),
-        end: new Date(task.due_date!),
-        task,
-        color: projectColor,
-      }));
+  const { events, tasksWithDates, tasksWithoutDates } = useMemo(() => {
+    const withDates = tasks.filter(task => task.due_date);
+    const withoutDates = tasks.filter(task => !task.due_date);
+    
+    const calendarEvents = withDates.map(task => ({
+      title: task.title,
+      start: task.start_date ? new Date(task.start_date) : new Date(task.due_date!),
+      end: new Date(task.due_date!),
+      task,
+      color: projectColor,
+    }));
+
+    return {
+      events: calendarEvents,
+      tasksWithDates: withDates.length,
+      tasksWithoutDates: withoutDates.length,
+    };
   }, [tasks, projectColor]);
 
   const handleEventDrop = useCallback(async ({ event, start, end }: any) => {
@@ -105,23 +114,45 @@ export const CalendarView = ({ tasks, projectColor, projectId, onTaskClick, onTa
   }, [onSlotSelect]);
 
   return (
-    <div className="h-[calc(100vh-250px)] bg-background p-4 border rounded-lg">
-      <DnDCalendar
-        localizer={localizer}
-        events={events}
-        startAccessor={(event: CalendarEvent) => event.start as Date}
-        endAccessor={(event: CalendarEvent) => event.end as Date}
-        onSelectEvent={handleSelectEvent}
-        onEventDrop={handleEventDrop}
-        onEventResize={handleEventDrop}
-        onSelectSlot={handleSelectSlot}
-        eventPropGetter={eventStyleGetter}
-        selectable
-        resizable
-        popup
-        views={['month', 'week', 'day', 'agenda']}
-        defaultView="month"
-      />
+    <div className="space-y-4">
+      {tasksWithoutDates > 0 && (
+        <Alert>
+          <Info className="h-4 w-4" />
+          <AlertTitle>Calendar View</AlertTitle>
+          <AlertDescription>
+            <div className="space-y-1 text-sm">
+              <p>
+                <strong>Showing {tasksWithDates} task{tasksWithDates !== 1 ? 's' : ''} with due dates</strong>
+              </p>
+              {tasksWithoutDates > 0 && (
+                <p className="text-muted-foreground">
+                  {tasksWithoutDates} task{tasksWithoutDates !== 1 ? 's' : ''} without due dates {tasksWithoutDates !== 1 ? 'are' : 'is'} hidden. 
+                  Add due dates to see them on the calendar, or switch to List view to see all tasks.
+                </p>
+              )}
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
+      
+      <div className="h-[calc(100vh-250px)] bg-background p-4 border rounded-lg">
+        <DnDCalendar
+          localizer={localizer}
+          events={events}
+          startAccessor={(event: CalendarEvent) => event.start as Date}
+          endAccessor={(event: CalendarEvent) => event.end as Date}
+          onSelectEvent={handleSelectEvent}
+          onEventDrop={handleEventDrop}
+          onEventResize={handleEventDrop}
+          onSelectSlot={handleSelectSlot}
+          eventPropGetter={eventStyleGetter}
+          selectable
+          resizable
+          popup
+          views={['month', 'week', 'day', 'agenda']}
+          defaultView="month"
+        />
+      </div>
     </div>
   );
 };
