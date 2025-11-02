@@ -1,4 +1,4 @@
-import { useMemo, useCallback } from 'react';
+import { useMemo, useCallback, useState } from 'react';
 import { Calendar, momentLocalizer, Event as BigCalendarEvent, View } from 'react-big-calendar';
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
 import moment from 'moment';
@@ -43,6 +43,15 @@ interface CalendarEvent extends BigCalendarEvent {
 
 export const CalendarView = ({ tasks, projectColor, projectId, onTaskClick, onTaskUpdate, onSlotSelect }: CalendarViewProps) => {
   const { toast } = useToast();
+
+  // Initialize date to earliest event or today
+  const [currentDate, setCurrentDate] = useState(() => {
+    const earliestTask = tasks
+      .filter(t => t.due_date)
+      .sort((a, b) => new Date(a.due_date!).getTime() - new Date(b.due_date!).getTime())[0];
+    
+    return earliestTask ? new Date(earliestTask.due_date!) : new Date();
+  });
 
   const { events, tasksWithDates, tasksWithoutDates } = useMemo(() => {
     console.log('=== CalendarView Debug ===');
@@ -146,6 +155,11 @@ export const CalendarView = ({ tasks, projectColor, projectId, onTaskClick, onTa
     }
   }, [onSlotSelect]);
 
+  const handleNavigate = useCallback((newDate: Date) => {
+    console.log('Navigating to date:', newDate);
+    setCurrentDate(newDate);
+  }, []);
+
   return (
     <div className="space-y-4">
       {tasksWithoutDates > 0 && (
@@ -172,6 +186,8 @@ export const CalendarView = ({ tasks, projectColor, projectId, onTaskClick, onTa
         <DnDCalendar
           localizer={localizer}
           events={events}
+          date={currentDate}
+          onNavigate={handleNavigate}
           startAccessor={(event: CalendarEvent) => event.start as Date}
           endAccessor={(event: CalendarEvent) => event.end as Date}
           onSelectEvent={handleSelectEvent}
