@@ -67,13 +67,13 @@ export const CalendarView = ({ tasks, projectColor, projectId, onTaskClick, onTa
         return isValid;
       })
       .map(task => {
+        // Create dates and normalize to midnight for all-day events
         const start = task.start_date ? new Date(task.start_date) : new Date(task.due_date!);
         const end = new Date(task.due_date!);
         
-        // Ensure end is after start (minimum 1-hour event)
-        if (end <= start) {
-          end.setTime(start.getTime() + 60 * 60 * 1000);
-        }
+        // Set to midnight for all-day display in calendar
+        start.setHours(0, 0, 0, 0);
+        end.setHours(23, 59, 59, 999);
         
         console.log(`Task: ${task.title}`);
         console.log(`  Due date string: ${task.due_date}`);
@@ -87,6 +87,7 @@ export const CalendarView = ({ tasks, projectColor, projectId, onTaskClick, onTa
           end,
           task,
           color: projectColor || 'rgba(139, 92, 246, 0.9)',
+          allDay: true, // Mark as all-day event for month view
         };
       });
 
