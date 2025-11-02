@@ -58,33 +58,35 @@ export default function AICoachV2() {
 
       {/* Three-Column Layout */}
       <div className="container mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[calc(100vh-200px)]">
-          {/* Left Column: Context & History */}
-          <div className="lg:col-span-3 space-y-4">
-            <ContextHistoryPanel />
-          </div>
+        <div className="bg-white/60 backdrop-blur-lg border border-white/20 rounded-xl shadow-2xl p-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-200px)]">
+            {/* Left Column: Context & History */}
+            <div className="lg:col-span-3 space-y-4">
+              <ContextHistoryPanel />
+            </div>
 
-          {/* Center Column: AI Interaction */}
-          <div className="lg:col-span-6">
-            {selectedCoach ? (
-              <CommandCenterChat
-                userId={user.id}
-                selectedCoach={selectedCoach}
-                onSwitchCoach={switchCoach}
-              />
-            ) : (
-              <div className="flex items-center justify-center h-full">
-                <div className="text-center text-muted-foreground">
-                  <Sparkles className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>Select a coach to get started</p>
+            {/* Center Column: AI Interaction */}
+            <div className="lg:col-span-6">
+              {selectedCoach ? (
+                <CommandCenterChat
+                  userId={user.id}
+                  selectedCoach={selectedCoach}
+                  onSwitchCoach={switchCoach}
+                />
+              ) : (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center text-muted-foreground">
+                    <Sparkles className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p>Select a coach to get started</p>
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
 
-          {/* Right Column: Insights & Analytics */}
-          <div className="lg:col-span-3 space-y-4">
-            <InsightsPanel />
+            {/* Right Column: Insights & Analytics */}
+            <div className="lg:col-span-3 space-y-4">
+              <InsightsPanel />
+            </div>
           </div>
         </div>
       </div>
