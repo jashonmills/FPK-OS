@@ -429,7 +429,7 @@ export const AICoachCommandCenter: React.FC = () => {
         </header>
 
         {/* Three-Column Layout with Frosted Glass Effect */}
-        <div className="p-8 bg-white/30 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg">
+        <div className="p-8 bg-white/30 backdrop-blur-sm border border-white/20 rounded-2xl shadow-lg">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[calc(100vh-240px)]">
           {/* Left Column - Context & History */}
           <div className="lg:col-span-3 overflow-hidden">
