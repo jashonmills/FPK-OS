@@ -423,13 +423,14 @@ export const AICoachCommandCenter: React.FC = () => {
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-[1920px] mx-auto">
         {/* Header */}
-        <header className="mb-6">
+        <header className="mb-6 pt-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">FPK University AI Command Center</h1>
           <p className="text-gray-600">Your personalized AI study companion</p>
         </header>
 
-        {/* Three-Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[calc(100vh-180px)]">
+        {/* Three-Column Layout with Frosted Glass Effect */}
+        <div className="p-8 bg-white/60 backdrop-blur-xl border border-white/20 rounded-2xl shadow-lg">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[calc(100vh-240px)]">
           {/* Left Column - Context & History */}
           <div className="lg:col-span-3 overflow-hidden">
             <ContextHistoryColumn
@@ -456,9 +457,9 @@ export const AICoachCommandCenter: React.FC = () => {
             <InsightsAnalyticsColumn
               analytics={analytics}
               studyPlan={studyPlan}
-              drills={drills}
-            />
+              drills={drills}            />
           </div>
+        </div>
         </div>
       </div>
     </div>
