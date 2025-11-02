@@ -28,8 +28,10 @@ interface Task {
 interface CalendarViewProps {
   tasks: Task[];
   projectColor: string;
+  projectId: string;
   onTaskClick: (task: Task) => void;
   onTaskUpdate: () => void;
+  onSlotSelect?: (start: Date, end: Date) => void;
 }
 
 interface CalendarEvent extends BigCalendarEvent {
@@ -37,7 +39,7 @@ interface CalendarEvent extends BigCalendarEvent {
   color: string;
 }
 
-export const CalendarView = ({ tasks, projectColor, onTaskClick, onTaskUpdate }: CalendarViewProps) => {
+export const CalendarView = ({ tasks, projectColor, projectId, onTaskClick, onTaskUpdate, onSlotSelect }: CalendarViewProps) => {
   const { toast } = useToast();
 
   const events: CalendarEvent[] = useMemo(() => {
@@ -90,6 +92,12 @@ export const CalendarView = ({ tasks, projectColor, onTaskClick, onTaskUpdate }:
     };
   }, []);
 
+  const handleSelectSlot = useCallback(({ start, end }: { start: Date; end: Date }) => {
+    if (onSlotSelect) {
+      onSlotSelect(start, end);
+    }
+  }, [onSlotSelect]);
+
   return (
     <div className="h-[calc(100vh-250px)] bg-background p-4 border rounded-lg">
       <DnDCalendar
@@ -100,7 +108,9 @@ export const CalendarView = ({ tasks, projectColor, onTaskClick, onTaskUpdate }:
         onSelectEvent={handleSelectEvent}
         onEventDrop={handleEventDrop}
         onEventResize={handleEventDrop}
+        onSelectSlot={handleSelectSlot}
         eventPropGetter={eventStyleGetter}
+        selectable
         resizable
         popup
         views={['month', 'week', 'day', 'agenda']}

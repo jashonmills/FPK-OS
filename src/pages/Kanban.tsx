@@ -11,6 +11,7 @@ import { MobileViewDropdown } from '@/components/kanban/MobileViewDropdown';
 import { ListView } from '@/components/project-views/ListView';
 import { CalendarView } from '@/components/project-views/CalendarView';
 import { CalendarSyncDialog } from '@/components/project-views/CalendarSyncDialog';
+import { CreateTaskDialog } from '@/components/kanban/CreateTaskDialog';
 import { TimelineView } from '@/components/project-views/TimelineView';
 import { TaskDetailsSheet } from '@/components/kanban/TaskDetailsSheet';
 import { CreateTaskButton } from '@/components/tasks/CreateTaskButton';
@@ -47,6 +48,8 @@ const Kanban = () => {
   const [assigneeFilter, setAssigneeFilter] = useState<string | null>(null);
   const [showMyTasks, setShowMyTasks] = useState(false);
   const [syncDialogOpen, setSyncDialogOpen] = useState(false);
+  const [createTaskDialogOpen, setCreateTaskDialogOpen] = useState(false);
+  const [prefilledDates, setPrefilledDates] = useState<{ start: Date; end: Date } | null>(null);
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -204,6 +207,11 @@ const Kanban = () => {
     setDetailsSheetOpen(true);
   };
 
+  const handleSlotSelect = (start: Date, end: Date) => {
+    setPrefilledDates({ start, end });
+    setCreateTaskDialogOpen(true);
+  };
+
   const handleMyTasksClick = () => {
     if (showMyTasks) {
       setShowMyTasks(false);
@@ -309,14 +317,16 @@ const Kanban = () => {
                 isAllProjects={selectedProject === 'all'}
               />
             )}
-            {activeView === 'calendar' && (
-              <CalendarView
-                tasks={tasks}
-                projectColor={projectColor}
-                onTaskClick={handleTaskClick}
-                onTaskUpdate={fetchTasks}
-              />
-            )}
+          {activeView === 'calendar' && (
+            <CalendarView
+              tasks={tasks}
+              projectColor={projectColor}
+              projectId={selectedProject}
+              onTaskClick={handleTaskClick}
+              onTaskUpdate={fetchTasks}
+              onSlotSelect={handleSlotSelect}
+            />
+          )}
             {activeView === 'timeline' && (
               <TimelineView
                 tasks={tasks}
@@ -363,6 +373,16 @@ const Kanban = () => {
         projectId={selectedProject !== 'all' ? selectedProject : undefined}
         myTasksOnly={showMyTasks}
       />
+      
+      {selectedProject !== 'all' && (
+        <CreateTaskDialog
+          open={createTaskDialogOpen}
+          onOpenChange={setCreateTaskDialogOpen}
+          projectId={selectedProject}
+          prefilledDates={prefilledDates}
+          onTaskCreated={fetchTasks}
+        />
+      )}
     </AppLayout>
   );
 };

@@ -17,14 +17,17 @@ import { Calendar as CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Checkbox } from '@/components/ui/checkbox';
+import { useEffect } from 'react';
 
 interface CreateTaskDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   projectId: string;
+  prefilledDates?: { start: Date; end: Date } | null;
+  onTaskCreated?: () => void;
 }
 
-export const CreateTaskDialog = ({ open, onOpenChange, projectId }: CreateTaskDialogProps) => {
+export const CreateTaskDialog = ({ open, onOpenChange, projectId, prefilledDates, onTaskCreated }: CreateTaskDialogProps) => {
   const [step, setStep] = useState<'type' | 'details'>('type');
   const [taskType, setTaskType] = useState<'story' | 'bug' | 'epic' | 'chore'>('story');
   const [title, setTitle] = useState('');
@@ -37,6 +40,13 @@ export const CreateTaskDialog = ({ open, onOpenChange, projectId }: CreateTaskDi
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
+
+  // Initialize dates from prefilled dates when dialog opens
+  useEffect(() => {
+    if (open && prefilledDates) {
+      setDueDate(prefilledDates.end);
+    }
+  }, [open, prefilledDates]);
 
   const handleTypeSelect = (type: 'story' | 'bug' | 'epic' | 'chore') => {
     setTaskType(type);
@@ -81,6 +91,11 @@ export const CreateTaskDialog = ({ open, onOpenChange, projectId }: CreateTaskDi
         title: 'Success',
         description: 'Task created successfully',
       });
+
+      // Call onTaskCreated callback
+      if (onTaskCreated) {
+        onTaskCreated();
+      }
 
       if (!createAnother) {
         setStep('type');
