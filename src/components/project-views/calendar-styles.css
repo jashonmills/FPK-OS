@@ -23,7 +23,7 @@
 }
 
 .rbc-month-row {
-  min-height: 100px !important;
+  min-height: 160px !important;
   height: auto !important;
   border-top: 1px solid hsl(var(--border));
 }
@@ -31,8 +31,9 @@
 .rbc-day-bg {
   background-color: hsl(var(--card)) !important;
   border-left: 1px solid hsl(var(--border));
-  min-height: 100px !important;
+  min-height: 160px !important;
   height: auto !important;
+  padding-bottom: 8px !important;
 }
 
 .rbc-time-slot {
@@ -67,6 +68,21 @@
 
 .rbc-row-segment {
   padding: 2px 1px !important;
+}
+
+/* Style the "+X more" link */
+.rbc-show-more {
+  background-color: hsl(var(--muted)) !important;
+  color: hsl(var(--foreground)) !important;
+  padding: 2px 5px !important;
+  border-radius: 4px !important;
+  margin: 2px 1px !important;
+  font-size: 0.75rem !important;
+  cursor: pointer !important;
+}
+
+.rbc-show-more:hover {
+  background-color: hsl(var(--accent)) !important;
 }
 
 .rbc-row-content {
