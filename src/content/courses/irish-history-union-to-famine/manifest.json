@@ -1,0 +1,57 @@
+{
+  "courseId": "irish-history-union-to-famine",
+  "courseSlug": "irish-history-union-to-famine",
+  "contentVersion": "v2",
+  "title": "Irish History: From the Union to the Great Famine",
+  "description": "Discover a pivotal century in Irish history, from the loss of its parliament and the rise of Daniel O'Connell to the catastrophic Great Famine that changed Ireland forever.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "The 1798 Rebellion and the Act of Union",
+      "description": "Explore the United Irishmen's goals and understand how the Act of Union abolished the Irish Parliament.",
+      "contentType": "text",
+      "unit": "Unit 1: The Age of Union",
+      "unitColor": "from-green-600 to-emerald-700"
+    },
+    {
+      "id": 2,
+      "title": "Daniel O'Connell and Catholic Emancipation",
+      "description": "Learn about 'The Liberator' and his non-violent campaign that won Catholics the right to sit in Parliament.",
+      "contentType": "text",
+      "unit": "Unit 1: The Age of Union",
+      "unitColor": "from-green-600 to-emerald-700"
+    },
+    {
+      "id": 3,
+      "title": "The Campaign to Repeal the Union",
+      "description": "Discover O'Connell's Monster Meetings and understand why the Repeal movement ultimately failed.",
+      "contentType": "text",
+      "unit": "Unit 1: The Age of Union",
+      "unitColor": "from-green-600 to-emerald-700"
+    },
+    {
+      "id": 4,
+      "title": "Pre-Famine Ireland and the Potato",
+      "description": "Understand the dangerous dependence of rural Ireland on a single crop.",
+      "contentType": "text",
+      "unit": "Unit 2: The Great Famine (An Gorta Mór)",
+      "unitColor": "from-gray-700 to-slate-800"
+    },
+    {
+      "id": 5,
+      "title": "The Blight and Government Response",
+      "description": "Analyze how the potato blight struck and how government ideology shaped the tragic response.",
+      "contentType": "text",
+      "unit": "Unit 2: The Great Famine (An Gorta Mór)",
+      "unitColor": "from-gray-700 to-slate-800"
+    },
+    {
+      "id": 6,
+      "title": "Eviction, Emigration, and Aftermath",
+      "description": "Explore the devastating consequences of the Famine on Irish society and the diaspora it created.",
+      "contentType": "text",
+      "unit": "Unit 2: The Great Famine (An Gorta Mór)",
+      "unitColor": "from-gray-700 to-slate-800"
+    }
+  ]
+}
