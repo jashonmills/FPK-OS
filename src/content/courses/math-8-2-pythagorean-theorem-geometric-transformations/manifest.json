@@ -1,0 +1,390 @@
+{
+  "courseId": "math-8-2-pythagorean-theorem-geometric-transformations",
+  "courseSlug": "math-8-2-pythagorean-theorem-geometric-transformations",
+  "contentVersion": "v2",
+  "title": "Math 8.2: Pythagorean Theorem & Geometric Transformations",
+  "description": "Unlock the secrets of right triangles with the Pythagorean Theorem and learn to manipulate shapes on the coordinate plane through transformations.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Understanding the Pythagorean Theorem",
+      "description": "Identify the legs and the hypotenuse of a right triangle and state the Pythagorean Theorem.",
+      "contentType": "text",
+      "unit": "Unit 1: The Pythagorean Theorem",
+      "unitColor": "blue",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Identify the legs and the hypotenuse of a right triangle.",
+            "State the Pythagorean Theorem (a² + b² = c²).",
+            "Understand that the theorem only applies to right triangles."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Anatomy of a Right Triangle",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A right triangle is a triangle that contains one 90-degree angle. The two sides that form the right angle are called the 'legs' (usually labeled 'a' and 'b'). The side opposite the right angle is always the longest side, and it is called the 'hypotenuse' (labeled 'c'). The Pythagorean Theorem describes a special relationship that exists between the lengths of these three sides."
+        },
+        {
+          "type": "heading",
+          "content": "The Theorem",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The Pythagorean Theorem states that in any right triangle, the square of the length of the hypotenuse (c²) is equal to the sum of the squares of the lengths of the two legs (a² + b²)."
+        },
+        {
+          "type": "code",
+          "content": "a² + b² = c²",
+          "language": "plaintext"
+        },
+        {
+          "type": "paragraph",
+          "content": "This means if you draw a square on each of the three sides of a right triangle, the area of the two smaller squares (on the legs) will add up to exactly the area of the largest square (on the hypotenuse)."
+        },
+        {
+          "type": "callout",
+          "content": "**Knowledge Check:** In a right triangle, what is the name of the side opposite the right angle? Answer: Hypotenuse (the side opposite the right angle is always the longest side).",
+          "style": "info"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Finding a Missing Hypotenuse",
+      "description": "Use the Pythagorean Theorem to calculate the length of the hypotenuse.",
+      "contentType": "text",
+      "unit": "Unit 1: The Pythagorean Theorem",
+      "unitColor": "blue",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Use the Pythagorean Theorem to calculate the length of the hypotenuse when the lengths of both legs are known.",
+            "Understand the concept of a square root as the inverse of squaring a number.",
+            "Apply the theorem to solve for 'c'."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Solving for 'c'",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "If we know the lengths of the two legs (a and b) of a right triangle, we can use the Pythagorean Theorem to find the length of the hypotenuse (c). We simply plug the known values into the formula a² + b² = c², solve for c², and then take the square root of the result to find the length of c."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A right triangle has legs of length 3 cm and 4 cm. Find the length of the hypotenuse."
+        },
+        {
+          "type": "list",
+          "items": [
+            "Start with the formula: a² + b² = c²",
+            "Plug in the values for a and b: 3² + 4² = c²",
+            "Calculate the squares: 9 + 16 = c²",
+            "Add the numbers: 25 = c²",
+            "Take the square root of both sides: √25 = c",
+            "Solve for c: 5 = c. The hypotenuse is 5 cm long."
+          ]
+        },
+        {
+          "type": "callout",
+          "content": "**Knowledge Check:** If a right triangle has legs of 6 and 8, what is the length of the hypotenuse? Answer: 10 (6² + 8² = 36 + 64 = 100, and √100 = 10).",
+          "style": "info"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Finding a Missing Leg",
+      "description": "Use the Pythagorean Theorem to calculate the length of a leg.",
+      "contentType": "text",
+      "unit": "Unit 1: The Pythagorean Theorem",
+      "unitColor": "blue",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Use the Pythagorean Theorem to calculate the length of a leg when the lengths of the other leg and the hypotenuse are known.",
+            "Rearrange the formula to solve for 'a' or 'b'.",
+            "Apply the theorem in different scenarios."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Solving for 'a' or 'b'",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "We can also use the theorem if we know the length of the hypotenuse and one leg, and need to find the other leg. We start with the same formula, a² + b² = c², but this time we will need to use subtraction to isolate the variable for the missing leg before taking the square root."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A right triangle has a hypotenuse of 13 inches and one leg of 5 inches. Find the length of the other leg."
+        },
+        {
+          "type": "list",
+          "items": [
+            "Start with the formula: a² + b² = c²",
+            "Plug in the known values: a² + 5² = 13²",
+            "Calculate the squares: a² + 25 = 169",
+            "Isolate a² by subtracting 25 from both sides: a² = 169 - 25",
+            "Solve: a² = 144",
+            "Take the square root of both sides: a = √144",
+            "Solve for a: a = 12. The missing leg is 12 inches long."
+          ]
+        },
+        {
+          "type": "callout",
+          "content": "**Knowledge Check:** If a right triangle has a hypotenuse of 5 and one leg of 3, what is the length of the other leg? Answer: 4 (a² + 3² = 5² → a² + 9 = 25 → a² = 16, and √16 = 4).",
+          "style": "info"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Translations",
+      "description": "Define a translation as a 'slide' of a shape on the coordinate plane.",
+      "contentType": "text",
+      "unit": "Unit 2: Geometric Transformations",
+      "unitColor": "green",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define a translation as a 'slide' of a shape on the coordinate plane.",
+            "Perform a translation on a point or a shape given a rule.",
+            "Describe a translation by stating the direction and distance of the slide."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Slide",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A translation is a type of transformation that moves every point of a shape the same distance in the same direction. It's often called a 'slide' because the shape simply slides from one location to another without rotating, resizing, or flipping. The resulting shape, called the 'image,' is congruent to the original shape, called the 'pre-image.'"
+        },
+        {
+          "type": "heading",
+          "content": "Performing a Translation",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A translation is often described by a rule like (x, y) -> (x + h, y + k), where 'h' is the horizontal shift and 'k' is the vertical shift."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Translate the point A(2, 1) using the rule (x, y) -> (x + 3, y - 4)."
+        },
+        {
+          "type": "list",
+          "items": [
+            "Add 3 to the x-coordinate: 2 + 3 = 5",
+            "Subtract 4 from the y-coordinate: 1 - 4 = -3",
+            "The new point, A', is (5, -3). This represents a slide 3 units to the right and 4 units down."
+          ]
+        },
+        {
+          "type": "callout",
+          "content": "**Knowledge Check:** If you translate the point (1, 5) 2 units to the left and 3 units up, what are the new coordinates? Answer: (-1, 8) ('2 units to the left' means subtract 2 from x: 1 - 2 = -1. '3 units up' means add 3 to y: 5 + 3 = 8).",
+          "style": "info"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Reflections",
+      "description": "Define a reflection as a 'flip' of a shape over a line of reflection.",
+      "contentType": "text",
+      "unit": "Unit 2: Geometric Transformations",
+      "unitColor": "green",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define a reflection as a 'flip' of a shape over a line of reflection.",
+            "Perform a reflection of a point or shape across the x-axis and the y-axis.",
+            "Understand that a reflection creates a mirror image."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Flip",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A reflection is a transformation that flips a shape over a line, called the line of reflection, to create a mirror image. Each point in the original shape is the same distance from the line of reflection as the corresponding point in the new shape, just on the opposite side. The image is congruent to the pre-image."
+        },
+        {
+          "type": "heading",
+          "content": "Reflecting Across Axes",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Reflection across the x-axis",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "The x-coordinate stays the same, and the y-coordinate changes its sign. The rule is (x, y) -> (x, -y)."
+        },
+        {
+          "type": "paragraph",
+          "content": "Example: Reflecting (3, 2) across the x-axis gives (3, -2)."
+        },
+        {
+          "type": "heading",
+          "content": "Reflection across the y-axis",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "The y-coordinate stays the same, and the x-coordinate changes its sign. The rule is (x, y) -> (-x, y)."
+        },
+        {
+          "type": "paragraph",
+          "content": "Example: Reflecting (3, 2) across the y-axis gives (-3, 2)."
+        },
+        {
+          "type": "callout",
+          "content": "**Knowledge Check:** What are the coordinates of the point (5, -1) after it is reflected across the x-axis? Answer: (5, 1) (When reflecting across the x-axis, the x-coordinate stays the same and the y-coordinate flips its sign).",
+          "style": "info"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Rotations",
+      "description": "Define a rotation as a 'turn' of a shape around a fixed point.",
+      "contentType": "text",
+      "unit": "Unit 2: Geometric Transformations",
+      "unitColor": "green",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define a rotation as a 'turn' of a shape around a fixed point (the center of rotation).",
+            "Perform 90°, 180°, and 270° clockwise rotations of a point or shape around the origin.",
+            "Understand that the shape and size remain the same after a rotation."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Turn",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A rotation is a transformation that turns a shape about a fixed point, called the center of rotation. To define a rotation, you need to know the center of rotation (we will use the origin (0,0)), the angle of rotation (e.g., 90°), and the direction of the turn (clockwise or counterclockwise). The image is congruent to the pre-image."
+        },
+        {
+          "type": "heading",
+          "content": "Rotation Rules (Clockwise around Origin)",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "90° Clockwise Rotation",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "The rule is (x, y) -> (y, -x)."
+        },
+        {
+          "type": "heading",
+          "content": "180° Rotation",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "The rule is (x, y) -> (-x, -y)."
+        },
+        {
+          "type": "heading",
+          "content": "270° Clockwise Rotation (or 90° Counterclockwise)",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "The rule is (x, y) -> (-y, x)."
+        },
+        {
+          "type": "callout",
+          "content": "**Knowledge Check:** What are the coordinates of the point (4, 2) after a 180° rotation around the origin? Answer: (-4, -2) (For a 180° rotation, both the x and y coordinates flip their signs: (x, y) -> (-x, -y)).",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "🎉 **Course Complete!** You've mastered the Pythagorean Theorem and geometric transformations, essential tools for understanding geometry and preparing for advanced mathematics.",
+          "style": "success"
+        }
+      ]
+    }
+  ]
+}
