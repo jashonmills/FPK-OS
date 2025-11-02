@@ -1,0 +1,361 @@
+{
+  "courseId": "introduction-to-calculus",
+  "courseSlug": "introduction-to-calculus",
+  "contentVersion": "v2",
+  "title": "Introduction to Calculus",
+  "description": "An interactive introduction to the foundational concepts of calculus. This course covers limits, derivatives, and integrals, essential for students pursuing STEM fields.",
+  "backgroundImage": "/course-images/introduction-to-calculus-bg.jpg",
+  "estimatedHours": 10,
+  "difficultyLevel": "intermediate",
+  "category": "Mathematics",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Understanding Limits",
+      "description": "Define a limit as the value a function 'approaches' as the input approaches some value.",
+      "contentType": "text",
+      "estimatedMinutes": 30,
+      "unit": "Limits and Continuity",
+      "unitColor": "blue",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Define a limit as the value a function 'approaches' as the input approaches some value.",
+            "Understand the concept of approaching a value from the left and the right.",
+            "Evaluate a simple limit graphically and numerically."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Foundation of Calculus",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Calculus is the mathematics of change. At its very core is the concept of the 'limit'. A limit isn't necessarily the value of a function at a certain point, but rather the value that the function gets infinitely close to as its input gets infinitely close to that point. It's about the journey, not the destination. This idea allows us to analyze the behavior of functions at points where they might be undefined or behave strangely, forming the basis for both derivatives and integrals."
+        },
+        {
+          "type": "heading",
+          "content": "Example - A Hole in the Graph",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Imagine the function f(x) = (x² - 1) / (x - 1). If you plug in x=1, you get 0/0, which is undefined. However, we can ask: what value does f(x) approach as x gets very close to 1? Let's test values near 1:"
+        },
+        {
+          "type": "paragraph",
+          "content": "f(0.9) = 1.9\nf(0.99) = 1.99\nf(1.1) = 2.1\nf(1.01) = 2.01"
+        },
+        {
+          "type": "paragraph",
+          "content": "As x gets closer and closer to 1 from both sides, the function's value gets closer and closer to 2. Therefore, we say the limit of f(x) as x approaches 1 is 2. The limit fills the 'hole' in the graph."
+        },
+        {
+          "type": "quiz",
+          "question": "A limit describes the value a function __________ as the input gets closer to a certain point.",
+          "options": ["is exactly at", "approaches", "is never at"],
+          "correctAnswer": "approaches",
+          "explanation": "Remember, a limit is about the value a function gets close to, not necessarily the value it's at."
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Continuity",
+      "description": "Define a continuous function and identify the three conditions for continuity at a point.",
+      "contentType": "text",
+      "estimatedMinutes": 25,
+      "unit": "Limits and Continuity",
+      "unitColor": "blue",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Define a continuous function.",
+            "Identify the three conditions for a function to be continuous at a point.",
+            "Recognize different types of discontinuities (holes, jumps, asymptotes)."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "An Unbroken Graph",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "In simple terms, a function is continuous if you can draw its graph without lifting your pencil from the paper. Formally, for a function to be continuous at a point 'c', three conditions must be met: 1) The function must be defined at c (f(c) exists). 2) The limit of the function as x approaches c must exist. 3) The value of the function at c must equal the limit as x approaches c (f(c) = lim f(x)). If any of these fail, the function is discontinuous at that point."
+        },
+        {
+          "type": "heading",
+          "content": "Types of Discontinuity",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "Removable Discontinuity (Hole): This occurs when the limit exists, but the function is either undefined or has a different value at that point. It's a 'hole' you could plug.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "Jump Discontinuity: This occurs when the limit from the left and the limit from the right both exist, but they are not equal. The graph 'jumps' from one value to another.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "Infinite Discontinuity (Asymptote): This occurs when the function's value approaches positive or negative infinity as x approaches a certain point.",
+          "style": "info"
+        },
+        {
+          "type": "quiz",
+          "question": "If you can draw a function's graph without lifting your pencil, the function is...?",
+          "options": ["Discontinuous", "A limit", "Continuous"],
+          "correctAnswer": "Continuous",
+          "explanation": "Think about what it means for a graph to be 'unbroken'."
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "The Derivative and the Tangent Line Problem",
+      "description": "Define the derivative as the instantaneous rate of change of a function.",
+      "contentType": "text",
+      "estimatedMinutes": 35,
+      "unit": "The Derivative",
+      "unitColor": "green",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Define the derivative as the instantaneous rate of change of a function.",
+            "Understand that the derivative at a point gives the slope of the tangent line at that point.",
+            "Learn the limit definition of the derivative."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Slope at a Single Point",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "How do you find the slope of a curved line? You can't, because slope is defined for straight lines. The genius of calculus is to ask: what is the slope of the line that is 'tangent' to the curve at a single point? This value is the 'instantaneous rate of change'. The derivative is a new function, written as f'(x), that gives you the slope of the tangent line to the original function, f(x), at any given point x. It tells you how fast the function is changing at that exact moment."
+        },
+        {
+          "type": "heading",
+          "content": "The Limit Definition",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "We find this instantaneous slope using limits. We start by finding the slope of a 'secant line' between two points on the curve. Then, we use a limit to move the second point infinitely close to the first point, until the secant line becomes the tangent line. This is expressed by the formal limit definition of the derivative, which is the foundation for all differentiation rules."
+        },
+        {
+          "type": "quiz",
+          "question": "The derivative of a function at a point gives you the slope of what?",
+          "options": ["The secant line", "The tangent line", "The function itself"],
+          "correctAnswer": "The tangent line",
+          "explanation": "Remember, the derivative is about the 'instantaneous' slope at a single point."
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Basic Differentiation Rules (Power Rule)",
+      "description": "Learn and apply the Power Rule for differentiation.",
+      "contentType": "text",
+      "estimatedMinutes": 30,
+      "unit": "The Derivative",
+      "unitColor": "green",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Learn and apply the Power Rule for differentiation.",
+            "Understand the derivatives of constants and constant multiples.",
+            "Combine rules to differentiate simple polynomial functions."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Shortcuts for Finding Derivatives",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "While the limit definition is powerful, it's also tedious. Mathematicians have developed a set of rules to find derivatives much more quickly. The most fundamental of these is the Power Rule. It provides a simple formula for finding the derivative of any function of the form f(x) = xⁿ."
+        },
+        {
+          "type": "heading",
+          "content": "The Power Rule",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "The Rule: If f(x) = xⁿ, then its derivative, f'(x), is n * xⁿ⁻¹. In words: 'bring the power down to the front, then subtract one from the power.'",
+          "style": "teaching"
+        },
+        {
+          "type": "paragraph",
+          "content": "Example 1: If f(x) = x³, then f'(x) = 3 * x³⁻¹ = 3x²."
+        },
+        {
+          "type": "paragraph",
+          "content": "Example 2: If f(x) = 5x², you keep the constant multiple: f'(x) = 5 * (2x²⁻¹) = 10x."
+        },
+        {
+          "type": "callout",
+          "content": "Derivative of a Constant: The derivative of any constant (e.g., f(x) = 7) is always 0, because the graph of a constant is a horizontal line with a slope of 0.",
+          "style": "info"
+        },
+        {
+          "type": "quiz",
+          "question": "What is the derivative of f(x) = x⁴?",
+          "options": ["4x³", "3x⁴", "4x⁵"],
+          "correctAnswer": "4x³",
+          "explanation": "Remember the pattern: bring the power down, then subtract one from the power."
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Antiderivatives and the Indefinite Integral",
+      "description": "Define an antiderivative as the reverse process of differentiation.",
+      "contentType": "text",
+      "estimatedMinutes": 30,
+      "unit": "The Integral",
+      "unitColor": "purple",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Define an antiderivative as the reverse process of differentiation.",
+            "Understand the concept of the indefinite integral.",
+            "Learn to find the antiderivative using the reverse Power Rule."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Reversing the Process",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "If differentiation is the process of finding the rate of change (the derivative), then antidifferentiation is the process of going backwards. Given a derivative function, f'(x), we want to find the original function, f(x). This original function is called the antiderivative. The indefinite integral is the notation we use to represent the family of all possible antiderivatives."
+        },
+        {
+          "type": "heading",
+          "content": "The Reverse Power Rule and '+ C'",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "The Rule: To find the antiderivative of xⁿ, you 'add one to the power, then divide by the new power.' So, the antiderivative of xⁿ is (xⁿ⁺¹) / (n+1).",
+          "style": "teaching"
+        },
+        {
+          "type": "paragraph",
+          "content": "Example: The antiderivative of f(x) = 3x² is (3x²⁺¹) / (2+1) = 3x³ / 3 = x³."
+        },
+        {
+          "type": "callout",
+          "content": "The Constant of Integration, '+ C': Since the derivative of any constant is 0, the antiderivative of 3x² could be x³, or x³ + 5, or x³ - 100. To represent all these possibilities, we always add a '+ C' (the constant of integration) to every indefinite integral.",
+          "style": "warning"
+        },
+        {
+          "type": "quiz",
+          "question": "What is the antiderivative of f(x) = 4x³?",
+          "options": ["12x² + C", "x⁴ + C", "4x⁴ + C"],
+          "correctAnswer": "x⁴ + C",
+          "explanation": "Remember the reverse Power Rule: add one to the power, then divide by the new power."
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "The Definite Integral and the Area Problem",
+      "description": "Understand the definite integral as a way to find the exact area under a curve.",
+      "contentType": "text",
+      "estimatedMinutes": 35,
+      "unit": "The Integral",
+      "unitColor": "purple",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Understand the definite integral as a way to find the exact area under a curve.",
+            "Learn the basics of the Fundamental Theorem of Calculus.",
+            "Calculate a simple definite integral."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Area Under a Curve",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "How do you find the area of an irregular shape, like the area under a parabola? This is the 'area problem' that calculus solves. We can approximate the area by drawing many thin rectangles under the curve and adding up their areas. The definite integral is the limit of this process as the number of rectangles approaches infinity, giving us the exact area."
+        },
+        {
+          "type": "heading",
+          "content": "The Fundamental Theorem of Calculus",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "The Fundamental Theorem of Calculus is one of the most important theorems in all of mathematics. It provides a stunningly simple way to calculate the exact area under a curve. It states that to find the definite integral (the area) of a function f(x) from a to b, you simply find its antiderivative, F(x), and calculate F(b) - F(a). This theorem beautifully links the two major branches of calculus: derivatives and integrals.",
+          "style": "teaching"
+        },
+        {
+          "type": "paragraph",
+          "content": "Example: To find the area under the curve f(x) = 2x from x=1 to x=3, we first find the antiderivative, which is F(x) = x². Then we calculate F(3) - F(1) = (3)² - (1)² = 9 - 1 = 8. The exact area is 8."
+        },
+        {
+          "type": "quiz",
+          "question": "The definite integral is used to find the exact...?",
+          "options": ["Slope of the tangent line", "Area under a curve", "Instantaneous rate of change"],
+          "correctAnswer": "Area under a curve",
+          "explanation": "Remember the two main problems of calculus: the tangent problem (derivatives) and the area problem (integrals)."
+        }
+      ]
+    }
+  ]
+}
