@@ -1,4 +1,4 @@
-import { useMemo, useCallback, useState } from 'react';
+import { useMemo, useCallback } from 'react';
 import { Calendar, momentLocalizer, Event as BigCalendarEvent, View } from 'react-big-calendar';
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
 import moment from 'moment';
@@ -44,15 +44,6 @@ interface CalendarEvent extends BigCalendarEvent {
 export const CalendarView = ({ tasks, projectColor, projectId, onTaskClick, onTaskUpdate, onSlotSelect }: CalendarViewProps) => {
   const { toast } = useToast();
 
-  // Initialize date to earliest event or today
-  const [currentDate, setCurrentDate] = useState(() => {
-    const earliestTask = tasks
-      .filter(t => t.due_date)
-      .sort((a, b) => new Date(a.due_date!).getTime() - new Date(b.due_date!).getTime())[0];
-    
-    return earliestTask ? new Date(earliestTask.due_date!) : new Date();
-  });
-
   const { events, tasksWithDates, tasksWithoutDates } = useMemo(() => {
     console.log('=== CalendarView Debug ===');
     console.log('Input tasks:', tasks);
@@ -74,13 +65,14 @@ export const CalendarView = ({ tasks, projectColor, projectId, onTaskClick, onTa
         return isValid;
       })
       .map(task => {
-        // Create dates with default time range (9 AM - 5 PM) for calendar display
-        const start = task.start_date ? new Date(task.start_date) : new Date(task.due_date!);
+        // Keep it simple - use due_date for both start and end
+        const start = new Date(task.due_date!);
         const end = new Date(task.due_date!);
         
-        // Set default times (9 AM - 5 PM) so events appear in Agenda view
-        start.setHours(9, 0, 0, 0);
-        end.setHours(17, 0, 0, 0);
+        // If there's a specific start_date, use it
+        if (task.start_date) {
+          start.setTime(new Date(task.start_date).getTime());
+        }
         
         console.log(`Task: ${task.title}`);
         console.log(`  Due date string: ${task.due_date}`);
@@ -155,11 +147,6 @@ export const CalendarView = ({ tasks, projectColor, projectId, onTaskClick, onTa
     }
   }, [onSlotSelect]);
 
-  const handleNavigate = useCallback((newDate: Date) => {
-    console.log('Navigating to date:', newDate);
-    setCurrentDate(newDate);
-  }, []);
-
   return (
     <div className="space-y-4">
       {tasksWithoutDates > 0 && (
@@ -186,8 +173,6 @@ export const CalendarView = ({ tasks, projectColor, projectId, onTaskClick, onTa
         <DnDCalendar
           localizer={localizer}
           events={events}
-          date={currentDate}
-          onNavigate={handleNavigate}
           startAccessor={(event: CalendarEvent) => event.start as Date}
           endAccessor={(event: CalendarEvent) => event.end as Date}
           onSelectEvent={handleSelectEvent}
@@ -200,7 +185,6 @@ export const CalendarView = ({ tasks, projectColor, projectId, onTaskClick, onTa
           popup
           views={['month', 'week', 'day', 'agenda']}
           defaultView="month"
-          length={90}
         />
       </div>
     </div>
