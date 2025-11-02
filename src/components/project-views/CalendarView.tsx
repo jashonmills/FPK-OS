@@ -65,13 +65,13 @@ export const CalendarView = ({ tasks, projectColor, projectId, onTaskClick, onTa
         return isValid;
       })
       .map(task => {
-        // Create dates and normalize to midnight for all-day events
+        // Create dates with default time range (9 AM - 5 PM) for calendar display
         const start = task.start_date ? new Date(task.start_date) : new Date(task.due_date!);
         const end = new Date(task.due_date!);
         
-        // Set to midnight for all-day display in calendar
-        start.setHours(0, 0, 0, 0);
-        end.setHours(23, 59, 59, 999);
+        // Set default times (9 AM - 5 PM) so events appear in Agenda view
+        start.setHours(9, 0, 0, 0);
+        end.setHours(17, 0, 0, 0);
         
         console.log(`Task: ${task.title}`);
         console.log(`  Due date string: ${task.due_date}`);
@@ -85,7 +85,6 @@ export const CalendarView = ({ tasks, projectColor, projectId, onTaskClick, onTa
           end,
           task,
           color: projectColor || 'rgba(139, 92, 246, 0.9)',
-          allDay: true, // Mark as all-day event for month view
         };
       });
 
