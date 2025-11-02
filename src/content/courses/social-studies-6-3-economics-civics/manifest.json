@@ -1,0 +1,273 @@
+{
+  "courseId": "social-studies-6-3-economics-civics",
+  "courseSlug": "social-studies-6-3-economics-civics",
+  "contentVersion": "v2",
+  "title": "Social Studies 6.3: Introduction to Economics & Civics",
+  "description": "An introduction to the fundamental principles of how economies work and the rights and responsibilities of being a citizen in a community.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Scarcity and Choice",
+      "description": "Understand the fundamental economic problem of scarcity and the concept of opportunity cost.",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Define economics as the study of how people make choices.",
+            "Understand the fundamental economic problem of scarcity.",
+            "Define opportunity cost as the value of the next-best alternative given up."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Fundamental Problem",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Economics is the study of how people, businesses, and governments make choices to satisfy their wants and needs. The fundamental problem of economics is scarcity. Scarcity means that we have unlimited wants but limited resources. There isn't enough of everything to go around for free. Because of scarcity, we are forced to make choices."
+        },
+        {
+          "type": "heading",
+          "content": "Opportunity Cost",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Every time you make a choice, you give something up. The opportunity cost of a decision is the value of the most desirable alternative you did not choose. For example, if you have one hour and you choose to play video games instead of doing your homework, the opportunity cost is the completed homework you gave up. Understanding opportunity cost is key to making smart economic decisions."
+        }
+      ],
+      "estimatedMinutes": 15,
+      "unit": "Unit 1: Introduction to Economics",
+      "unitColor": "bg-emerald-600"
+    },
+    {
+      "id": 2,
+      "title": "Supply and Demand",
+      "description": "Learn how the interaction of supply and demand determines prices in a market economy.",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Define supply as the amount of a good or service available.",
+            "Define demand as the desire of consumers to buy a good or service.",
+            "Explain how the interaction of supply and demand determines price."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Heart of a Market Economy",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "In a market economy, prices are not set by the government; they are determined by the interaction of supply and demand. Demand is how much of something people want. Supply is how much of that thing is available. The relationship between these two forces determines the price of almost everything you buy."
+        },
+        {
+          "type": "heading",
+          "content": "The Laws of Supply and Demand",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "**Law of Demand:** Generally, when the price of a good goes up, the quantity demanded goes down. People want to buy less of it.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "**Law of Supply:** Generally, when the price of a good goes up, the quantity supplied goes up. Producers want to sell more of it to make more profit.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "**Equilibrium Price:** The price at which the quantity supplied equals the quantity demanded. This is the 'market price'.",
+          "style": "success"
+        }
+      ],
+      "estimatedMinutes": 15,
+      "unit": "Unit 1: Introduction to Economics",
+      "unitColor": "bg-emerald-600"
+    },
+    {
+      "id": 3,
+      "title": "Economic Systems",
+      "description": "Explore the different ways societies organize their economies to answer the three basic economic questions.",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Identify the three basic economic questions every society must answer.",
+            "Describe the main types of economic systems: traditional, command, and market.",
+            "Understand that most countries have a mixed economy."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Three Basic Questions",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Because of scarcity, every society must have a system to answer three basic economic questions: 1) What will be produced? 2) How will it be produced? 3) For whom will it be produced? The way a society answers these questions determines its economic system."
+        },
+        {
+          "type": "heading",
+          "content": "Types of Economic Systems",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "**Traditional Economy:** Decisions are based on customs and beliefs handed down from generation to generation. (e.g., some indigenous communities).",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "**Command Economy:** The government makes all economic decisions. (e.g., North Korea).",
+          "style": "warning"
+        },
+        {
+          "type": "callout",
+          "content": "**Market Economy:** Decisions are made by individuals and businesses based on supply and demand. There is no pure market economy.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "**Mixed Economy:** A combination of market and command. Most countries today, including the United States, have a mixed economy where individuals have freedom but the government provides regulations and services.",
+          "style": "success"
+        }
+      ],
+      "estimatedMinutes": 15,
+      "unit": "Unit 1: Introduction to Economics",
+      "unitColor": "bg-emerald-600"
+    },
+    {
+      "id": 4,
+      "title": "What is Government?",
+      "description": "Define government and identify the main types of government systems.",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Define government as the system that rules a community.",
+            "Identify the main purposes of government (e.g., keep order, provide services, protect the country).",
+            "Differentiate between major types of government, such as democracy and monarchy."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Need for Rules",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Civics is the study of the rights and duties of citizenship. A government is the ruling authority for a community. It has the power to make and enforce laws. Without government, we would live in a state of 'anarchy' or chaos. The main purposes of government are to keep order, provide public services (like schools and roads), provide security, and guide the community."
+        },
+        {
+          "type": "heading",
+          "content": "Types of Government",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "**Democracy:** A system where the citizens hold the power, either directly or by electing representatives. (e.g., United States, Ireland).",
+          "style": "success"
+        },
+        {
+          "type": "callout",
+          "content": "**Monarchy:** A government with a hereditary ruler, like a king or queen. (e.g., Saudi Arabia, historical United Kingdom).",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "**Authoritarian/Dictatorship:** A system where one person or a small group holds absolute power, often taken and kept by force.",
+          "style": "warning"
+        }
+      ],
+      "estimatedMinutes": 15,
+      "unit": "Unit 2: Introduction to Civics",
+      "unitColor": "bg-blue-700"
+    },
+    {
+      "id": 5,
+      "title": "The Concept of Citizenship",
+      "description": "Understand the rights and responsibilities that come with being a citizen.",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Define a citizen as a legal member of a country.",
+            "Differentiate between the rights and responsibilities of a citizen.",
+            "Identify key ways to be a good citizen."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Rights and Responsibilities",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A citizen is a person who owes loyalty to a government and is entitled to its protection. Citizenship comes with both rights and responsibilities. Rights are freedoms and protections guaranteed by the government (like freedom of speech). Responsibilities are duties or things we should do as citizens (like obeying laws)."
+        },
+        {
+          "type": "heading",
+          "content": "Being a Good Citizen",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "**Key Rights:** Freedom of speech, freedom of religion, the right to a fair trial.",
+          "style": "success"
+        },
+        {
+          "type": "callout",
+          "content": "**Key Responsibilities:** Obeying laws, paying taxes, serving on a jury, and voting in elections.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "**Civic Virtue:** Beyond just duties, being a good citizen also means contributing to the community, staying informed, and respecting the rights of others.",
+          "style": "teaching"
+        }
+      ],
+      "estimatedMinutes": 15,
+      "unit": "Unit 2: Introduction to Civics",
+      "unitColor": "bg-blue-700"
+    }
+  ]
+}
