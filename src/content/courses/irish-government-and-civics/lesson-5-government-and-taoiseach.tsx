@@ -1,7 +1,6 @@
 import React from 'react';
-import { LessonProps } from '@/types/lesson';
 
-export const Lesson5GovernmentAndTaoiseach: React.FC<LessonProps> = () => {
+export const Lesson5GovernmentAndTaoiseach: React.FC = () => {
   return (
     <div className="space-y-6">
       <section>
