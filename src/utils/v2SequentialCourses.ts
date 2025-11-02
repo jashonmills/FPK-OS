@@ -42,6 +42,7 @@ export const V2_SEQUENTIAL_COURSE_SLUGS = [
   'science-6-2-life-science-cells-ecosystems-classification',
   'science-6-3-physical-science-matter-energy-forces',
   'social-studies-6-1-ancient-civilizations',
+  'social-studies-6-2-world-geography-cultures',
 ] as const;
 
 export type V2SequentialCourseSlug = typeof V2_SEQUENTIAL_COURSE_SLUGS[number];
