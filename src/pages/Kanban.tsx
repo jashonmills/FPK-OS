@@ -12,6 +12,7 @@ import { ListView } from '@/components/project-views/ListView';
 import { CalendarView } from '@/components/project-views/CalendarView';
 import { CalendarSyncDialog } from '@/components/project-views/CalendarSyncDialog';
 import { CreateTaskDialog } from '@/components/kanban/CreateTaskDialog';
+import { ProjectSelectionDialog } from '@/components/kanban/ProjectSelectionDialog';
 import { TimelineView } from '@/components/project-views/TimelineView';
 import { TaskDetailsSheet } from '@/components/kanban/TaskDetailsSheet';
 import { CreateTaskButton } from '@/components/tasks/CreateTaskButton';
@@ -48,6 +49,7 @@ const Kanban = () => {
   const [assigneeFilter, setAssigneeFilter] = useState<string | null>(null);
   const [showMyTasks, setShowMyTasks] = useState(false);
   const [syncDialogOpen, setSyncDialogOpen] = useState(false);
+  const [projectSelectionDialogOpen, setProjectSelectionDialogOpen] = useState(false);
   const [createTaskDialogOpen, setCreateTaskDialogOpen] = useState(false);
   const [prefilledDates, setPrefilledDates] = useState<{ start: Date; end: Date } | null>(null);
   const { user, loading } = useAuth();
@@ -209,6 +211,17 @@ const Kanban = () => {
 
   const handleSlotSelect = (start: Date, end: Date) => {
     setPrefilledDates({ start, end });
+    
+    if (selectedProject === 'all') {
+      setProjectSelectionDialogOpen(true);
+    } else {
+      setCreateTaskDialogOpen(true);
+    }
+  };
+
+  const handleProjectSelected = (projectId: string) => {
+    setSelectedProject(projectId);
+    setProjectSelectionDialogOpen(false);
     setCreateTaskDialogOpen(true);
   };
 
@@ -373,16 +386,20 @@ const Kanban = () => {
         projectId={selectedProject !== 'all' ? selectedProject : undefined}
         myTasksOnly={showMyTasks}
       />
+
+      <ProjectSelectionDialog
+        open={projectSelectionDialogOpen}
+        onOpenChange={setProjectSelectionDialogOpen}
+        onProjectSelected={handleProjectSelected}
+      />
       
-      {selectedProject !== 'all' && (
-        <CreateTaskDialog
-          open={createTaskDialogOpen}
-          onOpenChange={setCreateTaskDialogOpen}
-          projectId={selectedProject}
-          prefilledDates={prefilledDates}
-          onTaskCreated={fetchTasks}
-        />
-      )}
+      <CreateTaskDialog
+        open={createTaskDialogOpen}
+        onOpenChange={setCreateTaskDialogOpen}
+        projectId={selectedProject !== 'all' ? selectedProject : undefined}
+        prefilledDates={prefilledDates}
+        onTaskCreated={fetchTasks}
+      />
     </AppLayout>
   );
 };
