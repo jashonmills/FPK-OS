@@ -71,7 +71,11 @@
 
 .rbc-row-content {
   height: auto !important;
-  min-height: 100px !important;
+  min-height: 0 !important;
+}
+
+.rbc-row-content-scrollable {
+  height: auto !important;
 }
 
 .rbc-toolbar {
