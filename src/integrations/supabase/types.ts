@@ -2075,6 +2075,7 @@ export type Database = {
           duration_minutes: number | null
           featured: boolean | null
           framework_type: string | null
+          grade_level_id: number | null
           id: string
           instructor_name: string | null
           is_free: boolean | null
@@ -2082,9 +2083,11 @@ export type Database = {
           organization_id: string | null
           price: number | null
           published_at: string | null
+          sequence_order: number | null
           slug: string | null
           source: string | null
           status: string | null
+          subject: string | null
           tags: string[] | null
           thumbnail_url: string | null
           title: string
@@ -2104,6 +2107,7 @@ export type Database = {
           duration_minutes?: number | null
           featured?: boolean | null
           framework_type?: string | null
+          grade_level_id?: number | null
           id: string
           instructor_name?: string | null
           is_free?: boolean | null
@@ -2111,9 +2115,11 @@ export type Database = {
           organization_id?: string | null
           price?: number | null
           published_at?: string | null
+          sequence_order?: number | null
           slug?: string | null
           source?: string | null
           status?: string | null
+          subject?: string | null
           tags?: string[] | null
           thumbnail_url?: string | null
           title: string
@@ -2133,6 +2139,7 @@ export type Database = {
           duration_minutes?: number | null
           featured?: boolean | null
           framework_type?: string | null
+          grade_level_id?: number | null
           id?: string
           instructor_name?: string | null
           is_free?: boolean | null
@@ -2140,15 +2147,24 @@ export type Database = {
           organization_id?: string | null
           price?: number | null
           published_at?: string | null
+          sequence_order?: number | null
           slug?: string | null
           source?: string | null
           status?: string | null
+          subject?: string | null
           tags?: string[] | null
           thumbnail_url?: string | null
           title?: string
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "courses_grade_level_id_fkey"
+            columns: ["grade_level_id"]
+            isOneToOne: false
+            referencedRelation: "grade_levels"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "courses_organization_id_fkey"
             columns: ["organization_id"]
@@ -3239,6 +3255,33 @@ export type Database = {
           scope?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      grade_levels: {
+        Row: {
+          created_at: string | null
+          display_order: number
+          id: number
+          irish_name: string
+          stage: string
+          us_name: string
+        }
+        Insert: {
+          created_at?: string | null
+          display_order: number
+          id: number
+          irish_name: string
+          stage: string
+          us_name: string
+        }
+        Update: {
+          created_at?: string | null
+          display_order?: number
+          id?: number
+          irish_name?: string
+          stage?: string
+          us_name?: string
         }
         Relationships: []
       }
@@ -11324,6 +11367,7 @@ export type Database = {
           duration_minutes: number | null
           featured: boolean | null
           framework_type: string | null
+          grade_level_id: number | null
           id: string
           instructor_name: string | null
           is_free: boolean | null
@@ -11331,9 +11375,11 @@ export type Database = {
           organization_id: string | null
           price: number | null
           published_at: string | null
+          sequence_order: number | null
           slug: string | null
           source: string | null
           status: string | null
+          subject: string | null
           tags: string[] | null
           thumbnail_url: string | null
           title: string
@@ -11445,6 +11491,7 @@ export type Database = {
           duration_minutes: number | null
           featured: boolean | null
           framework_type: string | null
+          grade_level_id: number | null
           id: string
           instructor_name: string | null
           is_free: boolean | null
@@ -11452,9 +11499,11 @@ export type Database = {
           organization_id: string | null
           price: number | null
           published_at: string | null
+          sequence_order: number | null
           slug: string | null
           source: string | null
           status: string | null
+          subject: string | null
           tags: string[] | null
           thumbnail_url: string | null
           title: string
@@ -11484,6 +11533,7 @@ export type Database = {
           duration_minutes: number | null
           featured: boolean | null
           framework_type: string | null
+          grade_level_id: number | null
           id: string
           instructor_name: string | null
           is_free: boolean | null
@@ -11491,9 +11541,11 @@ export type Database = {
           organization_id: string | null
           price: number | null
           published_at: string | null
+          sequence_order: number | null
           slug: string | null
           source: string | null
           status: string | null
+          subject: string | null
           tags: string[] | null
           thumbnail_url: string | null
           title: string
@@ -11522,6 +11574,7 @@ export type Database = {
           duration_minutes: number | null
           featured: boolean | null
           framework_type: string | null
+          grade_level_id: number | null
           id: string
           instructor_name: string | null
           is_free: boolean | null
@@ -11529,9 +11582,11 @@ export type Database = {
           organization_id: string | null
           price: number | null
           published_at: string | null
+          sequence_order: number | null
           slug: string | null
           source: string | null
           status: string | null
+          subject: string | null
           tags: string[] | null
           thumbnail_url: string | null
           title: string

@@ -15,6 +15,19 @@ export interface CourseCard {
   status: 'draft' | 'preview' | 'published' | 'archived';
   discoverable: boolean;
   
+  // New hierarchical fields
+  grade_level_id?: number;
+  subject?: string;
+  sequence_order?: number;
+  
+  // Populated via join
+  grade_level?: {
+    id: number;
+    us_name: string;
+    irish_name: string;
+    stage: string;
+  };
+  
   // Source table info
   source_table: 'courses' | 'org_courses' | 'native_courses';
   
