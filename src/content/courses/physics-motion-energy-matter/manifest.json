@@ -1,0 +1,499 @@
+{
+  "courseId": "physics-motion-energy-matter",
+  "courseSlug": "physics-motion-energy-matter",
+  "contentVersion": "v2",
+  "title": "Physics: Motion, Energy, and Matter",
+  "description": "Master the fundamental concepts of physics, from Newton's laws to electromagnetism.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Newton's Laws of Motion",
+      "description": "Define Newton's Three Laws of Motion and understand inertia, force, mass, and acceleration",
+      "contentType": "text",
+      "unit": "Unit 1: Forces and Motion",
+      "unitColor": "blue",
+      "estimatedMinutes": 25,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Learning Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define Newton's Three Laws of Motion",
+            "Understand the concept of inertia",
+            "Explain the relationship between force, mass, and acceleration",
+            "Apply Newton's Laws to real-world scenarios"
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Newton's First Law: The Law of Inertia",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Newton's First Law states: An object at rest stays at rest, and an object in motion stays in motion with the same speed and direction, unless acted upon by an unbalanced force."
+        },
+        {
+          "type": "callout",
+          "content": "Inertia is the tendency of an object to resist changes in its motion. The more mass an object has, the more inertia it has.",
+          "style": "info"
+        },
+        {
+          "type": "paragraph",
+          "content": "This law explains why you lurch forward when a car suddenly stops—your body wants to keep moving at the same speed the car was traveling."
+        },
+        {
+          "type": "heading",
+          "content": "Newton's Second Law: F = ma",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Newton's Second Law states: The acceleration of an object depends on the net force acting upon it and the object's mass. This is expressed by the famous equation F = ma (Force equals mass times acceleration)."
+        },
+        {
+          "type": "callout",
+          "content": "The stronger the force applied to an object, the greater its acceleration. The more massive the object, the less it will accelerate for the same force.",
+          "style": "teaching"
+        },
+        {
+          "type": "paragraph",
+          "content": "For example, it takes more force to push a car than to push a bicycle because the car has much more mass."
+        },
+        {
+          "type": "heading",
+          "content": "Newton's Third Law: Action and Reaction",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Newton's Third Law states: For every action, there is an equal and opposite reaction."
+        },
+        {
+          "type": "paragraph",
+          "content": "When you push against a wall, the wall pushes back on you with equal force. When a rocket expels gas downward, the gas pushes the rocket upward with equal force."
+        },
+        {
+          "type": "callout",
+          "content": "These action-reaction pairs always act on different objects—one force acts on object A, while the reaction force acts on object B.",
+          "style": "warning"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Gravity and Work",
+      "description": "Understand gravity as a fundamental force and learn the physics definition of work",
+      "contentType": "text",
+      "unit": "Unit 1: Forces and Motion",
+      "unitColor": "blue",
+      "estimatedMinutes": 20,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Learning Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand gravity as a fundamental force of nature",
+            "Calculate gravitational force using Newton's Law of Universal Gravitation",
+            "Define work in physics terms",
+            "Calculate work using the formula W = F × d"
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Gravity: The Universal Force",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Gravity is the force of attraction between any two objects with mass. Every object in the universe attracts every other object. The strength of this attraction depends on two things: the masses of the objects and the distance between them."
+        },
+        {
+          "type": "callout",
+          "content": "Newton's Law of Universal Gravitation: F = G(m₁m₂)/r². The force is proportional to the product of the masses and inversely proportional to the square of the distance.",
+          "style": "info"
+        },
+        {
+          "type": "paragraph",
+          "content": "On Earth, gravity gives objects weight. An object's weight is the force of gravity pulling it toward the center of the Earth. Weight = mass × gravity (W = mg), where g ≈ 9.8 m/s²."
+        },
+        {
+          "type": "heading",
+          "content": "Work in Physics",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "In everyday language, 'work' means any activity. In physics, work has a very specific meaning: Work is done when a force causes an object to move in the direction of the force."
+        },
+        {
+          "type": "callout",
+          "content": "The formula for work is W = F × d × cos(θ), where F is force, d is displacement, and θ is the angle between force and displacement. When force and displacement are in the same direction, W = F × d.",
+          "style": "teaching"
+        },
+        {
+          "type": "paragraph",
+          "content": "Work is measured in joules (J). One joule is the work done when a force of one newton moves an object one meter. If you push a box across the floor with 10 N of force for 5 meters, you've done 50 J of work."
+        },
+        {
+          "type": "callout",
+          "content": "Important: If there's no movement, there's no work! You can push against a wall all day, but if the wall doesn't move, you've done zero work (in physics terms).",
+          "style": "warning"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Energy: Kinetic and Potential",
+      "description": "Learn about kinetic energy, potential energy, and the Law of Conservation of Energy",
+      "contentType": "text",
+      "unit": "Unit 2: Energy",
+      "unitColor": "green",
+      "estimatedMinutes": 20,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Learning Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define kinetic energy and calculate it using KE = ½mv²",
+            "Define potential energy and calculate gravitational PE using PE = mgh",
+            "Understand the Law of Conservation of Energy",
+            "Explain energy transformations in real-world systems"
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "What is Energy?",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Energy is the ability to do work or cause change. It comes in many forms, but we'll focus on two fundamental types: kinetic and potential energy."
+        },
+        {
+          "type": "heading",
+          "content": "Kinetic Energy: The Energy of Motion",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Kinetic energy is the energy an object has because of its motion. The faster an object moves and the more massive it is, the more kinetic energy it has."
+        },
+        {
+          "type": "callout",
+          "content": "The formula for kinetic energy is KE = ½mv², where m is mass and v is velocity. Notice that velocity is squared—this means doubling speed quadruples kinetic energy!",
+          "style": "info"
+        },
+        {
+          "type": "paragraph",
+          "content": "A moving car, a thrown baseball, and a falling raindrop all have kinetic energy."
+        },
+        {
+          "type": "heading",
+          "content": "Potential Energy: Stored Energy",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Potential energy is stored energy based on an object's position or condition. The most common type is gravitational potential energy—the energy an object has because of its height above the ground."
+        },
+        {
+          "type": "callout",
+          "content": "Gravitational potential energy is calculated as PE = mgh, where m is mass, g is gravitational acceleration (9.8 m/s²), and h is height above a reference point.",
+          "style": "teaching"
+        },
+        {
+          "type": "paragraph",
+          "content": "A book on a high shelf has potential energy. If it falls, that potential energy converts to kinetic energy."
+        },
+        {
+          "type": "heading",
+          "content": "The Law of Conservation of Energy",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "One of the most fundamental laws in physics: Energy cannot be created or destroyed—it can only be transformed from one form to another. The total energy in a closed system remains constant."
+        },
+        {
+          "type": "callout",
+          "content": "When a pendulum swings, energy constantly converts between kinetic (at the bottom) and potential (at the top). The total energy stays the same (ignoring friction).",
+          "style": "success"
+        },
+        {
+          "type": "paragraph",
+          "content": "This principle applies everywhere: roller coasters, hydroelectric dams, even your own body converting food energy into motion and heat."
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Heat and Thermodynamics",
+      "description": "Explore heat transfer, the Laws of Thermodynamics, and methods of thermal energy transfer",
+      "contentType": "text",
+      "unit": "Unit 2: Energy",
+      "unitColor": "green",
+      "estimatedMinutes": 25,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Learning Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Distinguish between heat and temperature",
+            "Understand the three methods of heat transfer: conduction, convection, and radiation",
+            "Explain the First and Second Laws of Thermodynamics",
+            "Apply thermodynamic principles to real-world situations"
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Heat vs. Temperature",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Heat and temperature are related but different. Temperature measures the average kinetic energy of particles in a substance. Heat is the transfer of thermal energy from a hotter object to a cooler one."
+        },
+        {
+          "type": "callout",
+          "content": "Think of it this way: Temperature tells you how hot something is. Heat tells you how much thermal energy is moving from one place to another.",
+          "style": "info"
+        },
+        {
+          "type": "heading",
+          "content": "Three Methods of Heat Transfer",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "1. Conduction: Heat transfer through direct contact. When you touch a hot stove, heat transfers from the stove to your hand through conduction. Metals are excellent conductors."
+        },
+        {
+          "type": "paragraph",
+          "content": "2. Convection: Heat transfer through the movement of fluids (liquids or gases). Hot air rises, cool air sinks—this creates convection currents. This is how your home heating system works."
+        },
+        {
+          "type": "paragraph",
+          "content": "3. Radiation: Heat transfer through electromagnetic waves. The Sun heats Earth through radiation—no physical medium needed. You feel radiation when you stand near a fire."
+        },
+        {
+          "type": "heading",
+          "content": "The First Law of Thermodynamics",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The First Law is essentially the Law of Conservation of Energy applied to heat: Energy cannot be created or destroyed in a closed system. The change in a system's internal energy equals the heat added to it minus the work done by it."
+        },
+        {
+          "type": "callout",
+          "content": "Mathematically: ΔU = Q - W, where ΔU is change in internal energy, Q is heat added, and W is work done by the system.",
+          "style": "teaching"
+        },
+        {
+          "type": "heading",
+          "content": "The Second Law of Thermodynamics",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The Second Law states that entropy (disorder) in a closed system always increases over time. Heat naturally flows from hot to cold, never the reverse (without external work). This is why your coffee always cools down—never spontaneously heats up."
+        },
+        {
+          "type": "callout",
+          "content": "This law explains why no heat engine can be 100% efficient. Some energy always becomes unusable heat. It's also why perpetual motion machines are impossible.",
+          "style": "warning"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Electricity",
+      "description": "Learn about electric charge, current, circuits, and Ohm's Law",
+      "contentType": "text",
+      "unit": "Unit 3: Electricity and Magnetism",
+      "unitColor": "purple",
+      "estimatedMinutes": 25,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Learning Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand electric charge and the difference between conductors and insulators",
+            "Define electric current, voltage, and resistance",
+            "Apply Ohm's Law (V = IR) to solve circuit problems",
+            "Distinguish between series and parallel circuits"
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Electric Charge",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Electric charge is a fundamental property of matter. There are two types: positive (protons) and negative (electrons). Like charges repel; opposite charges attract. This is the foundation of all electrical phenomena."
+        },
+        {
+          "type": "callout",
+          "content": "Conductors (like metals) allow charges to flow easily. Insulators (like rubber or plastic) resist the flow of charge. This is why electrical wires have metal cores wrapped in plastic.",
+          "style": "info"
+        },
+        {
+          "type": "heading",
+          "content": "Electric Current",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Electric current is the flow of electric charge, measured in amperes (A). One ampere equals one coulomb of charge flowing past a point per second. Current flows when there's a potential difference (voltage) pushing charges through a conductor."
+        },
+        {
+          "type": "callout",
+          "content": "Think of current like water flowing through a pipe. The amount of water flowing per second is like amperes. The water pressure is like voltage.",
+          "style": "teaching"
+        },
+        {
+          "type": "heading",
+          "content": "Voltage and Resistance",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Voltage (V) is electric potential difference—the 'push' that makes charges flow. It's measured in volts. Resistance (R) opposes the flow of current and is measured in ohms (Ω). Different materials have different resistances."
+        },
+        {
+          "type": "heading",
+          "content": "Ohm's Law",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Ohm's Law is the fundamental relationship in circuits: V = IR (Voltage equals Current times Resistance). If you know any two of these values, you can calculate the third."
+        },
+        {
+          "type": "callout",
+          "content": "Example: A 12-volt battery connected to a 4-ohm resistor will produce a current of I = V/R = 12/4 = 3 amperes.",
+          "style": "success"
+        },
+        {
+          "type": "heading",
+          "content": "Series vs. Parallel Circuits",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "In a series circuit, components are connected end-to-end in a single path. Current is the same everywhere, but voltage divides across components. If one component fails, the entire circuit breaks."
+        },
+        {
+          "type": "paragraph",
+          "content": "In a parallel circuit, components are connected across multiple paths. Voltage is the same across all paths, but current divides. If one component fails, the others still work—this is why homes use parallel circuits."
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Magnetism and Electromagnetism",
+      "description": "Discover how electricity and magnetism are connected through electromagnetism",
+      "contentType": "text",
+      "unit": "Unit 3: Electricity and Magnetism",
+      "unitColor": "purple",
+      "estimatedMinutes": 25,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Learning Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand magnetic fields and magnetic poles",
+            "Explain how electric currents create magnetic fields",
+            "Describe how electromagnets work and their applications",
+            "Understand electromagnetic induction and its importance"
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Magnetism Basics",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Magnets have two poles: north and south. Like poles repel, opposite poles attract. Every magnet creates a magnetic field—an invisible region where magnetic forces act. Earth itself is a giant magnet with magnetic north and south poles."
+        },
+        {
+          "type": "callout",
+          "content": "Magnetic field lines flow from north to south outside a magnet. You can visualize them by sprinkling iron filings near a magnet—they'll align with the field lines.",
+          "style": "info"
+        },
+        {
+          "type": "heading",
+          "content": "The Connection: Electricity Creates Magnetism",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "In 1820, Hans Christian Ørsted discovered that electric current creates a magnetic field around a wire. This was revolutionary—it showed that electricity and magnetism are not separate phenomena but two aspects of the same force: electromagnetism."
+        },
+        {
+          "type": "callout",
+          "content": "When current flows through a wire, it creates circular magnetic field lines around the wire. The direction of the field depends on the direction of current flow (right-hand rule).",
+          "style": "teaching"
+        },
+        {
+          "type": "heading",
+          "content": "Electromagnets",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "An electromagnet is created by wrapping wire in a coil (solenoid) around an iron core and passing current through it. The magnetic field of the coil plus the magnetized iron core creates a powerful, controllable magnet."
+        },
+        {
+          "type": "paragraph",
+          "content": "Electromagnets are everywhere: electric motors, generators, speakers, MRI machines, and junkyard cranes. Their strength can be controlled by adjusting the current, and they can be turned on and off."
+        },
+        {
+          "type": "heading",
+          "content": "Electromagnetic Induction",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "If electricity can create magnetism, can magnetism create electricity? Yes! Michael Faraday discovered electromagnetic induction: Moving a magnet near a wire (or moving a wire in a magnetic field) creates electric current."
+        },
+        {
+          "type": "callout",
+          "content": "This is how electric generators work. Spin a coil of wire in a magnetic field, and you generate electricity. This principle powers every electrical power plant on Earth.",
+          "style": "success"
+        },
+        {
+          "type": "paragraph",
+          "content": "The relationship is complete: Electricity creates magnetism (electromagnets), and magnetism creates electricity (generators). This fundamental connection powers modern civilization."
+        }
+      ]
+    }
+  ]
+}

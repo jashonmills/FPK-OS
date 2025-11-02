@@ -28,6 +28,7 @@ export const V2_SEQUENTIAL_COURSE_SLUGS = [
   'ap-us-history',
   'irish-government-and-civics',
   'us-government-and-civics',
+  'physics-motion-energy-matter',
 ] as const;
 
 export type V2SequentialCourseSlug = typeof V2_SEQUENTIAL_COURSE_SLUGS[number];
