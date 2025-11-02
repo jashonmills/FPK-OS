@@ -65,25 +65,36 @@ export const CalendarView = ({ tasks, projectColor, projectId, onTaskClick, onTa
         return isValid;
       })
       .map(task => {
-        // Keep it simple - use due_date for both start and end
         const start = new Date(task.due_date!);
         const end = new Date(task.due_date!);
         
-        // If there's a specific start_date, use it
         if (task.start_date) {
+          // If we have a specific start_date, use it and make sure end is after start
           start.setTime(new Date(task.start_date).getTime());
+          // If start and end would be the same, add 1 hour to end
+          if (end.getTime() <= start.getTime()) {
+            end.setTime(start.getTime() + (60 * 60 * 1000)); // Add 1 hour
+          }
+        } else {
+          // No specific time, treat as all-day event
+          // Set start to beginning of day
+          start.setHours(0, 0, 0, 0);
+          // Set end to end of day
+          end.setHours(23, 59, 59, 999);
         }
         
         console.log(`Task: ${task.title}`);
         console.log(`  Due date string: ${task.due_date}`);
         console.log(`  Start date object:`, start);
         console.log(`  End date object:`, end);
+        console.log(`  Duration (ms):`, end.getTime() - start.getTime());
         console.log(`  Color:`, projectColor || 'rgba(139, 92, 246, 0.9)');
         
         return {
           title: task.title,
           start,
           end,
+          allDay: !task.start_date, // Mark as all-day if no specific start time
           task,
           color: projectColor || 'rgba(139, 92, 246, 0.9)',
         };
