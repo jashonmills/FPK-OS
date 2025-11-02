@@ -51,6 +51,7 @@ export const V2_SEQUENTIAL_COURSE_SLUGS = [
   'math-7-2-geometry-angles-area-volume-scale',
   'math-7-3-probability-statistics',
   'science-7-1-life-science-human-body-systems',
+  'science-7-2-physical-science-chemistry-basics',
 ] as const;
 
 export type V2SequentialCourseSlug = typeof V2_SEQUENTIAL_COURSE_SLUGS[number];
