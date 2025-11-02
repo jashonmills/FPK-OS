@@ -221,11 +221,6 @@ export function AppSidebar() {
       icon: TestTube,
     },
     {
-      title: 'AI Command Center (V2)',
-      url: "/dashboard/admin/ai-coach-v2",
-      icon: Sparkles,
-    },
-    {
       title: 'Content Manager',
       url: "/dashboard/admin/blog",
       icon: Edit,

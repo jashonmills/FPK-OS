@@ -105,7 +105,7 @@ const Analytics = lazy(() => import("./pages/admin/Analytics"));
 const ModuleManagerPage = lazy(() => import("./pages/admin/ModuleManagerPage"));
 const LessonManager = lazy(() => import("./components/admin/LessonManager"));
 const PhoenixLab = lazy(() => import("./pages/admin/PhoenixLab"));
-const AICoachV2 = lazy(() => import("./pages/admin/AICoachV2"));
+
 const PhoenixAnalytics = lazy(() => import("./pages/admin/PhoenixAnalytics"));
 const BackfillPhoenixData = lazy(() => import("./pages/admin/BackfillPhoenixData"));
 const PlatformGuide = lazy(() => import("./pages/PlatformGuide"));
@@ -526,11 +526,6 @@ const App: React.FC = () => {
             <Route path="admin/phoenix-lab" element={
               <RequireAdmin>
                 <LazyRoute><PhoenixLab /></LazyRoute>
-              </RequireAdmin>
-            } />
-            <Route path="admin/ai-coach-v2" element={
-              <RequireAdmin>
-                <LazyRoute><AICoachV2 /></LazyRoute>
               </RequireAdmin>
             } />
             <Route path="admin/phoenix-analytics" element={
