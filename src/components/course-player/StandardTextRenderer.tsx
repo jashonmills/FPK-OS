@@ -170,6 +170,32 @@ const renderSection = (section: TextSection, index: number) => {
   if (section.type === 'quiz') {
     return <QuizRenderer key={index} section={section} />;
   }
+
+  if (section.type === 'image') {
+    const imageSection = section as Extract<TextSection, { type: 'image' }>;
+    const imageSrc = imageSection.src.startsWith('http') 
+      ? imageSection.src 
+      : `https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public${imageSection.src}`;
+    
+    return (
+      <figure key={index} className="my-6">
+        <img 
+          src={imageSrc} 
+          alt={imageSection.alt}
+          className="w-full max-w-2xl mx-auto rounded-lg border shadow-sm"
+          style={{
+            maxWidth: imageSection.width || '800px',
+            height: imageSection.height || 'auto'
+          }}
+        />
+        {imageSection.caption && (
+          <figcaption className="text-sm text-muted-foreground text-center mt-2 italic">
+            {imageSection.caption}
+          </figcaption>
+        )}
+      </figure>
+    );
+  }
   
   switch (section.type) {
     case 'heading':

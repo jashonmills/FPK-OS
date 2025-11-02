@@ -42,7 +42,16 @@ export interface QuizSection {
   explanation?: string;
 }
 
-export type TextSection = BaseTextSection | CodeBlockSection | QuizSection;
+export interface ImageSection {
+  type: 'image';
+  src: string;  // Can be relative path or full Supabase URL
+  alt: string;
+  caption?: string;
+  width?: string | number;
+  height?: string | number;
+}
+
+export type TextSection = BaseTextSection | CodeBlockSection | QuizSection | ImageSection;
 
 export interface LessonContentData {
   id: number;
