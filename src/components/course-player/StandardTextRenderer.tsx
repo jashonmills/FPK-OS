@@ -182,9 +182,9 @@ const renderSection = (section: TextSection, index: number) => {
         <img 
           src={imageSrc} 
           alt={imageSection.alt}
-          className="w-full max-w-2xl mx-auto rounded-lg border shadow-sm"
+          className="w-full max-w-md mx-auto rounded-lg border shadow-sm"
           style={{
-            maxWidth: imageSection.width || '800px',
+            maxWidth: imageSection.width || '400px',
             height: imageSection.height || 'auto'
           }}
         />
