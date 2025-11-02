@@ -38,9 +38,9 @@ export default function AICoachV2() {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-background overflow-hidden">
+    <div className="flex flex-col h-screen overflow-hidden">
       {/* Header */}
-      <div className="border-b bg-card flex-shrink-0">
+      <div className="border-b bg-card/80 backdrop-blur-sm flex-shrink-0">
         <div className="container mx-auto px-4 py-6 pt-8">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500">
