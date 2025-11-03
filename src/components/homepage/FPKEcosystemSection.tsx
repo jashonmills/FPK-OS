@@ -34,7 +34,7 @@ const products = [
   {
     name: 'FPK University Coach',
     description: 'A powerful, standalone AI study coach for personalized, adaptive learning.',
-    url: '#',
+    url: 'https://www.fpkuniversity.com/coach',
     logo: fpkCoachLogo
   }
 ];
