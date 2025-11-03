@@ -1419,6 +1419,7 @@ serve(async (req) => {
     let detectedIntent = 'direct_answer'; // Default fallback
     let intentConfidence = 0.8;
     let intentReasoning = '';
+    let intentAlreadySet = false; // Flag to skip database detection if stickiness applies
     
     // Determine if we're in an active Betty conversation
     const lastPersona = conversationHistory.length > 0 
@@ -1459,10 +1460,12 @@ serve(async (req) => {
         intentConfidence = 0.95;
         isSocraticLoopActive = false; // Exit sticky mode
         socraticLoopStartTurn = -1;
+        intentAlreadySet = true;
       } else if (isFactualQuestion) {
         console.log('[DIRECTOR] 🤝 User needs factual clarification - Al will provide support');
         detectedIntent = 'request_for_clarification';
         intentConfidence = 0.9;
+        intentAlreadySet = true;
         // Keep loop active - Betty will resume after Al helps
       } else {
         // FORCE Betty to continue - this is the core fix
@@ -1471,6 +1474,7 @@ serve(async (req) => {
         detectedIntent = 'socratic_guidance';
         intentConfidence = 0.95;
         intentReasoning = 'Persona stickiness: User responding within active Socratic dialogue';
+        intentAlreadySet = true;
         
         // Skip remaining intent detection and proceed directly
         timings.intent_detection = Date.now() - intentDetectionStart;
@@ -1484,9 +1488,11 @@ serve(async (req) => {
     // Uses keyword scoring from ai_persona_triggers table for flexible,
     // scalable intent detection instead of hardcoded if/else logic
     
-    console.log('[CONDUCTOR] 🎯 Starting database-driven intent detection...');
-    
-    try {
+    // Only run database detection if intent wasn't already set by stickiness rules
+    if (!intentAlreadySet) {
+      console.log('[CONDUCTOR] 🎯 Starting database-driven intent detection...');
+      
+      try {
       // Attempt database-driven detection
       const dbIntentResult = await detectIntentFromTriggers(
         message,
@@ -1503,16 +1509,16 @@ serve(async (req) => {
         confidence: intentConfidence.toFixed(2),
         triggers: dbIntentResult.matchedTriggers.slice(0, 3).join(', ')
       });
-    } catch (error) {
-      // Fallback to Phase 1 hardcoded logic if database fails
-      console.warn('[CONDUCTOR] ⚠️ Database intent detection failed, using fallback:', error);
-      
-      const fallbackResult = detectIntentFallback(message, conversationHistory);
-      detectedIntent = fallbackResult.intent;
-      intentConfidence = fallbackResult.confidence;
-      intentReasoning = fallbackResult.reasoning;
+      } catch (error) {
+        // Fallback to Phase 1 hardcoded logic if database fails
+        console.warn('[CONDUCTOR] ⚠️ Database intent detection failed, using fallback:', error);
+        
+        const fallbackResult = detectIntentFallback(message, conversationHistory);
+        detectedIntent = fallbackResult.intent;
+        intentConfidence = fallbackResult.confidence;
+        intentReasoning = fallbackResult.reasoning;
+      }
     }
-    
     // CONTEXT-AWARE OVERRIDES (still necessary for session state)
     // These override database results when session context requires it
     
