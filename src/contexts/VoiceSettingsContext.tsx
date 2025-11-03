@@ -78,11 +78,9 @@ export const VoiceSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
       const voices = getBrowserVoices();
       setAvailableVoices(voices);
       
-      // Set default voice if none selected
-      if (!settings.selectedVoice && voices.length > 0) {
-        const defaultVoice = voices.find(v => v.name.includes('English')) || voices[0];
-        setSettings(prev => ({ ...prev, selectedVoice: defaultVoice.id }));
-      }
+      // Don't auto-select a voice - let selectedVoice remain null
+      // This allows persona-specific premium voices to be used by default
+      console.log('🔊 Loaded', voices.length, 'voices. selectedVoice:', settings.selectedVoice || 'null (will use persona defaults)');
     };
 
     // Load voices immediately and also when they change
@@ -92,7 +90,7 @@ export const VoiceSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
     return () => {
       window.speechSynthesis.onvoiceschanged = null;
     };
-  }, [isSupported, settings.selectedVoice]);
+  }, [isSupported]);
 
   // Load settings from localStorage on mount
   const loadSettingsFromStorage = (): Partial<VoiceSettings> => {

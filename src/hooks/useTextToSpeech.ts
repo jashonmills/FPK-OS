@@ -189,19 +189,19 @@ export const useTextToSpeech = () => {
       // New API: persona passed as string
       persona = personaOrOptions as Persona;
       
-      // Check if user has manually selected a voice in settings
-      if (voiceSettings.selectedVoice) {
-        // Find the user's selected voice in available voices
+      // Check if user has EXPLICITLY selected a voice (not null/undefined/empty)
+      if (voiceSettings.selectedVoice && voiceSettings.selectedVoice.trim() !== '') {
         const userVoice = voices.find(v => v.name === voiceSettings.selectedVoice);
         if (userVoice) {
-          console.log(`[TTS] 🎯 Using user-selected voice: ${userVoice.name}`);
+          console.log(`[TTS] 🎯 Using user-selected voice override: ${userVoice.name}`);
           selectedVoice = userVoice;
         } else {
-          // Fallback to persona voice if user's voice not found
+          console.log(`[TTS] ⚠️ User-selected voice "${voiceSettings.selectedVoice}" not found, using persona default`);
           selectedVoice = getVoiceForPersona(persona);
         }
       } else {
-        // No user override, use persona default
+        // No user override - use premium persona voice selection
+        console.log(`[TTS] 🎭 No user override - using premium persona voice for ${persona}`);
         selectedVoice = getVoiceForPersona(persona);
       }
     } else if (personaOrOptions) {
@@ -260,6 +260,13 @@ export const useTextToSpeech = () => {
       volume: finalConfig.volume,
       interrupt,
       hasInteracted
+    });
+
+    console.log(`[TTS] 🎤 Voice selection summary:`, {
+      persona: persona,
+      userOverride: voiceSettings.selectedVoice || 'None (using persona defaults)',
+      selectedVoice: selectedVoice?.name,
+      isPremiumVoice: selectedVoice?.name.includes('Google UK') || selectedVoice?.name.includes('Microsoft David'),
     });
 
     console.log(`[TTS] 📊 Final speech parameters:`, {
