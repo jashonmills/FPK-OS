@@ -412,11 +412,22 @@ export const AICoachCommandCenter: React.FC = () => {
   }, [messages, voiceSettings.autoRead, voiceSettings.enabled, speak]);
 
   const handleSendMessage = async () => {
-    if (!inputValue.trim() || isLoading || !user) return;
+    console.log('[AI COMMAND CENTER] 🚀 handleSendMessage called', { 
+      hasInput: !!inputValue.trim(), 
+      isLoading, 
+      hasUser: !!user,
+      userId: user?.id 
+    });
+    
+    if (!inputValue.trim() || isLoading || !user) {
+      console.log('[AI COMMAND CENTER] ❌ Validation failed - not sending message');
+      return;
+    }
 
     const currentInput = inputValue;
     setInputValue('');
     
+    console.log('[AI COMMAND CENTER] ✅ Calling sendChatMessage with:', currentInput);
     // Call the streaming hook's sendMessage
     await sendChatMessage(currentInput);
 

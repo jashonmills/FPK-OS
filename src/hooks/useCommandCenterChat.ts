@@ -24,7 +24,17 @@ export function useCommandCenterChat(userId?: string) {
   const { toast } = useToast();
 
   const sendMessage = useCallback(async (messageText: string) => {
-    if (!userId || !messageText.trim()) return;
+    console.log('[useCommandCenterChat] 📨 sendMessage called', { 
+      hasUserId: !!userId, 
+      userId,
+      hasMessage: !!messageText.trim(),
+      messageLength: messageText.length
+    });
+    
+    if (!userId || !messageText.trim()) {
+      console.log('[useCommandCenterChat] ❌ Validation failed - userId or message missing');
+      return;
+    }
 
     const userMessage: CommandCenterMessage = {
       id: crypto.randomUUID(),
