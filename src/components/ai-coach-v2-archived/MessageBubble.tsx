@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils';
 import { CommandCenterMessage } from '@/hooks/useCommandCenterChat';
 import { User, Sparkles, Brain, Podcast, Volume2, VolumeX } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-import { useTextToSpeech as usePersonaTextToSpeech } from '@/hooks/usePersonaTextToSpeech';
+import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 
 interface MessageBubbleProps {
   message: CommandCenterMessage;
@@ -15,7 +15,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
   const isAl = message.persona === 'AL';
   const isNiteOwl = message.persona === 'NITE_OWL';
 
-  const { speak, stop, isSpeaking, isAvailable } = usePersonaTextToSpeech();
+  const { speak, stop, isSpeaking, isAvailable } = useTextToSpeech();
   const [isThisMessageSpeaking, setIsThisMessageSpeaking] = useState(false);
 
   const handleSpeak = () => {
