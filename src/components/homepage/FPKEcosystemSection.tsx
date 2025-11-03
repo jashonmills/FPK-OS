@@ -1,31 +1,41 @@
 import React from 'react';
 import { ExternalLink } from 'lucide-react';
+import fpkXLogo from '@/assets/fpk-x-logo.png';
+import fpkGamesLogo from '@/assets/fpk-games-logo.png';
+import fpkPodcastLogo from '@/assets/fpk-podcast-logo.png';
+import fpkNexusLogo from '@/assets/fpk-nexus-logo.png';
+import fpkCoachLogo from '@/assets/fpk-coach-logo.jpg';
 
 const products = [
   {
     name: 'FPK-X',
     description: 'A revolutionary document hub for neurodiversity care, allowing parents, therapists, and educators to centralize records and leverage AI for predictive insights.',
-    url: 'https://fpkx.com'
+    url: 'https://fpkx.com',
+    logo: fpkXLogo
   },
   {
     name: 'FPK Games',
     description: 'Engaging and educational games designed to make learning fun and accessible for everyone.',
-    url: 'https://fpkgames.com'
+    url: 'https://fpkgames.com',
+    logo: fpkGamesLogo
   },
   {
     name: 'FPK Podcast',
     description: 'Insights and conversations on the future of education, technology, and neurodiversity.',
-    url: 'https://fpkpodcast.org'
+    url: 'https://fpkpodcast.org',
+    logo: fpkPodcastLogo
   },
   {
     name: 'FPK Nexus',
     description: 'Our vibrant social media platform for the FPK community to connect, share, and grow together.',
-    url: 'https://fpk-nexus.com'
+    url: 'https://fpk-nexus.com',
+    logo: fpkNexusLogo
   },
   {
     name: 'FPK University Coach',
     description: 'A powerful, standalone AI study coach for personalized, adaptive learning.',
-    url: '#'
+    url: '#',
+    logo: fpkCoachLogo
   }
 ];
 
@@ -50,6 +60,13 @@ const FPKEcosystemSection = () => {
                 rel="noopener noreferrer"
                 className="group p-6 rounded-xl bg-white/60 border border-white/40 hover:bg-white/80 transition-all duration-300 shadow-md hover:shadow-xl hover:-translate-y-1"
               >
+                <div className="flex items-center justify-center mb-4">
+                  <img 
+                    src={product.logo} 
+                    alt={`${product.name} logo`}
+                    className="h-20 w-auto object-contain"
+                  />
+                </div>
                 <div className="flex items-start justify-between mb-3">
                   <h3 className="text-xl font-bold text-slate-900">
                     {product.name}
