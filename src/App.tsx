@@ -7,7 +7,6 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { FeatureFlagProvider } from "@/contexts/FeatureFlagContext";
 import { HelpProvider } from "@/contexts/HelpContext";
-import { AppProviders } from "@/components/app/AppProviders";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Kanban from "./pages/Kanban";
@@ -69,9 +68,8 @@ const App = () => (
         <BrowserRouter>
           <AuthProvider>
             <FeatureFlagProvider>
-              <AppProviders>
-                <Routes>
-                  <Route path="/auth" element={<Auth />} />
+              <Routes>
+                <Route path="/auth" element={<Auth />} />
               <Route 
                 path="/setup-password" 
                 element={
@@ -163,7 +161,6 @@ const App = () => (
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
-              </AppProviders>
             </FeatureFlagProvider>
           </AuthProvider>
         </BrowserRouter>

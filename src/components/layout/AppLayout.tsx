@@ -3,6 +3,8 @@ import { SidebarProvider, useSidebar } from '@/components/ui/sidebar';
 import { AppSidebar } from './AppSidebar';
 import { AppHeader } from './AppHeader';
 import { cn } from '@/lib/utils';
+import { HelpCenter } from '@/components/help/HelpCenter';
+import { OnboardingTour } from '@/components/onboarding/OnboardingTour';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -30,6 +32,8 @@ const AppLayoutContent = ({ children }: AppLayoutProps) => {
 export const AppLayout = ({ children }: AppLayoutProps) => {
   return (
     <SidebarProvider>
+      <HelpCenter />
+      <OnboardingTour />
       <div className="min-h-screen flex w-full md:overflow-x-visible overflow-x-hidden">
         <AppSidebar />
         <AppLayoutContent>{children}</AppLayoutContent>
