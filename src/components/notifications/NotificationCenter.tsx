@@ -97,7 +97,14 @@ export const NotificationCenter = () => {
     await markAsRead(notification.id);
     
     // Navigate based on notification type
-    if (notification.type === 'direct_message' || notification.type === 'channel_message' || notification.type === 'message_mention') {
+    if (notification.type === 'payroll_approved') {
+      const payrollRunId = notification.metadata?.payroll_run_id;
+      if (payrollRunId) {
+        navigate(`/payroll/summary/${payrollRunId}`);
+      } else {
+        navigate('/payroll');
+      }
+    } else if (notification.type === 'direct_message' || notification.type === 'channel_message' || notification.type === 'message_mention') {
       const conversationId = notification.metadata?.conversation_id;
       if (conversationId) {
         navigate(`/messages?conversation=${conversationId}`);

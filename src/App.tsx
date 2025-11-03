@@ -15,6 +15,7 @@ import Profile from "./pages/Profile";
 import SetupPassword from "./pages/SetupPassword";
 import Budget from "./pages/Budget";
 import Payroll from "./pages/Payroll";
+import PaymentSummary from "./pages/PaymentSummary";
 import NotFound from "./pages/NotFound";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -126,6 +127,14 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <Payroll />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/payroll/summary/:runId" 
+                element={
+                  <ProtectedRoute>
+                    <PaymentSummary />
                   </ProtectedRoute>
                 } 
               />

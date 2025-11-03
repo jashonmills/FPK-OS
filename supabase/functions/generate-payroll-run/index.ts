@@ -127,6 +127,32 @@ serve(async (req) => {
 
     console.log('Created', lineItems.length, 'line items');
 
+    // Create notifications for each employee
+    const notifications = lineItemsToInsert.map((item: any) => ({
+      recipient_id: item.employee_user_id,
+      sender_id: user.id,
+      type: 'payroll_approved',
+      content: 'Your payroll has been approved',
+      metadata: {
+        payroll_run_id: payrollRun.id,
+        total_hours: item.total_hours,
+        total_pay: item.total_pay,
+        pay_period_start: pay_period_start_date,
+        pay_period_end: pay_period_end_date,
+      }
+    }));
+
+    const { error: notificationsError } = await supabase
+      .from('notifications')
+      .insert(notifications);
+
+    if (notificationsError) {
+      console.error('Error creating notifications:', notificationsError);
+      // Don't fail the whole operation if notifications fail
+    } else {
+      console.log('Created notifications for', notifications.length, 'employees');
+    }
+
     return new Response(
       JSON.stringify({ 
         success: true, 

@@ -8,6 +8,7 @@ import { PayrollDataTable } from './PayrollDataTable';
 import { PayrollKPICards } from './PayrollKPICards';
 import { PayrollEmptyState } from './PayrollEmptyState';
 import { CreateManualTimeEntryDialog } from './CreateManualTimeEntryDialog';
+import { PayrollSummaryPreview } from './PayrollSummaryPreview';
 import { CheckCircle2, Download, Plus } from 'lucide-react';
 import { format, startOfWeek, endOfWeek } from 'date-fns';
 
@@ -27,6 +28,8 @@ interface EmployeePayrollData {
       hours: number;
       task_title?: string;
       description?: string;
+      time_entry_id?: string;
+      task_id?: string;
     }>;
   }>;
 }
@@ -46,6 +49,7 @@ export const PayrollDashboard = () => {
   const [loading, setLoading] = useState(false);
   const [isApproving, setIsApproving] = useState(false);
   const [showManualEntryDialog, setShowManualEntryDialog] = useState(false);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
 
   useEffect(() => {
     if (dateRange) {
@@ -117,13 +121,15 @@ export const PayrollDashboard = () => {
         hours: parseFloat(entry.hours_logged),
         task_title: entry.task_title,
         description: entry.description,
+        time_entry_id: entry.time_entry_id,
+        task_id: entry.task_id,
       });
     });
 
     return Array.from(employeeMap.values());
   };
 
-  const handleApprovePayroll = async () => {
+  const handleOpenPreview = () => {
     if (!dateRange || selectedEmployees.length === 0) {
       toast({
         title: 'Validation Error',
@@ -132,6 +138,11 @@ export const PayrollDashboard = () => {
       });
       return;
     }
+    setShowPreviewModal(true);
+  };
+
+  const handleApprovePayroll = async () => {
+    if (!dateRange || selectedEmployees.length === 0) return;
 
     setIsApproving(true);
     try {
@@ -147,9 +158,10 @@ export const PayrollDashboard = () => {
 
       toast({
         title: 'Success',
-        description: `Payroll run created with ${selectedEmployees.length} employees`,
+        description: `Payroll approved! Notifications sent to ${selectedEmployees.length} employees`,
       });
 
+      setShowPreviewModal(false);
       fetchPayrollData();
       setSelectedEmployees([]);
     } catch (error) {
@@ -228,11 +240,11 @@ export const PayrollDashboard = () => {
                       Export CSV
                     </Button>
                     <Button
-                      onClick={handleApprovePayroll}
-                      disabled={selectedEmployees.length === 0 || isApproving}
+                      onClick={handleOpenPreview}
+                      disabled={selectedEmployees.length === 0}
                     >
                       <CheckCircle2 className="h-4 w-4 mr-2" />
-                      {isApproving ? 'Approving...' : 'Approve for Payroll'}
+                      Approve for Payroll
                     </Button>
                   </div>
                 </div>
@@ -255,6 +267,15 @@ export const PayrollDashboard = () => {
         open={showManualEntryDialog}
         onOpenChange={setShowManualEntryDialog}
         onSuccess={fetchPayrollData}
+      />
+
+      <PayrollSummaryPreview
+        open={showPreviewModal}
+        onOpenChange={setShowPreviewModal}
+        onApprove={handleApprovePayroll}
+        employees={payrollData.filter(emp => selectedEmployees.includes(emp.user_id))}
+        dateRange={dateRange!}
+        isApproving={isApproving}
       />
     </div>
   );

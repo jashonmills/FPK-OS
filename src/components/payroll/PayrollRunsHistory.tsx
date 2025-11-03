@@ -10,8 +10,11 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useNavigate } from 'react-router-dom';
+import { Eye } from 'lucide-react';
 
 interface PayrollRun {
   id: string;
@@ -27,6 +30,7 @@ interface PayrollRun {
 
 export const PayrollRunsHistory = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [payrollRuns, setPayrollRuns] = useState<PayrollRun[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -99,6 +103,7 @@ export const PayrollRunsHistory = () => {
             <TableHead className="text-right">Total Cost</TableHead>
             <TableHead>Processed Date</TableHead>
             <TableHead>Notes</TableHead>
+            <TableHead className="w-24">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -116,6 +121,16 @@ export const PayrollRunsHistory = () => {
               </TableCell>
               <TableCell className="text-muted-foreground">
                 {run.notes || '-'}
+              </TableCell>
+              <TableCell>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate(`/payroll/summary/${run.id}`)}
+                >
+                  <Eye className="h-4 w-4 mr-1" />
+                  View
+                </Button>
               </TableCell>
             </TableRow>
           ))}

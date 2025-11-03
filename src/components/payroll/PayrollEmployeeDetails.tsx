@@ -15,6 +15,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { EditTimeEntryDialog } from './EditTimeEntryDialog';
 
 interface EmployeePayrollData {
   user_id: string;
@@ -33,6 +34,7 @@ interface EmployeePayrollData {
       task_title?: string;
       description?: string;
       time_entry_id?: string;
+      task_id?: string;
     }>;
   }>;
 }
@@ -46,6 +48,19 @@ export const PayrollEmployeeDetails = ({ employee, onRefresh }: PayrollEmployeeD
   const { toast } = useToast();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedEntryId, setSelectedEntryId] = useState<string | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [selectedEntryForEdit, setSelectedEntryForEdit] = useState<{
+    time_entry_id: string;
+    user_id: string;
+    user_name: string;
+    project_id: string;
+    project_name: string;
+    task_id: string;
+    task_title: string;
+    date: string;
+    hours: number;
+    description?: string;
+  } | null>(null);
 
   const handleDeleteEntry = async () => {
     if (!selectedEntryId) return;
@@ -80,6 +95,32 @@ export const PayrollEmployeeDetails = ({ employee, onRefresh }: PayrollEmployeeD
     setSelectedEntryId(entryId);
     setDeleteDialogOpen(true);
   };
+
+  const openEditDialog = (
+    entryId: string,
+    projectId: string,
+    projectName: string,
+    taskId: string,
+    taskTitle: string,
+    date: string,
+    hours: number,
+    description?: string
+  ) => {
+    setSelectedEntryForEdit({
+      time_entry_id: entryId,
+      user_id: employee.user_id,
+      user_name: employee.user_name,
+      project_id: projectId,
+      project_name: projectName,
+      task_id: taskId,
+      task_title: taskTitle,
+      date,
+      hours,
+      description,
+    });
+    setEditDialogOpen(true);
+  };
+
   return (
     <div className="p-4 space-y-4">
       <h4 className="font-semibold text-sm">Time Breakdown for {employee.user_name}</h4>
@@ -107,15 +148,34 @@ export const PayrollEmployeeDetails = ({ employee, onRefresh }: PayrollEmployeeD
                       {day.task_title || day.description || 'No description'}
                     </span>
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      {day.time_entry_id && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => openDeleteDialog(day.time_entry_id!)}
-                          className="h-7 w-7 p-0"
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
+                      {day.time_entry_id && day.task_id && (
+                        <>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => openEditDialog(
+                              day.time_entry_id!,
+                              project.project_id,
+                              project.project_name,
+                              day.task_id!,
+                              day.task_title || '',
+                              day.date,
+                              day.hours,
+                              day.description
+                            )}
+                            className="h-7 w-7 p-0"
+                          >
+                            <Pencil className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => openDeleteDialog(day.time_entry_id!)}
+                            className="h-7 w-7 p-0"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </>
                       )}
                     </div>
                   </div>
@@ -139,6 +199,13 @@ export const PayrollEmployeeDetails = ({ employee, onRefresh }: PayrollEmployeeD
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <EditTimeEntryDialog
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        onSuccess={onRefresh}
+        entry={selectedEntryForEdit}
+      />
     </div>
   );
 };
