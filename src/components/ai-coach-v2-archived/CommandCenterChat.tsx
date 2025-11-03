@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Send, Mic, Volume2, VolumeX } from 'lucide-react';
 import { useCommandCenterChat } from '@/hooks/useCommandCenterChat';
-import { MessageBubble } from './MessageBubble';
+import { MessageBubble } from '@/components/ai-coach/MessageBubble';
 
 interface CommandCenterChatProps {
   userId?: string;

@@ -22,7 +22,11 @@ export const useTextToSpeech = () => {
     }
 
     return () => {
-      // Cleanup on unmount
+      // CRITICAL: Stop all speech when component unmounts (prevents audio playing after navigation)
+      if (window.speechSynthesis?.speaking) {
+        window.speechSynthesis.cancel();
+        console.log('[TTS] 🛑 Stopped speech due to component unmount');
+      }
       safeTextToSpeech.stop();
     };
   }, []);

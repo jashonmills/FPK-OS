@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Upload, BookOpen, Clock, TrendingUp, Target, Award, Zap, MessageSquare } from 'lucide-react';
+import { Send, Upload, BookOpen, Clock, TrendingUp, Target, Award, Zap, MessageSquare, Volume2 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import type { Persona, AIDrill } from '@/types/aiCoach';
 import { useCommandCenterChat } from '@/hooks/useCommandCenterChat';
@@ -13,53 +13,10 @@ import { useAICoachCommandAnalytics } from '@/hooks/useAICoachCommandAnalytics';
 import { useAICoachStudyPlans } from '@/hooks/useAICoachStudyPlans';
 import { toast } from 'sonner';
 import VoiceInputButton from '@/components/notes/VoiceInputButton';
-
-// Persona avatar components
-const PersonaAvatar: React.FC<{ persona: CommandCenterMessage['persona'] }> = ({ persona }) => {
-  const avatarConfig: Record<CommandCenterMessage['persona'], { bg: string; icon: string; label: string }> = {
-    USER: { bg: 'bg-blue-600', icon: '👤', label: 'You' },
-    BETTY: { bg: 'bg-purple-600', icon: '🦉', label: 'Betty' },
-    AL: { bg: 'bg-blue-500', icon: '🎓', label: 'Al' },
-    NITE_OWL: { bg: 'bg-amber-500', icon: '🌙', label: 'Nite Owl' },
-    CONDUCTOR: { bg: 'bg-gray-600', icon: '🎯', label: 'Conductor' },
-  };
-
-  const config = avatarConfig[persona];
-
-  return (
-    <div className="flex items-center gap-2 mb-1">
-      <div className={cn('w-8 h-8 rounded-full flex items-center justify-center text-white text-sm', config.bg)}>
-        {config.icon}
-      </div>
-      <span className="text-xs font-semibold text-gray-600">{config.label}</span>
-    </div>
-  );
-};
-
-// Message bubble component
-const MessageBubble: React.FC<{ message: CommandCenterMessage }> = ({ message }) => {
-  const bubbleStyles: Record<CommandCenterMessage['persona'], string> = {
-    USER: 'bg-blue-600 text-white',
-    BETTY: 'bg-purple-100 text-purple-900 border border-purple-200',
-    AL: 'bg-blue-100 text-blue-900 border border-blue-200',
-    NITE_OWL: 'bg-amber-100 text-amber-900 border border-amber-200',
-    CONDUCTOR: 'bg-gray-100 text-gray-900 border border-gray-200',
-  };
-
-  const style = bubbleStyles[message.persona] || bubbleStyles.BETTY;
-
-  return (
-    <div className={cn('flex flex-col', message.persona === 'USER' ? 'items-end' : 'items-start')}>
-      <PersonaAvatar persona={message.persona} />
-      <div className={cn('max-w-[80%] px-4 py-3 rounded-2xl shadow-sm', style)}>
-        <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-        <span className="text-xs opacity-70 mt-1 block">
-          {new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-        </span>
-      </div>
-    </div>
-  );
-};
+import { MessageBubble } from '@/components/ai-coach/MessageBubble';
+import VoiceSettingsCard from '@/components/ai-coach/VoiceSettingsCard';
+import { useTextToSpeech } from '@/hooks/useTextToSpeech';
+import { useVoiceSettings } from '@/contexts/VoiceSettingsContext';
 
 // Left Column: Context & History
 const ContextHistoryColumn: React.FC<{
@@ -299,6 +256,18 @@ const InsightsAnalyticsColumn: React.FC<{
           )}
         </div>
       </div>
+
+      {/* Voice Controls */}
+      <div>
+        <h3 className={cn(
+          "font-semibold text-gray-800 flex items-center gap-2 mb-3",
+          isMobile ? "text-base" : "text-lg"
+        )}>
+          <Volume2 className={isMobile ? "w-4 h-4" : "w-5 h-5"} />
+          Voice Settings
+        </h3>
+        <VoiceSettingsCard />
+      </div>
       </div>
     </div>
   );
@@ -421,6 +390,26 @@ export const AICoachCommandCenter: React.FC = () => {
 
   // Placeholder drills - will be implemented later
   const drills: AIDrill[] = [];
+
+  // TTS Integration
+  const { speak, stop } = useTextToSpeech();
+  const { settings: voiceSettings } = useVoiceSettings();
+  const prevMessagesLength = useRef(messages.length);
+
+  // Auto-play new AI messages when autoRead is enabled
+  useEffect(() => {
+    if (messages.length > prevMessagesLength.current && voiceSettings.autoRead && voiceSettings.enabled) {
+      const lastMessage = messages[messages.length - 1];
+      
+      // Only speak AI messages (not user messages, not CONDUCTOR, not while streaming)
+      if (lastMessage.persona !== 'USER' && lastMessage.persona !== 'CONDUCTOR' && !lastMessage.isStreaming) {
+        console.log('[TTS] 🔊 Auto-playing new AI message from', lastMessage.persona);
+        speak(lastMessage.content, lastMessage.persona);
+      }
+    }
+    
+    prevMessagesLength.current = messages.length;
+  }, [messages, voiceSettings.autoRead, voiceSettings.enabled, speak]);
 
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isLoading || !user) return;

@@ -13,6 +13,7 @@ export const FeatureFlags = {
   ENABLE_LIBRARY: import.meta.env.VITE_FEATURE_ENABLE_LIBRARY === 'true', // Default disabled
   ENABLE_LIVE_HUB: import.meta.env.VITE_FEATURE_ENABLE_LIVE_HUB !== 'false', // Default enabled
   LEGACY_AI_ASSISTANT_ENABLED: import.meta.env.VITE_FEATURE_LEGACY_AI_ASSISTANT_ENABLED === 'true', // Default disabled
+  ENABLE_TTS: import.meta.env.VITE_FEATURE_ENABLE_TTS !== 'false', // Default enabled (for future subscription gating)
 } as const;
 
 export function isFeatureEnabled(flag: keyof typeof FeatureFlags): boolean {
@@ -67,4 +68,12 @@ export function shouldShowLiveHub(): boolean {
  */
 export function shouldShowLegacyAIAssistant(): boolean {
   return isFeatureEnabled('LEGACY_AI_ASSISTANT_ENABLED');
+}
+
+/**
+ * Check if Text-to-Speech should be enabled
+ * (Default: true - can be gated by subscription tier in the future)
+ */
+export function shouldEnableTTS(): boolean {
+  return isFeatureEnabled('ENABLE_TTS');
 }
