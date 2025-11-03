@@ -6,8 +6,10 @@ import { Button } from '@/components/ui/button';
 import { PayrollPeriodSelector } from './PayrollPeriodSelector';
 import { PayrollDataTable } from './PayrollDataTable';
 import { PayrollKPICards } from './PayrollKPICards';
-import { CheckCircle2, Download } from 'lucide-react';
-import { format } from 'date-fns';
+import { PayrollEmptyState } from './PayrollEmptyState';
+import { CreateManualTimeEntryDialog } from './CreateManualTimeEntryDialog';
+import { CheckCircle2, Download, Plus } from 'lucide-react';
+import { format, startOfWeek, endOfWeek } from 'date-fns';
 
 interface EmployeePayrollData {
   user_id: string;
@@ -31,11 +33,19 @@ interface EmployeePayrollData {
 
 export const PayrollDashboard = () => {
   const { toast } = useToast();
-  const [dateRange, setDateRange] = useState<{ from: Date; to: Date } | null>(null);
+  const [dateRange, setDateRange] = useState<{ from: Date; to: Date } | null>(() => {
+    // Auto-select "This Week" on mount
+    const now = new Date();
+    return {
+      from: startOfWeek(now, { weekStartsOn: 0 }),
+      to: endOfWeek(now, { weekStartsOn: 0 }),
+    };
+  });
   const [payrollData, setPayrollData] = useState<EmployeePayrollData[]>([]);
   const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [isApproving, setIsApproving] = useState(false);
+  const [showManualEntryDialog, setShowManualEntryDialog] = useState(false);
 
   useEffect(() => {
     if (dateRange) {
@@ -194,40 +204,58 @@ export const PayrollDashboard = () => {
             employeeCount={payrollData.length}
           />
 
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Employee Payroll Data</CardTitle>
-                <div className="flex gap-2">
-                  <Button
-                    onClick={handleExportCSV}
-                    disabled={selectedEmployees.length === 0}
-                    variant="outline"
-                  >
-                    <Download className="h-4 w-4 mr-2" />
-                    Export CSV
-                  </Button>
-                  <Button
-                    onClick={handleApprovePayroll}
-                    disabled={selectedEmployees.length === 0 || isApproving}
-                  >
-                    <CheckCircle2 className="h-4 w-4 mr-2" />
-                    {isApproving ? 'Approving...' : 'Approve for Payroll'}
-                  </Button>
+          {!loading && payrollData.length === 0 ? (
+            <PayrollEmptyState />
+          ) : (
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle>Employee Payroll Data</CardTitle>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => setShowManualEntryDialog(true)}
+                      variant="outline"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Manual Time Entry
+                    </Button>
+                    <Button
+                      onClick={handleExportCSV}
+                      disabled={selectedEmployees.length === 0}
+                      variant="outline"
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Export CSV
+                    </Button>
+                    <Button
+                      onClick={handleApprovePayroll}
+                      disabled={selectedEmployees.length === 0 || isApproving}
+                    >
+                      <CheckCircle2 className="h-4 w-4 mr-2" />
+                      {isApproving ? 'Approving...' : 'Approve for Payroll'}
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <PayrollDataTable
-                data={payrollData}
-                selectedEmployees={selectedEmployees}
-                onSelectionChange={setSelectedEmployees}
-                loading={loading}
-              />
-            </CardContent>
-          </Card>
+              </CardHeader>
+              <CardContent>
+                <PayrollDataTable
+                  data={payrollData}
+                  selectedEmployees={selectedEmployees}
+                  onSelectionChange={setSelectedEmployees}
+                  loading={loading}
+                  onRefresh={fetchPayrollData}
+                />
+              </CardContent>
+            </Card>
+          )}
         </>
       )}
+
+      <CreateManualTimeEntryDialog
+        open={showManualEntryDialog}
+        onOpenChange={setShowManualEntryDialog}
+        onSuccess={fetchPayrollData}
+      />
     </div>
   );
 };

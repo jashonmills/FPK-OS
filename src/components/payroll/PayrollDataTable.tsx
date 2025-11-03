@@ -38,6 +38,7 @@ interface PayrollDataTableProps {
   selectedEmployees: string[];
   onSelectionChange: (selected: string[]) => void;
   loading: boolean;
+  onRefresh: () => void;
 }
 
 export const PayrollDataTable = ({
@@ -45,6 +46,7 @@ export const PayrollDataTable = ({
   selectedEmployees,
   onSelectionChange,
   loading,
+  onRefresh,
 }: PayrollDataTableProps) => {
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
 
@@ -143,7 +145,7 @@ export const PayrollDataTable = ({
               {expandedRows.has(employee.user_id) && (
                 <TableRow>
                   <TableCell colSpan={7} className="bg-muted/50">
-                    <PayrollEmployeeDetails employee={employee} />
+                    <PayrollEmployeeDetails employee={employee} onRefresh={onRefresh} />
                   </TableCell>
                 </TableRow>
               )}
