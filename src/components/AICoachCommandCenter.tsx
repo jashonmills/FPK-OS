@@ -511,106 +511,66 @@ export const AICoachCommandCenter: React.FC = () => {
   };
 
   return (
-    <div className={cn(
-      "min-h-screen w-full flex items-center justify-center",
-      isMobile ? "p-2" : "p-4 md:p-6 lg:p-8"
-    )}>
+    <div className="min-h-screen w-full flex items-center justify-center p-2 sm:p-4 md:p-6 lg:p-8">
       <div 
-        className={cn(
-          "w-full rounded-3xl shadow-2xl overflow-hidden",
-          isMobile 
-            ? "bg-white border border-gray-200 max-w-full" 
-            : "max-w-[95rem] bg-white/70 backdrop-blur-sm border border-white/50"
-        )}
-        style={{ maxHeight: isMobile ? 'calc(100vh - 20px)' : 'calc(100vh - 100px)' }}
+        className="w-full max-w-7xl rounded-3xl shadow-2xl overflow-hidden bg-white/80 backdrop-blur-md border border-white/50"
+        style={{ maxHeight: 'calc(100vh - 60px)' }}
       >
-        {isMobile ? (
-          // Mobile: Tabbed Layout
-          <div className="h-full flex flex-col">
-            <Tabs defaultValue="chat" className="flex-1 flex flex-col">
-              <TabsList className="w-full grid grid-cols-3 rounded-none border-b">
-                <TabsTrigger value="materials" className="text-xs sm:text-sm">
-                  <BookOpen className="h-4 w-4 mr-1" />
-                  Materials
-                </TabsTrigger>
-                <TabsTrigger value="chat" className="text-xs sm:text-sm">
-                  <MessageSquare className="h-4 w-4 mr-1" />
-                  Chat
-                </TabsTrigger>
-                <TabsTrigger value="analytics" className="text-xs sm:text-sm">
-                  <TrendingUp className="h-4 w-4 mr-1" />
-                  Analytics
-                </TabsTrigger>
-              </TabsList>
+        <div className="h-full flex flex-col">
+          <Tabs defaultValue="chat" className="flex-1 flex flex-col p-2 sm:p-3 md:p-4 lg:p-6">
+            <TabsList className="w-full grid grid-cols-3 mb-4 h-12 sm:h-14 md:h-16">
+              <TabsTrigger value="materials" className="text-sm md:text-base lg:text-lg">
+                <BookOpen className="w-4 h-4 md:w-5 md:h-5 mr-2" />
+                <span className="hidden sm:inline">Materials</span>
+                <span className="sm:hidden">Materials</span>
+              </TabsTrigger>
+              <TabsTrigger value="chat" className="text-sm md:text-base lg:text-lg">
+                <MessageSquare className="w-4 h-4 md:w-5 md:h-5 mr-2" />
+                <span className="hidden sm:inline">Chat</span>
+                <span className="sm:hidden">Chat</span>
+              </TabsTrigger>
+              <TabsTrigger value="analytics" className="text-sm md:text-base lg:text-lg">
+                <TrendingUp className="w-4 h-4 md:w-5 md:h-5 mr-2" />
+                <span className="hidden sm:inline">Analytics</span>
+                <span className="sm:hidden">Analytics</span>
+              </TabsTrigger>
+            </TabsList>
 
-              <TabsContent value="materials" className="flex-1 overflow-auto p-3 mt-0">
-                <ContextHistoryColumn
-                  studyMaterials={studyMaterials}
-                  savedChats={conversations}
-                  onLoadChat={handleLoadChat}
-                  onUploadMaterial={uploadMaterial}
-                  isLoadingMaterials={isLoadingMaterials}
-                  isLoadingChats={isLoadingConversations}
+            <TabsContent value="materials" className="flex-1 overflow-auto mt-0 p-2 sm:p-3 md:p-4 lg:p-6">
+              <ContextHistoryColumn
+                studyMaterials={studyMaterials}
+                savedChats={conversations}
+                onLoadChat={handleLoadChat}
+                onUploadMaterial={uploadMaterial}
+                isLoadingMaterials={isLoadingMaterials}
+                isLoadingChats={isLoadingConversations}
+              />
+            </TabsContent>
+
+            <TabsContent value="chat" className="flex-1 overflow-hidden mt-0">
+              <div className="h-full p-2 sm:p-3 md:p-4 lg:p-6">
+                <AIInteractionColumn
+                  messages={messages}
+                  inputValue={inputValue}
+                  onInputChange={setInputValue}
+                  onSendMessage={handleSendMessage}
+                  onVoiceTranscription={handleVoiceTranscription}
+                  isLoading={isLoading}
                 />
-              </TabsContent>
+              </div>
+            </TabsContent>
 
-              <TabsContent value="chat" className="flex-1 overflow-hidden mt-0">
-                <div className="h-full p-3">
-                  <AIInteractionColumn
-                    messages={messages}
-                    inputValue={inputValue}
-                    onInputChange={setInputValue}
-                    onSendMessage={handleSendMessage}
-                    onVoiceTranscription={handleVoiceTranscription}
-                    isLoading={isLoading}
-                  />
-                </div>
-              </TabsContent>
-
-              <TabsContent value="analytics" className="flex-1 overflow-auto p-3 mt-0">
-                <InsightsAnalyticsColumn
-                  analytics={analytics}
-                  studyPlan={activeStudyPlan}
-                  drills={drills}
-                  isLoadingAnalytics={isLoadingAnalytics}
-                  isLoadingPlan={isLoadingPlan}
-                />
-              </TabsContent>
-            </Tabs>
-          </div>
-        ) : (
-          // Desktop: 3-Column Layout
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 lg:gap-4 xl:gap-6 p-4 md:p-6 lg:p-6 xl:p-8 h-full">
-            {/* Left Column */}
-            <ContextHistoryColumn
-              studyMaterials={studyMaterials}
-              savedChats={conversations}
-              onLoadChat={handleLoadChat}
-              onUploadMaterial={uploadMaterial}
-              isLoadingMaterials={isLoadingMaterials}
-              isLoadingChats={isLoadingConversations}
-            />
-
-            {/* Center Column */}
-            <AIInteractionColumn
-              messages={messages}
-              inputValue={inputValue}
-              onInputChange={setInputValue}
-              onSendMessage={handleSendMessage}
-              onVoiceTranscription={handleVoiceTranscription}
-              isLoading={isLoading}
-            />
-
-            {/* Right Column */}
-            <InsightsAnalyticsColumn
-              analytics={analytics}
-              studyPlan={activeStudyPlan}
-              drills={drills}
-              isLoadingAnalytics={isLoadingAnalytics}
-              isLoadingPlan={isLoadingPlan}
-            />
-          </div>
-        )}
+            <TabsContent value="analytics" className="flex-1 overflow-auto mt-0 p-2 sm:p-3 md:p-4 lg:p-6">
+              <InsightsAnalyticsColumn
+                analytics={analytics}
+                studyPlan={activeStudyPlan}
+                drills={drills}
+                isLoadingAnalytics={isLoadingAnalytics}
+                isLoadingPlan={isLoadingPlan}
+              />
+            </TabsContent>
+          </Tabs>
+        </div>
       </div>
     </div>
   );
