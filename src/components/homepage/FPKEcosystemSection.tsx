@@ -10,7 +10,7 @@ const products = [
   {
     name: 'FPK-X',
     description: 'A revolutionary document hub for neurodiversity care, allowing parents, therapists, and educators to centralize records and leverage AI for predictive insights.',
-    url: 'https://fpkx.com',
+    url: 'https://fpk-x.com/',
     logo: fpkXLogo
   },
   {
@@ -28,7 +28,7 @@ const products = [
   {
     name: 'FPK Nexus',
     description: 'Our vibrant social media platform for the FPK community to connect, share, and grow together.',
-    url: 'https://fpk-nexus.com',
+    url: 'https://fpknexus.com/',
     logo: fpkNexusLogo
   },
   {
