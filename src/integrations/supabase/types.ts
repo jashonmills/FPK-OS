@@ -848,7 +848,7 @@ export type Database = {
           hours_logged: number
           id: string
           project_id: string
-          task_id: string
+          task_id: string | null
           updated_at: string
           user_id: string
         }
@@ -859,7 +859,7 @@ export type Database = {
           hours_logged: number
           id?: string
           project_id: string
-          task_id: string
+          task_id?: string | null
           updated_at?: string
           user_id: string
         }
@@ -870,7 +870,7 @@ export type Database = {
           hours_logged?: number
           id?: string
           project_id?: string
-          task_id?: string
+          task_id?: string | null
           updated_at?: string
           user_id?: string
         }
