@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from './useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { useEffect, useState } from 'react';
 
 // Define the standardized Identity object that the entire app will use
 export interface UserIdentity {
@@ -96,6 +97,7 @@ const fetchUserIdentity = async (user: any): Promise<UserIdentity | null> => {
 // The final hook that the application will consume.
 export const useUserIdentity = () => {
   const { user, loading: authLoading } = useAuth();
+  const [timedOut, setTimedOut] = useState(false);
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ['user-identity', user?.id],
@@ -104,6 +106,29 @@ export const useUserIdentity = () => {
     staleTime: 5 * 60 * 1000, // Cache identity for 5 minutes
     retry: 1,
   });
+
+  // Add timeout protection - if identity fetch takes too long, bail out
+  useEffect(() => {
+    if (!authLoading && user && isLoading) {
+      const timeoutId = setTimeout(() => {
+        const timestamp = new Date().toISOString();
+        console.error(`❌ useUserIdentity [${timestamp}]: Identity fetch timed out after 10s - forcing error state`);
+        setTimedOut(true);
+      }, 10000); // 10 second timeout
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [authLoading, user, isLoading]);
+
+  // If timed out, treat as error
+  if (timedOut) {
+    return {
+      identity: null,
+      isLoading: false,
+      isError: true,
+      error: new Error('Identity fetch timed out'),
+    };
+  }
 
   return {
     identity: data,

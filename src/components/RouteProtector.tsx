@@ -16,11 +16,19 @@ const isProtectedRoute = (pathname: string) => {
 };
 
 export const RouteProtector: React.FC<RouteProtectorProps> = ({ children }) => {
-  const { identity, isLoading } = useUserIdentity();
+  const { identity, isLoading, isError } = useUserIdentity();
   const { studentOrgSlug } = useStudentPortalContext();
   const location = useLocation();
   const [hasSubscription, setHasSubscription] = useState<boolean | null>(null);
   const [checkingSubscription, setCheckingSubscription] = useState(false);
+
+  // Handle identity fetch errors by redirecting to login
+  useEffect(() => {
+    if (isError && isProtectedRoute(location.pathname)) {
+      const timestamp = new Date().toISOString();
+      console.error(`[RouteProtector ${timestamp}]: Identity fetch failed, redirecting to login`);
+    }
+  }, [isError, location.pathname]);
 
   // Check subscription status for platform users accessing premium features
   useEffect(() => {
@@ -82,6 +90,12 @@ export const RouteProtector: React.FC<RouteProtectorProps> = ({ children }) => {
   }
 
   // --- FIREWALL LOGIC ---
+
+  // Rule #0: If identity fetch failed, redirect to login for protected routes
+  if (isError && isProtectedRoute(location.pathname)) {
+    console.warn('[RouteProtector] Identity fetch failed. Redirecting to login.');
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
 
   // Rule #1: If the user is a "Student-Only" user, they MUST be in their org section
   // If they are anywhere else, force them back to their organization dashboard
