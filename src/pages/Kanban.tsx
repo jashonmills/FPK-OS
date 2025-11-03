@@ -12,6 +12,7 @@ import { ListView } from '@/components/project-views/ListView';
 import { CalendarView } from '@/components/project-views/CalendarView';
 import { CalendarSyncDialog } from '@/components/project-views/CalendarSyncDialog';
 import { CreateTaskDialog } from '@/components/kanban/CreateTaskDialog';
+import { BudgetView } from '@/components/budget/BudgetView';
 import { ProjectSelectionDialog } from '@/components/kanban/ProjectSelectionDialog';
 import { CreateCalendarEventDialog } from '@/components/calendar/CreateCalendarEventDialog';
 import { TimelineView } from '@/components/project-views/TimelineView';
@@ -385,6 +386,9 @@ const Kanban = () => {
                 onTaskUpdate={fetchTasks}
                 isAllProjects={selectedProject === 'all'}
               />
+            )}
+            {activeView === 'budget' && selectedProject !== 'all' && (
+              <BudgetView projectId={selectedProject} />
             )}
           </>
         )}

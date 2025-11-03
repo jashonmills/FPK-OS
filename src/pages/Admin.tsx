@@ -5,6 +5,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { InviteUserDialog } from '@/components/admin/InviteUserDialog';
 import { TeamMembersTable } from '@/components/admin/TeamMembersTable';
 import { FeatureFlagsTable } from '@/components/admin/FeatureFlagsTable';
+import { UserRatesTable } from '@/components/admin/UserRatesTable';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Shield } from 'lucide-react';
@@ -82,9 +83,10 @@ const Admin = () => {
         </div>
 
         <Tabs defaultValue="team" className="space-y-4 md:space-y-6 w-full">
-          <TabsList className="w-full md:w-auto">
-            <TabsTrigger value="team" className="flex-1 md:flex-none">Team Members</TabsTrigger>
-            <TabsTrigger value="features" className="flex-1 md:flex-none">Feature Flags</TabsTrigger>
+          <TabsList className="w-full md:w-auto grid grid-cols-3">
+            <TabsTrigger value="team">Team Members</TabsTrigger>
+            <TabsTrigger value="rates">User Rates</TabsTrigger>
+            <TabsTrigger value="features">Feature Flags</TabsTrigger>
           </TabsList>
 
           <TabsContent value="team" className="space-y-4 w-full overflow-x-hidden">
@@ -100,6 +102,10 @@ const Admin = () => {
                 <TeamMembersTable />
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="rates" className="space-y-4 w-full overflow-x-hidden">
+            <UserRatesTable />
           </TabsContent>
 
           <TabsContent value="features" className="w-full overflow-x-hidden">

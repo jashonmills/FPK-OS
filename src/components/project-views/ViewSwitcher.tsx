@@ -1,22 +1,26 @@
 import { Button } from '@/components/ui/button';
-import { LayoutGrid, List, Calendar, GanttChartSquare } from 'lucide-react';
+import { LayoutGrid, List, Calendar, GanttChartSquare, DollarSign } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useFeatureFlags } from '@/contexts/FeatureFlagContext';
 
-export type ViewType = 'kanban' | 'list' | 'calendar' | 'timeline';
+export type ViewType = 'kanban' | 'list' | 'calendar' | 'timeline' | 'budget';
 
 interface ViewSwitcherProps {
   activeView: ViewType;
   onViewChange: (view: ViewType) => void;
 }
 
-const views = [
-  { id: 'kanban' as ViewType, label: 'Kanban', icon: LayoutGrid },
-  { id: 'list' as ViewType, label: 'List', icon: List },
-  { id: 'calendar' as ViewType, label: 'Calendar', icon: Calendar },
-  { id: 'timeline' as ViewType, label: 'Timeline', icon: GanttChartSquare },
-];
-
 export const ViewSwitcher = ({ activeView, onViewChange }: ViewSwitcherProps) => {
+  const { isFeatureEnabled } = useFeatureFlags();
+
+  const views = [
+    { id: 'kanban' as ViewType, label: 'Kanban', icon: LayoutGrid },
+    { id: 'list' as ViewType, label: 'List', icon: List },
+    { id: 'calendar' as ViewType, label: 'Calendar', icon: Calendar },
+    { id: 'timeline' as ViewType, label: 'Timeline', icon: GanttChartSquare },
+    ...(isFeatureEnabled('FEATURE_BUDGET') ? [{ id: 'budget' as ViewType, label: 'Budget', icon: DollarSign }] : []),
+  ];
+
   return (
     <div className="flex gap-1 bg-muted p-1 rounded-lg w-full md:w-auto justify-between md:justify-start">
       {views.map((view) => {

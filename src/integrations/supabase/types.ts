@@ -14,6 +14,38 @@ export type Database = {
   }
   public: {
     Tables: {
+      budget_categories: {
+        Row: {
+          allocated_amount: number
+          budget_id: string
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          allocated_amount: number
+          budget_id: string
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          allocated_amount?: number
+          budget_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budget_categories_budget_id_fkey"
+            columns: ["budget_id"]
+            isOneToOne: false
+            referencedRelation: "project_budgets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       calendar_subscriptions: {
         Row: {
           created_at: string
@@ -300,6 +332,105 @@ export type Database = {
         }
         Relationships: []
       }
+      project_budgets: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          project_id: string
+          total_budget: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          project_id: string
+          total_budget: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          project_id?: string
+          total_budget?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_budgets_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: true
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_expenses: {
+        Row: {
+          amount: number
+          category_id: string
+          created_at: string
+          description: string
+          expense_date: string
+          id: string
+          is_auto_generated: boolean
+          logged_by_user_id: string
+          project_id: string
+          receipt_url: string | null
+          time_entry_id: string | null
+        }
+        Insert: {
+          amount: number
+          category_id: string
+          created_at?: string
+          description: string
+          expense_date?: string
+          id?: string
+          is_auto_generated?: boolean
+          logged_by_user_id: string
+          project_id: string
+          receipt_url?: string | null
+          time_entry_id?: string | null
+        }
+        Update: {
+          amount?: number
+          category_id?: string
+          created_at?: string
+          description?: string
+          expense_date?: string
+          id?: string
+          is_auto_generated?: boolean
+          logged_by_user_id?: string
+          project_id?: string
+          receipt_url?: string | null
+          time_entry_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_expenses_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "budget_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_expenses_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_expenses_time_entry_id_fkey"
+            columns: ["time_entry_id"]
+            isOneToOne: false
+            referencedRelation: "time_entries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       projects: {
         Row: {
           color: string
@@ -540,6 +671,84 @@ export type Database = {
           },
         ]
       }
+      time_entries: {
+        Row: {
+          created_at: string
+          description: string | null
+          entry_date: string
+          hours_logged: number
+          id: string
+          project_id: string
+          task_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          entry_date?: string
+          hours_logged: number
+          id?: string
+          project_id: string
+          task_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          entry_date?: string
+          hours_logged?: number
+          id?: string
+          project_id?: string
+          task_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "time_entries_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "time_entries_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_rates: {
+        Row: {
+          created_at: string
+          currency: string
+          effective_date: string
+          hourly_rate: number
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          effective_date?: string
+          hourly_rate: number
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          effective_date?: string
+          hourly_rate?: number
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -569,6 +778,10 @@ export type Database = {
       get_or_create_dm_conversation: {
         Args: { user1_id: string; user2_id: string }
         Returns: string
+      }
+      get_user_hourly_rate: {
+        Args: { p_date?: string; p_user_id: string }
+        Returns: number
       }
       get_user_role: {
         Args: { _user_id: string }
