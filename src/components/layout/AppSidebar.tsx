@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/theme/ThemeToggle';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { TimeClockWidget } from '@/components/timeclock/TimeClockWidget';
 
 const navigationItems = [
   { title: 'Dashboard', url: '/', icon: LayoutDashboard, feature: null, adminOnly: false },
@@ -81,6 +82,11 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
+        {/* Time Clock Widget */}
+        <div className="px-2 py-4 border-b border-sidebar-border">
+          <TimeClockWidget />
+        </div>
+
         <SidebarGroup>
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarGroupContent>

@@ -13,12 +13,14 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
 import { format } from 'date-fns';
-import { Calendar as CalendarIcon, Plus, X, Trash2, Send } from 'lucide-react';
+import { Calendar as CalendarIcon, Plus, X, Trash2, Send, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { MentionTextarea } from '@/components/mentions/MentionTextarea';
 import { AIAssistButton } from '@/components/ai/AIAssistButton';
 import { TaskTypeIcon, getTaskTypeLabel } from '@/components/tasks/TaskTypeIcon';
 import { AssigneeSelect } from '@/components/assignee/AssigneeSelect';
+import { TimeEntryForm } from '@/components/budget/TimeEntryForm';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 interface Task {
   id: string;
@@ -73,6 +75,20 @@ interface ActivityLog {
   };
 }
 
+interface TimeEntry {
+  id: string;
+  user_id: string;
+  task_id: string;
+  project_id: string;
+  hours_logged: number;
+  description: string | null;
+  entry_date: string;
+  created_at: string;
+  profiles: {
+    full_name: string;
+  };
+}
+
 interface TaskDetailsSheetProps {
   task: Task | null;
   open: boolean;
@@ -106,6 +122,9 @@ export const TaskDetailsSheet = ({ task, open, onOpenChange, onTaskUpdate }: Tas
   const [labels, setLabels] = useState<Label[]>([]);
   const [newLabel, setNewLabel] = useState('');
   const [activityLog, setActivityLog] = useState<ActivityLog[]>([]);
+  const [showTimeEntry, setShowTimeEntry] = useState(false);
+  const [timeEntries, setTimeEntries] = useState<TimeEntry[]>([]);
+  const [timeLogOpen, setTimeLogOpen] = useState(false);
 
   useEffect(() => {
     if (task) {
@@ -119,6 +138,7 @@ export const TaskDetailsSheet = ({ task, open, onOpenChange, onTaskUpdate }: Tas
       fetchComments();
       fetchLabels();
       fetchActivityLog();
+      fetchTimeEntries();
     }
   }, [task]);
 
@@ -160,6 +180,16 @@ export const TaskDetailsSheet = ({ task, open, onOpenChange, onTaskUpdate }: Tas
       .order('created_at', { ascending: false })
       .limit(20);
     if (!error && data) setActivityLog(data as any);
+  };
+
+  const fetchTimeEntries = async () => {
+    if (!task) return;
+    const { data, error } = await supabase
+      .from('time_entries')
+      .select('*, profiles(full_name)')
+      .eq('task_id', task.id)
+      .order('entry_date', { ascending: false });
+    if (!error && data) setTimeEntries(data as any);
   };
 
   const logActivity = async (action: string, details?: string) => {
@@ -333,14 +363,20 @@ export const TaskDetailsSheet = ({ task, open, onOpenChange, onTaskUpdate }: Tas
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="sm:max-w-2xl overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>
-            <Input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              onBlur={handleTitleBlur}
-              className="text-2xl font-bold border-none px-0 focus-visible:ring-0"
-            />
-          </SheetTitle>
+          <div className="flex items-start gap-2">
+            <SheetTitle className="flex-1">
+              <Input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                onBlur={handleTitleBlur}
+                className="text-2xl font-bold border-none px-0 focus-visible:ring-0"
+              />
+            </SheetTitle>
+            <Button onClick={() => setShowTimeEntry(true)} variant="outline" size="sm" className="gap-2">
+              <Clock className="h-4 w-4" />
+              Log Time
+            </Button>
+          </div>
         </SheetHeader>
 
         <div className="space-y-6 mt-6">
@@ -489,6 +525,39 @@ export const TaskDetailsSheet = ({ task, open, onOpenChange, onTaskUpdate }: Tas
 
           <Separator />
 
+          {/* Time Log */}
+          {timeEntries.length > 0 && (
+            <Collapsible open={timeLogOpen} onOpenChange={setTimeLogOpen}>
+              <CollapsibleTrigger className="flex items-center justify-between w-full">
+                <label className="text-sm font-medium">Time Log</label>
+                <Badge variant="secondary" className="ml-2">
+                  {timeEntries.reduce((sum, entry) => sum + parseFloat(entry.hours_logged.toString()), 0).toFixed(2)} hrs
+                </Badge>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-3">
+                <div className="border rounded-lg divide-y">
+                  {timeEntries.map(entry => (
+                    <div key={entry.id} className="p-3 hover:bg-accent/50">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="font-medium text-sm">{entry.profiles.full_name}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {format(new Date(entry.entry_date), 'MMM dd, yyyy')} • {parseFloat(entry.hours_logged.toString()).toFixed(2)} hrs
+                          </div>
+                          {entry.description && (
+                            <p className="text-sm mt-1 text-muted-foreground">{entry.description}</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          )}
+
+          <Separator />
+
           {/* Comments */}
           <div>
             <label className="text-sm font-medium mb-3 block">Comments</label>
@@ -536,6 +605,20 @@ export const TaskDetailsSheet = ({ task, open, onOpenChange, onTaskUpdate }: Tas
             </div>
           </div>
         </div>
+
+        {/* Time Entry Form */}
+        {task && (
+          <TimeEntryForm
+            taskId={task.id}
+            projectId={task.project_id}
+            open={showTimeEntry}
+            onOpenChange={setShowTimeEntry}
+            onSuccess={() => {
+              fetchTimeEntries();
+              logActivity('Logged time');
+            }}
+          />
+        )}
       </SheetContent>
     </Sheet>
   );

@@ -1,12 +1,15 @@
+import { useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, GripVertical } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Calendar, GripVertical, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { TaskTypeIcon } from '@/components/tasks/TaskTypeIcon';
 import { UserAvatar } from '@/components/ui/avatar-with-initials';
+import { TimeEntryForm } from '@/components/budget/TimeEntryForm';
 
 interface Task {
   id: string;
@@ -41,6 +44,8 @@ const priorityColors = {
 };
 
 export const KanbanCard = ({ task, isDragging = false, projectColor, onClick }: KanbanCardProps) => {
+  const [showTimeEntry, setShowTimeEntry] = useState(false);
+  
   const {
     attributes,
     listeners,
@@ -99,16 +104,35 @@ export const KanbanCard = ({ task, isDragging = false, projectColor, onClick }: 
               <span>{format(new Date(task.due_date), 'MMM d')}</span>
             </div>
           )}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-6 w-6 p-0 ml-auto"
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowTimeEntry(true);
+            }}
+          >
+            <Clock className="h-3 w-3" />
+          </Button>
           {task.assignee && (
             <UserAvatar 
               fullName={task.assignee.full_name} 
               avatarUrl={task.assignee.avatar_url}
               size={24}
-              className="ml-auto"
             />
           )}
         </div>
       </CardContent>
+
+      {/* Time Entry Form */}
+      <TimeEntryForm
+        taskId={task.id}
+        projectId={task.project_id}
+        open={showTimeEntry}
+        onOpenChange={setShowTimeEntry}
+        onSuccess={() => {}}
+      />
     </Card>
   );
 };
