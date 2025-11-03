@@ -11526,9 +11526,7 @@ export type Database = {
       get_coach_mode_ratio:
         | { Args: { p_source?: string; p_user_id: string }; Returns: Json }
         | { Args: { p_user_id: string }; Returns: Json }
-      get_coach_streak:
-        | { Args: { p_user_id: string }; Returns: number }
-        | { Args: { p_source?: string; p_user_id: string }; Returns: number }
+      get_coach_streak: { Args: { p_user_id: string }; Returns: number }
       get_coach_time_by_day: {
         Args: { p_date_range?: string; p_user_id: string }
         Returns: Json
