@@ -1415,6 +1415,11 @@ serve(async (req) => {
     console.log('[CONDUCTOR] ⚡ Simplified intent detection...');
     const intentDetectionStart = Date.now();
     
+    // Initialize intent variables at the start
+    let detectedIntent = 'direct_answer'; // Default fallback
+    let intentConfidence = 0.8;
+    let intentReasoning = '';
+    
     // Determine if we're in an active Betty conversation
     const lastPersona = conversationHistory.length > 0 
       ? conversationHistory[conversationHistory.length - 1].persona 
@@ -1480,10 +1485,6 @@ serve(async (req) => {
     // scalable intent detection instead of hardcoded if/else logic
     
     console.log('[CONDUCTOR] 🎯 Starting database-driven intent detection...');
-    
-    let detectedIntent = 'direct_answer'; // Default fallback
-    let intentConfidence = 0.8;
-    let intentReasoning = '';
     
     try {
       // Attempt database-driven detection
