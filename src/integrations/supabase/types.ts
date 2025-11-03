@@ -185,6 +185,66 @@ export type Database = {
           },
         ]
       }
+      doc_page_comments: {
+        Row: {
+          content: string
+          created_at: string
+          highlighted_text: string | null
+          id: string
+          page_id: string
+          parent_comment_id: string | null
+          resolved: boolean
+          resolved_at: string | null
+          resolved_by: string | null
+          selection_json: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          highlighted_text?: string | null
+          id?: string
+          page_id: string
+          parent_comment_id?: string | null
+          resolved?: boolean
+          resolved_at?: string | null
+          resolved_by?: string | null
+          selection_json?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          highlighted_text?: string | null
+          id?: string
+          page_id?: string
+          parent_comment_id?: string | null
+          resolved?: boolean
+          resolved_at?: string | null
+          resolved_by?: string | null
+          selection_json?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "doc_page_comments_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "doc_pages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "doc_page_comments_parent_comment_id_fkey"
+            columns: ["parent_comment_id"]
+            isOneToOne: false
+            referencedRelation: "doc_page_comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       doc_page_versions: {
         Row: {
           content: Json
