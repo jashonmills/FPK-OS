@@ -16,6 +16,7 @@ import SetupPassword from "./pages/SetupPassword";
 import Budget from "./pages/Budget";
 import Payroll from "./pages/Payroll";
 import PaymentSummary from "./pages/PaymentSummary";
+import MyTimesheet from "./pages/MyTimesheet";
 import NotFound from "./pages/NotFound";
 import { PermissionGuard } from '@/components/auth/PermissionGuard';
 
@@ -128,6 +129,14 @@ const App = () => (
                 } 
               />
               <Route 
+                path="/my-timesheet" 
+                element={
+                  <ProtectedRoute>
+                    <MyTimesheet />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route
                 path="/payroll" 
                 element={
                   <ProtectedRoute>

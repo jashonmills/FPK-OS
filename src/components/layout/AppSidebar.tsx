@@ -1,4 +1,4 @@
-import { LayoutDashboard, Briefcase, DollarSign, Code, Calendar, MessageSquare, Bot, FileText, Files, LogOut, Shield } from 'lucide-react';
+import { LayoutDashboard, Briefcase, DollarSign, Code, Calendar, MessageSquare, Bot, FileText, Files, LogOut, Shield, Clock } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import {
   Sidebar,
@@ -23,6 +23,7 @@ import { usePermissions } from '@/hooks/usePermissions';
 
 const navigationItems = [
   { title: 'Dashboard', url: '/', icon: LayoutDashboard, feature: null },
+  { title: 'My Timesheet', url: '/my-timesheet', icon: Clock, feature: null },
   { title: 'Kanban Board', url: '/kanban', icon: Briefcase, feature: null, permission: ['projects_view_assigned', 'projects_view_all', 'projects_readonly'] },
   { title: 'Budget', url: '/budget', icon: DollarSign, feature: 'FEATURE_BUDGET' as const, permission: ['budget_view_all', 'budget_view_assigned'] },
   { title: 'Payroll', url: '/payroll', icon: DollarSign, feature: 'FEATURE_PAYROLL' as const, permission: ['payroll_view'] },

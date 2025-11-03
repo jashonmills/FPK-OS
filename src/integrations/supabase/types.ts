@@ -848,6 +848,7 @@ export type Database = {
           hours_logged: number
           id: string
           project_id: string
+          status: Database["public"]["Enums"]["time_entry_status"]
           task_id: string | null
           updated_at: string
           user_id: string
@@ -859,6 +860,7 @@ export type Database = {
           hours_logged: number
           id?: string
           project_id: string
+          status?: Database["public"]["Enums"]["time_entry_status"]
           task_id?: string | null
           updated_at?: string
           user_id: string
@@ -870,6 +872,7 @@ export type Database = {
           hours_logged?: number
           id?: string
           project_id?: string
+          status?: Database["public"]["Enums"]["time_entry_status"]
           task_id?: string | null
           updated_at?: string
           user_id?: string
@@ -1062,6 +1065,7 @@ export type Database = {
         | "focus_time"
         | "personal"
         | "reminder"
+      time_entry_status: "open" | "submitted" | "approved" | "rejected" | "paid"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1203,6 +1207,7 @@ export const Constants = {
         "personal",
         "reminder",
       ],
+      time_entry_status: ["open", "submitted", "approved", "rejected", "paid"],
     },
   },
 } as const
