@@ -287,15 +287,15 @@ const AIInteractionColumn: React.FC<{
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
 
-  // Intelligent auto-scroll: only scrolls when user is near bottom
+  // Intelligent auto-scroll: only scrolls the chat container, not the page
   useEffect(() => {
     if (messages.length === 0 || !messagesEndRef.current) return;
     
-    // Get the scroll container (inside ScrollArea)
-    const scrollContainer = messagesEndRef.current.parentElement;
-    if (!scrollContainer) return;
+    // Get the ScrollArea viewport (the actual scrollable container)
+    const scrollViewport = messagesEndRef.current.parentElement;
+    if (!scrollViewport) return;
     
-    const { scrollTop, scrollHeight, clientHeight } = scrollContainer;
+    const { scrollTop, scrollHeight, clientHeight } = scrollViewport;
     const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
     const isNearBottom = distanceFromBottom < 150;
     
@@ -303,11 +303,13 @@ const AIInteractionColumn: React.FC<{
     if (isNearBottom || messages.length === 1) {
       const timeoutId = setTimeout(() => {
         requestAnimationFrame(() => {
-          messagesEndRef.current?.scrollIntoView({ 
-            behavior: 'smooth',
-            block: 'end',
-            inline: 'nearest'
-          });
+          // Scroll the container directly, not using scrollIntoView
+          if (scrollViewport) {
+            scrollViewport.scrollTo({
+              top: scrollViewport.scrollHeight,
+              behavior: 'smooth'
+            });
+          }
         });
       }, 100);
       
