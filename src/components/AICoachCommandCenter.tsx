@@ -33,17 +33,17 @@ const PersonaAvatar: React.FC<{ persona: Persona }> = ({ persona }) => {
 
 // Message bubble component
 const MessageBubble: React.FC<{ message: Message }> = ({ message }) => {
-  const bubbleClass = {
-    USER: 'chat-bubble-user',
-    BETTY: 'chat-bubble-betty',
-    AL: 'chat-bubble-al',
-    NITE_OWL: 'chat-bubble-nite-owl',
+  const bubbleStyles = {
+    USER: 'bg-blue-600 text-white',
+    BETTY: 'bg-purple-100 text-purple-900 border border-purple-200',
+    AL: 'bg-blue-100 text-blue-900 border border-blue-200',
+    NITE_OWL: 'bg-amber-100 text-amber-900 border border-amber-200',
   }[message.persona];
 
   return (
     <div className={cn('flex flex-col', message.persona === 'USER' ? 'items-end' : 'items-start')}>
       <PersonaAvatar persona={message.persona} />
-      <div className={cn('chat-bubble', bubbleClass)}>
+      <div className={cn('max-w-[80%] px-4 py-3 rounded-2xl shadow-sm', bubbleStyles)}>
         <p className="text-sm whitespace-pre-wrap">{message.content}</p>
         <span className="text-xs opacity-70 mt-1 block">
           {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -74,16 +74,16 @@ const ContextHistoryColumn: React.FC<{
     }
   };
   return (
-    <div className="column-container space-y-6">
+    <div className="bg-white rounded-xl shadow-md p-6 space-y-6 h-full overflow-y-auto">
       {/* Uploaded Study Materials */}
       <div>
-        <h3 className="section-title flex items-center gap-2">
+        <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 mb-3">
           <BookOpen className="w-5 h-5" />
           Study Materials
         </h3>
         <div className="space-y-2">
           {isLoadingMaterials ? (
-            <p className="text-sm text-gray-500 italic">Loading materials...</p>
+            <p className="text-sm text-gray-500 italic animate-pulse">Loading materials...</p>
           ) : studyMaterials.length === 0 ? (
             <p className="text-sm text-gray-500 italic">No materials uploaded yet</p>
           ) : (
@@ -115,13 +115,13 @@ const ContextHistoryColumn: React.FC<{
 
       {/* Saved Chats */}
       <div>
-        <h3 className="section-title flex items-center gap-2">
+        <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 mb-3">
           <Clock className="w-5 h-5" />
           Saved Chats
         </h3>
         <div className="space-y-2">
           {isLoadingChats ? (
-            <p className="text-sm text-gray-500 italic">Loading chats...</p>
+            <p className="text-sm text-gray-500 italic animate-pulse">Loading chats...</p>
           ) : savedChats.length === 0 ? (
             <p className="text-sm text-gray-500 italic">No saved chats yet</p>
           ) : (
@@ -154,15 +154,15 @@ const InsightsAnalyticsColumn: React.FC<{
   isLoadingPlan: boolean;
 }> = ({ analytics, studyPlan, drills, isLoadingAnalytics, isLoadingPlan }) => {
   return (
-    <div className="column-container space-y-6">
+    <div className="bg-white rounded-xl shadow-md p-6 space-y-6 h-full overflow-y-auto">
       {/* Learning Analytics */}
       <div>
-        <h3 className="section-title flex items-center gap-2">
+        <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 mb-3">
           <TrendingUp className="w-5 h-5" />
           Learning Analytics
         </h3>
         {isLoadingAnalytics ? (
-          <p className="text-sm text-gray-500 italic">Loading analytics...</p>
+          <p className="text-sm text-gray-500 italic animate-pulse">Loading analytics...</p>
         ) : (
           <>
             <div className="grid grid-cols-2 gap-3">
@@ -203,12 +203,12 @@ const InsightsAnalyticsColumn: React.FC<{
 
       {/* AI-Generated Study Plan */}
       <div>
-        <h3 className="section-title flex items-center gap-2">
+        <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 mb-3">
           <Target className="w-5 h-5" />
           Study Plan
         </h3>
         {isLoadingPlan ? (
-          <p className="text-sm text-gray-500 italic">Loading study plan...</p>
+          <p className="text-sm text-gray-500 italic animate-pulse">Loading study plan...</p>
         ) : studyPlan ? (
           <div className="p-3 bg-gradient-to-br from-fpk-primary to-fpk-secondary text-white rounded">
             <h4 className="font-semibold text-sm mb-1">{studyPlan.title}</h4>
@@ -228,7 +228,7 @@ const InsightsAnalyticsColumn: React.FC<{
 
       {/* AI-Generated Drills */}
       <div>
-        <h3 className="section-title flex items-center gap-2">
+        <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 mb-3">
           <Zap className="w-5 h-5" />
           Practice Drills
         </h3>
@@ -282,8 +282,8 @@ const AIInteractionColumn: React.FC<{
   };
 
   return (
-    <div className="column-container flex flex-col">
-      <h3 className="section-title flex items-center gap-2 mb-4">
+    <div className="bg-white rounded-xl shadow-md p-6 flex flex-col h-full">
+      <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 mb-4">
         <Award className="w-5 h-5" />
         AI Study Coach
       </h3>
@@ -302,11 +302,11 @@ const AIInteractionColumn: React.FC<{
         )}
         {isLoading && (
           <div className="flex items-start">
-            <div className="chat-bubble chat-bubble-betty">
+            <div className="max-w-[80%] px-4 py-3 rounded-2xl shadow-sm bg-purple-100 border border-purple-200">
               <div className="flex gap-1">
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
               </div>
             </div>
           </div>
@@ -461,8 +461,8 @@ export const AICoachCommandCenter: React.FC = () => {
         </header>
 
         {/* Three-Column Layout with Frosted Glass Effect */}
-        <div className="p-8 bg-white/30 backdrop-blur-sm border border-white/20 rounded-2xl shadow-lg">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[calc(100vh-240px)]">
+        <div className="p-8 bg-white/60 backdrop-blur-xl border border-white/30 rounded-2xl shadow-2xl">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-240px)]">
           {/* Left Column - Context & History */}
           <div className="lg:col-span-3 overflow-hidden">
             <ContextHistoryColumn
