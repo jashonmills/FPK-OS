@@ -45,7 +45,8 @@ export const SpaceTree = ({
       const { data, error } = await supabase
         .from('doc_spaces')
         .select('*')
-        .order('is_personal DESC, name');
+        .order('is_personal', { ascending: false })
+        .order('name', { ascending: true });
 
       if (error) throw error;
       return data;
