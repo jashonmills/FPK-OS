@@ -1990,6 +1990,18 @@ If they seem confused, provide clarification directly. Do NOT switch to Socratic
       console.log('[CONDUCTOR] Al provides direct answer');
     }
     
+    // ============================================
+    // NITE OWL HANDOFF DETECTION (moved earlier to work with all paths)
+    // ============================================
+    // Check if Nite Owl just spoke (look at last 3 messages for safety)
+    const recentMessages = conversationHistory.slice(-3);
+    const niteOwlJustSpoke = recentMessages.some(m => m.persona === 'NITE_OWL');
+    const needsNiteOwlHandoff = niteOwlJustSpoke && inBettySession;
+    
+    if (needsNiteOwlHandoff) {
+      console.log('[CONDUCTOR] 🦉 Nite Owl handoff required after next response');
+    }
+    
     console.log('[CONDUCTOR] Routing to persona:', selectedPersona, isSocraticHandoff ? '(Socratic Support Mode)' : '');
     console.log('[CONDUCTOR] Turn counter:', socraticTurnCounter, '/ Next interjection:', nextInterjectionPoint);
     
@@ -2086,18 +2098,6 @@ If they seem confused, provide clarification directly. Do NOT switch to Socratic
     if (isCoResponse && featureFlags['v2_dialogue_engine_enabled']?.enabled && anthropic) {
       console.log('[V2-DIALOGUE] 🎭✨ V2 Dialogue Engine ENABLED - Using Claude + SSML');
       
-      // Check if last message was Nite Owl (requires handoff)
-      const lastAIMessage = conversationHistory
-        .slice()
-        .reverse()
-        .find(m => m.persona !== 'USER');
-        
-      const needsNiteOwlHandoff = lastAIMessage?.persona === 'NITE_OWL' && inBettySession;
-      
-      if (needsNiteOwlHandoff) {
-        console.log('[V2-DIALOGUE] 🦉 Detected Nite Owl handoff needed - will generate handoff first');
-      }
-      
       // Get context for Claude
       const lastBettyMessage = conversationHistory
         .slice()
@@ -2146,63 +2146,6 @@ If they seem confused, provide clarification directly. Do NOT switch to Socratic
         const dialogueStream = new ReadableStream({
           async start(controller) {
             try {
-              // === HANDOFF FIRST if needed ===
-              if (needsNiteOwlHandoff) {
-                console.log('[V2-DIALOGUE] 🔄 Generating Betty handoff after Nite Owl...');
-                
-                const handoffPrompt = buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge) + `\n\n🔄 HANDOFF INSTRUCTION:
-Nite Owl just shared a fun fact. Warmly acknowledge him ("Thanks, Nite Owl!"), then continue your Socratic dialogue with the student's last message: "${message}"
-
-Keep it brief (1-2 sentences) and ask a NEW question that builds on what they said.`;
-
-                const handoffResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-                  method: 'POST',
-                  headers: {
-                    'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify({
-                    model: 'google/gemini-2.5-flash',
-                    messages: [
-                      { role: 'system', content: handoffPrompt },
-                      ...conversationHistory.slice(-3).map(msg => ({
-                        role: msg.persona === 'USER' ? 'user' : 'assistant',
-                        content: msg.content
-                      }))
-                    ],
-                    temperature: 0.8,
-                    max_tokens: 200,
-                  }),
-                });
-                
-                if (handoffResponse.ok) {
-                  const handoffData = await handoffResponse.json();
-                  const handoffText = handoffData.choices?.[0]?.message?.content || '';
-                  
-                  // Send handoff message to client
-                  controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({
-                    type: 'handoff',
-                    persona: 'BETTY',
-                    content: handoffText,
-                    audioUrl: null
-                  })}\n\n`));
-                  
-                  // Store in database
-                  if (conversationUuid) {
-                    await supabaseClient.from('phoenix_messages').insert({
-                      conversation_id: conversationUuid,
-                      persona: 'BETTY',
-                      content: handoffText,
-                      metadata: { isHandoff: true, followingNiteOwl: true }
-                    });
-                  }
-                  
-                  console.log('[V2-DIALOGUE] ✅ Handoff message sent and stored');
-                } else {
-                  console.error('[V2-DIALOGUE] ❌ Handoff generation failed:', await handoffResponse.text());
-                }
-              }
-              
               // Send immediate "thinking" indicator
               const thinkingEvent = `data: ${JSON.stringify({
                 type: 'thinking',
@@ -2253,7 +2196,7 @@ Keep it brief (1-2 sentences) and ask a NEW question that builds on what they sa
               
               // Store both messages in database with dialogue metadata
               if (conversationUuid) {
-                await supabaseClient.from('phoenix_messages').insert([
+                const { error: insertError } = await supabaseClient.from('phoenix_messages').insert([
                   {
                     conversation_id: conversationUuid,
                     persona: 'BETTY',
@@ -2277,7 +2220,67 @@ Keep it brief (1-2 sentences) and ask a NEW question that builds on what they sa
                     }
                   }
                 ]);
-                console.log('[V2-DIALOGUE] ✅ Dialogue stored in database');
+                
+                if (insertError) {
+                  console.error('[V2-DIALOGUE] ❌ Failed to store dialogue:', insertError);
+                } else {
+                  console.log('[V2-DIALOGUE] ✅ Dialogue stored in database');
+                  
+                  // ============================================
+                  // POST-RESPONSE HANDOFF: Generate Betty handoff after V2 dialogue
+                  // ============================================
+                  if (needsNiteOwlHandoff) {
+                    console.log('[V2-DIALOGUE] 🔄 Generating Betty handoff after Nite Owl...');
+                    
+                    const handoffPrompt = buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge) + `\n\n🔄 HANDOFF INSTRUCTION:
+Nite Owl just shared a fun fact. Warmly acknowledge him ("Thanks, Nite Owl!"), then continue your Socratic dialogue with the student's last message: "${message}"
+
+Keep it brief (1-2 sentences) and ask a NEW question that builds on what they said.`;
+
+                    try {
+                      const handoffResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+                        method: 'POST',
+                        headers: {
+                          'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+                          'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                          model: 'google/gemini-2.5-flash',
+                          messages: [
+                            { role: 'system', content: handoffPrompt },
+                            ...conversationHistory.slice(-3).map(msg => ({
+                              role: msg.persona === 'USER' ? 'user' : 'assistant',
+                              content: msg.content
+                            }))
+                          ],
+                          temperature: 0.8,
+                          max_tokens: 200,
+                        }),
+                      });
+                      
+                      if (handoffResponse.ok) {
+                        const handoffData = await handoffResponse.json();
+                        const handoffText = handoffData.choices?.[0]?.message?.content || '';
+                        
+                        if (handoffText) {
+                          // Store handoff in database
+                          await supabaseClient.from('phoenix_messages').insert({
+                            conversation_id: conversationUuid,
+                            persona: 'BETTY',
+                            content: handoffText,
+                            metadata: { isHandoff: true, followingNiteOwl: true }
+                          });
+                          
+                          console.log('[V2-DIALOGUE] ✅ Handoff message generated and stored');
+                        }
+                      } else {
+                        console.error('[V2-DIALOGUE] ❌ Handoff generation failed:', await handoffResponse.text());
+                      }
+                    } catch (handoffError) {
+                      console.error('[V2-DIALOGUE] ❌ Handoff error:', handoffError);
+                    }
+                  }
+                }
               }
               
             } catch (error) {
@@ -2934,292 +2937,6 @@ Keep it under 100 words.`;
             })
             .eq('session_id', conversationId);
 
-          // 11. NITE OWL HANDOFF: If we just sent a Nite Owl message, immediately follow up with original persona
-          // ============================================
-          // PART 3: GRACEFUL HANDOFF - Ensure smooth transition after Nite Owl
-          // ============================================
-          // CRITICAL: Do NOT trigger handoff if this was a session resumption (isWelcomeBack prevents it)
-          if (selectedPersona === 'NITE_OWL' && !isWelcomeBack) {
-            try {
-              console.log('[CONDUCTOR] 🦉🔄 GRACEFUL HANDOFF INITIATED');
-              console.log('[CONDUCTOR] Generating fresh, context-aware follow-up from original persona');
-            
-            // Determine which persona to hand back to (Betty for socratic, Al for direct)
-            const handoffPersona = inBettySession ? 'BETTY' : 'AL';
-            const handoffSystemPrompt = handoffPersona === 'BETTY' 
-              ? buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge) 
-              : buildAlSystemPrompt(studentContext, userMemories, knowledgePack, retrievedKnowledge);
-            
-            // Add special instruction for handoff
-            const handoffInstruction = handoffPersona === 'BETTY'
-              ? `🔄 CRITICAL HANDOFF INSTRUCTION 🔄
-
-Nite Owl just shared a fun fact with the student. Your job is to:
-1. Briefly and warmly acknowledge Nite Owl (e.g., "Thanks, Nite Owl! That's fascinating!")
-2. Connect the fun fact to the learning topic if possible
-3. Reference the student's last message BEFORE Nite Owl appeared: "${message}"
-4. Continue your Socratic dialogue with a fresh, specific question
-
-Context:
-- Student's last message: "${message}"
-- Nite Owl just said: "${finalText}"
-- You were having a Socratic discussion about a topic
-
-Generate a seamless transition that:
-- Acknowledges the fun fact
-- Brings focus back to the learning goal
-- Asks a NEW Socratic question (not repeating your last question)
-
-This must feel like a natural conversation flow, not a robotic handoff.`
-              : `🔄 CRITICAL HANDOFF INSTRUCTION 🔄
-
-Nite Owl just shared a fun fact. Briefly acknowledge him, then continue answering the student's original question: "${message}"
-
-Nite Owl's message: "${finalText}"
-
-Keep it brief and focused on answering their original question.`;
-            
-            console.log('[CONDUCTOR] 🔄 Calling', handoffPersona, 'for graceful transition');
-            
-            
-            // Make follow-up LLM call for handoff
-            const handoffResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-              method: 'POST',
-              headers: {
-                'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                model: 'google/gemini-2.5-flash',
-                messages: [
-                  { role: 'system', content: handoffSystemPrompt },
-                  ...conversationHistory.slice(-5).map(msg => ({
-                    role: msg.persona === 'USER' ? 'user' : 'assistant',
-                    content: msg.content
-                  })),
-                  { role: 'assistant', content: finalText }, // Nite Owl's message
-                  { role: 'system', content: handoffInstruction }
-                ],
-                temperature: handoffPersona === 'BETTY' ? 0.8 : 0.6,
-                max_tokens: 500,
-              }),
-            });
-            
-            if (handoffResponse.ok) {
-              const handoffData = await handoffResponse.json();
-              const handoffText = handoffData.choices?.[0]?.message?.content || '';
-              
-              console.log('[CONDUCTOR] ✅ Handoff response generated:', handoffText.substring(0, 80));
-              
-              // Generate TTS for handoff message (feature-flagged)
-              let handoffAudioUrl = null;
-              try {
-                // Feature flags (read from database with priority)
-                const { data: ttsFlags } = await supabaseClient
-                  .from('phoenix_feature_flags')
-                  .select('feature_name, is_enabled, priority')
-                  .eq('is_enabled', true)
-                  .like('feature_name', 'tts_provider_%');
-                
-                // Sort providers by priority
-                const sortedHandoffProviders = ttsFlags
-                  ? ttsFlags.sort((a, b) => a.priority - b.priority).map(f => f.feature_name.replace('tts_provider_', ''))
-                  : ['google', 'elevenlabs'];
-                
-                console.log('[CONDUCTOR] Handoff TTS Providers (by priority):', sortedHandoffProviders);
-                
-                const GOOGLE_TTS_KEY = Deno.env.get('GOOGLE_CLOUD_TTS_API_KEY');
-                const ELEVENLABS_API_KEY = Deno.env.get('ELEVENLABS_API_KEY');
-                const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
-                
-                if (handoffText.length > 0) {
-                  // Iterate through providers in priority order
-                  for (const providerName of sortedHandoffProviders) {
-                    if (handoffAudioUrl) break; // Exit once audio is generated
-                    
-                    console.log(`[CONDUCTOR] Attempting handoff TTS via ${providerName}`);
-                    
-                    // Try Google TTS
-                    if (providerName === 'google' && GOOGLE_TTS_KEY) {
-                    try {
-                      const googleVoice = handoffPersona === 'BETTY' 
-                        ? 'en-US-Wavenet-F'
-                        : 'en-US-Wavenet-D';
-                      
-                      console.log(`[CONDUCTOR] 🎤 Generating handoff TTS via Google with voice ${googleVoice}`);
-                      
-                      const googleResponse = await fetch(
-                        `https://texttospeech.googleapis.com/v1/text:synthesize?key=${GOOGLE_TTS_KEY}`,
-                        {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({
-                            input: { text: handoffText },
-                            voice: { languageCode: 'en-US', name: googleVoice },
-                            audioConfig: { audioEncoding: 'MP3', speakingRate: 1.0, pitch: 0 },
-                          }),
-                        }
-                      );
-                      
-                      if (googleResponse.ok) {
-                        const data = await googleResponse.json();
-                        if (data.audioContent) {
-                          handoffAudioUrl = `data:audio/mpeg;base64,${data.audioContent}`;
-                          console.log('[CONDUCTOR] ✅ Handoff TTS generated via Google Cloud');
-                        }
-                      }
-                      } catch (googleError) {
-                        console.error('[CONDUCTOR] ❌ Google handoff TTS error:', googleError);
-                      }
-                    }
-                    
-                    // Try ElevenLabs
-                    if (providerName === 'elevenlabs' && ELEVENLABS_API_KEY) {
-                      try {
-                      const voiceId = handoffPersona === 'BETTY' 
-                        ? 'uYXf8XasLslADfZ2MB4u' 
-                        : 'wo6udizrrtpIxWGp2qJk';
-                      
-                      console.log(`[CONDUCTOR] 🎤 Generating handoff TTS via ElevenLabs with voice ${voiceId}`);
-                      
-                      const handoffTTSResponse = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
-                        method: 'POST',
-                        headers: {
-                          'xi-api-key': ELEVENLABS_API_KEY,
-                          'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                          text: handoffText,
-                          model_id: 'eleven_turbo_v2_5',
-                          voice_settings: {
-                            stability: handoffPersona === 'BETTY' ? 0.6 : 0.7,
-                            similarity_boost: 0.8,
-                            style: handoffPersona === 'BETTY' ? 0.4 : 0.2
-                          }
-                        }),
-                      });
-                      
-                      if (handoffTTSResponse.ok) {
-                        const audioBuffer = await handoffTTSResponse.arrayBuffer();
-                        const uint8Array = new Uint8Array(audioBuffer);
-                        let binaryString = '';
-                        for (let i = 0; i < uint8Array.length; i++) {
-                          binaryString += String.fromCharCode(uint8Array[i]);
-                        }
-                        const base64Audio = btoa(binaryString);
-                        handoffAudioUrl = `data:audio/mpeg;base64,${base64Audio}`;
-                        console.log('[CONDUCTOR] ✅ Handoff TTS generated via ElevenLabs');
-                      }
-                    } catch (elevenLabsError) {
-                      console.error('[CONDUCTOR] ❌ ElevenLabs handoff TTS error:', elevenLabsError);
-                    }
-                  }
-                  
-                  // Try OpenAI
-                  if (providerName === 'openai' && OPENAI_API_KEY) {
-                    try {
-                      const voice = handoffPersona === 'BETTY' ? 'nova' : 'onyx';
-                      console.log(`[CONDUCTOR] 🎤 Generating handoff TTS via OpenAI with voice ${voice}`);
-                      
-                      const openAIResponse = await fetch('https://api.openai.com/v1/audio/speech', {
-                        method: 'POST',
-                        headers: {
-                          'Authorization': `Bearer ${OPENAI_API_KEY}`,
-                          'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                          model: 'tts-1',
-                          input: handoffText,
-                          voice: voice,
-                          response_format: 'mp3',
-                        }),
-                      });
-                      
-                      if (openAIResponse.ok) {
-                        const audioBuffer = await openAIResponse.arrayBuffer();
-                        const uint8Array = new Uint8Array(audioBuffer);
-                        let binaryString = '';
-                        for (let i = 0; i < uint8Array.length; i++) {
-                          binaryString += String.fromCharCode(uint8Array[i]);
-                        }
-                        const base64Audio = btoa(binaryString);
-                        handoffAudioUrl = `data:audio/mpeg;base64,${base64Audio}`;
-                        console.log('[CONDUCTOR] ✅ Handoff TTS generated via OpenAI');
-                      }
-                    } catch (openAIError) {
-                      console.error('[CONDUCTOR] ❌ OpenAI handoff TTS error:', openAIError);
-                    }
-                  }
-                } // End provider loop
-              } // End if (handoffText.length > 0)
-              } catch (ttsError) {
-                console.error('[CONDUCTOR] ❌ Handoff TTS error (non-critical):', ttsError);
-              }
-              
-              // Store handoff message in database
-              if (!conversationUuid) {
-                console.warn('[CONDUCTOR] ⚠️ Conversation UUID missing - skipping handoff message storage');
-              }
-              if (conversationUuid) {
-                await supabaseClient.from('phoenix_messages').insert({
-                  conversation_id: conversationUuid,
-                  persona: handoffPersona,
-                  content: handoffText,
-                  metadata: {
-                    isHandoff: true,
-                    followingNiteOwl: true,
-                    hasAudio: handoffAudioUrl !== null
-                  }
-                });
-                console.log('[CONDUCTOR] ✅ Handoff message stored');
-              }
-              
-              // Send handoff message to client as additional event
-              const handoffMessage = `data: ${JSON.stringify({ 
-                type: 'handoff',
-                persona: handoffPersona,
-                content: handoffText,
-                audioUrl: handoffAudioUrl
-              })}\n\n`;
-              
-              console.log('[CONDUCTOR] 📤 Sending handoff message to client');
-              controller.enqueue(new TextEncoder().encode(handoffMessage));
-            } else {
-              console.error('[CONDUCTOR] ❌ Handoff response failed:', await handoffResponse.text());
-            }
-            } catch (handoffError) {
-              console.error('[CONDUCTOR] ❌ Handoff error (non-critical):', handoffError);
-              
-              // Fallback: Send a simple transition message
-              try {
-                const fallbackPersona = inBettySession ? 'BETTY' : 'AL';
-                const fallbackText = fallbackPersona === 'BETTY' 
-                  ? "Thanks, Nite Owl! Now, let's continue exploring this together."
-                  : "Thanks for that insight, Nite Owl. Let's continue with your learning.";
-                
-                if (conversationUuid) {
-                  await supabaseClient.from('phoenix_messages').insert({
-                    conversation_id: conversationUuid,
-                    persona: fallbackPersona,
-                    content: fallbackText,
-                    metadata: { isHandoff: true, isFallback: true }
-                  });
-                  
-                  const fallbackMessage = `data: ${JSON.stringify({ 
-                    type: 'handoff',
-                    persona: fallbackPersona,
-                    content: fallbackText,
-                    audioUrl: null
-                  })}\n\n`;
-                  
-                  controller.enqueue(new TextEncoder().encode(fallbackMessage));
-                  console.log('[CONDUCTOR] ✅ Sent fallback handoff message');
-                }
-              } catch (fallbackError) {
-                console.error('[CONDUCTOR] ❌ Fallback handoff also failed:', fallbackError);
-              }
-            }
-          } // End of NITE_OWL handoff
 
           // 12. Check if we should trigger podcast generation (async, non-blocking)
           if (featureFlags['podcast_generation']?.enabled && selectedPersona === 'BETTY' && totalBettyTurns >= 6) {
