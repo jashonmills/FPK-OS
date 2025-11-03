@@ -1183,10 +1183,6 @@ serve(async (req) => {
   let userId: string | null = null;
 
   try {
-    // Parse request and extract parameters
-    const requestBody = await req.json();
-    const { message, conversationId, conversationHistory } = requestBody;
-    
     // 🔬 PERFORMANCE TRACKING - Phase 1
     const perfStart = Date.now();
     const timings: Record<string, number> = {};
