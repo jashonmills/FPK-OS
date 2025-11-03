@@ -12,6 +12,7 @@ import Messages from "./pages/Messages";
 import Admin from "./pages/Admin";
 import Profile from "./pages/Profile";
 import SetupPassword from "./pages/SetupPassword";
+import Budget from "./pages/Budget";
 import NotFound from "./pages/NotFound";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -107,6 +108,14 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <Profile />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/budget" 
+                element={
+                  <ProtectedRoute>
+                    <Budget />
                   </ProtectedRoute>
                 } 
               />

@@ -1,9 +1,8 @@
 import { Button } from '@/components/ui/button';
-import { LayoutGrid, List, Calendar, GanttChartSquare, DollarSign } from 'lucide-react';
+import { LayoutGrid, List, Calendar, GanttChartSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useFeatureFlags } from '@/contexts/FeatureFlagContext';
 
-export type ViewType = 'kanban' | 'list' | 'calendar' | 'timeline' | 'budget';
+export type ViewType = 'kanban' | 'list' | 'calendar' | 'timeline';
 
 interface ViewSwitcherProps {
   activeView: ViewType;
@@ -11,14 +10,11 @@ interface ViewSwitcherProps {
 }
 
 export const ViewSwitcher = ({ activeView, onViewChange }: ViewSwitcherProps) => {
-  const { isFeatureEnabled } = useFeatureFlags();
-
   const views = [
     { id: 'kanban' as ViewType, label: 'Kanban', icon: LayoutGrid },
     { id: 'list' as ViewType, label: 'List', icon: List },
     { id: 'calendar' as ViewType, label: 'Calendar', icon: Calendar },
     { id: 'timeline' as ViewType, label: 'Timeline', icon: GanttChartSquare },
-    ...(isFeatureEnabled('FEATURE_BUDGET') ? [{ id: 'budget' as ViewType, label: 'Budget', icon: DollarSign }] : []),
   ];
 
   return (
