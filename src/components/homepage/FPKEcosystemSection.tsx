@@ -4,7 +4,7 @@ import fpkXLogo from '@/assets/fpk-x-logo.png';
 import fpkGamesLogo from '@/assets/fpk-games-logo.png';
 import fpkPodcastLogo from '@/assets/fpk-podcast-logo.png';
 import fpkNexusLogo from '@/assets/fpk-nexus-logo.png';
-import fpkCoachLogo from '@/assets/fpk-coach-logo.jpg';
+import fpkCoachLogo from '@/assets/fpk-coach-logo.png';
 
 const products = [
   {
