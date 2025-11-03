@@ -75,7 +75,8 @@ const ContextHistoryColumn: React.FC<{
     }
   };
   return (
-    <div className="bg-blue-50/90 border border-blue-100 shadow-md hover:shadow-lg rounded-xl p-6 space-y-6 h-full overflow-y-auto transition-shadow duration-200">
+    <div className="bg-blue-50/90 border border-blue-100 shadow-md hover:shadow-lg rounded-xl p-6 flex flex-col h-[calc(100vh-240px)] transition-shadow duration-200">
+      <div className="flex-1 overflow-y-auto space-y-6">
       {/* Uploaded Study Materials */}
       <div>
         <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 mb-3">
@@ -142,6 +143,7 @@ const ContextHistoryColumn: React.FC<{
           )}
         </div>
       </div>
+      </div>
     </div>
   );
 };
@@ -155,7 +157,8 @@ const InsightsAnalyticsColumn: React.FC<{
   isLoadingPlan: boolean;
 }> = ({ analytics, studyPlan, drills, isLoadingAnalytics, isLoadingPlan }) => {
   return (
-    <div className="bg-green-50/90 border border-green-100 shadow-md hover:shadow-lg rounded-xl p-6 space-y-6 h-full overflow-y-auto transition-shadow duration-200">
+    <div className="bg-green-50/90 border border-green-100 shadow-md hover:shadow-lg rounded-xl p-6 flex flex-col h-[calc(100vh-240px)] transition-shadow duration-200">
+      <div className="flex-1 overflow-y-auto space-y-6">
       {/* Learning Analytics */}
       <div>
         <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 mb-3">
@@ -256,6 +259,7 @@ const InsightsAnalyticsColumn: React.FC<{
           )}
         </div>
       </div>
+      </div>
     </div>
   );
 };
@@ -283,7 +287,7 @@ const AIInteractionColumn: React.FC<{
   };
 
   return (
-    <div className="bg-purple-50/90 border border-purple-100 shadow-md hover:shadow-lg rounded-xl p-6 flex flex-col max-h-[800px] transition-shadow duration-200">
+    <div className="bg-purple-50/90 border border-purple-100 shadow-md hover:shadow-lg rounded-xl p-6 flex flex-col h-[calc(100vh-240px)] transition-shadow duration-200">
       <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 mb-4">
         <Award className="w-5 h-5" />
         AI Study Coach

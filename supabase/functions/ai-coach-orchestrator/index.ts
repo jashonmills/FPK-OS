@@ -1314,9 +1314,6 @@ serve(async (req) => {
       throw new Error('Admin access required');
     }
 
-    // 3. Parse request body
-    const { message, conversationId, conversationHistory }: ConductorRequest = await req.json();
-    
     console.log('[CONDUCTOR] Processing message:', {
       conversationId,
       messageLength: message.length,
