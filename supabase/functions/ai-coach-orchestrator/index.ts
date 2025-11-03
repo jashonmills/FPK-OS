@@ -2086,6 +2086,18 @@ If they seem confused, provide clarification directly. Do NOT switch to Socratic
     if (isCoResponse && featureFlags['v2_dialogue_engine_enabled']?.enabled && anthropic) {
       console.log('[V2-DIALOGUE] 🎭✨ V2 Dialogue Engine ENABLED - Using Claude + SSML');
       
+      // Check if last message was Nite Owl (requires handoff)
+      const lastAIMessage = conversationHistory
+        .slice()
+        .reverse()
+        .find(m => m.persona !== 'USER');
+        
+      const needsNiteOwlHandoff = lastAIMessage?.persona === 'NITE_OWL' && inBettySession;
+      
+      if (needsNiteOwlHandoff) {
+        console.log('[V2-DIALOGUE] 🦉 Detected Nite Owl handoff needed - will generate handoff first');
+      }
+      
       // Get context for Claude
       const lastBettyMessage = conversationHistory
         .slice()
@@ -2134,6 +2146,63 @@ If they seem confused, provide clarification directly. Do NOT switch to Socratic
         const dialogueStream = new ReadableStream({
           async start(controller) {
             try {
+              // === HANDOFF FIRST if needed ===
+              if (needsNiteOwlHandoff) {
+                console.log('[V2-DIALOGUE] 🔄 Generating Betty handoff after Nite Owl...');
+                
+                const handoffPrompt = buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge) + `\n\n🔄 HANDOFF INSTRUCTION:
+Nite Owl just shared a fun fact. Warmly acknowledge him ("Thanks, Nite Owl!"), then continue your Socratic dialogue with the student's last message: "${message}"
+
+Keep it brief (1-2 sentences) and ask a NEW question that builds on what they said.`;
+
+                const handoffResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+                  method: 'POST',
+                  headers: {
+                    'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    model: 'google/gemini-2.5-flash',
+                    messages: [
+                      { role: 'system', content: handoffPrompt },
+                      ...conversationHistory.slice(-3).map(msg => ({
+                        role: msg.persona === 'USER' ? 'user' : 'assistant',
+                        content: msg.content
+                      }))
+                    ],
+                    temperature: 0.8,
+                    max_tokens: 200,
+                  }),
+                });
+                
+                if (handoffResponse.ok) {
+                  const handoffData = await handoffResponse.json();
+                  const handoffText = handoffData.choices?.[0]?.message?.content || '';
+                  
+                  // Send handoff message to client
+                  controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({
+                    type: 'handoff',
+                    persona: 'BETTY',
+                    content: handoffText,
+                    audioUrl: null
+                  })}\n\n`));
+                  
+                  // Store in database
+                  if (conversationUuid) {
+                    await supabaseClient.from('phoenix_messages').insert({
+                      conversation_id: conversationUuid,
+                      persona: 'BETTY',
+                      content: handoffText,
+                      metadata: { isHandoff: true, followingNiteOwl: true }
+                    });
+                  }
+                  
+                  console.log('[V2-DIALOGUE] ✅ Handoff message sent and stored');
+                } else {
+                  console.error('[V2-DIALOGUE] ❌ Handoff generation failed:', await handoffResponse.text());
+                }
+              }
+              
               // Send immediate "thinking" indicator
               const thinkingEvent = `data: ${JSON.stringify({
                 type: 'thinking',
