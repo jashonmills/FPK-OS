@@ -51,17 +51,28 @@ export const FilePreview = ({ fileId, onClose }: FilePreviewProps) => {
     URL.revokeObjectURL(url);
   };
 
-  const renderPreview = () => {
-    if (!file) return null;
+  const { data: signedUrl } = useQuery({
+    queryKey: ['file-signed-url', fileId],
+    queryFn: async () => {
+      if (!file) return null;
 
-    const { data } = supabase.storage
-      .from('project-files')
-      .getPublicUrl(file.storage_path);
+      const { data, error } = await supabase.storage
+        .from('project-files')
+        .createSignedUrl(file.storage_path, 3600); // 1 hour expiry
+
+      if (error) throw error;
+      return data.signedUrl;
+    },
+    enabled: !!file,
+  });
+
+  const renderPreview = () => {
+    if (!file || !signedUrl) return null;
 
     if (file.file_type.startsWith('image/')) {
       return (
         <img
-          src={data.publicUrl}
+          src={signedUrl}
           alt={file.name}
           className="max-w-full max-h-[60vh] object-contain mx-auto"
         />
@@ -71,7 +82,7 @@ export const FilePreview = ({ fileId, onClose }: FilePreviewProps) => {
     if (file.file_type.startsWith('video/')) {
       return (
         <video
-          src={data.publicUrl}
+          src={signedUrl}
           controls
           className="max-w-full max-h-[60vh] mx-auto"
         />
@@ -80,14 +91,14 @@ export const FilePreview = ({ fileId, onClose }: FilePreviewProps) => {
 
     if (file.file_type.startsWith('audio/')) {
       return (
-        <audio src={data.publicUrl} controls className="w-full" />
+        <audio src={signedUrl} controls className="w-full" />
       );
     }
 
     if (file.file_type === 'application/pdf') {
       return (
         <iframe
-          src={data.publicUrl}
+          src={signedUrl}
           className="w-full h-[60vh]"
           title={file.name}
         />
@@ -97,7 +108,7 @@ export const FilePreview = ({ fileId, onClose }: FilePreviewProps) => {
     if (file.file_type.startsWith('text/')) {
       return (
         <iframe
-          src={data.publicUrl}
+          src={signedUrl}
           className="w-full h-[60vh] border rounded"
           title={file.name}
         />

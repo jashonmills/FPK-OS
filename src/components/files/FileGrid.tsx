@@ -46,7 +46,22 @@ export const FileGrid = ({ folderId, filters, onSelectFile }: FileGridProps) => 
 
       const { data, error } = await query;
       if (error) throw error;
-      return data;
+
+      // Generate signed URLs for image files
+      const filesWithUrls = await Promise.all(
+        (data || []).map(async (file) => {
+          if (file.file_type.startsWith('image/')) {
+            const { data: signedData } = await supabase.storage
+              .from('project-files')
+              .createSignedUrl(file.storage_path, 3600);
+            
+            return { ...file, thumbnailUrl: signedData?.signedUrl };
+          }
+          return file;
+        })
+      );
+
+      return filesWithUrls;
     },
   });
 
@@ -60,13 +75,7 @@ export const FileGrid = ({ folderId, filters, onSelectFile }: FileGridProps) => 
   };
 
   const getThumbnail = (file: any) => {
-    if (file.file_type.startsWith('image/')) {
-      const { data } = supabase.storage
-        .from('project-files')
-        .getPublicUrl(file.storage_path);
-      return data.publicUrl;
-    }
-    return null;
+    return file.thumbnailUrl || null;
   };
 
   if (isLoading) {
