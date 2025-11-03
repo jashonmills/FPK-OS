@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Upload, BookOpen, Clock, TrendingUp, Target, Award, Zap, MessageSquare, Volume2 } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import type { Persona, AIDrill } from '@/types/aiCoach';
 import { useCommandCenterChat } from '@/hooks/useCommandCenterChat';
 import type { CommandCenterMessage } from '@/hooks/useCommandCenterChat';
@@ -286,7 +287,16 @@ const AIInteractionColumn: React.FC<{
   const isMobile = useIsMobile();
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messagesEndRef.current) {
+      // Use requestAnimationFrame to ensure ScrollArea has rendered
+      requestAnimationFrame(() => {
+        messagesEndRef.current?.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'end',
+          inline: 'nearest'
+        });
+      });
+    }
   }, [messages]);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -299,7 +309,7 @@ const AIInteractionColumn: React.FC<{
   return (
     <div className={cn(
       "bg-purple-50/90 border border-purple-100 shadow-md hover:shadow-lg rounded-xl flex flex-col transition-shadow duration-200",
-      isMobile ? "p-3 h-full" : "p-4 lg:p-6 h-[calc(100vh-240px)]"
+      isMobile ? "p-3 h-[calc(100vh-200px)] min-h-[500px]" : "p-4 lg:p-6 h-[calc(100vh-240px)]"
     )}>
       <h3 className={cn(
         "font-semibold text-gray-800 flex items-center gap-2 mb-4",
@@ -310,33 +320,35 @@ const AIInteractionColumn: React.FC<{
       </h3>
 
       {/* Messages Area */}
-      <div className="flex-1 min-h-0 overflow-y-auto mb-4 space-y-3">
-        {messages.length === 0 ? (
-          <div className="flex items-center justify-center h-full text-center">
-            <div>
-              <p className="text-gray-500 mb-2">👋 Welcome to your AI Command Center!</p>
-              <p className="text-sm text-gray-400">Ask a question or start studying to begin.</p>
-            </div>
-          </div>
-        ) : (
-          messages.map((message) => <MessageBubble key={message.id} message={message} />)
-        )}
-        {isLoading && (
-          <div className="flex items-start">
-            <div className="max-w-[80%] px-4 py-3 rounded-2xl shadow-sm bg-purple-100 border border-purple-200">
-              <div className="flex gap-1">
-                <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+      <ScrollArea className="flex-1 mb-4">
+        <div className="space-y-3 pr-2">
+          {messages.length === 0 ? (
+            <div className="flex items-center justify-center min-h-[200px] text-center">
+              <div>
+                <p className="text-gray-500 mb-2">👋 Welcome to your AI Command Center!</p>
+                <p className="text-sm text-gray-400">Ask a question or start studying to begin.</p>
               </div>
             </div>
-          </div>
-        )}
-        <div ref={messagesEndRef} />
-      </div>
+          ) : (
+            messages.map((message) => <MessageBubble key={message.id} message={message} />)
+          )}
+          {isLoading && (
+            <div className="flex items-start">
+              <div className="max-w-[80%] px-4 py-3 rounded-2xl shadow-sm bg-purple-100 border border-purple-200">
+                <div className="flex gap-1">
+                  <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                </div>
+              </div>
+            </div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+      </ScrollArea>
 
       {/* Input Area */}
-      <div className="border-t pt-4">
+      <div className="border-t pt-4 flex-shrink-0">
         <div className="flex gap-2">
           <textarea
             value={inputValue}
