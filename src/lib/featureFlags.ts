@@ -12,7 +12,7 @@ export const FeatureFlags = {
   ENABLE_BETA_FEATURES: import.meta.env.VITE_FEATURE_ENABLE_BETA_FEATURES === 'true', // Default disabled
   ENABLE_LIBRARY: import.meta.env.VITE_FEATURE_ENABLE_LIBRARY === 'true', // Default disabled
   ENABLE_LIVE_HUB: import.meta.env.VITE_FEATURE_ENABLE_LIVE_HUB !== 'false', // Default enabled
-  LEGACY_AI_ASSISTANT_ENABLED: import.meta.env.VITE_FEATURE_LEGACY_AI_ASSISTANT_ENABLED === 'true', // Default disabled
+  LEGACY_AI_ASSISTANT_ENABLED: import.meta.env.VITE_FEATURE_LEGACY_AI_ASSISTANT_ENABLED !== 'false', // Default enabled
   ENABLE_TTS: import.meta.env.VITE_FEATURE_ENABLE_TTS !== 'false', // Default enabled (for future subscription gating)
 } as const;
 
@@ -64,7 +64,7 @@ export function shouldShowLiveHub(): boolean {
 
 /**
  * Check if legacy AI Assistant page should be accessible
- * (Default: false - the old AI Assistant is hidden in favor of AI Command Center)
+ * (Default: true - enabled for organization AI Coach functionality)
  */
 export function shouldShowLegacyAIAssistant(): boolean {
   return isFeatureEnabled('LEGACY_AI_ASSISTANT_ENABLED');
