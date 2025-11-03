@@ -287,18 +287,33 @@ const AIInteractionColumn: React.FC<{
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
 
+  // Intelligent auto-scroll: only scrolls when user is near bottom
   useEffect(() => {
-    if (messagesEndRef.current) {
-      // Use requestAnimationFrame to ensure ScrollArea has rendered
-      requestAnimationFrame(() => {
-        messagesEndRef.current?.scrollIntoView({ 
-          behavior: 'smooth',
-          block: 'end',
-          inline: 'nearest'
+    if (messages.length === 0 || !messagesEndRef.current) return;
+    
+    // Get the scroll container (inside ScrollArea)
+    const scrollContainer = messagesEndRef.current.parentElement;
+    if (!scrollContainer) return;
+    
+    const { scrollTop, scrollHeight, clientHeight } = scrollContainer;
+    const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+    const isNearBottom = distanceFromBottom < 150;
+    
+    // Only auto-scroll if user is near the bottom OR this is the first message
+    if (isNearBottom || messages.length === 1) {
+      const timeoutId = setTimeout(() => {
+        requestAnimationFrame(() => {
+          messagesEndRef.current?.scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'end',
+            inline: 'nearest'
+          });
         });
-      });
+      }, 100);
+      
+      return () => clearTimeout(timeoutId);
     }
-  }, [messages]);
+  }, [messages.length]); // Only trigger on message COUNT change, not content updates
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
