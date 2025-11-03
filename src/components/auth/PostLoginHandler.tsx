@@ -13,13 +13,24 @@ export default function PostLoginHandler() {
 
     let timeoutId: NodeJS.Timeout;
 
+    // Safe navigation wrapper to handle browser extension interference
+    const safeNavigate = (path: string) => {
+      try {
+        navigate(path, { replace: true });
+      } catch (error) {
+        console.error('⚠️ Navigation error (likely browser extension interference):', error);
+        // Fallback: Force hard navigation to clear any broken state
+        window.location.href = path;
+      }
+    };
+
     const routeUser = async () => {
-      console.log('🔀 PostLoginHandler: Routing user based on access scope');
+      console.log(`🔀 PostLoginHandler [${new Date().toISOString()}]: Routing user based on access scope`);
       
       timeoutId = setTimeout(() => {
-        console.error('PostLoginHandler: Routing timeout, redirecting to dashboard');
-        navigate('/dashboard/learner', { replace: true });
-      }, 5000); // 5 second timeout
+        console.error(`⏱️ PostLoginHandler [${new Date().toISOString()}]: Routing timeout after 10s, redirecting to dashboard`);
+        safeNavigate('/dashboard/learner');
+      }, 10000); // 10 second timeout for resilience
       
       try {
         const { data: profile, error: profileError } = await supabase
@@ -38,7 +49,7 @@ export default function PostLoginHandler() {
         if (!profile || profile.access_scope === 'platform') {
           console.log('✅ PostLoginHandler: Platform user → /dashboard/learner');
           clearTimeout(timeoutId);
-          navigate('/dashboard/learner', { replace: true });
+          safeNavigate('/dashboard/learner');
           return;
         }
 
@@ -54,34 +65,34 @@ export default function PostLoginHandler() {
           if (orgError) {
             console.error('PostLoginHandler: Org fetch error', orgError);
             clearTimeout(timeoutId);
-            navigate('/no-organization-access', { replace: true });
+            safeNavigate('/no-organization-access');
             return;
           }
 
           if (!orgs || orgs.length === 0) {
             console.warn('⚠️ PostLoginHandler: Org-only user with no active orgs');
             clearTimeout(timeoutId);
-            navigate('/no-organization-access', { replace: true });
+            safeNavigate('/no-organization-access');
             return;
           }
 
           if (orgs.length === 1) {
             console.log('✅ PostLoginHandler: Single org → direct navigation');
             clearTimeout(timeoutId);
-            navigate(`/org/${orgs[0].org_id}`, { replace: true });
+            safeNavigate(`/org/${orgs[0].org_id}`);
             return;
           }
 
           console.log('🔀 PostLoginHandler: Multiple orgs → picker page');
           clearTimeout(timeoutId);
-          navigate('/choose-organization', { replace: true });
+          safeNavigate('/choose-organization');
           return;
         }
 
       } catch (error) {
-        console.error('PostLoginHandler: Unexpected error', error);
+        console.error('❌ PostLoginHandler: Unexpected error', error);
         clearTimeout(timeoutId);
-        navigate('/dashboard/learner', { replace: true });
+        safeNavigate('/dashboard/learner');
       }
     };
 

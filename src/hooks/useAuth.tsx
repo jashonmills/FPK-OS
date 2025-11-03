@@ -40,9 +40,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Quick initial session check with short timeout
     const initSession = async () => {
       const timeout = setTimeout(() => {
-        console.warn('useAuth: Initial session check timed out');
+        console.warn('useAuth: Initial session check timed out after 15s - continuing with graceful degradation');
         setLoading(false);
-      }, 3000); // 3 second timeout
+      }, 15000); // 15 second timeout for resilience
       
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
