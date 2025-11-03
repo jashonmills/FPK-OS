@@ -285,47 +285,79 @@ const AIInteractionColumn: React.FC<{
   isLoading: boolean;
 }> = ({ messages, inputValue, onInputChange, onSendMessage, onVoiceTranscription, isLoading }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
   const lastMessageRef = useRef<string | null>(null);
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isMobile = useIsMobile();
 
-  // Intelligent auto-scroll: scrolls chat container on new AI messages
+  // Intelligent auto-scroll with proper Radix UI viewport targeting
   useEffect(() => {
-    if (messages.length === 0 || !messagesEndRef.current) return;
+    // Clear any pending scroll operations
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
+    }
+
+    if (messages.length === 0) return;
+
+    // Get the actual scrollable viewport using Radix UI's data attribute
+    const viewport = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement;
     
-    // Get the ScrollArea viewport (2 levels up in DOM hierarchy)
-    const scrollViewport = messagesEndRef.current.parentElement?.parentElement;
-    if (!scrollViewport) return;
-    
-    // Check if this is a new message from an AI persona
+    if (!viewport) {
+      console.warn('[Auto-scroll] Could not find scroll viewport');
+      return;
+    }
+
+    console.log('[Auto-scroll] Triggered', {
+      messageCount: messages.length,
+      lastMessagePersona: messages[messages.length - 1]?.persona,
+      viewportHeight: viewport.scrollHeight,
+      currentScroll: viewport.scrollTop
+    });
+
+    // Check if this is a new AI message
     const lastMessage = messages[messages.length - 1];
-    const isNewAssistantMessage = 
+    const isNewAIMessage = 
       lastMessage?.persona !== 'USER' && 
       lastMessage.id !== lastMessageRef.current;
-    
-    if (isNewAssistantMessage) {
+
+    if (isNewAIMessage) {
       lastMessageRef.current = lastMessage.id;
+      console.log('[Auto-scroll] New AI message detected:', lastMessage.id);
     }
-    
-    const { scrollTop, scrollHeight, clientHeight } = scrollViewport;
-    const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
-    const isNearBottom = distanceFromBottom < 150;
-    
-    // Auto-scroll if: near bottom, first message, OR new AI response
-    if (isNearBottom || messages.length === 1 || isNewAssistantMessage) {
-      const timeoutId = setTimeout(() => {
-        requestAnimationFrame(() => {
-          if (scrollViewport) {
-            scrollViewport.scrollTo({
-              top: scrollViewport.scrollHeight,
+
+    // Scroll logic with debounce
+    scrollTimeoutRef.current = setTimeout(() => {
+      requestAnimationFrame(() => {
+        if (viewport) {
+          const { scrollTop, scrollHeight, clientHeight } = viewport;
+          const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+          
+          console.log('[Auto-scroll] Scroll metrics:', {
+            scrollTop,
+            scrollHeight,
+            clientHeight,
+            distanceFromBottom,
+            isNewAIMessage
+          });
+
+          // Always scroll for new AI messages or if user is near bottom
+          if (isNewAIMessage || distanceFromBottom < 150 || messages.length === 1) {
+            viewport.scrollTo({
+              top: scrollHeight,
               behavior: 'smooth'
             });
+            console.log('[Auto-scroll] Scrolling to bottom');
           }
-        });
-      }, 200);
-      
-      return () => clearTimeout(timeoutId);
-    }
-  }, [messages]); // Trigger on any message change, including streaming updates
+        }
+      });
+    }, 300); // Increased delay to ensure DOM is fully updated
+
+    return () => {
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
+  }, [messages]);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -351,7 +383,7 @@ const AIInteractionColumn: React.FC<{
       </div>
 
       {/* Messages Area */}
-      <ScrollArea className="flex-1 mb-4">
+      <ScrollArea ref={scrollAreaRef} className="flex-1 mb-4">
         <div className="space-y-3 pr-2">
           {messages.length === 0 ? (
             <div className="flex items-center justify-center min-h-[200px] text-center">
