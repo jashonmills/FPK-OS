@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, Upload, BookOpen, Clock, TrendingUp, Target, Award, Zap, MessageSquare, Volume2 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { SpeedControl } from '@/components/coach/SpeedControl';
 import type { Persona, AIDrill } from '@/types/aiCoach';
 import { useCommandCenterChat } from '@/hooks/useCommandCenterChat';
 import type { CommandCenterMessage } from '@/hooks/useCommandCenterChat';
@@ -311,13 +312,16 @@ const AIInteractionColumn: React.FC<{
       "bg-purple-50/90 border border-purple-100 shadow-md hover:shadow-lg rounded-xl flex flex-col transition-shadow duration-200",
       isMobile ? "p-3 h-[calc(100vh-200px)] min-h-[500px]" : "p-4 lg:p-6 h-[calc(100vh-240px)]"
     )}>
-      <h3 className={cn(
-        "font-semibold text-gray-800 flex items-center gap-2 mb-4",
+      <div className={cn(
+        "font-semibold text-gray-800 flex items-center justify-between mb-4",
         isMobile ? "text-base" : "text-lg"
       )}>
-        <Award className={isMobile ? "w-4 h-4" : "w-5 h-5"} />
-        AI Study Coach
-      </h3>
+        <div className="flex items-center gap-2">
+          <Award className={isMobile ? "w-4 h-4" : "w-5 h-5"} />
+          <span>AI Study Coach</span>
+        </div>
+        <SpeedControl compact={isMobile} />
+      </div>
 
       {/* Messages Area */}
       <ScrollArea className="flex-1 mb-4">
