@@ -370,6 +370,30 @@ export type Database = {
         }
         Relationships: []
       }
+      permissions: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -515,6 +539,38 @@ export type Database = {
           },
         ]
       }
+      project_members: {
+        Row: {
+          created_at: string | null
+          id: string
+          project_id: string | null
+          role: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          project_id?: string | null
+          role?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          project_id?: string | null
+          role?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_members_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       projects: {
         Row: {
           color: string
@@ -541,6 +597,35 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      role_permissions: {
+        Row: {
+          created_at: string | null
+          id: string
+          permission_id: string | null
+          role: Database["public"]["Enums"]["app_role"]
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          permission_id?: string | null
+          role: Database["public"]["Enums"]["app_role"]
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          permission_id?: string | null
+          role?: Database["public"]["Enums"]["app_role"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "role_permissions_permission_id_fkey"
+            columns: ["permission_id"]
+            isOneToOne: false
+            referencedRelation: "permissions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       sub_tasks: {
         Row: {
@@ -806,6 +891,44 @@ export type Database = {
           },
         ]
       }
+      user_permissions: {
+        Row: {
+          granted: boolean | null
+          granted_at: string | null
+          granted_by: string | null
+          id: string
+          permission_id: string | null
+          reason: string | null
+          user_id: string | null
+        }
+        Insert: {
+          granted?: boolean | null
+          granted_at?: string | null
+          granted_by?: string | null
+          id?: string
+          permission_id?: string | null
+          reason?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          granted?: boolean | null
+          granted_at?: string | null
+          granted_by?: string | null
+          id?: string
+          permission_id?: string | null
+          reason?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_permissions_permission_id_fkey"
+            columns: ["permission_id"]
+            isOneToOne: false
+            referencedRelation: "permissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_rates: {
         Row: {
           created_at: string
@@ -920,6 +1043,10 @@ export type Database = {
         Returns: undefined
       }
       user_has_password: { Args: { user_id: string }; Returns: boolean }
+      user_has_permission: {
+        Args: { _permission_name: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "member" | "manager" | "hr" | "it" | "viewer"

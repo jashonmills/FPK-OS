@@ -17,6 +17,7 @@ import Budget from "./pages/Budget";
 import Payroll from "./pages/Payroll";
 import PaymentSummary from "./pages/PaymentSummary";
 import NotFound from "./pages/NotFound";
+import { PermissionGuard } from '@/components/auth/PermissionGuard';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading, hasPassword } = useAuth();
@@ -102,7 +103,9 @@ const App = () => (
                 path="/admin"
                 element={
                   <ProtectedRoute>
-                    <Admin />
+                    <PermissionGuard permission={['admin_panel_full', 'admin_panel_limited']} redirectTo="/">
+                      <Admin />
+                    </PermissionGuard>
                   </ProtectedRoute>
                 } 
               />
@@ -118,7 +121,9 @@ const App = () => (
                 path="/budget" 
                 element={
                   <ProtectedRoute>
-                    <Budget />
+                    <PermissionGuard permission={['budget_view_all', 'budget_view_assigned']} redirectTo="/">
+                      <Budget />
+                    </PermissionGuard>
                   </ProtectedRoute>
                 } 
               />
@@ -126,7 +131,9 @@ const App = () => (
                 path="/payroll" 
                 element={
                   <ProtectedRoute>
-                    <Payroll />
+                    <PermissionGuard permission="payroll_view" redirectTo="/">
+                      <Payroll />
+                    </PermissionGuard>
                   </ProtectedRoute>
                 } 
               />
@@ -134,7 +141,9 @@ const App = () => (
                 path="/payroll/summary/:runId" 
                 element={
                   <ProtectedRoute>
-                    <PaymentSummary />
+                    <PermissionGuard permission="payroll_view" redirectTo="/">
+                      <PaymentSummary />
+                    </PermissionGuard>
                   </ProtectedRoute>
                 } 
               />

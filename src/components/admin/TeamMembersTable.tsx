@@ -16,7 +16,7 @@ interface TeamMember {
   email: string;
   full_name: string | null;
   avatar_url: string | null;
-  role: 'admin' | 'member';
+  role: 'admin' | 'manager' | 'hr' | 'member' | 'it' | 'viewer';
   confirmed_at: string | null;
 }
 
@@ -68,7 +68,7 @@ export const TeamMembersTable = () => {
     };
   }, []);
 
-  const handleRoleChange = async (userId: string, newRole: 'admin' | 'member') => {
+  const handleRoleChange = async (userId: string, newRole: 'admin' | 'manager' | 'hr' | 'member' | 'it' | 'viewer') => {
     // Check if this would remove the last admin
     if (newRole === 'member') {
       const adminCount = members.filter(m => m.role === 'admin').length;
@@ -228,15 +228,19 @@ export const TeamMembersTable = () => {
                   <p className="text-xs text-muted-foreground mb-1">Role</p>
                   <Select
                     value={member.role}
-                    onValueChange={(value) => handleRoleChange(member.id, value as 'admin' | 'member')}
+                    onValueChange={(value) => handleRoleChange(member.id, value as any)}
                     disabled={actionLoading === member.id}
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="admin">Super Admin</SelectItem>
+                      <SelectItem value="manager">Manager</SelectItem>
+                      <SelectItem value="hr">HR</SelectItem>
                       <SelectItem value="member">Member</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
+                      <SelectItem value="it">IT</SelectItem>
+                      <SelectItem value="viewer">Viewer</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -307,15 +311,19 @@ export const TeamMembersTable = () => {
                 <TableCell>
                   <Select
                     value={member.role}
-                    onValueChange={(value) => handleRoleChange(member.id, value as 'admin' | 'member')}
+                    onValueChange={(value) => handleRoleChange(member.id, value as any)}
                     disabled={actionLoading === member.id}
                   >
-                    <SelectTrigger className="w-[120px]">
+                    <SelectTrigger className="w-[140px]">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="admin">Super Admin</SelectItem>
+                      <SelectItem value="manager">Manager</SelectItem>
+                      <SelectItem value="hr">HR</SelectItem>
                       <SelectItem value="member">Member</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
+                      <SelectItem value="it">IT</SelectItem>
+                      <SelectItem value="viewer">Viewer</SelectItem>
                     </SelectContent>
                   </Select>
                 </TableCell>

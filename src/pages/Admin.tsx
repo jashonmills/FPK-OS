@@ -6,6 +6,7 @@ import { InviteUserDialog } from '@/components/admin/InviteUserDialog';
 import { TeamMembersTable } from '@/components/admin/TeamMembersTable';
 import { FeatureFlagsTable } from '@/components/admin/FeatureFlagsTable';
 import { UserRatesTable } from '@/components/admin/UserRatesTable';
+import { RolesPermissionsManager } from '@/components/admin/RolesPermissionsManager';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Shield } from 'lucide-react';
@@ -83,8 +84,9 @@ const Admin = () => {
         </div>
 
         <Tabs defaultValue="team" className="space-y-4 md:space-y-6 w-full">
-          <TabsList className="w-full md:w-auto grid grid-cols-3">
+          <TabsList className="w-full md:w-auto grid grid-cols-4">
             <TabsTrigger value="team">Team Members</TabsTrigger>
+            <TabsTrigger value="roles">Roles & Permissions</TabsTrigger>
             <TabsTrigger value="rates">User Rates</TabsTrigger>
             <TabsTrigger value="features">Feature Flags</TabsTrigger>
           </TabsList>
@@ -102,6 +104,10 @@ const Admin = () => {
                 <TeamMembersTable />
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="roles" className="space-y-4 w-full overflow-x-hidden">
+            <RolesPermissionsManager />
           </TabsContent>
 
           <TabsContent value="rates" className="space-y-4 w-full overflow-x-hidden">
