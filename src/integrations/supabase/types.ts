@@ -293,6 +293,83 @@ export type Database = {
           },
         ]
       }
+      payroll_run_line_items: {
+        Row: {
+          created_at: string
+          employee_user_id: string
+          hourly_rate: number
+          id: string
+          payroll_run_id: string
+          total_hours: number
+          total_pay: number
+        }
+        Insert: {
+          created_at?: string
+          employee_user_id: string
+          hourly_rate: number
+          id?: string
+          payroll_run_id: string
+          total_hours: number
+          total_pay: number
+        }
+        Update: {
+          created_at?: string
+          employee_user_id?: string
+          hourly_rate?: number
+          id?: string
+          payroll_run_id?: string
+          total_hours?: number
+          total_pay?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payroll_run_line_items_payroll_run_id_fkey"
+            columns: ["payroll_run_id"]
+            isOneToOne: false
+            referencedRelation: "payroll_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payroll_runs: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string | null
+          pay_period_end_date: string
+          pay_period_start_date: string
+          processed_at: string
+          processed_by_user_id: string
+          status: string
+          total_cost: number
+          total_hours: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          pay_period_end_date: string
+          pay_period_start_date: string
+          processed_at?: string
+          processed_by_user_id: string
+          status?: string
+          total_cost: number
+          total_hours: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          pay_period_end_date?: string
+          pay_period_start_date?: string
+          processed_at?: string
+          processed_by_user_id?: string
+          status?: string
+          total_cost?: number
+          total_hours?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -428,6 +505,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "time_entries"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_expenses_time_entry_id_fkey"
+            columns: ["time_entry_id"]
+            isOneToOne: false
+            referencedRelation: "vw_payroll_report"
+            referencedColumns: ["time_entry_id"]
           },
         ]
       }
@@ -772,7 +856,40 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      vw_payroll_report: {
+        Row: {
+          calculated_cost: number | null
+          created_at: string | null
+          description: string | null
+          entry_date: string | null
+          hourly_rate: number | null
+          hours_logged: number | null
+          project_id: string | null
+          project_name: string | null
+          task_id: string | null
+          task_title: string | null
+          time_entry_id: string | null
+          user_email: string | null
+          user_id: string | null
+          user_name: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "time_entries_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "time_entries_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       get_or_create_dm_conversation: {

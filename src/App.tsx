@@ -14,6 +14,7 @@ import Admin from "./pages/Admin";
 import Profile from "./pages/Profile";
 import SetupPassword from "./pages/SetupPassword";
 import Budget from "./pages/Budget";
+import Payroll from "./pages/Payroll";
 import NotFound from "./pages/NotFound";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -117,6 +118,14 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <Budget />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/payroll" 
+                element={
+                  <ProtectedRoute>
+                    <Payroll />
                   </ProtectedRoute>
                 } 
               />

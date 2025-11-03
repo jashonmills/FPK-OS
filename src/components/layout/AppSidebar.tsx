@@ -25,8 +25,9 @@ import { TimeClockWidget } from '@/components/timeclock/TimeClockWidget';
 const navigationItems = [
   { title: 'Dashboard', url: '/', icon: LayoutDashboard, feature: null, adminOnly: false },
   { title: 'Kanban Board', url: '/kanban', icon: Briefcase, feature: null, adminOnly: false },
-  { title: 'Admin', url: '/admin', icon: Shield, feature: null, adminOnly: true },
   { title: 'Budget', url: '/budget', icon: DollarSign, feature: 'FEATURE_BUDGET' as const, adminOnly: false },
+  { title: 'Payroll', url: '/payroll', icon: DollarSign, feature: null, adminOnly: true },
+  { title: 'Admin', url: '/admin', icon: Shield, feature: null, adminOnly: true },
   { title: 'Development', url: '/development', icon: Code, feature: 'FEATURE_DEVELOPMENT' as const, adminOnly: false },
   { title: 'Planning', url: '/planning', icon: Calendar, feature: 'FEATURE_PLANNING' as const, adminOnly: false },
   { title: 'Messages', url: '/messages', icon: MessageSquare, feature: 'FEATURE_MESSAGES' as const, adminOnly: false },
