@@ -1415,6 +1415,10 @@ export type Database = {
         Args: { p_conversation_id: string; p_user_id: string }
         Returns: boolean
       }
+      is_project_member: {
+        Args: { _project_id: string; _user_id: string }
+        Returns: boolean
+      }
       mark_conversation_read: {
         Args: { p_conversation_id: string; p_user_id: string }
         Returns: undefined
