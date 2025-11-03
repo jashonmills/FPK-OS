@@ -4,12 +4,14 @@ import { useAuth } from '@/contexts/AuthContext';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from '@/components/ui/sidebar';
-import { User, Settings, LogOut } from 'lucide-react';
+import { User, Settings, LogOut, HelpCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useHelp } from '@/contexts/HelpContext';
 
 export const AppHeader = () => {
   const { signOut } = useAuth();
   const navigate = useNavigate();
+  const { openHelpCenter } = useHelp();
 
   return (
     <header className="h-14 border-b border-border bg-background flex items-center justify-between px-3 md:px-4 overflow-x-hidden w-full">
@@ -20,6 +22,15 @@ export const AppHeader = () => {
 
       <div className="flex items-center gap-1 md:gap-2 flex-shrink-0">
         <NotificationCenter />
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={() => openHelpCenter()}
+          className="h-9 w-9 md:h-10 md:w-10"
+          data-help-button
+        >
+          <HelpCircle className="h-4 w-4 md:h-5 md:w-5" />
+        </Button>
         <ThemeToggle />
         
         <DropdownMenu>

@@ -153,14 +153,14 @@ export const TimeClockWidget = () => {
 
   if (collapsed) {
     return (
-      <div className="flex items-center justify-center p-2">
+      <div className="flex items-center justify-center p-2" data-time-clock-widget>
         <Clock className={`h-5 w-5 ${activeSession ? 'text-green-500 animate-pulse' : 'text-muted-foreground'}`} />
       </div>
     );
   }
 
   return (
-    <Card className="border-sidebar-border bg-sidebar">
+    <Card className="border-sidebar-border bg-sidebar" data-time-clock-widget>
       <CardContent className="p-3 space-y-3">
         {!activeSession ? (
           <>

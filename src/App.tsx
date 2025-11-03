@@ -6,6 +6,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { FeatureFlagProvider } from "@/contexts/FeatureFlagContext";
+import { HelpProvider } from "@/contexts/HelpContext";
+import { HelpCenter } from "@/components/help/HelpCenter";
+import { OnboardingTour } from "@/components/onboarding/OnboardingTour";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Kanban from "./pages/Kanban";
@@ -66,8 +69,11 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <FeatureFlagProvider>
-            <Routes>
-              <Route path="/auth" element={<Auth />} />
+            <HelpProvider>
+              <HelpCenter />
+              <OnboardingTour />
+              <Routes>
+                <Route path="/auth" element={<Auth />} />
               <Route 
                 path="/setup-password" 
                 element={
@@ -159,6 +165,7 @@ const App = () => (
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
+            </HelpProvider>
           </FeatureFlagProvider>
         </AuthProvider>
       </BrowserRouter>

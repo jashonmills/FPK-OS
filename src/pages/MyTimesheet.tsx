@@ -12,6 +12,7 @@ import { TimesheetStatusBadge } from '@/components/timesheet/TimesheetStatusBadg
 import { TimesheetDailyCard } from '@/components/timesheet/TimesheetDailyCard';
 import { TimesheetSubmitDialog } from '@/components/timesheet/TimesheetSubmitDialog';
 import { EditTimeEntryDialog } from '@/components/payroll/EditTimeEntryDialog';
+import { ContextualHelpButton } from '@/components/help/ContextualHelpButton';
 
 interface TimeEntry {
   id: string;
