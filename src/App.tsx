@@ -20,6 +20,7 @@ import Payroll from "./pages/Payroll";
 import PaymentSummary from "./pages/PaymentSummary";
 import MyTimesheet from "./pages/MyTimesheet";
 import Files from "./pages/Files";
+import Documentation from "./pages/Documentation";
 import NotFound from "./pages/NotFound";
 import { PermissionGuard } from '@/components/auth/PermissionGuard';
 import { FeatureFlagGuard } from '@/components/auth/FeatureFlagGuard';
@@ -175,6 +176,16 @@ const App = () => (
                   <ProtectedRoute>
                     <FeatureFlagGuard feature="FEATURE_FILES">
                       <Files />
+                    </FeatureFlagGuard>
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/docs" 
+                element={
+                  <ProtectedRoute>
+                    <FeatureFlagGuard feature="FEATURE_DOCUMENTATION">
+                      <Documentation />
                     </FeatureFlagGuard>
                   </ProtectedRoute>
                 } 
