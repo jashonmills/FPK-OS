@@ -26,10 +26,10 @@ export const FileList = ({ folderId, filters, onSelectFile }: FileListProps) => 
   const { data: files, isLoading } = useQuery({
     queryKey: ['project-files', folderId, filters],
     queryFn: async () => {
-      let query = supabase
-        .from('project_files')
-        .select('*, uploader:uploader_id(full_name)')
-        .order('created_at', { ascending: false });
+        let query = supabase
+          .from('project_files')
+          .select('*, uploader:profiles!uploader_id(full_name)')
+          .order('created_at', { ascending: false });
 
       if (folderId) {
         query = query.eq('folder_id', folderId);

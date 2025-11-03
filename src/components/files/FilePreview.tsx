@@ -19,7 +19,7 @@ export const FilePreview = ({ fileId, onClose }: FilePreviewProps) => {
 
       const { data, error } = await supabase
         .from('project_files')
-        .select('*, uploader:uploader_id(full_name)')
+        .select('*, uploader:profiles!uploader_id(full_name)')
         .eq('id', fileId)
         .single();
 

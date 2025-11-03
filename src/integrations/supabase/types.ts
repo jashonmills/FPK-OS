@@ -911,6 +911,13 @@ export type Database = {
             referencedRelation: "file_folders"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "project_files_uploader_id_fkey"
+            columns: ["uploader_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
       project_members: {
