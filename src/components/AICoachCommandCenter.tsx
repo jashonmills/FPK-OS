@@ -74,7 +74,7 @@ const ContextHistoryColumn: React.FC<{
     }
   };
   return (
-    <div className="bg-white rounded-xl shadow-md p-6 space-y-6 h-full overflow-y-auto">
+    <div className="bg-blue-50/90 border border-blue-100 shadow-md hover:shadow-lg rounded-xl p-6 space-y-6 h-full overflow-y-auto transition-shadow duration-200">
       {/* Uploaded Study Materials */}
       <div>
         <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 mb-3">
@@ -154,7 +154,7 @@ const InsightsAnalyticsColumn: React.FC<{
   isLoadingPlan: boolean;
 }> = ({ analytics, studyPlan, drills, isLoadingAnalytics, isLoadingPlan }) => {
   return (
-    <div className="bg-white rounded-xl shadow-md p-6 space-y-6 h-full overflow-y-auto">
+    <div className="bg-green-50/90 border border-green-100 shadow-md hover:shadow-lg rounded-xl p-6 space-y-6 h-full overflow-y-auto transition-shadow duration-200">
       {/* Learning Analytics */}
       <div>
         <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 mb-3">
@@ -282,7 +282,7 @@ const AIInteractionColumn: React.FC<{
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-md p-6 flex flex-col h-full">
+    <div className="bg-purple-50/90 border border-purple-100 shadow-md hover:shadow-lg rounded-xl p-6 flex flex-col h-full transition-shadow duration-200">
       <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 mb-4">
         <Award className="w-5 h-5" />
         AI Study Coach
@@ -452,7 +452,7 @@ export const AICoachCommandCenter: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <div className="min-h-screen p-4">
       <div className="max-w-[1920px] mx-auto">
         {/* Header */}
         <header className="mb-6 pt-8">
@@ -461,8 +461,8 @@ export const AICoachCommandCenter: React.FC = () => {
         </header>
 
         {/* Three-Column Layout with Frosted Glass Effect */}
-        <div className="p-8 bg-white/60 backdrop-blur-xl border border-white/30 rounded-2xl shadow-2xl">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-240px)]">
+        <div className="p-8 bg-white/40 backdrop-blur-md border border-white/40 rounded-2xl shadow-2xl">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[700px] max-h-[calc(100vh-240px)]">
           {/* Left Column - Context & History */}
           <div className="lg:col-span-3 overflow-hidden">
             <ContextHistoryColumn
