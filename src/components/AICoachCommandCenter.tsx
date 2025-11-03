@@ -2,8 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, Upload, BookOpen, Clock, TrendingUp, Target, Award, Zap, MessageSquare } from 'lucide-react';
 import { cn } from '../lib/utils';
 import type { Persona, AIDrill } from '@/types/aiCoach';
+import { useCommandCenterChat } from '@/hooks/useCommandCenterChat';
 import type { CommandCenterMessage } from '@/hooks/useCommandCenterChat';
-import { AIService } from '../services/aiService';
 import { useAuth } from '@/hooks/useAuth';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -402,9 +402,16 @@ const AIInteractionColumn: React.FC<{
 export const AICoachCommandCenter: React.FC = () => {
   const { user } = useAuth();
   const isMobile = useIsMobile();
-  const [messages, setMessages] = useState<CommandCenterMessage[]>([]);
+  
+  // Use the streaming chat hook
+  const {
+    messages,
+    loading: isLoading,
+    sendMessage: sendChatMessage,
+    conversationId
+  } = useCommandCenterChat(user?.id);
+  
   const [inputValue, setInputValue] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
 
   // Live data hooks - replacing all placeholder data
   const { studyMaterials, isLoadingMaterials, uploadMaterial } = useAICoachStudyMaterials();
@@ -418,71 +425,14 @@ export const AICoachCommandCenter: React.FC = () => {
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isLoading || !user) return;
 
-    const userMessage: CommandCenterMessage = {
-      id: Date.now().toString(),
-      persona: 'USER',
-      content: inputValue,
-      created_at: new Date().toISOString(),
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
     const currentInput = inputValue;
     setInputValue('');
-    setIsLoading(true);
+    
+    // Call the streaming hook's sendMessage
+    await sendChatMessage(currentInput);
 
-    try {
-      // Transform CommandCenterMessage to format AIService expects
-      const historyForAI = messages.map(msg => ({
-        id: msg.id,
-        persona: msg.persona as any, // AIService doesn't know about CONDUCTOR yet
-        content: msg.content,
-        timestamp: new Date(msg.created_at)
-      }));
-      
-      // Call the real AI orchestrator with actual user ID
-      const response = await AIService.sendMessage(
-        user.id,
-        currentInput,
-        historyForAI
-      );
-
-      const aiMessage: CommandCenterMessage = {
-        id: (Date.now() + 1).toString(),
-        persona: response.persona.toUpperCase() as CommandCenterMessage['persona'],
-        content: response.content,
-        created_at: new Date().toISOString(),
-      };
-      
-      setMessages((prev) => [...prev, aiMessage]);
-
-      // Track analytics after successful interaction
-      await trackSession(5, [currentInput.substring(0, 50)]);
-
-      // Auto-save conversation every 4 messages (2 exchanges)
-      if (messages.length > 0 && messages.length % 4 === 0) {
-        const conversationMessages = [...messages, userMessage, aiMessage].map(msg => ({
-          role: msg.persona === 'USER' ? 'user' as const : 'assistant' as const,
-          content: msg.content,
-          persona: msg.persona === 'USER' ? undefined : msg.persona
-        }));
-        
-        const title = messages[0]?.content.substring(0, 50) || 'New Conversation';
-        await saveConversation(title, conversationMessages);
-      }
-    } catch (error) {
-      console.error('Error sending message:', error);
-      toast.error('Failed to send message');
-      
-      const errorMessage: CommandCenterMessage = {
-        id: (Date.now() + 1).toString(),
-        persona: 'BETTY',
-        content: "I'm sorry, I'm having trouble connecting right now. Please try again in a moment.",
-        created_at: new Date().toISOString(),
-      };
-      setMessages((prev) => [...prev, errorMessage]);
-    } finally {
-      setIsLoading(false);
-    }
+    // Track analytics after interaction
+    await trackSession(5, [currentInput.substring(0, 50)]);
   };
 
   const handleVoiceTranscription = (transcription: string) => {
@@ -491,23 +441,7 @@ export const AICoachCommandCenter: React.FC = () => {
   };
 
   const handleLoadChat = async (chatId: string) => {
-    try {
-      const loadedMessages = await loadMessages(chatId);
-      
-      // Transform to CommandCenterMessage format
-      const transformedMessages: CommandCenterMessage[] = loadedMessages.map(msg => ({
-        id: msg.id,
-        persona: msg.role === 'user' ? 'USER' : (msg.persona?.toUpperCase() as CommandCenterMessage['persona'] || 'BETTY'),
-        content: msg.content,
-        created_at: msg.created_at
-      }));
-      
-      setMessages(transformedMessages);
-      toast.success('Chat loaded successfully');
-    } catch (error) {
-      console.error('Error loading chat:', error);
-      toast.error('Failed to load chat');
-    }
+    toast.info('Chat history loading is managed by the streaming service');
   };
 
   return (
