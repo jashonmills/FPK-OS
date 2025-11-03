@@ -92,7 +92,7 @@ export function useAICoachConversations() {
 
       if (error) throw error;
 
-      return data || [];
+      return (data || []) as ConversationMessage[];
     } catch (error) {
       console.error('Error loading messages:', error);
       toast.error('Failed to load conversation messages');

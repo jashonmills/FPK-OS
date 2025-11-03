@@ -1,9 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Mic, Upload, BookOpen, Clock, TrendingUp, Target, Award, Zap } from 'lucide-react';
 import { cn } from '../lib/utils';
-import type { Message, Persona, UserAnalytics, StudyPlan, SavedChat, StudyMaterial, AIDrill } from '@/types/aiCoach';
+import type { Message, Persona, AIDrill } from '@/types/aiCoach';
 import { AIService } from '../services/aiService';
 import { useAuth } from '@/hooks/useAuth';
+import { useAICoachStudyMaterials } from '@/hooks/useAICoachStudyMaterials';
+import { useAICoachConversations } from '@/hooks/useAICoachConversations';
+import { useAICoachCommandAnalytics } from '@/hooks/useAICoachCommandAnalytics';
+import { useAICoachStudyPlans } from '@/hooks/useAICoachStudyPlans';
+import { toast } from 'sonner';
 
 // Persona avatar components
 const PersonaAvatar: React.FC<{ persona: Persona }> = ({ persona }) => {
@@ -50,10 +55,24 @@ const MessageBubble: React.FC<{ message: Message }> = ({ message }) => {
 
 // Left Column: Context & History
 const ContextHistoryColumn: React.FC<{
-  studyMaterials: StudyMaterial[];
-  savedChats: SavedChat[];
+  studyMaterials: any[];
+  savedChats: any[];
   onLoadChat: (chatId: string) => void;
-}> = ({ studyMaterials, savedChats, onLoadChat }) => {
+  onUploadMaterial: (file: File) => Promise<boolean>;
+  isLoadingMaterials: boolean;
+  isLoadingChats: boolean;
+}> = ({ studyMaterials, savedChats, onLoadChat, onUploadMaterial, isLoadingMaterials, isLoadingChats }) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    const success = await onUploadMaterial(file);
+    if (success && fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
   return (
     <div className="column-container space-y-6">
       {/* Uploaded Study Materials */}
@@ -63,19 +82,31 @@ const ContextHistoryColumn: React.FC<{
           Study Materials
         </h3>
         <div className="space-y-2">
-          {studyMaterials.length === 0 ? (
+          {isLoadingMaterials ? (
+            <p className="text-sm text-gray-500 italic">Loading materials...</p>
+          ) : studyMaterials.length === 0 ? (
             <p className="text-sm text-gray-500 italic">No materials uploaded yet</p>
           ) : (
             studyMaterials.map((material) => (
               <div key={material.id} className="p-3 bg-purple-50/80 rounded border border-purple-200/60 hover:bg-purple-100/80 cursor-pointer transition">
                 <p className="text-sm font-medium text-gray-800">{material.title}</p>
                 <p className="text-xs text-gray-500 mt-1">
-                  {material.type.toUpperCase()} • {new Date(material.uploadedAt).toLocaleDateString()}
+                  {material.file_type || 'FILE'} • {new Date(material.created_at).toLocaleDateString()}
                 </p>
               </div>
             ))
           )}
-          <button className="w-full mt-3 px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition flex items-center justify-center gap-2 text-sm">
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileSelect}
+            accept=".pdf,.docx,.txt"
+            className="hidden"
+          />
+          <button 
+            onClick={() => fileInputRef.current?.click()}
+            className="w-full mt-3 px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition flex items-center justify-center gap-2 text-sm"
+          >
             <Upload className="w-4 h-4" />
             Upload Material
           </button>
@@ -89,7 +120,9 @@ const ContextHistoryColumn: React.FC<{
           Saved Chats
         </h3>
         <div className="space-y-2">
-          {savedChats.length === 0 ? (
+          {isLoadingChats ? (
+            <p className="text-sm text-gray-500 italic">Loading chats...</p>
+          ) : savedChats.length === 0 ? (
             <p className="text-sm text-gray-500 italic">No saved chats yet</p>
           ) : (
             savedChats.map((chat) => (
@@ -99,9 +132,9 @@ const ContextHistoryColumn: React.FC<{
                 className="p-3 bg-blue-50/80 rounded border border-blue-200/60 hover:bg-blue-100/80 cursor-pointer transition"
               >
                 <p className="text-sm font-medium text-gray-800">{chat.title}</p>
-                <p className="text-xs text-gray-500 mt-1 line-clamp-1">{chat.lastMessage}</p>
+                <p className="text-xs text-gray-500 mt-1 line-clamp-1">{chat.last_message_preview || 'No preview'}</p>
                 <p className="text-xs text-gray-400 mt-1">
-                  {chat.messageCount} messages • {new Date(chat.timestamp).toLocaleDateString()}
+                  {chat.message_count} messages • {new Date(chat.updated_at).toLocaleDateString()}
                 </p>
               </div>
             ))
@@ -114,10 +147,12 @@ const ContextHistoryColumn: React.FC<{
 
 // Right Column: Insights & Analytics
 const InsightsAnalyticsColumn: React.FC<{
-  analytics: UserAnalytics;
-  studyPlan: StudyPlan | null;
+  analytics: any;
+  studyPlan: any;
   drills: AIDrill[];
-}> = ({ analytics, studyPlan, drills }) => {
+  isLoadingAnalytics: boolean;
+  isLoadingPlan: boolean;
+}> = ({ analytics, studyPlan, drills, isLoadingAnalytics, isLoadingPlan }) => {
   return (
     <div className="column-container space-y-6">
       {/* Learning Analytics */}
@@ -126,34 +161,44 @@ const InsightsAnalyticsColumn: React.FC<{
           <TrendingUp className="w-5 h-5" />
           Learning Analytics
         </h3>
-        <div className="grid grid-cols-2 gap-3">
-          <div className="p-3 bg-blue-50 rounded border border-blue-200">
-            <p className="text-xs text-blue-600 font-medium">Study Time</p>
-            <p className="text-2xl font-bold text-blue-800 mt-1">{analytics.totalStudyTime}h</p>
-          </div>
-          <div className="p-3 bg-green-50 rounded border border-green-200">
-            <p className="text-xs text-green-600 font-medium">Sessions</p>
-            <p className="text-2xl font-bold text-green-800 mt-1">{analytics.sessionsCompleted}</p>
-          </div>
-          <div className="p-3 bg-purple-50 rounded border border-purple-200">
-            <p className="text-xs text-purple-600 font-medium">Avg Score</p>
-            <p className="text-2xl font-bold text-purple-800 mt-1">{analytics.averageScore}%</p>
-          </div>
-          <div className="p-3 bg-amber-50 rounded border border-amber-200">
-            <p className="text-xs text-amber-600 font-medium">Streak</p>
-            <p className="text-2xl font-bold text-amber-800 mt-1">{analytics.streakDays} days</p>
-          </div>
-        </div>
-        <div className="mt-3">
-          <p className="text-xs text-gray-600 font-medium mb-2">Topics Studied</p>
-          <div className="flex flex-wrap gap-1">
-            {analytics.topicsStudied.map((topic, idx) => (
-              <span key={idx} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
-                {topic}
-              </span>
-            ))}
-          </div>
-        </div>
+        {isLoadingAnalytics ? (
+          <p className="text-sm text-gray-500 italic">Loading analytics...</p>
+        ) : (
+          <>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="p-3 bg-blue-50 rounded border border-blue-200">
+                <p className="text-xs text-blue-600 font-medium">Study Time</p>
+                <p className="text-2xl font-bold text-blue-800 mt-1">{analytics?.totalStudyTime || 0}h</p>
+              </div>
+              <div className="p-3 bg-green-50 rounded border border-green-200">
+                <p className="text-xs text-green-600 font-medium">Sessions</p>
+                <p className="text-2xl font-bold text-green-800 mt-1">{analytics?.sessionsCompleted || 0}</p>
+              </div>
+              <div className="p-3 bg-purple-50 rounded border border-purple-200">
+                <p className="text-xs text-purple-600 font-medium">Avg Score</p>
+                <p className="text-2xl font-bold text-purple-800 mt-1">{analytics?.averageScore || 0}%</p>
+              </div>
+              <div className="p-3 bg-amber-50 rounded border border-amber-200">
+                <p className="text-xs text-amber-600 font-medium">Streak</p>
+                <p className="text-2xl font-bold text-amber-800 mt-1">{analytics?.streakDays || 0} days</p>
+              </div>
+            </div>
+            <div className="mt-3">
+              <p className="text-xs text-gray-600 font-medium mb-2">Topics Studied</p>
+              <div className="flex flex-wrap gap-1">
+                {analytics?.topicsStudied?.length > 0 ? (
+                  analytics.topicsStudied.map((topic: string, idx: number) => (
+                    <span key={idx} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
+                      {topic}
+                    </span>
+                  ))
+                ) : (
+                  <p className="text-xs text-gray-500 italic">No topics yet</p>
+                )}
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       {/* AI-Generated Study Plan */}
@@ -162,7 +207,9 @@ const InsightsAnalyticsColumn: React.FC<{
           <Target className="w-5 h-5" />
           Study Plan
         </h3>
-        {studyPlan ? (
+        {isLoadingPlan ? (
+          <p className="text-sm text-gray-500 italic">Loading study plan...</p>
+        ) : studyPlan ? (
           <div className="p-3 bg-gradient-to-br from-fpk-primary to-fpk-secondary text-white rounded">
             <h4 className="font-semibold text-sm mb-1">{studyPlan.title}</h4>
             <p className="text-xs opacity-90 mb-2">{studyPlan.description}</p>
@@ -303,67 +350,22 @@ const AIInteractionColumn: React.FC<{
 
 // Main Component
 export const AICoachCommandCenter: React.FC = () => {
+  const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Placeholder data - will be replaced with actual API calls
-  const [studyMaterials] = useState<StudyMaterial[]>([
-    {
-      id: '1',
-      title: 'Biology Chapter 5: Cell Division',
-      type: 'pdf',
-      uploadedAt: new Date('2024-01-15'),
-      size: 2048,
-    },
-  ]);
+  // Live data hooks - replacing all placeholder data
+  const { studyMaterials, isLoadingMaterials, uploadMaterial } = useAICoachStudyMaterials();
+  const { conversations, isLoadingConversations, loadMessages, saveConversation } = useAICoachConversations();
+  const { analytics, isLoadingAnalytics, trackSession } = useAICoachCommandAnalytics();
+  const { activeStudyPlan, isLoadingPlan } = useAICoachStudyPlans();
 
-  const [savedChats] = useState<SavedChat[]>([
-    {
-      id: '1',
-      title: 'Photosynthesis Discussion',
-      lastMessage: 'So the light-dependent reactions occur in the thylakoid membrane...',
-      timestamp: new Date('2024-01-14'),
-      messageCount: 23,
-    },
-  ]);
-
-  const [analytics] = useState<UserAnalytics>({
-    totalStudyTime: 47,
-    sessionsCompleted: 12,
-    topicsStudied: ['Biology', 'Chemistry', 'Physics', 'Math'],
-    averageScore: 87,
-    streakDays: 5,
-  });
-
-  const [studyPlan] = useState<StudyPlan>({
-    id: '1',
-    title: 'Master Cell Biology',
-    description: 'Complete understanding of cellular processes and structures',
-    topics: ['Cell Division', 'Photosynthesis', 'Cellular Respiration'],
-    estimatedTime: 8,
-    progress: 65,
-  });
-
-  const [drills] = useState<AIDrill[]>([
-    {
-      id: '1',
-      question: 'What are the main stages of mitosis?',
-      type: 'short-answer',
-      difficulty: 'medium',
-      topic: 'Cell Division',
-    },
-    {
-      id: '2',
-      question: 'True or False: Chloroplasts are found in animal cells.',
-      type: 'true-false',
-      difficulty: 'easy',
-      topic: 'Cell Structure',
-    },
-  ]);
+  // Placeholder drills - will be implemented later
+  const drills: AIDrill[] = [];
 
   const handleSendMessage = async () => {
-    if (!inputValue.trim() || isLoading) return;
+    if (!inputValue.trim() || isLoading || !user) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -378,10 +380,9 @@ export const AICoachCommandCenter: React.FC = () => {
     setIsLoading(true);
 
     try {
-      // Call the real AI orchestrator
-      const userId = 'current-user-id'; // TODO: Get from auth context
+      // Call the real AI orchestrator with actual user ID
       const response = await AIService.sendMessage(
-        userId,
+        user.id,
         currentInput,
         messages
       );
@@ -394,9 +395,25 @@ export const AICoachCommandCenter: React.FC = () => {
       };
       
       setMessages((prev) => [...prev, aiMessage]);
+
+      // Track analytics after successful interaction
+      await trackSession(5, [currentInput.substring(0, 50)]);
+
+      // Auto-save conversation every 4 messages (2 exchanges)
+      if (messages.length > 0 && messages.length % 4 === 0) {
+        const conversationMessages = [...messages, userMessage, aiMessage].map(msg => ({
+          role: msg.persona === 'USER' ? 'user' as const : 'assistant' as const,
+          content: msg.content,
+          persona: msg.persona === 'USER' ? undefined : msg.persona
+        }));
+        
+        const title = messages[0]?.content.substring(0, 50) || 'New Conversation';
+        await saveConversation(title, conversationMessages);
+      }
     } catch (error) {
       console.error('Error sending message:', error);
-      // Show error message to user
+      toast.error('Failed to send message');
+      
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         persona: 'BETTY',
@@ -414,9 +431,24 @@ export const AICoachCommandCenter: React.FC = () => {
     alert('Voice input feature coming soon!');
   };
 
-  const handleLoadChat = (chatId: string) => {
-    // TODO: Load saved chat from database
-    console.log('Loading chat:', chatId);
+  const handleLoadChat = async (chatId: string) => {
+    try {
+      const loadedMessages = await loadMessages(chatId);
+      
+      // Transform to Message format
+      const transformedMessages: Message[] = loadedMessages.map(msg => ({
+        id: msg.id,
+        persona: msg.role === 'user' ? 'USER' : (msg.persona?.toUpperCase() as Persona || 'BETTY'),
+        content: msg.content,
+        timestamp: new Date(msg.created_at)
+      }));
+      
+      setMessages(transformedMessages);
+      toast.success('Chat loaded successfully');
+    } catch (error) {
+      console.error('Error loading chat:', error);
+      toast.error('Failed to load chat');
+    }
   };
 
   return (
@@ -435,8 +467,11 @@ export const AICoachCommandCenter: React.FC = () => {
           <div className="lg:col-span-3 overflow-hidden">
             <ContextHistoryColumn
               studyMaterials={studyMaterials}
-              savedChats={savedChats}
+              savedChats={conversations}
               onLoadChat={handleLoadChat}
+              onUploadMaterial={uploadMaterial}
+              isLoadingMaterials={isLoadingMaterials}
+              isLoadingChats={isLoadingConversations}
             />
           </div>
 
@@ -456,8 +491,11 @@ export const AICoachCommandCenter: React.FC = () => {
           <div className="lg:col-span-3 overflow-hidden">
             <InsightsAnalyticsColumn
               analytics={analytics}
-              studyPlan={studyPlan}
-              drills={drills}            />
+              studyPlan={activeStudyPlan}
+              drills={drills}
+              isLoadingAnalytics={isLoadingAnalytics}
+              isLoadingPlan={isLoadingPlan}
+            />
           </div>
         </div>
         </div>
