@@ -1476,6 +1476,17 @@ serve(async (req) => {
     
     const messageLower = message.toLowerCase();
     
+    // PRIORITY 0: Greetings and conversation openers (MUST BE FIRST)
+    const isFirstUserMessage = conversationHistory.filter(m => m.persona === 'USER').length === 0;
+    const isGreeting = /^(hi|hey|hello|yo|sup|greetings?|good (morning|afternoon|evening))/i.test(messageLower);
+    const isReadyPhrase = /\b(ready|let's|can you help|you ready|wanna|want to)\b/i.test(messageLower);
+    const isStudyStarter = messageLower.includes('study') && (isReadyPhrase || isGreeting);
+    
+    if (isFirstUserMessage || isGreeting || isStudyStarter) {
+      detectedIntent = 'conversation_opener';
+      intentConfidence = 0.95;
+      intentReasoning = 'Greeting or conversation starter - Betty always handles these';
+    }
     // PRIORITY 1: Explicit escape hatches (highest priority)
     if (messageLower.includes('just tell me') || 
         messageLower.includes('give me the answer') ||
@@ -1514,14 +1525,24 @@ serve(async (req) => {
       intentConfidence = 0.85;
       intentReasoning = 'Procedural instruction requested';
     }
-    // PRIORITY 5: Continue with current persona's style
-    else if (inBettySession || 
-             messageLower.includes('why') || 
-             messageLower.includes('how') ||
-             messageLower.includes('explain')) {
+    // PRIORITY 5: Socratic guidance - EXPANDED PATTERNS
+    const socraticPhrases = [
+      'why', 'how', 'explain', 
+      'break it down', 'break down',
+      'help me understand',
+      'not sure', 'unsure',
+      'confused', 'don\'t get',
+      'could you', 'can you',
+      'tell me more', 'elaborate',
+      'what do you mean', 'clarify'
+    ];
+    
+    const hasSocraticTrigger = socraticPhrases.some(phrase => messageLower.includes(phrase));
+    
+    if (inBettySession || hasSocraticTrigger) {
       detectedIntent = 'socratic_guidance';
       intentConfidence = 0.85;
-      intentReasoning = inBettySession ? 'Continuing Socratic dialogue' : 'Conceptual question suitable for Socratic method';
+      intentReasoning = inBettySession ? 'Continuing Socratic dialogue' : 'Exploratory question suitable for Socratic method';
     }
     
     const intentResult = {
@@ -1911,6 +1932,20 @@ Their learning preference is valid. Respect it.`;
       console.log('[CONDUCTOR] 🚪 ESCAPE HATCH: Student requested direct answers, handing off to Al');
       console.log('[CONDUCTOR] Escape reason:', intentResult.reasoning);
       
+    } else if (detectedIntent === 'conversation_opener') {
+      // CONVERSATION OPENER: Betty always greets and initiates Socratic dialogue
+      selectedPersona = 'BETTY';
+      systemPrompt = buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge);
+      
+      // 🔒 ACTIVATE PERSONA STICKINESS FROM THE START
+      if (!isSocraticLoopActive) {
+        isSocraticLoopActive = true;
+        socraticLoopStartTurn = conversationHistory.length;
+        console.log('[CONDUCTOR] 🔒 SOCRATIC LOOP ACTIVATED via conversation opener - Betty owns conversation from start');
+      }
+      
+      console.log('[CONDUCTOR] 👋 Betty handles conversation opener');
+      
     } else if (detectedIntent === 'request_for_clarification' && inBettySession) {
       // SOCRATIC HANDOFF: Al provides factual support during Betty's session
       selectedPersona = 'AL';
@@ -1978,6 +2013,12 @@ If they seem confused, provide clarification directly. Do NOT switch to Socratic
         .slice()
         .reverse()
         .find(m => m.persona === 'BETTY' || m.persona === 'AL')?.persona;
+      
+      // RULE 0: Socratic intent MUST route to Betty (unless explicit escape hatch)
+      if (intent === 'socratic_guidance' && currentChoice === 'AL' && intent !== 'escape_hatch') {
+        console.log('[DIRECTOR] ⚠️ Blocking Al, intent is Socratic - routing to Betty');
+        return { persona: 'BETTY', reasoning: 'Socratic intent requires Betty' };
+      }
       
       // RULE 1: If Betty is teaching Socratically, only switch to Al for specific intents
       if (lastAIPersona === 'BETTY' && currentChoice === 'AL') {
@@ -3146,8 +3187,19 @@ Keep it brief and focused on answering their original question.`;
           }
 
           // Send completion event with audio and metadata
+          // CRITICAL FIX: Validate persona matches selectedPersona before sending
+          if (responseMetadata.selectedPersona !== selectedPersona) {
+            console.error('[CRITICAL] Persona mismatch detected in completion event!', {
+              expected: selectedPersona,
+              inMetadata: responseMetadata.selectedPersona
+            });
+            // Force correction
+            responseMetadata.selectedPersona = selectedPersona;
+          }
+          
           const completionMessage = `data: ${JSON.stringify({ 
             type: 'done',
+            persona: selectedPersona, // EXPLICIT persona field for UI display
             fullText: finalText,
             audioUrl,
               metadata: {
