@@ -922,7 +922,7 @@ export type Database = {
       user_has_password: { Args: { user_id: string }; Returns: boolean }
     }
     Enums: {
-      app_role: "admin" | "member"
+      app_role: "admin" | "member" | "manager" | "hr" | "it" | "viewer"
       task_priority: "low" | "medium" | "high" | "urgent"
       task_status: "backlog" | "todo" | "in_progress" | "review" | "done"
       task_type:
@@ -1062,7 +1062,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "member"],
+      app_role: ["admin", "member", "manager", "hr", "it", "viewer"],
       task_priority: ["low", "medium", "high", "urgent"],
       task_status: ["backlog", "todo", "in_progress", "review", "done"],
       task_type: [
