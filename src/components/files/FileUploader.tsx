@@ -26,6 +26,7 @@ interface UploadFile {
 
 export const FileUploader = ({ open, onOpenChange, folderId }: FileUploaderProps) => {
   const [uploadFiles, setUploadFiles] = useState<UploadFile[]>([]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -56,9 +57,6 @@ export const FileUploader = ({ open, onOpenChange, folderId }: FileUploaderProps
         });
 
       if (dbError) throw dbError;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['project-files'] });
     },
   });
 
@@ -188,11 +186,17 @@ export const FileUploader = ({ open, onOpenChange, folderId }: FileUploaderProps
             Cancel
           </Button>
           {isAllComplete && (
-            <Button onClick={() => {
-              setUploadFiles([]);
-              onOpenChange(false);
-            }}>
-              Done
+            <Button 
+              onClick={async () => {
+                setIsRefreshing(true);
+                await queryClient.refetchQueries({ queryKey: ['project-files'], type: 'active' });
+                setUploadFiles([]);
+                setIsRefreshing(false);
+                onOpenChange(false);
+              }}
+              disabled={isRefreshing}
+            >
+              {isRefreshing ? 'Refreshing...' : 'Done'}
             </Button>
           )}
         </div>
