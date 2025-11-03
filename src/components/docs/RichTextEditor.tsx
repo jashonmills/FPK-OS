@@ -151,13 +151,14 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
 
   // Update editor content when prop changes
   useEffect(() => {
-    if (!editor || !content) return;
+    if (!editor) return;
     
     const currentContent = editor.getJSON();
+    const newContent = content || { type: 'doc', content: [] };
     
     // Only update if content has actually changed (prevent infinite loops)
-    if (JSON.stringify(currentContent) !== JSON.stringify(content)) {
-      editor.commands.setContent(content);
+    if (JSON.stringify(currentContent) !== JSON.stringify(newContent)) {
+      editor.commands.setContent(newContent);
     }
   }, [editor, content]);
 
@@ -287,7 +288,7 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
 
       {/* Editor Content */}
       <div className="bg-background">
-        <EditorContent editor={editor} className="prose max-w-none p-6" />
+        <EditorContent editor={editor} className="prose dark:prose-invert max-w-none p-6 text-foreground" />
       </div>
     </div>
   );
