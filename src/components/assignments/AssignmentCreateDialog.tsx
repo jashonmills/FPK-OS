@@ -48,7 +48,7 @@ export function AssignmentCreateDialog({ course, trigger, open: controlledOpen, 
   const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<'students' | 'groups' | 'both'>('students');
 
-  const { members, isLoading: membersLoading } = useOrgMembers();
+  const { members, isLoading: membersLoading } = useOrgMembers(undefined, undefined, true);
   const { groups, isLoading: groupsLoading } = useOrgGroups();
   const { createAssignment, isCreating } = useOrgAssignments();
 
@@ -115,7 +115,7 @@ export function AssignmentCreateDialog({ course, trigger, open: controlledOpen, 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
-      <DialogContent className="max-w-2xl max-h-[90vh]">
+      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
         <DialogHeader>
           <DialogTitle>Create Assignment</DialogTitle>
           <DialogDescription>
@@ -123,7 +123,8 @@ export function AssignmentCreateDialog({ course, trigger, open: controlledOpen, 
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <ScrollArea className="flex-1 pr-4">
+          <form onSubmit={handleSubmit} className="space-y-6 pb-4">
           {/* Course Info */}
           <div className="flex items-center gap-3 p-4 rounded-lg bg-muted/50">
             <img
@@ -216,28 +217,32 @@ export function AssignmentCreateDialog({ course, trigger, open: controlledOpen, 
                       </Button>
                     </div>
                   </div>
-                  <ScrollArea className="h-48 border rounded-lg p-3">
-                    {membersLoading ? (
-                      <div className="flex justify-center py-8">
-                        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                      </div>
-                    ) : (
-                      <div className="space-y-2">
-                        {students.map((student) => (
-                          <label
-                            key={student.user_id}
-                            className="flex items-center gap-3 p-2 rounded hover:bg-muted cursor-pointer"
-                          >
-                            <Checkbox
-                              checked={selectedMembers.includes(student.user_id)}
-                              onCheckedChange={() => toggleMember(student.user_id)}
-                            />
-                            <span className="text-sm">{student.display_name}</span>
-                          </label>
-                        ))}
-                      </div>
-                    )}
-                  </ScrollArea>
+                   <ScrollArea className="h-48 border rounded-lg p-3">
+                     {membersLoading ? (
+                       <div className="flex justify-center py-8">
+                         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                       </div>
+                     ) : students.length === 0 ? (
+                       <div className="text-center py-8 text-muted-foreground text-sm">
+                         No students found. Add students to your organization first.
+                       </div>
+                     ) : (
+                       <div className="space-y-2">
+                         {students.map((student) => (
+                           <label
+                             key={student.user_id}
+                             className="flex items-center gap-3 p-2 rounded hover:bg-muted cursor-pointer"
+                           >
+                             <Checkbox
+                               checked={selectedMembers.includes(student.user_id)}
+                               onCheckedChange={() => toggleMember(student.user_id)}
+                             />
+                             <span className="text-sm">{student.display_name}</span>
+                           </label>
+                         ))}
+                       </div>
+                     )}
+                   </ScrollArea>
                 </div>
               </TabsContent>
 
@@ -305,19 +310,31 @@ export function AssignmentCreateDialog({ course, trigger, open: controlledOpen, 
                         </Button>
                       </div>
                     </div>
-                    <ScrollArea className="h-32 border rounded-lg p-3">
-                      {students.map((student) => (
-                        <label
-                          key={student.user_id}
-                          className="flex items-center gap-3 p-2 rounded hover:bg-muted cursor-pointer"
-                        >
-                          <Checkbox
-                            checked={selectedMembers.includes(student.user_id)}
-                            onCheckedChange={() => toggleMember(student.user_id)}
-                          />
-                          <span className="text-sm">{student.display_name}</span>
-                        </label>
-                      ))}
+                    <ScrollArea className="h-24 border rounded-lg p-3">
+                      {membersLoading ? (
+                        <div className="flex justify-center py-4">
+                          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                        </div>
+                      ) : students.length === 0 ? (
+                        <div className="text-center py-4 text-muted-foreground text-xs">
+                          No students found
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          {students.map((student) => (
+                            <label
+                              key={student.user_id}
+                              className="flex items-center gap-3 p-2 rounded hover:bg-muted cursor-pointer"
+                            >
+                              <Checkbox
+                                checked={selectedMembers.includes(student.user_id)}
+                                onCheckedChange={() => toggleMember(student.user_id)}
+                              />
+                              <span className="text-sm">{student.display_name}</span>
+                            </label>
+                          ))}
+                        </div>
+                      )}
                     </ScrollArea>
                   </div>
 
@@ -334,24 +351,36 @@ export function AssignmentCreateDialog({ course, trigger, open: controlledOpen, 
                         </Button>
                       </div>
                     </div>
-                    <ScrollArea className="h-32 border rounded-lg p-3">
-                      {groups.map((group) => (
-                        <label
-                          key={group.id}
-                          className="flex items-center gap-3 p-2 rounded hover:bg-muted cursor-pointer"
-                        >
-                          <Checkbox
-                            checked={selectedGroups.includes(group.id)}
-                            onCheckedChange={() => toggleGroup(group.id)}
-                          />
-                          <div className="flex-1">
-                            <span className="text-sm font-medium">{group.name}</span>
-                            <p className="text-xs text-muted-foreground">
-                              {group.member_count || 0} member{group.member_count !== 1 ? 's' : ''}
-                            </p>
-                          </div>
-                        </label>
-                      ))}
+                    <ScrollArea className="h-24 border rounded-lg p-3">
+                      {groupsLoading ? (
+                        <div className="flex justify-center py-4">
+                          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                        </div>
+                      ) : groups.length === 0 ? (
+                        <div className="text-center py-4 text-muted-foreground text-xs">
+                          No groups found
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          {groups.map((group) => (
+                            <label
+                              key={group.id}
+                              className="flex items-center gap-3 p-2 rounded hover:bg-muted cursor-pointer"
+                            >
+                              <Checkbox
+                                checked={selectedGroups.includes(group.id)}
+                                onCheckedChange={() => toggleGroup(group.id)}
+                              />
+                              <div className="flex-1">
+                                <span className="text-sm font-medium">{group.name}</span>
+                                <p className="text-xs text-muted-foreground">
+                                  {group.member_count || 0} member{group.member_count !== 1 ? 's' : ''}
+                                </p>
+                              </div>
+                            </label>
+                          ))}
+                        </div>
+                      )}
                     </ScrollArea>
                   </div>
                 </div>
@@ -390,7 +419,8 @@ export function AssignmentCreateDialog({ course, trigger, open: controlledOpen, 
               )}
             </Button>
           </div>
-        </form>
+          </form>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );

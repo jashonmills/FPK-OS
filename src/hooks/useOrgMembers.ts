@@ -25,11 +25,11 @@ export interface OrgMember {
   };
 }
 
-export function useOrgMembers(searchQuery?: string, roleFilter?: string) {
+export function useOrgMembers(searchQuery?: string, roleFilter?: string, includeStudents: boolean = false) {
   const orgId = getActiveOrgId();
 
   const { data: members = [], isLoading, error, refetch } = useQuery({
-    queryKey: ['org-members', orgId, searchQuery, roleFilter],
+    queryKey: ['org-members', orgId, searchQuery, roleFilter, includeStudents],
     enabled: !!orgId,
     queryFn: async () => {
       if (!orgId) return [];
@@ -52,8 +52,12 @@ export function useOrgMembers(searchQuery?: string, roleFilter?: string) {
             department
           )
         `)
-        .eq('org_id', orgId)
-        .neq('role', 'student'); // Exclude students from members view
+        .eq('org_id', orgId);
+      
+      // Exclude students unless explicitly requested
+      if (!includeStudents) {
+        query = query.neq('role', 'student');
+      }
 
       if (roleFilter) {
         query = query.eq('role', roleFilter as 'owner' | 'admin' | 'instructor' | 'instructor_aide' | 'viewer' | 'student');
