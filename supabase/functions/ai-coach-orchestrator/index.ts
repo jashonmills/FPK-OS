@@ -1666,12 +1666,98 @@ serve(async (req) => {
       }
     }
 
+    /**
+     * Determines if Nite Owl should be ALLOWED to interject based on conversational context.
+     * Returns { allowed: boolean, reason: string }
+     */
+    function shouldAllowNiteOwlInterjection(
+      conversationHistory: Array<{ persona: string; content: string }>,
+      inBettySession: boolean
+    ): { allowed: boolean; reason: string } {
+      
+      // Rule 1: NEVER interrupt a direct question-answer sequence
+      const lastTwoMessages = conversationHistory.slice(-2);
+      
+      if (lastTwoMessages.length >= 2) {
+        const secondToLast = lastTwoMessages[0];
+        const lastMessage = lastTwoMessages[1];
+        
+        // Check if Betty just asked a question and user just answered
+        const bettyAskedQuestion = 
+          secondToLast.persona === 'BETTY' && 
+          secondToLast.content.trim().endsWith('?');
+        
+        const userJustAnswered = lastMessage.persona === 'USER';
+        
+        if (bettyAskedQuestion && userJustAnswered) {
+          return {
+            allowed: false,
+            reason: 'BLOCKED: Betty asked a question, user just answered - must let Betty respond'
+          };
+        }
+      }
+      
+      // Rule 2: Look for natural "pause points"
+      const lastAIMessage = conversationHistory
+        .slice()
+        .reverse()
+        .find(m => m.persona === 'BETTY' || m.persona === 'AL');
+      
+      if (lastAIMessage) {
+        const content = lastAIMessage.content.toLowerCase();
+        
+        // Natural pause indicators
+        const pauseIndicators = [
+          'what would you like to explore',
+          'what\'s next',
+          'would you like to dive deeper',
+          'ready to move on',
+          'shall we continue',
+          'where would you like to go',
+          'what topic interests you'
+        ];
+        
+        const isPausePoint = pauseIndicators.some(indicator => 
+          content.includes(indicator)
+        );
+        
+        if (isPausePoint) {
+          return {
+            allowed: true,
+            reason: 'ALLOWED: Natural pause point detected'
+          };
+        }
+      }
+      
+      // Rule 3: Allow during long sessions (10+ exchanges) as a "mental break"
+      const socraticExchanges = conversationHistory.filter(
+        m => m.persona === 'BETTY' || m.persona === 'USER'
+      ).length;
+      
+      if (socraticExchanges >= 10) {
+        return {
+          allowed: true,
+          reason: 'ALLOWED: Long session detected (10+ exchanges) - mental break appropriate'
+        };
+      }
+      
+      // Default: Block unless at a natural pause
+      return {
+        allowed: false,
+        reason: 'BLOCKED: Not at a natural pause point'
+      };
+    }
+
     // 7. Check if Nite Owl should interject (only during Betty sessions)
     let shouldTriggerNiteOwl = false;
     let niteOwlTriggerReason = '';
     
     if (featureFlags['nite_owl_interjections']?.enabled && inBettySession && detectedIntent === 'socratic_guidance') {
       console.log('[CONDUCTOR] 🦉 Nite Owl feature ENABLED - checking trigger conditions');
+      
+      // Allow Nite Owl as a session starter (first 2 turns)
+      const isSessionStart = conversationHistory.length <= 2;
+      
       // CRITICAL FIX: Trigger lock - prevent Nite Owl from triggering twice in a row
       const currentTurnIndex = conversationHistory.length;
       const turnsSinceLastNiteOwl = currentTurnIndex - lastNiteOwlTurn;
@@ -1681,6 +1767,10 @@ serve(async (req) => {
         console.log('[CONDUCTOR] 🔒 Nite Owl trigger LOCKED - only', turnsSinceLastNiteOwl, 'turns since last appearance');
       } else if (resumptionLockTurns > 0) {
         console.log('[CONDUCTOR] 🔒 Nite Owl trigger LOCKED - resumption lock active for', resumptionLockTurns, 'more turns');
+      } else if (isSessionStart) {
+        shouldTriggerNiteOwl = true;
+        niteOwlTriggerReason = 'session_starter';
+        console.log('[CONDUCTOR] 🦉 Nite Owl triggered - SESSION STARTER');
       } else {
         // PHASE 5.1: STRUGGLE DETECTION
         // Check if user is stuck on the same concept for multiple turns
@@ -1702,18 +1792,52 @@ serve(async (req) => {
           });
           
           if (shortResponses >= 2 || hasRepetition) {
-            shouldTriggerNiteOwl = true;
-            niteOwlTriggerReason = 'struggle_detected';
-            console.log('[CONDUCTOR] 🦉 Nite Owl triggered - STRUGGLE DETECTED');
+            // Check if we're at an appropriate moment
+            const contextCheck = shouldAllowNiteOwlInterjection(
+              conversationHistory,
+              inBettySession
+            );
+            
+            console.log('[CONDUCTOR] 🦉 Struggle detected, checking context:', contextCheck.reason);
+            
+            if (contextCheck.allowed) {
+              shouldTriggerNiteOwl = true;
+              niteOwlTriggerReason = 'struggle_detected';
+              console.log('[CONDUCTOR] 🦉 Nite Owl triggered - STRUGGLE DETECTED (context approved)');
+            } else {
+              console.log('[CONDUCTOR] 🦉 Struggle detected but context inappropriate:', contextCheck.reason);
+            }
           }
         }
         
-        // PHASE 5.1: LOWERED RANDOM THRESHOLD
-        // Original: every 8-12 turns. New: every 5-8 turns (more frequent)
+        // PHASE 5.1: CONTEXT-AWARE TIMER (only check if turn counter met)
         if (!shouldTriggerNiteOwl && socraticTurnCounter >= nextInterjectionPoint) {
-          shouldTriggerNiteOwl = true;
-          niteOwlTriggerReason = 'random_timer';
-          console.log('[CONDUCTOR] 🦉 Nite Owl interjection triggered - RANDOM TIMER');
+          
+          // ✅ NEW: Check if we're at an appropriate conversational moment
+          const contextCheck = shouldAllowNiteOwlInterjection(
+            conversationHistory,
+            inBettySession
+          );
+          
+          console.log('[CONDUCTOR] 🦉 Turn counter reached:', socraticTurnCounter, '/', nextInterjectionPoint);
+          console.log('[CONDUCTOR] 🦉 Context evaluation:', contextCheck.reason);
+          
+          if (contextCheck.allowed) {
+            shouldTriggerNiteOwl = true;
+            niteOwlTriggerReason = 'random_timer';
+            console.log('[CONDUCTOR] 🦉 Nite Owl interjection triggered - RANDOM TIMER (context approved)');
+          } else {
+            // Defer to next turn - don't reset counter, let it try again
+            console.log('[CONDUCTOR] 🦉 Nite Owl interjection DEFERRED -', contextCheck.reason);
+          }
+        }
+        
+        // Final logging summary
+        if (shouldTriggerNiteOwl) {
+          console.log('[CONDUCTOR] 🦉 === NITE OWL TRIGGER SUMMARY ===');
+          console.log('  ✅ Trigger reason:', niteOwlTriggerReason);
+          console.log('  - Turn counter:', socraticTurnCounter, '/', nextInterjectionPoint);
+          console.log('  - Turns since last Nite Owl:', turnsSinceLastNiteOwl);
         }
       }
     }
