@@ -4,6 +4,7 @@ import HomepageHero from '@/components/homepage/HomepageHero';
 import ResourcesSection from '@/components/homepage/ResourcesSection';
 import TwoColumnInfoSection from '@/components/homepage/TwoColumnInfoSection';
 import OfferingsSection from '@/components/homepage/OfferingsSection';
+import FPKEcosystemSection from '@/components/homepage/FPKEcosystemSection';
 import EmpoweringLearningSection from '@/components/homepage/EmpoweringLearningSection';
 import CTASection from '@/components/homepage/CTASection';
 import HomepageFooter from '@/components/homepage/HomepageFooter';
@@ -27,6 +28,7 @@ const Index = () => {
       <HomepageHero />
       <TwoColumnInfoSection />
       <OfferingsSection />
+      <FPKEcosystemSection />
       <EmpoweringLearningSection />
       <ResourcesSection />
       <CTASection />
