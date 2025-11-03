@@ -33,10 +33,10 @@ class SafeTextToSpeech {
 
       const utterance = new SpeechSynthesisUtterance(text);
       
-      // Set options
-      if (options.rate !== undefined) utterance.rate = options.rate;
-      if (options.pitch !== undefined) utterance.pitch = options.pitch;
-      if (options.volume !== undefined) utterance.volume = options.volume;
+      // Set options with defaults
+      utterance.rate = options.rate ?? 1.0;
+      utterance.pitch = options.pitch ?? 1.0;
+      utterance.volume = options.volume ?? 1.0;
       if (options.voice) utterance.voice = options.voice;
 
       // Add error handling

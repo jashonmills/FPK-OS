@@ -62,12 +62,10 @@ export const useTextToSpeech = () => {
     // Curated list of known high-quality voices by persona
     const premiumVoiceMap: Record<Persona, string[]> = {
       BETTY: [
+        'Google UK English Female',                  // Chrome high-quality (PRIMARY)
         'Microsoft Zira - English (United States)',  // Windows 11 Neural
-        'Google US English',                         // Chrome high-quality
+        'Google US English',                         // Chrome alternative
         'Samantha',                                  // macOS (US)
-        'Karen',                                     // macOS (Australian)
-        'Tessa',                                     // macOS (South African)
-        'Victoria'                                   // macOS (UK)
       ],
       AL: [
         'Microsoft David - English (United States)', // Windows 11 Neural
@@ -77,12 +75,37 @@ export const useTextToSpeech = () => {
         'Tom'                                        // macOS (US)
       ],
       NITE_OWL: [
-        'Fiona',                                     // macOS (Scottish)
-        'Moira',                                     // macOS (Irish)
+        'Google UK English Female',                  // Chrome high-quality (PRIMARY - same as Betty!)
+        'Microsoft Zira - English (United States)',  // Windows fallback
+        'Google US English',                         // Chrome alternative
         'Victoria',                                  // macOS (UK)
-        'Google UK English Female'                   // Chrome
       ],
       USER: []                                       // User doesn't speak
+    };
+
+    // --- PERSONA SPEECH CONFIG ---
+    // Character-specific speech parameters for distinct personalities
+    const personaSpeechConfig: Record<Persona, { rate: number; pitch: number; volume: number }> = {
+      BETTY: {
+        rate: 1.1,    // Slightly faster - energetic, enthusiastic coach
+        pitch: 1.0,   // Normal pitch - friendly and clear
+        volume: 1.0   // Full volume
+      },
+      AL: {
+        rate: 1.0,    // Normal speed - measured teaching pace
+        pitch: 0.9,   // Slightly lower - authoritative instructor
+        volume: 1.0   // Full volume
+      },
+      NITE_OWL: {
+        rate: 1.0,    // Normal speed - deliberate and wise
+        pitch: 0.6,   // Much lower - deep, mysterious sage voice
+        volume: 1.0   // Full volume
+      },
+      USER: {
+        rate: 1.0,    // Default (unused)
+        pitch: 1.0,   // Default (unused)
+        volume: 1.0   // Default (unused)
+      }
     };
 
     const targetVoiceNames = premiumVoiceMap[persona] || premiumVoiceMap['BETTY'];
@@ -158,10 +181,12 @@ export const useTextToSpeech = () => {
     let selectedVoice: SpeechSynthesisVoice | undefined;
     let interrupt = true;
     let hasInteracted = true;
+    let persona: Persona | undefined;
 
     if (typeof personaOrOptions === 'string') {
       // New API: persona passed as string
-      selectedVoice = getVoiceForPersona(personaOrOptions as Persona);
+      persona = personaOrOptions as Persona;
+      selectedVoice = getVoiceForPersona(persona);
     } else if (personaOrOptions) {
       // Legacy API: options object
       interrupt = personaOrOptions.interrupt ?? true;
@@ -180,10 +205,40 @@ export const useTextToSpeech = () => {
     setIsSpeaking(true);
     setIsGenerating(false);
 
+    // Get persona-specific speech parameters
+    const personaConfig = persona ? {
+      rate: 1.1,    // Slightly faster - energetic, enthusiastic coach
+      pitch: 1.0,   // Normal pitch - friendly and clear
+      volume: 1.0   // Full volume
+    } : undefined;
+
+    if (persona === 'AL') {
+      personaConfig!.rate = 1.0;    // Normal speed - measured teaching pace
+      personaConfig!.pitch = 0.9;   // Slightly lower - authoritative instructor
+    } else if (persona === 'NITE_OWL') {
+      personaConfig!.rate = 1.0;    // Normal speed - deliberate and wise
+      personaConfig!.pitch = 0.6;   // Much lower - deep, mysterious sage voice
+    }
+
+    if (personaConfig) {
+      console.log(`[TTS] 🎭 Applying persona config for ${persona}:`, personaConfig);
+    }
+
     const success = safeTextToSpeech.speak(text, {
       voice: selectedVoice,
+      rate: personaConfig?.rate,
+      pitch: personaConfig?.pitch,
+      volume: personaConfig?.volume,
       interrupt,
       hasInteracted
+    });
+
+    console.log(`[TTS] 📊 Final speech parameters:`, {
+      voice: selectedVoice?.name,
+      rate: personaConfig?.rate || 1.0,
+      pitch: personaConfig?.pitch || 1.0,
+      volume: personaConfig?.volume || 1.0,
+      persona: persona
     });
 
     // Monitor when speech ends
