@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { FeatureFlagProvider } from "@/contexts/FeatureFlagContext";
 import { HelpProvider } from "@/contexts/HelpContext";
+import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Kanban from "./pages/Kanban";
@@ -60,15 +61,21 @@ const PasswordSetupRoute = ({ children }: { children: React.ReactNode }) => {
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <HelpProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AuthProvider>
-            <FeatureFlagProvider>
-              <Routes>
+  <ThemeProvider
+    attribute="class"
+    defaultTheme="system"
+    enableSystem
+    storageKey="fpk-pulse-theme"
+  >
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <HelpProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <AuthProvider>
+              <FeatureFlagProvider>
+                <Routes>
                 <Route path="/auth" element={<Auth />} />
               <Route 
                 path="/setup-password" 
@@ -158,15 +165,16 @@ const App = () => (
                   </ProtectedRoute>
                 } 
               />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </FeatureFlagProvider>
-          </AuthProvider>
-        </BrowserRouter>
-      </HelpProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
+                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </FeatureFlagProvider>
+            </AuthProvider>
+          </BrowserRouter>
+        </HelpProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ThemeProvider>
 );
 
 export default App;
