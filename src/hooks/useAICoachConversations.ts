@@ -34,9 +34,15 @@ export function useAICoachConversations(orgId?: string) {
       setIsLoadingConversations(true);
       
       // Fetch conversations with message preview and count
-      const query = orgId
-        ? supabase.from('ai_coach_conversations').select('id, title, updated_at').eq('user_id', user.id).eq('org_id', orgId).order('updated_at', { ascending: false })
-        : supabase.from('ai_coach_conversations').select('id, title, updated_at').eq('user_id', user.id).order('updated_at', { ascending: false });
+      let query: any = supabase
+        .from('ai_coach_conversations')
+        .select('id, title, updated_at')
+        .eq('user_id', user.id)
+        .order('updated_at', { ascending: false });
+      
+      if (orgId) {
+        query = query.eq('org_id', orgId);
+      }
       
       const { data: conversationsData, error: conversationsError } = await query;
 

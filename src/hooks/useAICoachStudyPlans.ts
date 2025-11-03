@@ -27,9 +27,17 @@ export function useAICoachStudyPlans(orgId?: string) {
     try {
       setIsLoadingPlan(true);
 
-      const query = orgId
-        ? supabase.from('ai_coach_study_plans').select('id, title, description, progress, estimated_hours, created_at').eq('user_id', user.id).eq('org_id', orgId).lt('progress', 100).order('created_at', { ascending: false }).limit(1)
-        : supabase.from('ai_coach_study_plans').select('id, title, description, progress, estimated_hours, created_at').eq('user_id', user.id).lt('progress', 100).order('created_at', { ascending: false }).limit(1);
+      let query: any = supabase
+        .from('ai_coach_study_plans')
+        .select('id, title, description, progress, estimated_hours, created_at')
+        .eq('user_id', user.id)
+        .lt('progress', 100)
+        .order('created_at', { ascending: false })
+        .limit(1);
+      
+      if (orgId) {
+        query = query.eq('org_id', orgId);
+      }
 
       const { data, error } = await query.maybeSingle();
 

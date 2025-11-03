@@ -26,9 +26,15 @@ export function useAICoachStudyMaterials(orgId?: string) {
     try {
       setIsLoadingMaterials(true);
       
-      const query = orgId
-        ? supabase.from('ai_coach_study_materials').select('id, title, file_type, file_size, file_url, created_at').eq('user_id', user.id).eq('org_id', orgId).order('created_at', { ascending: false })
-        : supabase.from('ai_coach_study_materials').select('id, title, file_type, file_size, file_url, created_at').eq('user_id', user.id).order('created_at', { ascending: false });
+      let query: any = supabase
+        .from('ai_coach_study_materials')
+        .select('id, title, file_type, file_size, file_url, created_at')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+      
+      if (orgId) {
+        query = query.eq('org_id', orgId);
+      }
       
       const { data, error } = await query;
 

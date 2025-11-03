@@ -24,22 +24,28 @@ export function useAICoachCommandAnalytics(orgId?: string) {
     try {
       setIsLoadingAnalytics(true);
 
-      // Fetch all analytics data in parallel
-      const promises = orgId ? [
-        supabase.from('ai_coach_analytics').select('study_time_minutes').eq('user_id', user.id).eq('org_id', orgId),
-        supabase.from('ai_coach_analytics').select('session_date').eq('user_id', user.id).eq('org_id', orgId),
-        supabase.from('ai_coach_analytics').select('comprehension_score').eq('user_id', user.id).eq('org_id', orgId).not('comprehension_score', 'is', null),
-        supabase.rpc('get_ai_coach_learning_streak', { p_user_id: user.id }),
-        supabase.from('ai_coach_analytics').select('topics_explored').eq('user_id', user.id).eq('org_id', orgId)
-      ] : [
-        supabase.from('ai_coach_analytics').select('study_time_minutes').eq('user_id', user.id),
-        supabase.from('ai_coach_analytics').select('session_date').eq('user_id', user.id),
-        supabase.from('ai_coach_analytics').select('comprehension_score').eq('user_id', user.id).not('comprehension_score', 'is', null),
-        supabase.rpc('get_ai_coach_learning_streak', { p_user_id: user.id }),
-        supabase.from('ai_coach_analytics').select('topics_explored').eq('user_id', user.id)
-      ];
+      // Build base queries with type assertions to avoid deep type instantiation
+      let timeQuery: any = supabase.from('ai_coach_analytics').select('study_time_minutes').eq('user_id', user.id);
+      let sessionsQuery: any = supabase.from('ai_coach_analytics').select('session_date').eq('user_id', user.id);
+      let scoreQuery: any = supabase.from('ai_coach_analytics').select('comprehension_score').eq('user_id', user.id).not('comprehension_score', 'is', null);
+      let topicsQuery: any = supabase.from('ai_coach_analytics').select('topics_explored').eq('user_id', user.id);
 
-      const [timeResult, sessionsResult, scoreResult, streakResult, topicsResult] = await Promise.all(promises);
+      // Add org filter if needed
+      if (orgId) {
+        timeQuery = timeQuery.eq('org_id', orgId);
+        sessionsQuery = sessionsQuery.eq('org_id', orgId);
+        scoreQuery = scoreQuery.eq('org_id', orgId);
+        topicsQuery = topicsQuery.eq('org_id', orgId);
+      }
+
+      // Execute all queries in parallel
+      const [timeResult, sessionsResult, scoreResult, streakResult, topicsResult] = await Promise.all([
+        timeQuery,
+        sessionsQuery,
+        scoreQuery,
+        supabase.rpc('get_ai_coach_learning_streak', { p_user_id: user.id }),
+        topicsQuery
+      ]);
 
       // Calculate total study time in hours
       const totalMinutes = timeResult.data?.reduce((sum, record) => sum + (record.study_time_minutes || 0), 0) || 0;
