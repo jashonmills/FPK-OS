@@ -12,6 +12,7 @@ interface FeatureFlags {
   FEATURE_DOCUMENTATION: boolean;
   FEATURE_FILES: boolean;
   FEATURE_CALENDAR_SYNC: boolean;
+  FEATURE_PAYROLL: boolean;
 }
 
 interface FeatureFlagContextType {
@@ -33,6 +34,7 @@ export const FeatureFlagProvider: React.FC<{ children: React.ReactNode }> = ({ c
     FEATURE_DOCUMENTATION: false,
     FEATURE_FILES: false,
     FEATURE_CALENDAR_SYNC: true,
+    FEATURE_PAYROLL: true,
   });
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
