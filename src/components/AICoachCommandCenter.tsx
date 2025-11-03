@@ -285,25 +285,35 @@ const AIInteractionColumn: React.FC<{
   isLoading: boolean;
 }> = ({ messages, inputValue, onInputChange, onSendMessage, onVoiceTranscription, isLoading }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const lastMessageRef = useRef<string | null>(null);
   const isMobile = useIsMobile();
 
-  // Intelligent auto-scroll: only scrolls the chat container, not the page
+  // Intelligent auto-scroll: scrolls chat container on new AI messages
   useEffect(() => {
     if (messages.length === 0 || !messagesEndRef.current) return;
     
-    // Get the ScrollArea viewport (the actual scrollable container)
-    const scrollViewport = messagesEndRef.current.parentElement;
+    // Get the ScrollArea viewport (2 levels up in DOM hierarchy)
+    const scrollViewport = messagesEndRef.current.parentElement?.parentElement;
     if (!scrollViewport) return;
+    
+    // Check if this is a new message from an AI persona
+    const lastMessage = messages[messages.length - 1];
+    const isNewAssistantMessage = 
+      lastMessage?.persona !== 'USER' && 
+      lastMessage.id !== lastMessageRef.current;
+    
+    if (isNewAssistantMessage) {
+      lastMessageRef.current = lastMessage.id;
+    }
     
     const { scrollTop, scrollHeight, clientHeight } = scrollViewport;
     const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
     const isNearBottom = distanceFromBottom < 150;
     
-    // Only auto-scroll if user is near the bottom OR this is the first message
-    if (isNearBottom || messages.length === 1) {
+    // Auto-scroll if: near bottom, first message, OR new AI response
+    if (isNearBottom || messages.length === 1 || isNewAssistantMessage) {
       const timeoutId = setTimeout(() => {
         requestAnimationFrame(() => {
-          // Scroll the container directly, not using scrollIntoView
           if (scrollViewport) {
             scrollViewport.scrollTo({
               top: scrollViewport.scrollHeight,
@@ -311,11 +321,11 @@ const AIInteractionColumn: React.FC<{
             });
           }
         });
-      }, 100);
+      }, 200);
       
       return () => clearTimeout(timeoutId);
     }
-  }, [messages.length]); // Only trigger on message COUNT change, not content updates
+  }, [messages]); // Trigger on any message change, including streaming updates
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
