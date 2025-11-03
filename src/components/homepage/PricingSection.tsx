@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Check, X } from 'lucide-react';
+import { Check } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface PricingTier {
   name: string;
@@ -72,7 +73,7 @@ const pricingTiers: PricingTier[] = [
 ];
 
 const PricingSection = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white/70 backdrop-blur-sm">
@@ -157,59 +158,15 @@ const PricingSection = () => {
 
         {/* Compare Features Link */}
         <div className="text-center">
-          <button
-            onClick={() => setIsModalOpen(true)}
+          <Button
+            onClick={() => navigate('/dashboard/subscription')}
+            variant="link"
             className="text-fpk-orange hover:underline font-semibold text-lg transition-all"
           >
             Compare all features
-          </button>
+          </Button>
         </div>
       </div>
-
-      {/* Modal */}
-      {isModalOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
-          onClick={() => setIsModalOpen(false)}
-        >
-          <div
-            className="bg-white rounded-lg shadow-xl p-8 max-w-5xl w-full max-h-[90vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex justify-between items-start mb-6">
-              <h3 className="text-2xl font-bold text-slate-900">Full Feature Comparison</h3>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="text-slate-500 hover:text-slate-900 transition-colors"
-                aria-label="Close modal"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-            
-            <div className="text-slate-700">
-              <p className="mb-4">
-                Detailed comparison table coming soon. This will include a comprehensive breakdown of all features across each tier.
-              </p>
-              <div className="border border-slate-200 rounded-lg p-6 bg-slate-50">
-                <p className="text-sm text-slate-600">
-                  Placeholder for the full, detailed comparison table based on the four-tier structure.
-                  This will include all features, limits, and benefits for Free, Individual, Family, and Premium plans.
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-6">
-              <Button
-                onClick={() => setIsModalOpen(false)}
-                className="px-6 py-2 bg-fpk-orange text-white hover:bg-fpk-orange/90"
-              >
-                Close
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
     </section>
   );
 };

@@ -95,7 +95,73 @@ const ORG_PLANS: Record<'basic' | 'standard' | 'premium' | 'beta', PlanType> = {
   }
 };
 
-const PLANS: Record<'basic' | 'pro' | 'pro_plus', PlanType> = {
+// Main FPK University Platform plans
+const UNIVERSITY_PLANS: Record<'free' | 'individual' | 'family' | 'premium', PlanType> = {
+  free: {
+    name: 'Free',
+    badge: 'Get Started',
+    monthly: 0,
+    annual: 0,
+    features: [
+      '50 AI Credits per month',
+      'Basic Chat Access',
+      'Course browsing',
+      'Basic progress tracking',
+      'Community access',
+      'Email support'
+    ]
+  },
+  individual: {
+    name: 'Individual',
+    badge: 'For Solo Learners',
+    monthly: 14.99,
+    annual: 149.90,
+    features: [
+      '1,000 AI Credits per month',
+      'Advanced Analytics',
+      'Flashcard Generation',
+      'Custom study schedules',
+      'Full course library access',
+      'Priority email support',
+      'Download study materials'
+    ]
+  },
+  family: {
+    name: 'Family',
+    badge: 'Best Value',
+    monthly: 23.99,
+    annual: 239.90,
+    popular: true,
+    features: [
+      'Up to 4 Users',
+      '2,500 Shared AI Credits',
+      'All Individual features',
+      'Parental Controls',
+      'Family dashboard',
+      'Progress reports for all users',
+      'Priority support'
+    ]
+  },
+  premium: {
+    name: 'Premium',
+    badge: 'Complete Access',
+    monthly: 49.99,
+    annual: 499.90,
+    features: [
+      '5,000 AI Credits per month',
+      'All Family features',
+      'Custom Study Plans',
+      '1-on-1 coaching sessions',
+      'Early access to new courses',
+      'Advanced analytics dashboard',
+      'Priority support',
+      'API access'
+    ]
+  }
+};
+
+// AI Study Coach plans (standalone /coach route)
+const COACH_PLANS: Record<'basic' | 'pro' | 'pro_plus', PlanType> = {
   basic: {
     name: 'AI Coach Basic',
     badge: '1,700 Credits/Month',
@@ -152,13 +218,38 @@ export function SubscriptionPlans() {
   const [isEuro, setIsEuro] = useState(false);
   const [couponCode, setCouponCode] = useState('');
   const [loading, setLoading] = useState<string | null>(null);
-  const [planType, setPlanType] = useState<'individual' | 'organization'>('individual');
+  const [planType, setPlanType] = useState<'university' | 'coach' | 'organization'>('university');
   const { subscription, createCheckout } = useSubscription();
   const { toast } = useToast();
 
   const EUR_RATE = 1; // Prices are already in EUR
 
-  const handleSubscribe = async (tier: 'basic' | 'pro' | 'pro_plus') => {
+  const handleUniversitySubscribe = async (tier: 'free' | 'individual' | 'family' | 'premium') => {
+    try {
+      setLoading(tier);
+      
+      if (tier === 'free') {
+        toast({
+          title: "Free Plan Active",
+          description: "You're already on the free plan! Upgrade anytime for more features.",
+        });
+        return;
+      }
+
+      const interval = isAnnual ? 'annual' : 'monthly';
+      await createCheckout(tier as any, interval, couponCode || undefined);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to create checkout session",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(null);
+    }
+  };
+
+  const handleCoachSubscribe = async (tier: 'basic' | 'pro' | 'pro_plus') => {
     try {
       setLoading(tier);
       const interval = isAnnual ? 'annual' : 'monthly';
@@ -241,18 +332,29 @@ export function SubscriptionPlans() {
 
       {/* Plan Type Toggle */}
       <div className="flex flex-col items-center space-y-4">
-        {/* Individual vs Organization Toggle */}
-        <div className="flex items-center space-x-4">
-          <Label className="flex items-center">
-            Individual Plans
-          </Label>
-          <Switch
-            checked={planType === 'organization'}
-            onCheckedChange={(checked) => setPlanType(checked ? 'organization' : 'individual')}
-          />
-          <Label className="flex items-center">
+        {/* Plan Type Selection */}
+        <div className="flex items-center justify-center gap-4">
+          <Button
+            variant={planType === 'university' ? 'default' : 'outline'}
+            onClick={() => setPlanType('university')}
+            className="min-w-[140px]"
+          >
+            University Plans
+          </Button>
+          <Button
+            variant={planType === 'coach' ? 'default' : 'outline'}
+            onClick={() => setPlanType('coach')}
+            className="min-w-[140px]"
+          >
+            AI Coach Plans
+          </Button>
+          <Button
+            variant={planType === 'organization' ? 'default' : 'outline'}
+            onClick={() => setPlanType('organization')}
+            className="min-w-[140px]"
+          >
             Organization Plans
-          </Label>
+          </Button>
         </div>
 
         {/* Currency Toggle */}
@@ -298,8 +400,12 @@ export function SubscriptionPlans() {
       </div>
 
       {/* Pricing Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        {Object.entries(planType === 'organization' ? ORG_PLANS : PLANS).map(([key, plan]) => {
+      <div className={`grid grid-cols-1 ${planType === 'university' ? 'md:grid-cols-4' : 'md:grid-cols-3'} gap-6 mb-8`}>
+        {Object.entries(
+          planType === 'organization' ? ORG_PLANS : 
+          planType === 'coach' ? COACH_PLANS : 
+          UNIVERSITY_PLANS
+        ).map(([key, plan]) => {
           const tier = key as any;
           const price = isAnnual ? plan.annual : plan.monthly;
           const monthlyPrice = isAnnual ? price / 12 : price;
@@ -372,21 +478,29 @@ export function SubscriptionPlans() {
                       if (plan.isBeta || !IS_BETA_MODE) {
                         handleOrgSubscribe(tier as 'basic' | 'standard' | 'premium' | 'beta');
                       }
-                    } else {
-                      if (!IS_BETA_MODE && tier !== 'calm') {
-                        handleSubscribe(tier as 'basic' | 'pro' | 'pro_plus');
+                    } else if (planType === 'coach') {
+                      if (!IS_BETA_MODE) {
+                        handleCoachSubscribe(tier as 'basic' | 'pro' | 'pro_plus');
+                      }
+                    } else if (planType === 'university') {
+                      if (!IS_BETA_MODE || tier === 'free') {
+                        handleUniversitySubscribe(tier as 'free' | 'individual' | 'family' | 'premium');
                       }
                     }
                   }}
                   disabled={
                     planType === 'organization' 
                       ? (!plan.isBeta && IS_BETA_MODE) || loading === tier
-                      : IS_BETA_MODE || tier === 'calm' || loading === tier || (subscription.subscribed && subscription.subscription_tier === tier)
+                      : planType === 'coach'
+                      ? IS_BETA_MODE || loading === tier || (subscription.subscribed && subscription.subscription_tier === tier)
+                      : planType === 'university'
+                      ? (IS_BETA_MODE && tier !== 'free') || loading === tier || (subscription.subscribed && subscription.subscription_tier === tier)
+                      : false
                   }
                   variant={
                     plan.popular ? 'default' : 
                     plan.isBeta ? 'default' : 
-                    tier === 'calm' ? 'outline' : 
+                    tier === 'free' ? 'outline' : 
                     'outline'
                   }
                 >
@@ -410,11 +524,9 @@ export function SubscriptionPlans() {
                     ) : (
                       `Subscribe to ${plan.badge}`
                     )
-                  ) : (
+                  ) : planType === 'coach' ? (
                     IS_BETA_MODE ? (
                       'Beta Access Only'
-                    ) : tier === 'calm' ? (
-                      'Current Plan'
                     ) : loading === tier ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -425,6 +537,23 @@ export function SubscriptionPlans() {
                     ) : (
                       `Subscribe to ${plan.badge}`
                     )
+                  ) : planType === 'university' ? (
+                    tier === 'free' ? (
+                      'Get Started Free'
+                    ) : IS_BETA_MODE ? (
+                      'Beta Access Only'
+                    ) : loading === tier ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Processing...
+                      </>
+                    ) : subscription.subscribed && subscription.subscription_tier === tier ? (
+                      'Current Plan'
+                    ) : (
+                      'Subscribe Now'
+                    )
+                  ) : (
+                    'Subscribe'
                   )}
                 </Button>
               </CardFooter>
@@ -434,7 +563,7 @@ export function SubscriptionPlans() {
       </div>
 
       {/* Credit Pack Top-up Options */}
-      {planType === 'individual' && (
+      {(planType === 'university' || planType === 'coach') && (
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-6">
             <h3 className="text-2xl font-bold mb-2">Need More Credits?</h3>
@@ -462,7 +591,14 @@ export function SubscriptionPlans() {
               <CardFooter>
                 <Button 
                   className="w-full bg-purple-600 hover:bg-purple-700" 
-                  onClick={() => !IS_BETA_MODE && handleSubscribe('credit_pack' as any)}
+                  onClick={() => {
+                    if (!IS_BETA_MODE) {
+                      toast({
+                        title: "Coming Soon",
+                        description: "Credit packs will be available soon!",
+                      });
+                    }
+                  }}
                   disabled={IS_BETA_MODE || loading === 'credit_pack'}
                 >
                   {IS_BETA_MODE ? (
@@ -500,7 +636,14 @@ export function SubscriptionPlans() {
               <CardFooter>
                 <Button 
                   className="w-full bg-blue-600 hover:bg-blue-700" 
-                  onClick={() => !IS_BETA_MODE && handleSubscribe('credit_pack_large' as any)}
+                  onClick={() => {
+                    if (!IS_BETA_MODE) {
+                      toast({
+                        title: "Coming Soon",
+                        description: "Credit packs will be available soon!",
+                      });
+                    }
+                  }}
                   disabled={IS_BETA_MODE || loading === 'credit_pack_large'}
                 >
                   {IS_BETA_MODE ? (
