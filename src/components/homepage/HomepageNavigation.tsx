@@ -8,10 +8,7 @@ const HomepageNavigation = () => {
 
   const navLinks = [
     { label: 'Courses', href: '/courses' },
-    { label: 'Resources', href: '/resources' },
-    { label: 'Empowering Learning', href: 'https://empoweringlearning.fpkadapt.com/', external: true },
     { label: 'Learning Portal', href: '/dashboard/learner' },
-    { label: 'Games', href: 'https://fpk-games.lovable.app/', external: true },
     { 
       label: 'Organizations', 
       href: '/organizations',
@@ -59,16 +56,6 @@ const HomepageNavigation = () => {
                     ))}
                   </div>
                 </div>
-              ) : link.external ? (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-slate-700 hover:text-fpk-orange transition-colors duration-200 font-medium"
-                >
-                  {link.label}
-                </a>
               ) : (
                 <Link
                   key={link.href}
@@ -119,17 +106,6 @@ const HomepageNavigation = () => {
                       ))}
                     </div>
                   </div>
-                ) : link.external ? (
-                  <a
-                    key={link.href}
-                    href={link.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-slate-700 hover:text-fpk-orange transition-colors duration-200 font-medium py-2"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    {link.label}
-                  </a>
                 ) : (
                   <Link
                     key={link.href}
