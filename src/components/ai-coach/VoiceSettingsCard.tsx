@@ -37,14 +37,15 @@ const VoiceSettingsCard: React.FC = () => {
   };
 
   const handleVoiceChange = (voiceId: string) => {
-    setSelectedVoice(voiceId);
-    
-    if (voiceId === '') {
+    // Use special value "PERSONA_DEFAULT" to indicate no override
+    if (voiceId === 'PERSONA_DEFAULT') {
+      setSelectedVoice(null);
       toast({
         title: "Voice Reset",
         description: "Now using persona default voices (Betty, Al, Nite Owl)",
       });
     } else {
+      setSelectedVoice(voiceId);
       const voice = availableVoices.find(v => v.id === voiceId);
       toast({
         title: "Voice Updated",
@@ -123,22 +124,35 @@ const VoiceSettingsCard: React.FC = () => {
               <span className="font-medium">Voice Override Active</span>
             </div>
             <p className="text-orange-600 mt-1">
-              All personas (Betty, Al, Nite Owl) will use: <strong>{availableVoices.find(v => v.id === settings.selectedVoice)?.name}</strong>
+              All personas (Betty, Al, Nite Owl) will use: <strong>{availableVoices.find(v => v.id === settings.selectedVoice)?.name || settings.selectedVoice}</strong>
             </p>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                setSelectedVoice('');
-                toast({
-                  title: "Voice Reset",
-                  description: "Now using persona default voices",
-                });
-              }}
-              className="mt-2 h-6 mobile-text-xs px-2 text-orange-700 hover:bg-orange-100"
-            >
-              Reset to Persona Defaults
-            </Button>
+            <div className="flex gap-2 mt-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setSelectedVoice(null);
+                  toast({
+                    title: "Voice Reset",
+                    description: "Now using persona default voices",
+                  });
+                }}
+                className="h-6 mobile-text-xs px-2 text-orange-700 hover:bg-orange-100"
+              >
+                Reset to Persona Defaults
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  localStorage.removeItem('voiceSettings');
+                  window.location.reload();
+                }}
+                className="h-6 mobile-text-xs px-2 text-orange-700 hover:bg-orange-100"
+              >
+                Clear Storage & Reload
+              </Button>
+            </div>
           </div>
         )}
 
@@ -176,12 +190,12 @@ const VoiceSettingsCard: React.FC = () => {
               {femaleVoices.length > 0 && (
                 <div>
                   <Label className="text-xs text-muted-foreground mb-2 block">Female Voices</Label>
-                  <Select value={settings.selectedVoice || ''} onValueChange={handleVoiceChange}>
+                  <Select value={settings.selectedVoice || 'PERSONA_DEFAULT'} onValueChange={handleVoiceChange}>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Choose a female voice..." />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">
+                      <SelectItem value="PERSONA_DEFAULT">
                         <span className="font-semibold text-primary">✨ Use Persona Defaults (Recommended)</span>
                       </SelectItem>
                       {femaleVoices.map((voice) => (
@@ -211,12 +225,12 @@ const VoiceSettingsCard: React.FC = () => {
               {maleVoices.length > 0 && (
                 <div>
                   <Label className="text-xs text-muted-foreground mb-2 block">Male Voices</Label>
-                  <Select value={settings.selectedVoice || ''} onValueChange={handleVoiceChange}>
+                  <Select value={settings.selectedVoice || 'PERSONA_DEFAULT'} onValueChange={handleVoiceChange}>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Choose a male voice..." />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">
+                      <SelectItem value="PERSONA_DEFAULT">
                         <span className="font-semibold text-primary">✨ Use Persona Defaults (Recommended)</span>
                       </SelectItem>
                       {maleVoices.map((voice) => (

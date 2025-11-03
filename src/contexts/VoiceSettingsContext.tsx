@@ -27,7 +27,7 @@ interface VoiceSettingsContextType {
   toggle: () => void;
   togglePaused: () => void;
   initializeVoice: () => Promise<void>;
-  setSelectedVoice: (voiceId: string) => void;
+  setSelectedVoice: (voiceId: string | null) => void;
   saveSettingsToStorage: () => void;
   loadSettingsFromStorage: () => Partial<VoiceSettings>;
 }
@@ -159,8 +159,8 @@ export const VoiceSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
     setSettings(prev => ({ ...prev, ...updates }));
   };
 
-  const setSelectedVoice = (voiceId: string) => {
-    console.log('🔊 Setting selected voice to:', voiceId);
+  const setSelectedVoice = (voiceId: string | null) => {
+    console.log('🔊 Setting selected voice to:', voiceId || 'null (persona defaults)');
     setSettings(prev => ({ ...prev, selectedVoice: voiceId }));
   };
 
