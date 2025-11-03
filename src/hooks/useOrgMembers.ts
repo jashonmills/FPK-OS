@@ -72,8 +72,15 @@ export function useOrgMembers(searchQuery?: string, roleFilter?: string, include
 
       return data.map(member => {
         const profile = Array.isArray(member.profiles) ? member.profiles[0] : member.profiles;
-        const displayName = profile?.display_name || profile?.full_name || `User ${member.user_id.slice(0, 8)}`;
-        const fullName = profile?.full_name || profile?.display_name || `User ${member.user_id.slice(0, 8)}`;
+        // Better fallback hierarchy: display_name -> full_name -> email -> user ID
+        const displayName = profile?.display_name 
+          || profile?.full_name 
+          || profile?.email 
+          || `User ${member.user_id.slice(0, 8)}`;
+        const fullName = profile?.full_name 
+          || profile?.display_name 
+          || profile?.email 
+          || `User ${member.user_id.slice(0, 8)}`;
         
         return {
           user_id: member.user_id,
