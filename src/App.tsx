@@ -7,8 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { FeatureFlagProvider } from "@/contexts/FeatureFlagContext";
 import { HelpProvider } from "@/contexts/HelpContext";
-import { HelpCenter } from "@/components/help/HelpCenter";
-import { OnboardingTour } from "@/components/onboarding/OnboardingTour";
+import { AppProviders } from "@/components/app/AppProviders";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Kanban from "./pages/Kanban";
@@ -67,13 +66,12 @@ const App = () => (
       <HelpProvider>
         <Toaster />
         <Sonner />
-        <HelpCenter />
         <BrowserRouter>
           <AuthProvider>
-            <OnboardingTour />
             <FeatureFlagProvider>
-              <Routes>
-                <Route path="/auth" element={<Auth />} />
+              <AppProviders>
+                <Routes>
+                  <Route path="/auth" element={<Auth />} />
               <Route 
                 path="/setup-password" 
                 element={
@@ -162,12 +160,13 @@ const App = () => (
                   </ProtectedRoute>
                 } 
               />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </FeatureFlagProvider>
-        </AuthProvider>
-      </BrowserRouter>
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+              </AppProviders>
+            </FeatureFlagProvider>
+          </AuthProvider>
+        </BrowserRouter>
       </HelpProvider>
     </TooltipProvider>
   </QueryClientProvider>
