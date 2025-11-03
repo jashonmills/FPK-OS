@@ -2,9 +2,8 @@ import React from 'react';
 import HomepageNavigation from '@/components/homepage/HomepageNavigation';
 import HomepageHero from '@/components/homepage/HomepageHero';
 import ResourcesSection from '@/components/homepage/ResourcesSection';
-import IntroSection from '@/components/homepage/IntroSection';
+import TwoColumnInfoSection from '@/components/homepage/TwoColumnInfoSection';
 import OfferingsSection from '@/components/homepage/OfferingsSection';
-import WhyChooseSection from '@/components/homepage/WhyChooseSection';
 import EmpoweringLearningSection from '@/components/homepage/EmpoweringLearningSection';
 import CTASection from '@/components/homepage/CTASection';
 import HomepageFooter from '@/components/homepage/HomepageFooter';
@@ -26,8 +25,7 @@ const Index = () => {
     >
       <HomepageNavigation />
       <HomepageHero />
-      <IntroSection />
-      <WhyChooseSection />
+      <TwoColumnInfoSection />
       <OfferingsSection />
       <EmpoweringLearningSection />
       <ResourcesSection />

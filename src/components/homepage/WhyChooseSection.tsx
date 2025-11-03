@@ -11,9 +11,8 @@ const benefits = [
 
 const WhyChooseSection = () => {
   return (
-    <section className="py-20 px-6 w-full">
-      <div className="w-full max-w-none mx-auto">
-        <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 md:p-12 shadow-lg border border-white/20 max-w-4xl mx-auto">
+    <div className="h-full">
+      <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 md:p-12 shadow-lg border border-white/20 h-full">
           <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-8 text-center">
             Why Choose FPK University?
           </h2>
@@ -40,7 +39,6 @@ const WhyChooseSection = () => {
           </div>
         </div>
       </div>
-    </section>
   );
 };
 
