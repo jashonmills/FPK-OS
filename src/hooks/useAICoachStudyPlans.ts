@@ -13,7 +13,7 @@ export interface AICoachStudyPlan {
   created_at: string;
 }
 
-export function useAICoachStudyPlans() {
+export function useAICoachStudyPlans(orgId?: string) {
   const { user } = useAuth();
   const [activeStudyPlan, setActiveStudyPlan] = useState<AICoachStudyPlan | null>(null);
   const [isLoadingPlan, setIsLoadingPlan] = useState(true);
@@ -27,14 +27,11 @@ export function useAICoachStudyPlans() {
     try {
       setIsLoadingPlan(true);
 
-      const { data, error } = await supabase
-        .from('ai_coach_study_plans')
-        .select('id, title, description, progress, estimated_hours, created_at')
-        .eq('user_id', user.id)
-        .lt('progress', 100)  // Only get incomplete plans
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
+      const query = orgId
+        ? supabase.from('ai_coach_study_plans').select('id, title, description, progress, estimated_hours, created_at').eq('user_id', user.id).eq('org_id', orgId).lt('progress', 100).order('created_at', { ascending: false }).limit(1)
+        : supabase.from('ai_coach_study_plans').select('id, title, description, progress, estimated_hours, created_at').eq('user_id', user.id).lt('progress', 100).order('created_at', { ascending: false }).limit(1);
+
+      const { data, error } = await query.maybeSingle();
 
       if (error) throw error;
 
@@ -72,15 +69,21 @@ export function useAICoachStudyPlans() {
     if (!user?.id) return null;
 
     try {
+      const insertData: any = {
+        user_id: user.id,
+        title,
+        description,
+        estimated_hours: estimatedHours,
+        progress: 0
+      };
+
+      if (orgId) {
+        insertData.org_id = orgId;
+      }
+
       const { data, error } = await supabase
         .from('ai_coach_study_plans')
-        .insert({
-          user_id: user.id,
-          title,
-          description,
-          estimated_hours: estimatedHours,
-          progress: 0
-        })
+        .insert(insertData)
         .select()
         .single();
 
@@ -123,7 +126,7 @@ export function useAICoachStudyPlans() {
 
   useEffect(() => {
     fetchActiveStudyPlan();
-  }, [user?.id]);
+  }, [user?.id, orgId]);
 
   return {
     activeStudyPlan,

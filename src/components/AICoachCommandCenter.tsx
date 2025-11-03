@@ -384,7 +384,11 @@ const AIInteractionColumn: React.FC<{
 };
 
 // Main Component
-export const AICoachCommandCenter: React.FC = () => {
+interface AICoachCommandCenterProps {
+  isFreeChatAllowed?: boolean;
+}
+
+export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({ isFreeChatAllowed = true }) => {
   const { user } = useAuth();
   const isMobile = useIsMobile();
   

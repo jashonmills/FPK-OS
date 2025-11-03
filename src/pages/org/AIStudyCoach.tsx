@@ -7,7 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useOrgPermissions } from '@/hooks/useOrgPermissions';
 import { MobilePageLayout, MobileSectionHeader } from '@/components/layout/MobilePageLayout';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { EnhancedAIStudyCoach } from '@/components/chat/EnhancedAIStudyCoach';
+import { AICoachCommandCenter } from '@/components/AICoachCommandCenter';
 import { AdminAIAssistant } from '@/components/admin/AdminAIAssistant';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -105,65 +105,10 @@ export default function AIStudyCoach() {
             orgId={currentOrg?.organization_id}
           />
         ) : (
-          <>
-            {/* Study Tips - Responsive Grid for Students */}
-            <div className="w-full">
-          <div className="flex items-center gap-2 mb-4">
-            <Lightbulb className="h-5 w-5 text-primary" />
-            <h3 className="font-semibold text-lg">Study Tips</h3>
-          </div>
-          <div className={`
-            grid gap-4
-            ${isMobile 
-              ? 'grid-cols-1' 
-              : 'grid-cols-2 lg:grid-cols-4'
-            }
-          `}>
-            {studyTips.map((tip) => (
-              <Card 
-                key={tip.id} 
-                className="flex-1"
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-start space-x-3">
-                    <div className="bg-primary/10 rounded-lg p-2 flex-shrink-0">
-                      <tip.icon className="text-primary h-4 w-4" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-2 flex-wrap">
-                        <h4 className="font-semibold text-sm">
-                          {tip.title}
-                        </h4>
-                        <Badge 
-                          variant="secondary" 
-                          className={`text-xs ${categoryColors[tip.category]}`}
-                        >
-                          {tip.category.replace('-', ' ')}
-                        </Badge>
-                      </div>
-                      <p className="text-muted-foreground text-xs leading-relaxed">
-                        {tip.description}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-
-        {/* Enhanced AI Study Coach - Full Width */}
-        <div className="flex flex-col min-h-[600px] h-[calc(100vh-16rem)] max-w-7xl mx-auto w-full px-2 sm:px-4">
-          <EnhancedAIStudyCoach
-            userId={user?.id}
-            orgId={currentOrg?.organization_id}
-            chatMode="general"
-            showHeader={true}
-            fixedHeight={true}
+          /* Student AI Command Center - Same as personal users */
+          <AICoachCommandCenter
             isFreeChatAllowed={isFreeChatAllowed}
           />
-            </div>
-          </>
         )}
       </div>
     </MobilePageLayout>

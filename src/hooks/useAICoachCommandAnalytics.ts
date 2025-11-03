@@ -10,7 +10,7 @@ export interface AICoachAnalyticsData {
   topicsStudied: string[];
 }
 
-export function useAICoachCommandAnalytics() {
+export function useAICoachCommandAnalytics(orgId?: string) {
   const { user } = useAuth();
   const [analytics, setAnalytics] = useState<AICoachAnalyticsData | null>(null);
   const [isLoadingAnalytics, setIsLoadingAnalytics] = useState(true);
@@ -25,35 +25,21 @@ export function useAICoachCommandAnalytics() {
       setIsLoadingAnalytics(true);
 
       // Fetch all analytics data in parallel
-      const [timeResult, sessionsResult, scoreResult, streakResult, topicsResult] = await Promise.all([
-        // Total study time
-        supabase
-          .from('ai_coach_analytics')
-          .select('study_time_minutes')
-          .eq('user_id', user.id),
-        
-        // Sessions completed (distinct session dates)
-        supabase
-          .from('ai_coach_analytics')
-          .select('session_date')
-          .eq('user_id', user.id),
-        
-        // Average comprehension score
-        supabase
-          .from('ai_coach_analytics')
-          .select('comprehension_score')
-          .eq('user_id', user.id)
-          .not('comprehension_score', 'is', null),
-        
-        // Learning streak (using RPC function)
+      const promises = orgId ? [
+        supabase.from('ai_coach_analytics').select('study_time_minutes').eq('user_id', user.id).eq('org_id', orgId),
+        supabase.from('ai_coach_analytics').select('session_date').eq('user_id', user.id).eq('org_id', orgId),
+        supabase.from('ai_coach_analytics').select('comprehension_score').eq('user_id', user.id).eq('org_id', orgId).not('comprehension_score', 'is', null),
         supabase.rpc('get_ai_coach_learning_streak', { p_user_id: user.id }),
-        
-        // Topics studied
-        supabase
-          .from('ai_coach_analytics')
-          .select('topics_explored')
-          .eq('user_id', user.id)
-      ]);
+        supabase.from('ai_coach_analytics').select('topics_explored').eq('user_id', user.id).eq('org_id', orgId)
+      ] : [
+        supabase.from('ai_coach_analytics').select('study_time_minutes').eq('user_id', user.id),
+        supabase.from('ai_coach_analytics').select('session_date').eq('user_id', user.id),
+        supabase.from('ai_coach_analytics').select('comprehension_score').eq('user_id', user.id).not('comprehension_score', 'is', null),
+        supabase.rpc('get_ai_coach_learning_streak', { p_user_id: user.id }),
+        supabase.from('ai_coach_analytics').select('topics_explored').eq('user_id', user.id)
+      ];
+
+      const [timeResult, sessionsResult, scoreResult, streakResult, topicsResult] = await Promise.all(promises);
 
       // Calculate total study time in hours
       const totalMinutes = timeResult.data?.reduce((sum, record) => sum + (record.study_time_minutes || 0), 0) || 0;
@@ -114,17 +100,23 @@ export function useAICoachCommandAnalytics() {
       const sessionDate = new Date().toISOString().split('T')[0];
 
       // Upsert analytics record (accumulate for the day)
+      const insertData: any = {
+        user_id: user.id,
+        session_date: sessionDate,
+        study_time_minutes: studyTimeMinutes,
+        topics_explored: topicsExplored,
+        comprehension_score: comprehensionScore,
+        messages_sent: 1
+      };
+
+      if (orgId) {
+        insertData.org_id = orgId;
+      }
+
       const { error } = await supabase
         .from('ai_coach_analytics')
-        .upsert({
-          user_id: user.id,
-          session_date: sessionDate,
-          study_time_minutes: studyTimeMinutes,
-          topics_explored: topicsExplored,
-          comprehension_score: comprehensionScore,
-          messages_sent: 1
-        }, {
-          onConflict: 'user_id,session_date',
+        .upsert(insertData, {
+          onConflict: orgId ? 'user_id,org_id,session_date' : 'user_id,session_date',
           ignoreDuplicates: false
         });
 
@@ -141,7 +133,7 @@ export function useAICoachCommandAnalytics() {
 
   useEffect(() => {
     fetchAnalytics();
-  }, [user?.id]);
+  }, [user?.id, orgId]);
 
   return {
     analytics,

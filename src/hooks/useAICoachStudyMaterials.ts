@@ -12,7 +12,7 @@ export interface StudyMaterial {
   created_at: string;
 }
 
-export function useAICoachStudyMaterials() {
+export function useAICoachStudyMaterials(orgId?: string) {
   const { user } = useAuth();
   const [studyMaterials, setStudyMaterials] = useState<StudyMaterial[]>([]);
   const [isLoadingMaterials, setIsLoadingMaterials] = useState(true);
@@ -25,11 +25,12 @@ export function useAICoachStudyMaterials() {
 
     try {
       setIsLoadingMaterials(true);
-      const { data, error } = await supabase
-        .from('ai_coach_study_materials')
-        .select('id, title, file_type, file_size, file_url, created_at')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+      
+      const query = orgId
+        ? supabase.from('ai_coach_study_materials').select('id, title, file_type, file_size, file_url, created_at').eq('user_id', user.id).eq('org_id', orgId).order('created_at', { ascending: false })
+        : supabase.from('ai_coach_study_materials').select('id, title, file_type, file_size, file_url, created_at').eq('user_id', user.id).order('created_at', { ascending: false });
+      
+      const { data, error } = await query;
 
       if (error) throw error;
 
@@ -71,15 +72,21 @@ export function useAICoachStudyMaterials() {
         .getPublicUrl(filePath);
 
       // Step 3: Create database record
+      const insertData: any = {
+        user_id: user.id,
+        title: file.name,
+        file_type: file.type,
+        file_size: file.size,
+        file_url: publicUrl
+      };
+
+      if (orgId) {
+        insertData.org_id = orgId;
+      }
+
       const { error: dbError } = await supabase
         .from('ai_coach_study_materials')
-        .insert({
-          user_id: user.id,
-          title: file.name,
-          file_type: file.type,
-          file_size: file.size,
-          file_url: publicUrl
-        });
+        .insert(insertData);
 
       if (dbError) throw dbError;
 
@@ -132,7 +139,7 @@ export function useAICoachStudyMaterials() {
 
   useEffect(() => {
     fetchStudyMaterials();
-  }, [user?.id]);
+  }, [user?.id, orgId]);
 
   return {
     studyMaterials,

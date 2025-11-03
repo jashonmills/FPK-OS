@@ -19,7 +19,7 @@ export interface ConversationPreview {
   updated_at: string;
 }
 
-export function useAICoachConversations() {
+export function useAICoachConversations(orgId?: string) {
   const { user } = useAuth();
   const [conversations, setConversations] = useState<ConversationPreview[]>([]);
   const [isLoadingConversations, setIsLoadingConversations] = useState(true);
@@ -34,11 +34,11 @@ export function useAICoachConversations() {
       setIsLoadingConversations(true);
       
       // Fetch conversations with message preview and count
-      const { data: conversationsData, error: conversationsError } = await supabase
-        .from('ai_coach_conversations')
-        .select('id, title, updated_at')
-        .eq('user_id', user.id)
-        .order('updated_at', { ascending: false });
+      const query = orgId
+        ? supabase.from('ai_coach_conversations').select('id, title, updated_at').eq('user_id', user.id).eq('org_id', orgId).order('updated_at', { ascending: false })
+        : supabase.from('ai_coach_conversations').select('id, title, updated_at').eq('user_id', user.id).order('updated_at', { ascending: false });
+      
+      const { data: conversationsData, error: conversationsError } = await query;
 
       if (conversationsError) throw conversationsError;
 
@@ -108,12 +108,18 @@ export function useAICoachConversations() {
 
     try {
       // Create conversation
+      const insertData: any = {
+        user_id: user.id,
+        title: title
+      };
+
+      if (orgId) {
+        insertData.org_id = orgId;
+      }
+
       const { data: conversationData, error: conversationError } = await supabase
         .from('ai_coach_conversations')
-        .insert({
-          user_id: user.id,
-          title: title
-        })
+        .insert(insertData)
         .select()
         .single();
 
@@ -191,7 +197,7 @@ export function useAICoachConversations() {
 
   useEffect(() => {
     fetchConversations();
-  }, [user?.id]);
+  }, [user?.id, orgId]);
 
   return {
     conversations,
