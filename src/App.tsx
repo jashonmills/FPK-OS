@@ -21,6 +21,7 @@ import PaymentSummary from "./pages/PaymentSummary";
 import MyTimesheet from "./pages/MyTimesheet";
 import NotFound from "./pages/NotFound";
 import { PermissionGuard } from '@/components/auth/PermissionGuard';
+import { FeatureFlagGuard } from '@/components/auth/FeatureFlagGuard';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading, hasPassword } = useAuth();
@@ -141,7 +142,9 @@ const App = () => (
                 path="/my-timesheet" 
                 element={
                   <ProtectedRoute>
-                    <MyTimesheet />
+                    <FeatureFlagGuard feature="FEATURE_TIMESHEET">
+                      <MyTimesheet />
+                    </FeatureFlagGuard>
                   </ProtectedRoute>
                 } 
               />

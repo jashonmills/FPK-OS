@@ -7,11 +7,13 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 import { User, Settings, LogOut, HelpCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useHelp } from '@/contexts/HelpContext';
+import { useFeatureFlags } from '@/contexts/FeatureFlagContext';
 
 export const AppHeader = () => {
   const { signOut } = useAuth();
   const navigate = useNavigate();
   const { openHelpCenter } = useHelp();
+  const { isFeatureEnabled } = useFeatureFlags();
 
   return (
     <header className="h-14 border-b border-border bg-background flex items-center justify-between px-3 md:px-4 overflow-x-hidden w-full">
@@ -22,15 +24,17 @@ export const AppHeader = () => {
 
       <div className="flex items-center gap-1 md:gap-2 flex-shrink-0">
         <NotificationCenter />
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          onClick={() => openHelpCenter()}
-          className="h-9 w-9 md:h-10 md:w-10"
-          data-help-button
-        >
-          <HelpCircle className="h-4 w-4 md:h-5 md:w-5" />
-        </Button>
+        {isFeatureEnabled('FEATURE_HELP_CENTER') && (
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => openHelpCenter()}
+            className="h-9 w-9 md:h-10 md:w-10"
+            data-help-button
+          >
+            <HelpCircle className="h-4 w-4 md:h-5 md:w-5" />
+          </Button>
+        )}
         <ThemeToggle />
         
         <DropdownMenu>

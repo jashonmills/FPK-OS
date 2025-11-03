@@ -3,6 +3,7 @@ import { SidebarProvider, useSidebar } from '@/components/ui/sidebar';
 import { AppSidebar } from './AppSidebar';
 import { AppHeader } from './AppHeader';
 import { cn } from '@/lib/utils';
+import { useFeatureFlags } from '@/contexts/FeatureFlagContext';
 
 // Lazy load help components to avoid context initialization issues
 const HelpCenter = lazy(() => import('@/components/help/HelpCenter').then(m => ({ default: m.HelpCenter })));
@@ -33,6 +34,7 @@ const AppLayoutContent = ({ children }: AppLayoutProps) => {
 
 export const AppLayout = ({ children }: AppLayoutProps) => {
   const [mounted, setMounted] = useState(false);
+  const { isFeatureEnabled } = useFeatureFlags();
 
   // Only mount help components after initial render to ensure all providers are ready
   useEffect(() => {
@@ -41,7 +43,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
 
   return (
     <SidebarProvider>
-      {mounted && (
+      {mounted && isFeatureEnabled('FEATURE_HELP_CENTER') && (
         <Suspense fallback={null}>
           <HelpCenter />
           <OnboardingTour />
