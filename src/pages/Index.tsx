@@ -2,6 +2,7 @@ import React from 'react';
 import HomepageNavigation from '@/components/homepage/HomepageNavigation';
 import HomepageHero from '@/components/homepage/HomepageHero';
 import ResourcesSection from '@/components/homepage/ResourcesSection';
+import PricingSection from '@/components/homepage/PricingSection';
 import TwoColumnInfoSection from '@/components/homepage/TwoColumnInfoSection';
 import OfferingsSection from '@/components/homepage/OfferingsSection';
 import FPKEcosystemSection from '@/components/homepage/FPKEcosystemSection';
@@ -31,6 +32,7 @@ const Index = () => {
       <FPKEcosystemSection />
       <EmpoweringLearningSection />
       <ResourcesSection />
+      <PricingSection />
       <CTASection />
       <HomepageFooter />
     </div>
