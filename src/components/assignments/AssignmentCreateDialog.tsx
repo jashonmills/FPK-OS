@@ -14,9 +14,10 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useOrgMembers } from '@/hooks/useOrgMembers';
+import { useOrgStudents } from '@/hooks/useOrgStudents';
 import { useOrgGroups } from '@/hooks/useOrgGroups';
 import { useOrgAssignments } from '@/hooks/useOrgAssignments';
+import { useOrgContext } from '@/components/organizations/OrgContext';
 import { Calendar, Loader2, User, Users, UserPlus } from 'lucide-react';
 import type { CourseCard } from '@/types/course-card';
 
@@ -48,11 +49,13 @@ export function AssignmentCreateDialog({ course, trigger, open: controlledOpen, 
   const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<'students' | 'groups' | 'both'>('students');
 
-  const { members, isLoading: membersLoading } = useOrgMembers(undefined, undefined, true);
+  const { currentOrg } = useOrgContext();
+  const { students: allStudents, isLoading: membersLoading } = useOrgStudents(currentOrg?.organization_id || '', undefined);
   const { groups, isLoading: groupsLoading } = useOrgGroups();
   const { createAssignment, isCreating } = useOrgAssignments();
 
-  const students = members.filter(m => m.role === 'student');
+  // Only show students with linked accounts (can receive assignments)
+  const students = allStudents.filter(s => s.linked_user_id);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,11 +88,11 @@ export function AssignmentCreateDialog({ course, trigger, open: controlledOpen, 
     handleOpenChange(false);
   };
 
-  const toggleMember = (memberId: string) => {
+  const toggleMember = (userId: string) => {
     setSelectedMembers(prev =>
-      prev.includes(memberId)
-        ? prev.filter(id => id !== memberId)
-        : [...prev, memberId]
+      prev.includes(userId)
+        ? prev.filter(id => id !== userId)
+        : [...prev, userId]
     );
   };
 
@@ -102,7 +105,7 @@ export function AssignmentCreateDialog({ course, trigger, open: controlledOpen, 
   };
 
   const selectAllStudents = () => {
-    setSelectedMembers(students.map(s => s.user_id));
+    setSelectedMembers(students.map(s => s.linked_user_id!).filter(Boolean));
   };
 
   const selectAllGroups = () => {
@@ -227,20 +230,20 @@ export function AssignmentCreateDialog({ course, trigger, open: controlledOpen, 
                          No students found. Add students to your organization first.
                        </div>
                      ) : (
-                       <div className="space-y-2">
-                         {students.map((student) => (
-                           <label
-                             key={student.user_id}
-                             className="flex items-center gap-3 p-2 rounded hover:bg-muted cursor-pointer"
-                           >
-                             <Checkbox
-                               checked={selectedMembers.includes(student.user_id)}
-                               onCheckedChange={() => toggleMember(student.user_id)}
-                             />
-                             <span className="text-sm">{student.display_name}</span>
-                           </label>
-                         ))}
-                       </div>
+                        <div className="space-y-2">
+                          {students.map((student) => (
+                            <label
+                              key={student.id}
+                              className="flex items-center gap-3 p-2 rounded hover:bg-muted cursor-pointer"
+                            >
+                              <Checkbox
+                                checked={selectedMembers.includes(student.linked_user_id!)}
+                                onCheckedChange={() => toggleMember(student.linked_user_id!)}
+                              />
+                              <span className="text-sm">{student.full_name}</span>
+                            </label>
+                          ))}
+                        </div>
                      )}
                    </ScrollArea>
                 </div>
@@ -323,14 +326,14 @@ export function AssignmentCreateDialog({ course, trigger, open: controlledOpen, 
                         <div className="space-y-2">
                           {students.map((student) => (
                             <label
-                              key={student.user_id}
+                              key={student.id}
                               className="flex items-center gap-3 p-2 rounded hover:bg-muted cursor-pointer"
                             >
                               <Checkbox
-                                checked={selectedMembers.includes(student.user_id)}
-                                onCheckedChange={() => toggleMember(student.user_id)}
+                                checked={selectedMembers.includes(student.linked_user_id!)}
+                                onCheckedChange={() => toggleMember(student.linked_user_id!)}
                               />
-                              <span className="text-sm">{student.display_name}</span>
+                              <span className="text-sm">{student.full_name}</span>
                             </label>
                           ))}
                         </div>
