@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
@@ -147,6 +148,18 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
       onChange(editor.getJSON());
     },
   });
+
+  // Update editor content when prop changes
+  useEffect(() => {
+    if (!editor || !content) return;
+    
+    const currentContent = editor.getJSON();
+    
+    // Only update if content has actually changed (prevent infinite loops)
+    if (JSON.stringify(currentContent) !== JSON.stringify(content)) {
+      editor.commands.setContent(content);
+    }
+  }, [editor, content]);
 
   if (!editor) {
     return null;
