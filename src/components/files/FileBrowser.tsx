@@ -1,16 +1,17 @@
 import { useState } from 'react';
 import { FolderTree } from './FolderTree';
 import { FileGrid } from './FileGrid';
+import { FileLargeGrid } from './FileLargeGrid';
 import { FileList } from './FileList';
 import { FileUploader } from './FileUploader';
 import { FilePreview } from './FilePreview';
 import { CreateFolderDialog } from './CreateFolderDialog';
 import { FileFilters } from './FileFilters';
 import { Button } from '@/components/ui/button';
-import { Grid3x3, List, FolderPlus, Upload } from 'lucide-react';
+import { Grid3x3, Grid2x2, List, FolderPlus, Upload } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
-type ViewMode = 'grid' | 'list';
+type ViewMode = 'grid' | 'large' | 'list';
 
 export const FileBrowser = () => {
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
@@ -75,6 +76,13 @@ export const FileBrowser = () => {
               <Grid3x3 className="h-4 w-4" />
             </Button>
             <Button
+              variant={viewMode === 'large' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => handleViewModeChange('large')}
+            >
+              <Grid2x2 className="h-4 w-4" />
+            </Button>
+            <Button
               variant={viewMode === 'list' ? 'default' : 'outline'}
               size="sm"
               onClick={() => handleViewModeChange('list')}
@@ -88,6 +96,12 @@ export const FileBrowser = () => {
         <div className="flex-1 overflow-y-auto p-6">
           {viewMode === 'grid' ? (
             <FileGrid
+              folderId={selectedFolderId}
+              filters={filters}
+              onSelectFile={setSelectedFileId}
+            />
+          ) : viewMode === 'large' ? (
+            <FileLargeGrid
               folderId={selectedFolderId}
               filters={filters}
               onSelectFile={setSelectedFileId}
