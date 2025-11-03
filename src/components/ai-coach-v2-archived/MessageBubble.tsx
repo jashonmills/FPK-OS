@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { CommandCenterMessage } from '@/hooks/useCommandCenterChat';
-import { User, Sparkles, Brain, Podcast } from 'lucide-react';
+import { User, Sparkles, Brain, Podcast, Volume2, VolumeX } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import { useTextToSpeech as usePersonaTextToSpeech } from '@/hooks/usePersonaTextToSpeech';
 
 interface MessageBubbleProps {
   message: CommandCenterMessage;
@@ -13,6 +14,30 @@ export function MessageBubble({ message }: MessageBubbleProps) {
   const isBetty = message.persona === 'BETTY';
   const isAl = message.persona === 'AL';
   const isNiteOwl = message.persona === 'NITE_OWL';
+
+  const { speak, stop, isSpeaking, isAvailable } = usePersonaTextToSpeech();
+  const [isThisMessageSpeaking, setIsThisMessageSpeaking] = useState(false);
+
+  const handleSpeak = () => {
+    if (isThisMessageSpeaking) {
+      stop();
+      setIsThisMessageSpeaking(false);
+    } else {
+      // Only speak for valid AI personas (not CONDUCTOR)
+      if (message.persona === 'BETTY' || message.persona === 'AL' || message.persona === 'NITE_OWL') {
+        speak(message.content, message.persona);
+        setIsThisMessageSpeaking(true);
+        
+        // Auto-reset when speech ends
+        const checkEnd = setInterval(() => {
+          if (!isSpeaking) {
+            setIsThisMessageSpeaking(false);
+            clearInterval(checkEnd);
+          }
+        }, 100);
+      }
+    }
+  };
 
   const getIcon = () => {
     if (isUser) return <User className="h-4 w-4" />;
@@ -81,19 +106,36 @@ export function MessageBubble({ message }: MessageBubbleProps) {
             {getPersonaLabel()}
           </div>
         )}
-        <div className={cn('rounded-2xl px-4 py-3', styles.bubble)}>
-          <div className={cn('text-sm prose prose-sm max-w-none', isUser ? 'prose-invert' : 'dark:prose-invert')}>
-            {isUser ? (
-              <p className="whitespace-pre-wrap">{message.content}</p>
-            ) : (
-              <>
-                <ReactMarkdown>{message.content}</ReactMarkdown>
-                {message.isStreaming && (
-                  <span className="inline-block w-2 h-4 bg-current ml-1 animate-pulse" />
-                )}
-              </>
-            )}
+        <div className="flex items-start gap-2">
+          <div className={cn('rounded-2xl px-4 py-3 flex-1', styles.bubble)}>
+            <div className={cn('text-sm prose prose-sm max-w-none', isUser ? 'prose-invert' : 'dark:prose-invert')}>
+              {isUser ? (
+                <p className="whitespace-pre-wrap">{message.content}</p>
+              ) : (
+                <>
+                  <ReactMarkdown>{message.content}</ReactMarkdown>
+                  {message.isStreaming && (
+                    <span className="inline-block w-2 h-4 bg-current ml-1 animate-pulse" />
+                  )}
+                </>
+              )}
+            </div>
           </div>
+          
+          {/* Text-to-Speech button for AI messages */}
+          {!isUser && isAvailable && !message.isStreaming && (
+            <button
+              onClick={handleSpeak}
+              className="flex-shrink-0 p-2 rounded-lg hover:bg-muted transition-colors"
+              title={isThisMessageSpeaking ? "Stop speaking" : "Read aloud"}
+            >
+              {isThisMessageSpeaking ? (
+                <VolumeX className="w-4 h-4 text-red-500" />
+              ) : (
+                <Volume2 className="w-4 h-4 text-muted-foreground hover:text-foreground" />
+              )}
+            </button>
+          )}
         </div>
       </div>
 

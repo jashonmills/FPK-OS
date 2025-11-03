@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Mic, Upload, BookOpen, Clock, TrendingUp, Target, Award, Zap } from 'lucide-react';
+import { Send, Upload, BookOpen, Clock, TrendingUp, Target, Award, Zap } from 'lucide-react';
 import { cn } from '../lib/utils';
 import type { Message, Persona, AIDrill } from '@/types/aiCoach';
 import { AIService } from '../services/aiService';
@@ -9,6 +9,7 @@ import { useAICoachConversations } from '@/hooks/useAICoachConversations';
 import { useAICoachCommandAnalytics } from '@/hooks/useAICoachCommandAnalytics';
 import { useAICoachStudyPlans } from '@/hooks/useAICoachStudyPlans';
 import { toast } from 'sonner';
+import VoiceInputButton from '@/components/notes/VoiceInputButton';
 
 // Persona avatar components
 const PersonaAvatar: React.FC<{ persona: Persona }> = ({ persona }) => {
@@ -265,9 +266,9 @@ const AIInteractionColumn: React.FC<{
   inputValue: string;
   onInputChange: (value: string) => void;
   onSendMessage: () => void;
-  onVoiceInput: () => void;
+  onVoiceTranscription: (text: string) => void;
   isLoading: boolean;
-}> = ({ messages, inputValue, onInputChange, onSendMessage, onVoiceInput, isLoading }) => {
+}> = ({ messages, inputValue, onInputChange, onSendMessage, onVoiceTranscription, isLoading }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -326,13 +327,11 @@ const AIInteractionColumn: React.FC<{
             rows={2}
           />
           <div className="flex flex-col gap-2">
-            <button
-              onClick={onVoiceInput}
-              className="p-3 bg-gray-100 hover:bg-gray-200 rounded-lg transition"
-              title="Voice input"
-            >
-              <Mic className="w-5 h-5 text-gray-600" />
-            </button>
+            <VoiceInputButton
+              onTranscription={onVoiceTranscription}
+              placeholder="AI Coach voice input"
+              disabled={isLoading}
+            />
             <button
               onClick={onSendMessage}
               disabled={!inputValue.trim() || isLoading}
@@ -426,9 +425,9 @@ export const AICoachCommandCenter: React.FC = () => {
     }
   };
 
-  const handleVoiceInput = () => {
-    // TODO: Implement voice input functionality
-    alert('Voice input feature coming soon!');
+  const handleVoiceTranscription = (transcription: string) => {
+    setInputValue(transcription);
+    // Text is now in the input, user can review and send
   };
 
   const handleLoadChat = async (chatId: string) => {
@@ -482,7 +481,7 @@ export const AICoachCommandCenter: React.FC = () => {
               inputValue={inputValue}
               onInputChange={setInputValue}
               onSendMessage={handleSendMessage}
-              onVoiceInput={handleVoiceInput}
+              onVoiceTranscription={handleVoiceTranscription}
               isLoading={isLoading}
             />
           </div>
