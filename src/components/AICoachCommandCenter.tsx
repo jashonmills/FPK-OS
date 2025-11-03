@@ -257,6 +257,17 @@ const InsightsAnalyticsColumn: React.FC<{
         </div>
       </div>
 
+      {/* Voice Controls */}
+      <div>
+        <h3 className={cn(
+          "font-semibold text-gray-800 flex items-center gap-2 mb-3",
+          isMobile ? "text-base" : "text-lg"
+        )}>
+          <Volume2 className={isMobile ? "w-4 h-4" : "w-5 h-5"} />
+          Voice Settings
+        </h3>
+        <VoiceSettingsCard />
+      </div>
       </div>
     </div>
   );
@@ -350,11 +361,6 @@ const AIInteractionColumn: React.FC<{
               <Send className="w-5 h-5" />
             </button>
           </div>
-        </div>
-
-        {/* Voice Settings Card */}
-        <div className="mt-4 pt-4 border-t">
-          <VoiceSettingsCard />
         </div>
       </div>
     </div>
