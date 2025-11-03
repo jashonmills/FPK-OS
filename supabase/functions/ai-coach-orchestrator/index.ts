@@ -1421,6 +1421,9 @@ serve(async (req) => {
       : null;
     const inBettySession = lastPersona === 'BETTY';
     
+    // Declare shared variables at function scope to avoid duplicates
+    const messageLower = message.toLowerCase();
+    
     // ============================================
     // 🔒 PERSONA STICKINESS RULE (HIGHEST PRIORITY)
     // ============================================
@@ -1431,19 +1434,19 @@ serve(async (req) => {
     if (isSocraticLoopActive && lastPersona === 'BETTY') {
       console.log('[DIRECTOR] 🔒 PERSONA STICKINESS ACTIVE - Betty owns this conversation');
       
-      const messageLower = message.toLowerCase().trim();
+      const messageTrimmed = messageLower.trim();
       
       // Check for explicit escape hatches
-      const isEscapeHatch = messageLower.includes('just tell me') || 
-                            messageLower.includes('give me the answer') ||
-                            messageLower.includes('stop asking') ||
-                            messageLower === "i don't know";
+      const isEscapeHatch = messageTrimmed.includes('just tell me') || 
+                            messageTrimmed.includes('give me the answer') ||
+                            messageTrimmed.includes('stop asking') ||
+                            messageTrimmed === "i don't know";
       
       // Check for factual clarification requests (Al should help)
-      const isFactualQuestion = (messageLower.startsWith('what is') || 
-                                 messageLower.startsWith('define') ||
-                                 messageLower.includes("don't know what")) &&
-                                messageLower.split(' ').length < 15; // Short, specific questions only
+      const isFactualQuestion = (messageTrimmed.startsWith('what is') || 
+                                 messageTrimmed.startsWith('define') ||
+                                 messageTrimmed.includes("don't know what")) &&
+                                messageTrimmed.split(' ').length < 15; // Short, specific questions only
       
       if (isEscapeHatch) {
         console.log('[DIRECTOR] 🚪 User requested escape from Socratic mode');
@@ -1482,24 +1485,22 @@ serve(async (req) => {
     let intentConfidence = 0.8;
     let intentReasoning = '';
     
-    const messageLower = message.toLowerCase();
-    
     try {
       // Attempt database-driven detection
-      const intentResult = await detectIntentFromTriggers(
+      const dbIntentResult = await detectIntentFromTriggers(
         message,
         conversationHistory,
         supabaseClient
       );
       
-      detectedIntent = intentResult.intent;
-      intentConfidence = intentResult.confidence;
-      intentReasoning = intentResult.reasoning;
+      detectedIntent = dbIntentResult.intent;
+      intentConfidence = dbIntentResult.confidence;
+      intentReasoning = dbIntentResult.reasoning;
       
       console.log('[CONDUCTOR] ✅ Database intent detection succeeded:', {
         intent: detectedIntent,
         confidence: intentConfidence.toFixed(2),
-        triggers: intentResult.matchedTriggers.slice(0, 3).join(', ')
+        triggers: dbIntentResult.matchedTriggers.slice(0, 3).join(', ')
       });
     } catch (error) {
       // Fallback to Phase 1 hardcoded logic if database fails
