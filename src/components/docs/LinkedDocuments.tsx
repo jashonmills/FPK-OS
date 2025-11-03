@@ -32,7 +32,17 @@ export const LinkedDocuments = ({ taskId, fileId }: LinkedDocumentsProps) => {
         if (error) throw error;
         return data;
       }
-      // Future: handle fileId with file_document_links table
+      
+      if (fileId) {
+        const { data, error } = await supabase
+          .from('file_document_links')
+          .select('id, page:doc_pages(id, title, space:doc_spaces(name))')
+          .eq('file_id', fileId);
+        
+        if (error) throw error;
+        return data;
+      }
+      
       return [];
     },
   });
@@ -46,6 +56,17 @@ export const LinkedDocuments = ({ taskId, fileId }: LinkedDocumentsProps) => {
           .from('task_document_links')
           .insert({
             task_id: taskId,
+            page_id: pageId,
+            created_by: user.id,
+          });
+        if (error) throw error;
+      }
+      
+      if (fileId) {
+        const { error } = await supabase
+          .from('file_document_links')
+          .insert({
+            file_id: fileId,
             page_id: pageId,
             created_by: user.id,
           });
@@ -70,11 +91,21 @@ export const LinkedDocuments = ({ taskId, fileId }: LinkedDocumentsProps) => {
 
   const unlinkMutation = useMutation({
     mutationFn: async (linkId: string) => {
-      const { error } = await supabase
-        .from('task_document_links')
-        .delete()
-        .eq('id', linkId);
-      if (error) throw error;
+      if (taskId) {
+        const { error } = await supabase
+          .from('task_document_links')
+          .delete()
+          .eq('id', linkId);
+        if (error) throw error;
+      }
+      
+      if (fileId) {
+        const { error } = await supabase
+          .from('file_document_links')
+          .delete()
+          .eq('id', linkId);
+        if (error) throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['linked-documents'] });
