@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Upload, BookOpen, Clock, TrendingUp, Target, Award, Zap } from 'lucide-react';
 import { cn } from '../lib/utils';
-import type { Message, Persona, AIDrill } from '@/types/aiCoach';
+import type { Persona, AIDrill } from '@/types/aiCoach';
+import type { CommandCenterMessage } from '@/hooks/useCommandCenterChat';
 import { AIService } from '../services/aiService';
 import { useAuth } from '@/hooks/useAuth';
 import { useAICoachStudyMaterials } from '@/hooks/useAICoachStudyMaterials';
@@ -12,12 +13,13 @@ import { toast } from 'sonner';
 import VoiceInputButton from '@/components/notes/VoiceInputButton';
 
 // Persona avatar components
-const PersonaAvatar: React.FC<{ persona: Persona }> = ({ persona }) => {
-  const avatarConfig = {
+const PersonaAvatar: React.FC<{ persona: CommandCenterMessage['persona'] }> = ({ persona }) => {
+  const avatarConfig: Record<CommandCenterMessage['persona'], { bg: string; icon: string; label: string }> = {
     USER: { bg: 'bg-blue-600', icon: '👤', label: 'You' },
     BETTY: { bg: 'bg-purple-600', icon: '🦉', label: 'Betty' },
     AL: { bg: 'bg-blue-500', icon: '🎓', label: 'Al' },
     NITE_OWL: { bg: 'bg-amber-500', icon: '🌙', label: 'Nite Owl' },
+    CONDUCTOR: { bg: 'bg-gray-600', icon: '🎯', label: 'Conductor' },
   };
 
   const config = avatarConfig[persona];
@@ -33,21 +35,24 @@ const PersonaAvatar: React.FC<{ persona: Persona }> = ({ persona }) => {
 };
 
 // Message bubble component
-const MessageBubble: React.FC<{ message: Message }> = ({ message }) => {
-  const bubbleStyles = {
+const MessageBubble: React.FC<{ message: CommandCenterMessage }> = ({ message }) => {
+  const bubbleStyles: Record<CommandCenterMessage['persona'], string> = {
     USER: 'bg-blue-600 text-white',
     BETTY: 'bg-purple-100 text-purple-900 border border-purple-200',
     AL: 'bg-blue-100 text-blue-900 border border-blue-200',
     NITE_OWL: 'bg-amber-100 text-amber-900 border border-amber-200',
-  }[message.persona];
+    CONDUCTOR: 'bg-gray-100 text-gray-900 border border-gray-200',
+  };
+
+  const style = bubbleStyles[message.persona] || bubbleStyles.BETTY;
 
   return (
     <div className={cn('flex flex-col', message.persona === 'USER' ? 'items-end' : 'items-start')}>
       <PersonaAvatar persona={message.persona} />
-      <div className={cn('max-w-[80%] px-4 py-3 rounded-2xl shadow-sm', bubbleStyles)}>
+      <div className={cn('max-w-[80%] px-4 py-3 rounded-2xl shadow-sm', style)}>
         <p className="text-sm whitespace-pre-wrap">{message.content}</p>
         <span className="text-xs opacity-70 mt-1 block">
-          {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          {new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </span>
       </div>
     </div>
@@ -266,7 +271,7 @@ const InsightsAnalyticsColumn: React.FC<{
 
 // Center Column: AI Interaction
 const AIInteractionColumn: React.FC<{
-  messages: Message[];
+  messages: CommandCenterMessage[];
   inputValue: string;
   onInputChange: (value: string) => void;
   onSendMessage: () => void;
@@ -354,7 +359,7 @@ const AIInteractionColumn: React.FC<{
 // Main Component
 export const AICoachCommandCenter: React.FC = () => {
   const { user } = useAuth();
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<CommandCenterMessage[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -370,11 +375,11 @@ export const AICoachCommandCenter: React.FC = () => {
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isLoading || !user) return;
 
-    const userMessage: Message = {
+    const userMessage: CommandCenterMessage = {
       id: Date.now().toString(),
       persona: 'USER',
       content: inputValue,
-      timestamp: new Date(),
+      created_at: new Date().toISOString(),
     };
 
     setMessages((prev) => [...prev, userMessage]);
@@ -383,18 +388,26 @@ export const AICoachCommandCenter: React.FC = () => {
     setIsLoading(true);
 
     try {
+      // Transform CommandCenterMessage to format AIService expects
+      const historyForAI = messages.map(msg => ({
+        id: msg.id,
+        persona: msg.persona as any, // AIService doesn't know about CONDUCTOR yet
+        content: msg.content,
+        timestamp: new Date(msg.created_at)
+      }));
+      
       // Call the real AI orchestrator with actual user ID
       const response = await AIService.sendMessage(
         user.id,
         currentInput,
-        messages
+        historyForAI
       );
 
-      const aiMessage: Message = {
+      const aiMessage: CommandCenterMessage = {
         id: (Date.now() + 1).toString(),
-        persona: response.persona.toUpperCase() as Persona,
+        persona: response.persona.toUpperCase() as CommandCenterMessage['persona'],
         content: response.content,
-        timestamp: new Date(),
+        created_at: new Date().toISOString(),
       };
       
       setMessages((prev) => [...prev, aiMessage]);
@@ -417,11 +430,11 @@ export const AICoachCommandCenter: React.FC = () => {
       console.error('Error sending message:', error);
       toast.error('Failed to send message');
       
-      const errorMessage: Message = {
+      const errorMessage: CommandCenterMessage = {
         id: (Date.now() + 1).toString(),
         persona: 'BETTY',
         content: "I'm sorry, I'm having trouble connecting right now. Please try again in a moment.",
-        timestamp: new Date(),
+        created_at: new Date().toISOString(),
       };
       setMessages((prev) => [...prev, errorMessage]);
     } finally {
@@ -438,12 +451,12 @@ export const AICoachCommandCenter: React.FC = () => {
     try {
       const loadedMessages = await loadMessages(chatId);
       
-      // Transform to Message format
-      const transformedMessages: Message[] = loadedMessages.map(msg => ({
+      // Transform to CommandCenterMessage format
+      const transformedMessages: CommandCenterMessage[] = loadedMessages.map(msg => ({
         id: msg.id,
-        persona: msg.role === 'user' ? 'USER' : (msg.persona?.toUpperCase() as Persona || 'BETTY'),
+        persona: msg.role === 'user' ? 'USER' : (msg.persona?.toUpperCase() as CommandCenterMessage['persona'] || 'BETTY'),
         content: msg.content,
-        timestamp: new Date(msg.created_at)
+        created_at: msg.created_at
       }));
       
       setMessages(transformedMessages);
