@@ -1,8 +1,10 @@
 import { useState, useCallback, useEffect } from 'react';
 import { safeTextToSpeech } from '@/utils/speechUtils';
+import { useVoiceSettings } from '@/contexts/VoiceSettingsContext';
 import type { Persona } from '@/types/aiCoach';
 
 export const useTextToSpeech = () => {
+  const { settings: voiceSettings } = useVoiceSettings();
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
@@ -186,7 +188,22 @@ export const useTextToSpeech = () => {
     if (typeof personaOrOptions === 'string') {
       // New API: persona passed as string
       persona = personaOrOptions as Persona;
-      selectedVoice = getVoiceForPersona(persona);
+      
+      // Check if user has manually selected a voice in settings
+      if (voiceSettings.selectedVoice) {
+        // Find the user's selected voice in available voices
+        const userVoice = voices.find(v => v.name === voiceSettings.selectedVoice);
+        if (userVoice) {
+          console.log(`[TTS] 🎯 Using user-selected voice: ${userVoice.name}`);
+          selectedVoice = userVoice;
+        } else {
+          // Fallback to persona voice if user's voice not found
+          selectedVoice = getVoiceForPersona(persona);
+        }
+      } else {
+        // No user override, use persona default
+        selectedVoice = getVoiceForPersona(persona);
+      }
     } else if (personaOrOptions) {
       // Legacy API: options object
       interrupt = personaOrOptions.interrupt ?? true;
@@ -205,39 +222,51 @@ export const useTextToSpeech = () => {
     setIsSpeaking(true);
     setIsGenerating(false);
 
-    // Get persona-specific speech parameters
-    const personaConfig = persona ? {
-      rate: 1.1,    // Slightly faster - energetic, enthusiastic coach
+    // Get base persona-specific speech parameters
+    let basePersonaConfig = persona ? {
+      rate: 1.1,    // Betty default - energetic, enthusiastic coach
       pitch: 1.0,   // Normal pitch - friendly and clear
       volume: 1.0   // Full volume
     } : undefined;
 
+    // Apply persona-specific adjustments
     if (persona === 'AL') {
-      personaConfig!.rate = 1.0;    // Normal speed - measured teaching pace
-      personaConfig!.pitch = 0.9;   // Slightly lower - authoritative instructor
+      basePersonaConfig!.rate = 1.0;    // Normal speed - measured teaching pace
+      basePersonaConfig!.pitch = 0.9;   // Slightly lower - authoritative instructor
     } else if (persona === 'NITE_OWL') {
-      personaConfig!.rate = 1.0;    // Normal speed - deliberate and wise
-      personaConfig!.pitch = 0.6;   // Much lower - deep, mysterious sage voice
+      basePersonaConfig!.rate = 1.0;    // Normal speed - deliberate and wise
+      basePersonaConfig!.pitch = 0.6;   // Much lower - deep, mysterious sage voice
     }
 
-    if (personaConfig) {
-      console.log(`[TTS] 🎭 Applying persona config for ${persona}:`, personaConfig);
-    }
+    // NOW apply user overrides from Voice Settings
+    const finalConfig = {
+      rate: voiceSettings.rate !== 1.0 ? voiceSettings.rate : basePersonaConfig?.rate || 1.0,
+      pitch: voiceSettings.pitch !== 1.0 ? voiceSettings.pitch : basePersonaConfig?.pitch || 1.0,
+      volume: voiceSettings.volume !== 1.0 ? voiceSettings.volume : basePersonaConfig?.volume || 1.0,
+    };
+
+    console.log(`[TTS] 🎭 Base persona config for ${persona}:`, basePersonaConfig);
+    console.log(`[TTS] 🎚️ User settings override:`, {
+      rate: voiceSettings.rate,
+      pitch: voiceSettings.pitch,
+      volume: voiceSettings.volume
+    });
+    console.log(`[TTS] ✅ Final speech config:`, finalConfig);
 
     const success = safeTextToSpeech.speak(text, {
       voice: selectedVoice,
-      rate: personaConfig?.rate,
-      pitch: personaConfig?.pitch,
-      volume: personaConfig?.volume,
+      rate: finalConfig.rate,
+      pitch: finalConfig.pitch,
+      volume: finalConfig.volume,
       interrupt,
       hasInteracted
     });
 
     console.log(`[TTS] 📊 Final speech parameters:`, {
       voice: selectedVoice?.name,
-      rate: personaConfig?.rate || 1.0,
-      pitch: personaConfig?.pitch || 1.0,
-      volume: personaConfig?.volume || 1.0,
+      rate: finalConfig.rate,
+      pitch: finalConfig.pitch,
+      volume: finalConfig.volume,
       persona: persona
     });
 
