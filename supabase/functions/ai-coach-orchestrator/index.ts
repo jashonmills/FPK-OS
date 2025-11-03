@@ -5,6 +5,7 @@ import Anthropic from "npm:@anthropic-ai/sdk@0.24.3";
 import { formatKnowledgePack } from './helpers/formatKnowledgePack.ts';
 import { retrieveRelevantKnowledge, formatKnowledgeForPrompt } from './helpers/ragRetrieval.ts';
 import { extractTopicKeywords } from './topic-extraction.ts';
+import { detectIntentFromTriggers, detectIntentFallback } from './helpers/triggerScoring.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -1469,80 +1470,65 @@ serve(async (req) => {
       }
     }
     
-    // Simplified intent detection with clear priority order (only runs if stickiness rule didn't apply)
-    let detectedIntent = 'direct_answer'; // Default
+    // ============================================
+    // PHASE 2: DATABASE-DRIVEN INTENT DETECTION
+    // ============================================
+    // Uses keyword scoring from ai_persona_triggers table for flexible,
+    // scalable intent detection instead of hardcoded if/else logic
+    
+    console.log('[CONDUCTOR] 🎯 Starting database-driven intent detection...');
+    
+    let detectedIntent = 'direct_answer'; // Default fallback
     let intentConfidence = 0.8;
     let intentReasoning = '';
     
     const messageLower = message.toLowerCase();
     
-    // PRIORITY 0: Greetings and conversation openers (MUST BE FIRST)
-    const isFirstUserMessage = conversationHistory.filter(m => m.persona === 'USER').length === 0;
-    const isGreeting = /^(hi|hey|hello|yo|sup|greetings?|good (morning|afternoon|evening))/i.test(messageLower);
-    const isReadyPhrase = /\b(ready|let's|can you help|you ready|wanna|want to)\b/i.test(messageLower);
-    const isStudyStarter = messageLower.includes('study') && (isReadyPhrase || isGreeting);
+    try {
+      // Attempt database-driven detection
+      const intentResult = await detectIntentFromTriggers(
+        message,
+        conversationHistory,
+        supabaseClient
+      );
+      
+      detectedIntent = intentResult.intent;
+      intentConfidence = intentResult.confidence;
+      intentReasoning = intentResult.reasoning;
+      
+      console.log('[CONDUCTOR] ✅ Database intent detection succeeded:', {
+        intent: detectedIntent,
+        confidence: intentConfidence.toFixed(2),
+        triggers: intentResult.matchedTriggers.slice(0, 3).join(', ')
+      });
+    } catch (error) {
+      // Fallback to Phase 1 hardcoded logic if database fails
+      console.warn('[CONDUCTOR] ⚠️ Database intent detection failed, using fallback:', error);
+      
+      const fallbackResult = detectIntentFallback(message, conversationHistory);
+      detectedIntent = fallbackResult.intent;
+      intentConfidence = fallbackResult.confidence;
+      intentReasoning = fallbackResult.reasoning;
+    }
     
-    if (isFirstUserMessage || isGreeting || isStudyStarter) {
-      detectedIntent = 'conversation_opener';
-      intentConfidence = 0.95;
-      intentReasoning = 'Greeting or conversation starter - Betty always handles these';
-    }
-    // PRIORITY 1: Explicit escape hatches (highest priority)
-    if (messageLower.includes('just tell me') || 
-        messageLower.includes('give me the answer') ||
-        messageLower.includes('stop asking') ||
-        message.toLowerCase() === "i don't know") {
-      detectedIntent = 'escape_hatch';
-      intentConfidence = 0.95;
-      intentReasoning = 'Explicit request to exit Socratic mode';
-    }
-    // PRIORITY 2: Platform/data questions
-    else if (messageLower.includes('how am i doing') || 
-             messageLower.includes('my progress') ||
-             messageLower.includes('how do i') ||
-             messageLower.includes('dashboard') ||
-             messageLower.includes('settings')) {
-      detectedIntent = lastPersona === 'BETTY' ? 'socratic_guidance' : 'platform_question';
-      intentConfidence = 0.9;
-      intentReasoning = 'Platform or progress inquiry';
-    }
-    // PRIORITY 3: Clarification requests during Betty session
-    else if (inBettySession && (
-             messageLower.includes('what is') ||
-             messageLower.includes('what does') ||
-             messageLower.includes('define') ||
-             messageLower.includes("don't know what"))) {
+    // CONTEXT-AWARE OVERRIDES (still necessary for session state)
+    // These override database results when session context requires it
+    
+    // Override: Clarification during Betty session
+    if (inBettySession && (
+         messageLower.includes('what is') ||
+         messageLower.includes('what does') ||
+         messageLower.includes('define') ||
+         messageLower.includes("don't know what"))) {
       detectedIntent = 'request_for_clarification';
       intentConfidence = 0.9;
-      intentReasoning = 'Clarification request during Socratic session';
+      intentReasoning = 'Clarification request during active Socratic session';
     }
-    // PRIORITY 4: Procedural guidance (recipes, steps)
-    else if (messageLower.includes('recipe') || 
-             messageLower.includes('step') || 
-             messageLower.includes('instructions') ||
-             messageLower.includes('how to make')) {
-      detectedIntent = 'procedural_guidance';
-      intentConfidence = 0.85;
-      intentReasoning = 'Procedural instruction requested';
-    }
-    // PRIORITY 5: Socratic guidance - EXPANDED PATTERNS
-    const socraticPhrases = [
-      'why', 'how', 'explain', 
-      'break it down', 'break down',
-      'help me understand',
-      'not sure', 'unsure',
-      'confused', 'don\'t get',
-      'could you', 'can you',
-      'tell me more', 'elaborate',
-      'what do you mean', 'clarify'
-    ];
     
-    const hasSocraticTrigger = socraticPhrases.some(phrase => messageLower.includes(phrase));
-    
-    if (inBettySession || hasSocraticTrigger) {
+    // Override: Platform questions during Betty session stay with Betty
+    if (lastPersona === 'BETTY' && detectedIntent === 'platform_question') {
       detectedIntent = 'socratic_guidance';
-      intentConfidence = 0.85;
-      intentReasoning = inBettySession ? 'Continuing Socratic dialogue' : 'Exploratory question suitable for Socratic method';
+      intentReasoning = 'Platform question in Betty context - maintaining Socratic flow';
     }
     
     const intentResult = {
