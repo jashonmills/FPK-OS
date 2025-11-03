@@ -112,6 +112,42 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_coach_analytics: {
+        Row: {
+          comprehension_score: number | null
+          created_at: string
+          id: string
+          messages_sent: number | null
+          session_date: string
+          study_time_minutes: number | null
+          topics_explored: string[] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          comprehension_score?: number | null
+          created_at?: string
+          id?: string
+          messages_sent?: number | null
+          session_date: string
+          study_time_minutes?: number | null
+          topics_explored?: string[] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          comprehension_score?: number | null
+          created_at?: string
+          id?: string
+          messages_sent?: number | null
+          session_date?: string
+          study_time_minutes?: number | null
+          topics_explored?: string[] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       ai_coach_conversations: {
         Row: {
           created_at: string
