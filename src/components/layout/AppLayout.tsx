@@ -1,10 +1,12 @@
-import { ReactNode } from 'react';
+import { ReactNode, lazy, Suspense, useEffect, useState } from 'react';
 import { SidebarProvider, useSidebar } from '@/components/ui/sidebar';
 import { AppSidebar } from './AppSidebar';
 import { AppHeader } from './AppHeader';
 import { cn } from '@/lib/utils';
-import { HelpCenter } from '@/components/help/HelpCenter';
-import { OnboardingTour } from '@/components/onboarding/OnboardingTour';
+
+// Lazy load help components to avoid context initialization issues
+const HelpCenter = lazy(() => import('@/components/help/HelpCenter').then(m => ({ default: m.HelpCenter })));
+const OnboardingTour = lazy(() => import('@/components/onboarding/OnboardingTour').then(m => ({ default: m.OnboardingTour })));
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -30,10 +32,21 @@ const AppLayoutContent = ({ children }: AppLayoutProps) => {
 };
 
 export const AppLayout = ({ children }: AppLayoutProps) => {
+  const [mounted, setMounted] = useState(false);
+
+  // Only mount help components after initial render to ensure all providers are ready
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   return (
     <SidebarProvider>
-      <HelpCenter />
-      <OnboardingTour />
+      {mounted && (
+        <Suspense fallback={null}>
+          <HelpCenter />
+          <OnboardingTour />
+        </Suspense>
+      )}
       <div className="min-h-screen flex w-full md:overflow-x-visible overflow-x-hidden">
         <AppSidebar />
         <AppLayoutContent>{children}</AppLayoutContent>
