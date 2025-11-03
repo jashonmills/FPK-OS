@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Plus, Trash2 } from 'lucide-react';
+import { CategorySelector } from './CategorySelector';
 
 const budgetSchema = z.object({
   totalBudget: z.string().min(1, 'Total budget is required'),
@@ -159,7 +160,11 @@ export const BudgetSetup = ({ projectId, onComplete }: BudgetSetupProps) => {
                     <FormItem className="flex-1">
                       {index === 0 && <FormLabel>Name</FormLabel>}
                       <FormControl>
-                        <Input placeholder="e.g., Software, Marketing" {...field} />
+                        <CategorySelector
+                          value={field.value}
+                          onChange={field.onChange}
+                          existingCategories={form.watch('categories').map(c => c.name).filter((_, i) => i !== index)}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

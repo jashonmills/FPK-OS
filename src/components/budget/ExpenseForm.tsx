@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -11,7 +11,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Upload } from 'lucide-react';
+import { Upload, Plus } from 'lucide-react';
+import { CreateCategoryModal } from './CreateCategoryModal';
 
 const expenseSchema = z.object({
   amount: z.string().min(1, 'Amount is required'),
@@ -22,7 +23,7 @@ const expenseSchema = z.object({
 
 interface ExpenseFormProps {
   projectId: string;
-  categories: Array<{ id: string; name: string }>;
+  categories: Array<{ id: string; name: string; allocated_amount: number }>;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
@@ -33,6 +34,8 @@ export const ExpenseForm = ({ projectId, categories, open, onOpenChange, onSucce
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [showCreateCategory, setShowCreateCategory] = useState(false);
+  const [budgetData, setBudgetData] = useState<{ id: string; total_budget: number } | null>(null);
 
   const form = useForm<z.infer<typeof expenseSchema>>({
     resolver: zodResolver(expenseSchema),
@@ -43,6 +46,22 @@ export const ExpenseForm = ({ projectId, categories, open, onOpenChange, onSucce
       expense_date: new Date().toISOString().split('T')[0],
     },
   });
+
+  // Fetch budget data
+  useEffect(() => {
+    const fetchBudget = async () => {
+      const { data } = await supabase
+        .from('project_budgets')
+        .select('id, total_budget')
+        .eq('project_id', projectId)
+        .maybeSingle();
+      
+      if (data) setBudgetData(data);
+    };
+    if (open) {
+      fetchBudget();
+    }
+  }, [projectId, open]);
 
   const onSubmit = async (values: z.infer<typeof expenseSchema>) => {
     if (!user) return;
@@ -135,7 +154,16 @@ export const ExpenseForm = ({ projectId, categories, open, onOpenChange, onSucce
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Category</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select 
+                    onValueChange={(value) => {
+                      if (value === '__create_new__') {
+                        setShowCreateCategory(true);
+                      } else {
+                        field.onChange(value);
+                      }
+                    }} 
+                    value={field.value}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select category" />
@@ -147,6 +175,13 @@ export const ExpenseForm = ({ projectId, categories, open, onOpenChange, onSucce
                           {cat.name}
                         </SelectItem>
                       ))}
+                      <SelectItem 
+                        value="__create_new__" 
+                        className="text-primary font-medium border-t"
+                      >
+                        <Plus className="w-4 h-4 mr-2 inline" />
+                        Create New Category
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -225,7 +260,7 @@ export const ExpenseForm = ({ projectId, categories, open, onOpenChange, onSucce
           existingCategories={categories.map(c => c.name)}
           onSuccess={(newCategory) => {
             form.setValue('category_id', newCategory.id);
-            onSuccess?.();
+            onSuccess();
           }}
         />
       )}
