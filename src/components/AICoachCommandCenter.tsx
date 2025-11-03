@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Upload, BookOpen, Clock, TrendingUp, Target, Award, Zap } from 'lucide-react';
+import { Send, Upload, BookOpen, Clock, TrendingUp, Target, Award, Zap, MessageSquare } from 'lucide-react';
 import { cn } from '../lib/utils';
 import type { Persona, AIDrill } from '@/types/aiCoach';
 import type { CommandCenterMessage } from '@/hooks/useCommandCenterChat';
 import { AIService } from '../services/aiService';
 import { useAuth } from '@/hooks/useAuth';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAICoachStudyMaterials } from '@/hooks/useAICoachStudyMaterials';
 import { useAICoachConversations } from '@/hooks/useAICoachConversations';
 import { useAICoachCommandAnalytics } from '@/hooks/useAICoachCommandAnalytics';
@@ -79,13 +81,21 @@ const ContextHistoryColumn: React.FC<{
       fileInputRef.current.value = '';
     }
   };
+  const isMobile = useIsMobile();
+  
   return (
-    <div className="bg-blue-50/90 border border-blue-100 shadow-md hover:shadow-lg rounded-xl p-6 flex flex-col h-[calc(100vh-240px)] transition-shadow duration-200">
-      <div className="flex-1 overflow-y-auto space-y-6">
+    <div className={cn(
+      "bg-blue-50/90 border border-blue-100 shadow-md hover:shadow-lg rounded-xl flex flex-col transition-shadow duration-200",
+      isMobile ? "p-3 min-h-[50vh]" : "p-4 lg:p-6 h-[calc(100vh-240px)]"
+    )}>
+      <div className="flex-1 overflow-y-auto space-y-4 sm:space-y-6">
       {/* Uploaded Study Materials */}
       <div>
-        <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 mb-3">
-          <BookOpen className="w-5 h-5" />
+        <h3 className={cn(
+          "font-semibold text-gray-800 flex items-center gap-2 mb-3",
+          isMobile ? "text-base" : "text-lg"
+        )}>
+          <BookOpen className={isMobile ? "w-4 h-4" : "w-5 h-5"} />
           Study Materials
         </h3>
         <div className="space-y-2">
@@ -122,8 +132,11 @@ const ContextHistoryColumn: React.FC<{
 
       {/* Saved Chats */}
       <div>
-        <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 mb-3">
-          <Clock className="w-5 h-5" />
+        <h3 className={cn(
+          "font-semibold text-gray-800 flex items-center gap-2 mb-3",
+          isMobile ? "text-base" : "text-lg"
+        )}>
+          <Clock className={isMobile ? "w-4 h-4" : "w-5 h-5"} />
           Saved Chats
         </h3>
         <div className="space-y-2">
@@ -161,35 +174,51 @@ const InsightsAnalyticsColumn: React.FC<{
   isLoadingAnalytics: boolean;
   isLoadingPlan: boolean;
 }> = ({ analytics, studyPlan, drills, isLoadingAnalytics, isLoadingPlan }) => {
+  const isMobile = useIsMobile();
+  
   return (
-    <div className="bg-green-50/90 border border-green-100 shadow-md hover:shadow-lg rounded-xl p-6 flex flex-col h-[calc(100vh-240px)] transition-shadow duration-200">
-      <div className="flex-1 overflow-y-auto space-y-6">
+    <div className={cn(
+      "bg-green-50/90 border border-green-100 shadow-md hover:shadow-lg rounded-xl flex flex-col transition-shadow duration-200",
+      isMobile ? "p-3 min-h-[50vh]" : "p-4 lg:p-6 h-[calc(100vh-240px)]"
+    )}>
+      <div className="flex-1 overflow-y-auto space-y-4 sm:space-y-6">
       {/* Learning Analytics */}
       <div>
-        <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 mb-3">
-          <TrendingUp className="w-5 h-5" />
+        <h3 className={cn(
+          "font-semibold text-gray-800 flex items-center gap-2 mb-3",
+          isMobile ? "text-base" : "text-lg"
+        )}>
+          <TrendingUp className={isMobile ? "w-4 h-4" : "w-5 h-5"} />
           Learning Analytics
         </h3>
         {isLoadingAnalytics ? (
           <p className="text-sm text-gray-500 italic animate-pulse">Loading analytics...</p>
         ) : (
           <>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="p-3 bg-blue-50 rounded border border-blue-200">
+            <div className={cn("grid gap-3", isMobile ? "grid-cols-1 gap-2" : "grid-cols-2")}>
+              <div className={cn("bg-blue-50 rounded border border-blue-200", isMobile ? "p-2" : "p-3")}>
                 <p className="text-xs text-blue-600 font-medium">Study Time</p>
-                <p className="text-2xl font-bold text-blue-800 mt-1">{analytics?.totalStudyTime || 0}h</p>
+                <p className={cn("font-bold text-blue-800 mt-1", isMobile ? "text-lg" : "text-xl md:text-2xl")}>
+                  {analytics?.totalStudyTime || 0}h
+                </p>
               </div>
-              <div className="p-3 bg-green-50 rounded border border-green-200">
+              <div className={cn("bg-green-50 rounded border border-green-200", isMobile ? "p-2" : "p-3")}>
                 <p className="text-xs text-green-600 font-medium">Sessions</p>
-                <p className="text-2xl font-bold text-green-800 mt-1">{analytics?.sessionsCompleted || 0}</p>
+                <p className={cn("font-bold text-green-800 mt-1", isMobile ? "text-lg" : "text-xl md:text-2xl")}>
+                  {analytics?.sessionsCompleted || 0}
+                </p>
               </div>
-              <div className="p-3 bg-purple-50 rounded border border-purple-200">
+              <div className={cn("bg-purple-50 rounded border border-purple-200", isMobile ? "p-2" : "p-3")}>
                 <p className="text-xs text-purple-600 font-medium">Avg Score</p>
-                <p className="text-2xl font-bold text-purple-800 mt-1">{analytics?.averageScore || 0}%</p>
+                <p className={cn("font-bold text-purple-800 mt-1", isMobile ? "text-lg" : "text-xl md:text-2xl")}>
+                  {analytics?.averageScore || 0}%
+                </p>
               </div>
-              <div className="p-3 bg-amber-50 rounded border border-amber-200">
+              <div className={cn("bg-amber-50 rounded border border-amber-200", isMobile ? "p-2" : "p-3")}>
                 <p className="text-xs text-amber-600 font-medium">Streak</p>
-                <p className="text-2xl font-bold text-amber-800 mt-1">{analytics?.streakDays || 0} days</p>
+                <p className={cn("font-bold text-amber-800 mt-1", isMobile ? "text-lg" : "text-xl md:text-2xl")}>
+                  {analytics?.streakDays || 0} days
+                </p>
               </div>
             </div>
             <div className="mt-3">
@@ -212,8 +241,11 @@ const InsightsAnalyticsColumn: React.FC<{
 
       {/* AI-Generated Study Plan */}
       <div>
-        <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 mb-3">
-          <Target className="w-5 h-5" />
+        <h3 className={cn(
+          "font-semibold text-gray-800 flex items-center gap-2 mb-3",
+          isMobile ? "text-base" : "text-lg"
+        )}>
+          <Target className={isMobile ? "w-4 h-4" : "w-5 h-5"} />
           Study Plan
         </h3>
         {isLoadingPlan ? (
@@ -237,8 +269,11 @@ const InsightsAnalyticsColumn: React.FC<{
 
       {/* AI-Generated Drills */}
       <div>
-        <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 mb-3">
-          <Zap className="w-5 h-5" />
+        <h3 className={cn(
+          "font-semibold text-gray-800 flex items-center gap-2 mb-3",
+          isMobile ? "text-base" : "text-lg"
+        )}>
+          <Zap className={isMobile ? "w-4 h-4" : "w-5 h-5"} />
           Practice Drills
         </h3>
         <div className="space-y-2">
@@ -279,6 +314,7 @@ const AIInteractionColumn: React.FC<{
   isLoading: boolean;
 }> = ({ messages, inputValue, onInputChange, onSendMessage, onVoiceTranscription, isLoading }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -292,9 +328,15 @@ const AIInteractionColumn: React.FC<{
   };
 
   return (
-    <div className="bg-purple-50/90 border border-purple-100 shadow-md hover:shadow-lg rounded-xl p-6 flex flex-col h-[calc(100vh-240px)] transition-shadow duration-200">
-      <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 mb-4">
-        <Award className="w-5 h-5" />
+    <div className={cn(
+      "bg-purple-50/90 border border-purple-100 shadow-md hover:shadow-lg rounded-xl flex flex-col transition-shadow duration-200",
+      isMobile ? "p-3 h-full" : "p-4 lg:p-6 h-[calc(100vh-240px)]"
+    )}>
+      <h3 className={cn(
+        "font-semibold text-gray-800 flex items-center gap-2 mb-4",
+        isMobile ? "text-base" : "text-lg"
+      )}>
+        <Award className={isMobile ? "w-4 h-4" : "w-5 h-5"} />
         AI Study Coach
       </h3>
 
@@ -359,6 +401,7 @@ const AIInteractionColumn: React.FC<{
 // Main Component
 export const AICoachCommandCenter: React.FC = () => {
   const { user } = useAuth();
+  const isMobile = useIsMobile();
   const [messages, setMessages] = useState<CommandCenterMessage[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -468,19 +511,77 @@ export const AICoachCommandCenter: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen p-4">
-      <div className="max-w-[1920px] mx-auto">
-        {/* Header */}
-        <header className="mb-6 pt-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">FPK University AI Command Center</h1>
-          <p className="text-gray-600">Your personalized AI study companion</p>
-        </header>
+    <div className={cn(
+      "min-h-screen w-full flex items-center justify-center",
+      isMobile ? "p-2" : "p-4 md:p-6 lg:p-8"
+    )}>
+      <div 
+        className={cn(
+          "w-full rounded-3xl shadow-2xl overflow-hidden",
+          isMobile 
+            ? "bg-white border border-gray-200 max-w-full" 
+            : "max-w-[95rem] bg-white/70 backdrop-blur-sm border border-white/50"
+        )}
+        style={{ maxHeight: isMobile ? 'calc(100vh - 20px)' : 'calc(100vh - 100px)' }}
+      >
+        {isMobile ? (
+          // Mobile: Tabbed Layout
+          <div className="h-full flex flex-col">
+            <Tabs defaultValue="chat" className="flex-1 flex flex-col">
+              <TabsList className="w-full grid grid-cols-3 rounded-none border-b">
+                <TabsTrigger value="materials" className="text-xs sm:text-sm">
+                  <BookOpen className="h-4 w-4 mr-1" />
+                  Materials
+                </TabsTrigger>
+                <TabsTrigger value="chat" className="text-xs sm:text-sm">
+                  <MessageSquare className="h-4 w-4 mr-1" />
+                  Chat
+                </TabsTrigger>
+                <TabsTrigger value="analytics" className="text-xs sm:text-sm">
+                  <TrendingUp className="h-4 w-4 mr-1" />
+                  Analytics
+                </TabsTrigger>
+              </TabsList>
 
-        {/* Three-Column Layout with Frosted Glass Effect */}
-        <div className="p-8 bg-white/40 backdrop-blur-md border border-white/40 rounded-2xl shadow-2xl">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[700px] max-h-[calc(100vh-240px)]">
-          {/* Left Column - Context & History */}
-          <div className="lg:col-span-3 overflow-hidden">
+              <TabsContent value="materials" className="flex-1 overflow-auto p-3 mt-0">
+                <ContextHistoryColumn
+                  studyMaterials={studyMaterials}
+                  savedChats={conversations}
+                  onLoadChat={handleLoadChat}
+                  onUploadMaterial={uploadMaterial}
+                  isLoadingMaterials={isLoadingMaterials}
+                  isLoadingChats={isLoadingConversations}
+                />
+              </TabsContent>
+
+              <TabsContent value="chat" className="flex-1 overflow-hidden mt-0">
+                <div className="h-full p-3">
+                  <AIInteractionColumn
+                    messages={messages}
+                    inputValue={inputValue}
+                    onInputChange={setInputValue}
+                    onSendMessage={handleSendMessage}
+                    onVoiceTranscription={handleVoiceTranscription}
+                    isLoading={isLoading}
+                  />
+                </div>
+              </TabsContent>
+
+              <TabsContent value="analytics" className="flex-1 overflow-auto p-3 mt-0">
+                <InsightsAnalyticsColumn
+                  analytics={analytics}
+                  studyPlan={activeStudyPlan}
+                  drills={drills}
+                  isLoadingAnalytics={isLoadingAnalytics}
+                  isLoadingPlan={isLoadingPlan}
+                />
+              </TabsContent>
+            </Tabs>
+          </div>
+        ) : (
+          // Desktop: 3-Column Layout
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 lg:gap-4 xl:gap-6 p-4 md:p-6 lg:p-6 xl:p-8 h-full">
+            {/* Left Column */}
             <ContextHistoryColumn
               studyMaterials={studyMaterials}
               savedChats={conversations}
@@ -489,10 +590,8 @@ export const AICoachCommandCenter: React.FC = () => {
               isLoadingMaterials={isLoadingMaterials}
               isLoadingChats={isLoadingConversations}
             />
-          </div>
 
-          {/* Center Column - AI Interaction */}
-          <div className="lg:col-span-6 overflow-hidden">
+            {/* Center Column */}
             <AIInteractionColumn
               messages={messages}
               inputValue={inputValue}
@@ -501,10 +600,8 @@ export const AICoachCommandCenter: React.FC = () => {
               onVoiceTranscription={handleVoiceTranscription}
               isLoading={isLoading}
             />
-          </div>
 
-          {/* Right Column - Insights & Analytics */}
-          <div className="lg:col-span-3 overflow-hidden">
+            {/* Right Column */}
             <InsightsAnalyticsColumn
               analytics={analytics}
               studyPlan={activeStudyPlan}
@@ -513,8 +610,7 @@ export const AICoachCommandCenter: React.FC = () => {
               isLoadingPlan={isLoadingPlan}
             />
           </div>
-        </div>
-        </div>
+        )}
       </div>
     </div>
   );
