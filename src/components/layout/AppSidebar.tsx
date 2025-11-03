@@ -80,8 +80,8 @@ export function AppSidebar() {
                       end={item.url === '/'}
                       className={({ isActive }) =>
                         isActive
-                          ? 'bg-sidebar-accent text-sidebar-accent-foreground font-semibold'
-                          : 'text-sidebar-foreground hover:bg-sidebar-accent/30 hover:text-sidebar-accent-foreground'
+                          ? 'bg-primary/20 text-primary font-semibold border-l-4 border-primary'
+                          : 'text-sidebar-foreground hover:bg-sidebar-accent/20 hover:text-sidebar-accent-foreground'
                       }
                     >
                       <item.icon className="h-4 w-4" />
