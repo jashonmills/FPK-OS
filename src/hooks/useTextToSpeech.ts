@@ -40,8 +40,12 @@ export const useTextToSpeech = () => {
    * 4. First available English voice
    */
   const getVoiceForPersona = useCallback((persona?: Persona): SpeechSynthesisVoice | undefined => {
+    console.log(`[TTS DIAGNOSTIC] ========================================`);
+    console.log(`[TTS DIAGNOSTIC] Starting voice search for persona: ${persona}`);
+    console.log(`[TTS DIAGNOSTIC] Total voices available: ${voices.length}`);
+    
     if (voices.length === 0) {
-      console.warn('[TTS] Voices not loaded yet');
+      console.warn('[TTS DIAGNOSTIC] ❌ Voices not loaded yet');
       return undefined;
     }
 
@@ -49,7 +53,8 @@ export const useTextToSpeech = () => {
     if (!persona) {
       const defaultVoice = voices.find(v => v.lang.startsWith('en-') && v.localService) || 
                           voices.find(v => v.lang.startsWith('en-'));
-      console.log('[TTS] Using default voice:', defaultVoice?.name);
+      console.log('[TTS DIAGNOSTIC] ℹ️ No persona specified, using default voice:', defaultVoice?.name);
+      console.log(`[TTS DIAGNOSTIC] ========================================`);
       return defaultVoice;
     }
 
@@ -81,18 +86,26 @@ export const useTextToSpeech = () => {
     };
 
     const targetVoiceNames = premiumVoiceMap[persona] || premiumVoiceMap['BETTY'];
+    console.log(`[TTS DIAGNOSTIC] 🎯 Target premium voices for ${persona}:`, targetVoiceNames);
 
     // Priority 1: Find exact premium voice match
+    console.log(`[TTS DIAGNOSTIC] 🔍 Searching for exact premium voice matches...`);
     for (const name of targetVoiceNames) {
       const foundVoice = voices.find(v => v.name === name);
       if (foundVoice) {
-        console.log(`[TTS] ✅ Found premium voice for ${persona}: ${foundVoice.name}`);
+        console.log(`[TTS DIAGNOSTIC] ✅ SUCCESS: Found premium voice match: ${foundVoice.name}`);
+        console.log(`[TTS DIAGNOSTIC] ========================================`);
         return foundVoice;
+      } else {
+        console.log(`[TTS DIAGNOSTIC] ❌ MISS: Did not find premium voice: ${name}`);
       }
     }
 
+    console.log(`[TTS DIAGNOSTIC] ⚠️ No premium voices found. Starting fallback sequence...`);
+
     // Priority 2: Find high-quality local voice of correct gender
     const personaGender = (persona === 'AL') ? 'Male' : 'Female';
+    console.log(`[TTS DIAGNOSTIC] 🔍 FALLBACK 1: Searching for local ${personaGender} voice...`);
     const localBest = voices.find(v => 
       v.lang.startsWith('en-') && 
       v.localService && 
@@ -100,25 +113,33 @@ export const useTextToSpeech = () => {
        v.name.toLowerCase().includes(persona === 'AL' ? 'male' : 'female'))
     );
     if (localBest) {
-      console.log(`[TTS] 🔸 Found local ${personaGender} voice for ${persona}: ${localBest.name}`);
+      console.log(`[TTS DIAGNOSTIC] 🔸 FALLBACK 1 SUCCESS: Found local ${personaGender} voice: ${localBest.name}`);
+      console.log(`[TTS DIAGNOSTIC] ========================================`);
       return localBest;
     }
+    console.log(`[TTS DIAGNOSTIC] ❌ FALLBACK 1 FAILED: No local ${personaGender} voice found`);
 
     // Priority 3: Find ANY local English voice
+    console.log(`[TTS DIAGNOSTIC] 🔍 FALLBACK 2: Searching for any local English voice...`);
     const anyLocal = voices.find(v => v.lang.startsWith('en-') && v.localService);
     if (anyLocal) {
-      console.log(`[TTS] 🔹 Found local fallback for ${persona}: ${anyLocal.name}`);
+      console.log(`[TTS DIAGNOSTIC] 🔹 FALLBACK 2 SUCCESS: Found local English voice: ${anyLocal.name}`);
+      console.log(`[TTS DIAGNOSTIC] ========================================`);
       return anyLocal;
     }
+    console.log(`[TTS DIAGNOSTIC] ❌ FALLBACK 2 FAILED: No local English voice found`);
 
     // Priority 4: First available English voice
+    console.log(`[TTS DIAGNOSTIC] 🔍 FALLBACK 3: Searching for first available English voice...`);
     const firstAvailable = voices.find(v => v.lang.startsWith('en-'));
     if (firstAvailable) {
-      console.log(`[TTS] ⚠️ Using basic fallback for ${persona}: ${firstAvailable.name}`);
+      console.log(`[TTS DIAGNOSTIC] ⚠️ FALLBACK 3 (BASIC): Using first available English voice: ${firstAvailable.name}`);
+      console.log(`[TTS DIAGNOSTIC] ========================================`);
       return firstAvailable;
     }
 
-    console.warn(`[TTS] ❌ No suitable voice found for ${persona}`);
+    console.warn(`[TTS DIAGNOSTIC] ❌ CRITICAL: No suitable voice found for ${persona}`);
+    console.log(`[TTS DIAGNOSTIC] ========================================`);
     return undefined;
   }, [voices]);
 
