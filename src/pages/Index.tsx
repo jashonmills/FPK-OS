@@ -26,11 +26,11 @@ const Index = () => {
     >
       <HomepageNavigation />
       <HomepageHero />
-      <ResourcesSection />
       <IntroSection />
-      <OfferingsSection />
       <WhyChooseSection />
+      <OfferingsSection />
       <EmpoweringLearningSection />
+      <ResourcesSection />
       <CTASection />
       <HomepageFooter />
     </div>

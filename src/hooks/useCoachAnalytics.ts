@@ -36,7 +36,7 @@ export function useCoachAnalytics() {
           supabase.rpc('get_coach_mastery_score', { p_user_id: user.id, p_source: 'coach_portal' }),
           supabase.rpc('get_coach_learning_time', { p_user_id: user.id, p_source: 'coach_portal' }),
           supabase.rpc('get_coach_topics', { p_user_id: user.id, p_source: 'coach_portal' }),
-          supabase.rpc('get_coach_streak', { p_user_id: user.id, p_source: 'coach_portal' }),
+          supabase.rpc('get_coach_streak', { p_user_id: user.id }),
           supabase.rpc('get_coach_mode_ratio', { p_user_id: user.id, p_source: 'coach_portal' })
         ]);
 
