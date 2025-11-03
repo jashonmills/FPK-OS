@@ -3,9 +3,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { ChevronRight, ChevronDown, FileText, FolderOpen, Folder, Plus } from 'lucide-react';
+import { ChevronRight, ChevronDown, FileText, FolderOpen, Folder, Plus, Settings, Lock, Package, Filter } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CreatePageDialog } from './CreatePageDialog';
+import { SpacePermissionsDialog } from './SpacePermissionsDialog';
+import { Toggle } from '@/components/ui/toggle';
 
 interface SpaceTreeProps {
   selectedSpaceId: string | null;
@@ -32,18 +34,28 @@ export const SpaceTree = ({
   const [expandedPages, setExpandedPages] = useState<Set<string>>(new Set());
   const [showCreatePage, setShowCreatePage] = useState(false);
   const [createPageSpaceId, setCreatePageSpaceId] = useState<string | null>(null);
+  const [showPermissions, setShowPermissions] = useState(false);
+  const [permissionsSpaceId, setPermissionsSpaceId] = useState<string | null>(null);
+  const [permissionsSpaceName, setPermissionsSpaceName] = useState('');
+  const [showPersonalSpaces, setShowPersonalSpaces] = useState(true);
 
   const { data: spaces } = useQuery({
-    queryKey: ['doc-spaces'],
+    queryKey: ['documentation-spaces'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('doc_spaces')
         .select('*')
-        .order('name');
+        .order('is_personal DESC, name');
 
       if (error) throw error;
       return data;
     },
+  });
+
+  // Filter spaces based on toggle
+  const filteredSpaces = spaces?.filter(space => {
+    if (!showPersonalSpaces && space.is_personal) return false;
+    return true;
   });
 
   const { data: pages } = useQuery({
@@ -154,14 +166,32 @@ export const SpaceTree = ({
     );
   };
 
+  const getSpaceIcon = (space: any, isExpanded: boolean) => {
+    if (space.is_personal) return Lock;
+    if (space.project_id) return Package;
+    return isExpanded ? FolderOpen : Folder;
+  };
+
   return (
     <>
+      <div className="p-2 border-b flex items-center justify-between">
+        <span className="text-sm font-medium text-muted-foreground">Spaces</span>
+        <Toggle
+          pressed={showPersonalSpaces}
+          onPressedChange={setShowPersonalSpaces}
+          size="sm"
+          aria-label="Toggle personal spaces"
+          title={showPersonalSpaces ? "Hide personal spaces" : "Show personal spaces"}
+        >
+          <Lock className="h-3 w-3" />
+        </Toggle>
+      </div>
       <ScrollArea className="flex-1">
         <div className="p-2 space-y-1">
-          {spaces?.map(space => {
+          {filteredSpaces?.map(space => {
             const isExpanded = expandedSpaces.has(space.id);
             const pageTree = buildPageTree(space.id);
-            const FolderIcon = isExpanded ? FolderOpen : Folder;
+            const SpaceIcon = getSpaceIcon(space, isExpanded);
 
             return (
               <div key={space.id}>
@@ -189,20 +219,41 @@ export const SpaceTree = ({
                         <ChevronRight className="h-3 w-3" />
                       )}
                     </Button>
-                    <FolderIcon className="h-4 w-4 mr-2" />
-                    <span className="truncate font-medium">{space.name}</span>
+                    <SpaceIcon className="h-4 w-4 mr-2" />
+                    <span className="truncate font-medium">
+                      {space.icon && <span className="mr-1">{space.icon}</span>}
+                      {space.name}
+                    </span>
                   </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                    onClick={() => {
-                      setCreatePageSpaceId(space.id);
-                      setShowCreatePage(true);
-                    }}
-                  >
-                    <Plus className="h-3 w-3" />
-                  </Button>
+                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 w-7 p-0"
+                      onClick={() => {
+                        setCreatePageSpaceId(space.id);
+                        setShowCreatePage(true);
+                      }}
+                      title="Add page"
+                    >
+                      <Plus className="h-3 w-3" />
+                    </Button>
+                    {!space.is_personal && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 w-7 p-0"
+                        onClick={() => {
+                          setPermissionsSpaceId(space.id);
+                          setPermissionsSpaceName(space.name);
+                          setShowPermissions(true);
+                        }}
+                        title="Space settings"
+                      >
+                        <Settings className="h-3 w-3" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
                 {isExpanded && (
                   <div className="ml-2">
@@ -227,6 +278,15 @@ export const SpaceTree = ({
         spaceId={createPageSpaceId}
         parentPageId={null}
       />
+
+      {permissionsSpaceId && (
+        <SpacePermissionsDialog
+          open={showPermissions}
+          onOpenChange={setShowPermissions}
+          spaceId={permissionsSpaceId}
+          spaceName={permissionsSpaceName}
+        />
+      )}
     </>
   );
 };

@@ -275,6 +275,8 @@ export type Database = {
           description: string | null
           icon: string | null
           id: string
+          is_personal: boolean | null
+          is_public: boolean | null
           name: string
           project_id: string | null
           updated_at: string
@@ -285,6 +287,8 @@ export type Database = {
           description?: string | null
           icon?: string | null
           id?: string
+          is_personal?: boolean | null
+          is_public?: boolean | null
           name: string
           project_id?: string | null
           updated_at?: string
@@ -295,6 +299,8 @@ export type Database = {
           description?: string | null
           icon?: string | null
           id?: string
+          is_personal?: boolean | null
+          is_public?: boolean | null
           name?: string
           project_id?: string | null
           updated_at?: string
@@ -1079,6 +1085,41 @@ export type Database = {
           },
         ]
       }
+      space_permissions: {
+        Row: {
+          granted_at: string
+          granted_by: string | null
+          id: string
+          role: Database["public"]["Enums"]["space_role"]
+          space_id: string
+          user_id: string
+        }
+        Insert: {
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["space_role"]
+          space_id: string
+          user_id: string
+        }
+        Update: {
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["space_role"]
+          space_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "space_permissions_space_id_fkey"
+            columns: ["space_id"]
+            isOneToOne: false
+            referencedRelation: "doc_spaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sub_tasks: {
         Row: {
           completed: boolean
@@ -1535,6 +1576,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      has_space_access: {
+        Args: {
+          _required_role?: Database["public"]["Enums"]["space_role"]
+          _space_id: string
+          _user_id: string
+        }
+        Returns: boolean
+      }
       is_conversation_participant: {
         Args: { p_conversation_id: string; p_user_id: string }
         Returns: boolean
@@ -1555,6 +1604,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "member" | "manager" | "hr" | "it" | "viewer"
+      space_role: "admin" | "editor" | "commenter" | "viewer"
       task_priority: "low" | "medium" | "high" | "urgent"
       task_status: "backlog" | "todo" | "in_progress" | "review" | "done"
       task_type:
@@ -1696,6 +1746,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "member", "manager", "hr", "it", "viewer"],
+      space_role: ["admin", "editor", "commenter", "viewer"],
       task_priority: ["low", "medium", "high", "urgent"],
       task_status: ["backlog", "todo", "in_progress", "review", "done"],
       task_type: [
