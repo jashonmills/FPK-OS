@@ -1183,6 +1183,19 @@ serve(async (req) => {
   let userId: string | null = null;
 
   try {
+    // Parse request and extract parameters
+    const requestBody = await req.json();
+    const { message, conversationId, conversationHistory, metadata } = requestBody;
+    
+    // Validate required parameters
+    if (!message || typeof message !== 'string') {
+      console.error('[CONDUCTOR] ❌ Invalid or missing message parameter');
+      return new Response(
+        JSON.stringify({ error: 'Message is required and must be a string' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
     // 🔬 PERFORMANCE TRACKING - Phase 1
     const perfStart = Date.now();
     const timings: Record<string, number> = {};

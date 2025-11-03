@@ -283,14 +283,14 @@ const AIInteractionColumn: React.FC<{
   };
 
   return (
-    <div className="bg-purple-50/90 border border-purple-100 shadow-md hover:shadow-lg rounded-xl p-6 flex flex-col h-full transition-shadow duration-200">
+    <div className="bg-purple-50/90 border border-purple-100 shadow-md hover:shadow-lg rounded-xl p-6 flex flex-col max-h-[800px] transition-shadow duration-200">
       <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 mb-4">
         <Award className="w-5 h-5" />
         AI Study Coach
       </h3>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto mb-4 space-y-3">
+      <div className="flex-1 min-h-0 overflow-y-auto mb-4 space-y-3">
         {messages.length === 0 ? (
           <div className="flex items-center justify-center h-full text-center">
             <div>
