@@ -153,6 +153,130 @@ export type Database = {
           },
         ]
       }
+      doc_page_versions: {
+        Row: {
+          content: Json
+          created_at: string
+          editor_id: string
+          id: string
+          page_id: string
+          version_notes: string | null
+        }
+        Insert: {
+          content: Json
+          created_at?: string
+          editor_id: string
+          id?: string
+          page_id: string
+          version_notes?: string | null
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          editor_id?: string
+          id?: string
+          page_id?: string
+          version_notes?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "doc_page_versions_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "doc_pages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      doc_pages: {
+        Row: {
+          author_id: string
+          content: Json
+          created_at: string
+          id: string
+          parent_page_id: string | null
+          space_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          content?: Json
+          created_at?: string
+          id?: string
+          parent_page_id?: string | null
+          space_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          content?: Json
+          created_at?: string
+          id?: string
+          parent_page_id?: string | null
+          space_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "doc_pages_parent_page_id_fkey"
+            columns: ["parent_page_id"]
+            isOneToOne: false
+            referencedRelation: "doc_pages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "doc_pages_space_id_fkey"
+            columns: ["space_id"]
+            isOneToOne: false
+            referencedRelation: "doc_spaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      doc_spaces: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          icon: string | null
+          id: string
+          name: string
+          project_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          project_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          project_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "doc_spaces_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       feature_flags: {
         Row: {
           created_at: string
@@ -179,6 +303,146 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      file_folders: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          name: string
+          parent_folder_id: string | null
+          project_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          name: string
+          parent_folder_id?: string | null
+          project_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          name?: string
+          parent_folder_id?: string | null
+          project_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "file_folders_parent_folder_id_fkey"
+            columns: ["parent_folder_id"]
+            isOneToOne: false
+            referencedRelation: "file_folders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "file_folders_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      file_tag_assignments: {
+        Row: {
+          created_at: string
+          file_id: string
+          id: string
+          tag_id: string
+        }
+        Insert: {
+          created_at?: string
+          file_id: string
+          id?: string
+          tag_id: string
+        }
+        Update: {
+          created_at?: string
+          file_id?: string
+          id?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "file_tag_assignments_file_id_fkey"
+            columns: ["file_id"]
+            isOneToOne: false
+            referencedRelation: "project_files"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "file_tag_assignments_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "file_tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      file_tags: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      file_versions: {
+        Row: {
+          created_at: string
+          file_id: string
+          file_size: number
+          id: string
+          storage_path: string
+          uploader_id: string
+          version_notes: string | null
+          version_number: number
+        }
+        Insert: {
+          created_at?: string
+          file_id: string
+          file_size: number
+          id?: string
+          storage_path: string
+          uploader_id: string
+          version_notes?: string | null
+          version_number: number
+        }
+        Update: {
+          created_at?: string
+          file_id?: string
+          file_size?: number
+          id?: string
+          storage_path?: string
+          uploader_id?: string
+          version_notes?: string | null
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "file_versions_file_id_fkey"
+            columns: ["file_id"]
+            isOneToOne: false
+            referencedRelation: "project_files"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       help_analytics: {
         Row: {
@@ -605,6 +869,47 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "vw_payroll_report"
             referencedColumns: ["time_entry_id"]
+          },
+        ]
+      }
+      project_files: {
+        Row: {
+          created_at: string
+          file_size: number
+          file_type: string
+          folder_id: string | null
+          id: string
+          name: string
+          storage_path: string
+          uploader_id: string
+        }
+        Insert: {
+          created_at?: string
+          file_size: number
+          file_type: string
+          folder_id?: string | null
+          id?: string
+          name: string
+          storage_path: string
+          uploader_id: string
+        }
+        Update: {
+          created_at?: string
+          file_size?: number
+          file_type?: string
+          folder_id?: string | null
+          id?: string
+          name?: string
+          storage_path?: string
+          uploader_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_files_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "file_folders"
+            referencedColumns: ["id"]
           },
         ]
       }

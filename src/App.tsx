@@ -19,6 +19,7 @@ import Budget from "./pages/Budget";
 import Payroll from "./pages/Payroll";
 import PaymentSummary from "./pages/PaymentSummary";
 import MyTimesheet from "./pages/MyTimesheet";
+import Files from "./pages/Files";
 import NotFound from "./pages/NotFound";
 import { PermissionGuard } from '@/components/auth/PermissionGuard';
 import { FeatureFlagGuard } from '@/components/auth/FeatureFlagGuard';
@@ -165,6 +166,16 @@ const App = () => (
                     <PermissionGuard permission="payroll_view" redirectTo="/">
                       <PaymentSummary />
                     </PermissionGuard>
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/files" 
+                element={
+                  <ProtectedRoute>
+                    <FeatureFlagGuard feature="FEATURE_FILES">
+                      <Files />
+                    </FeatureFlagGuard>
                   </ProtectedRoute>
                 } 
               />
