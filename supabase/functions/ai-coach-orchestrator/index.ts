@@ -1225,6 +1225,12 @@ serve(async (req) => {
     userId = user.id; // Store for error logging
     console.log('[CONDUCTOR] User authenticated:', user.id);
 
+    // Get Lovable AI API Key early (needed for RAG)
+    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    if (!LOVABLE_API_KEY) {
+      console.warn('[CONDUCTOR] ⚠️ LOVABLE_API_KEY not configured - RAG features disabled');
+    }
+
     // 🚦 LOAD FEATURE FLAGS (PLUG-AND-PLAY CONTROL)
     console.log('[CONDUCTOR] 🚦 Loading feature flags...');
     const contextLoadStart = Date.now();
@@ -1403,13 +1409,7 @@ serve(async (req) => {
       console.log('[CONDUCTOR] 🔒 RESUMPTION LOCK ACTIVE:', resumptionLockTurns, 'turns remaining until Nite Owl can appear');
     }
 
-    // 4. Get Lovable AI API Key
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY not configured');
-    }
-
-    // 5. FAST INTENT DETECTION - Lightweight heuristic-based approach
+    // 4. FAST INTENT DETECTION - Lightweight heuristic-based approach
     // PHASE 2: SIMPLIFIED INTENT DETECTION - Clearer rules with fewer edge cases
     // ============================================
     console.log('[CONDUCTOR] ⚡ Simplified intent detection...');
@@ -2759,11 +2759,22 @@ Keep it under 100 words.`;
           // Insert messages only if we have a valid conversation UUID
           if (conversationUuid) {
             // Insert user message
+            // Map internal intent to valid database enum
+            const mapIntentToDb = (intent: string): string => {
+              const intentMap: Record<string, string> = {
+                'conversation_opener': 'general_chat',
+                'escape_hatch': 'direct_answer',
+                'fun_fact_trigger': 'story_request',
+                'video_question': 'video_assessment'
+              };
+              return intentMap[intent] || intent;
+            };
+
             const { error: userMsgError } = await supabaseClient.from('phoenix_messages').insert({
               conversation_id: conversationUuid,
               persona: 'USER',
               content: message,
-              intent: detectedIntent,
+              intent: mapIntentToDb(detectedIntent),
               sentiment: detectedSentiment
             });
             
