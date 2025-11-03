@@ -33,23 +33,9 @@ export async function retrieveRelevantKnowledge(
     console.log('[RAG] 📝 Query text length:', queryText.length);
     
     // Step 2: Generate embedding via Lovable AI
-    const embeddingResponse = await fetch('https://ai.gateway.lovable.dev/v1/embeddings', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${lovableApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'text-embedding-3-small',
-        input: queryText.slice(0, 8000) // Limit input size
-      })
-    });
-    
-    if (!embeddingResponse.ok) {
-      const errorText = await embeddingResponse.text();
-      console.error('[RAG] ❌ Embedding generation failed:', errorText);
-      return [];
-    }
+    // NOTE: Lovable AI Gateway doesn't support embeddings yet, so RAG is temporarily disabled
+    console.warn('[RAG] ⚠️ Embeddings not supported by Lovable AI Gateway - skipping RAG retrieval');
+    return [];
     
     const embeddingData = await embeddingResponse.json();
     const queryEmbedding = embeddingData.data[0].embedding;
