@@ -180,6 +180,69 @@ export type Database = {
         }
         Relationships: []
       }
+      help_analytics: {
+        Row: {
+          action: string | null
+          article_slug: string | null
+          created_at: string | null
+          id: string
+          metadata: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          action?: string | null
+          article_slug?: string | null
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string | null
+          article_slug?: string | null
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      help_articles: {
+        Row: {
+          category: string
+          content: string
+          created_at: string | null
+          id: string
+          order_index: number | null
+          search_vector: unknown
+          slug: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          content: string
+          created_at?: string | null
+          id?: string
+          order_index?: number | null
+          search_vector?: unknown
+          slug: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          content?: string
+          created_at?: string | null
+          id?: string
+          order_index?: number | null
+          search_vector?: unknown
+          slug?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           content: string
@@ -400,6 +463,8 @@ export type Database = {
           created_at: string
           email: string
           full_name: string | null
+          has_completed_onboarding: boolean | null
+          help_preferences: Json | null
           id: string
           password_set: boolean | null
           phone_number: string | null
@@ -412,6 +477,8 @@ export type Database = {
           created_at?: string
           email: string
           full_name?: string | null
+          has_completed_onboarding?: boolean | null
+          help_preferences?: Json | null
           id: string
           password_set?: boolean | null
           phone_number?: string | null
@@ -424,6 +491,8 @@ export type Database = {
           created_at?: string
           email?: string
           full_name?: string | null
+          has_completed_onboarding?: boolean | null
+          help_preferences?: Json | null
           id?: string
           password_set?: boolean | null
           phone_number?: string | null
