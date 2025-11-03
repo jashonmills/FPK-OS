@@ -40,6 +40,10 @@ export const PageSidebar = ({ pageId }: PageSidebarProps) => {
           <MessageCircle className="h-3 w-3" />
           Comments
         </TabsTrigger>
+        <TabsTrigger value="versions" className="flex-1 gap-1">
+          <History className="h-3 w-3" />
+          Versions
+        </TabsTrigger>
       </TabsList>
 
       <TabsContent value="details" className="flex-1 overflow-auto mt-0">
@@ -86,15 +90,15 @@ export const PageSidebar = ({ pageId }: PageSidebarProps) => {
           <Separator />
 
           <Backlinks pageId={pageId} />
-
-          <Separator />
-
-          <VersionHistory pageId={pageId} />
         </div>
       </TabsContent>
 
       <TabsContent value="comments" className="flex-1 mt-0">
         <PageComments pageId={pageId} />
+      </TabsContent>
+
+      <TabsContent value="versions" className="flex-1 mt-0">
+        <VersionHistory pageId={pageId} />
       </TabsContent>
     </Tabs>
   );
