@@ -539,6 +539,45 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_persona_triggers: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          intent: string
+          is_regex: boolean
+          persona: string
+          priority: number
+          trigger_phrase: string
+          updated_at: string
+          weight: number
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: string
+          intent: string
+          is_regex?: boolean
+          persona: string
+          priority?: number
+          trigger_phrase: string
+          updated_at?: string
+          weight?: number
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          intent?: string
+          is_regex?: boolean
+          persona?: string
+          priority?: number
+          trigger_phrase?: string
+          updated_at?: string
+          weight?: number
+        }
+        Relationships: []
+      }
       ai_recommendations: {
         Row: {
           applied_at: string | null
