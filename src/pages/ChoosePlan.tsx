@@ -13,7 +13,6 @@ import { useFirstVisitVideo } from '@/hooks/useFirstVisitVideo';
 import { FirstVisitVideoModal } from '@/components/common/FirstVisitVideoModal';
 import { PageHelpTrigger } from '@/components/common/PageHelpTrigger';
 import { shouldShowBetaFeatures } from '@/lib/featureFlags';
-
 const IS_BETA_MODE = shouldShowBetaFeatures();
 interface PlanType {
   name: string;
@@ -26,48 +25,19 @@ const PLANS: Record<string, PlanType> = {
     name: 'AI Coach Basic',
     monthly: 4.99,
     annual: 49.00,
-    features: [
-      '500 AI Credits/month',
-      '1 credit per free chat message',
-      '2 credits per Socratic session message', 
-      'Access to AI Study Coach portal',
-      'Session history',
-      'Basic analytics',
-      'Email support',
-      '7-day free trial'
-    ]
+    features: ['500 AI Credits/month', '1 credit per free chat message', '2 credits per Socratic session message', 'Access to AI Study Coach portal', 'Session history', 'Basic analytics', 'Email support', '7-day free trial']
   },
   pro: {
     name: 'AI Coach Pro',
     monthly: 19.00,
     annual: 199.00,
-    features: [
-      '2,500 AI Credits/month',
-      '1 credit per free chat message',
-      '2 credits per Socratic session message',
-      'Full AI Study Coach portal',
-      'Advanced session analytics',
-      'Flashcard generation',
-      'Study insights',
-      'Priority support',
-      '7-day free trial'
-    ]
+    features: ['2,500 AI Credits/month', '1 credit per free chat message', '2 credits per Socratic session message', 'Full AI Study Coach portal', 'Advanced session analytics', 'Flashcard generation', 'Study insights', 'Priority support', '7-day free trial']
   },
   pro_plus: {
     name: 'AI Coach Pro+',
     monthly: 29.00,
     annual: 299.00,
-    features: [
-      '5,000 AI Credits/month',
-      '1 credit per free chat message',
-      '2 credits per Socratic session message',
-      'Everything in Pro',
-      'Extended session analytics',
-      'Custom study plans',
-      'Advanced insights',
-      'Premium support',
-      '7-day free trial'
-    ]
+    features: ['5,000 AI Credits/month', '1 credit per free chat message', '2 credits per Socratic session message', 'Everything in Pro', 'Extended session analytics', 'Custom study plans', 'Advanced insights', 'Premium support', '7-day free trial']
   }
 };
 export default function ChoosePlan() {
@@ -88,7 +58,10 @@ export default function ChoosePlan() {
     navigateBack,
     safeNavigate
   } = useSafeNavigation();
-  const { shouldShowAuto, markVideoAsSeen } = useFirstVisitVideo('chooseplan_intro_seen');
+  const {
+    shouldShowAuto,
+    markVideoAsSeen
+  } = useFirstVisitVideo('chooseplan_intro_seen');
 
   // Auto-show video modal on first visit
   useEffect(() => {
@@ -96,12 +69,10 @@ export default function ChoosePlan() {
       setShowVideoModal(true);
     }
   }, [shouldShowAuto]);
-
   const handleCloseVideoModal = () => {
     setShowVideoModal(false);
     markVideoAsSeen();
   };
-
   const handleManualVideoOpen = () => {
     setShowVideoModal(true);
   };
@@ -174,15 +145,13 @@ export default function ChoosePlan() {
             AI Study Coach uses a credit-based system. Free chat messages cost 1 credit, Socratic sessions cost 2 credits per message.
           </p>
           
-          {IS_BETA_MODE && (
-            <div className="mt-4 p-4 bg-white/10 rounded-lg border border-white/20 max-w-2xl mx-auto">
+          {IS_BETA_MODE && <div className="mt-4 p-4 bg-white/10 rounded-lg border border-white/20 max-w-2xl mx-auto">
               <p className="text-lg font-semibold text-white mb-2">🚀 Beta Access Only</p>
               <p className="text-white/70 text-sm">
                 During our beta phase, all plans can only be activated using coupon codes. 
                 Please use the coupon section below to get started.
               </p>
-            </div>
-          )}
+            </div>}
           
           <div className="mt-6 p-4 bg-white/5 rounded-lg border border-white/10 max-w-2xl mx-auto">
             <h3 className="text-lg font-semibold text-white mb-2">💡 How Credits Work</h3>
@@ -209,40 +178,20 @@ export default function ChoosePlan() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="coupon-input" className="text-white">Coupon Code</Label>
-                <Input 
-                  id="coupon-input" 
-                  placeholder="Enter your coupon code" 
-                  value={couponCode} 
-                  onChange={e => setCouponCode(e.target.value.toUpperCase())} 
-                  onKeyDown={e => {
-                    if (e.key === 'Enter' && !redeeming) {
-                      handleRedeemCoupon();
-                    }
-                  }} 
-                  className="bg-white/10 border-white/20 text-white placeholder:text-white/50" 
-                />
+                <Input id="coupon-input" placeholder="Enter your coupon code" value={couponCode} onChange={e => setCouponCode(e.target.value.toUpperCase())} onKeyDown={e => {
+                if (e.key === 'Enter' && !redeeming) {
+                  handleRedeemCoupon();
+                }
+              }} className="bg-white/10 border-white/20 text-white placeholder:text-white/50" />
               </div>
-              <Button 
-                onClick={handleRedeemCoupon} 
-                disabled={redeeming || !couponCode.trim()} 
-                className="w-full bg-white/20 hover:bg-white/30 border-0"
-              >
-                {redeeming ? (
-                  <>
+              <Button onClick={handleRedeemCoupon} disabled={redeeming || !couponCode.trim()} className="w-full bg-white/20 hover:bg-white/30 border-0">
+                {redeeming ? <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Redeeming...
-                  </>
-                ) : (
-                  'Redeem Coupon'
-                )}
+                  </> : 'Redeem Coupon'}
               </Button>
 
-              <div className="mt-4 p-3 bg-white/5 rounded-lg border border-white/10">
-                <h4 className="font-semibold mb-2 text-white text-sm">Try these demo codes:</h4>
-                <div className="space-y-1 text-xs text-white/70">
-                  <p><strong className="text-white">BETA2025</strong> - 2 weeks free Premium access</p>
-                </div>
-              </div>
+              
             </CardContent>
           </Card>
         </div>
@@ -317,34 +266,21 @@ export default function ChoosePlan() {
                       </li>)}
                   </ul>
                   
-                  {IS_BETA_MODE ? (
-                    <Button disabled className="w-full bg-gray-600 hover:bg-gray-600 text-white border-0" size="lg">
+                  {IS_BETA_MODE ? <Button disabled className="w-full bg-gray-600 hover:bg-gray-600 text-white border-0" size="lg">
                       Beta Access Only
-                    </Button>
-                  ) : (
-                    <Button onClick={() => handleSubscribe(tier)} disabled={loading === tier} className={`w-full ${isPopular ? 'bg-accent hover:bg-accent/90' : 'bg-white/20 hover:bg-white/30'} border-0`} size="lg">
-                      {loading === tier ? (
-                        <>
+                    </Button> : <Button onClick={() => handleSubscribe(tier)} disabled={loading === tier} className={`w-full ${isPopular ? 'bg-accent hover:bg-accent/90' : 'bg-white/20 hover:bg-white/30'} border-0`} size="lg">
+                      {loading === tier ? <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                           Processing...
-                        </>
-                      ) : (
-                        `Subscribe to ${plan.name}`
-                      )}
-                    </Button>
-                  )}
+                        </> : `Subscribe to ${plan.name}`}
+                    </Button>}
                 </CardContent>
               </Card>;
         })}
         </div>
 
         {/* Video Modal */}
-        <FirstVisitVideoModal
-          isOpen={showVideoModal} 
-          onClose={handleCloseVideoModal}
-          title="How to Choose Your Learning Plan"
-          contentHtml="<video controls autoplay muted style='width:100%;height:auto;border-radius:8px;'><source src='https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/video%20guide/Coupon%20Code%20Walk%20Through%20Video.mp4' type='video/mp4'>Your browser does not support the video tag.</video>"
-        />
+        <FirstVisitVideoModal isOpen={showVideoModal} onClose={handleCloseVideoModal} title="How to Choose Your Learning Plan" contentHtml="<video controls autoplay muted style='width:100%;height:auto;border-radius:8px;'><source src='https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/video%20guide/Coupon%20Code%20Walk%20Through%20Video.mp4' type='video/mp4'>Your browser does not support the video tag.</video>" />
       </div>
     </div>;
 }
