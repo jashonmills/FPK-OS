@@ -21,6 +21,7 @@ interface UploadFile {
   progress: number;
   status: 'pending' | 'uploading' | 'complete' | 'error';
   error?: string;
+  customName?: string;
 }
 
 export const FileUploader = ({ open, onOpenChange, folderId }: FileUploaderProps) => {
@@ -47,7 +48,7 @@ export const FileUploader = ({ open, onOpenChange, folderId }: FileUploaderProps
         .from('project_files')
         .insert({
           folder_id: folderId,
-          name: file.name,
+          name: uploadFile.customName || file.name,
           storage_path: fileName,
           file_type: file.type,
           file_size: file.size,
@@ -104,6 +105,12 @@ export const FileUploader = ({ open, onOpenChange, folderId }: FileUploaderProps
     setUploadFiles(prev => prev.filter(f => f.file !== file));
   };
 
+  const updateFileName = (file: File, newName: string) => {
+    setUploadFiles(prev =>
+      prev.map(f => f.file === file ? { ...f, customName: newName } : f)
+    );
+  };
+
   const isAllComplete = uploadFiles.length > 0 && uploadFiles.every(f => f.status === 'complete');
 
   return (
@@ -137,7 +144,19 @@ export const FileUploader = ({ open, onOpenChange, folderId }: FileUploaderProps
             {uploadFiles.map((uploadFile, index) => (
               <div key={index} className="flex items-center gap-3 p-3 border rounded-lg">
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{uploadFile.file.name}</p>
+                  {uploadFile.status === 'pending' ? (
+                    <input
+                      type="text"
+                      value={uploadFile.customName || uploadFile.file.name}
+                      onChange={(e) => updateFileName(uploadFile.file, e.target.value)}
+                      className="text-sm font-medium w-full bg-transparent border-b border-transparent hover:border-border focus:border-primary outline-none"
+                      placeholder="File name"
+                    />
+                  ) : (
+                    <p className="text-sm font-medium truncate">
+                      {uploadFile.customName || uploadFile.file.name}
+                    </p>
+                  )}
                   <div className="flex items-center gap-2 mt-1">
                     {uploadFile.status === 'uploading' && (
                       <Progress value={uploadFile.progress} className="h-1 flex-1" />
