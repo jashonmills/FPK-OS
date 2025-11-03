@@ -1,5 +1,5 @@
 import { LayoutDashboard, Briefcase, DollarSign, Code, Calendar, MessageSquare, Bot, FileText, Files, LogOut, Shield, Clock } from 'lucide-react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import {
   Sidebar,
   SidebarContent,
@@ -42,6 +42,15 @@ export function AppSidebar() {
   const { signOut } = useAuth();
   const { hasAnyPermission } = usePermissions();
   const collapsed = state === 'collapsed';
+  const location = useLocation();
+
+  const isRouteActive = (url: string) => {
+    const pathname = location.pathname;
+    if (url === '/') {
+      return pathname === '/';
+    }
+    return pathname.startsWith(url);
+  };
 
   const visibleItems = navigationItems.filter(
     item => {
@@ -77,9 +86,8 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink
                       to={item.url}
-                      end={item.url === '/'}
-                      className={({ isActive }) =>
-                        isActive
+                      className={
+                        isRouteActive(item.url)
                           ? 'bg-primary/20 text-primary font-semibold border-l-4 border-primary'
                           : 'text-sidebar-foreground hover:bg-sidebar-accent/20 hover:text-sidebar-accent-foreground'
                       }
