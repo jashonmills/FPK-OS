@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { TagEditor } from './TagEditor';
 import { VersionHistory } from './VersionHistory';
+import { LinkedDocuments } from '@/components/docs/LinkedDocuments';
 import { Separator } from '@/components/ui/separator';
 import { Calendar, User, HardDrive } from 'lucide-react';
 import { format } from 'date-fns';
@@ -69,6 +70,10 @@ export const FileMetadata = ({ fileId }: FileMetadataProps) => {
       <Separator />
 
       <TagEditor fileId={fileId} />
+
+      <Separator />
+
+      <LinkedDocuments fileId={fileId} />
 
       <Separator />
 

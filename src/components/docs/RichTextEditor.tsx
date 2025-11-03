@@ -4,6 +4,7 @@ import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import Mention from '@tiptap/extension-mention';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import {
@@ -49,6 +50,8 @@ const getEntityIcon = (type: string) => {
 };
 
 export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
+  const navigate = useNavigate();
+  
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -161,6 +164,45 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
       editor.commands.setContent(newContent);
     }
   }, [editor, content]);
+
+  // Handle mention clicks with navigation and hover cards
+  useEffect(() => {
+    if (!editor) return;
+
+    const handleClick = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      const mentionEl = target.closest('.mention');
+      
+      if (mentionEl) {
+        const entityId = mentionEl.getAttribute('data-entity-id');
+        const entityType = mentionEl.getAttribute('data-entity-type');
+        
+        if (entityId && entityType) {
+          event.preventDefault();
+          
+          // Navigate based on entity type
+          if (entityType === 'task') {
+            navigate(`/kanban?task=${entityId}`);
+          } else if (entityType === 'page') {
+            navigate(`/docs?page=${entityId}`);
+          } else if (entityType === 'project') {
+            navigate(`/kanban?project=${entityId}`);
+          } else if (entityType === 'file') {
+            navigate(`/files?file=${entityId}`);
+          } else if (entityType === 'user') {
+            navigate(`/profile/${entityId}`);
+          }
+        }
+      }
+    };
+
+    const editorElement = editor.view.dom;
+    editorElement.addEventListener('click', handleClick);
+
+    return () => {
+      editorElement.removeEventListener('click', handleClick);
+    };
+  }, [editor, navigate]);
 
   if (!editor) {
     return null;

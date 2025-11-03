@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { VersionHistory } from './VersionHistory';
+import { Backlinks } from './Backlinks';
 import { Separator } from '@/components/ui/separator';
 import { Calendar, User } from 'lucide-react';
 import { format } from 'date-fns';
@@ -66,6 +67,10 @@ export const PageSidebar = ({ pageId }: PageSidebarProps) => {
           Space: <span className="font-medium text-foreground">{(page.space as any)?.name}</span>
         </p>
       </div>
+
+      <Separator />
+
+      <Backlinks pageId={pageId} />
 
       <Separator />
 

@@ -21,6 +21,7 @@ import { TaskTypeIcon, getTaskTypeLabel } from '@/components/tasks/TaskTypeIcon'
 import { AssigneeSelect } from '@/components/assignee/AssigneeSelect';
 import { TimeEntryForm } from '@/components/budget/TimeEntryForm';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { LinkedDocuments } from '@/components/docs/LinkedDocuments';
 
 interface Task {
   id: string;
@@ -555,6 +556,11 @@ export const TaskDetailsSheet = ({ task, open, onOpenChange, onTaskUpdate }: Tas
               </CollapsibleContent>
             </Collapsible>
           )}
+
+          <Separator />
+
+          {/* Linked Documents */}
+          <LinkedDocuments taskId={task.id} />
 
           <Separator />
 
