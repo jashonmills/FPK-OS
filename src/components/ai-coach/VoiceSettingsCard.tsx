@@ -38,11 +38,19 @@ const VoiceSettingsCard: React.FC = () => {
 
   const handleVoiceChange = (voiceId: string) => {
     setSelectedVoice(voiceId);
-    const voice = availableVoices.find(v => v.id === voiceId);
-    toast({
-      title: "Voice Updated",
-      description: `Switched to ${voice?.name || voiceId}`,
-    });
+    
+    if (voiceId === '') {
+      toast({
+        title: "Voice Reset",
+        description: "Now using persona default voices (Betty, Al, Nite Owl)",
+      });
+    } else {
+      const voice = availableVoices.find(v => v.id === voiceId);
+      toast({
+        title: "Voice Updated",
+        description: `Switched to ${voice?.name || voiceId}`,
+      });
+    }
   };
 
   const femaleVoices = availableVoices.filter(voice => voice.gender === 'female');
@@ -54,14 +62,20 @@ const VoiceSettingsCard: React.FC = () => {
         <CardTitle className="flex items-center justify-between mobile-heading-md">
           <div className="flex items-center gap-2">
             <Volume2 className="h-4 w-4 sm:h-5 sm:w-5" />
-            <span className="hidden sm:inline">Voice Settings</span>
-            <span className="sm:hidden">Voice</span>
+            <div className="flex flex-col">
+              <span className="hidden sm:inline">Voice Settings</span>
+              <span className="sm:hidden">Voice</span>
+              <span className="text-xs font-normal text-muted-foreground">
+                {settings.enabled ? 'TTS Enabled' : 'TTS Disabled'}
+              </span>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <Switch
               checked={settings.enabled}
               onCheckedChange={toggle}
               className="data-[state=checked]:bg-green-500"
+              title={settings.enabled ? "Disable Text-to-Speech" : "Enable Text-to-Speech"}
             />
             <Button
               variant="ghost"
@@ -101,12 +115,38 @@ const VoiceSettingsCard: React.FC = () => {
           )}
         </div>
 
+        {/* Voice Override Warning */}
+        {settings.selectedVoice && settings.selectedVoice.trim() !== '' && (
+          <div className="p-2 bg-orange-50 border border-orange-200 rounded-lg mobile-text-xs">
+            <div className="flex items-center gap-2 text-orange-700">
+              <Volume2 className="h-3 w-3" />
+              <span className="font-medium">Voice Override Active</span>
+            </div>
+            <p className="text-orange-600 mt-1">
+              All personas (Betty, Al, Nite Owl) will use: <strong>{availableVoices.find(v => v.id === settings.selectedVoice)?.name}</strong>
+            </p>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setSelectedVoice('');
+                toast({
+                  title: "Voice Reset",
+                  description: "Now using persona default voices",
+                });
+              }}
+              className="mt-2 h-6 mobile-text-xs px-2 text-orange-700 hover:bg-orange-100"
+            >
+              Reset to Persona Defaults
+            </Button>
+          </div>
+        )}
+
         {/* Current Voice Display - Mobile Compact */}
-        {settings.selectedVoice && (
-          <div className="mobile-text-xs text-muted-foreground">
-            Current: <span className="font-medium text-foreground">
-              {availableVoices.find(v => v.id === settings.selectedVoice)?.name || 'Browser Voice'}
-            </span>
+        {!settings.selectedVoice && (
+          <div className="mobile-text-xs text-muted-foreground p-2 bg-green-50 border border-green-200 rounded-lg">
+            <span className="font-medium text-green-700">✨ Using Persona Defaults</span>
+            <p className="text-green-600 mt-1">Betty, Al, and Nite Owl each use their premium voices</p>
           </div>
         )}
 
@@ -141,6 +181,9 @@ const VoiceSettingsCard: React.FC = () => {
                       <SelectValue placeholder="Choose a female voice..." />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="">
+                        <span className="font-semibold text-primary">✨ Use Persona Defaults (Recommended)</span>
+                      </SelectItem>
                       {femaleVoices.map((voice) => (
                         <SelectItem key={voice.id} value={voice.id}>
                           <div className="flex items-center justify-between w-full">
@@ -173,6 +216,9 @@ const VoiceSettingsCard: React.FC = () => {
                       <SelectValue placeholder="Choose a male voice..." />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="">
+                        <span className="font-semibold text-primary">✨ Use Persona Defaults (Recommended)</span>
+                      </SelectItem>
                       {maleVoices.map((voice) => (
                         <SelectItem key={voice.id} value={voice.id}>
                           <div className="flex items-center justify-between w-full">
