@@ -213,6 +213,22 @@ export const ExpenseForm = ({ projectId, categories, open, onOpenChange, onSucce
           </form>
         </Form>
       </DialogContent>
+
+      {budgetData && (
+        <CreateCategoryModal
+          open={showCreateCategory}
+          onOpenChange={setShowCreateCategory}
+          budgetId={budgetData.id}
+          projectId={projectId}
+          totalBudget={budgetData.total_budget}
+          existingAllocations={categories.reduce((sum, cat) => sum + cat.allocated_amount, 0)}
+          existingCategories={categories.map(c => c.name)}
+          onSuccess={(newCategory) => {
+            form.setValue('category_id', newCategory.id);
+            onSuccess?.();
+          }}
+        />
+      )}
     </Dialog>
   );
 };
