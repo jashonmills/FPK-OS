@@ -64,6 +64,11 @@ export const HelpCenter = () => {
     });
   };
 
+  // Don't render Dialog at all when closed to avoid context issues
+  if (!isHelpCenterOpen) {
+    return null;
+  }
+
   return (
     <Dialog open={isHelpCenterOpen} onOpenChange={closeHelpCenter}>
       <DialogContent className="max-w-6xl h-[80vh] p-0">
