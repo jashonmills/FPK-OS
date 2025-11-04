@@ -160,12 +160,12 @@ export const AdminTimeTrackingDashboard = () => {
       ? Array.from(userHours.values()).reduce((sum, hours) => sum + hours, 0) / userHours.size
       : 0;
 
-    setKPIs({
-      activeUsers: activeSessions.length,
+    setKPIs(prev => ({
+      ...prev,
       hoursToday: Math.round(hoursToday * 10) / 10,
       pendingTimesheets: pendingData?.length || 0,
       avgHoursPerUser: Math.round(avgHoursPerUser * 10) / 10,
-    });
+    }));
   };
 
   // Set up realtime subscriptions
