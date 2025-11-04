@@ -60,11 +60,11 @@ export function AppSidebar() {
   );
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" className="border-r">
       <SidebarHeader className="border-b border-sidebar-border">
-        <div className="flex items-center gap-2 px-2 py-4">
+        <div className="flex items-center gap-2 px-2 py-3 md:py-4">
           {!collapsed && (
-            <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+            <h1 className="text-lg md:text-xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
               FPK Pulse
             </h1>
           )}
@@ -73,17 +73,17 @@ export function AppSidebar() {
 
       <SidebarContent>
         {/* Time Clock Widget */}
-        <div className="px-2 py-4 border-b border-sidebar-border">
+        <div className="px-2 py-3 md:py-4 border-b border-sidebar-border">
           <TimeClockWidget />
         </div>
 
         <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-xs md:text-sm">Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {visibleItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
+                  <SidebarMenuButton asChild className="h-10 md:h-9">
                     <NavLink
                       to={item.url}
                       className={
@@ -92,8 +92,8 @@ export function AppSidebar() {
                           : 'text-sidebar-foreground hover:bg-sidebar-accent/20 hover:text-sidebar-accent-foreground'
                       }
                     >
-                      <item.icon className="h-4 w-4" />
-                      {!collapsed && <span>{item.title}</span>}
+                      <item.icon className="h-5 w-5 md:h-4 md:w-4" />
+                      {!collapsed && <span className="text-sm md:text-base">{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

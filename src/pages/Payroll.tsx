@@ -65,9 +65,9 @@ const Payroll = () => {
         </div>
 
         <Tabs defaultValue="current" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="current">Current Period</TabsTrigger>
-            <TabsTrigger value="history">Payroll History</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="current" className="text-sm md:text-base">Current Period</TabsTrigger>
+            <TabsTrigger value="history" className="text-sm md:text-base">Payroll History</TabsTrigger>
           </TabsList>
 
           <TabsContent value="current">

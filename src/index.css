@@ -133,4 +133,32 @@ All colors MUST be HSL.
       overflow-x: hidden;
     }
   }
+
+  /* Mobile-first touch targets - ensure all interactive elements are at least 44x44px */
+  button,
+  a,
+  [role="button"],
+  [role="link"] {
+    @apply min-h-[44px] md:min-h-0;
+  }
+
+  /* Safe area padding for notched devices (iOS) */
+  @supports (padding: max(0px)) {
+    body {
+      padding-left: max(0px, env(safe-area-inset-left));
+      padding-right: max(0px, env(safe-area-inset-right));
+    }
+  }
+
+  /* Improved mobile scrolling */
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Prevent text size adjustment on mobile */
+  html {
+    -webkit-text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
 }

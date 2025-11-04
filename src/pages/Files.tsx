@@ -5,10 +5,10 @@ const Files = () => {
   return (
     <AppLayout>
       <div className="h-full flex flex-col">
-        <div className="flex-shrink-0 border-b bg-card px-6 py-4">
+        <div className="flex-shrink-0 border-b bg-card px-4 md:px-6 py-3 md:py-4">
           <div className="space-y-1">
-            <h1 className="text-3xl font-bold">Files</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-2xl md:text-3xl font-bold">Files</h1>
+            <p className="text-sm md:text-base text-muted-foreground">
               Manage and organize your project files
             </p>
           </div>
