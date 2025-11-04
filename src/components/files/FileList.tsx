@@ -50,10 +50,6 @@ export const FileList = ({ folderId, filters, onSelectFile }: FileListProps) => 
         query = query.is('folder_id', null);
       }
 
-      if (filters.fileTypes.length > 0) {
-        query = query.in('file_type', filters.fileTypes);
-      }
-
       if (filters.uploaderId) {
         query = query.eq('uploader_id', filters.uploaderId);
       }
@@ -66,7 +62,16 @@ export const FileList = ({ folderId, filters, onSelectFile }: FileListProps) => 
 
       const { data, error } = await query;
       if (error) throw error;
-      return data;
+
+      // Client-side filtering: Filter by file type prefixes
+      let filteredData = data || [];
+      if (filters.fileTypes.length > 0) {
+        filteredData = filteredData.filter(file => 
+          filters.fileTypes.some(prefix => file.file_type.startsWith(prefix))
+        );
+      }
+
+      return filteredData;
     },
   });
 

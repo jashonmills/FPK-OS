@@ -43,10 +43,6 @@ export const FileGrid = ({ folderId, filters, onSelectFile }: FileGridProps) => 
         query = query.is('folder_id', null);
       }
 
-      if (filters.fileTypes.length > 0) {
-        query = query.in('file_type', filters.fileTypes);
-      }
-
       if (filters.uploaderId) {
         query = query.eq('uploader_id', filters.uploaderId);
       }
@@ -60,9 +56,17 @@ export const FileGrid = ({ folderId, filters, onSelectFile }: FileGridProps) => 
       const { data, error } = await query;
       if (error) throw error;
 
+      // Client-side filtering: Filter by file type prefixes
+      let filteredData = data || [];
+      if (filters.fileTypes.length > 0) {
+        filteredData = filteredData.filter(file => 
+          filters.fileTypes.some(prefix => file.file_type.startsWith(prefix))
+        );
+      }
+
       // Generate signed URLs for image files
       const filesWithUrls = await Promise.all(
-        (data || []).map(async (file) => {
+        filteredData.map(async (file) => {
           if (file.file_type.startsWith('image/')) {
             const { data: signedData } = await supabase.storage
               .from('project-files')
