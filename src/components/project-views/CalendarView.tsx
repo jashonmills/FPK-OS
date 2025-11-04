@@ -1,10 +1,11 @@
-import { useMemo, useCallback, useState } from 'react';
+import { useMemo, useCallback, useState, useEffect } from 'react';
 import { Calendar, dateFnsLocalizer, Event as BigCalendarEvent } from 'react-big-calendar';
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
 import { format, parse, startOfWeek, getDay, parseISO, set } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { getEventTypeColor } from '@/components/calendar/EventTypeIcon';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Calendar as CalendarIcon, Info } from 'lucide-react';
@@ -51,10 +52,22 @@ interface CalendarEvent extends BigCalendarEvent {
 
 export const CalendarView = ({ tasks, projectColor, projectId, onTaskClick, onTaskUpdate, onSlotSelect }: CalendarViewProps) => {
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   
   // Controlled state for calendar - fixes state corruption bug
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [currentView, setCurrentView] = useState<'month' | 'week' | 'day' | 'agenda'>('month');
+  const [currentView, setCurrentView] = useState<'month' | 'week' | 'day' | 'agenda'>(
+    isMobile ? 'agenda' : 'month'
+  );
+
+  // Sync view when screen size changes
+  useEffect(() => {
+    if (isMobile && currentView === 'month') {
+      setCurrentView('agenda');
+    } else if (!isMobile && currentView === 'agenda') {
+      setCurrentView('month');
+    }
+  }, [isMobile]);
 
   const { events, tasksWithDates, tasksWithoutDates } = useMemo(() => {
     console.log('=== CalendarView Debug ===');
