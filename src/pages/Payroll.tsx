@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PayrollDashboard } from '@/components/payroll/PayrollDashboard';
 import { PayrollRunsHistory } from '@/components/payroll/PayrollRunsHistory';
+import { AdminTimeTrackingDashboard } from '@/components/admin/AdminTimeTrackingDashboard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DollarSign } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -65,9 +66,10 @@ const Payroll = () => {
         </div>
 
         <Tabs defaultValue="current" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="current" className="text-sm md:text-base">Current Period</TabsTrigger>
             <TabsTrigger value="history" className="text-sm md:text-base">Payroll History</TabsTrigger>
+            <TabsTrigger value="live" className="text-sm md:text-base">Live Tracking</TabsTrigger>
           </TabsList>
 
           <TabsContent value="current">
@@ -76,6 +78,10 @@ const Payroll = () => {
 
           <TabsContent value="history">
             <PayrollRunsHistory />
+          </TabsContent>
+
+          <TabsContent value="live">
+            <AdminTimeTrackingDashboard />
           </TabsContent>
         </Tabs>
       </div>

@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      active_time_sessions: {
+        Row: {
+          created_at: string
+          id: string
+          last_heartbeat: string
+          project_id: string
+          start_time: string
+          task_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_heartbeat?: string
+          project_id: string
+          start_time?: string
+          task_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_heartbeat?: string
+          project_id?: string
+          start_time?: string
+          task_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "active_time_sessions_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "active_time_sessions_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       budget_categories: {
         Row: {
           allocated_amount: number

@@ -49,7 +49,30 @@ export const TimeClockWidget = () => {
         localStorage.removeItem('fpk_pulse_active_time_session');
       }
     }
-  }, []);
+
+    // Cleanup on unmount or tab close
+    const handleBeforeUnload = async () => {
+      if (user) {
+        await supabase
+          .from('active_time_sessions')
+          .delete()
+          .eq('user_id', user.id);
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      // Also cleanup when component unmounts
+      if (user) {
+        supabase
+          .from('active_time_sessions')
+          .delete()
+          .eq('user_id', user.id);
+      }
+    };
+  }, [user]);
 
   useEffect(() => {
     // Save to localStorage whenever activeSession changes
@@ -62,15 +85,26 @@ export const TimeClockWidget = () => {
 
   useEffect(() => {
     // Update elapsed time every second when active
-    if (!activeSession) return;
+    if (!activeSession || !user) return;
 
     const interval = setInterval(() => {
       const elapsed = Math.floor((new Date().getTime() - activeSession.startTime.getTime()) / 1000);
       setElapsedTime(elapsed);
     }, 1000);
 
-    return () => clearInterval(interval);
-  }, [activeSession]);
+    // Heartbeat every 60 seconds to update last_heartbeat
+    const heartbeatInterval = setInterval(async () => {
+      await supabase
+        .from('active_time_sessions')
+        .update({ last_heartbeat: new Date().toISOString() })
+        .eq('user_id', user.id);
+    }, 60000);
+
+    return () => {
+      clearInterval(interval);
+      clearInterval(heartbeatInterval);
+    };
+  }, [activeSession, user]);
 
   const fetchProjects = async () => {
     const { data, error } = await supabase
@@ -83,8 +117,8 @@ export const TimeClockWidget = () => {
     }
   };
 
-  const handleClockIn = () => {
-    if (!selectedProjectId) {
+  const handleClockIn = async () => {
+    if (!selectedProjectId || !user) {
       toast({
         title: 'Select Project',
         description: 'Please select a project before clocking in',
@@ -102,6 +136,24 @@ export const TimeClockWidget = () => {
       startTime: new Date(),
     };
 
+    // Insert into active_time_sessions table
+    const { error } = await supabase
+      .from('active_time_sessions')
+      .insert({
+        user_id: user.id,
+        project_id: selectedProjectId,
+        start_time: session.startTime.toISOString(),
+      });
+
+    if (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to start session',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setActiveSession(session);
     setElapsedTime(0);
     
@@ -117,7 +169,8 @@ export const TimeClockWidget = () => {
     const endTime = new Date();
     const hours = (endTime.getTime() - activeSession.startTime.getTime()) / 3600000;
 
-    const { error } = await supabase
+    // Insert time entry
+    const { error: timeEntryError } = await supabase
       .from('time_entries')
       .insert({
         user_id: user.id,
@@ -128,7 +181,13 @@ export const TimeClockWidget = () => {
         entry_date: format(activeSession.startTime, 'yyyy-MM-dd'),
       });
 
-    if (error) {
+    // Delete from active_time_sessions
+    const { error: sessionError } = await supabase
+      .from('active_time_sessions')
+      .delete()
+      .eq('user_id', user.id);
+
+    if (timeEntryError || sessionError) {
       toast({
         title: 'Error',
         description: 'Failed to log time',
