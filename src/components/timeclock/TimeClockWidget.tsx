@@ -40,8 +40,10 @@ export const TimeClockWidget = () => {
     userIdRef.current = user?.id;
   }, [user?.id]);
 
-  // Effect 1: Initialize projects and restore session (once on mount)
+  // Effect 1: Initialize projects and restore session (when user is loaded)
   useEffect(() => {
+    if (!user?.id) return; // Don't run if user not loaded
+    
     fetchProjects();
     
     // Restore session from localStorage
@@ -54,16 +56,14 @@ export const TimeClockWidget = () => {
           startTime: new Date(session.startTime)
         });
         
-        // Verify/restore database record
-        if (userIdRef.current) {
-          restoreDatabaseSession(userIdRef.current, session);
-        }
+        // Verify/restore database record (userIdRef.current is now guaranteed to be set)
+        restoreDatabaseSession(user.id, session);
       } catch (error) {
         console.error('Failed to restore session:', error);
         localStorage.removeItem('fpk_pulse_active_time_session');
       }
     }
-  }, []); // Empty dependency - run once on mount
+  }, [user?.id]); // Run when user.id is available
 
   // Effect 2: Setup beforeunload handler (once on mount)
   useEffect(() => {
@@ -104,17 +104,26 @@ export const TimeClockWidget = () => {
     }, 1000);
 
     // Send heartbeat every 60 seconds
-    const heartbeatInterval = setInterval(() => {
-      if (userIdRef.current) {
-        supabase
+    const heartbeatInterval = setInterval(async () => {
+      if (!userIdRef.current || !activeSession) return;
+      
+      // Check if session still exists
+      const { data: existing } = await supabase
+        .from('active_time_sessions')
+        .select('id')
+        .eq('user_id', userIdRef.current)
+        .maybeSingle();
+      
+      if (!existing) {
+        // Session was deleted somehow, re-insert it
+        console.warn('Session missing from database, restoring...');
+        await restoreDatabaseSession(userIdRef.current, activeSession);
+      } else {
+        // Update heartbeat
+        await supabase
           .from('active_time_sessions')
           .update({ last_heartbeat: new Date().toISOString() })
-          .eq('user_id', userIdRef.current)
-          .then(({ error }) => {
-            if (error) {
-              console.error('Heartbeat failed:', error);
-            }
-          });
+          .eq('user_id', userIdRef.current);
       }
     }, 60000);
 
@@ -177,22 +186,28 @@ export const TimeClockWidget = () => {
     };
 
     // Insert into active_time_sessions table
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('active_time_sessions')
       .insert({
         user_id: user.id,
         project_id: selectedProjectId,
         start_time: session.startTime.toISOString(),
-      });
+      })
+      .select();
+
+    console.log('Clock in result:', { data, error });
 
     if (error) {
+      console.error('Failed to insert session:', error);
       toast({
         title: 'Error',
-        description: 'Failed to start session',
+        description: `Failed to start session: ${error.message}`,
         variant: 'destructive',
       });
       return;
     }
+
+    console.log('Session successfully inserted:', data);
 
     setActiveSession(session);
     setElapsedTime(0);
