@@ -72,7 +72,13 @@ export const AdminTimeTrackingDashboard = () => {
       `)
       .order('start_time', { ascending: false });
 
-    if (!error && data) {
+    if (error) {
+      console.error('Error fetching active sessions:', error);
+      return;
+    }
+
+    if (data) {
+      console.log('Fetched active sessions:', data);
       setActiveSessions(data as any);
       setKPIs(prev => ({ ...prev, activeUsers: data.length }));
     }
@@ -95,7 +101,13 @@ export const AdminTimeTrackingDashboard = () => {
       .order('created_at', { ascending: false })
       .limit(50);
 
-    if (!error && data) {
+    if (error) {
+      console.error('Error fetching recent entries:', error);
+      return;
+    }
+
+    if (data) {
+      console.log('Fetched recent entries:', data);
       setRecentEntries(data as any);
     }
   };
@@ -105,27 +117,39 @@ export const AdminTimeTrackingDashboard = () => {
     const today = new Date().toISOString().split('T')[0];
     
     // Hours today
-    const { data: todayData } = await supabase
+    const { data: todayData, error: todayError } = await supabase
       .from('time_entries')
       .select('hours_logged')
       .eq('entry_date', today);
 
+    if (todayError) {
+      console.error('Error fetching today hours:', todayError);
+    }
+
     const hoursToday = todayData?.reduce((sum, entry) => sum + entry.hours_logged, 0) || 0;
 
     // Pending timesheets
-    const { data: pendingData } = await supabase
+    const { data: pendingData, error: pendingError } = await supabase
       .from('time_entries')
       .select('id')
       .in('status', ['open', 'submitted']);
+
+    if (pendingError) {
+      console.error('Error fetching pending timesheets:', pendingError);
+    }
 
     // Average hours per user this week
     const weekStart = new Date();
     weekStart.setDate(weekStart.getDate() - 7);
     
-    const { data: weekData } = await supabase
+    const { data: weekData, error: weekError } = await supabase
       .from('time_entries')
       .select('user_id, hours_logged')
       .gte('entry_date', weekStart.toISOString().split('T')[0]);
+
+    if (weekError) {
+      console.error('Error fetching week data:', weekError);
+    }
 
     const userHours = new Map<string, number>();
     weekData?.forEach(entry => {
