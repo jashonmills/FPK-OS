@@ -1,6 +1,42 @@
 /* Custom styles for react-big-calendar */
 .rbc-calendar {
   font-family: inherit;
+  overflow: hidden;
+}
+
+/* Mobile-specific styles */
+@media (max-width: 768px) {
+  .rbc-calendar {
+    font-size: 0.75rem;
+  }
+  
+  .rbc-toolbar {
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px;
+  }
+  
+  .rbc-toolbar-label {
+    font-size: 0.875rem;
+  }
+  
+  .rbc-header {
+    padding: 6px 2px;
+    font-size: 0.75rem;
+  }
+  
+  .rbc-month-row {
+    min-height: 80px !important;
+  }
+  
+  .rbc-day-bg {
+    min-height: 80px !important;
+  }
+  
+  .rbc-event {
+    font-size: 0.625rem;
+    padding: 1px 3px;
+  }
 }
 
 .rbc-header {

@@ -84,17 +84,18 @@ const Admin = () => {
         </div>
 
         <Tabs defaultValue="team" className="space-y-4 md:space-y-6 w-full">
-          <TabsList className="w-full md:w-auto grid grid-cols-2 md:grid-cols-4 gap-1">
-            <TabsTrigger value="team" className="text-xs md:text-sm">Team</TabsTrigger>
-            <TabsTrigger value="roles" className="text-xs md:text-sm">Roles</TabsTrigger>
-            <TabsTrigger value="rates" className="text-xs md:text-sm">Rates</TabsTrigger>
-            <TabsTrigger value="features" className="text-xs md:text-sm">Flags</TabsTrigger>
+          <div className="flex justify-end mb-4">
+            <InviteUserDialog />
+          </div>
+          
+          <TabsList className="w-full grid grid-cols-2 md:grid-cols-4 gap-2 p-1 h-auto">
+            <TabsTrigger value="team" className="text-xs md:text-sm py-2">Team</TabsTrigger>
+            <TabsTrigger value="roles" className="text-xs md:text-sm py-2">Roles</TabsTrigger>
+            <TabsTrigger value="rates" className="text-xs md:text-sm py-2">Rates</TabsTrigger>
+            <TabsTrigger value="features" className="text-xs md:text-sm py-2">Flags</TabsTrigger>
           </TabsList>
 
           <TabsContent value="team" className="space-y-4 w-full overflow-x-hidden">
-            <div className="flex justify-end">
-              <InviteUserDialog />
-            </div>
             <Card className="w-full overflow-x-hidden">
               <CardHeader>
                 <CardTitle>Team Members</CardTitle>

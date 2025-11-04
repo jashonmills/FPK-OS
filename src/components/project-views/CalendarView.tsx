@@ -208,13 +208,14 @@ export const CalendarView = ({ tasks, projectColor, projectId, onTaskClick, onTa
         </Alert>
       )}
       
-      <div className="min-h-[600px] bg-background p-4 border rounded-lg">
+      <div className="bg-background border rounded-lg overflow-hidden">
         <DnDCalendar
           localizer={localizer}
           events={events}
           startAccessor={(event: CalendarEvent) => event.start as Date}
           endAccessor={(event: CalendarEvent) => event.end as Date}
-          style={{ height: 600 }}
+          style={{ height: '500px', minHeight: '400px' }}
+          className="p-2 md:p-4"
           
           // CONTROLLED PROPS - This fixes state corruption bug
           view={currentView}
