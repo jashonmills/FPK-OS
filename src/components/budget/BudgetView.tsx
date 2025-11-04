@@ -77,7 +77,7 @@ export const BudgetView = ({ projectId }: BudgetViewProps) => {
         </Button>
       </div>
 
-      <BudgetDashboard projectId={projectId} />
+      <BudgetDashboard projectId={projectId} onBudgetUpdated={refetchBudget} />
 
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Transaction Log</h3>

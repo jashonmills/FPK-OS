@@ -1,14 +1,18 @@
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
 import { BudgetProgressBar } from './BudgetProgressBar';
 import { SpendingByCategoryChart } from './SpendingByCategoryChart';
 import { CashFlowChart } from './CashFlowChart';
-import { DollarSign, TrendingUp, TrendingDown, Clock } from 'lucide-react';
+import { EditBudgetDialog } from './EditBudgetDialog';
+import { DollarSign, TrendingUp, TrendingDown, Clock, Pencil } from 'lucide-react';
 
 interface BudgetDashboardProps {
   projectId: string;
+  onBudgetUpdated?: () => void;
 }
 
 interface BudgetCategory {
@@ -31,8 +35,10 @@ interface ProjectExpense {
   time_entry_id: string | null;
 }
 
-export const BudgetDashboard = ({ projectId }: BudgetDashboardProps) => {
-  const { data: budget, isLoading: budgetLoading } = useQuery<{
+export const BudgetDashboard = ({ projectId, onBudgetUpdated }: BudgetDashboardProps) => {
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  
+  const { data: budget, isLoading: budgetLoading, refetch: refetchBudget } = useQuery<{
     id: string;
     total_budget: number;
     budget_categories: BudgetCategory[];
@@ -105,8 +111,24 @@ export const BudgetDashboard = ({ projectId }: BudgetDashboardProps) => {
     return 'text-success';
   };
 
+  const handleEditSuccess = () => {
+    refetchBudget();
+    if (onBudgetUpdated) {
+      onBudgetUpdated();
+    }
+  };
+
   return (
     <div className="space-y-6">
+      {/* Header with Edit Button */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-semibold">Budget Overview</h2>
+        <Button onClick={() => setShowEditDialog(true)} variant="outline" size="sm">
+          <Pencil className="h-4 w-4 mr-2" />
+          Edit Budget
+        </Button>
+      </div>
+
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="p-6">
@@ -179,6 +201,17 @@ export const BudgetDashboard = ({ projectId }: BudgetDashboardProps) => {
         <h3 className="text-lg font-semibold mb-4">Cash Flow Over Time</h3>
         <CashFlowChart expenses={expenses || []} />
       </Card>
+
+      {/* Edit Budget Dialog */}
+      <EditBudgetDialog
+        open={showEditDialog}
+        onOpenChange={setShowEditDialog}
+        budgetId={budget.id}
+        currentTotalBudget={budget.total_budget}
+        currentCategories={budget.budget_categories}
+        totalSpent={totalSpent}
+        onSuccess={handleEditSuccess}
+      />
     </div>
   );
 };
