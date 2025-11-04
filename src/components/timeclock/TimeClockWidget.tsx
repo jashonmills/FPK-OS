@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -31,11 +31,20 @@ export const TimeClockWidget = () => {
   const [elapsedTime, setElapsedTime] = useState(0);
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<string>('');
+  
+  // Store user ID in a ref to avoid effect dependency issues
+  const userIdRef = useRef(user?.id);
 
+  // Update ref when user ID changes
+  useEffect(() => {
+    userIdRef.current = user?.id;
+  }, [user?.id]);
+
+  // Effect 1: Initialize projects and restore session (once on mount)
   useEffect(() => {
     fetchProjects();
     
-    // Check for existing session on mount
+    // Restore session from localStorage
     const storedSession = localStorage.getItem('fpk_pulse_active_time_session');
     if (storedSession) {
       try {
@@ -44,19 +53,27 @@ export const TimeClockWidget = () => {
           ...session,
           startTime: new Date(session.startTime)
         });
+        
+        // Verify/restore database record
+        if (userIdRef.current) {
+          restoreDatabaseSession(userIdRef.current, session);
+        }
       } catch (error) {
         console.error('Failed to restore session:', error);
         localStorage.removeItem('fpk_pulse_active_time_session');
       }
     }
+  }, []); // Empty dependency - run once on mount
 
-    // Cleanup on unmount or tab close
-    const handleBeforeUnload = async () => {
-      if (user) {
-        await supabase
+  // Effect 2: Setup beforeunload handler (once on mount)
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (userIdRef.current) {
+        // Delete session from database when page is closing
+        supabase
           .from('active_time_sessions')
           .delete()
-          .eq('user_id', user.id);
+          .eq('user_id', userIdRef.current);
       }
     };
 
@@ -64,15 +81,8 @@ export const TimeClockWidget = () => {
 
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
-      // Also cleanup when component unmounts
-      if (user) {
-        supabase
-          .from('active_time_sessions')
-          .delete()
-          .eq('user_id', user.id);
-      }
     };
-  }, [user]);
+  }, []); // Empty dependency - run once on mount
 
   useEffect(() => {
     // Save to localStorage whenever activeSession changes
@@ -83,28 +93,58 @@ export const TimeClockWidget = () => {
     }
   }, [activeSession]);
 
+  // Effect 3: Heartbeat and elapsed time updates
   useEffect(() => {
-    // Update elapsed time every second when active
-    if (!activeSession || !user) return;
+    if (!activeSession) return;
 
-    const interval = setInterval(() => {
+    // Update elapsed time every second
+    const timerInterval = setInterval(() => {
       const elapsed = Math.floor((new Date().getTime() - activeSession.startTime.getTime()) / 1000);
       setElapsedTime(elapsed);
     }, 1000);
 
-    // Heartbeat every 60 seconds to update last_heartbeat
-    const heartbeatInterval = setInterval(async () => {
-      await supabase
-        .from('active_time_sessions')
-        .update({ last_heartbeat: new Date().toISOString() })
-        .eq('user_id', user.id);
+    // Send heartbeat every 60 seconds
+    const heartbeatInterval = setInterval(() => {
+      if (userIdRef.current) {
+        supabase
+          .from('active_time_sessions')
+          .update({ last_heartbeat: new Date().toISOString() })
+          .eq('user_id', userIdRef.current)
+          .then(({ error }) => {
+            if (error) {
+              console.error('Heartbeat failed:', error);
+            }
+          });
+      }
     }, 60000);
 
     return () => {
-      clearInterval(interval);
+      clearInterval(timerInterval);
       clearInterval(heartbeatInterval);
     };
-  }, [activeSession, user]);
+  }, [activeSession]);
+
+  // Helper: Restore database session if missing
+  const restoreDatabaseSession = async (userId: string, session: ActiveSession) => {
+    // Check if session exists in database
+    const { data: existing } = await supabase
+      .from('active_time_sessions')
+      .select('id')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    if (!existing) {
+      // Re-insert the session
+      await supabase
+        .from('active_time_sessions')
+        .insert({
+          user_id: userId,
+          project_id: session.projectId,
+          task_id: session.taskId || null,
+          start_time: new Date(session.startTime).toISOString(),
+        });
+    }
+  };
 
   const fetchProjects = async () => {
     const { data, error } = await supabase
