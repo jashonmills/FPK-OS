@@ -44,7 +44,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   }, []);
 
   return (
-    <SidebarProvider defaultOpen={false}>
+    <SidebarProvider defaultOpen={true}>
       {mounted && isFeatureEnabled('FEATURE_HELP_CENTER') && (
         <Suspense fallback={null}>
           <HelpCenter />
