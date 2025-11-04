@@ -63,9 +63,11 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" className="border-r md:w-64 w-full">
       <SidebarHeader className="border-b border-sidebar-border">
         <div className="flex items-center gap-2 px-2 py-3 md:py-4">
-          <h1 className="text-lg md:text-xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-            FPK Pulse
-          </h1>
+          {!collapsed && (
+            <h1 className="text-lg md:text-xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+              FPK Pulse
+            </h1>
+          )}
         </div>
       </SidebarHeader>
 
