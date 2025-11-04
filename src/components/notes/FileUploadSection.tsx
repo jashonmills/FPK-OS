@@ -42,6 +42,7 @@ const FileUploadSection: React.FC = () => {
   const [processingProgress, setProcessingProgress] = useState<Record<string, number>>({});
   const [processingTimeouts, setProcessingTimeouts] = useState<Record<string, NodeJS.Timeout>>({});
   const subscriptionIdRef = useRef<string>(`notes-upload-${Date.now()}`);
+  const connectionNoticeShownRef = useRef(false);
 
   // Set up centralized subscription with polling fallback
   useEffect(() => {
@@ -151,10 +152,11 @@ const FileUploadSection: React.FC = () => {
 
     subscribe(subscriptionId, handleFileUploadUpdate);
 
-    // If real-time connection fails, show warning and ensure polling fallback
+    // If real-time connection fails, show warning once and ensure polling fallback
     const connectionCheckTimer = cleanup.setTimeout(() => {
-      if (!isConnected) {
+      if (!isConnected && !connectionNoticeShownRef.current) {
         console.log('⚠️ Real-time connection not established, relying on polling fallback');
+        connectionNoticeShownRef.current = true;
         toast({
           title: "Connection Notice",
           description: "Using backup sync method for file processing updates.",
