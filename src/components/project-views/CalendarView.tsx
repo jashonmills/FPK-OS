@@ -227,7 +227,10 @@ export const CalendarView = ({ tasks, projectColor, projectId, onTaskClick, onTa
           events={events}
           startAccessor={(event: CalendarEvent) => event.start as Date}
           endAccessor={(event: CalendarEvent) => event.end as Date}
-          style={{ height: '500px', minHeight: '400px' }}
+          style={{ 
+            height: isMobile ? '1200px' : '700px',
+            minHeight: '400px' 
+          }}
           className="p-2 md:p-4"
           
           // CONTROLLED PROPS - This fixes state corruption bug
