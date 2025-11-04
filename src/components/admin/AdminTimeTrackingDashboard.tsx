@@ -183,7 +183,6 @@ export const AdminTimeTrackingDashboard = () => {
         table: 'active_time_sessions'
       }, () => {
         fetchActiveSessions();
-        fetchKPIs();
       })
       .subscribe();
 
