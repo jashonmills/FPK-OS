@@ -109,11 +109,6 @@ export function AppSidebar() {
       url: "/dashboard/learner/analytics",
       icon: BarChart,
     },
-    ...(shouldShowLiveHub() ? [{
-      title: 'Live Hub',
-      url: "/dashboard/learner/live-hub",
-      icon: Compass,
-    }] : []),
     {
       title: 'AI Study Coach',
       url: "/dashboard/learner/ai-coach",
