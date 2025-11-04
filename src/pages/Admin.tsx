@@ -84,11 +84,11 @@ const Admin = () => {
         </div>
 
         <Tabs defaultValue="team" className="space-y-4 md:space-y-6 w-full">
-          <TabsList className="w-full md:w-auto grid grid-cols-4">
-            <TabsTrigger value="team">Team Members</TabsTrigger>
-            <TabsTrigger value="roles">Roles & Permissions</TabsTrigger>
-            <TabsTrigger value="rates">User Rates</TabsTrigger>
-            <TabsTrigger value="features">Feature Flags</TabsTrigger>
+          <TabsList className="w-full md:w-auto grid grid-cols-2 md:grid-cols-4 gap-1">
+            <TabsTrigger value="team" className="text-xs md:text-sm">Team</TabsTrigger>
+            <TabsTrigger value="roles" className="text-xs md:text-sm">Roles</TabsTrigger>
+            <TabsTrigger value="rates" className="text-xs md:text-sm">Rates</TabsTrigger>
+            <TabsTrigger value="features" className="text-xs md:text-sm">Flags</TabsTrigger>
           </TabsList>
 
           <TabsContent value="team" className="space-y-4 w-full overflow-x-hidden">

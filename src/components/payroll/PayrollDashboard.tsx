@@ -221,12 +221,13 @@ export const PayrollDashboard = () => {
           ) : (
             <Card>
               <CardHeader>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                   <CardTitle>Employee Payroll Data</CardTitle>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col md:flex-row gap-2 w-full md:w-auto">
                     <Button
                       onClick={() => setShowManualEntryDialog(true)}
                       variant="outline"
+                      className="w-full md:w-auto justify-start"
                     >
                       <Plus className="h-4 w-4 mr-2" />
                       Manual Time Entry
@@ -235,6 +236,7 @@ export const PayrollDashboard = () => {
                       onClick={handleExportCSV}
                       disabled={selectedEmployees.length === 0}
                       variant="outline"
+                      className="w-full md:w-auto justify-start"
                     >
                       <Download className="h-4 w-4 mr-2" />
                       Export CSV
@@ -242,6 +244,7 @@ export const PayrollDashboard = () => {
                     <Button
                       onClick={handleOpenPreview}
                       disabled={selectedEmployees.length === 0}
+                      className="w-full md:w-auto justify-start"
                     >
                       <CheckCircle2 className="h-4 w-4 mr-2" />
                       Approve for Payroll

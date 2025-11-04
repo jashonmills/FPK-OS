@@ -60,14 +60,12 @@ export function AppSidebar() {
   );
 
   return (
-    <Sidebar collapsible="icon" className="border-r">
+    <Sidebar collapsible="icon" className="border-r md:w-64 w-full">
       <SidebarHeader className="border-b border-sidebar-border">
         <div className="flex items-center gap-2 px-2 py-3 md:py-4">
-          {!collapsed && (
-            <h1 className="text-lg md:text-xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-              FPK Pulse
-            </h1>
-          )}
+          <h1 className="text-lg md:text-xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+            FPK Pulse
+          </h1>
         </div>
       </SidebarHeader>
 
@@ -93,7 +91,7 @@ export function AppSidebar() {
                       }
                     >
                       <item.icon className="h-5 w-5 md:h-4 md:w-4" />
-                      {!collapsed && <span className="text-sm md:text-base">{item.title}</span>}
+                      <span className="text-sm md:text-base">{item.title}</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -112,7 +110,7 @@ export function AppSidebar() {
             onClick={signOut}
           >
             <LogOut className="h-4 w-4" />
-            {!collapsed && <span className="ml-2">Sign Out</span>}
+            <span className="ml-2">Sign Out</span>
           </Button>
         </div>
       </SidebarFooter>

@@ -24,8 +24,6 @@ interface Project {
 export const TimeClockWidget = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const { state } = useSidebar();
-  const collapsed = state === 'collapsed';
   
   const [activeSession, setActiveSession] = useState<ActiveSession | null>(null);
   const [elapsedTime, setElapsedTime] = useState(0);
@@ -150,14 +148,6 @@ export const TimeClockWidget = () => {
     const secs = seconds % 60;
     return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
-
-  if (collapsed) {
-    return (
-      <div className="flex items-center justify-center p-2" data-time-clock-widget>
-        <Clock className={`h-5 w-5 ${activeSession ? 'text-green-500 animate-pulse' : 'text-muted-foreground'}`} />
-      </div>
-    );
-  }
 
   return (
     <Card className="border-sidebar-border bg-sidebar" data-time-clock-widget>
