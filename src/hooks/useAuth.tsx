@@ -38,8 +38,9 @@ export const useAuth = () => {
                 console.log("✓ B2B signup flow detected. Redirecting to /org/create");
                 localStorage.removeItem('b2b_signup_flow');
                 navigate('/org/create');
-                return;
+                return; // CRITICAL: Stop here to prevent further redirects
               }
+              
               // Don't redirect if user is on the authenticated pricing page or org portal
               const currentPath = window.location.pathname;
               if (currentPath === '/pricing-authenticated' || currentPath.startsWith('/org/')) {
