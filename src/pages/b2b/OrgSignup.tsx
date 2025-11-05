@@ -47,7 +47,11 @@ const OrgSignup = () => {
     setLoading(true);
 
     try {
-      // CRITICAL: Set B2B flag BEFORE signup so it's available immediately when auth state changes
+      // CRITICAL: Force sign out any existing session before B2B signup
+      await supabase.auth.signOut();
+      sessionStorage.clear();
+      
+      // Set B2B flag for routing after signup
       sessionStorage.setItem('b2b_signup_flow', 'true');
       
       const redirectUrl = `${window.location.origin}/org/create`;

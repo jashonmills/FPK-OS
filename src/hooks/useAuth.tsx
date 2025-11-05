@@ -25,6 +25,29 @@ export const useAuth = () => {
         setUser(session?.user ?? null);
         setLoading(false);
 
+        // Detect zombie sessions: if we have a session but user doesn't exist in DB
+        if (session && event === 'SIGNED_IN') {
+          try {
+            const { data: profile, error } = await supabase
+              .from('profiles')
+              .select('id')
+              .eq('id', session.user.id)
+              .single();
+
+            if (error && error.code === 'PGRST116') {
+              // User not found in database - zombie session
+              console.warn('⚠ Zombie session detected: user exists in auth but not in database. Forcing sign out.');
+              await supabase.auth.signOut();
+              localStorage.clear();
+              sessionStorage.clear();
+              window.location.href = '/';
+              return;
+            }
+          } catch (err) {
+            console.error('Error validating user session:', err);
+          }
+        }
+
         // Handle post-login routing
         if (event === 'SIGNED_IN' && session?.user) {
           console.log("User signed in. User ID:", session.user.id);

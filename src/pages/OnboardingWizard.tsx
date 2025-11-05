@@ -31,6 +31,7 @@ const OnboardingWizard = () => {
   const [step, setStep] = useState(1);
   const totalSteps = 4;
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [zombieSessionDetected, setZombieSessionDetected] = useState(false);
   
   // Step 1: Family Setup
   const [familyName, setFamilyName] = useState("");
@@ -62,7 +63,31 @@ const OnboardingWizard = () => {
   useEffect(() => {
     if (!loading && !user) {
       navigate('/auth');
+      return;
     }
+
+    // Validate that the authenticated user actually exists in the database
+    const validateUser = async () => {
+      if (user) {
+        try {
+          const { error } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('id', user.id)
+            .single();
+
+          if (error && error.code === 'PGRST116') {
+            // User doesn't exist in database - zombie session
+            console.warn('⚠ Zombie session detected on onboarding page');
+            setZombieSessionDetected(true);
+          }
+        } catch (err) {
+          console.error('Error validating user:', err);
+        }
+      }
+    };
+
+    validateUser();
   }, [user, loading, navigate]);
 
   if (loading) {
@@ -70,6 +95,40 @@ const OnboardingWizard = () => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-pulse text-muted-foreground">Loading...</div>
       </div>
+    );
+  }
+
+  // Handle zombie session - show error with sign out option
+  if (zombieSessionDetected) {
+    const handleSignOut = async () => {
+      await supabase.auth.signOut();
+      localStorage.clear();
+      sessionStorage.clear();
+      window.location.href = '/';
+    };
+
+    return (
+      <>
+        <AppBackground />
+        <div className="min-h-screen flex items-center justify-center p-4">
+          <Card className="glass-card w-full max-w-md shadow-lg">
+            <CardHeader>
+              <CardTitle className="text-xl text-destructive">Session Error</CardTitle>
+              <CardDescription>
+                Your session appears to be invalid. This can happen if your account was recently deleted.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Please sign out and create a new account to continue.
+              </p>
+              <Button onClick={handleSignOut} className="w-full">
+                Sign Out and Start Over
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </>
     );
   }
 
@@ -256,6 +315,13 @@ const OnboardingWizard = () => {
     }
   };
 
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    localStorage.clear();
+    sessionStorage.clear();
+    navigate('/');
+  };
+
   return (
     <>
       <AppBackground />
@@ -264,7 +330,17 @@ const OnboardingWizard = () => {
           <CardHeader>
             <div className="flex items-center justify-between mb-4">
               <CardTitle className="text-2xl">The 5-Minute Foundation</CardTitle>
-              <span className="text-sm text-muted-foreground">Step {step} of {totalSteps}</span>
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-muted-foreground">Step {step} of {totalSteps}</span>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={handleSignOut}
+                  className="text-xs"
+                >
+                  Sign Out
+                </Button>
+              </div>
             </div>
             <Progress value={progress} className="h-2" />
           </CardHeader>
