@@ -65,12 +65,39 @@ const OrgSignup = () => {
       });
 
       if (signUpError) {
-        // Clear the flag if signup failed
+        // DEFINITIVE FIX: Handle "User already registered" by auto-signing in
+        if (signUpError.message.includes('User already registered')) {
+          toast({
+            title: 'Email already registered',
+            description: 'Attempting to sign you in...',
+          });
+          
+          // Attempt automatic sign-in with provided credentials
+          const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+            email: data.email.trim(),
+            password: data.password,
+          });
+
+          if (signInError) {
+            // Sign-in failed - wrong password or other issue
+            sessionStorage.removeItem('b2b_signup_flow');
+            setError('This email is already registered. Please use the "Already have an account?" link below or reset your password.');
+            return;
+          }
+
+          // Sign-in successful - the b2b_signup_flow flag is already set
+          // useAuth will detect it and redirect to /org/create
+          toast({
+            title: 'Signed in successfully',
+            description: 'Redirecting to organization setup...',
+          });
+          return;
+        }
+        
+        // Other signup errors
         sessionStorage.removeItem('b2b_signup_flow');
         
-        if (signUpError.message.includes('User already registered')) {
-          setError('An account with this email already exists. Please sign in instead.');
-        } else if (signUpError.message.includes('Password should be')) {
+        if (signUpError.message.includes('Password should be')) {
           setError('Password does not meet security requirements.');
         } else {
           setError(signUpError.message);

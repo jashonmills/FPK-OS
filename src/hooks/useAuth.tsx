@@ -36,7 +36,21 @@ export const useAuth = () => {
 
             if (error && error.code === 'PGRST116') {
               // User not found in database - zombie session
-              console.warn('⚠ Zombie session detected: user exists in auth but not in database. Forcing sign out.');
+              console.warn('⚠ Zombie session detected: user exists in auth but not in database.');
+              
+              // DEFINITIVE FIX: Check for B2B context before signing out
+              const b2bSignupFlow = sessionStorage.getItem('b2b_signup_flow');
+              const b2bLoginContext = sessionStorage.getItem('b2b_login_context');
+              
+              if (b2bSignupFlow === 'true' || b2bLoginContext === 'true') {
+                console.log('✓ Zombie session with B2B context. Allowing redirect to /org/create');
+                // Don't sign out - let the user proceed to org creation
+                // The profile will be created during org setup
+                return;
+              }
+              
+              // No B2B context - force sign out
+              console.warn('⚠ Zombie session without B2B context. Forcing sign out.');
               await supabase.auth.signOut();
               localStorage.clear();
               sessionStorage.clear();
