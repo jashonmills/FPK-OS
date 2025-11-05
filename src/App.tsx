@@ -76,8 +76,17 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 const FeatureFlaggedRoute = ({ flag, children }: { flag: string; children: React.ReactNode }) => {
   const { flags, loading } = useFeatureFlags([flag]);
   
-  if (loading) return null;
-  if (!flags[flag]) return <Navigate to="/dashboard" replace />;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-pulse text-muted-foreground">Checking permissions...</div>
+      </div>
+    );
+  }
+  
+  if (!flags[flag]) {
+    return <Navigate to="/dashboard" replace />;
+  }
   
   return <>{children}</>;
 };

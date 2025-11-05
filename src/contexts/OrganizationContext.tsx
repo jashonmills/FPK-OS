@@ -43,6 +43,7 @@ interface OrganizationContextType {
   students: Student[];
   organizationMembership: OrganizationMember | null;
   isLoading: boolean;
+  hasOrganizationMembership: boolean;
   setSelectedOrganization: (org: Organization | null) => void;
   setSelectedStudent: (student: Student | null) => void;
   refreshOrganizations: () => Promise<void>;
@@ -225,6 +226,7 @@ export const OrganizationProvider = ({ children }: OrganizationProviderProps) =>
         students,
         organizationMembership,
         isLoading,
+        hasOrganizationMembership: organizations.length > 0,
         setSelectedOrganization,
         setSelectedStudent,
         refreshOrganizations,
