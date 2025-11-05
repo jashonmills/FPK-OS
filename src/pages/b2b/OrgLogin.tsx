@@ -31,10 +31,10 @@ const OrgLogin = () => {
   const [error, setError] = useState('');
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
 
-  // If already logged in, redirect to org dashboard
-  if (user && !authLoading) {
-    navigate('/org/dashboard');
-    return null;
+  // Don't redirect during render - let useAuth handle B2B routing
+  // This prevents race conditions with useAuth's navigation logic
+  if (authLoading) {
+    return null; // Show nothing while checking auth state
   }
 
   const handleLogin = async (e: React.FormEvent) => {
