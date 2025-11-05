@@ -43,12 +43,18 @@ const OrgLogin = () => {
     setLoading(true);
 
     try {
+      // Set B2B login context flag so dual members go to B2B portal
+      sessionStorage.setItem('b2b_login_context', 'true');
+      
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password,
       });
 
       if (signInError) {
+        // Clear the flag if login failed
+        sessionStorage.removeItem('b2b_login_context');
+        
         if (signInError.message.includes('Invalid login credentials')) {
           setError('Invalid email or password. Please try again.');
         } else if (signInError.message.includes('Email not confirmed')) {

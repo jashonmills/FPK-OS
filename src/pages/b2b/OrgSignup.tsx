@@ -48,7 +48,7 @@ const OrgSignup = () => {
 
     try {
       // CRITICAL: Set B2B flag BEFORE signup so it's available immediately when auth state changes
-      localStorage.setItem('b2b_signup_flow', 'true');
+      sessionStorage.setItem('b2b_signup_flow', 'true');
       
       const redirectUrl = `${window.location.origin}/org/create`;
 
@@ -62,7 +62,7 @@ const OrgSignup = () => {
 
       if (signUpError) {
         // Clear the flag if signup failed
-        localStorage.removeItem('b2b_signup_flow');
+        sessionStorage.removeItem('b2b_signup_flow');
         
         if (signUpError.message.includes('User already registered')) {
           setError('An account with this email already exists. Please sign in instead.');
@@ -74,13 +74,14 @@ const OrgSignup = () => {
         return;
       }
 
-      // Success - user will be auto-logged in and redirected by useAuth
+      // Success - explicitly navigate with context parameter
       toast({
         title: 'Account created!',
         description: 'Setting up your organization portal...',
       });
 
-      // The useAuth hook will detect the b2b_signup_flow flag and redirect to /org/create
+      // Explicitly navigate to org creation with B2B context parameter
+      navigate('/org/create?context=b2b');
     } catch (err) {
       setError('An unexpected error occurred. Please try again.');
       console.error('Signup error:', err);

@@ -32,11 +32,16 @@ export const useAuth = () => {
           // Use setTimeout to defer the navigation check
           setTimeout(async () => {
             try {
-              // Check for B2B signup flow flag FIRST
-              const b2bSignupFlow = localStorage.getItem('b2b_signup_flow');
-              if (b2bSignupFlow === 'true') {
-                console.log("✓ B2B signup flow detected. Redirecting to /org/create");
-                localStorage.removeItem('b2b_signup_flow');
+              // Check for B2B context (URL parameter, signup flow, or login context)
+              const urlParams = new URLSearchParams(window.location.search);
+              const urlContext = urlParams.get('context');
+              const signupContext = sessionStorage.getItem('b2b_signup_flow');
+              const loginContext = sessionStorage.getItem('b2b_login_context');
+
+              if (urlContext === 'b2b' || signupContext === 'true' || loginContext === 'true') {
+                console.log("✓ B2B context detected (URL, signup, or login). Redirecting to /org/create");
+                sessionStorage.removeItem('b2b_signup_flow');
+                sessionStorage.removeItem('b2b_login_context');
                 navigate('/org/create');
                 return; // CRITICAL: Stop here to prevent further redirects
               }
@@ -51,7 +56,6 @@ export const useAuth = () => {
               }
 
               // Check for redirect parameter in URL
-              const urlParams = new URLSearchParams(window.location.search);
               const redirectUrl = urlParams.get('redirect');
               
               // PRIORITY 1: Check user membership type (B2B vs B2C) FIRST
@@ -123,9 +127,15 @@ export const useAuth = () => {
                 return; // CRITICAL: Stop here
               }
 
-              // NO MEMBERSHIP: New user - redirect to B2C onboarding to create family
-              console.log("✗ No membership detected. Redirecting to B2C onboarding.");
-              navigate('/onboarding');
+              // NO MEMBERSHIP: Check context before defaulting to B2C
+              const isB2BPath = currentPath.startsWith('/org/');
+              if (isB2BPath) {
+                console.log("✗ No membership but B2B path detected. Redirecting to /org/create");
+                navigate('/org/create');
+              } else {
+                console.log("✗ No membership detected. Redirecting to B2C onboarding.");
+                navigate('/onboarding');
+              }
             } catch (error) {
               console.error("Exception checking onboarding/profile status:", error);
               console.log("Falling back to dashboard due to exception");
