@@ -6,6 +6,7 @@
 // For static deployment, hardcode the values
 const API_URL = 'https://zgcegkmqfgznbpdplscz.supabase.co/functions/v1/library-portal-api';
 const API_KEY = 'fe38cbda-22b2-4958-83ee-b407e249ce88';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpnY2Vna21xZmd6bmJwZHBsc2N6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MDcxNTgsImV4cCI6MjA2NDk4MzE1OH0.RCtAqfgz7aqjG-QWiOqFBCG5xg2Rok9T4tbyGQMnCm8';
 
 export interface Course {
   id: string;
@@ -48,6 +49,7 @@ export interface LessonDetail {
 async function fetchAPI(endpoint: string) {
   const response = await fetch(`${API_URL}${endpoint}`, {
     headers: {
+      'authorization': `Bearer ${SUPABASE_ANON_KEY}`,
       'x-library-api-key': API_KEY,
       'Content-Type': 'application/json',
     },
