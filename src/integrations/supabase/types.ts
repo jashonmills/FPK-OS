@@ -4251,6 +4251,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      user_can_access_org: {
+        Args: { _org_id: string; _user_id: string }
+        Returns: boolean
+      }
       users_share_family: {
         Args: { _user_id_1: string; _user_id_2: string }
         Returns: boolean
