@@ -41,9 +41,12 @@ export const useAuth = () => {
                 return; // CRITICAL: Stop here to prevent further redirects
               }
               
-              // Don't redirect if user is on the authenticated pricing page or org portal
+              // Only prevent redirects if already on destination pages, not auth pages
               const currentPath = window.location.pathname;
-              if (currentPath === '/pricing-authenticated' || currentPath.startsWith('/org/')) {
+              if (currentPath === '/pricing-authenticated' || 
+                  currentPath === '/org/dashboard' || 
+                  currentPath === '/org/students' || 
+                  currentPath === '/org/create') {
                 return;
               }
 
@@ -51,35 +54,7 @@ export const useAuth = () => {
               const urlParams = new URLSearchParams(window.location.search);
               const redirectUrl = urlParams.get('redirect');
               
-              // First check if profile setup is complete
-              const { data: profileData, error: profileError } = await supabase
-                .from('profiles')
-                .select('has_completed_profile_setup')
-                .eq('id', session.user.id)
-                .single();
-
-              if (profileError) {
-                console.error("Error checking profile setup:", profileError);
-              }
-
-              // If profile setup is not complete, redirect to profile setup (preserving redirect param)
-              if (!profileData?.has_completed_profile_setup) {
-                console.log("Profile setup incomplete. Redirecting to profile-setup.");
-                const profileUrl = redirectUrl 
-                  ? `/profile-setup?redirect=${encodeURIComponent(redirectUrl)}`
-                  : '/profile-setup';
-                navigate(profileUrl);
-                return;
-              }
-
-              // If profile is complete AND redirect exists, go there (invited member flow)
-              if (redirectUrl) {
-                console.log("Profile complete, following redirect:", redirectUrl);
-                navigate(redirectUrl);
-                return;
-              }
-
-              // Check user membership type (family vs organization)
+              // PRIORITY 1: Check user membership type (B2B vs B2C) FIRST
               const [familyMembership, orgMembership] = await Promise.all([
                 supabase.from('family_members').select('id').eq('user_id', session.user.id).limit(1),
                 supabase.from('organization_members').select('id').eq('user_id', session.user.id).eq('is_active', true).limit(1)
@@ -88,16 +63,48 @@ export const useAuth = () => {
               const hasFamily = (familyMembership.data?.length || 0) > 0;
               const hasOrg = (orgMembership.data?.length || 0) > 0;
 
-              console.log("Membership check - Family:", hasFamily, "Organization:", hasOrg);
+              console.log("🔍 Membership check - Family:", hasFamily, "Organization:", hasOrg);
 
-              // Determine redirect based on membership type
+              // B2B FLOW: Pure organization users go straight to org dashboard
               if (hasOrg && !hasFamily) {
-                // Pure B2B user - go to org dashboard
-                console.log("✓ Organization member detected. Redirecting to org dashboard.");
+                console.log("✓ B2B USER: Redirecting to organization dashboard");
                 navigate('/org/dashboard');
-              } else if (hasFamily) {
-                // B2C user or dual member - check onboarding
-                console.log("Checking onboarding status for family member...");
+                return; // CRITICAL: Stop here - no profile setup checks for B2B
+              }
+
+              // B2C FLOW: Family users need profile setup check
+              if (hasFamily) {
+                console.log("✓ B2C USER: Checking profile and onboarding status");
+                
+                // Check if profile setup is complete
+                const { data: profileData, error: profileError } = await supabase
+                  .from('profiles')
+                  .select('has_completed_profile_setup')
+                  .eq('id', session.user.id)
+                  .single();
+
+                if (profileError) {
+                  console.error("Error checking profile setup:", profileError);
+                }
+
+                // If profile setup is not complete, redirect to profile setup (preserving redirect param)
+                if (!profileData?.has_completed_profile_setup) {
+                  console.log("Profile setup incomplete. Redirecting to profile-setup.");
+                  const profileUrl = redirectUrl 
+                    ? `/profile-setup?redirect=${encodeURIComponent(redirectUrl)}`
+                    : '/profile-setup';
+                  navigate(profileUrl);
+                  return;
+                }
+
+                // If profile is complete AND redirect exists, go there (invited member flow)
+                if (redirectUrl) {
+                  console.log("Profile complete, following redirect:", redirectUrl);
+                  navigate(redirectUrl);
+                  return;
+                }
+
+                // Check onboarding status
                 const { data: hasCompletedOnboarding, error } = await supabase.rpc('check_user_onboarding_status');
 
                 if (error) {
@@ -113,11 +120,12 @@ export const useAuth = () => {
                   console.log("✗ New user detected. Redirecting to onboarding.");
                   navigate('/onboarding');
                 }
-              } else {
-                // No membership - redirect to onboarding to create family
-                console.log("✗ No membership detected. Redirecting to onboarding.");
-                navigate('/onboarding');
+                return; // CRITICAL: Stop here
               }
+
+              // NO MEMBERSHIP: New user - redirect to B2C onboarding to create family
+              console.log("✗ No membership detected. Redirecting to B2C onboarding.");
+              navigate('/onboarding');
             } catch (error) {
               console.error("Exception checking onboarding/profile status:", error);
               console.log("Falling back to dashboard due to exception");
