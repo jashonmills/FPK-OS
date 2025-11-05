@@ -2461,6 +2461,178 @@ export type Database = {
         }
         Relationships: []
       }
+      organization_invites: {
+        Row: {
+          accepted_at: string | null
+          created_at: string
+          expires_at: string
+          id: string
+          invitee_email: string
+          inviter_id: string
+          organization_id: string
+          role: string
+          status: string
+          token: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          invitee_email: string
+          inviter_id: string
+          organization_id: string
+          role: string
+          status?: string
+          token?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          invitee_email?: string
+          inviter_id?: string
+          organization_id?: string
+          role?: string
+          status?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_invites_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organization_members: {
+        Row: {
+          caseload_student_ids: string[] | null
+          department: string | null
+          id: string
+          invited_by: string | null
+          is_active: boolean
+          job_title: string | null
+          joined_at: string
+          organization_id: string
+          permissions: Json | null
+          role: string
+          user_id: string
+        }
+        Insert: {
+          caseload_student_ids?: string[] | null
+          department?: string | null
+          id?: string
+          invited_by?: string | null
+          is_active?: boolean
+          job_title?: string | null
+          joined_at?: string
+          organization_id: string
+          permissions?: Json | null
+          role: string
+          user_id: string
+        }
+        Update: {
+          caseload_student_ids?: string[] | null
+          department?: string | null
+          id?: string
+          invited_by?: string | null
+          is_active?: boolean
+          job_title?: string | null
+          joined_at?: string
+          organization_id?: string
+          permissions?: Json | null
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_members_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organizations: {
+        Row: {
+          address_line1: string | null
+          address_line2: string | null
+          billing_email: string | null
+          city: string | null
+          country: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          is_active: boolean
+          logo_url: string | null
+          max_staff: number | null
+          max_students: number | null
+          org_name: string
+          org_type: string
+          phone: string | null
+          postal_code: string | null
+          state: string | null
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          subscription_tier: string
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          address_line1?: string | null
+          address_line2?: string | null
+          billing_email?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          logo_url?: string | null
+          max_staff?: number | null
+          max_students?: number | null
+          org_name: string
+          org_type: string
+          phone?: string | null
+          postal_code?: string | null
+          state?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_tier?: string
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          address_line1?: string | null
+          address_line2?: string | null
+          billing_email?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          logo_url?: string | null
+          max_staff?: number | null
+          max_students?: number | null
+          org_name?: string
+          org_type?: string
+          phone?: string | null
+          postal_code?: string | null
+          state?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_tier?: string
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
       parent_logs: {
         Row: {
           activity_type: string
@@ -3075,6 +3247,7 @@ export type Database = {
       }
       students: {
         Row: {
+          added_by_org_member_id: string | null
           created_at: string | null
           date_of_birth: string
           family_id: string
@@ -3082,6 +3255,7 @@ export type Database = {
           id: string
           is_active: boolean | null
           metadata: Json | null
+          organization_id: string | null
           personal_notes: string | null
           photo_url: string | null
           primary_diagnosis: string[] | null
@@ -3092,6 +3266,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          added_by_org_member_id?: string | null
           created_at?: string | null
           date_of_birth: string
           family_id: string
@@ -3099,6 +3274,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           metadata?: Json | null
+          organization_id?: string | null
           personal_notes?: string | null
           photo_url?: string | null
           primary_diagnosis?: string[] | null
@@ -3109,6 +3285,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          added_by_org_member_id?: string | null
           created_at?: string | null
           date_of_birth?: string
           family_id?: string
@@ -3116,6 +3293,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           metadata?: Json | null
+          organization_id?: string | null
           personal_notes?: string | null
           photo_url?: string | null
           primary_diagnosis?: string[] | null
@@ -3127,10 +3305,24 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "students_added_by_org_member_id_fkey"
+            columns: ["added_by_org_member_id"]
+            isOneToOne: false
+            referencedRelation: "organization_members"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "students_family_id_fkey"
             columns: ["family_id"]
             isOneToOne: false
             referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "students_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -3970,6 +4162,7 @@ export type Database = {
       get_user_family_role:
         | { Args: { p_family_id: string }; Returns: string }
         | { Args: { _family_id: string; _user_id: string }; Returns: string }
+      get_user_org_role: { Args: { _org_id: string }; Returns: string }
       get_weekly_mood_counts: {
         Args: { p_family_id: string; p_student_id: string }
         Returns: {
@@ -4002,6 +4195,14 @@ export type Database = {
       }
       is_family_owner: {
         Args: { _family_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_organization_admin: {
+        Args: { _org_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_organization_member: {
+        Args: { _org_id: string; _user_id: string }
         Returns: boolean
       }
       mark_expired_invites: { Args: never; Returns: undefined }

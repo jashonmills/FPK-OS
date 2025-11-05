@@ -60,7 +60,8 @@ export const AppSidebar = () => {
   const { flags } = useFeatureFlags([
     'enable-chart-library-access',
     'enable-knowledge-base-manager',
-    'enable-assessment-hub'
+    'enable-assessment-hub',
+    'b2b_portal_active'
   ]);
 
   // Check if user is admin
@@ -251,6 +252,25 @@ export const AppSidebar = () => {
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>}
+
+        {/* B2B Organization Portal Link (Feature Flag Protected) */}
+        {flags['b2b_portal_active'] && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Organization Portal</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <a href="/org/dashboard">
+                      <Database className="h-4 w-4" />
+                      <span>Switch to B2B Portal</span>
+                    </a>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
 
       <SidebarFooter>

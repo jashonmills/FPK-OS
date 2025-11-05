@@ -32,9 +32,9 @@ export const useAuth = () => {
           // Use setTimeout to defer the navigation check
           setTimeout(async () => {
             try {
-              // Don't redirect if user is on the authenticated pricing page
+              // Don't redirect if user is on the authenticated pricing page or org portal
               const currentPath = window.location.pathname;
-              if (currentPath === '/pricing-authenticated') {
+              if (currentPath === '/pricing-authenticated' || currentPath.startsWith('/org/')) {
                 return;
               }
 
@@ -70,24 +70,43 @@ export const useAuth = () => {
                 return;
               }
 
-              // Then check onboarding status
-              console.log("Checking onboarding status...");
-              const { data: hasCompletedOnboarding, error } = await supabase.rpc('check_user_onboarding_status');
+              // Check user membership type (family vs organization)
+              const [familyMembership, orgMembership] = await Promise.all([
+                supabase.from('family_members').select('id').eq('user_id', session.user.id).limit(1),
+                supabase.from('organization_members').select('id').eq('user_id', session.user.id).eq('is_active', true).limit(1)
+              ]);
 
-              console.log("RPC call completed. Data:", hasCompletedOnboarding, "Error:", error);
+              const hasFamily = (familyMembership.data?.length || 0) > 0;
+              const hasOrg = (orgMembership.data?.length || 0) > 0;
 
-              if (error) {
-                console.error("Error checking onboarding status:", error);
-                console.log("Falling back to overview due to error");
-                navigate('/overview');
-                return;
-              }
+              console.log("Membership check - Family:", hasFamily, "Organization:", hasOrg);
 
-              if (hasCompletedOnboarding) {
-                console.log("✓ User has completed onboarding. Redirecting to overview.");
-                navigate('/overview');
+              // Determine redirect based on membership type
+              if (hasOrg && !hasFamily) {
+                // Pure B2B user - go to org dashboard
+                console.log("✓ Organization member detected. Redirecting to org dashboard.");
+                navigate('/org/dashboard');
+              } else if (hasFamily) {
+                // B2C user or dual member - check onboarding
+                console.log("Checking onboarding status for family member...");
+                const { data: hasCompletedOnboarding, error } = await supabase.rpc('check_user_onboarding_status');
+
+                if (error) {
+                  console.error("Error checking onboarding status:", error);
+                  navigate('/overview');
+                  return;
+                }
+
+                if (hasCompletedOnboarding) {
+                  console.log("✓ User has completed onboarding. Redirecting to overview.");
+                  navigate('/overview');
+                } else {
+                  console.log("✗ New user detected. Redirecting to onboarding.");
+                  navigate('/onboarding');
+                }
               } else {
-                console.log("✗ New user detected. Redirecting to onboarding.");
+                // No membership - redirect to onboarding to create family
+                console.log("✗ No membership detected. Redirecting to onboarding.");
                 navigate('/onboarding');
               }
             } catch (error) {

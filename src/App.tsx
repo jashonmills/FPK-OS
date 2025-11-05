@@ -48,6 +48,10 @@ import AssessmentHub from "./pages/AssessmentHub";
 import WizardRunner from "./pages/WizardRunner";
 import { CookieConsent } from "./components/legal/CookieConsent";
 import { useFeatureFlags } from "@/hooks/useFeatureFlags";
+import { lazy, Suspense } from "react";
+
+// Lazy load B2B routes (only loaded when feature flag is enabled)
+const B2BRoutes = lazy(() => import("./pages/b2b/B2BRoutes").then(m => ({ default: m.B2BRoutes })));
 
 const queryClient = new QueryClient();
 
@@ -316,6 +320,23 @@ const App = () => (
                     <AppLayout>
                       <AdminStripe />
                     </AppLayout>
+                  </FeatureFlaggedRoute>
+                </ProtectedRoute>
+              }
+            />
+            {/* B2B Organization Portal Routes (Feature Flag Protected) */}
+            <Route
+              path="/org/*"
+              element={
+                <ProtectedRoute>
+                  <FeatureFlaggedRoute flag="b2b_portal_active">
+                    <Suspense fallback={
+                      <div className="min-h-screen flex items-center justify-center">
+                        <div className="animate-pulse text-muted-foreground">Loading organization portal...</div>
+                      </div>
+                    }>
+                      <B2BRoutes />
+                    </Suspense>
                   </FeatureFlaggedRoute>
                 </ProtectedRoute>
               }
