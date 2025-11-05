@@ -55,7 +55,7 @@ export const useAuth = () => {
           // Use setTimeout to defer the navigation check
           setTimeout(async () => {
             try {
-              // Check for B2B context (URL parameter, signup flow, or login context)
+              // PRIORITY 0: Check for B2B context FIRST (before any DB queries)
               const urlParams = new URLSearchParams(window.location.search);
               const urlContext = urlParams.get('context');
               const signupContext = sessionStorage.getItem('b2b_signup_flow');
@@ -69,19 +69,21 @@ export const useAuth = () => {
                 return; // CRITICAL: Stop here to prevent further redirects
               }
               
-              // Only prevent redirects if already on destination pages, not auth pages
+              // Only prevent redirects if already on destination pages
               const currentPath = window.location.pathname;
               if (currentPath === '/pricing-authenticated' || 
                   currentPath === '/org/dashboard' || 
                   currentPath === '/org/students' || 
-                  currentPath === '/org/create') {
+                  currentPath === '/org/create' ||
+                  currentPath === '/org/signup' ||
+                  currentPath === '/org/login') {
                 return;
               }
 
               // Check for redirect parameter in URL
               const redirectUrl = urlParams.get('redirect');
               
-              // PRIORITY 1: Check user membership type (B2B vs B2C) FIRST
+              // PRIORITY 1: Check user membership type (B2B vs B2C)
               const [familyMembership, orgMembership] = await Promise.all([
                 supabase.from('family_members').select('id').eq('user_id', session.user.id).limit(1),
                 supabase.from('organization_members').select('id').eq('user_id', session.user.id).eq('is_active', true).limit(1)

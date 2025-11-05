@@ -78,14 +78,14 @@ const OrgSignup = () => {
         return;
       }
 
-      // Success - explicitly navigate with context parameter
+      // Success - let useAuth handle the redirect via the b2b_signup_flow flag
       toast({
         title: 'Account created!',
         description: 'Setting up your organization portal...',
       });
 
-      // Explicitly navigate to org creation with B2B context parameter
-      navigate('/org/create?context=b2b');
+      // Don't navigate here - let useAuth detect the sessionStorage flag and handle routing
+      // This prevents race condition between two navigation calls
     } catch (err) {
       setError('An unexpected error occurred. Please try again.');
       console.error('Signup error:', err);
