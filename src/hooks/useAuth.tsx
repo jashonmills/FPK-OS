@@ -32,6 +32,14 @@ export const useAuth = () => {
           // Use setTimeout to defer the navigation check
           setTimeout(async () => {
             try {
+              // Check for B2B signup flow flag FIRST
+              const b2bSignupFlow = localStorage.getItem('b2b_signup_flow');
+              if (b2bSignupFlow === 'true') {
+                console.log("✓ B2B signup flow detected. Redirecting to /org/create");
+                localStorage.removeItem('b2b_signup_flow');
+                navigate('/org/create');
+                return;
+              }
               // Don't redirect if user is on the authenticated pricing page or org portal
               const currentPath = window.location.pathname;
               if (currentPath === '/pricing-authenticated' || currentPath.startsWith('/org/')) {

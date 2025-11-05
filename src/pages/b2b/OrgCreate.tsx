@@ -79,6 +79,17 @@ export const OrgCreate = () => {
 
       if (memberError) throw memberError;
 
+      // Step 3: Mark profile setup as complete
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ has_completed_profile_setup: true })
+        .eq('id', user.id);
+
+      if (profileError) {
+        console.error('Error updating profile:', profileError);
+        // Non-fatal - don't throw
+      }
+
       toast.success('Organization created successfully!');
 
       // Refresh the organization context
