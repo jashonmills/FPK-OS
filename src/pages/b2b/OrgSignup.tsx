@@ -47,6 +47,9 @@ const OrgSignup = () => {
     setLoading(true);
 
     try {
+      // CRITICAL: Set B2B flag BEFORE signup so it's available immediately when auth state changes
+      localStorage.setItem('b2b_signup_flow', 'true');
+      
       const redirectUrl = `${window.location.origin}/org/create`;
 
       const { error: signUpError } = await supabase.auth.signUp({
@@ -58,6 +61,9 @@ const OrgSignup = () => {
       });
 
       if (signUpError) {
+        // Clear the flag if signup failed
+        localStorage.removeItem('b2b_signup_flow');
+        
         if (signUpError.message.includes('User already registered')) {
           setError('An account with this email already exists. Please sign in instead.');
         } else if (signUpError.message.includes('Password should be')) {
@@ -67,9 +73,6 @@ const OrgSignup = () => {
         }
         return;
       }
-
-      // Set flag to indicate B2B signup flow
-      localStorage.setItem('b2b_signup_flow', 'true');
 
       // Success - user will be auto-logged in and redirected by useAuth
       toast({
