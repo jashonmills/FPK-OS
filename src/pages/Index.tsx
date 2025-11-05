@@ -80,24 +80,28 @@ const Index = () => {
             Empower families, therapists, and educators to collaborate on student progress tracking
             for autism, ADHD, and other special needs.
           </p>
-          <div className="flex gap-4 justify-center flex-wrap">
-            <Button
-              size="lg"
-              variant="secondary"
-              onClick={() => navigate('/auth')}
-              className="text-lg px-8"
-            >
-              Get Started Free
-              <ArrowRight className="ml-2" />
-            </Button>
+          <div className="space-y-4">
+            <div className="flex gap-4 justify-center flex-wrap">
+              <Button
+                size="lg"
+                variant="secondary"
+                onClick={() => navigate('/auth')}
+                className="text-lg px-8"
+              >
+                For Parents & Families
+                <ArrowRight className="ml-2" />
+              </Button>
               <Button
                 size="lg"
                 variant="outline"
-                onClick={() => navigate('/auth')}
+                onClick={() => navigate('/org/login')}
                 className="text-lg px-8 glass"
               >
-                Sign In
+                For Schools & Organizations
+                <ArrowRight className="ml-2" />
               </Button>
+            </div>
+            <div className="flex gap-4 justify-center flex-wrap">
               <Button
                 size="lg"
                 variant="ghost"
@@ -106,6 +110,7 @@ const Index = () => {
               >
                 Browse Guides
               </Button>
+            </div>
           </div>
           </div>
         </section>

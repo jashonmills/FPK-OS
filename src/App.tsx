@@ -49,6 +49,8 @@ import WizardRunner from "./pages/WizardRunner";
 import { CookieConsent } from "./components/legal/CookieConsent";
 import { useFeatureFlags } from "@/hooks/useFeatureFlags";
 import { lazy, Suspense } from "react";
+import OrgLogin from "./pages/b2b/OrgLogin";
+import OrgSignup from "./pages/b2b/OrgSignup";
 
 // Lazy load B2B routes (only loaded when feature flag is enabled)
 const B2BRoutes = lazy(() => import("./pages/b2b/B2BRoutes").then(m => ({ default: m.B2BRoutes })));
@@ -333,7 +335,11 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
-            {/* B2B Organization Portal Routes (Feature Flag Protected) */}
+            {/* B2B Organization Portal - Public Authentication Routes */}
+            <Route path="/org/login" element={<OrgLogin />} />
+            <Route path="/org/signup" element={<OrgSignup />} />
+            
+            {/* B2B Organization Portal - Protected Routes (Feature Flag Protected) */}
             <Route
               path="/org/*"
               element={
