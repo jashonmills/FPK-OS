@@ -125,8 +125,12 @@ export const useAuth = () => {
             }
           }, 100);
         } else if (event === 'SIGNED_OUT') {
-          console.log("User signed out. Redirecting to auth.");
-          navigate('/auth');
+          const currentPath = window.location.pathname;
+          // Don't redirect if user is on B2B auth pages
+          if (!currentPath.startsWith('/org/login') && !currentPath.startsWith('/org/signup')) {
+            console.log("User signed out. Redirecting to auth.");
+            navigate('/auth');
+          }
         }
       }
     );
