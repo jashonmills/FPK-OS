@@ -26,9 +26,14 @@ interface OrganizationMember {
 interface Student {
   id: string;
   student_name: string;
-  date_of_birth?: string;
+  date_of_birth: string;
   grade_level?: string;
   organization_id?: string;
+  school_name?: string;
+  primary_diagnosis?: string[];
+  secondary_conditions?: string[];
+  profile_image_url?: string;
+  is_active?: boolean;
 }
 
 interface OrganizationContextType {
