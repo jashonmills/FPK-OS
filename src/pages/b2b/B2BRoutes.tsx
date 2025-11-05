@@ -1,6 +1,5 @@
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { OrgLayout } from '@/components/layout/OrgLayout';
 import { OrgDashboard } from './OrgDashboard';
 import { OrgStudents } from './OrgStudents';
