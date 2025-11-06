@@ -81,7 +81,8 @@ const OrgSignup = () => {
           if (signInError) {
             // Sign-in failed - wrong password or other issue
             sessionStorage.removeItem('b2b_signup_flow');
-            setError('This email is already registered. Please use the "Already have an account?" link below or reset your password.');
+            setLoading(false);
+            setError('This email is already registered with a different password. Please use the "Already have an account?" link below to sign in, or contact support if you forgot your password.');
             return;
           }
 
@@ -91,11 +92,13 @@ const OrgSignup = () => {
             title: 'Signed in successfully',
             description: 'Redirecting to organization setup...',
           });
+          setLoading(false);
           return;
         }
         
         // Other signup errors
         sessionStorage.removeItem('b2b_signup_flow');
+        setLoading(false);
         
         if (signUpError.message.includes('Password should be')) {
           setError('Password does not meet security requirements.');
