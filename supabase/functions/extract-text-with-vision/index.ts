@@ -194,6 +194,12 @@ If you cannot return valid JSON, return only the extracted text.`
         if (!anthropicResponse.ok) {
           const errorText = await anthropicResponse.text();
           
+          // Handle PDF page limit (Anthropic only supports up to 100 pages)
+          if (errorText.includes('maximum of 100 PDF pages')) {
+            console.error('❌ PDF exceeds 100-page limit');
+            throw new Error('PDF exceeds Anthropic\'s 100-page limit. Please split the document into smaller files (max 100 pages each) or use a different format.');
+          }
+          
           // Handle rate limiting with aggressive backoff for Anthropic's 10k tokens/minute limit
           if (anthropicResponse.status === 429) {
             // Use much longer delays: 15s, 30s, 45s to allow rate limit window to reset
