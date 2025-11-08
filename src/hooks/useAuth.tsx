@@ -64,10 +64,21 @@ export const useAuth = () => {
 
         // Handle post-login routing
         if (event === 'SIGNED_IN' && session?.user) {
-          console.log("User signed in. User ID:", session.user.id);
+          console.log("🔐 User signed in. User ID:", session.user.id);
           
           // Use setTimeout to defer the navigation check
           setTimeout(async () => {
+            // Safety timeout: if navigation takes >5s, force to default page
+            const navigationTimeout = setTimeout(() => {
+              console.error('⚠️ Navigation timeout - forcing default redirect');
+              const currentPath = window.location.pathname;
+              if (currentPath.startsWith('/org/')) {
+                navigate('/org/dashboard');
+              } else {
+                navigate('/overview');
+              }
+            }, 5000);
+
             try {
               // PRIORITY 0: Check for B2B context FIRST (before any DB queries)
               const urlParams = new URLSearchParams(window.location.search);
@@ -76,11 +87,12 @@ export const useAuth = () => {
               const loginContext = sessionStorage.getItem('b2b_login_context');
 
               if (urlContext === 'b2b' || signupContext === 'true' || loginContext === 'true') {
-                console.log("✓ B2B context detected (URL, signup, or login). Redirecting to /org/create");
+                console.log("✓ B2B context detected. Redirecting to /org/create");
                 sessionStorage.removeItem('b2b_signup_flow');
                 sessionStorage.removeItem('b2b_login_context');
+                clearTimeout(navigationTimeout);
                 navigate('/org/create');
-                return; // CRITICAL: Stop here to prevent further redirects
+                return;
               }
               
               // Only prevent redirects if already on destination pages
@@ -91,11 +103,14 @@ export const useAuth = () => {
                   currentPath === '/org/create' ||
                   currentPath === '/org/signup' ||
                   currentPath === '/org/login') {
+                clearTimeout(navigationTimeout);
                 return;
               }
 
               // Check for redirect parameter in URL
               const redirectUrl = urlParams.get('redirect');
+              
+              console.log("🔍 Checking memberships...");
               
               // PRIORITY 1: Check user membership type (B2B vs B2C)
               const [familyMembership, orgMembership] = await Promise.all([
@@ -108,11 +123,27 @@ export const useAuth = () => {
 
               console.log("🔍 Membership check - Family:", hasFamily, "Organization:", hasOrg);
 
+              // DUAL MEMBERSHIP PRIORITY: Use current path context to decide
+              if (hasOrg && hasFamily) {
+                console.log("👥 Dual membership detected");
+                clearTimeout(navigationTimeout);
+                // If on B2B path or login came from B2B, go to org dashboard
+                if (currentPath.startsWith('/org/') || loginContext === 'true') {
+                  console.log("✓ Redirecting to /org/dashboard (B2B context)");
+                  navigate('/org/dashboard');
+                } else {
+                  console.log("✓ Redirecting to /overview (B2C context)");
+                  navigate('/overview');
+                }
+                return;
+              }
+
               // B2B FLOW: Pure organization users go straight to org dashboard
-              if (hasOrg && !hasFamily) {
+              if (hasOrg) {
                 console.log("✓ B2B USER: Redirecting to organization dashboard");
+                clearTimeout(navigationTimeout);
                 navigate('/org/dashboard');
-                return; // CRITICAL: Stop here - no profile setup checks for B2B
+                return;
               }
 
               // B2C FLOW: Family users need profile setup check
@@ -120,19 +151,16 @@ export const useAuth = () => {
                 console.log("✓ B2C USER: Checking profile and onboarding status");
                 
                 // Check if profile setup is complete
-                const { data: profileData, error: profileError } = await supabase
+                const { data: profileData } = await supabase
                   .from('profiles')
                   .select('has_completed_profile_setup')
                   .eq('id', session.user.id)
                   .single();
 
-                if (profileError) {
-                  console.error("Error checking profile setup:", profileError);
-                }
-
-                // If profile setup is not complete, redirect to profile setup (preserving redirect param)
+                // If profile setup is not complete, redirect to profile setup
                 if (!profileData?.has_completed_profile_setup) {
-                  console.log("Profile setup incomplete. Redirecting to profile-setup.");
+                  console.log("📝 Profile setup incomplete. Redirecting to profile-setup.");
+                  clearTimeout(navigationTimeout);
                   const profileUrl = redirectUrl 
                     ? `/profile-setup?redirect=${encodeURIComponent(redirectUrl)}`
                     : '/profile-setup';
@@ -140,45 +168,42 @@ export const useAuth = () => {
                   return;
                 }
 
-                // If profile is complete AND redirect exists, go there (invited member flow)
+                // If profile is complete AND redirect exists, go there
                 if (redirectUrl) {
-                  console.log("Profile complete, following redirect:", redirectUrl);
+                  console.log("✓ Following redirect:", redirectUrl);
+                  clearTimeout(navigationTimeout);
                   navigate(redirectUrl);
                   return;
                 }
 
                 // Check onboarding status
-                const { data: hasCompletedOnboarding, error } = await supabase.rpc('check_user_onboarding_status');
+                const { data: hasCompletedOnboarding } = await supabase.rpc('check_user_onboarding_status');
 
-                if (error) {
-                  console.error("Error checking onboarding status:", error);
-                  navigate('/overview');
-                  return;
-                }
-
+                clearTimeout(navigationTimeout);
                 if (hasCompletedOnboarding) {
-                  console.log("✓ User has completed onboarding. Redirecting to overview.");
+                  console.log("✓ Redirecting to overview");
                   navigate('/overview');
                 } else {
-                  console.log("✗ New user detected. Redirecting to onboarding.");
+                  console.log("✓ Redirecting to onboarding");
                   navigate('/onboarding');
                 }
-                return; // CRITICAL: Stop here
+                return;
               }
 
               // NO MEMBERSHIP: Check context before defaulting to B2C
+              clearTimeout(navigationTimeout);
               const isB2BPath = currentPath.startsWith('/org/');
               if (isB2BPath) {
-                console.log("✗ No membership but B2B path detected. Redirecting to /org/create");
+                console.log("✗ No membership, B2B path. Redirecting to /org/create");
                 navigate('/org/create');
               } else {
-                console.log("✗ No membership detected. Redirecting to B2C onboarding.");
+                console.log("✗ No membership. Redirecting to onboarding");
                 navigate('/onboarding');
               }
             } catch (error) {
-              console.error("Exception checking onboarding/profile status:", error);
-              console.log("Falling back to dashboard due to exception");
-              navigate('/dashboard');
+              console.error("❌ Navigation error:", error);
+              clearTimeout(navigationTimeout);
+              navigate('/overview');
             }
           }, 100);
         } else if (event === 'SIGNED_OUT') {

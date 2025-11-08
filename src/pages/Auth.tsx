@@ -53,6 +53,12 @@ const Auth = () => {
     e.preventDefault();
     setLoading(true);
 
+    // Safety timeout: reset loading state after 5 seconds
+    const loadingTimeout = setTimeout(() => {
+      console.warn('Login taking longer than expected, resetting loading state');
+      setLoading(false);
+    }, 5000);
+
     try {
       const { error } = await supabase.auth.signInWithPassword({
         email,
@@ -62,9 +68,15 @@ const Auth = () => {
       if (error) throw error;
 
       toast.success('Welcome back!');
+      
+      // Give useAuth hook time to handle navigation
+      setTimeout(() => {
+        clearTimeout(loadingTimeout);
+        setLoading(false);
+      }, 2000);
     } catch (error: any) {
+      clearTimeout(loadingTimeout);
       toast.error(error.message || 'Failed to sign in');
-    } finally {
       setLoading(false);
     }
   };
