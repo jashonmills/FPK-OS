@@ -133,19 +133,22 @@ serve(async (req) => {
               }
             );
 
-            // Handle oversized PDF - skip gracefully
-            const isOversizedPdf = 
-              extractResult.error?.message?.includes('OVERSIZED_PDF') ||
-              extractResult.data?.error_code === 'OVERSIZED_PDF';
+            // Handle oversized documents - skip gracefully
+            const errorCode = extractResult.data?.error_code || extractResult.error?.message;
+            const isOversized = 
+              errorCode?.includes('OVERSIZED_PDF') ||
+              errorCode?.includes('OVERSIZED_FILE') ||
+              errorCode?.includes('MEMORY_EXCEEDED');
               
-            if (isOversizedPdf) {
-              console.log(`  ⏭️ Skipping oversized PDF: ${documentName}`);
+            if (isOversized) {
+              const errorMessage = extractResult.data?.message || 'Document too large to process';
+              console.log(`  ⏭️ Skipping oversized document: ${documentName} (${errorCode})`);
               await Promise.all([
                 supabase
                   .from('analysis_queue')
                   .update({
                     status: 'failed',
-                    error_message: 'Document too large (>100 pages). Please split into smaller files.',
+                    error_message: errorMessage,
                     completed_at: new Date().toISOString()
                   })
                   .eq('id', item.id),

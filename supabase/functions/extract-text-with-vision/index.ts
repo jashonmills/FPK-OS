@@ -112,11 +112,38 @@ serve(async (req) => {
 
     // Convert blob to base64 using Deno's standard library (robust & efficient)
     const arrayBuffer = await fileData.arrayBuffer();
-    const uint8Array = new Uint8Array(arrayBuffer);
-    const base64Data = encodeBase64(uint8Array);
     const fileSizeKB = Math.round(arrayBuffer.byteLength / 1024);
+    const fileSizeMB = fileSizeKB / 1024;
 
     console.log(`📄 File downloaded: ${document.file_name} (${fileSizeKB} KB)`);
+    
+    // Check if file is too large for edge function memory limits (10MB limit for safety)
+    if (fileSizeMB > 10) {
+      console.error(`❌ File too large: ${fileSizeMB.toFixed(2)}MB exceeds 10MB memory limit`);
+      
+      await supabase
+        .from('document_analysis_status')
+        .update({
+          status: 'failed',
+          error_message: `OVERSIZED_FILE: Document is ${fileSizeMB.toFixed(1)}MB. Files over 10MB may cause memory issues. Please compress or split the document.`,
+          completed_at: new Date().toISOString()
+        })
+        .eq('document_id', document_id);
+      
+      return new Response(
+        JSON.stringify({ 
+          error: 'OVERSIZED_FILE',
+          error_code: 'OVERSIZED_FILE',
+          message: `Document is ${fileSizeMB.toFixed(1)}MB. Files over 10MB may cause memory issues. Please compress or split the document.`,
+          file_size_mb: fileSizeMB,
+          success: false 
+        }),
+        { status: 507, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    const uint8Array = new Uint8Array(arrayBuffer);
+    const base64Data = encodeBase64(uint8Array);
     
     // Update progress: preparing for extraction
     await updateExtractionProgress(supabase, document_id, 15, `Processing ${fileSizeKB}KB document...`);
@@ -341,9 +368,51 @@ If you cannot return valid JSON, return only the extracted text.`
 
   } catch (error) {
     console.error('Vision extraction error:', error);
+    
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    
+    // Check if it's a memory error
+    const isMemoryError = errorMessage.toLowerCase().includes('memory') || 
+                         errorMessage.toLowerCase().includes('out of heap') ||
+                         errorMessage.toLowerCase().includes('allocation failed');
+    
+    if (isMemoryError) {
+      console.error('❌ MEMORY ERROR: Document too large for edge function memory limits');
+      
+      // Try to update status in database
+      try {
+        const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+        const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+        const supabase = createClient(supabaseUrl, supabaseKey);
+        
+        const { document_id } = await req.json();
+        
+        await supabase
+          .from('document_analysis_status')
+          .update({
+            status: 'failed',
+            error_message: 'MEMORY_EXCEEDED: Document too large to process. Please compress or split the document.',
+            completed_at: new Date().toISOString()
+          })
+          .eq('document_id', document_id);
+      } catch (dbError) {
+        console.error('Failed to update status:', dbError);
+      }
+      
+      return new Response(
+        JSON.stringify({ 
+          error: 'MEMORY_EXCEEDED',
+          error_code: 'MEMORY_EXCEEDED',
+          message: 'Document too large to process. Please compress or split the document.',
+          success: false 
+        }),
+        { status: 507, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
     return new Response(
       JSON.stringify({ 
-        error: error instanceof Error ? error.message : 'Unknown error occurred',
+        error: errorMessage,
         success: false 
       }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
