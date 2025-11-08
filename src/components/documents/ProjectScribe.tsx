@@ -418,11 +418,20 @@ export const ProjectScribe = ({ jobId, onComplete }: ProjectScribeProps) => {
                 {doc.status === 'failed' && doc.error_message && !doc.error_message.startsWith('{') && (
                   <div className="mt-1 space-y-1">
                     <p className="text-sm text-red-500">{doc.error_message}</p>
+                    {doc.error_message?.includes('not_found_error') && (
+                      <p className="text-xs text-amber-500">🤖 AI model not found - contact support</p>
+                    )}
+                    {doc.error_message?.includes('model:') && doc.error_message?.includes('404') && (
+                      <p className="text-xs text-amber-500">🤖 AI model error - extraction service needs update</p>
+                    )}
                     {doc.error_message?.includes('100-page limit') && (
                       <p className="text-xs text-amber-500">📄 Document is too large - please split into smaller files (max 100 pages)</p>
                     )}
                     {doc.error_message?.includes('too large') && (
                       <p className="text-xs text-amber-500">📄 Document is too large - please split into smaller files</p>
+                    )}
+                    {doc.error_message?.includes('FILE_TOO_LARGE') && (
+                      <p className="text-xs text-amber-500">📄 File exceeds 5MB limit - split PDF and re-upload</p>
                     )}
                     {doc.error_message?.includes('Rate limited') && (
                       <p className="text-xs text-amber-500">⏸️ Will auto-retry with backoff</p>
@@ -432,6 +441,9 @@ export const ProjectScribe = ({ jobId, onComplete }: ProjectScribeProps) => {
                     )}
                     {doc.error_message?.includes('Max retries') && (
                       <p className="text-xs text-muted-foreground">❌ Permanent failure after retries</p>
+                    )}
+                    {doc.error_message?.includes('stack') && (
+                      <p className="text-xs text-amber-500">⚠️ Technical error - retry extraction</p>
                     )}
                   </div>
                 )}

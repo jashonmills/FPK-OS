@@ -47,6 +47,7 @@ export default function Documents() {
   const [selectedDocIds, setSelectedDocIds] = useState<string[]>([]);
   const [isBulkDownloading, setIsBulkDownloading] = useState(false);
   const [activeJobId, setActiveJobId] = useState<string | null>(null);
+  const [dismissedJobIds, setDismissedJobIds] = useState<string[]>([]);
 
   // Fetch the most recent analysis job for this family
   const { data: recentJob } = useQuery({
@@ -74,7 +75,7 @@ export default function Documents() {
 
   // Set activeJobId if there's a recent job that's processing or recently completed/failed
   useEffect(() => {
-    if (recentJob && !activeJobId) {
+    if (recentJob && !activeJobId && !dismissedJobIds.includes(recentJob.id)) {
       if (recentJob.status === 'processing' || recentJob.status === 'pending') {
         setActiveJobId(recentJob.id);
       } else if (recentJob.status === 'failed' || recentJob.status === 'completed' || recentJob.status === 'completed_with_errors') {
@@ -82,7 +83,7 @@ export default function Documents() {
         setActiveJobId(recentJob.id);
       }
     }
-  }, [recentJob, activeJobId]);
+  }, [recentJob, activeJobId, dismissedJobIds]);
 
   const { data: documents, isLoading } = useQuery({
     queryKey: ["documents", selectedFamily?.id, selectedStudent?.id],
@@ -624,9 +625,11 @@ export default function Documents() {
           <ProjectScribe 
             jobId={activeJobId}
             onComplete={() => {
+              if (activeJobId) {
+                setDismissedJobIds(prev => [...prev, activeJobId]);
+              }
               setActiveJobId(null);
               queryClient.invalidateQueries({ queryKey: ["documents"] });
-              toast.success("Analysis complete! All documents have been processed with Vision AI.");
             }}
           />
         )}

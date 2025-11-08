@@ -10,8 +10,8 @@ const corsHeaders = {
 const MAX_FILE_SIZE_KB = 5120;
 const EXTRACTION_TIMEOUT_MS = 45000; // FIX #2: 45 second timeout
 
-// FIX #5: Valid Claude model (updated to correct version)
-const CLAUDE_MODEL = 'claude-3-5-sonnet-20240620';
+// FIX #5: Valid Claude model (updated to LATEST version - Oct 2024)
+const CLAUDE_MODEL = 'claude-3-5-sonnet-20241022';
 console.log(`🔧 Using Claude model: ${CLAUDE_MODEL}`);
 
 // Helper to update extraction progress
@@ -91,7 +91,7 @@ serve(async (req) => {
           success: false,
           error: 'FILE_TOO_LARGE',
           message: errorMsg,
-          file_size_kb: document.file_size_kb,
+          file_size_kb: Number(document.file_size_kb) || 0,
           max_size_kb: MAX_FILE_SIZE_KB
         }),
         { 
@@ -194,7 +194,7 @@ serve(async (req) => {
             error: 'EXTRACTION_TIMEOUT',
             message: timeoutMsg,
             timeout_ms: EXTRACTION_TIMEOUT_MS,
-            file_size_kb: document.file_size_kb
+            file_size_kb: Number(document.file_size_kb) || 0
           }),
           { 
             status: 408,
@@ -215,7 +215,7 @@ serve(async (req) => {
         status: anthropicResponse.status,
         statusText: anthropicResponse.statusText,
         model: CLAUDE_MODEL,
-        file_size_kb: document.file_size_kb,
+        file_size_kb: Number(document.file_size_kb) || 0,
         media_type: mediaType,
         response_body: errorBody.substring(0, 500) // First 500 chars
       });
@@ -231,7 +231,7 @@ serve(async (req) => {
         message: errorMsg,
         status: anthropicResponse.status,
         model: CLAUDE_MODEL,
-        file_size_kb: document.file_size_kb
+        file_size_kb: Number(document.file_size_kb) || 0
       };
       
       return new Response(
