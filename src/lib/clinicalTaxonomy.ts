@@ -206,7 +206,7 @@ export function categorizeMetric(metricType: string): string | null {
  * @returns Array of metric_type values in that category
  */
 export function getAllMetricTypesForCategory(category: keyof typeof CLINICAL_CATEGORIES): string[] {
-  return CLINICAL_CATEGORIES[category] || [];
+  return CLINICAL_CATEGORIES[category] ? [...CLINICAL_CATEGORIES[category]] : [];
 }
 
 /**
