@@ -551,7 +551,22 @@ export default function Documents() {
         }
       });
 
-      if (error) throw error;
+      // Handle insufficient credits (402 Payment Required)
+      if (error) {
+        if ('context' in error && error.context?.status === 402) {
+          const errorBody = error.context?.body;
+          if (errorBody?.error === 'insufficient_credits') {
+            toast.error(
+              `Insufficient AI Credits`,
+              {
+                description: `You need ${errorBody.credits_required} credits but only have ${errorBody.credits_available} available. Please purchase more credits to continue.`
+              }
+            );
+            return;
+          }
+        }
+        throw error;
+      }
       
       if (!data?.success) {
         throw new Error(data?.error || 'Report generation failed');
@@ -563,7 +578,7 @@ export default function Documents() {
       toast.success(`Report generated! Analyzed ${data.document_count} documents with ${data.metrics_analyzed} metrics.`);
     } catch (error: any) {
       console.error('Report generation error:', error);
-      toast.error("Failed to generate report: " + error.message);
+      toast.error("Failed to generate report: " + (error.message || "Unknown error"));
     } finally {
       setIsGeneratingReport(false);
     }
