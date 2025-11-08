@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useFamily } from "@/contexts/FamilyContext";
@@ -47,6 +47,42 @@ export default function Documents() {
   const [selectedDocIds, setSelectedDocIds] = useState<string[]>([]);
   const [isBulkDownloading, setIsBulkDownloading] = useState(false);
   const [activeJobId, setActiveJobId] = useState<string | null>(null);
+
+  // Fetch the most recent analysis job for this family
+  const { data: recentJob } = useQuery({
+    queryKey: ["recent-analysis-job", selectedFamily?.id],
+    queryFn: async () => {
+      if (!selectedFamily?.id) return null;
+      const { data, error } = await supabase
+        .from("analysis_jobs")
+        .select("*")
+        .eq("family_id", selectedFamily.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single();
+      
+      if (error || !data) return null;
+      
+      // Only show jobs from the last 24 hours
+      const jobAge = Date.now() - new Date(data.created_at).getTime();
+      if (jobAge > 24 * 60 * 60 * 1000) return null;
+      
+      return data;
+    },
+    enabled: !!selectedFamily?.id,
+  });
+
+  // Set activeJobId if there's a recent job that's processing or recently completed/failed
+  useEffect(() => {
+    if (recentJob && !activeJobId) {
+      if (recentJob.status === 'processing' || recentJob.status === 'pending') {
+        setActiveJobId(recentJob.id);
+      } else if (recentJob.status === 'failed' || recentJob.status === 'completed' || recentJob.status === 'completed_with_errors') {
+        // Show completed/failed jobs for visibility
+        setActiveJobId(recentJob.id);
+      }
+    }
+  }, [recentJob, activeJobId]);
 
   const { data: documents, isLoading } = useQuery({
     queryKey: ["documents", selectedFamily?.id, selectedStudent?.id],
