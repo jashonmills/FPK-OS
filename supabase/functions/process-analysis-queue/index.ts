@@ -68,10 +68,10 @@ serve(async (req) => {
         sum + (item.estimated_tokens || 5000), 0) / queueItems.length;
       
       const isLargeBatch = avgTokens >= LARGE_DOC_THRESHOLD;
-      const actualBatchSize = isLargeBatch ? 1 : Math.min(queueItems.length, MAX_BATCH_SIZE);
+      const actualBatchSize = isLargeBatch ? 1 : Math.min(queueItems.length, 3); // Process up to 3 small docs in parallel
       const batchToProcess = queueItems.slice(0, actualBatchSize);
 
-      console.log(`📦 Processing ${batchToProcess.length} document(s) - ${isLargeBatch ? 'LARGE (sequential)' : 'SMALL (parallel)'} (avg: ${Math.round(avgTokens)} tokens)`);
+      console.log(`📦 Processing ${batchToProcess.length} document(s) - ${isLargeBatch ? 'LARGE (sequential)' : 'PARALLEL'} (avg: ${Math.round(avgTokens)} tokens)`);
 
       // Process based on batch type
       let batchProcessed = 0;
@@ -123,7 +123,7 @@ serve(async (req) => {
           try {
             // Step 1: Extract text with vision
             console.log(`  📄 Extracting: ${item.document_id}`);
-            const { error: extractError } = await supabase.functions.invoke(
+            const { data: extractData, error: extractError } = await supabase.functions.invoke(
               'extract-text-with-vision',
               {
                 body: { 
@@ -132,6 +132,31 @@ serve(async (req) => {
                 }
               }
             );
+
+            // Handle oversized PDF - skip gracefully
+            if (extractError?.message?.includes('OVERSIZED_PDF') || extractData?.error_code === 'OVERSIZED_PDF') {
+              console.log(`  ⏭️ Skipping oversized PDF: ${documentName}`);
+              await Promise.all([
+                supabase
+                  .from('analysis_queue')
+                  .update({
+                    status: 'failed',
+                    error_message: 'Document too large (>100 pages). Please split into smaller files.',
+                    completed_at: new Date().toISOString()
+                  })
+                  .eq('id', item.id),
+                supabase
+                  .from('document_analysis_status')
+                  .update({
+                    status: 'failed',
+                    error_message: 'Document exceeds 100-page limit. Please split into smaller files.',
+                    completed_at: new Date().toISOString()
+                  })
+                  .eq('id', statusRecord.id)
+              ]);
+              batchFailed++;
+              continue; // Skip to next document
+            }
 
             if (extractError) {
               throw new Error(`Extraction failed: ${extractError.message}`);
@@ -327,11 +352,11 @@ serve(async (req) => {
             batchFailed++;
           }
 
-          // Adaptive delay based on rate limit history
+          // Minimal delay between documents - only use longer delays on rate limits
           if (batchToProcess.indexOf(item) < batchToProcess.length - 1) {
             const delay = consecutiveRateLimits > 0 
-              ? 60000 * consecutiveRateLimits  // Exponential backoff: 60s, 120s, 180s
-              : isLargeBatch ? 20000 : 10000;  // Normal: 20s for large, 10s for small
+              ? 30000 * consecutiveRateLimits  // Backoff on rate limits: 30s, 60s, 90s
+              : 2000;  // Just 2 seconds between documents normally
             console.log(`  ⏸️ Waiting ${delay/1000}s before next document...`);
             await new Promise(resolve => setTimeout(resolve, delay));
           }
@@ -379,7 +404,7 @@ serve(async (req) => {
             .single();
           
           try {
-            const { error: extractError } = await supabase.functions.invoke(
+            const { data: extractData, error: extractError } = await supabase.functions.invoke(
               'extract-text-with-vision',
               {
                 body: { 
@@ -388,6 +413,29 @@ serve(async (req) => {
                 }
               }
             );
+
+            // Handle oversized PDF in parallel processing
+            if (extractError?.message?.includes('OVERSIZED_PDF') || extractData?.error_code === 'OVERSIZED_PDF') {
+              await Promise.all([
+                supabase
+                  .from('analysis_queue')
+                  .update({
+                    status: 'failed',
+                    error_message: 'Document too large (>100 pages). Please split into smaller files.',
+                    completed_at: new Date().toISOString()
+                  })
+                  .eq('id', item.id),
+                supabase
+                  .from('document_analysis_status')
+                  .update({
+                    status: 'failed',
+                    error_message: 'Document exceeds 100-page limit. Please split into smaller files.',
+                    completed_at: new Date().toISOString()
+                  })
+                  .eq('id', statusRecord.id)
+              ]);
+              return { success: false, item, error: 'OVERSIZED_PDF' };
+            }
 
             if (extractError) throw new Error(`Extraction failed: ${extractError.message}`);
 

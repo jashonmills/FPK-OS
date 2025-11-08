@@ -350,8 +350,19 @@ export const ProjectScribe = ({ jobId, onComplete }: ProjectScribeProps) => {
           </div>
         )}
         {job.status === 'failed' && (
-          <p className="text-sm text-red-600">
-            ❌ Job failed. Please try again.
+          <div className="space-y-2">
+            <p className="text-sm text-red-600">
+              ❌ Job stopped: {job.processed_documents} of {job.total_documents} documents completed
+              {job.failed_documents > 0 && `, ${job.failed_documents} failed`}
+            </p>
+            {job.error_message && (
+              <p className="text-sm text-muted-foreground">{job.error_message}</p>
+            )}
+          </div>
+        )}
+        {job.status === 'completed_with_errors' && (
+          <p className="text-sm text-amber-600">
+            ⚠️ Completed with errors: {job.processed_documents} succeeded, {job.failed_documents} failed
           </p>
         )}
       </div>
@@ -389,6 +400,12 @@ export const ProjectScribe = ({ jobId, onComplete }: ProjectScribeProps) => {
                 {doc.status === 'failed' && doc.error_message && !doc.error_message.startsWith('{') && (
                   <div className="mt-1 space-y-1">
                     <p className="text-sm text-red-500">{doc.error_message}</p>
+                    {doc.error_message?.includes('100-page limit') && (
+                      <p className="text-xs text-amber-500">📄 Document is too large - please split into smaller files (max 100 pages)</p>
+                    )}
+                    {doc.error_message?.includes('too large') && (
+                      <p className="text-xs text-amber-500">📄 Document is too large - please split into smaller files</p>
+                    )}
                     {doc.error_message?.includes('Rate limited') && (
                       <p className="text-xs text-amber-500">⏸️ Will auto-retry with backoff</p>
                     )}

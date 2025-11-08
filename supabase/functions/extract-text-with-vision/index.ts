@@ -197,7 +197,27 @@ If you cannot return valid JSON, return only the extracted text.`
           // Handle PDF page limit (Anthropic only supports up to 100 pages)
           if (errorText.includes('maximum of 100 PDF pages')) {
             console.error('❌ PDF exceeds 100-page limit');
-            throw new Error('PDF exceeds Anthropic\'s 100-page limit. Please split the document into smaller files (max 100 pages each) or use a different format.');
+            
+            // Update document status to indicate oversized PDF
+            await supabase
+              .from('document_analysis_status')
+              .update({
+                status: 'failed',
+                error_message: 'OVERSIZED_PDF: Document exceeds 100-page limit. Please split into smaller files.',
+                completed_at: new Date().toISOString()
+              })
+              .eq('document_id', document_id);
+            
+            // Return specific error code that queue processor can detect
+            return new Response(
+              JSON.stringify({ 
+                error: 'OVERSIZED_PDF',
+                error_code: 'OVERSIZED_PDF',
+                message: 'Document exceeds 100-page limit. Please split into smaller files.',
+                success: false 
+              }),
+              { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
           }
           
           // Handle rate limiting with aggressive backoff for Anthropic's 10k tokens/minute limit
