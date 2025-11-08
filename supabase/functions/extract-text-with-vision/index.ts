@@ -10,6 +10,10 @@ const corsHeaders = {
 const MAX_FILE_SIZE_KB = 5120;
 const EXTRACTION_TIMEOUT_MS = 45000; // FIX #2: 45 second timeout
 
+// FIX #5: Valid Claude model (updated to correct version)
+const CLAUDE_MODEL = 'claude-3-5-sonnet-20240620';
+console.log(`🔧 Using Claude model: ${CLAUDE_MODEL}`);
+
 // Helper to update extraction progress
 async function updateExtractionProgress(
   supabase: any,
@@ -150,9 +154,10 @@ serve(async (req) => {
           'Content-Type': 'application/json',
           'x-api-key': anthropicKey,
           'anthropic-version': '2023-06-01',
+          'anthropic-beta': 'pdfs-2024-09-25', // FIX #2: Enable PDF support
         },
         body: JSON.stringify({
-          model: 'claude-3-5-sonnet-20241022',
+          model: CLAUDE_MODEL, // FIX #1: Use validated model
           max_tokens: 16000,
           messages: [{
             role: 'user',
@@ -201,22 +206,36 @@ serve(async (req) => {
       throw error;
     }
 
-    // FIX #3: Detailed error handling
+    // FIX #3 & #4: Detailed error handling with better context
     if (!anthropicResponse.ok) {
       const errorBody = await anthropicResponse.text();
-      const errorMsg = `Claude API error (${anthropicResponse.status}): ${errorBody}`;
-      console.error(`❌ ${errorMsg}`);
+      
+      // FIX #4: Log full request context (without sensitive data)
+      console.error(`❌ Claude API Error Details:`, {
+        status: anthropicResponse.status,
+        statusText: anthropicResponse.statusText,
+        model: CLAUDE_MODEL,
+        file_size_kb: document.file_size_kb,
+        media_type: mediaType,
+        response_body: errorBody.substring(0, 500) // First 500 chars
+      });
+      
+      const errorMsg = `Claude API failed (${anthropicResponse.status}): ${errorBody.substring(0, 200)}`;
       
       await updateExtractionProgress(supabase, document_id, 'failed', errorMsg);
       
+      // FIX #3: Simplified error response (prevent stack overflow)
+      const errorResponse = {
+        success: false,
+        error: 'CLAUDE_API_ERROR',
+        message: errorMsg,
+        status: anthropicResponse.status,
+        model: CLAUDE_MODEL,
+        file_size_kb: document.file_size_kb
+      };
+      
       return new Response(
-        JSON.stringify({
-          success: false,
-          error: 'CLAUDE_API_ERROR',
-          message: errorMsg,
-          status: anthropicResponse.status,
-          details: errorBody
-        }),
+        JSON.stringify(errorResponse),
         { 
           status: anthropicResponse.status,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -280,12 +299,20 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('❌ Extraction error:', error);
+    // FIX #4: Enhanced error logging
+    console.error('❌ Extraction error:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      type: error?.constructor?.name || 'UnknownError',
+      stack: error instanceof Error ? error.stack?.substring(0, 300) : undefined
+    });
+    
+    // FIX #3: Simplified error response (prevent circular reference issues)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown extraction error';
     
     return new Response(
       JSON.stringify({
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown extraction error',
+        error: errorMessage,
         error_type: error?.constructor?.name || 'UnknownError'
       }),
       { 
