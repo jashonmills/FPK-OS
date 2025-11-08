@@ -19,7 +19,7 @@ export const useAuth = () => {
 
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         clearTimeout(loadingTimeout);
         setSession(session);
         setUser(session?.user ?? null);
@@ -27,39 +27,42 @@ export const useAuth = () => {
 
         // Detect zombie sessions: if we have a session but user doesn't exist in DB
         if (session && event === 'SIGNED_IN') {
-          try {
-            const { data: profile, error } = await supabase
-              .from('profiles')
-              .select('id')
-              .eq('id', session.user.id)
-              .single();
+          // Defer all async DB operations
+          setTimeout(async () => {
+            try {
+              const { data: profile, error } = await supabase
+                .from('profiles')
+                .select('id')
+                .eq('id', session.user.id)
+                .maybeSingle();
 
-            if (error && error.code === 'PGRST116') {
-              // User not found in database - zombie session
-              console.warn('⚠ Zombie session detected: user exists in auth but not in database.');
-              
-              // DEFINITIVE FIX: Check for B2B context before signing out
-              const b2bSignupFlow = sessionStorage.getItem('b2b_signup_flow');
-              const b2bLoginContext = sessionStorage.getItem('b2b_login_context');
-              
-              if (b2bSignupFlow === 'true' || b2bLoginContext === 'true') {
-                console.log('✓ Zombie session with B2B context. Allowing redirect to /org/create');
-                // Don't sign out - let the user proceed to org creation
-                // The profile will be created during org setup
+              if (error && error.code === 'PGRST116') {
+                // User not found in database - zombie session
+                console.warn('⚠ Zombie session detected: user exists in auth but not in database.');
+                
+                // DEFINITIVE FIX: Check for B2B context before signing out
+                const b2bSignupFlow = sessionStorage.getItem('b2b_signup_flow');
+                const b2bLoginContext = sessionStorage.getItem('b2b_login_context');
+                
+                if (b2bSignupFlow === 'true' || b2bLoginContext === 'true') {
+                  console.log('✓ Zombie session with B2B context. Allowing redirect to /org/create');
+                  // Don't sign out - let the user proceed to org creation
+                  // The profile will be created during org setup
+                  return;
+                }
+                
+                // No B2B context - force sign out
+                console.warn('⚠ Zombie session without B2B context. Forcing sign out.');
+                await supabase.auth.signOut();
+                localStorage.clear();
+                sessionStorage.clear();
+                window.location.href = '/';
                 return;
               }
-              
-              // No B2B context - force sign out
-              console.warn('⚠ Zombie session without B2B context. Forcing sign out.');
-              await supabase.auth.signOut();
-              localStorage.clear();
-              sessionStorage.clear();
-              window.location.href = '/';
-              return;
+            } catch (err) {
+              console.error('Error validating user session:', err);
             }
-          } catch (err) {
-            console.error('Error validating user session:', err);
-          }
+          }, 0);
         }
 
         // Handle post-login routing
