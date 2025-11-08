@@ -6,6 +6,10 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// FIX #5: Circuit breaker - max file size
+const MAX_FILE_SIZE_KB = 5120; // 5MB
+const WARN_FILE_SIZE_KB = 3072; // 3MB - show warning
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -22,6 +26,34 @@ serve(async (req) => {
 
     if (!file || !familyId || !studentId || !category) {
       throw new Error('Missing required fields');
+    }
+
+    // FIX #5: Check file size before upload
+    const fileSizeKB = Math.round(file.size / 1024);
+    
+    if (fileSizeKB > MAX_FILE_SIZE_KB) {
+      console.error(`❌ File too large: ${fileSizeKB}KB exceeds ${MAX_FILE_SIZE_KB}KB`);
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'FILE_TOO_LARGE',
+          message: `File size ${fileSizeKB}KB exceeds maximum ${MAX_FILE_SIZE_KB}KB (${(MAX_FILE_SIZE_KB / 1024).toFixed(1)}MB). Please split the document and re-upload.`,
+          file_size_kb: fileSizeKB,
+          max_size_kb: MAX_FILE_SIZE_KB
+        }),
+        { 
+          status: 413,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
+    const sizeWarning = fileSizeKB > WARN_FILE_SIZE_KB 
+      ? `⚠️ Large file detected (${(fileSizeKB / 1024).toFixed(1)}MB). Processing may take longer.`
+      : null;
+
+    if (sizeWarning) {
+      console.warn(sizeWarning);
     }
 
     // Initialize Supabase client
