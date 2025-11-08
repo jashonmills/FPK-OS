@@ -203,3 +203,9 @@ verify_jwt = true
 
 [functions.generate-bfa-report]
 verify_jwt = true
+
+[functions.emergency-cleanup-stuck-analysis]
+verify_jwt = true
+
+[functions.process-analysis-queue]
+verify_jwt = false

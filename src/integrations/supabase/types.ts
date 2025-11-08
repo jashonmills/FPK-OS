@@ -410,6 +410,41 @@ export type Database = {
           },
         ]
       }
+      analysis_metrics: {
+        Row: {
+          id: string
+          job_id: string | null
+          metadata: Json | null
+          metric_type: string
+          metric_value: number
+          timestamp: string | null
+        }
+        Insert: {
+          id?: string
+          job_id?: string | null
+          metadata?: Json | null
+          metric_type: string
+          metric_value: number
+          timestamp?: string | null
+        }
+        Update: {
+          id?: string
+          job_id?: string | null
+          metadata?: Json | null
+          metric_type?: string
+          metric_value?: number
+          timestamp?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analysis_metrics_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "analysis_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       analysis_queue: {
         Row: {
           completed_at: string | null
@@ -3811,6 +3846,14 @@ export type Database = {
       delete_user_account: {
         Args: { user_id_to_delete: string }
         Returns: undefined
+      }
+      detect_and_recover_stuck_queue_items: {
+        Args: never
+        Returns: {
+          failed_count: number
+          recovered_count: number
+          retried_count: number
+        }[]
       }
       get_academic_fluency_data:
         | {

@@ -98,7 +98,7 @@ serve(async (req) => {
 
     console.log(`📦 Queued ${documents.length} documents for smart batching (est. ${estimatedMinutes} min)`);
 
-    // Start queue processor in background using EdgeRuntime.waitUntil
+    // PHASE 2 FIX: Immediately invoke queue processor in background
     const processQueue = async () => {
       try {
         console.log('🚀 Starting background queue processor...');
@@ -124,6 +124,8 @@ serve(async (req) => {
               completed_at: new Date().toISOString()
             })
             .eq('id', job.id);
+        } else {
+          console.log('✅ Queue processor completed successfully');
         }
       } catch (error) {
         console.error('❌ Background task error:', error);
@@ -135,9 +137,11 @@ serve(async (req) => {
     if (typeof EdgeRuntime !== 'undefined' && EdgeRuntime.waitUntil) {
       // @ts-ignore
       EdgeRuntime.waitUntil(processQueue());
+      console.log('✅ Background queue processor started with EdgeRuntime.waitUntil');
     } else {
-      // Fallback for local dev
-      processQueue();
+      // Fallback for local dev - fire and forget
+      processQueue().catch(err => console.error('Background task error:', err));
+      console.log('✅ Background queue processor started (dev mode)');
     }
 
     // Return immediately with job ID and queue info

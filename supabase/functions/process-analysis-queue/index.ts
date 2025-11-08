@@ -12,6 +12,7 @@ serve(async (req) => {
   }
 
   let currentJobId: string | null = null;
+  let heartbeatInterval: number | null = null;
   
   try {
     const { family_id, job_id } = await req.json();
@@ -21,6 +22,19 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // PHASE 3: Start heartbeat mechanism to prevent timeout detection
+    heartbeatInterval = setInterval(async () => {
+      try {
+        await supabase
+          .from('analysis_jobs')
+          .update({ updated_at: new Date().toISOString() })
+          .eq('id', job_id);
+        console.log('💓 Heartbeat sent');
+      } catch (err) {
+        console.error('❌ Heartbeat failed:', err);
+      }
+    }, 30000); // Every 30 seconds
 
     // Smart batching: adjust batch size based on document complexity
     const MAX_BATCH_SIZE = 3;
@@ -703,6 +717,12 @@ serve(async (req) => {
       }
     }
 
+    // Clear heartbeat before returning
+    if (heartbeatInterval) {
+      clearInterval(heartbeatInterval);
+      console.log('💓 Heartbeat stopped');
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
@@ -714,6 +734,10 @@ serve(async (req) => {
     );
 
   } catch (error) {
+    // Clear heartbeat on error
+    if (heartbeatInterval) {
+      clearInterval(heartbeatInterval);
+    }
     console.error('❌ FATAL ERROR in process-analysis-queue:', error);
     
     // CRITICAL: Clean up stuck items on catastrophic failure
