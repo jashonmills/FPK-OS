@@ -219,7 +219,8 @@ export function DocumentUploadModal({ open, onOpenChange }: DocumentUploadModalP
         const isValidType = file.type === 'application/pdf' || 
                            file.type === 'application/msword' ||
                            file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-        const isValidSize = file.size <= 20 * 1024 * 1024; // 20MB
+        const isValidSize = file.size <= 20 * 1024 * 1024; // 20MB upload limit
+        const isExtractableSize = file.size <= 5 * 1024 * 1024; // 5MB extraction limit
         
         if (!isValidType) {
           toast.error(`${file.name}: Invalid file type. Please upload PDF or DOC files.`);
@@ -228,6 +229,12 @@ export function DocumentUploadModal({ open, onOpenChange }: DocumentUploadModalP
         if (!isValidSize) {
           toast.error(`${file.name}: File too large. Max size is 20MB.`);
           return false;
+        }
+        // Warn about extraction limit but don't block upload
+        if (!isExtractableSize) {
+          toast.warning(`${file.name}: File is ${(file.size / 1024 / 1024).toFixed(1)}MB. Files over 5MB cannot be auto-extracted by AI. Please split large documents for best results.`, {
+            duration: 8000
+          });
         }
         return true;
       });

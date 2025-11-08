@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { Loader2, CheckCircle2, XCircle, AlertCircle, RotateCcw, FileText } from 'lucide-react';
+import { Loader2, CheckCircle2, XCircle, AlertCircle, RotateCcw, FileText, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { DocumentReportModal } from './DocumentReportModal';
 import type { JobStatus, DocumentStatus, AnalysisJobMetadata } from '@/types/analysis';
@@ -79,9 +79,9 @@ export const ProjectScribe = ({ jobId, onComplete }: ProjectScribeProps) => {
             metadata: newJob.metadata as AnalysisJobMetadata | undefined
           });
           
-          // Check if job is complete
-          if (payload.new.status === 'completed' && onComplete) {
-            onComplete();
+          // Auto-complete for completed or completed_with_errors
+          if ((payload.new.status === 'completed' || payload.new.status === 'completed_with_errors') && onComplete) {
+            setTimeout(() => onComplete(), 2000); // 2 second delay to let users see final status
           }
         }
       )
@@ -332,38 +332,56 @@ export const ProjectScribe = ({ jobId, onComplete }: ProjectScribeProps) => {
         )}
         <Progress value={progress} className="h-2" />
         {job.status === 'completed' && (
-          <div className="flex items-center gap-2">
-            <p className="text-sm text-green-600">
-              ✅ Analysis complete! {job.failed_documents > 0 && `(${job.failed_documents} failed)`}
-            </p>
-            {metadata?.report_generated && metadata.report_id && (
-              <Button onClick={handleViewReport} size="sm" variant="outline">
-                <FileText className="h-4 w-4 mr-2" />
-                View Comprehensive Report
-              </Button>
-            )}
-            {metadata?.report_error && (
-              <p className="text-sm text-amber-600">
-                ⚠️ Report generation failed: {metadata.report_error}
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <p className="text-sm text-green-600">
+                ✅ Analysis complete! {job.failed_documents > 0 && `(${job.failed_documents} failed)`}
               </p>
-            )}
+              {metadata?.report_generated && metadata.report_id && (
+                <Button onClick={handleViewReport} size="sm" variant="outline">
+                  <FileText className="h-4 w-4 mr-2" />
+                  View Comprehensive Report
+                </Button>
+              )}
+              {metadata?.report_error && (
+                <p className="text-sm text-amber-600">
+                  ⚠️ Report generation failed: {metadata.report_error}
+                </p>
+              )}
+            </div>
+            <Button onClick={() => onComplete?.()} variant="ghost" size="sm">
+              <X className="h-4 w-4 mr-2" />
+              Dismiss
+            </Button>
           </div>
         )}
         {job.status === 'failed' && (
-          <div className="space-y-2">
-            <p className="text-sm text-red-600">
-              ❌ Job stopped: {job.processed_documents} of {job.total_documents} documents completed
-              {job.failed_documents > 0 && `, ${job.failed_documents} failed`}
-            </p>
-            {job.error_message && (
-              <p className="text-sm text-muted-foreground">{job.error_message}</p>
-            )}
+          <div className="flex items-start justify-between gap-2">
+            <div className="space-y-2">
+              <p className="text-sm text-red-600">
+                ❌ Job stopped: {job.processed_documents} of {job.total_documents} documents completed
+                {job.failed_documents > 0 && `, ${job.failed_documents} failed`}
+              </p>
+              {job.error_message && (
+                <p className="text-sm text-muted-foreground">{job.error_message}</p>
+              )}
+            </div>
+            <Button onClick={() => onComplete?.()} variant="ghost" size="sm" className="flex-shrink-0">
+              <X className="h-4 w-4 mr-2" />
+              Dismiss
+            </Button>
           </div>
         )}
         {job.status === 'completed_with_errors' && (
-          <p className="text-sm text-amber-600">
-            ⚠️ Completed with errors: {job.processed_documents} succeeded, {job.failed_documents} failed
-          </p>
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-sm text-amber-600">
+              ⚠️ Completed with errors: {job.processed_documents} succeeded, {job.failed_documents} failed
+            </p>
+            <Button onClick={() => onComplete?.()} variant="ghost" size="sm">
+              <X className="h-4 w-4 mr-2" />
+              Dismiss
+            </Button>
+          </div>
         )}
       </div>
 
