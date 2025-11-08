@@ -123,7 +123,7 @@ serve(async (req) => {
           try {
             // Step 1: Extract text with vision
             console.log(`  📄 Extracting: ${item.document_id}`);
-            const { data: extractData, error: extractError } = await supabase.functions.invoke(
+            const extractResult = await supabase.functions.invoke(
               'extract-text-with-vision',
               {
                 body: { 
@@ -134,7 +134,11 @@ serve(async (req) => {
             );
 
             // Handle oversized PDF - skip gracefully
-            if (extractError?.message?.includes('OVERSIZED_PDF') || extractData?.error_code === 'OVERSIZED_PDF') {
+            const isOversizedPdf = 
+              extractResult.error?.message?.includes('OVERSIZED_PDF') ||
+              extractResult.data?.error_code === 'OVERSIZED_PDF';
+              
+            if (isOversizedPdf) {
               console.log(`  ⏭️ Skipping oversized PDF: ${documentName}`);
               await Promise.all([
                 supabase
@@ -158,8 +162,8 @@ serve(async (req) => {
               continue; // Skip to next document
             }
 
-            if (extractError) {
-              throw new Error(`Extraction failed: ${extractError.message}`);
+            if (extractResult.error) {
+              throw new Error(`Extraction failed: ${extractResult.error.message}`);
             }
 
             // Update status to analyzing
@@ -404,7 +408,7 @@ serve(async (req) => {
             .single();
           
           try {
-            const { data: extractData, error: extractError } = await supabase.functions.invoke(
+            const extractResult = await supabase.functions.invoke(
               'extract-text-with-vision',
               {
                 body: { 
@@ -415,7 +419,11 @@ serve(async (req) => {
             );
 
             // Handle oversized PDF in parallel processing
-            if (extractError?.message?.includes('OVERSIZED_PDF') || extractData?.error_code === 'OVERSIZED_PDF') {
+            const isOversizedPdf = 
+              extractResult.error?.message?.includes('OVERSIZED_PDF') ||
+              extractResult.data?.error_code === 'OVERSIZED_PDF';
+              
+            if (isOversizedPdf) {
               await Promise.all([
                 supabase
                   .from('analysis_queue')
@@ -437,7 +445,7 @@ serve(async (req) => {
               return { success: false, item, error: 'OVERSIZED_PDF' };
             }
 
-            if (extractError) throw new Error(`Extraction failed: ${extractError.message}`);
+            if (extractResult.error) throw new Error(`Extraction failed: ${extractResult.error.message}`);
 
             await supabase
               .from('document_analysis_status')
