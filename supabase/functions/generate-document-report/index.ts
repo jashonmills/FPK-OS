@@ -45,7 +45,19 @@ serve(async (req) => {
     });
 
     if (creditError || !creditResult?.success) {
-      throw new Error(creditResult?.error || 'Insufficient credits');
+      const errorMessage = creditResult?.error || 'Insufficient AI credits to generate this report.';
+      console.error('Credit consumption failed:', errorMessage);
+      return new Response(
+        JSON.stringify({ 
+          error: errorMessage,
+          credits_required: 250,
+          credits_available: creditResult?.remaining_credits || 0
+        }),
+        { 
+          status: 402, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
     }
 
     const sixtyDaysAgo = new Date();
