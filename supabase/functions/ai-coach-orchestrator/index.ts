@@ -1188,6 +1188,11 @@ serve(async (req) => {
     const requestBody = await req.json();
     const { message, conversationId, conversationHistory, metadata } = requestBody;
     
+    // Extract context information early
+    const isOrgContext = metadata?.source === 'ai_command_center_v2' && 
+                         metadata?.contextData?.isOrgContext === true;
+    const contextType = metadata?.contextData?.context; // 'org_study_coach' or 'phoenix_lab'
+    
     // Validate required parameters
     if (!message || typeof message !== 'string') {
       console.error('[CONDUCTOR] ❌ Invalid or missing message parameter');
@@ -1310,15 +1315,38 @@ serve(async (req) => {
       }
     }
 
-    // 2. Verify admin status
-    const { data: roles } = await supabaseClient
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id);
-
-    const isAdmin = roles?.some(r => r.role === 'admin');
-    if (!isAdmin) {
-      throw new Error('Admin access required');
+    // 2. Verify access permissions based on context
+    if (isOrgContext && contextType === 'org_study_coach') {
+      // Organization AI Study Coach: Verify org membership
+      console.log('[CONDUCTOR] 🏫 Org AI Coach context detected - verifying org membership');
+      
+      const { data: orgMembership } = await supabaseClient
+        .from('org_members')
+        .select('role, status')
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .maybeSingle();
+      
+      if (!orgMembership) {
+        throw new Error('Organization membership required for Org AI Coach');
+      }
+      
+      console.log('[CONDUCTOR] ✅ Org member verified:', orgMembership.role);
+    } else {
+      // Phoenix Lab: Requires admin access
+      console.log('[CONDUCTOR] 🔬 Phoenix Lab context - verifying admin access');
+      
+      const { data: roles } = await supabaseClient
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id);
+      
+      const isAdmin = roles?.some(r => r.role === 'admin');
+      if (!isAdmin) {
+        throw new Error('Admin access required for Phoenix Lab');
+      }
+      
+      console.log('[CONDUCTOR] ✅ Admin access verified');
     }
 
     console.log('[CONDUCTOR] Processing message:', {

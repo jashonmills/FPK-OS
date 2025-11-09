@@ -1,8 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-import { Resend } from "npm:resend@2.0.0";
-
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -262,113 +259,8 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log(`Successfully added member to org`);
 
-    // Send welcome email
-    try {
-      const roleDisplay = role === 'instructor_aide' ? 'Instructor Aide' : 
-                         role.charAt(0).toUpperCase() + role.slice(1);
-
-      const emailResult = await resend.emails.send({
-        from: "FPK University <noreply@fpkuniversity.com>",
-        to: [email],
-        subject: `Welcome to ${org.name} on FPK University`,
-        html: `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Welcome to ${org.name}</title>
-</head>
-<body style="margin: 0; padding: 0; background-color: #f6f9fc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
-  <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f6f9fc;">
-    <tr>
-      <td align="center" style="padding: 40px 20px;">
-        <table role="presentation" style="max-width: 600px; width: 100%; border-collapse: collapse; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); overflow: hidden;">
-          <!-- Header -->
-          <tr>
-            <td style="padding: 48px 40px; text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-              <h1 style="margin: 0 0 8px 0; color: #ffffff; font-size: 32px; font-weight: 700;">
-                FPK University
-              </h1>
-              <p style="margin: 0; color: rgba(255,255,255,0.95); font-size: 18px; font-weight: 500;">
-                Welcome to ${org.name}!
-              </p>
-            </td>
-          </tr>
-          
-          <!-- Main Content -->
-          <tr>
-            <td style="padding: 48px 40px;">
-              <p style="margin: 0 0 8px 0; color: #1a202c; font-size: 24px; font-weight: 600;">
-                Hi ${firstName}!
-              </p>
-              
-              <p style="margin: 0 0 24px 0; color: #4a5568; font-size: 16px; line-height: 1.6;">
-                You've been added as a <strong>${roleDisplay}</strong> to <strong>${org.name}</strong> on FPK University.
-              </p>
-              
-              ${isNewUser ? `
-              <p style="margin: 0 0 32px 0; color: #4a5568; font-size: 16px; line-height: 1.6;">
-                We've created an account for you. Please check your email for a confirmation link to set up your password and access your account.
-              </p>
-              ` : `
-              <p style="margin: 0 0 32px 0; color: #4a5568; font-size: 16px; line-height: 1.6;">
-                You can now access ${org.name} using your existing FPK University account.
-              </p>
-              `}
-              
-              <!-- CTA Button -->
-              <table role="presentation" style="margin: 0 auto 32px auto;">
-                <tr>
-                  <td align="center" style="border-radius: 8px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);">
-                    <a href="https://fpkuniversity.com/login" 
-                       style="display: inline-block; padding: 18px 48px; color: #ffffff; text-decoration: none; font-weight: 600; font-size: 18px;">
-                      Access FPK University →
-                    </a>
-                  </td>
-                </tr>
-              </table>
-              
-              <!-- Info Card -->
-              <div style="margin: 32px 0; padding: 24px; background: linear-gradient(to right, #f7fafc, #edf2f7); border-radius: 8px; border-left: 4px solid #667eea;">
-                <p style="margin: 0 0 8px 0; color: #4a5568; font-size: 14px;">
-                  📧 <strong>Email:</strong> ${email}
-                </p>
-                <p style="margin: 0 0 8px 0; color: #4a5568; font-size: 14px;">
-                  🏫 <strong>Organization:</strong> ${org.name}
-                </p>
-                <p style="margin: 0; color: #4a5568; font-size: 14px;">
-                  👤 <strong>Role:</strong> ${roleDisplay}
-                </p>
-              </div>
-            </td>
-          </tr>
-          
-          <!-- Footer -->
-          <tr>
-            <td style="padding: 32px 40px; border-top: 1px solid #e2e8f0; background-color: #fafbfc;">
-              <p style="margin: 0 0 12px 0; color: #718096; font-size: 14px; text-align: center;">
-                If you have any questions, please contact your organization administrator.
-              </p>
-              <p style="margin: 0; color: #a0aec0; font-size: 12px; text-align: center;">
-                © ${new Date().getFullYear()} <a href="https://fpkuniversity.com" style="color: #667eea; text-decoration: none;">FPK University</a>
-              </p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>
-        `,
-      });
-
-      console.log("Welcome email sent successfully:", emailResult);
-    } catch (emailError: any) {
-      console.error("Email sending failed:", emailError);
-      // Don't fail the request if email fails
-    }
+    // TODO: Send welcome email via Resend when configured
+    console.log(`Welcome email would be sent to ${email} (Resend not configured)`);
 
     // Log to audit_logs
     await supabase.from('audit_logs').insert({
