@@ -8,6 +8,7 @@ import { useCommandCenterChat } from '@/hooks/useCommandCenterChat';
 import { useOrgAIChat } from '@/hooks/useOrgAIChat';
 import type { CommandCenterMessage } from '@/hooks/useCommandCenterChat';
 import { useAuth } from '@/hooks/useAuth';
+import { useUserIdentity } from '@/hooks/useUserIdentity';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAICoachStudyMaterials } from '@/hooks/useAICoachStudyMaterials';
@@ -456,6 +457,7 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
   orgName 
 }) => {
   const { user } = useAuth();
+  const { identity } = useUserIdentity();
   const isMobile = useIsMobile();
   
   // Use appropriate chat hook based on context
@@ -468,10 +470,10 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
   
   // Initialize org chat if needed
   useEffect(() => {
-    if (orgId && orgChat.messages.length === 0 && user) {
-      orgChat.initializeChat(user.user_metadata?.full_name || user.email);
+    if (orgId && orgChat.messages.length === 0 && user && identity) {
+      orgChat.initializeChat(identity?.profile?.fullName || identity?.profile?.displayName || 'there');
     }
-  }, [orgId, user]);
+  }, [orgId, user, identity]);
   
   // Select the appropriate chat based on context
   const messages = orgId ? orgChat.messages : standardChat.messages;
