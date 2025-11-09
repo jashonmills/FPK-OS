@@ -13,6 +13,17 @@ interface OrgChatMessage {
   isStreaming?: boolean;
 }
 
+interface DialogueEvent {
+  type: 'dialogue';
+  dialogue: Array<{
+    persona: 'BETTY' | 'AL';
+    text: string;
+  }>;
+  audioUrl?: string;
+  ttsProvider?: string;
+  metadata?: Record<string, any>;
+}
+
 interface UseOrgAIChatProps {
   userId?: string;
   orgId?: string;
@@ -179,6 +190,29 @@ export const useOrgAIChat = ({ userId, orgId, orgName }: UseOrgAIChatProps) => {
                 audioUrl: data.audioUrl
               };
               setMessages(prev => [...prev, handoffMessage]);
+            } else if (data.type === 'dialogue') {
+              // V2-DIALOGUE: Handle multi-speaker collaboration (Betty + Al)
+              console.log('[useOrgAIChat] 📢 Received dialogue event:', data);
+              
+              // Add each speaker's line as a separate message
+              if (data.dialogue && Array.isArray(data.dialogue)) {
+                data.dialogue.forEach((line: { persona: string; text: string }) => {
+                  const dialogueMessage: OrgChatMessage = {
+                    id: crypto.randomUUID(),
+                    persona: line.persona as OrgChatMessage['persona'],
+                    role: 'assistant',
+                    content: line.text,
+                    created_at: new Date().toISOString(),
+                    audioUrl: data.audioUrl // Shared audio for both speakers
+                  };
+                  
+                  setMessages(prev => [...prev, dialogueMessage]);
+                });
+              }
+              
+              // Reset streaming state since dialogue is delivered as complete messages
+              fullText = '';
+              aiMessageId = crypto.randomUUID();
             }
           } catch (e) {
             console.error('Error parsing SSE data:', e);
