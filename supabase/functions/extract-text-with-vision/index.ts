@@ -10,8 +10,8 @@ const corsHeaders = {
 const MAX_FILE_SIZE_KB = 5120;
 const EXTRACTION_TIMEOUT_MS = 45000; // FIX #2: 45 second timeout
 
-// FIX #5: Valid Claude model (updated to LATEST version - Oct 2024)
-const CLAUDE_MODEL = 'claude-3-5-sonnet-20241022';
+// FIX #5: Valid Claude model (CORRECTED to actual working model - Sonnet 4.5)
+const CLAUDE_MODEL = 'claude-sonnet-4-5';
 console.log(`🔧 Using Claude model: ${CLAUDE_MODEL}`);
 
 // Helper to update extraction progress
