@@ -2592,15 +2592,18 @@ If they seem confused, provide clarification directly. Do NOT switch to Socratic
         
         if (hasShortCircuit) {
           console.warn('[V2-DIALOGUE] 🚫 Al response suppressed to protect Socratic method');
-          // Discard Al's line, proceed with Betty only - fall back to single response
           console.log('[V2-DIALOGUE] ⚠️ Short-circuit detected - falling back to Betty-only response');
+          
+          // Reset to single-persona mode
           detectedIntent = 'socratic_guidance';
           selectedPersona = 'BETTY';
-          // Continue with normal single-persona flow
-          break; // Exit V2-DIALOGUE, go to single response
-        }
-        
-        // STEP 2: Generate unique groupId for this collaborative turn
+          isCoResponse = false; // Disable co-response to skip V1 fallback
+          
+          // Execution will fall through past line 2790 to single-persona logic
+        } else {
+          // No short-circuit - proceed with normal V2-DIALOGUE grouped message
+          
+          // STEP 2: Generate unique groupId for this collaborative turn
         const groupId = crypto.randomUUID();
         console.log('[V2-DIALOGUE] 🔗 Generated groupId:', groupId);
         
@@ -2778,15 +2781,16 @@ Keep it brief (1-2 sentences) and ask a NEW question that builds on what they sa
           }
         });
         
-        // Return streaming response immediately (V2 path complete)
-        return new Response(dialogueStream, {
-          headers: {
-            ...corsHeaders,
-            'Content-Type': 'text/event-stream',
-            'Cache-Control': 'no-cache',
-            'Connection': 'keep-alive'
-          }
-        });
+          // Return streaming response immediately (V2 path complete)
+          return new Response(dialogueStream, {
+            headers: {
+              ...corsHeaders,
+              'Content-Type': 'text/event-stream',
+              'Cache-Control': 'no-cache',
+              'Connection': 'keep-alive'
+            }
+          });
+        }
       }
     }
     
