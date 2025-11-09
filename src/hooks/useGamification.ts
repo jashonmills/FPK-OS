@@ -71,7 +71,14 @@ export function useGamification() {
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        // Check if it's an authentication error (401)
+        if (error.message?.includes('Unauthorized') || error.message?.includes('401')) {
+          console.warn('XP System: Authentication error - user session may be expired');
+          return;
+        }
+        throw error;
+      }
 
       const response = data as XPResponse;
 
@@ -130,7 +137,21 @@ export function useGamification() {
         body: { action: 'get_user_stats' }
       });
 
-      if (error) throw error;
+      if (error) {
+        // Check if it's an authentication error (401)
+        if (error.message?.includes('Unauthorized') || error.message?.includes('401')) {
+          console.warn('XP System: Authentication error - user session may be expired');
+          // Silently fail and set empty state - auth system will handle redirect
+          setUserStats({
+            xp: { total_xp: 0, level: 1, next_level_xp: 100 },
+            badges: [],
+            streaks: []
+          });
+          return;
+        }
+        throw error;
+      }
+      
       setUserStats(data);
     } catch (error) {
       console.error('Failed to fetch user stats:', error);
@@ -160,7 +181,14 @@ export function useGamification() {
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        // Check if it's an authentication error (401)
+        if (error.message?.includes('Unauthorized') || error.message?.includes('401')) {
+          console.warn('XP System: Authentication error - user session may be expired');
+          return;
+        }
+        throw error;
+      }
       
       await fetchUserStats();
       return data;
@@ -177,7 +205,14 @@ export function useGamification() {
         body: { action: 'check_badges' }
       });
 
-      if (error) throw error;
+      if (error) {
+        // Check if it's an authentication error (401)
+        if (error.message?.includes('Unauthorized') || error.message?.includes('401')) {
+          console.warn('XP System: Authentication error - user session may be expired');
+          return;
+        }
+        throw error;
+      }
 
       // Show notifications for new badges
       data.newBadges?.forEach((badge: BadgeItem) => {
@@ -206,7 +241,19 @@ export function useGamification() {
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        // Check if it's an authentication error (401)
+        if (error.message?.includes('Unauthorized') || error.message?.includes('401')) {
+          console.warn('XP System: Authentication error - user session may be expired');
+          toast({
+            title: "Session Expired",
+            description: "Please sign in again to continue",
+            variant: "destructive"
+          });
+          return null;
+        }
+        throw error;
+      }
 
       if (data.error) {
         toast({
