@@ -17,9 +17,11 @@ export function ReAnalysisButton({ familyId, onJobStarted }: ReAnalysisButtonPro
     const toastId = toast.loading("🚀 Starting smart batching...");
     
     try {
+      console.log('🔵 Invoking re-analyze-all-documents for family:', familyId);
       const { data, error } = await supabase.functions.invoke("re-analyze-all-documents", {
         body: { family_id: familyId },
       });
+      console.log('🔵 Response:', { data, error });
 
       if (error) throw error;
 
