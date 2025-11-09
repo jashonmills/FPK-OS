@@ -4,6 +4,7 @@ import { CollaborativeResponsePlayer } from './CollaborativeResponsePlayer';
 import { MessageGroup } from '@/utils/messageGrouping';
 import { CommandCenterMessage } from '@/hooks/useCommandCenterChat';
 import { getGroupAudioPlaylist } from '@/utils/messageGrouping';
+import { useVoiceSettings } from '@/contexts/VoiceSettingsContext';
 
 interface MessageGroupContainerProps {
   group: MessageGroup;
@@ -11,6 +12,13 @@ interface MessageGroupContainerProps {
 
 export function MessageGroupContainer({ group }: MessageGroupContainerProps) {
   const audioPlaylist = getGroupAudioPlaylist(group);
+  const { settings: voiceSettings } = useVoiceSettings();
+
+  console.log('[Message Group] 📦 Group rendered:', {
+    groupId: group.groupId,
+    messageCount: group.messages.length,
+    personas: group.messages.map(m => m.persona)
+  });
 
   return (
     <div 
@@ -27,6 +35,7 @@ export function MessageGroupContainer({ group }: MessageGroupContainerProps) {
         <CollaborativeResponsePlayer 
           audioPlaylist={audioPlaylist}
           groupId={group.groupId}
+          autoPlayEnabled={voiceSettings.autoRead && voiceSettings.enabled}
         />
       </div>
       

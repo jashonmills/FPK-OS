@@ -256,11 +256,13 @@ export function useCommandCenterChat(userId?: string) {
         )
       );
 
-      // Fetch audio URLs for grouped messages from database
-      setTimeout(async () => {
+      // Fetch audio URLs immediately after streaming completes (no delay)
+      (async () => {
         try {
           const groupedMessages = messages.filter(m => m.groupId && !m.audioUrl);
           if (groupedMessages.length === 0) return;
+
+          console.log('[Audio Fetch] 📻 Fetching audio URLs for grouped messages:', groupedMessages.length);
 
           const { data: dbMessages } = await supabase
             .from('phoenix_messages')
@@ -270,6 +272,8 @@ export function useCommandCenterChat(userId?: string) {
             .limit(20);
 
           if (dbMessages && dbMessages.length > 0) {
+            console.log('[Audio Fetch] ✅ Found database messages:', dbMessages.length);
+            
             setMessages(current => current.map(msg => {
               if (!msg.groupId || msg.audioUrl) return msg;
               
@@ -281,6 +285,7 @@ export function useCommandCenterChat(userId?: string) {
               if (dbMatch?.metadata && typeof dbMatch.metadata === 'object') {
                 const metadata = dbMatch.metadata as any;
                 if (metadata.audioUrl) {
+                  console.log('[Audio Fetch] 🎵 Matched audio URL for message:', msg.content.substring(0, 50));
                   return { ...msg, audioUrl: metadata.audioUrl };
                 }
               }
@@ -290,7 +295,7 @@ export function useCommandCenterChat(userId?: string) {
         } catch (error) {
           console.error('Failed to fetch audio URLs:', error);
         }
-      }, 1000);
+      })();
 
 
     } catch (error: any) {

@@ -570,8 +570,16 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
       // Only speak AI messages (not user messages, not while streaming)
       const isStreaming = 'isStreaming' in lastMessage && lastMessage.isStreaming;
       
+      // NEW: Check if message is part of a group (grouped messages handled by unified player)
+      const isGrouped = 'groupId' in lastMessage && lastMessage.groupId;
+      
       // Check for persona-based messages (both CommandCenter and Org messages now have persona)
-      if ('persona' in lastMessage && lastMessage.persona !== 'USER' && lastMessage.persona !== 'CONDUCTOR' && !isStreaming) {
+      // Skip grouped messages - they're controlled by the Unified Player
+      if ('persona' in lastMessage && 
+          lastMessage.persona !== 'USER' && 
+          lastMessage.persona !== 'CONDUCTOR' && 
+          !isStreaming && 
+          !isGrouped) {
         console.log('[TTS] 🔊 Auto-playing new AI message from', lastMessage.persona);
         speak(lastMessage.content, lastMessage.persona);
       }

@@ -5,11 +5,17 @@ import { cn } from '@/lib/utils';
 interface CollaborativeResponsePlayerProps {
   audioPlaylist: string[];
   groupId: string;
+  autoPlayEnabled?: boolean;
 }
 
-export function CollaborativeResponsePlayer({ audioPlaylist, groupId }: CollaborativeResponsePlayerProps) {
+export function CollaborativeResponsePlayer({ 
+  audioPlaylist, 
+  groupId, 
+  autoPlayEnabled = false 
+}: CollaborativeResponsePlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
+  const [hasAutoPlayed, setHasAutoPlayed] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const isStoppedRef = useRef(false);
 
@@ -22,6 +28,19 @@ export function CollaborativeResponsePlayer({ audioPlaylist, groupId }: Collabor
       }
     };
   }, []);
+
+  // Auto-play effect (fires once when audio is ready and autoplay is enabled)
+  useEffect(() => {
+    if (autoPlayEnabled && 
+        !hasAutoPlayed && 
+        audioPlaylist.length > 0 && 
+        audioPlaylist.every(url => url && url.length > 0) &&
+        !isPlaying) {
+      console.log('[Unified Player] 🔊 Auto-playing collaborative response');
+      setHasAutoPlayed(true);
+      playSequentially();
+    }
+  }, [autoPlayEnabled, audioPlaylist, hasAutoPlayed, isPlaying]);
 
   const stopPlayback = () => {
     isStoppedRef.current = true;
@@ -116,6 +135,17 @@ export function CollaborativeResponsePlayer({ audioPlaylist, groupId }: Collabor
   };
 
   const hasAudio = audioPlaylist.length > 0 && audioPlaylist.every(url => url && url.length > 0);
+
+  // Log playlist info for debugging
+  useEffect(() => {
+    if (hasAudio) {
+      console.log('[Unified Player] 📻 Audio playlist loaded:', {
+        groupId,
+        audioCount: audioPlaylist.length,
+        audioUrls: audioPlaylist.map(url => url?.substring(0, 50) + '...')
+      });
+    }
+  }, [audioPlaylist, groupId, hasAudio]);
 
   if (!hasAudio) {
     return null; // Don't render if no audio available
