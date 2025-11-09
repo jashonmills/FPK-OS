@@ -626,7 +626,7 @@ async function generateSSMLAudio(ssml: string): Promise<string | null> {
  * GROUPED MESSAGE SYSTEM: Generate separate audio for each persona
  * Returns base64 data URL or null if generation fails
  */
-async function generatePersonaAudio(text: string, persona: 'BETTY' | 'AL'): Promise<string | null> {
+async function generatePersonaAudio(text: string, persona: 'BETTY' | 'AL' | 'NITE_OWL'): Promise<string | null> {
   const GOOGLE_TTS_KEY = Deno.env.get('GOOGLE_CLOUD_TTS_API_KEY');
   if (!GOOGLE_TTS_KEY) {
     console.error('[Persona-TTS] ❌ Google TTS API key not found');
@@ -634,7 +634,11 @@ async function generatePersonaAudio(text: string, persona: 'BETTY' | 'AL'): Prom
   }
 
   try {
-    const voice = persona === 'BETTY' ? 'en-US-Wavenet-F' : 'en-US-Neural2-D';
+    const voice = persona === 'BETTY' 
+      ? 'en-US-Wavenet-F' 
+      : persona === 'AL'
+        ? 'en-US-Neural2-D'
+        : 'en-US-Wavenet-J'; // Nite Owl - quirky, energetic voice
     console.log(`[Persona-TTS] 🎙️ Generating ${persona} audio (voice: ${voice})...`);
     
     const response = await fetch(
@@ -3326,14 +3330,11 @@ Keep it under 100 words.`;
           console.log('[CONDUCTOR] 🎵 Target persona for TTS:', selectedPersona);
           
           // Generate persona-specific audio using backend Google TTS
-          if (selectedPersona === 'BETTY' || selectedPersona === 'AL') {
+          if (selectedPersona === 'BETTY' || selectedPersona === 'AL' || selectedPersona === 'NITE_OWL') {
             console.log(`[CONDUCTOR] 🎙️ Generating ${selectedPersona} audio with backend TTS...`);
             
             try {
-              audioUrl = await generatePersonaAudio(
-                textForTTS, 
-                selectedPersona === 'BETTY' ? 'BETTY' : 'AL'
-              );
+              audioUrl = await generatePersonaAudio(textForTTS, selectedPersona);
               audioProvider = audioUrl ? 'google_tts_persona' : 'none';
               console.log(`[CONDUCTOR] ✅ ${selectedPersona} audio generated:`, audioUrl ? 'Success' : 'Failed');
             } catch (error) {
