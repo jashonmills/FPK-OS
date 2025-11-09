@@ -40,12 +40,13 @@ export const AnalysisQueueStatus = () => {
 
   // Fetch queue stats
   const { data: queueStats, refetch: refetchStats } = useQuery({
-    queryKey: ['queue-stats', selectedFamily?.id],
+    queryKey: ['queue-stats', selectedFamily?.id, activeJobs?.id],
     queryFn: async () => {
       if (!selectedFamily?.id) return null;
       
       const { data, error } = await supabase.rpc('get_queue_stats', {
-        p_family_id: selectedFamily.id
+        p_family_id: selectedFamily.id,
+        p_job_id: activeJobs?.id || null
       });
 
       if (error) throw error;

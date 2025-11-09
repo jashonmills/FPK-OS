@@ -4056,17 +4056,29 @@ export type Database = {
           verbal_count: number
         }[]
       }
-      get_queue_stats: {
-        Args: { p_family_id: string }
-        Returns: {
-          avg_processing_time_sec: number
-          completed_items: number
-          failed_items: number
-          pending_items: number
-          processing_items: number
-          total_items: number
-        }[]
-      }
+      get_queue_stats:
+        | {
+            Args: { p_family_id: string }
+            Returns: {
+              avg_processing_time_sec: number
+              completed_items: number
+              failed_items: number
+              pending_items: number
+              processing_items: number
+              total_items: number
+            }[]
+          }
+        | {
+            Args: { p_family_id: string; p_job_id?: string }
+            Returns: {
+              avg_processing_time_sec: number
+              completed_items: number
+              failed_items: number
+              pending_items: number
+              processing_items: number
+              total_items: number
+            }[]
+          }
       get_reading_error_data: {
         Args: { p_days?: number; p_family_id: string; p_student_id: string }
         Returns: {
