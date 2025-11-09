@@ -23,9 +23,19 @@ export function detectMentionedCourse(
   userMessage: string,
   activeCourses: Array<{ title: string; slug: string }>
 ): { title: string; slug: string } | null {
+  // Handle edge cases
+  if (!userMessage || !activeCourses || activeCourses.length === 0) {
+    return null;
+  }
+  
   const lowerMessage = userMessage.toLowerCase();
   
   for (const course of activeCourses) {
+    // Skip courses without title or slug
+    if (!course || !course.title || !course.slug) {
+      continue;
+    }
+    
     // Check if message mentions course title or slug
     const titleWords = course.title.toLowerCase().split(' ');
     const hasMultipleWords = titleWords.filter(w => lowerMessage.includes(w)).length >= 2;
