@@ -130,7 +130,7 @@ const VoiceInputButton: React.FC<VoiceInputButtonProps> = ({
         onClick={handleVoiceInput}
         disabled={disabled || isProcessing}
         className={cn(
-          "shrink-0 transition-all duration-200",
+          "shrink-0 transition-all duration-200 bg-transparent hover:bg-accent",
           isRecording && "ring-2 ring-red-500 ring-opacity-50"
         )}
         title={getTitle()}
