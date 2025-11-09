@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -23,6 +23,8 @@ export const useOrgAIChat = ({ userId, orgId, orgName }: UseOrgAIChatProps) => {
   const [messages, setMessages] = useState<OrgChatMessage[]>([]);
   const [isSending, setIsSending] = useState(false);
   const [conversationId] = useState(() => crypto.randomUUID());
+  const [isStreamActive, setIsStreamActive] = useState(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
   const { toast } = useToast();
 
   const sendMessage = useCallback(async (messageText: string) => {
@@ -32,6 +34,12 @@ export const useOrgAIChat = ({ userId, orgId, orgName }: UseOrgAIChatProps) => {
       hasMessage: !!messageText.trim(),
       messageLength: messageText.length
     });
+    
+    // Prevent concurrent streams
+    if (isStreamActive) {
+      console.log('[useOrgAIChat] ⚠️ Stream already active, blocking concurrent send');
+      return;
+    }
     
     if (!userId || !messageText.trim()) {
       console.log('[useOrgAIChat] ❌ Validation failed');
@@ -48,6 +56,16 @@ export const useOrgAIChat = ({ userId, orgId, orgName }: UseOrgAIChatProps) => {
 
     setMessages(prev => [...prev, userMessage]);
     setIsSending(true);
+
+    // Cancel any ongoing stream
+    if (abortControllerRef.current) {
+      console.log('[useOrgAIChat] ⚠️ Aborting previous stream');
+      abortControllerRef.current.abort();
+    }
+    
+    // Create new controller
+    abortControllerRef.current = new AbortController();
+    setIsStreamActive(true);
 
     try {
       // Get auth session for streaming
@@ -85,7 +103,8 @@ export const useOrgAIChat = ({ userId, orgId, orgName }: UseOrgAIChatProps) => {
                 isOrgContext: true
               }
             }
-          })
+          }),
+          signal: abortControllerRef.current.signal
         }
       );
 
@@ -177,6 +196,12 @@ export const useOrgAIChat = ({ userId, orgId, orgName }: UseOrgAIChatProps) => {
       );
 
     } catch (error: any) {
+      // Don't show error if request was aborted (user sent new message)
+      if (error.name === 'AbortError') {
+        console.log('[useOrgAIChat] Stream aborted by new message');
+        return;
+      }
+      
       console.error('Org chat error:', error);
       
       // Add error message
@@ -195,6 +220,8 @@ export const useOrgAIChat = ({ userId, orgId, orgName }: UseOrgAIChatProps) => {
       });
     } finally {
       setIsSending(false);
+      setIsStreamActive(false);
+      abortControllerRef.current = null;
     }
   }, [userId, orgId, orgName, conversationId, messages, isSending, toast]);
 

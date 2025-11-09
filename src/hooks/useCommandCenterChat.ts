@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { CoachPersona } from './useCoachSelection';
@@ -21,6 +21,8 @@ export function useCommandCenterChat(userId?: string) {
   const [loading, setLoading] = useState(false);
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
+  const [isStreamActive, setIsStreamActive] = useState(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
   const { toast } = useToast();
 
   const sendMessage = useCallback(async (messageText: string) => {
@@ -30,6 +32,12 @@ export function useCommandCenterChat(userId?: string) {
       hasMessage: !!messageText.trim(),
       messageLength: messageText.length
     });
+    
+    // Prevent concurrent streams
+    if (isStreamActive) {
+      console.log('[useCommandCenterChat] ⚠️ Stream already active, blocking concurrent send');
+      return;
+    }
     
     if (!userId || !messageText.trim()) {
       console.log('[useCommandCenterChat] ❌ Validation failed - userId or message missing');
@@ -87,6 +95,16 @@ export function useCommandCenterChat(userId?: string) {
     setMessages(prev => [...prev, userMessage]);
     setLoading(true);
 
+    // Cancel any ongoing stream
+    if (abortControllerRef.current) {
+      console.log('[useCommandCenterChat] ⚠️ Aborting previous stream');
+      abortControllerRef.current.abort();
+    }
+    
+    // Create new controller
+    abortControllerRef.current = new AbortController();
+    setIsStreamActive(true);
+
     try {
       // Get auth session for streaming
       const { data: { session } } = await supabase.auth.getSession();
@@ -117,7 +135,8 @@ export function useCommandCenterChat(userId?: string) {
               source: 'ai_command_center_v2',
               audioEnabled
             }
-          })
+          }),
+          signal: abortControllerRef.current.signal
         }
       );
 
@@ -221,6 +240,12 @@ export function useCommandCenterChat(userId?: string) {
       );
 
     } catch (error: any) {
+      // Don't show error if request was aborted (user sent new message)
+      if (error.name === 'AbortError') {
+        console.log('[useCommandCenterChat] Stream aborted by new message');
+        return;
+      }
+      
       console.error('Chat error:', error);
       toast({
         title: 'Error',
@@ -229,6 +254,8 @@ export function useCommandCenterChat(userId?: string) {
       });
     } finally {
       setLoading(false);
+      setIsStreamActive(false);
+      abortControllerRef.current = null;
     }
   }, [userId, conversationId, messages, audioEnabled, toast]);
 
