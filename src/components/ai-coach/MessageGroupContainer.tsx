@@ -1,5 +1,6 @@
 import React from 'react';
 import { MessageBubble } from './MessageBubble';
+import { CollaborativeResponsePlayer } from './CollaborativeResponsePlayer';
 import { MessageGroup } from '@/utils/messageGrouping';
 import { CommandCenterMessage } from '@/hooks/useCommandCenterChat';
 import { getGroupAudioPlaylist } from '@/utils/messageGrouping';
@@ -21,16 +22,22 @@ export function MessageGroupContainer({ group }: MessageGroupContainerProps) {
         Collaborative Response
       </div>
       
+      {/* Unified audio player for the entire group */}
+      <div className="mt-2">
+        <CollaborativeResponsePlayer 
+          audioPlaylist={audioPlaylist}
+          groupId={group.groupId}
+        />
+      </div>
+      
       {/* Render each message in the group */}
       <div className="space-y-2 mt-2">
         {group.messages.map((message, index) => (
           <MessageBubble
             key={message.id}
             message={message as CommandCenterMessage}
-            groupId={group.groupId}
-            groupAudioPlaylist={audioPlaylist}
+            hideAudioControls={true}
             isPartOfGroup={true}
-            messageIndexInGroup={index}
           />
         ))}
       </div>

@@ -13,6 +13,7 @@ export interface CommandCenterMessage {
   created_at: string;
   audioUrl?: string;
   isStreaming?: boolean;
+  groupId?: string;
 }
 
 export function useCommandCenterChat(userId?: string) {
@@ -213,6 +214,22 @@ export function useCommandCenterChat(userId?: string) {
                   isStreaming: true
                 }];
               });
+            } else if (data.type === 'dialogue') {
+              // Collaborative response with multiple personas
+              const collaborationGroupId = data.groupId || crypto.randomUUID();
+              
+              if (data.dialogue && Array.isArray(data.dialogue)) {
+                const groupMessages: CommandCenterMessage[] = data.dialogue.map((line: any) => ({
+                  id: crypto.randomUUID(),
+                  persona: line.persona,
+                  content: line.text,
+                  created_at: new Date().toISOString(),
+                  groupId: collaborationGroupId,
+                  audioUrl: undefined // Will be fetched from database
+                }));
+                
+                setMessages(prev => [...prev, ...groupMessages]);
+              }
             } else if (data.type === 'handoff') {
               // Nite Owl handoff or persona transition
               const handoffMessage: CommandCenterMessage = {
@@ -238,6 +255,43 @@ export function useCommandCenterChat(userId?: string) {
             : m
         )
       );
+
+      // Fetch audio URLs for grouped messages from database
+      setTimeout(async () => {
+        try {
+          const groupedMessages = messages.filter(m => m.groupId && !m.audioUrl);
+          if (groupedMessages.length === 0) return;
+
+          const { data: dbMessages } = await supabase
+            .from('phoenix_messages')
+            .select('content, metadata')
+            .eq('conversation_id', activeSessionId)
+            .order('created_at', { ascending: false })
+            .limit(20);
+
+          if (dbMessages && dbMessages.length > 0) {
+            setMessages(current => current.map(msg => {
+              if (!msg.groupId || msg.audioUrl) return msg;
+              
+              const dbMatch = dbMessages.find(db => 
+                db.content && msg.content && 
+                db.content.trim().substring(0, 100) === msg.content.trim().substring(0, 100)
+              );
+              
+              if (dbMatch?.metadata && typeof dbMatch.metadata === 'object') {
+                const metadata = dbMatch.metadata as any;
+                if (metadata.audioUrl) {
+                  return { ...msg, audioUrl: metadata.audioUrl };
+                }
+              }
+              return msg;
+            }));
+          }
+        } catch (error) {
+          console.error('Failed to fetch audio URLs:', error);
+        }
+      }, 1000);
+
 
     } catch (error: any) {
       // Don't show error if request was aborted (user sent new message)

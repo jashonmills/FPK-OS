@@ -1,15 +1,18 @@
 import { OrgChatMessage } from '@/hooks/useOrgAIChat';
+import { CommandCenterMessage } from '@/hooks/useCommandCenterChat';
 
 export interface MessageGroup {
   groupId: string;
-  messages: OrgChatMessage[];
+  messages: OrgChatMessage[] | CommandCenterMessage[];
 }
 
 /**
  * Groups consecutive messages that share the same groupId
  */
-export function groupConsecutiveMessages(messages: OrgChatMessage[]): (OrgChatMessage | MessageGroup)[] {
-  const result: (OrgChatMessage | MessageGroup)[] = [];
+export function groupConsecutiveMessages<T extends OrgChatMessage | CommandCenterMessage>(
+  messages: T[]
+): (T | MessageGroup)[] {
+  const result: (T | MessageGroup)[] = [];
   let currentGroup: MessageGroup | null = null;
 
   for (const message of messages) {
