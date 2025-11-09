@@ -901,11 +901,23 @@ async function fetchStudentContext(userId: string, supabaseClient: any) {
     console.log('[CONDUCTOR] Fetching student data from database...');
     
     // Fetch user profile data
-    const { data: profile } = await supabaseClient
+    const { data: profile, error: profileError } = await supabaseClient
       .from('profiles')
       .select('full_name, display_name, total_xp, current_streak, last_activity_date')
       .eq('id', userId)
       .single();
+    
+    // 🔍 IDENTITY TRACKING: Log profile fetch results
+    console.log('[IDENTITY] Profile fetch for userId:', userId);
+    if (profileError) {
+      console.error('[IDENTITY] ❌ Profile fetch error:', profileError);
+    } else {
+      console.log('[IDENTITY] ✅ Profile found:', {
+        full_name: profile?.full_name,
+        display_name: profile?.display_name,
+        resolved_userName: profile?.display_name || profile?.full_name || 'Student'
+      });
+    }
     
     // Fetch recent Socratic sessions
     const { data: sessions } = await supabaseClient
@@ -962,8 +974,13 @@ async function fetchStudentContext(userId: string, supabaseClient: any) {
         )
       : 0;
     
+    const resolvedUserName = profile?.display_name || profile?.full_name || 'Student';
+    
+    // 🔍 IDENTITY TRACKING: Log final userName used in context
+    console.log('[IDENTITY] Final userName for student context:', resolvedUserName);
+    
     const context = {
-      userName: profile?.display_name || profile?.full_name || 'Student',
+      userName: resolvedUserName,
       totalSessions: sessions?.length || 0,
       recentTopics,
       totalXP: profile?.total_xp || 0,
@@ -1230,6 +1247,16 @@ serve(async (req) => {
     }
 
     userId = user.id; // Store for error logging
+    
+    // 🔍 IDENTITY TRACKING: Log complete user identity chain
+    console.log('[IDENTITY] ========== USER IDENTITY CHAIN ==========');
+    console.log('[IDENTITY] Request conversationId:', conversationId);
+    console.log('[IDENTITY] Authenticated user.id:', user.id);
+    console.log('[IDENTITY] user.email:', user.email);
+    console.log('[IDENTITY] user.user_metadata.full_name:', user.user_metadata?.full_name);
+    console.log('[IDENTITY] user.user_metadata.display_name:', user.user_metadata?.display_name);
+    console.log('[IDENTITY] ===========================================');
+    
     console.log('[CONDUCTOR] User authenticated:', user.id);
 
     // Get Lovable AI API Key early (needed for RAG)
@@ -1363,11 +1390,31 @@ serve(async (req) => {
     
     const { data: existingConv } = await supabaseClient
       .from('phoenix_conversations')
-      .select('id')
+      .select('id, user_id')
       .eq('session_id', conversationId)
       .maybeSingle();
+    
+    // 🔍 IDENTITY TRACKING: Log conversation lookup
+    console.log('[IDENTITY] Conversation lookup:', {
+      requested_session_id: conversationId,
+      found: !!existingConv,
+      conversation_uuid: existingConv?.id,
+      conversation_user_id: existingConv?.user_id,
+      authenticated_user_id: user.id,
+      USER_MISMATCH: existingConv && existingConv.user_id !== user.id
+    });
 
     if (existingConv) {
+      // 🚨 CRITICAL: Verify conversation belongs to authenticated user
+      if (existingConv.user_id !== user.id) {
+        console.error('[IDENTITY] ❌❌❌ CRITICAL BUG DETECTED ❌❌❌');
+        console.error('[IDENTITY] Session ID collision or hijacking detected!');
+        console.error('[IDENTITY] Conversation user_id:', existingConv.user_id);
+        console.error('[IDENTITY] Authenticated user_id:', user.id);
+        console.error('[IDENTITY] This conversation belongs to a different user!');
+        throw new Error('Session security violation: conversation belongs to different user');
+      }
+      
       conversationUuid = existingConv.id;
       console.log('[CONDUCTOR] ✅ Found existing conversation:', conversationUuid);
     } else {
@@ -1386,6 +1433,14 @@ serve(async (req) => {
       } else {
         conversationUuid = newConv.id;
         console.log('[CONDUCTOR] ✅ Created new conversation:', conversationUuid);
+        
+        // 🔍 IDENTITY TRACKING: Log new conversation creation
+        console.log('[IDENTITY] New conversation created:', {
+          conversation_uuid: newConv.id,
+          session_id: conversationId,
+          user_id: user.id,
+          user_email: user.email
+        });
       }
     }
 
@@ -2259,6 +2314,14 @@ If they seem confused, provide clarification directly. Do NOT switch to Socratic
         .find(m => m.persona === 'BETTY');
       
       const userName = user?.user_metadata?.full_name || 'there';
+      
+      // 🔍 IDENTITY TRACKING: Log V2 Dialogue userName resolution
+      console.log('[IDENTITY] V2-DIALOGUE userName resolved:', {
+        userName,
+        source: user?.user_metadata?.full_name ? 'user_metadata' : 'default',
+        user_id: user?.id,
+        conversation_id: conversationId
+      });
       
       // STEP 1: Generate dialogue script via Claude
       const scriptStartTime = Date.now();
