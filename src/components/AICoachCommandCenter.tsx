@@ -484,7 +484,7 @@ const AIInteractionColumn: React.FC<{
             <button
               onClick={onSendMessage}
               disabled={!inputValue.trim() || isLoading}
-              className="p-3 bg-fpk-primary hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-lg transition"
+              className="p-3 bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-lg"
               title="Send message"
             >
               <Send className="w-5 h-5" />
