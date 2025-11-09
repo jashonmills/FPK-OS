@@ -2,7 +2,7 @@ import { useState, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
-interface OrgChatMessage {
+export interface OrgChatMessage {
   id: string;
   persona: 'USER' | 'BETTY' | 'AL' | 'CONDUCTOR' | 'NITE_OWL';
   role?: 'user' | 'assistant'; // Keep for backward compatibility
@@ -11,6 +11,7 @@ interface OrgChatMessage {
   created_at: string;
   audioUrl?: string;
   isStreaming?: boolean;
+  groupId?: string; // NEW: For grouping collaborative responses
 }
 
 interface DialogueEvent {
@@ -191,19 +192,27 @@ export const useOrgAIChat = ({ userId, orgId, orgName }: UseOrgAIChatProps) => {
               };
               setMessages(prev => [...prev, handoffMessage]);
             } else if (data.type === 'dialogue') {
-              // V2-DIALOGUE: Handle multi-speaker collaboration (Betty + Al)
-              console.log('[useOrgAIChat] 📢 Received dialogue event:', data);
+              // V2-DIALOGUE: Handle multi-speaker collaboration with groupId and separate audio
+              console.log('[useOrgAIChat] 📢 Received grouped dialogue event:', data);
               
-              // Add each speaker's line as a separate message
+              const groupId = data.groupId || crypto.randomUUID(); // Fallback for backward compatibility
+              
+              // Add each speaker's line as a separate message with groupId and individual audio
               if (data.dialogue && Array.isArray(data.dialogue)) {
-                data.dialogue.forEach((line: { persona: string; text: string }) => {
+                data.dialogue.forEach((line: { 
+                  persona: string; 
+                  text: string; 
+                  audioUrl?: string; 
+                  groupId?: string; 
+                }) => {
                   const dialogueMessage: OrgChatMessage = {
                     id: crypto.randomUUID(),
                     persona: line.persona as OrgChatMessage['persona'],
                     role: 'assistant',
                     content: line.text,
                     created_at: new Date().toISOString(),
-                    audioUrl: data.audioUrl // Shared audio for both speakers
+                    audioUrl: line.audioUrl, // SEPARATE audio for each speaker
+                    groupId: line.groupId || groupId // Use line-specific or shared groupId
                   };
                   
                   setMessages(prev => [...prev, dialogueMessage]);

@@ -18,6 +18,8 @@ import { useAICoachStudyPlans } from '@/hooks/useAICoachStudyPlans';
 import { toast } from 'sonner';
 import VoiceInputButton from '@/components/notes/VoiceInputButton';
 import { MessageBubble } from '@/components/ai-coach/MessageBubble';
+import { MessageGroupContainer } from '@/components/ai-coach/MessageGroupContainer';
+import { groupConsecutiveMessages } from '@/utils/messageGrouping';
 import VoiceSettingsCard from '@/components/ai-coach/VoiceSettingsCard';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import { useVoiceSettings } from '@/contexts/VoiceSettingsContext';
@@ -417,7 +419,15 @@ const AIInteractionColumn: React.FC<{
               </div>
             </div>
           ) : (
-            messages.map((message) => <MessageBubble key={message.id} message={message} />)
+            groupConsecutiveMessages(messages).map((item, index) => {
+              if ('groupId' in item && 'messages' in item) {
+                // This is a message group - render in container
+                return <MessageGroupContainer key={item.groupId} group={item} />;
+              } else {
+                // This is a standalone message - render normally
+                return <MessageBubble key={item.id} message={item} />;
+              }
+            })
           )}
           {isLoading && (
             <div className="flex items-start">

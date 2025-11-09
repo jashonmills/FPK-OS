@@ -7,9 +7,17 @@ import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 
 interface MessageBubbleProps {
   message: CommandCenterMessage;
+  groupId?: string;
+  groupAudioPlaylist?: string[];
+  isPartOfGroup?: boolean;
 }
 
-export function MessageBubble({ message }: MessageBubbleProps) {
+export function MessageBubble({ 
+  message, 
+  groupId, 
+  groupAudioPlaylist,
+  isPartOfGroup = false 
+}: MessageBubbleProps) {
   const isUser = message.persona === 'USER';
   const isBetty = message.persona === 'BETTY';
   const isAl = message.persona === 'AL';
@@ -18,25 +26,55 @@ export function MessageBubble({ message }: MessageBubbleProps) {
   const { speak, stop, isSpeaking, isAvailable } = useTextToSpeech();
   const [isThisMessageSpeaking, setIsThisMessageSpeaking] = useState(false);
 
-  const handleSpeak = () => {
+  const handleSpeak = async () => {
     if (isThisMessageSpeaking) {
       stop();
       setIsThisMessageSpeaking(false);
     } else {
-      // Only speak for valid AI personas (not CONDUCTOR)
-      if (message.persona === 'BETTY' || message.persona === 'AL' || message.persona === 'NITE_OWL') {
-        speak(message.content, message.persona);
+      // If part of a group, play entire playlist sequentially
+      if (isPartOfGroup && groupAudioPlaylist && groupAudioPlaylist.length > 0) {
         setIsThisMessageSpeaking(true);
-        
-        // Auto-reset when speech ends
-        const checkEnd = setInterval(() => {
-          if (!isSpeaking) {
-            setIsThisMessageSpeaking(false);
-            clearInterval(checkEnd);
-          }
-        }, 100);
+        await playAudioPlaylist(groupAudioPlaylist);
+        setIsThisMessageSpeaking(false);
+      } else {
+        // Single message audio
+        if (message.persona === 'BETTY' || message.persona === 'AL' || message.persona === 'NITE_OWL') {
+          speak(message.content, message.persona);
+          setIsThisMessageSpeaking(true);
+          
+          // Auto-reset when speech ends
+          const checkEnd = setInterval(() => {
+            if (!isSpeaking) {
+              setIsThisMessageSpeaking(false);
+              clearInterval(checkEnd);
+            }
+          }, 100);
+        }
       }
     }
+  };
+
+  // Sequential playlist player for grouped messages
+  const playAudioPlaylist = async (playlist: string[]) => {
+    for (let i = 0; i < playlist.length; i++) {
+      await playAudioFile(playlist[i]);
+      // Add 750ms pause between speakers (matching backend pause)
+      if (i < playlist.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, 750));
+      }
+    }
+  };
+
+  const playAudioFile = (audioUrl: string): Promise<void> => {
+    return new Promise((resolve) => {
+      const audio = new Audio(audioUrl);
+      audio.onended = () => resolve();
+      audio.onerror = () => {
+        console.error('Audio playback error for URL:', audioUrl);
+        resolve(); // Continue even if one fails
+      };
+      audio.play().catch(() => resolve()); // Handle play() promise rejection
+    });
   };
 
   const getIcon = () => {

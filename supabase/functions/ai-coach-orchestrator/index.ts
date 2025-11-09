@@ -567,6 +567,62 @@ async function generateSSMLAudio(ssml: string): Promise<string | null> {
   }
 }
 
+/**
+ * GROUPED MESSAGE SYSTEM: Generate separate audio for each persona
+ * Returns base64 data URL or null if generation fails
+ */
+async function generatePersonaAudio(text: string, persona: 'BETTY' | 'AL'): Promise<string | null> {
+  const GOOGLE_TTS_KEY = Deno.env.get('GOOGLE_CLOUD_TTS_API_KEY');
+  if (!GOOGLE_TTS_KEY) {
+    console.error('[Persona-TTS] ❌ Google TTS API key not found');
+    return null;
+  }
+
+  try {
+    const voice = persona === 'BETTY' ? 'en-US-Wavenet-F' : 'en-US-Wavenet-D';
+    console.log(`[Persona-TTS] 🎙️ Generating ${persona} audio (voice: ${voice})...`);
+    
+    const response = await fetch(
+      `https://texttospeech.googleapis.com/v1/text:synthesize?key=${GOOGLE_TTS_KEY}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          input: { text },
+          voice: { 
+            languageCode: 'en-US',
+            name: voice
+          },
+          audioConfig: {
+            audioEncoding: 'MP3',
+            speakingRate: 1.0,
+            pitch: 0
+          }
+        })
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`[Persona-TTS] ❌ Google TTS API error for ${persona}:`, response.status, errorText);
+      return null;
+    }
+
+    const data = await response.json();
+    if (!data.audioContent) {
+      console.error(`[Persona-TTS] ❌ No audio content in response for ${persona}`);
+      return null;
+    }
+
+    console.log(`[Persona-TTS] ✅ ${persona} audio generated successfully`);
+    return `data:audio/mpeg;base64,${data.audioContent}`;
+    
+  } catch (error) {
+    console.error(`[Persona-TTS] ❌ Exception during ${persona} audio generation:`, error);
+    return null;
+  }
+}
+
 function buildNiteOwlSystemPrompt(knowledgePack?: any): string {
   const modules = [
     NO_META_REASONING,
@@ -2468,22 +2524,26 @@ If they seem confused, provide clarification directly. Do NOT switch to Socratic
         // Continue to V1 co-response below
         
       } else {
-        // SUCCESS! Build SSML and generate audio
+        // SUCCESS! Generate grouped message with separate audio
         console.log('[V2-DIALOGUE] ✅ Claude script generated');
         console.log('[V2-DIALOGUE] Betty:', script.betty_line.substring(0, 80) + '...');
         console.log('[V2-DIALOGUE] Al:', script.al_line.substring(0, 80) + '...');
         
-        // STEP 2: Build SSML string
-        const ssml = buildSSMLDialogue(script.betty_line, script.al_line);
+        // STEP 2: Generate unique groupId for this collaborative turn
+        const groupId = crypto.randomUUID();
+        console.log('[V2-DIALOGUE] 🔗 Generated groupId:', groupId);
         
-        // STEP 3: Generate single multi-voice audio
+        // STEP 3: Generate separate audio for each persona
         const audioStartTime = Date.now();
-        const audioUrl = await generateSSMLAudio(ssml);
+        const [bettyAudioUrl, alAudioUrl] = await Promise.all([
+          generatePersonaAudio(script.betty_line, 'BETTY'),
+          generatePersonaAudio(script.al_line, 'AL')
+        ]);
         const audioEndTime = Date.now();
-        console.log('[V2-DIALOGUE] ⏱️ SSML audio generation time:', audioEndTime - audioStartTime, 'ms');
+        console.log('[V2-DIALOGUE] ⏱️ Separate audio generation time:', audioEndTime - audioStartTime, 'ms');
         
-        if (!audioUrl) {
-          console.warn('[V2-DIALOGUE] ⚠️ SSML audio generation failed - will send text-only dialogue');
+        if (!bettyAudioUrl || !alAudioUrl) {
+          console.warn('[V2-DIALOGUE] ⚠️ Audio generation failed for one or both personas - will send text-only dialogue');
         }
         
         // STEP 4: Create streaming response with structured dialogue
@@ -2503,15 +2563,25 @@ If they seem confused, provide clarification directly. Do NOT switch to Socratic
               controller.enqueue(new TextEncoder().encode(thinkingEvent));
               console.log('[V2-DIALOGUE] ✅ Sent thinking indicator');
               
-              // Send dialogue event with structured transcript
+              // Send dialogue event with grouped messages and separate audio
               const dialogueEvent = `data: ${JSON.stringify({
                 type: 'dialogue',
+                groupId: groupId,
                 dialogue: [
-                  { persona: 'BETTY', text: script.betty_line },
-                  { persona: 'AL', text: script.al_line }
+                  { 
+                    persona: 'BETTY', 
+                    text: script.betty_line,
+                    audioUrl: bettyAudioUrl || undefined,
+                    groupId: groupId
+                  },
+                  { 
+                    persona: 'AL', 
+                    text: script.al_line,
+                    audioUrl: alAudioUrl || undefined,
+                    groupId: groupId
+                  }
                 ],
-                audioUrl: audioUrl || undefined,
-                ttsProvider: audioUrl ? 'google_ssml' : 'none',
+                ttsProvider: (bettyAudioUrl && alAudioUrl) ? 'google_tts_separate' : 'none',
                 metadata: {
                   isDialogue: true,
                   conversationId,
@@ -2521,7 +2591,7 @@ If they seem confused, provide clarification directly. Do NOT switch to Socratic
                 }
               })}\n\n`;
               controller.enqueue(new TextEncoder().encode(dialogueEvent));
-              console.log('[V2-DIALOGUE] ✅ Sent dialogue event');
+              console.log('[V2-DIALOGUE] ✅ Sent grouped dialogue event with groupId:', groupId);
               
               // Send completion
               const doneEvent = `data: ${JSON.stringify({
@@ -2538,7 +2608,7 @@ If they seem confused, provide clarification directly. Do NOT switch to Socratic
               console.log('[V2-DIALOGUE] ✨ Live Dialogue delivered successfully');
               controller.close();
               
-              // Store both messages in database with dialogue metadata
+              // Store both messages in database with groupId and separate audio
               if (conversationUuid) {
                 const { error: insertError } = await supabaseClient.from('phoenix_messages').insert([
                   {
@@ -2548,6 +2618,8 @@ If they seem confused, provide clarification directly. Do NOT switch to Socratic
                     metadata: {
                       isDialogue: true,
                       dialoguePart: 1,
+                      groupId: groupId,
+                      audioUrl: bettyAudioUrl || null,
                       generatedBy: 'claude_opus',
                       answerQuality: answerQualityScore
                     }
@@ -2559,14 +2631,15 @@ If they seem confused, provide clarification directly. Do NOT switch to Socratic
                     metadata: {
                       isDialogue: true,
                       dialoguePart: 2,
-                      generatedBy: 'claude_opus',
-                      audioUrl: audioUrl || null
+                      groupId: groupId,
+                      audioUrl: alAudioUrl || null,
+                      generatedBy: 'claude_opus'
                     }
                   }
                 ]);
                 
                 if (insertError) {
-                  console.error('[V2-DIALOGUE] ❌ Failed to store dialogue:', insertError);
+                  console.error('[V2-DIALOGUE] ❌ Failed to store grouped dialogue:', insertError);
                 } else {
                   console.log('[V2-DIALOGUE] ✅ Dialogue stored in database');
                   
