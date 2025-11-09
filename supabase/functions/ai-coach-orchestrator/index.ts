@@ -1402,6 +1402,12 @@ In the meantime, you can still access your courses directly from the dashboard.`
       try {
         const mentionedCourse = detectMentionedCourse(message, knowledgePack.active_courses);
         
+        console.log('[COURSE RAG] 🔍 Course detection:', {
+          userMessage: message.substring(0, 100),
+          activeCourses: knowledgePack.active_courses.map(c => ({ title: c.title, slug: c.slug })),
+          detectedCourse: mentionedCourse ? mentionedCourse.title : 'NONE'
+        });
+        
         if (mentionedCourse) {
           console.log('[CONDUCTOR] 🎓 Detected course mention:', mentionedCourse.title);
           courseContent = await retrieveCourseContent(mentionedCourse.slug, supabaseClient);
@@ -1409,8 +1415,11 @@ In the meantime, you can still access your courses directly from the dashboard.`
           if (courseContent) {
             console.log('[CONDUCTOR] ✅ Course content loaded:', {
               title: courseContent.title,
-              lessons: courseContent.lessons.length
+              lessons: courseContent.lessons.length,
+              firstLesson: courseContent.lessons[0]?.title
             });
+          } else {
+            console.error('[CONDUCTOR] ❌ Course content retrieval FAILED for slug:', mentionedCourse.slug);
           }
         }
         

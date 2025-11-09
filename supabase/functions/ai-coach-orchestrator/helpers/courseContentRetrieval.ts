@@ -61,13 +61,13 @@ export async function retrieveCourseContent(
       return null;
     }
     
-    // For V2 courses, try to load the manifest from content_data
-    if (courseData.content_version === 'v2' && courseData.content_data) {
-      const manifest = courseData.content_data;
+    // For V2 courses, try to load the manifest from content_manifest
+    if (courseData.content_version === 'v2' && courseData.content_manifest) {
+      const manifest = courseData.content_manifest;
       
       return {
         slug: courseSlug,
-        title: manifest.courseTitle || courseData.title,
+        title: manifest.title || courseData.title,
         description: manifest.description || courseData.description,
         lessons: manifest.lessons || []
       };
@@ -109,8 +109,9 @@ export function formatCourseContentForPrompt(courseContent: CourseContent): stri
     
     formatted += `\n**Your Role:**\n`;
     formatted += `You have access to this course content. When the student asks about this course:\n`;
+    formatted += `- **FOR INFORMATIONAL REQUESTS** (overview, what's covered, lesson descriptions): Provide direct, comprehensive answers THEN ask a Socratic follow-up question\n`;
+    formatted += `- **FOR CONCEPTUAL QUESTIONS** (why, how, what causes): Use full Socratic method with AVCQ\n`;
     formatted += `- Reference specific lessons naturally\n`;
-    formatted += `- Guide them through the course structure using Socratic questions\n`;
     formatted += `- Help them understand what each lesson covers\n`;
     formatted += `- Connect their questions to relevant lessons\n`;
   }

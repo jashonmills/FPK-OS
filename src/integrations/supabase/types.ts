@@ -2262,6 +2262,7 @@ export type Database = {
           asset_path: string | null
           background_image: string
           content_component: string | null
+          content_manifest: Json | null
           content_version: string | null
           course_visibility: string | null
           created_at: string | null
@@ -2294,6 +2295,7 @@ export type Database = {
           asset_path?: string | null
           background_image?: string
           content_component?: string | null
+          content_manifest?: Json | null
           content_version?: string | null
           course_visibility?: string | null
           created_at?: string | null
@@ -2326,6 +2328,7 @@ export type Database = {
           asset_path?: string | null
           background_image?: string
           content_component?: string | null
+          content_manifest?: Json | null
           content_version?: string | null
           course_visibility?: string | null
           created_at?: string | null
@@ -11556,6 +11559,7 @@ export type Database = {
           asset_path: string | null
           background_image: string
           content_component: string | null
+          content_manifest: Json | null
           content_version: string | null
           course_visibility: string | null
           created_at: string | null
@@ -11680,6 +11684,7 @@ export type Database = {
           asset_path: string | null
           background_image: string
           content_component: string | null
+          content_manifest: Json | null
           content_version: string | null
           course_visibility: string | null
           created_at: string | null
@@ -11722,6 +11727,7 @@ export type Database = {
           asset_path: string | null
           background_image: string
           content_component: string | null
+          content_manifest: Json | null
           content_version: string | null
           course_visibility: string | null
           created_at: string | null
@@ -11763,6 +11769,7 @@ export type Database = {
           asset_path: string | null
           background_image: string
           content_component: string | null
+          content_manifest: Json | null
           content_version: string | null
           course_visibility: string | null
           created_at: string | null
