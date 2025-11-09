@@ -33,6 +33,7 @@ export default function OrgPortalHome() {
   const { currentOrg } = useOrgContext();
   const { data: branding } = useOrgBranding(currentOrg?.organization_id || null);
   const { data: enhancedBranding } = useEnhancedOrgBranding(currentOrg?.organization_id || null);
+  const { userStats, isLoading: gamificationLoading } = useGamificationContext();
   const [showProgressModal, setShowProgressModal] = useState(false);
   const [showDetailedAnalytics, setShowDetailedAnalytics] = useState(false);
   
@@ -94,9 +95,6 @@ export default function OrgPortalHome() {
     );
   }
 
-  // Get gamification data for students
-  const { userStats, isLoading: gamificationLoading } = useGamificationContext();
-  
   // Student landing page - show comprehensive analytics
   if (isStudent) {
     const combinedLoading = studentStatsLoading || gamificationLoading;
