@@ -523,7 +523,7 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
       userId: user?.id 
     });
     
-    if (!inputValue.trim() || isLoading || !user) {
+    if (!inputValue.trim() || !user) {
       console.log('[AI COMMAND CENTER] ❌ Validation failed - not sending message');
       return;
     }
