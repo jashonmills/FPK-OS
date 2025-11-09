@@ -1189,9 +1189,11 @@ serve(async (req) => {
     const { message, conversationId, conversationHistory, metadata } = requestBody;
     
     // Extract context information early
+    console.log('[CONDUCTOR] 🔍 Metadata received:', JSON.stringify(metadata, null, 2));
     const isOrgContext = metadata?.source === 'ai_command_center_v2' && 
                          metadata?.contextData?.isOrgContext === true;
     const contextType = metadata?.contextData?.context; // 'org_study_coach' or 'phoenix_lab'
+    console.log('[CONDUCTOR] 🔍 Parsed context:', { isOrgContext, contextType, source: metadata?.source });
     
     // Validate required parameters
     if (!message || typeof message !== 'string') {
