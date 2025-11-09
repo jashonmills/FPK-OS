@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Upload, BookOpen, Clock, TrendingUp, Target, Award, Zap, MessageSquare, Volume2 } from 'lucide-react';
+import { Send, Upload, BookOpen, Clock, TrendingUp, Target, Award, Zap, MessageSquare, Volume2, Trash2, Save, Download } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { SpeedControl } from '@/components/coach/SpeedControl';
@@ -21,16 +21,19 @@ import { MessageBubble } from '@/components/ai-coach/MessageBubble';
 import VoiceSettingsCard from '@/components/ai-coach/VoiceSettingsCard';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import { useVoiceSettings } from '@/contexts/VoiceSettingsContext';
+import { SaveBeforeClearDialog } from '@/components/ai-coach/SaveBeforeClearDialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
 // Left Column: Context & History
 const ContextHistoryColumn: React.FC<{
   studyMaterials: any[];
   savedChats: any[];
   onLoadChat: (chatId: string) => void;
+  onDeleteChat: (chatId: string) => Promise<void>;
   onUploadMaterial: (file: File) => Promise<boolean>;
   isLoadingMaterials: boolean;
   isLoadingChats: boolean;
-}> = ({ studyMaterials, savedChats, onLoadChat, onUploadMaterial, isLoadingMaterials, isLoadingChats }) => {
+}> = ({ studyMaterials, savedChats, onLoadChat, onDeleteChat, onUploadMaterial, isLoadingMaterials, isLoadingChats }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -109,14 +112,30 @@ const ContextHistoryColumn: React.FC<{
             savedChats.map((chat) => (
               <div
                 key={chat.id}
-                onClick={() => onLoadChat(chat.id)}
-                className="p-3 bg-blue-50/80 rounded border border-blue-200/60 hover:bg-blue-100/80 cursor-pointer transition"
+                className="p-3 bg-blue-50/80 rounded border border-blue-200/60 hover:bg-blue-100/80 transition group relative"
               >
-                <p className="text-sm font-medium text-gray-800">{chat.title}</p>
-                <p className="text-xs text-gray-500 mt-1 line-clamp-1">{chat.last_message_preview || 'No preview'}</p>
-                <p className="text-xs text-gray-400 mt-1">
-                  {chat.message_count} messages • {new Date(chat.updated_at).toLocaleDateString()}
-                </p>
+                <div className="flex items-start justify-between gap-2">
+                  <div 
+                    className="flex-1 cursor-pointer" 
+                    onClick={() => onLoadChat(chat.id)}
+                  >
+                    <p className="text-sm font-medium text-gray-800 line-clamp-1">{chat.title}</p>
+                    <p className="text-xs text-gray-500 mt-1 line-clamp-1">{chat.last_message_preview || 'No preview'}</p>
+                    <p className="text-xs text-gray-400 mt-1">
+                      {chat.message_count} messages • {new Date(chat.updated_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDeleteChat(chat.id);
+                    }}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-red-100 rounded flex-shrink-0"
+                    title="Delete chat"
+                  >
+                    <Trash2 className="w-4 h-4 text-red-600" />
+                  </button>
+                </div>
               </div>
             ))
           )}
@@ -284,8 +303,11 @@ const AIInteractionColumn: React.FC<{
   onInputChange: (value: string) => void;
   onSendMessage: () => void;
   onVoiceTranscription: (text: string) => void;
+  onSaveChat: () => void;
+  onSaveAndClear: () => void;
+  onClearChat: () => void;
   isLoading: boolean;
-}> = ({ messages, inputValue, onInputChange, onSendMessage, onVoiceTranscription, isLoading }) => {
+}> = ({ messages, inputValue, onInputChange, onSendMessage, onVoiceTranscription, onSaveChat, onSaveAndClear, onClearChat, isLoading }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const lastMessageRef = useRef<string | null>(null);
@@ -412,6 +434,36 @@ const AIInteractionColumn: React.FC<{
         </div>
       </ScrollArea>
 
+      {/* Chat Controls */}
+      {messages.length > 0 && (
+        <div className="border-t border-b py-2 px-2 flex gap-2 justify-end flex-wrap">
+          <button
+            onClick={onSaveChat}
+            className="px-3 py-1.5 text-sm bg-green-600 hover:bg-green-700 text-white rounded-lg flex items-center gap-2 transition"
+            title="Save current chat"
+          >
+            <Save className="w-4 h-4" />
+            <span className="hidden sm:inline">Save Chat</span>
+          </button>
+          <button
+            onClick={onSaveAndClear}
+            className="px-3 py-1.5 text-sm bg-orange-600 hover:bg-orange-700 text-white rounded-lg flex items-center gap-2 transition"
+            title="Save and clear chat"
+          >
+            <Download className="w-4 h-4" />
+            <span className="hidden sm:inline">Save & Clear</span>
+          </button>
+          <button
+            onClick={onClearChat}
+            className="px-3 py-1.5 text-sm bg-red-600 hover:bg-red-700 text-white rounded-lg flex items-center gap-2 transition"
+            title="Clear chat without saving"
+          >
+            <Trash2 className="w-4 h-4" />
+            <span className="hidden sm:inline">Clear</span>
+          </button>
+        </div>
+      )}
+
       {/* Input Area */}
       <div className="border-t pt-4 flex-shrink-0">
         <div className="flex gap-2">
@@ -482,10 +534,13 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
   const conversationId = orgId ? null : standardChat.conversationId;
   
   const [inputValue, setInputValue] = useState('');
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [activeTab, setActiveTab] = useState('chat');
 
   // Live data hooks - replacing all placeholder data
   const { studyMaterials, isLoadingMaterials, uploadMaterial } = useAICoachStudyMaterials();
-  const { conversations, isLoadingConversations, loadMessages, saveConversation } = useAICoachConversations();
+  const { conversations, isLoadingConversations, loadMessages, saveConversation, deleteConversation } = useAICoachConversations();
   const { analytics, isLoadingAnalytics, trackSession } = useAICoachCommandAnalytics();
   const { activeStudyPlan, isLoadingPlan } = useAICoachStudyPlans();
 
@@ -544,8 +599,112 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
     // Text is now in the input, user can review and send
   };
 
+  const handleSaveChat = async () => {
+    if (messages.length === 0) {
+      toast.error('No messages to save');
+      return;
+    }
+
+    // Generate title from first user message
+    const firstUserMessage = messages.find(m => m.persona === 'USER');
+    const autoTitle = firstUserMessage 
+      ? firstUserMessage.content.substring(0, 50) + (firstUserMessage.content.length > 50 ? '...' : '')
+      : 'Untitled Chat';
+
+    const formattedMessages = messages.map(msg => ({
+      role: msg.persona === 'USER' ? 'user' as const : 'assistant' as const,
+      content: msg.content,
+      persona: msg.persona
+    }));
+
+    await saveConversation(autoTitle, formattedMessages);
+  };
+
+  const handleSaveAndClear = async (customTitle?: string) => {
+    if (messages.length === 0) return;
+
+    const firstUserMessage = messages.find(m => m.persona === 'USER');
+    const autoTitle = customTitle || (firstUserMessage 
+      ? firstUserMessage.content.substring(0, 50) + (firstUserMessage.content.length > 50 ? '...' : '')
+      : 'Untitled Chat');
+
+    const formattedMessages = messages.map(msg => ({
+      role: msg.persona === 'USER' ? 'user' as const : 'assistant' as const,
+      content: msg.content,
+      persona: msg.persona
+    }));
+
+    const savedId = await saveConversation(autoTitle, formattedMessages);
+    
+    if (savedId) {
+      // Clear chat after successful save
+      if (orgId) {
+        orgChat.clearAllMessages();
+      } else {
+        standardChat.clearMessages();
+      }
+      toast.success('Chat saved and cleared');
+    }
+  };
+
+  const handleClearWithoutSaving = () => {
+    if (orgId) {
+      orgChat.clearAllMessages();
+    } else {
+      standardChat.clearMessages();
+    }
+    setShowClearConfirm(false);
+    toast.info('Chat cleared');
+  };
+
   const handleLoadChat = async (chatId: string) => {
-    toast.info('Chat history loading is managed by the streaming service');
+    try {
+      toast.loading('Loading conversation...', { id: 'load-chat' });
+      
+      const loadedMessages = await loadMessages(chatId);
+      
+      if (loadedMessages.length === 0) {
+        toast.error('No messages found in this conversation', { id: 'load-chat' });
+        return;
+      }
+
+      // Format messages for the current chat system
+      const formattedForChat = loadedMessages.map(msg => ({
+        id: msg.id,
+        persona: (msg.persona || (msg.role === 'user' ? 'USER' : 'AL')) as 'USER' | 'BETTY' | 'AL' | 'CONDUCTOR' | 'NITE_OWL',
+        content: msg.content,
+        created_at: msg.created_at,
+      }));
+
+      // Clear current chat and load the saved one
+      if (orgId) {
+        orgChat.clearAllMessages();
+        // Note: Org chat doesn't have loadHistoricalMessages yet, would need to add it
+        toast.info('Loaded messages. Note: Org chat history loading needs implementation.', { id: 'load-chat' });
+      } else {
+        standardChat.clearMessages();
+        standardChat.loadHistoricalMessages(formattedForChat);
+        toast.success(`Loaded conversation with ${loadedMessages.length} messages`, { id: 'load-chat' });
+      }
+
+      // Switch to Chat tab after loading
+      setActiveTab('chat');
+      
+    } catch (error) {
+      console.error('Error loading chat:', error);
+      toast.error('Failed to load conversation', { id: 'load-chat' });
+    }
+  };
+
+  const handleDeleteChat = async (chatId: string) => {
+    if (!confirm('Are you sure you want to delete this conversation? This action cannot be undone.')) {
+      return;
+    }
+    
+    const success = await deleteConversation(chatId);
+    if (success) {
+      toast.success('Conversation deleted');
+    }
   };
 
   return (
@@ -555,7 +714,7 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
         style={{ maxHeight: 'calc(100vh - 60px)' }}
       >
         <div className="h-full flex flex-col">
-          <Tabs defaultValue="chat" className="flex-1 flex flex-col p-2 sm:p-3 md:p-4 lg:p-6">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col p-2 sm:p-3 md:p-4 lg:p-6">
             <TabsList className="w-full grid grid-cols-3 mb-4 h-12 sm:h-14 md:h-16">
               <TabsTrigger value="materials" className="text-sm md:text-base lg:text-lg">
                 <BookOpen className="w-4 h-4 md:w-5 md:h-5 mr-2" />
@@ -579,6 +738,7 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
                 studyMaterials={studyMaterials}
                 savedChats={conversations}
                 onLoadChat={handleLoadChat}
+                onDeleteChat={handleDeleteChat}
                 onUploadMaterial={uploadMaterial}
                 isLoadingMaterials={isLoadingMaterials}
                 isLoadingChats={isLoadingConversations}
@@ -593,6 +753,9 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
                   onInputChange={setInputValue}
                   onSendMessage={handleSendMessage}
                   onVoiceTranscription={handleVoiceTranscription}
+                  onSaveChat={handleSaveChat}
+                  onSaveAndClear={() => setShowSaveDialog(true)}
+                  onClearChat={() => setShowClearConfirm(true)}
                   isLoading={isLoading}
                 />
               </div>
@@ -610,6 +773,36 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
           </Tabs>
         </div>
       </div>
+
+      {/* Save Before Clear Dialog */}
+      <SaveBeforeClearDialog
+        isOpen={showSaveDialog}
+        onClose={() => setShowSaveDialog(false)}
+        onSaveAndClear={handleSaveAndClear}
+        onClearWithoutSaving={handleClearWithoutSaving}
+        messageCount={messages.length}
+      />
+
+      {/* Clear Confirmation Dialog */}
+      <AlertDialog open={showClearConfirm} onOpenChange={setShowClearConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Clear Chat?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will delete {messages.length} message(s) from this conversation. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleClearWithoutSaving}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Clear Without Saving
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

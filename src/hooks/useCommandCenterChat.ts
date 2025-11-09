@@ -264,6 +264,11 @@ export function useCommandCenterChat(userId?: string) {
     setConversationId(null); // Reset session for new conversation
   }, []);
 
+  const loadHistoricalMessages = useCallback((historicalMessages: CommandCenterMessage[]) => {
+    setMessages(historicalMessages);
+    // Don't reset conversationId - maintain the loaded conversation context
+  }, []);
+
   return {
     messages,
     loading,
@@ -273,6 +278,7 @@ export function useCommandCenterChat(userId?: string) {
     setSpeakingMessageId,
     sendMessage,
     clearMessages,
+    loadHistoricalMessages,
     conversationId
   };
 }
