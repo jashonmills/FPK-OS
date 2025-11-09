@@ -5,6 +5,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { SpeedControl } from '@/components/coach/SpeedControl';
 import type { Persona, AIDrill } from '@/types/aiCoach';
 import { useCommandCenterChat } from '@/hooks/useCommandCenterChat';
+import { useOrgAIChat } from '@/hooks/useOrgAIChat';
 import type { CommandCenterMessage } from '@/hooks/useCommandCenterChat';
 import { useAuth } from '@/hooks/useAuth';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -445,19 +446,38 @@ const AIInteractionColumn: React.FC<{
 // Main Component
 interface AICoachCommandCenterProps {
   isFreeChatAllowed?: boolean;
+  orgId?: string;
+  orgName?: string;
 }
 
-export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({ isFreeChatAllowed = true }) => {
+export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({ 
+  isFreeChatAllowed = true,
+  orgId,
+  orgName 
+}) => {
   const { user } = useAuth();
   const isMobile = useIsMobile();
   
-  // Use the streaming chat hook
-  const {
-    messages,
-    loading: isLoading,
-    sendMessage: sendChatMessage,
-    conversationId
-  } = useCommandCenterChat(user?.id);
+  // Use appropriate chat hook based on context
+  const standardChat = useCommandCenterChat(user?.id);
+  const orgChat = useOrgAIChat({ 
+    userId: user?.id, 
+    orgId: orgId || '', 
+    orgName: orgName || '' 
+  });
+  
+  // Initialize org chat if needed
+  useEffect(() => {
+    if (orgId && orgChat.messages.length === 0 && user) {
+      orgChat.initializeChat(user.user_metadata?.full_name || user.email);
+    }
+  }, [orgId, user]);
+  
+  // Select the appropriate chat based on context
+  const messages = orgId ? orgChat.messages : standardChat.messages;
+  const isLoading = orgId ? orgChat.isSending : standardChat.loading;
+  const sendChatMessage = orgId ? orgChat.sendMessage : standardChat.sendMessage;
+  const conversationId = orgId ? null : standardChat.conversationId;
   
   const [inputValue, setInputValue] = useState('');
 
@@ -480,10 +500,18 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({ isFr
     if (messages.length > prevMessagesLength.current && voiceSettings.autoRead && voiceSettings.enabled) {
       const lastMessage = messages[messages.length - 1];
       
-      // Only speak AI messages (not user messages, not CONDUCTOR, not while streaming)
-      if (lastMessage.persona !== 'USER' && lastMessage.persona !== 'CONDUCTOR' && !lastMessage.isStreaming) {
+      // Only speak AI messages (not user messages, not while streaming)
+      // Check if message has persona property (CommandCenterMessage) before using it
+      const hasPersona = 'persona' in lastMessage;
+      const isStreaming = 'isStreaming' in lastMessage && lastMessage.isStreaming;
+      
+      if (hasPersona && lastMessage.persona !== 'USER' && lastMessage.persona !== 'CONDUCTOR' && !isStreaming) {
         console.log('[TTS] 🔊 Auto-playing new AI message from', lastMessage.persona);
         speak(lastMessage.content, lastMessage.persona);
+      } else if (!hasPersona && lastMessage.role === 'assistant') {
+        // For org messages without persona, use default voice
+        console.log('[TTS] 🔊 Auto-playing org AI message');
+        speak(lastMessage.content);
       }
     }
     
@@ -563,7 +591,7 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({ isFr
             <TabsContent value="chat" className="flex-1 overflow-hidden mt-0">
               <div className="h-full p-2 sm:p-3 md:p-4 lg:p-6">
                 <AIInteractionColumn
-                  messages={messages}
+                  messages={messages as any}
                   inputValue={inputValue}
                   onInputChange={setInputValue}
                   onSendMessage={handleSendMessage}

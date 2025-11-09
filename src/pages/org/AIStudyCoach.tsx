@@ -105,9 +105,11 @@ export default function AIStudyCoach() {
             orgId={currentOrg?.organization_id}
           />
         ) : (
-          /* Student AI Command Center - Same as personal users */
+          /* Student AI Command Center - with org context */
           <AICoachCommandCenter
             isFreeChatAllowed={isFreeChatAllowed}
+            orgId={currentOrg?.organization_id}
+            orgName={currentOrg?.organizations?.name}
           />
         )}
       </div>
