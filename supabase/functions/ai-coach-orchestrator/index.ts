@@ -1786,6 +1786,39 @@ In the meantime, you can still access your courses directly from the dashboard.`
       inBettySession: boolean
     ): { allowed: boolean; reason: string } {
       
+      // Rule 0: BLOCK during technical/debugging conversations
+      const recentMessages = conversationHistory.slice(-5).map(m => m.content.toLowerCase()).join(' ');
+      const technicalKeywords = [
+        'testing', 'bug', 'debug', 'orchestrator', 'prompt', 'code', 'programming',
+        'logic', 'backend', 'back-end', 'frontend', 'front-end', 'system', 'error', 
+        'function', 'database', 'query', 'api', 'migration', 'deployment', 'upgrade',
+        'knowledge base', 'conductor', 'routing', 'tuning'
+      ];
+      
+      const isTechnicalConversation = technicalKeywords.some(keyword => 
+        recentMessages.includes(keyword)
+      );
+      
+      if (isTechnicalConversation) {
+        return {
+          allowed: false,
+          reason: 'BLOCKED: Technical/debugging conversation in progress'
+        };
+      }
+      
+      // Rule 0.5: BLOCK when user is directly addressing Betty
+      const lastUserMessage = conversationHistory
+        .slice()
+        .reverse()
+        .find(m => m.persona === 'USER')?.content.toLowerCase() || '';
+      
+      if (lastUserMessage.includes('betty') || lastUserMessage.includes('thank you betty')) {
+        return {
+          allowed: false,
+          reason: 'BLOCKED: User directly addressing Betty'
+        };
+      }
+      
       // Rule 1: NEVER interrupt a direct question-answer sequence
       const lastTwoMessages = conversationHistory.slice(-2);
       
@@ -1874,7 +1907,7 @@ In the meantime, you can still access your courses directly from the dashboard.`
       const turnsSinceLastNiteOwl = currentTurnIndex - lastNiteOwlTurn;
       
       // Check both the turn lock AND the resumption lock
-      if (turnsSinceLastNiteOwl < 3) {
+      if (turnsSinceLastNiteOwl < 5) {
         console.log('[CONDUCTOR] 🔒 Nite Owl trigger LOCKED - only', turnsSinceLastNiteOwl, 'turns since last appearance');
       } else if (resumptionLockTurns > 0) {
         console.log('[CONDUCTOR] 🔒 Nite Owl trigger LOCKED - resumption lock active for', resumptionLockTurns, 'more turns');
@@ -2055,8 +2088,8 @@ Include the time elapsed (${minutesAway} minutes) and the specific topic in your
       
       // Reset counter and set new random interjection point
       socraticTurnCounter = 0;
-      // PHASE 5.1: Lowered threshold - now 5-8 turns instead of 8-12
-      nextInterjectionPoint = Math.floor(Math.random() * 4) + 5; // 5-8 turns
+      // PHASE 2: Increased threshold - now 8-12 turns instead of 5-8 to reduce interruptions
+      nextInterjectionPoint = Math.floor(Math.random() * 5) + 8; // 8-12 turns
       
       // CRITICAL FIX: Mark this turn so we don't trigger again immediately
       lastNiteOwlTurn = conversationHistory.length;
