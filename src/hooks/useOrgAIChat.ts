@@ -4,9 +4,13 @@ import { useToast } from '@/hooks/use-toast';
 
 interface OrgChatMessage {
   id: string;
-  role: 'user' | 'assistant';
+  persona: 'USER' | 'BETTY' | 'AL' | 'CONDUCTOR' | 'NITE_OWL';
+  role?: 'user' | 'assistant'; // Keep for backward compatibility
   content: string;
-  timestamp: Date;
+  timestamp?: Date;
+  created_at: string;
+  audioUrl?: string;
+  isStreaming?: boolean;
 }
 
 interface UseOrgAIChatProps {
@@ -18,102 +22,197 @@ interface UseOrgAIChatProps {
 export const useOrgAIChat = ({ userId, orgId, orgName }: UseOrgAIChatProps) => {
   const [messages, setMessages] = useState<OrgChatMessage[]>([]);
   const [isSending, setIsSending] = useState(false);
-  const [threadId, setThreadId] = useState<string | null>(null);
+  const [conversationId] = useState(() => crypto.randomUUID());
   const { toast } = useToast();
 
-  const addMessage = useCallback((message: Omit<OrgChatMessage, 'id' | 'timestamp'>) => {
-    const newMessage: OrgChatMessage = {
-      ...message,
-      id: Date.now().toString(),
-      timestamp: new Date(),
+  const sendMessage = useCallback(async (messageText: string) => {
+    console.log('[useOrgAIChat] 📨 sendMessage called', { 
+      hasUserId: !!userId, 
+      userId,
+      hasMessage: !!messageText.trim(),
+      messageLength: messageText.length
+    });
+    
+    if (!userId || !messageText.trim() || isSending) {
+      console.log('[useOrgAIChat] ❌ Validation failed');
+      return;
+    }
+
+    const userMessage: OrgChatMessage = {
+      id: crypto.randomUUID(),
+      persona: 'USER',
+      role: 'user',
+      content: messageText,
+      created_at: new Date().toISOString(),
     };
-    setMessages(prev => [...prev, newMessage]);
-    return newMessage;
-  }, []);
 
-  const sendMessage = useCallback(async (content: string) => {
-    if (!content.trim() || isSending) return;
-
+    setMessages(prev => [...prev, userMessage]);
     setIsSending(true);
 
     try {
-      // Add user message immediately
-      addMessage({
-        role: 'user',
-        content: content.trim(),
-      });
-
-      // Build lightweight client history (last 6 messages)
-      const clientHistory = messages.slice(-6).map(m => ({
-        role: m.role,
-        content: m.content,
-        timestamp: m.timestamp.toISOString()
-      }));
-
-      // Call AI orchestrator with organization context
-      const { data, error } = await supabase.functions.invoke('ai-coach-orchestrator', {
-        body: { 
-          message: content,
-          userId: userId,
-          conversationId: threadId || `org-coach-${orgId}-${userId}`,
-          voiceActive: false,
-          metadata: {
-            source: 'ai_command_center_v2',
-            contextData: {
-              context: 'org_study_coach',
-              orgId: orgId,
-              orgName: orgName,
-              isOrgContext: true
-            }
-          }
-        }
-      });
-
-      if (error) throw error;
-
-      // Store thread ID for conversation continuity
-      if (data.threadId) {
-        setThreadId(data.threadId);
+      // Get auth session for streaming
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('No active session');
       }
 
-      // Add AI response
-      addMessage({
-        role: 'assistant',
-        content: data.response || "I'm here to help with your learning journey within your organization!",
-      });
+      // Call orchestrator with streaming
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-coach-orchestrator`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY
+          },
+          body: JSON.stringify({
+            message: messageText,
+            conversationId,
+            conversationHistory: messages
+              .filter(m => m.persona !== 'USER' || !m.isStreaming)
+              .map(m => ({
+                persona: m.persona,
+                content: m.content
+              })),
+            metadata: {
+              source: 'ai_command_center_v2',
+              audioEnabled: false,
+              contextData: {
+                context: 'org_study_coach',
+                orgId: orgId,
+                orgName: orgName,
+                isOrgContext: true
+              }
+            }
+          })
+        }
+      );
 
-    } catch (error) {
-      console.error('Error sending org AI chat message:', error);
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
+      }
+
+      if (!response.body) {
+        throw new Error('No response body');
+      }
+
+      // Handle streaming SSE response
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let aiMessageId = crypto.randomUUID();
+      let currentPersona: OrgChatMessage['persona'] = 'AL';
+      let fullText = '';
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        buffer += chunk;
+        
+        // Process complete SSE lines
+        let newlineIndex;
+        while ((newlineIndex = buffer.indexOf('\n\n')) !== -1) {
+          const line = buffer.slice(0, newlineIndex).trim();
+          buffer = buffer.slice(newlineIndex + 2);
+          
+          if (!line || !line.startsWith('data: ')) continue;
+          
+          try {
+            const jsonStr = line.slice(6);
+            if (jsonStr === '[DONE]') continue;
+            
+            const data = JSON.parse(jsonStr);
+
+            if (data.type === 'chunk') {
+              fullText += data.content;
+              currentPersona = data.persona;
+              
+              // Update or create streaming message
+              setMessages(prev => {
+                const existing = prev.find(m => m.id === aiMessageId);
+                if (existing) {
+                  return prev.map(m => 
+                    m.id === aiMessageId 
+                      ? { ...m, content: fullText, persona: currentPersona, isStreaming: true }
+                      : m
+                  );
+                }
+                return [...prev, {
+                  id: aiMessageId,
+                  persona: currentPersona,
+                  role: 'assistant',
+                  content: fullText,
+                  created_at: new Date().toISOString(),
+                  isStreaming: true
+                }];
+              });
+            } else if (data.type === 'handoff') {
+              // Nite Owl handoff or persona transition
+              const handoffMessage: OrgChatMessage = {
+                id: crypto.randomUUID(),
+                persona: data.persona,
+                role: 'assistant',
+                content: data.content,
+                created_at: new Date().toISOString(),
+                audioUrl: data.audioUrl
+              };
+              setMessages(prev => [...prev, handoffMessage]);
+            }
+          } catch (e) {
+            console.error('Error parsing SSE data:', e);
+          }
+        }
+      }
+
+      // Mark final message as complete
+      setMessages(prev => 
+        prev.map(m => 
+          m.id === aiMessageId 
+            ? { ...m, isStreaming: false }
+            : m
+        )
+      );
+
+    } catch (error: any) {
+      console.error('Org chat error:', error);
       
       // Add error message
-      addMessage({
+      setMessages(prev => [...prev, {
+        id: crypto.randomUUID(),
+        persona: 'AL',
         role: 'assistant',
         content: "I apologize, but I encountered an issue. Please try asking your question again.",
-      });
+        created_at: new Date().toISOString(),
+      }]);
       
       toast({
-        title: "Error",
-        description: "Failed to get a response. Please try again.",
-        variant: "destructive"
+        title: 'Error',
+        description: error.message || 'Failed to send message',
+        variant: 'destructive'
       });
     } finally {
       setIsSending(false);
     }
-  }, [isSending, userId, orgId, orgName, messages, addMessage, toast]);
+  }, [userId, orgId, orgName, conversationId, messages, isSending, toast]);
 
   const clearAllMessages = useCallback(() => {
     setMessages([]);
-    setThreadId(null); // Reset thread when clearing messages
   }, []);
 
   const initializeChat = useCallback((userName?: string) => {
     if (messages.length === 0) {
-      addMessage({
+      setMessages([{
+        id: crypto.randomUUID(),
+        persona: 'BETTY',
         role: 'assistant',
-        content: `Hello ${userName || 'there'}! I'm your AI Study Coach here at ${orgName || 'your organization'}. I'm here to help you with study strategies, learning techniques, and academic support using the Socratic method. What would you like to explore today?`,
-      });
+        content: `Hello ${userName || 'there'}! I'm Betty, your AI Study Coach here at ${orgName || 'your organization'}. I'm here to help you with study strategies, learning techniques, and academic support using the Socratic method. What would you like to explore today?`,
+        created_at: new Date().toISOString(),
+      }]);
     }
-  }, [messages.length, addMessage, orgName]);
+  }, [messages.length, orgName]);
 
   return {
     messages,

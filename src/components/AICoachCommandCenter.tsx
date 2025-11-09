@@ -501,17 +501,12 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
       const lastMessage = messages[messages.length - 1];
       
       // Only speak AI messages (not user messages, not while streaming)
-      // Check if message has persona property (CommandCenterMessage) before using it
-      const hasPersona = 'persona' in lastMessage;
       const isStreaming = 'isStreaming' in lastMessage && lastMessage.isStreaming;
       
-      if (hasPersona && lastMessage.persona !== 'USER' && lastMessage.persona !== 'CONDUCTOR' && !isStreaming) {
+      // Check for persona-based messages (both CommandCenter and Org messages now have persona)
+      if ('persona' in lastMessage && lastMessage.persona !== 'USER' && lastMessage.persona !== 'CONDUCTOR' && !isStreaming) {
         console.log('[TTS] 🔊 Auto-playing new AI message from', lastMessage.persona);
         speak(lastMessage.content, lastMessage.persona);
-      } else if (!hasPersona && lastMessage.role === 'assistant') {
-        // For org messages without persona, use default voice
-        console.log('[TTS] 🔊 Auto-playing org AI message');
-        speak(lastMessage.content);
       }
     }
     
