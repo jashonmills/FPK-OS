@@ -137,7 +137,7 @@ serve(async (req) => {
       supabase,
       document_id,
       'extracting',
-      `Calling Claude Vision API (${(document.file_size_kb / 1024).toFixed(1)}MB)...`
+      `Calling Claude Vision API (${(Number(document.file_size_kb) / 1024).toFixed(1)}MB)...`
     );
 
     // FIX #2: Add timeout using AbortController
@@ -183,7 +183,7 @@ serve(async (req) => {
       
       // FIX #2: Handle timeout specifically
       if (error.name === 'AbortError') {
-        const timeoutMsg = `Extraction timeout after ${EXTRACTION_TIMEOUT_MS / 1000}s. File may be too complex or large (${document.file_size_kb}KB).`;
+        const timeoutMsg = `Extraction timeout after ${EXTRACTION_TIMEOUT_MS / 1000}s. File may be too complex or large (${Number(document.file_size_kb) || 0}KB).`;
         console.error(`⏰ ${timeoutMsg}`);
         
         await updateExtractionProgress(supabase, document_id, 'failed', timeoutMsg);
