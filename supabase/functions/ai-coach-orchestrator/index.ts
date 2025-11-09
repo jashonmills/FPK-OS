@@ -3325,7 +3325,24 @@ Keep it under 100 words.`;
           console.log('[CONDUCTOR] 🎵 Final text length:', textForTTS.length);
           console.log('[CONDUCTOR] 🎵 Target persona for TTS:', selectedPersona);
           
-          // Audio already generated in parallel - log final status
+          // Generate persona-specific audio using backend Google TTS
+          if (selectedPersona === 'BETTY' || selectedPersona === 'AL') {
+            console.log(`[CONDUCTOR] 🎙️ Generating ${selectedPersona} audio with backend TTS...`);
+            
+            try {
+              audioUrl = await generatePersonaAudio(
+                textForTTS, 
+                selectedPersona === 'BETTY' ? 'BETTY' : 'AL'
+              );
+              audioProvider = audioUrl ? 'google_tts_persona' : 'none';
+              console.log(`[CONDUCTOR] ✅ ${selectedPersona} audio generated:`, audioUrl ? 'Success' : 'Failed');
+            } catch (error) {
+              console.error(`[CONDUCTOR] ❌ ${selectedPersona} audio generation failed:`, error);
+              audioFailed = true;
+            }
+          }
+          
+          // Audio generation status - log final status
           if (!audioUrl) {
             console.warn('[CONDUCTOR] ⚠️ No audio available - text-only response will be sent');
           } else {

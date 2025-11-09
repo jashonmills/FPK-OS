@@ -32,11 +32,13 @@ export function MessageBubble({
       // Single message audio using backend-generated audio or TTS fallback
       if (message.audioUrl) {
         // Play backend-generated audio
+        console.log('[MessageBubble] 🎵 Playing backend-generated audio for', message.persona);
         setIsThisMessageSpeaking(true);
         await playAudioFile(message.audioUrl);
         setIsThisMessageSpeaking(false);
       } else if (message.persona === 'BETTY' || message.persona === 'AL' || message.persona === 'NITE_OWL') {
         // Fallback to browser TTS
+        console.log('[MessageBubble] 🔊 Falling back to browser TTS for', message.persona);
         speak(message.content, message.persona);
         setIsThisMessageSpeaking(true);
         
