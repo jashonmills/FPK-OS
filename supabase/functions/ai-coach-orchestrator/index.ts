@@ -365,48 +365,58 @@ ${knowledgeSection}`;
 const CLAUDE_SCRIPTWRITER_PROMPT = `You are an expert scriptwriter for a conversational AI tutor. Your task is to generate a natural, two-turn dialogue between two AI personas based on the student's response in a Socratic learning session.
 
 # Personas:
-- **Betty** (Voice: en-US-Wavenet-F): The Socratic Guide. Asks insightful "why" and "how" questions to help students discover answers themselves. Warm, encouraging, patient. NEVER gives direct answers.
 - **Al** (Voice: en-US-Wavenet-D): The Direct Expert. Provides concise, factual definitions and statements. Direct, efficient, supportive. Adds context but doesn't replace Betty's teaching.
+- **Betty** (Voice: en-US-Wavenet-F): The Socratic Guide. Asks insightful "why" and "how" questions to help students discover answers themselves. Warm, encouraging, patient. NEVER gives direct answers.
 
 # Context:
-This is a "Socratic Sandwich" moment where the student gave a partially correct answer (60-80% quality). Betty and Al collaborate to:
-1. Validate what the student got RIGHT
-2. Deepen their understanding with a follow-up question
+This is a "Socratic Sandwich" moment where the student gave a partially correct answer (60-80% quality). Al and Betty collaborate to:
+1. Al provides a foundational fact or context related to the student's answer
+2. Betty uses that fact to ask a deeper Socratic question
 
 # Your Task:
-Generate a SHORT, natural dialogue where Betty and Al work together seamlessly. The dialogue must feel like two real tutors collaborating in real-time.
+Generate a SHORT, natural dialogue where Al provides facts and Betty asks questions based on those facts. The dialogue must feel like two real tutors collaborating in real-time.
 
 # Dialogue Structure:
-**Turn 1 - Betty speaks first:**
-- Acknowledge the student's effort/insight (1 sentence)
-- Ask a probing Socratic question that pushes deeper (1-2 sentences)
-- Can reference Al naturally: "Al, what's the technical term?" or just let Al jump in
+**Turn 1 - Al speaks first:**
+- Provide a brief, relevant fact or definition that relates to the student's answer (1-2 sentences)
+- Give context that enriches the student's understanding
+- Keep it concise and factual
 
-**Turn 2 - Al speaks second:**
-- Add a brief, relevant factual tidbit that supports Betty's question (1-2 sentences)
-- Provide definition, context, or clarification
-- Keep it concise and conversational
+**Turn 2 - Betty speaks second:**
+- Acknowledge the student's effort/insight (1 sentence)
+- Ask a probing Socratic question that references Al's fact and pushes the student deeper (1-2 sentences)
+- The question should encourage the student to explore the "why" or "how" behind Al's fact
 
 # Critical Rules:
-1. **Keep it SHORT** - Each line should be 1-2 sentences (under 100 words total for both)
-2. **Natural transitions** - The handoff between Betty and Al should feel organic
-3. **No meta-language** - Don't say "Let me ask..." or "I should clarify..."
-4. **Conversational tone** - Use contractions, natural speech patterns
-5. **Output ONLY valid JSON** - No markdown, no explanation, just the JSON object
+1. **Al speaks FIRST, Betty speaks SECOND** - This order is mandatory
+2. **Al must NEVER answer Betty's question** - Al provides facts, Betty asks questions
+3. **Betty must reference or build upon Al's fact** - Her question should connect to what Al just said
+4. **Keep it SHORT** - Each line should be 1-2 sentences (under 100 words total for both)
+5. **Natural transitions** - Betty can reference Al naturally: "Al mentioned X, so..."
+6. **No meta-language** - Don't say "Let me ask..." or "I should clarify..."
+7. **Conversational tone** - Use contractions, natural speech patterns
+8. **Output ONLY valid JSON** - No markdown, no explanation, just the JSON object
 
 # Output Format:
 {
-  "betty_line": "Betty's dialogue here",
-  "al_line": "Al's dialogue here"
+  "al_line": "Al's factual statement here",
+  "betty_line": "Betty's Socratic question here (referencing Al's fact)"
 }
 
 # Example:
 Student said: "Sifting flour makes it lighter by adding air."
 Output:
 {
-  "betty_line": "Good observation! You've identified that sifting adds air. Now, why do you think those tiny air bubbles are important for the texture of the final cake?",
-  "al_line": "Those air pockets also help the baking powder distribute evenly, which ensures a uniform rise without dense spots."
-}`;
+  "al_line": "Those air pockets you're adding through sifting can make up to 20% of the flour's volume in some recipes.",
+  "betty_line": "Great observation that sifting adds air! Now, thinking about Al's point about volume, why do you think those air pockets would affect the texture of your final cake?"
+}
+
+# Anti-Pattern (NEVER DO THIS):
+{
+  "al_line": "The fuel pump generates high pressure for atomization.",
+  "betty_line": "What do you think the fuel pump's role is in terms of pressure?"
+}
+^ WRONG! Al answered Betty's question before she asked it!`;
 
 /**
  * V2 DIALOGUE ENGINE: Generate Betty+Al dialogue using Claude 3 Opus
@@ -418,7 +428,7 @@ async function generateDialogueWithClaude(
   lastBettyQuestion: string | undefined,
   answerQuality: number,
   userName: string
-): Promise<{ betty_line: string; al_line: string } | null> {
+): Promise<{ al_line: string; betty_line: string } | null> {
   if (!anthropic) {
     console.error('[CLAUDE] ❌ Anthropic client not initialized - API key missing');
     return null;
@@ -440,7 +450,9 @@ Betty's last question: "${lastBettyQuestion || 'N/A'}"
 Student's response: "${userMessage}"
 Answer quality score: ${answerQuality}/100
 
-Generate a dialogue response where Betty and Al collaborate to guide this student forward. Remember: Betty validates and asks a deeper question, then Al adds supporting factual context.`;
+Generate a dialogue response where Al and Betty collaborate to guide this student forward.
+CRITICAL: Al provides a foundational fact FIRST, then Betty asks a question about that fact SECOND.
+Al must NEVER answer the question Betty is about to ask.`;
 
     const response = await anthropic.messages.create({
       model: 'claude-3-opus-20240229',
@@ -470,13 +482,13 @@ Generate a dialogue response where Betty and Al collaborate to guide this studen
     }
     
     // Validate structure
-    if (!script.betty_line || !script.al_line) {
+    if (!script.al_line || !script.betty_line) {
       throw new Error('Invalid script structure - missing required fields');
     }
     
     console.log('[CLAUDE] ✅ Script parsed successfully');
-    console.log('[CLAUDE] Betty line length:', script.betty_line.length, 'chars');
     console.log('[CLAUDE] Al line length:', script.al_line.length, 'chars');
+    console.log('[CLAUDE] Betty line length:', script.betty_line.length, 'chars');
     
     return script;
     
@@ -484,6 +496,49 @@ Generate a dialogue response where Betty and Al collaborate to guide this studen
     console.error('[CLAUDE] ❌ Dialogue generation failed:', error);
     return null;
   }
+}
+
+/**
+ * PEDAGOGICAL INTEGRITY CHECK: Detect if Al's response answers Betty's question
+ * This is a safety check to catch cases where the Claude prompt fails
+ */
+function detectSocraticShortCircuit(
+  alLine: string,
+  bettyLine: string
+): boolean {
+  // Quick heuristic checks (no AI needed)
+  const bettyQuestionWords = ['what', 'why', 'how', 'when', 'where', 'which', 'who'];
+  const bettyHasQuestion = bettyQuestionWords.some(word => 
+    bettyLine.toLowerCase().includes(word + ' ')
+  ) && bettyLine.includes('?');
+  
+  if (!bettyHasQuestion) {
+    // Betty isn't asking a question, no risk
+    return false;
+  }
+  
+  // Extract key nouns from Betty's question
+  const bettyNouns = bettyLine
+    .toLowerCase()
+    .replace(/[?.,!]/g, '')
+    .split(' ')
+    .filter(word => word.length > 4); // Simple noun extraction
+  
+  // Check if Al's line contains multiple key terms from Betty's question
+  const overlapCount = bettyNouns.filter(noun => 
+    alLine.toLowerCase().includes(noun)
+  ).length;
+  
+  // If Al's statement shares 3+ key terms with Betty's question, flag it
+  if (overlapCount >= 3) {
+    console.warn('[PEDAGOGICAL-CHECK] ⚠️ Potential Socratic short-circuit detected');
+    console.warn('[PEDAGOGICAL-CHECK] Betty question:', bettyLine);
+    console.warn('[PEDAGOGICAL-CHECK] Al statement:', alLine);
+    console.warn('[PEDAGOGICAL-CHECK] Overlap count:', overlapCount);
+    return true;
+  }
+  
+  return false;
 }
 
 /**
@@ -2526,18 +2581,34 @@ If they seem confused, provide clarification directly. Do NOT switch to Socratic
       } else {
         // SUCCESS! Generate grouped message with separate audio
         console.log('[V2-DIALOGUE] ✅ Claude script generated');
-        console.log('[V2-DIALOGUE] Betty:', script.betty_line.substring(0, 80) + '...');
         console.log('[V2-DIALOGUE] Al:', script.al_line.substring(0, 80) + '...');
+        console.log('[V2-DIALOGUE] Betty:', script.betty_line.substring(0, 80) + '...');
+        
+        // 🛡️ PEDAGOGICAL INTEGRITY CHECK
+        const hasShortCircuit = detectSocraticShortCircuit(
+          script.al_line,
+          script.betty_line
+        );
+        
+        if (hasShortCircuit) {
+          console.warn('[V2-DIALOGUE] 🚫 Al response suppressed to protect Socratic method');
+          // Discard Al's line, proceed with Betty only - fall back to single response
+          console.log('[V2-DIALOGUE] ⚠️ Short-circuit detected - falling back to Betty-only response');
+          detectedIntent = 'socratic_guidance';
+          selectedPersona = 'BETTY';
+          // Continue with normal single-persona flow
+          break; // Exit V2-DIALOGUE, go to single response
+        }
         
         // STEP 2: Generate unique groupId for this collaborative turn
         const groupId = crypto.randomUUID();
         console.log('[V2-DIALOGUE] 🔗 Generated groupId:', groupId);
         
-        // STEP 3: Generate separate audio for each persona
+        // STEP 3: Generate separate audio for each persona (Al first, Betty second)
         const audioStartTime = Date.now();
-        const [bettyAudioUrl, alAudioUrl] = await Promise.all([
-          generatePersonaAudio(script.betty_line, 'BETTY'),
-          generatePersonaAudio(script.al_line, 'AL')
+        const [alAudioUrl, bettyAudioUrl] = await Promise.all([
+          generatePersonaAudio(script.al_line, 'AL'),
+          generatePersonaAudio(script.betty_line, 'BETTY')
         ]);
         const audioEndTime = Date.now();
         console.log('[V2-DIALOGUE] ⏱️ Separate audio generation time:', audioEndTime - audioStartTime, 'ms');
@@ -2563,21 +2634,21 @@ If they seem confused, provide clarification directly. Do NOT switch to Socratic
               controller.enqueue(new TextEncoder().encode(thinkingEvent));
               console.log('[V2-DIALOGUE] ✅ Sent thinking indicator');
               
-              // Send dialogue event with grouped messages and separate audio
+              // Send dialogue event with grouped messages and separate audio (Al first, Betty second)
               const dialogueEvent = `data: ${JSON.stringify({
                 type: 'dialogue',
                 groupId: groupId,
                 dialogue: [
                   { 
-                    persona: 'BETTY', 
-                    text: script.betty_line,
-                    audioUrl: bettyAudioUrl || undefined,
-                    groupId: groupId
-                  },
-                  { 
                     persona: 'AL', 
                     text: script.al_line,
                     audioUrl: alAudioUrl || undefined,
+                    groupId: groupId
+                  },
+                  { 
+                    persona: 'BETTY', 
+                    text: script.betty_line,
+                    audioUrl: bettyAudioUrl || undefined,
                     groupId: groupId
                   }
                 ],
@@ -2608,32 +2679,32 @@ If they seem confused, provide clarification directly. Do NOT switch to Socratic
               console.log('[V2-DIALOGUE] ✨ Live Dialogue delivered successfully');
               controller.close();
               
-              // Store both messages in database with groupId and separate audio
+              // Store both messages in database with groupId and separate audio (Al first, Betty second)
               if (conversationUuid) {
                 const { error: insertError } = await supabaseClient.from('phoenix_messages').insert([
-                  {
-                    conversation_id: conversationUuid,
-                    persona: 'BETTY',
-                    content: script.betty_line,
-                    metadata: {
-                      isDialogue: true,
-                      dialoguePart: 1,
-                      groupId: groupId,
-                      audioUrl: bettyAudioUrl || null,
-                      generatedBy: 'claude_opus',
-                      answerQuality: answerQualityScore
-                    }
-                  },
                   {
                     conversation_id: conversationUuid,
                     persona: 'AL',
                     content: script.al_line,
                     metadata: {
                       isDialogue: true,
-                      dialoguePart: 2,
+                      dialoguePart: 1,
                       groupId: groupId,
                       audioUrl: alAudioUrl || null,
                       generatedBy: 'claude_opus'
+                    }
+                  },
+                  {
+                    conversation_id: conversationUuid,
+                    persona: 'BETTY',
+                    content: script.betty_line,
+                    metadata: {
+                      isDialogue: true,
+                      dialoguePart: 2,
+                      groupId: groupId,
+                      audioUrl: bettyAudioUrl || null,
+                      generatedBy: 'claude_opus',
+                      answerQuality: answerQualityScore
                     }
                   }
                 ]);
