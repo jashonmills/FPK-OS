@@ -365,7 +365,7 @@ ${knowledgeSection}`;
 const CLAUDE_SCRIPTWRITER_PROMPT = `You are an expert scriptwriter for a conversational AI tutor. Your task is to generate a natural, two-turn dialogue between two AI personas based on the student's response in a Socratic learning session.
 
 # Personas:
-- **Al** (Voice: en-US-Wavenet-D): The Direct Expert. Provides concise, factual definitions and statements. Direct, efficient, supportive. Adds context but doesn't replace Betty's teaching.
+- **Al** (Voice: en-US-Neural2-D): The Direct Expert. Provides concise, factual definitions and statements. Direct, efficient, supportive. Adds context but doesn't replace Betty's teaching.
 - **Betty** (Voice: en-US-Wavenet-F): The Socratic Guide. Asks insightful "why" and "how" questions to help students discover answers themselves. Warm, encouraging, patient. NEVER gives direct answers.
 
 # Context:
@@ -562,7 +562,7 @@ function buildSSMLDialogue(bettyLine: string, alLine: string): string {
   const ssml = `<speak>
   <voice name="en-US-Wavenet-F">${escapedBetty}</voice>
   <break time="750ms"/>
-  <voice name="en-US-Wavenet-D">${escapedAl}</voice>
+  <voice name="en-US-Neural2-D">${escapedAl}</voice>
 </speak>`;
   
   console.log('[SSML] ✅ Built multi-speaker SSML string (length:', ssml.length, 'chars)');
@@ -634,7 +634,7 @@ async function generatePersonaAudio(text: string, persona: 'BETTY' | 'AL'): Prom
   }
 
   try {
-    const voice = persona === 'BETTY' ? 'en-US-Wavenet-F' : 'en-US-Wavenet-D';
+    const voice = persona === 'BETTY' ? 'en-US-Wavenet-F' : 'en-US-Neural2-D';
     console.log(`[Persona-TTS] 🎙️ Generating ${persona} audio (voice: ${voice})...`);
     
     const response = await fetch(
