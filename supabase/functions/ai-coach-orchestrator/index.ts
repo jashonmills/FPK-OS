@@ -303,6 +303,22 @@ function buildBettySystemPrompt(memories?: any[], knowledgePack?: any, ragKnowle
   
   let prompt = modules.join(MODULE_SEPARATOR);
   
+  // Add critical multi-part message handling instructions
+  prompt += `\n\n${MODULE_SEPARATOR}\n# CRITICAL: MULTI-PART MESSAGE HANDLING
+
+When the student's message contains multiple questions or statements:
+1. Read the ENTIRE message before responding
+2. Acknowledge EACH point or question they raised
+3. THEN ask your next Socratic question
+
+Example:
+Student: "I want to understand this better. I think it's X. Also, what about Y?"
+
+Your response structure:
+- "I can see you're eager to understand this deeply—that's great! You mentioned thinking it's X, which is a thoughtful hypothesis. As for Y, that's related but let's first explore X further. What made you think X might be the answer?"
+
+NEVER ignore the first part of their message. ALWAYS acknowledge all points before proceeding.`;
+  
   // Inject RAG Knowledge if available
   if (ragKnowledge && ragKnowledge.length > 0) {
     const knowledgeSection = formatKnowledgeForPrompt(ragKnowledge);
@@ -2921,14 +2937,30 @@ Keep it under 100 words.`;
               { role: 'system', content: systemPrompt },
               { role: 'user', content: message }
             ]
-          : [
-              { role: 'system', content: systemPrompt },
-              ...conversationHistory.slice(-5).map(msg => ({
-                role: msg.persona === 'USER' ? 'user' : 'assistant',
-                content: msg.content
-              })),
-              { role: 'user', content: message }
-            ],
+          : (() => {
+              // Log user message structure for debugging multi-part messages
+              const questionMarkers = ['?', 'also', 'and', 'but', 'however', 'additionally'];
+              const hasMultipleParts = questionMarkers.some(marker => 
+                message.toLowerCase().includes(marker)
+              );
+
+              if (hasMultipleParts) {
+                console.log('[CONDUCTOR] ⚠️ Multi-part message detected:', {
+                  messageLength: message.length,
+                  containsQuestionMark: message.includes('?'),
+                  estimatedParts: message.split('.').length
+                });
+              }
+
+              return [
+                { role: 'system', content: systemPrompt },
+                ...conversationHistory.slice(-8).map(msg => ({
+                  role: msg.persona === 'USER' ? 'user' : 'assistant',
+                  content: msg.content
+                })),
+                { role: 'user', content: message }
+              ];
+            })(),
         temperature: selectedPersona === 'BETTY' ? 0.8 : (selectedPersona === 'NITE_OWL' ? 0.9 : 0.6),
         max_tokens: selectedPersona === 'NITE_OWL' ? 200 : (isSocraticHandoff ? 300 : (isWelcomeBack ? 400 : 500)),
         stream: true
