@@ -50,23 +50,22 @@ export const useOrgAIChat = ({ userId, orgId, orgName }: UseOrgAIChatProps) => {
         timestamp: m.timestamp.toISOString()
       }));
 
-      // Call AI function with organization context using OpenAI Assistant
-      const { data, error } = await supabase.functions.invoke('ai-study-chat', {
+      // Call AI orchestrator with organization context
+      const { data, error } = await supabase.functions.invoke('ai-coach-orchestrator', {
         body: { 
           message: content,
           userId: userId,
-          sessionId: `org-coach-${orgId}-${userId}`,
-          chatMode: 'general',
+          conversationId: threadId || `org-coach-${orgId}-${userId}`,
           voiceActive: false,
-          useOpenAIAssistant: true,
-          threadId: threadId,
-          contextData: {
-            context: 'org_study_coach',
-            orgId: orgId,
-            orgName: orgName,
-            isOrgContext: true
-          },
-          clientHistory
+          metadata: {
+            source: 'ai_command_center_v2',
+            contextData: {
+              context: 'org_study_coach',
+              orgId: orgId,
+              orgName: orgName,
+              isOrgContext: true
+            }
+          }
         }
       });
 
