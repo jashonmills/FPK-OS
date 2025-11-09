@@ -17,7 +17,7 @@ export interface CommandCenterMessage {
 
 export function useCommandCenterChat(userId?: string) {
   const [messages, setMessages] = useState<CommandCenterMessage[]>([]);
-  const [conversationId] = useState(() => crypto.randomUUID());
+  const [conversationId, setConversationId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
@@ -34,6 +34,47 @@ export function useCommandCenterChat(userId?: string) {
     if (!userId || !messageText.trim()) {
       console.log('[useCommandCenterChat] ❌ Validation failed - userId or message missing');
       return;
+    }
+
+    // 🔐 PHASE 1.2: Initialize server-side session on first message
+    let activeSessionId = conversationId;
+    
+    if (!activeSessionId) {
+      console.log('[useCommandCenterChat] 🔐 First message - creating server-side session');
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          throw new Error('No active session');
+        }
+
+        const { data: sessionData, error: sessionError } = await supabase.functions.invoke(
+          'create-coach-session',
+          {
+            body: {
+              source: 'ai_command_center_v2',
+              contextData: { isOrgContext: true }
+            }
+          }
+        );
+
+        if (sessionError || !sessionData?.session_id) {
+          console.error('[useCommandCenterChat] ❌ Failed to create server-side session:', sessionError);
+          throw new Error('Failed to initialize secure session');
+        }
+
+        console.log('[useCommandCenterChat] ✅ Server-side session created:', sessionData.session_id);
+        activeSessionId = sessionData.session_id;
+        setConversationId(activeSessionId);
+        
+      } catch (error: any) {
+        console.error('[useCommandCenterChat] ❌ Session initialization failed:', error);
+        toast({
+          title: 'Session Error',
+          description: 'Failed to initialize secure chat session. Please refresh and try again.',
+          variant: 'destructive'
+        });
+        return;
+      }
     }
 
     const userMessage: CommandCenterMessage = {
@@ -65,7 +106,7 @@ export function useCommandCenterChat(userId?: string) {
           },
           body: JSON.stringify({
             message: messageText,
-            conversationId,
+            conversationId: activeSessionId,
             conversationHistory: messages
               .filter(m => m.persona !== 'USER' || !m.isStreaming)
               .map(m => ({
@@ -81,6 +122,20 @@ export function useCommandCenterChat(userId?: string) {
       );
 
       if (!response.ok) {
+        // Handle Knowledge Pack failure (503 Service Unavailable)
+        if (response.status === 503) {
+          const errorData = await response.json().catch(() => ({}));
+          const userMessage = errorData.message || 'The AI coach is temporarily unavailable. Please try again in a few minutes.';
+          
+          toast({
+            title: 'Service Temporarily Unavailable',
+            description: userMessage,
+            variant: 'destructive',
+            duration: 10000
+          });
+          return;
+        }
+        
         throw new Error(`Server error: ${response.status}`);
       }
 
@@ -179,6 +234,7 @@ export function useCommandCenterChat(userId?: string) {
 
   const clearMessages = useCallback(() => {
     setMessages([]);
+    setConversationId(null); // Reset session for new conversation
   }, []);
 
   return {

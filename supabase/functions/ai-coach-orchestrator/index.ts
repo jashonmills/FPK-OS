@@ -1301,8 +1301,34 @@ serve(async (req) => {
       .rpc('get_student_knowledge_pack', { p_user_id: user.id });
     
     if (kpError) {
-      console.error('[CONDUCTOR] ❌ Error fetching knowledge pack:', kpError);
-      // Continue without knowledge pack rather than failing the entire request
+      console.error('[CONDUCTOR] ❌ CRITICAL: Knowledge Pack unavailable!', kpError);
+      console.error('[CONDUCTOR] ❌ Error details:', {
+        message: kpError.message,
+        code: kpError.code,
+        details: kpError.details,
+        hint: kpError.hint
+      });
+      
+      // 🚨 PHASE 1.3: LOUD FAILURE - Stop processing and inform user immediately
+      // The AI cannot provide personalized coaching without access to student data
+      const errorMessage = `I'm having trouble accessing your course data right now. This means I can't provide personalized guidance about your learning progress.
+
+**Please try again in a few minutes.** If the problem persists, please contact support with this error code: KP-${Date.now()}.
+
+In the meantime, you can still access your courses directly from the dashboard.`;
+
+      return new Response(
+        JSON.stringify({
+          error: 'knowledge_pack_unavailable',
+          message: errorMessage,
+          technical_details: kpError.message,
+          error_code: `KP-${Date.now()}`
+        }),
+        { 
+          status: 503, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
     } else {
       console.log('[CONDUCTOR] ✅ Knowledge Pack loaded successfully');
       console.log('[CONDUCTOR] 📊 Knowledge Pack summary:', {
