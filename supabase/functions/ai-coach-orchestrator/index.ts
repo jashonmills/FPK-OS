@@ -2665,15 +2665,15 @@ If they seem confused, provide clarification directly. Do NOT switch to Socratic
               console.log('[V2-DIALOGUE] ✅ Sent grouped dialogue event with groupId:', groupId);
               
               // Send completion
-              const doneEvent = `data: ${JSON.stringify({
-                type: 'done',
-                metadata: {
-                  conversationId,
-                  selectedPersona: 'DIALOGUE',
-                  hasAudio: !!audioUrl,
-                  mode: 'v2_dialogue'
-                }
-              })}\n\n`;
+          const doneEvent = `data: ${JSON.stringify({
+            type: 'done',
+            metadata: {
+              conversationId,
+              selectedPersona: 'DIALOGUE',
+              hasAudio: !!(alAudioUrl || bettyAudioUrl),
+              mode: 'v2_dialogue'
+            }
+          })}\n\n`;
               controller.enqueue(new TextEncoder().encode(doneEvent));
               
               console.log('[V2-DIALOGUE] ✨ Live Dialogue delivered successfully');
