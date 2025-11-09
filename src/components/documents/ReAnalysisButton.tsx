@@ -25,7 +25,7 @@ export function ReAnalysisButton({ familyId, onJobStarted }: ReAnalysisButtonPro
 
       if (error) throw error;
 
-      if (data?.job_id) {
+      if (data?.success && data?.job_id) {
         onJobStarted?.(data.job_id);
         const estimatedTime = data.estimated_time_minutes || 3;
         toast.success(

@@ -113,122 +113,26 @@ serve(async (req) => {
 
     console.log(`📦 Queued ${documents.length} documents for smart batching (est. ${estimatedMinutes} min)`);
 
-    // FIX #1: SYNCHRONOUS QUEUE PROCESSING - No more background tasks!
-    console.log('🚀 Starting synchronous queue processor...');
-    
-    try {
-      const processorStartTime = Date.now();
-      
-      const { data: processData, error: processError } = await supabase.functions.invoke(
-        'process-analysis-queue',
-        {
-          body: { 
-            family_id,
-            job_id: job.id
-          }
-        }
-      );
+    // FIRE-AND-FORGET: Trigger queue processor asynchronously in background
+    supabase.functions.invoke('process-analysis-queue', {
+      body: { family_id, job_id: job.id }
+    }).then(() => {
+      console.log('✅ Queue processor started in background');
+    }).catch((err) => {
+      console.error('❌ Failed to start queue processor:', err);
+    });
 
-      const processorDuration = Date.now() - processorStartTime;
-      console.log(`⏱️  Queue processor took ${processorDuration}ms`);
-
-      // FIX #3: DETAILED ERROR PROPAGATION
-      if (processError) {
-        console.error('❌ Queue processor error:', processError);
-        console.error('📋 Error details:', JSON.stringify(processError, null, 2));
-        
-        // Parse error context if available
-        const errorStatus = processError?.context?.status || 'unknown';
-        const errorBody = processError?.context?.body;
-        const errorMessage = errorBody?.error || processError.message || 'Queue processor failed';
-        
-        console.error(`💥 Status: ${errorStatus}, Message: ${errorMessage}`);
-        
-        // Mark job as failed with detailed error
-        await supabase
-          .from('analysis_jobs')
-          .update({
-            status: 'failed',
-            error_message: `Queue processor failed (${errorStatus}): ${errorMessage}`,
-            completed_at: new Date().toISOString(),
-            metadata: {
-              ...job.metadata,
-              error_category: categorizeError(errorStatus, errorMessage),
-              error_details: errorBody
-            }
-          })
-          .eq('id', job.id);
-
-        return new Response(
-          JSON.stringify({
-            success: false,
-            error: 'QUEUE_PROCESSOR_FAILED',
-            message: errorMessage,
-            job_id: job.id,
-            error_details: {
-              status: errorStatus,
-              category: categorizeError(errorStatus, errorMessage),
-              full_error: processError
-            }
-          }),
-          { 
-            status: 500,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-          }
-        );
-      }
-
-      console.log('✅ Queue processor completed successfully');
-      console.log('📊 Result:', JSON.stringify(processData, null, 2));
-
-      return new Response(
-        JSON.stringify({
-          success: true,
-          job_id: job.id,
-          total_documents: documents.length,
-          processed: processData?.processed_count || 0,
-          failed: processData?.failed_count || 0,
-          processing_time_ms: processorDuration,
-          message: 'Document analysis completed'
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-
-    } catch (error) {
-      console.error('❌ Queue processor exception:', error);
-      console.error('💥 Error type:', error?.constructor?.name);
-      console.error('💥 Error stack:', error instanceof Error ? error.stack : 'N/A');
-      
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      
-      // Mark job as failed
-      await supabase
-        .from('analysis_jobs')
-        .update({
-          status: 'failed',
-          error_message: `Exception in queue processor: ${errorMessage}`,
-          completed_at: new Date().toISOString(),
-          metadata: {
-            ...job.metadata,
-            error_category: 'exception',
-            error_stack: error instanceof Error ? error.stack : undefined
-          }
-        })
-        .eq('id', job.id);
-
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: 'QUEUE_PROCESSOR_EXCEPTION',
-          message: errorMessage,
-          job_id: job.id
-        }),
-        { 
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      );
-    }
+    // IMMEDIATE RESPONSE to frontend
+    return new Response(
+      JSON.stringify({
+        success: true,
+        job_id: job.id,
+        total_documents: documents.length,
+        estimated_time_minutes: estimatedMinutes,
+        message: 'Documents queued for smart batching'
+      }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
 
   } catch (error) {
     console.error('❌ Error:', error);
