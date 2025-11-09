@@ -23,13 +23,14 @@ export function MessageGroupContainer({ group }: MessageGroupContainerProps) {
       
       {/* Render each message in the group */}
       <div className="space-y-2 mt-2">
-        {group.messages.map((message) => (
+        {group.messages.map((message, index) => (
           <MessageBubble
             key={message.id}
             message={message as CommandCenterMessage}
             groupId={group.groupId}
             groupAudioPlaylist={audioPlaylist}
             isPartOfGroup={true}
+            messageIndexInGroup={index}
           />
         ))}
       </div>

@@ -10,13 +10,15 @@ interface MessageBubbleProps {
   groupId?: string;
   groupAudioPlaylist?: string[];
   isPartOfGroup?: boolean;
+  messageIndexInGroup?: number;
 }
 
 export function MessageBubble({ 
   message, 
   groupId, 
   groupAudioPlaylist,
-  isPartOfGroup = false 
+  isPartOfGroup = false,
+  messageIndexInGroup = 0
 }: MessageBubbleProps) {
   const isUser = message.persona === 'USER';
   const isBetty = message.persona === 'BETTY';
@@ -31,10 +33,12 @@ export function MessageBubble({
       stop();
       setIsThisMessageSpeaking(false);
     } else {
-      // If part of a group, play entire playlist sequentially
+      // If part of a group, play contextual playlist starting from clicked message
       if (isPartOfGroup && groupAudioPlaylist && groupAudioPlaylist.length > 0) {
         setIsThisMessageSpeaking(true);
-        await playAudioPlaylist(groupAudioPlaylist);
+        // Create contextual playlist starting from this message's index
+        const contextualPlaylist = groupAudioPlaylist.slice(messageIndexInGroup);
+        await playAudioPlaylist(contextualPlaylist);
         setIsThisMessageSpeaking(false);
       } else {
         // Single message audio

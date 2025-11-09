@@ -2265,6 +2265,10 @@ Include the time elapsed (${minutesAway} minutes) and the specific topic in your
       systemPrompt = buildNiteOwlSystemPrompt(knowledgePack);
       console.log('[CONDUCTOR] 🦉 Nite Owl interjection - HALTING all other AI processing');
       
+      // Track if we need Betty handoff after Nite Owl
+      const needsNiteOwlHandoff = inBettySession;
+      console.log('[CONDUCTOR] Will need Betty handoff after Nite Owl:', needsNiteOwlHandoff);
+      
       // Reset counter and set new random interjection point
       socraticTurnCounter = 0;
       // PHASE 2: Increased threshold - now 8-12 turns instead of 5-8 to reduce interruptions
@@ -3400,6 +3404,152 @@ Keep it under 100 words.`;
               console.error('[CONDUCTOR] ❌ Failed to insert AI message:', aiMsgError);
             } else {
               console.log('[CONDUCTOR] ✅ AI message stored');
+            }
+
+            // ============================================
+            // NITE OWL HANDOFF: Generate Betty's acknowledgment
+            // ============================================
+            if (selectedPersona === 'NITE_OWL' && needsNiteOwlHandoff) {
+              console.log('[CONDUCTOR] 🔄 Generating Betty handoff after Nite Owl...');
+              
+              // Brief delay for UX (2.5 seconds)
+              await new Promise(resolve => setTimeout(resolve, 2500));
+              
+              // Build Betty's handoff prompt
+              const lastUserMessage = conversationHistory
+                .slice()
+                .reverse()
+                .find(m => m.persona === 'USER')?.content || message;
+              
+              const bettyHandoffPrompt = buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge, courseContent) + `\n\n🔄 HANDOFF INSTRUCTION:
+
+Nite Owl just shared a fun fact with the student. Your job:
+1. Warmly acknowledge Nite Owl ("Thanks, Nite Owl! That's interesting!")
+2. Seamlessly transition back to the Socratic dialogue
+3. Re-engage with the student's last message: "${lastUserMessage}"
+4. Ask a NEW Socratic question that builds on what they said
+
+Keep it brief (2-3 sentences total). Make the transition feel natural.`;
+
+              try {
+                // Generate Betty's handoff response
+                const handoffResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+                  method: 'POST',
+                  headers: {
+                    'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    model: 'google/gemini-2.5-flash',
+                    messages: [
+                      { role: 'system', content: bettyHandoffPrompt },
+                      ...conversationHistory.slice(-3).map(msg => ({
+                        role: msg.persona === 'USER' ? 'user' : 'assistant',
+                        content: msg.content
+                      })),
+                      { role: 'assistant', content: finalText }, // Nite Owl's message
+                      { role: 'user', content: 'Continue the conversation' }
+                    ],
+                    temperature: 0.8,
+                    max_tokens: 200,
+                  }),
+                });
+                
+                if (handoffResponse.ok) {
+                  const handoffData = await handoffResponse.json();
+                  const bettyHandoffText = handoffData.choices?.[0]?.message?.content || '';
+                  
+                  if (bettyHandoffText) {
+                    console.log('[CONDUCTOR] ✅ Betty handoff generated:', bettyHandoffText.substring(0, 100) + '...');
+                    
+                    // Generate TTS for Betty's handoff if enabled
+                    let bettyHandoffAudioUrl: string | undefined;
+                    if (ttsEnabled) {
+                      console.log('[CONDUCTOR] 🎙️ Generating TTS for Betty handoff...');
+                      try {
+                        const ttsResponse = await fetch(
+                          `https://texttospeech.googleapis.com/v1/text:synthesize?key=${GOOGLE_TTS_API_KEY}`,
+                          {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                              input: { text: bettyHandoffText },
+                              voice: { 
+                                languageCode: 'en-US',
+                                name: 'en-US-Wavenet-F'
+                              },
+                              audioConfig: { audioEncoding: 'MP3' }
+                            }),
+                          }
+                        );
+
+                        if (ttsResponse.ok) {
+                          const ttsData = await ttsResponse.json();
+                          const audioContent = ttsData.audioContent;
+                          
+                          // Upload to storage
+                          const audioFileName = `betty-handoff-${conversationUuid}-${Date.now()}.mp3`;
+                          const audioBuffer = Uint8Array.from(atob(audioContent), c => c.charCodeAt(0));
+                          
+                          const { data: uploadData, error: uploadError } = await supabaseClient.storage
+                            .from('phoenix-audio')
+                            .upload(audioFileName, audioBuffer, {
+                              contentType: 'audio/mpeg',
+                              upsert: false
+                            });
+
+                          if (!uploadError && uploadData) {
+                            const { data: { publicUrl } } = supabaseClient.storage
+                              .from('phoenix-audio')
+                              .getPublicUrl(audioFileName);
+                            bettyHandoffAudioUrl = publicUrl;
+                            console.log('[CONDUCTOR] ✅ Betty handoff audio uploaded');
+                          }
+                        }
+                      } catch (ttsError) {
+                        console.error('[CONDUCTOR] ⚠️ Betty handoff TTS failed (non-blocking):', ttsError);
+                      }
+                    }
+                    
+                    // Send Betty's handoff as a new message event
+                    const handoffMessage = `data: ${JSON.stringify({
+                      type: 'handoff',
+                      persona: 'BETTY',
+                      content: bettyHandoffText,
+                      audioUrl: bettyHandoffAudioUrl,
+                      metadata: {
+                        isHandoff: true,
+                        followingNiteOwl: true
+                      }
+                    })}\n\n`;
+                    
+                    controller.enqueue(new TextEncoder().encode(handoffMessage));
+                    console.log('[CONDUCTOR] ✅ Betty handoff sent to client');
+                    
+                    // Store Betty's handoff in database
+                    const { error: handoffDbError } = await supabaseClient.from('phoenix_messages').insert({
+                      conversation_id: conversationUuid,
+                      persona: 'BETTY',
+                      content: bettyHandoffText,
+                      audio_url: bettyHandoffAudioUrl,
+                      metadata: {
+                        isHandoff: true,
+                        followingNiteOwl: true
+                      }
+                    });
+                    
+                    if (handoffDbError) {
+                      console.error('[CONDUCTOR] ❌ Failed to store Betty handoff:', handoffDbError);
+                    } else {
+                      console.log('[CONDUCTOR] ✅ Betty handoff stored in database');
+                    }
+                  }
+                } else {
+                  console.error('[CONDUCTOR] ❌ Betty handoff generation failed:', await handoffResponse.text());
+                }
+              } catch (handoffError) {
+                console.error('[CONDUCTOR] ❌ Betty handoff error:', handoffError);
+              }
             }
             
             // Store Governor log if there were issues
