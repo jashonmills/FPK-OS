@@ -6,6 +6,7 @@ import { formatKnowledgePack } from './helpers/formatKnowledgePack.ts';
 import { retrieveRelevantKnowledge, formatKnowledgeForPrompt } from './helpers/ragRetrieval.ts';
 import { extractTopicKeywords } from './topic-extraction.ts';
 import { detectIntentFromTriggers, detectIntentFallback } from './helpers/triggerScoring.ts';
+import { detectMentionedCourse, retrieveCourseContent, formatCourseContentForPrompt } from './helpers/courseContentRetrieval.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -287,7 +288,7 @@ Rules:
 const MODULE_SEPARATOR = '\n\n---\n\n';
 
 // Prompt assembly functions
-function buildBettySystemPrompt(memories?: any[], knowledgePack?: any, ragKnowledge?: any[]): string {
+function buildBettySystemPrompt(memories?: any[], knowledgePack?: any, ragKnowledge?: any[], courseContent?: any): string {
   const modules = [
     NO_META_REASONING,
     SELF_GOVERNANCE,
@@ -320,6 +321,12 @@ ${knowledgeSection}`;
   if (knowledgePack) {
     const knowledgePackSection = formatKnowledgePack(knowledgePack);
     prompt += `\n\n${MODULE_SEPARATOR}\n${knowledgePackSection}`;
+  }
+  
+  // Inject Course Content if available (NEW: Course Content RAG)
+  if (courseContent) {
+    const courseSection = formatCourseContentForPrompt(courseContent);
+    prompt += `\n\n${MODULE_SEPARATOR}\n${courseSection}`;
   }
   
   // Inject memory context if available (Phase 5: Multi-Session Memory)
@@ -1370,6 +1377,35 @@ In the meantime, you can still access your courses directly from the dashboard.`
       }
     }
 
+    // 🎓 COURSE CONTENT RAG: Detect and retrieve mentioned course content
+    let courseContent: any = null;
+    if (knowledgePack?.active_courses && Array.isArray(knowledgePack.active_courses)) {
+      console.log('[CONDUCTOR] 🎓 Checking for mentioned courses...');
+      const courseStart = Date.now();
+      
+      try {
+        const mentionedCourse = detectMentionedCourse(message, knowledgePack.active_courses);
+        
+        if (mentionedCourse) {
+          console.log('[CONDUCTOR] 🎓 Detected course mention:', mentionedCourse.title);
+          courseContent = await retrieveCourseContent(mentionedCourse.slug, supabaseClient);
+          
+          if (courseContent) {
+            console.log('[CONDUCTOR] ✅ Course content loaded:', {
+              title: courseContent.title,
+              lessons: courseContent.lessons.length
+            });
+          }
+        }
+        
+        timings.course_content = Date.now() - courseStart;
+        console.log(`[PERF] Course content detection: ${timings.course_content}ms`);
+      } catch (courseError) {
+        console.error('[COURSE RAG] ❌ Course content retrieval failed (non-blocking):', courseError);
+        // Continue without course content
+      }
+    }
+
     // 2. Verify access permissions based on context
     if (isOrgContext && contextType === 'org_study_coach') {
       // Organization AI Study Coach: Verify org membership
@@ -1792,7 +1828,8 @@ In the meantime, you can still access your courses directly from the dashboard.`
         'testing', 'bug', 'debug', 'orchestrator', 'prompt', 'code', 'programming',
         'logic', 'backend', 'back-end', 'frontend', 'front-end', 'system', 'error', 
         'function', 'database', 'query', 'api', 'migration', 'deployment', 'upgrade',
-        'knowledge base', 'conductor', 'routing', 'tuning'
+        'knowledge base', 'conductor', 'routing', 'tuning', 'context', 'awareness', 
+        'contextual', 'contacts', 'familiar with'
       ];
       
       const isTechnicalConversation = technicalKeywords.some(keyword => 
@@ -1899,23 +1936,28 @@ In the meantime, you can still access your courses directly from the dashboard.`
     if (featureFlags['nite_owl_interjections']?.enabled && inBettySession && detectedIntent === 'socratic_guidance') {
       console.log('[CONDUCTOR] 🦉 Nite Owl feature ENABLED - checking trigger conditions');
       
-      // Allow Nite Owl as a session starter (first 2 turns)
-      const isSessionStart = conversationHistory.length <= 2;
+      // 🚨 HARD GATE: Check context FIRST, before ANY trigger logic
+      const contextGate = shouldAllowNiteOwlInterjection(
+        conversationHistory,
+        inBettySession
+      );
       
-      // CRITICAL FIX: Trigger lock - prevent Nite Owl from triggering twice in a row
-      const currentTurnIndex = conversationHistory.length;
-      const turnsSinceLastNiteOwl = currentTurnIndex - lastNiteOwlTurn;
-      
-      // Check both the turn lock AND the resumption lock
-      if (turnsSinceLastNiteOwl < 5) {
-        console.log('[CONDUCTOR] 🔒 Nite Owl trigger LOCKED - only', turnsSinceLastNiteOwl, 'turns since last appearance');
-      } else if (resumptionLockTurns > 0) {
-        console.log('[CONDUCTOR] 🔒 Nite Owl trigger LOCKED - resumption lock active for', resumptionLockTurns, 'more turns');
-      } else if (isSessionStart) {
-        shouldTriggerNiteOwl = true;
-        niteOwlTriggerReason = 'session_starter';
-        console.log('[CONDUCTOR] 🦉 Nite Owl triggered - SESSION STARTER');
+      if (!contextGate.allowed) {
+        console.log('[CONDUCTOR] 🔒 Nite Owl BLOCKED by context gate:', contextGate.reason);
+        // Exit early - don't even check triggers
       } else {
+        console.log('[CONDUCTOR] ✅ Context gate PASSED:', contextGate.reason);
+        
+        // CRITICAL FIX: Trigger lock - prevent Nite Owl from triggering twice in a row
+        const currentTurnIndex = conversationHistory.length;
+        const turnsSinceLastNiteOwl = currentTurnIndex - lastNiteOwlTurn;
+        
+        // Check both the turn lock AND the resumption lock
+        if (turnsSinceLastNiteOwl < 5) {
+          console.log('[CONDUCTOR] 🔒 Nite Owl trigger LOCKED - only', turnsSinceLastNiteOwl, 'turns since last appearance');
+        } else if (resumptionLockTurns > 0) {
+          console.log('[CONDUCTOR] 🔒 Nite Owl trigger LOCKED - resumption lock active for', resumptionLockTurns, 'more turns');
+        } else {
         // PHASE 5.1: STRUGGLE DETECTION
         // Check if user is stuck on the same concept for multiple turns
         const recentUserMessages = conversationHistory
@@ -1983,6 +2025,7 @@ In the meantime, you can still access your courses directly from the dashboard.`
           console.log('  - Turn counter:', socraticTurnCounter, '/', nextInterjectionPoint);
           console.log('  - Turns since last Nite Owl:', turnsSinceLastNiteOwl);
         }
+        } // End context gate check
       }
     }
 
@@ -2045,7 +2088,7 @@ In the meantime, you can still access your courses directly from the dashboard.`
       const minutesAway = Math.round(timeSinceLastUpdate / 60000);
       
       if (selectedPersona === 'BETTY') {
-        systemPrompt = buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge) + `\n\n---\n\n🔄 CRITICAL RESUMPTION INSTRUCTION 🔄
+        systemPrompt = buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge, courseContent) + `\n\n---\n\n🔄 CRITICAL RESUMPTION INSTRUCTION 🔄
 
 The student just RETURNED to this conversation after being away for ${minutesAway} minutes. This is a RESUMPTION, not a continuation.
 
@@ -2112,7 +2155,7 @@ Include the time elapsed (${minutesAway} minutes) and the specific topic in your
       
       // We'll handle the dual response generation after the normal flow
       // For now, set Betty as the primary persona (we'll override later)
-      systemPrompt = buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge);
+      systemPrompt = buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge, courseContent);
       
     } 
     // ============ PHASE 3: PROACTIVE HANDOFF LOGIC ============
@@ -2197,7 +2240,7 @@ Their learning preference is valid. Respect it.`;
     } else if (detectedIntent === 'conversation_opener') {
       // CONVERSATION OPENER: Betty always greets and initiates Socratic dialogue
       selectedPersona = 'BETTY';
-      systemPrompt = buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge);
+      systemPrompt = buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge, courseContent);
       
       // 🔒 ACTIVATE PERSONA STICKINESS FROM THE START
       if (!isSocraticLoopActive) {
@@ -2238,7 +2281,7 @@ If they seem confused, provide clarification directly. Do NOT switch to Socratic
     } else if (detectedIntent === 'socratic_guidance') {
       // BETTY SOCRATIC SESSION: Increment counters and activate sticky mode
       selectedPersona = 'BETTY';
-      systemPrompt = buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge);
+      systemPrompt = buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge, courseContent);
       socraticTurnCounter++; // Increment turn counter for next Nite Owl check
       totalBettyTurns++;
       
@@ -2328,7 +2371,7 @@ If they seem confused, provide clarification directly. Do NOT switch to Socratic
         
         // Re-build system prompt for overridden persona
         if (selectedPersona === 'BETTY') {
-          systemPrompt = buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge);
+          systemPrompt = buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge, courseContent);
         } else if (selectedPersona === 'AL') {
           systemPrompt = buildAlSystemPrompt(studentContext, userMemories, knowledgePack, retrievedKnowledge);
         }
@@ -2508,7 +2551,7 @@ If they seem confused, provide clarification directly. Do NOT switch to Socratic
                   if (needsNiteOwlHandoff) {
                     console.log('[V2-DIALOGUE] 🔄 Generating Betty handoff after Nite Owl...');
                     
-                    const handoffPrompt = buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge) + `\n\n🔄 HANDOFF INSTRUCTION:
+                    const handoffPrompt = buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge, courseContent) + `\n\n🔄 HANDOFF INSTRUCTION:
 Nite Owl just shared a fun fact. Warmly acknowledge him ("Thanks, Nite Owl!"), then continue your Socratic dialogue with the student's last message: "${message}"
 
 Keep it brief (1-2 sentences) and ask a NEW question that builds on what they said.`;
@@ -2734,7 +2777,7 @@ Keep it under 100 words.`;
               body: JSON.stringify({
                 model: 'google/gemini-2.5-flash',
                 messages: [
-                  { role: 'system', content: buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge) },
+                  { role: 'system', content: buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge, courseContent) },
                   ...conversationHistory.slice(-5).map(msg => ({
                     role: msg.persona === 'USER' ? 'user' : 'assistant',
                     content: msg.content
