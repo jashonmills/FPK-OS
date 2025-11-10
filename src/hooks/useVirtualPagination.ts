@@ -59,17 +59,27 @@ export function useVirtualPagination(
       const virtualPages: string[] = [];
       let currentPageElements: Element[] = [];
       let currentPageHeight = 0;
+      
+      // Allow 20% overflow tolerance before forcing new page
+      const OVERFLOW_TOLERANCE = 1.2;
+      const effectivePageHeight = pageHeight * OVERFLOW_TOLERANCE;
 
       elements.forEach((element, index) => {
         // Measure element height
         measuringDiv.innerHTML = element.outerHTML;
         const elementHeight = measuringDiv.offsetHeight;
+        
+        // Check if next element is small (heading or short paragraph)
+        const isSmallElement = elementHeight < pageHeight * 0.15;
 
         // Check if we should start a new page
-        const wouldExceedPageHeight = currentPageHeight + elementHeight > pageHeight;
+        const wouldExceedPageHeight = currentPageHeight + elementHeight > effectivePageHeight;
         const hasMinimumElements = currentPageElements.length >= minElementsPerPage;
+        
+        // Don't break if this is a small element or if we'd create an orphan
+        const shouldKeepTogether = isSmallElement || currentPageElements.length < 2;
 
-        if (wouldExceedPageHeight && hasMinimumElements) {
+        if (wouldExceedPageHeight && hasMinimumElements && !shouldKeepTogether) {
           // Save current page and start new one
           virtualPages.push(
             currentPageElements.map(el => el.outerHTML).join('\n')
@@ -92,6 +102,14 @@ export function useVirtualPagination(
 
       // Cleanup
       document.body.removeChild(measuringDiv);
+      
+      console.log('[Pagination] Generated pages:', {
+        totalPages: virtualPages.length,
+        totalElements: elements.length,
+        avgElementsPerPage: Math.round(elements.length / virtualPages.length),
+        effectivePageHeight,
+        containerWidth
+      });
 
       return virtualPages.length > 0 ? virtualPages : [htmlContent];
     } catch (error) {

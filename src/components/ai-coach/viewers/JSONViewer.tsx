@@ -50,16 +50,31 @@ export const JSONViewer: React.FC<JSONViewerProps> = ({ fileUrl }) => {
               description: jsonData.description || '',
               contentVersion: 'v2',
               lessons: jsonData.units.flatMap((unit: any) => 
-                (unit.lessons || []).map((lesson: any) => ({
-                  id: lesson.lessonSlug || lesson.lessonTitle,
-                  title: lesson.lessonTitle || lesson.title || 'Untitled Lesson',
-                  description: lesson.description || '',
-                  estimatedMinutes: lesson.duration || lesson.estimatedMinutes,
-                  contentType: 'text' as const,
-                  sections: lesson.sections || lesson.contentSections || []
-                }))
+                (unit.lessons || []).map((lesson: any) => {
+                  console.log('[JSONViewer] Processing lesson:', {
+                    title: lesson.lessonTitle,
+                    hasSections: !!lesson.sections,
+                    hasContentSections: !!lesson.contentSections,
+                    sectionCount: (lesson.sections || lesson.contentSections || []).length
+                  });
+                  
+                  return {
+                    id: lesson.lessonSlug || lesson.lessonTitle,
+                    title: lesson.lessonTitle || lesson.title || 'Untitled Lesson',
+                    description: lesson.description || '',
+                    estimatedMinutes: lesson.duration || lesson.estimatedMinutes,
+                    contentType: 'text' as const,
+                    sections: lesson.contentSections || lesson.sections || []
+                  };
+                })
               )
             };
+            
+            console.log('[JSONViewer] Transformation complete:', {
+              totalLessons: transformedData.lessons.length,
+              firstLesson: transformedData.lessons[0],
+              firstLessonSections: transformedData.lessons[0]?.sections?.length
+            });
             setCourseData(transformedData);
             setIsV2Manifest(true);
             setTitle(jsonData.courseTitle);

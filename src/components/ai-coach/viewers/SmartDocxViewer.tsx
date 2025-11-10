@@ -66,9 +66,15 @@ export const SmartDocxViewer: React.FC<SmartDocxViewerProps> = ({ fileUrl }) => 
         const textResult = await mammoth.extractRawText({ arrayBuffer });
         const textContent = textResult.value.trim();
         
-        console.log('[SmartDocxViewer] Extracted text, first 200 chars:', textContent.substring(0, 200));
+        console.log('[SmartDocxViewer] Content analysis:', {
+          length: textContent.length,
+          startsWithBrace: textContent.startsWith('{'),
+          endsWithBrace: textContent.endsWith('}'),
+          firstChars: textContent.substring(0, 100),
+          lastChars: textContent.substring(Math.max(0, textContent.length - 50))
+        });
         
-        // Check if extracted text is valid JSON
+        // Check if extracted text is valid JSON (already trimmed)
         if ((textContent.startsWith('{') || textContent.startsWith('[')) && 
             (textContent.endsWith('}') || textContent.endsWith(']'))) {
           try {

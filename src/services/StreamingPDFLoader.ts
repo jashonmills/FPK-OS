@@ -138,11 +138,11 @@ class StreamingPDFLoader {
         totalBytes: this.totalSize
       });
 
-      // Initialize PDF.js with streaming capability
-      const pdfjsLib = await import('pdfjs-dist');
+      // Initialize PDF.js with streaming capability using react-pdf's wrapper
+      const { pdfjs } = await import('react-pdf');
       
       // Create custom loading task with streaming
-      const loadingTask = pdfjsLib.getDocument({
+      const loadingTask = pdfjs.getDocument({
         data: initialChunk,
         httpHeaders: {},
         withCredentials: false,
@@ -230,8 +230,8 @@ class StreamingPDFLoader {
         totalBytes: arrayBuffer.byteLength
       });
 
-      const pdfjsLib = await import('pdfjs-dist');
-      const pdfDocument = await pdfjsLib.getDocument({
+      const { pdfjs } = await import('react-pdf');
+      const pdfDocument = await pdfjs.getDocument({
         data: arrayBuffer,
         cMapUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@4.8.69/cmaps/`,
         cMapPacked: true
