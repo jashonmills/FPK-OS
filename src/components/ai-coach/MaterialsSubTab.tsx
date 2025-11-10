@@ -6,6 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 import { FolderManager } from './FolderManager';
 import { SmartUploadModal } from './SmartUploadModal';
 import { useAICoachStudyMaterials } from '@/hooks/useAICoachStudyMaterials';
+import { useAICoachFolders } from '@/hooks/useAICoachFolders';
 import { cn } from '@/lib/utils';
 
 interface MaterialsSubTabProps {
@@ -17,6 +18,7 @@ interface MaterialsSubTabProps {
 
 export function MaterialsSubTab({ orgId, onStartStudying, attachedMaterialIds = [], onAttachToChat }: MaterialsSubTabProps) {
   const { studyMaterials, isLoadingMaterials, uploadMaterial, deleteMaterial, assignToFolder } = useAICoachStudyMaterials(orgId);
+  const { refetchFolders } = useAICoachFolders('study_material', orgId);
   const { toast } = useToast();
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
@@ -117,9 +119,12 @@ export function MaterialsSubTab({ orgId, onStartStudying, attachedMaterialIds = 
             orgId={orgId}
             selectedFolderId={selectedFolderId}
             onSelectFolder={setSelectedFolderId}
-            onDrop={(folderId, folderName) => {
+            onDrop={async (folderId, folderName) => {
               if (draggedMaterialId) {
-                assignToFolder(draggedMaterialId, folderId, folderName);
+                const success = await assignToFolder(draggedMaterialId, folderId, folderName);
+                if (success) {
+                  await refetchFolders();
+                }
                 setDraggedMaterialId(null);
               }
             }}
@@ -234,7 +239,10 @@ export function MaterialsSubTab({ orgId, onStartStudying, attachedMaterialIds = 
                       </div>
                     </div>
                     <button
-                      onClick={() => deleteMaterial(material.id, material.file_url)}
+                      onClick={async () => {
+                        await deleteMaterial(material.id, material.file_url);
+                        await refetchFolders();
+                      }}
                       className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-red-100 rounded"
                       title="Delete material"
                     >
