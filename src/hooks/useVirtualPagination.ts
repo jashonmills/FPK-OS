@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback } from 'react';
 
 interface UseVirtualPaginationOptions {
   pageHeight?: number;
+  containerWidth?: number;
   minElementsPerPage?: number;
 }
 
@@ -24,7 +25,7 @@ export function useVirtualPagination(
   htmlContent: string,
   options: UseVirtualPaginationOptions = {}
 ): UseVirtualPaginationReturn {
-  const { pageHeight = 900, minElementsPerPage = 2 } = options;
+  const { pageHeight = 900, containerWidth = 800, minElementsPerPage = 3 } = options;
   const [currentPage, setCurrentPage] = useState(0);
 
   // Parse HTML and create virtual pages
@@ -43,12 +44,12 @@ export function useVirtualPagination(
         return [htmlContent];
       }
 
-      // Create temporary measuring container
+      // Create temporary measuring container with dynamic width
       const measuringDiv = document.createElement('div');
       measuringDiv.style.cssText = `
         position: absolute;
         visibility: hidden;
-        width: 800px;
+        width: ${containerWidth}px;
         padding: 1.5rem;
         font-size: 0.875rem;
         line-height: 1.5;
@@ -97,7 +98,7 @@ export function useVirtualPagination(
       console.error('[useVirtualPagination] Error creating pages:', error);
       return [htmlContent];
     }
-  }, [htmlContent, pageHeight, minElementsPerPage]);
+  }, [htmlContent, pageHeight, containerWidth, minElementsPerPage]);
 
   const totalPages = pages.length;
 

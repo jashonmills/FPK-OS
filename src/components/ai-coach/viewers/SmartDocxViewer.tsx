@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -15,6 +15,27 @@ export const SmartDocxViewer: React.FC<SmartDocxViewerProps> = ({ fileUrl }) => 
   const [error, setError] = useState<string | null>(null);
   const [isActuallyJSON, setIsActuallyJSON] = useState(false);
   const [jsonUrl, setJsonUrl] = useState<string | null>(null);
+  const [containerDimensions, setContainerDimensions] = useState({ width: 800, height: 900 });
+  
+  const contentRef = useRef<HTMLDivElement>(null);
+  
+  // Measure container dimensions dynamically
+  useLayoutEffect(() => {
+    if (!contentRef.current) return;
+    
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const rect = entry.contentRect;
+        setContainerDimensions({
+          width: rect.width - 48, // Subtract padding (24px × 2)
+          height: rect.height - 100 // Reserve space for pagination controls
+        });
+      }
+    });
+    
+    resizeObserver.observe(contentRef.current);
+    return () => resizeObserver.disconnect();
+  }, []);
   
   // CRITICAL: Call hook at top level, before any conditional returns
   const { 
@@ -26,8 +47,9 @@ export const SmartDocxViewer: React.FC<SmartDocxViewerProps> = ({ fileUrl }) => 
     canGoNext, 
     canGoPrevious 
   } = useVirtualPagination(htmlContent, {
-    pageHeight: 850,
-    minElementsPerPage: 2
+    pageHeight: containerDimensions.height,
+    containerWidth: containerDimensions.width,
+    minElementsPerPage: 3
   });
   
   useEffect(() => {
@@ -120,7 +142,7 @@ export const SmartDocxViewer: React.FC<SmartDocxViewerProps> = ({ fileUrl }) => 
   return (
     <div className="flex flex-col h-full">
       {/* Page Content Area */}
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1" ref={contentRef}>
         <div 
           className="p-6 prose prose-sm max-w-none min-h-[600px]"
           dangerouslySetInnerHTML={{ __html: pages[currentPage] || '' }}
