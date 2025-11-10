@@ -8,7 +8,9 @@ export const allowedTypes = [
   'application/vnd.openxmlformats-officedocument.presentationml.presentation',
   'text/markdown',
   'text/csv',
-  'application/rtf'
+  'application/rtf',
+  'application/json',
+  'text/json'
 ];
 
 export const maxFileSize = 100 * 1024 * 1024; // 100MB
@@ -23,7 +25,9 @@ export const getFileTypeLabel = (fileType: string) => {
     'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'PPTX',
     'text/markdown': 'MD',
     'text/csv': 'CSV',
-    'application/rtf': 'RTF'
+    'application/rtf': 'RTF',
+    'application/json': 'JSON',
+    'text/json': 'JSON'
   };
   return typeMap[fileType] || 'FILE';
 };

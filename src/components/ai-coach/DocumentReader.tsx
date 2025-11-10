@@ -3,6 +3,7 @@ import { X, FileText, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import OptimizedPDFViewer from '@/components/library/OptimizedPDFViewer';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { JSONViewer } from './viewers/JSONViewer';
 
 interface DocumentReaderProps {
   document: {
@@ -36,6 +37,11 @@ export const DocumentReader: React.FC<DocumentReaderProps> = ({ document, onClos
           />
         </div>
       );
+    }
+    
+    // JSON Files
+    if (extension === 'json' || mimeType.includes('json') || mimeType.includes('application/json')) {
+      return <JSONViewer fileUrl={document.file_url} />;
     }
     
     // DOCX Files - Use mammoth for conversion
