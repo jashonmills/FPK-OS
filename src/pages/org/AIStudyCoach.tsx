@@ -9,7 +9,6 @@ import { MobilePageLayout, MobileSectionHeader } from '@/components/layout/Mobil
 import { useIsMobile } from '@/hooks/use-mobile';
 import { AICoachCommandCenter } from '@/components/AICoachCommandCenter';
 import { AdminAIAssistant } from '@/components/admin/AdminAIAssistant';
-import { OrgNavigation } from '@/components/organizations/OrgNavigation';
 import { supabase } from '@/integrations/supabase/client';
 import { useSearchParams } from 'react-router-dom';
 import { DocumentReader } from '@/components/ai-coach/DocumentReader';
@@ -69,7 +68,6 @@ export default function AIStudyCoach() {
   const [isFreeChatAllowed, setIsFreeChatAllowed] = React.useState(true);
   const [searchParams] = useSearchParams();
   const initialTab = searchParams.get('tab') || 'chat';
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // State for standalone document reader (below chat module)
   const [activeDocument, setActiveDocument] = useState<any>(null);
@@ -118,13 +116,6 @@ export default function AIStudyCoach() {
           ? "Your administrative and educational support tool" 
           : "Your personal learning companion and study guide"}
         helpSection="ai-assistant"
-        showMenuButton={isMobile}
-        onMenuToggle={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-      />
-
-      <OrgNavigation 
-        isMobileMenuOpen={isMobileMenuOpen}
-        onMobileMenuToggle={setIsMobileMenuOpen}
       />
 
       <div className="flex flex-col gap-6 pb-4">
