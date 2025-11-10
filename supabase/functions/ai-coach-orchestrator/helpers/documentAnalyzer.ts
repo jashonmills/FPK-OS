@@ -87,8 +87,15 @@ Respond with ONLY a valid JSON object (no markdown, no explanation):
     
     console.log('[DOC CLASSIFIER] 🤖 Raw AI response:', rawResult);
     
-    // Parse JSON response
-    const parsed = JSON.parse(rawResult);
+    // Parse JSON response - strip markdown code blocks if present
+    let jsonString = rawResult.trim();
+    if (jsonString.startsWith('```json')) {
+      jsonString = jsonString.replace(/^```json\s*\n?/, '').replace(/\n?```\s*$/, '');
+    } else if (jsonString.startsWith('```')) {
+      jsonString = jsonString.replace(/^```\s*\n?/, '').replace(/\n?```\s*$/, '');
+    }
+    
+    const parsed = JSON.parse(jsonString);
     
     // Map type to suggested flow
     const flowMapping: Record<DocumentType, PedagogicalFlow> = {

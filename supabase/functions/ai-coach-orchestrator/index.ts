@@ -1665,6 +1665,7 @@ In the meantime, you can still access your courses directly from the dashboard.`
 
     // 📄 DOCUMENT CONTEXT: Fetch and parse attached study materials
     let attachedDocumentsContext = '';
+    let documentClassification = null; // SCOPE: Accessible throughout function for flow selection
     if (attachedMaterialIds.length > 0) {
       console.log('[CONDUCTOR] 📄 Fetching and parsing attached documents:', attachedMaterialIds);
       const docStart = Date.now();
@@ -1757,7 +1758,6 @@ In the meantime, you can still access your courses directly from the dashboard.`
         }
         
         // PHASE 1: DOCUMENT CLASSIFICATION for Adaptive Pedagogical Flows
-        let documentClassification = null;
         if (documents.length > 0 && LOVABLE_API_KEY) {
           try {
             console.log('[CONDUCTOR] 🎓 Classifying document for pedagogical flow selection...');
