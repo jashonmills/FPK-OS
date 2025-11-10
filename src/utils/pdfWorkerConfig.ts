@@ -8,15 +8,16 @@ const PDFJS_VERSION = '4.8.69';
  * Optimized PDF worker configuration with better error handling
  */
 const WORKER_URLS = [
-  // Use .mjs files for modern ES module support (react-pdf 10.x compatibility)
+  // Use standard .js files for best compatibility
+  `https://unpkg.com/pdfjs-dist@${PDFJS_VERSION}/build/pdf.worker.js`,
+  `https://cdn.jsdelivr.net/npm/pdfjs-dist@${PDFJS_VERSION}/build/pdf.worker.js`,
+  // Fallback to .mjs for modern browsers
   `https://unpkg.com/pdfjs-dist@${PDFJS_VERSION}/build/pdf.worker.mjs`,
   `https://cdn.jsdelivr.net/npm/pdfjs-dist@${PDFJS_VERSION}/build/pdf.worker.mjs`,
-  // Fallback to .min.js if .mjs fails
-  `https://unpkg.com/pdfjs-dist@${PDFJS_VERSION}/build/pdf.worker.min.js`,
-  `https://cdn.jsdelivr.net/npm/pdfjs-dist@${PDFJS_VERSION}/build/pdf.worker.min.js`,
-  'https://mozilla.github.io/pdf.js/build/pdf.worker.min.js',
-  // Try local worker last (in case user adds it)
-  '/pdf.worker.min.js'
+  // Legacy fallback
+  'https://mozilla.github.io/pdf.js/build/pdf.worker.js',
+  // Try local worker last
+  '/pdf.worker.js'
 ];
 
 /**
@@ -76,7 +77,7 @@ export const initializePDFWorker = async (): Promise<boolean> => {
       console.log(`🎯 Attempting worker: ${workerUrl}`);
       console.log(`📊 Worker info:`, {
         version: pdfjs.version,
-        workerType: workerUrl.includes('.mjs') ? 'ES Module (.mjs)' : 'Classic (.js)',
+        workerType: workerUrl.includes('.mjs') ? 'ES Module (.mjs)' : workerUrl.includes('.js') ? 'Standard (.js)' : 'Minified (.min.js)',
         source: workerUrl.includes('unpkg') ? 'unpkg CDN' : 
                 workerUrl.includes('jsdelivr') ? 'jsDelivr CDN' : 
                 workerUrl.includes('mozilla') ? 'Mozilla CDN' : 'Local'
