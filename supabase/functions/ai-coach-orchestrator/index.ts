@@ -8,6 +8,7 @@ import { extractTopicKeywords } from './topic-extraction.ts';
 import { detectIntentFromTriggers, detectIntentFallback } from './helpers/triggerScoring.ts';
 import { detectMentionedCourse, retrieveCourseContent, formatCourseContentForPrompt } from './helpers/courseContentRetrieval.ts';
 import { parseDocument, truncateText } from './helpers/documentParser.ts';
+import { classifyDocument, type PedagogicalFlow } from './helpers/documentAnalyzer.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -18,10 +19,19 @@ const corsHeaders = {
 const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
 const anthropic = ANTHROPIC_API_KEY ? new Anthropic({ apiKey: ANTHROPIC_API_KEY }) : null;
 
+// Initialize Lovable AI Gateway API key for document classification
+const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+
 if (!anthropic) {
   console.warn('[ORCHESTRATOR] ⚠️ Anthropic API key not found - V2 Dialogue Engine disabled');
 } else {
   console.log('[ORCHESTRATOR] ✅ Claude 3 Opus integration enabled');
+}
+
+if (!LOVABLE_API_KEY) {
+  console.warn('[ORCHESTRATOR] ⚠️ Lovable API key not found - Document classification will use fallback heuristics');
+} else {
+  console.log('[ORCHESTRATOR] ✅ Document classification AI enabled');
 }
 
 interface ConductorRequest {
@@ -378,6 +388,90 @@ ${knowledgeSection}`;
   }
   
   return prompt;
+}
+
+// ============================================
+// PHASE 4: EXPLANATORY FLOW PROMPT FUNCTIONS
+// ============================================
+
+/**
+ * Build Al's system prompt for Explanatory Flow (factual documents)
+ * Al summarizes sections and provides factual information first
+ */
+function buildAlExplanatoryPrompt(
+  attachedDocuments: string,
+  userMessage: string,
+  studentContext?: string,
+  userMemories?: any,
+  knowledgePack?: any
+): string {
+  return `${buildAlSystemPrompt(studentContext, userMemories, knowledgePack)}
+
+---
+
+# 🎓 EXPLANATORY FLOW MODE - AL SPEAKS FIRST
+
+You are in **Explanatory Flow** mode for a FACTUAL DOCUMENT. Your role is to:
+
+1. **READ THE DOCUMENT**: The student has attached a factual document (business plan, report, research paper)
+2. **SUMMARIZE THE SECTION**: When they ask about a section, provide a clear, structured summary of what's in that section
+3. **EXTRACT KEY FACTS**: Focus on the most important information, data, and insights
+4. **BE CONCISE**: Keep your summary to 2-4 sentences focusing on core facts
+5. **NO QUESTIONS**: Do NOT ask questions - Betty will handle that after you
+
+${attachedDocuments}
+
+## Current User Request:
+"${userMessage}"
+
+## Your Task:
+Read the relevant section of the attached document and provide a factual summary. Focus on:
+- Key data points and metrics
+- Main conclusions or recommendations
+- Critical facts the student needs to understand
+
+**Output ONLY your factual summary - no questions, no meta-commentary.**`;
+}
+
+/**
+ * Build Betty's system prompt for Explanatory Flow follow-up
+ * Betty asks comprehension questions AFTER Al has provided facts
+ */
+function buildBettyExplanatoryFollowupPrompt(
+  alSummary: string,
+  userMessage: string,
+  attachedDocuments: string,
+  userMemories?: any,
+  knowledgePack?: any,
+  retrievedKnowledge?: any,
+  courseContent?: any
+): string {
+  return `${buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge, courseContent, attachedDocuments)}
+
+---
+
+# 🎓 EXPLANATORY FLOW MODE - BETTY ASKS FOLLOW-UP
+
+You are in **Explanatory Flow** mode. Al just provided this factual summary:
+
+## Al's Summary:
+"${alSummary}"
+
+## Your Role:
+1. **Acknowledge the facts**: Briefly reference what Al explained (1 sentence)
+2. **Ask a comprehension question**: Test understanding or encourage critical thinking about those facts
+3. **Connect concepts**: Ask how these facts relate to larger themes or implications
+4. **Be specific**: Reference exact details from Al's summary in your question
+
+## User's Original Request:
+"${userMessage}"
+
+**Examples of Good Follow-up Questions:**
+- "Al mentioned X is valued at Y. Why do you think that valuation is significant for the company's strategy?"
+- "Given those three key metrics Al shared, which one do you think poses the biggest risk?"
+- "How do you think those facts about the target market influence the product design decisions?"
+
+**Generate ONE Socratic question that builds on Al's facts.**`;
 }
 
 // ============================================
@@ -1662,6 +1756,23 @@ In the meantime, you can still access your courses directly from the dashboard.`
           });
         }
         
+        // PHASE 1: DOCUMENT CLASSIFICATION for Adaptive Pedagogical Flows
+        let documentClassification = null;
+        if (documents.length > 0 && LOVABLE_API_KEY) {
+          try {
+            console.log('[CONDUCTOR] 🎓 Classifying document for pedagogical flow selection...');
+            documentClassification = await classifyDocument(
+              documents[0].content, 
+              documents[0].title,
+              LOVABLE_API_KEY
+            );
+            console.log('[CONDUCTOR] ✅ Document classified as:', documentClassification.type);
+            console.log('[CONDUCTOR] 📚 Suggested teaching flow:', documentClassification.suggestedFlow);
+          } catch (classError) {
+            console.error('[CONDUCTOR] ⚠️ Document classification failed:', classError);
+          }
+        }
+        
         if (documents.length > 0) {
           // PHASE 1: PRIORITIZE CURRENT ATTACHMENTS OVER HISTORY
           attachedDocumentsContext = `\n\n# ⚡ CURRENTLY ATTACHED DOCUMENTS (HIGHEST PRIORITY)
@@ -1860,6 +1971,12 @@ When the student asks about "the document", they mean THIS one: "${documents[0].
     let isSocraticLoopActive = sessionState.data?.metadata?.isSocraticLoopActive || false;
     let socraticLoopStartTurn = sessionState.data?.metadata?.socraticLoopStartTurn || -1;
     
+    // PHASE 2: ADAPTIVE PEDAGOGICAL FLOWS - Flow State Management
+    let activeFlow: PedagogicalFlow | null = sessionState.data?.metadata?.activeFlow || null;
+    let flowLocked: boolean = sessionState.data?.metadata?.flowLocked || false;
+    let flowStartTurn: number = sessionState.data?.metadata?.flowStartTurn || -1;
+    let lastFlowPersona: string | null = sessionState.data?.metadata?.lastFlowPersona || null;
+    
     // ============================================
     // PART 1: RESUMPTION LOCK - Detect session resumption
     // ============================================
@@ -1903,6 +2020,18 @@ When the student asks about "the document", they mean THIS one: "${documents[0].
     let intentConfidence = 0.8;
     let intentReasoning = '';
     let intentAlreadySet = false; // Flag to skip database detection if stickiness applies
+    
+    // PHASE 2: FLOW SELECTION LOGIC - Set active flow when document is attached
+    if (documentClassification && !flowLocked) {
+      activeFlow = documentClassification.suggestedFlow;
+      flowLocked = true;
+      flowStartTurn = conversationHistory.length;
+      
+      console.log('[CONDUCTOR] 🎓 Pedagogical Flow activated:', activeFlow);
+      console.log('[CONDUCTOR] 🔒 Flow locked to prevent mid-conversation changes');
+      console.log('[CONDUCTOR] 📖 Classification:', documentClassification.type, 
+        '(confidence:', documentClassification.confidence, ')');
+    }
     
     // Determine if we're in an active Betty conversation
     const lastPersona = conversationHistory.length > 0 
@@ -2487,6 +2616,52 @@ Include the time elapsed (${minutesAway} minutes) and the specific topic in your
           const willNeedBettyHandoff = inBettySession;
           console.log('[CONDUCTOR] Will need Betty handoff after Nite Owl:', willNeedBettyHandoff);
       
+    } else if (activeFlow === 'explanatory' && attachedDocumentsContext) {
+      // PHASE 3: EXPLANATORY FLOW ROUTING - Al speaks first, Betty follows with comprehension question
+      console.log('[CONDUCTOR] 🎓 EXPLANATORY FLOW ACTIVE - Implementing Al-first sequence');
+      
+      const lastPersona = conversationHistory.length > 0 
+        ? conversationHistory[conversationHistory.length - 1].persona 
+        : null;
+      
+      // Determine sequence position
+      if (lastPersona !== 'AL' && lastPersona !== 'BETTY') {
+        // START OF SEQUENCE: Al provides factual summary
+        selectedPersona = 'AL';
+        lastFlowPersona = 'AL';
+        systemPrompt = buildAlExplanatoryPrompt(
+          attachedDocumentsContext,
+          message,
+          studentContext,
+          userMemories,
+          knowledgePack
+        );
+        console.log('[CONDUCTOR] 📖 EXPLANATORY FLOW: Al will summarize document section');
+        
+      } else if (lastPersona === 'AL') {
+        // SECOND TURN: Betty asks comprehension question based on Al's summary
+        selectedPersona = 'BETTY';
+        lastFlowPersona = 'BETTY';
+        
+        const alLastMessage = conversationHistory[conversationHistory.length - 1].content;
+        systemPrompt = buildBettyExplanatoryFollowupPrompt(
+          alLastMessage,
+          message,
+          attachedDocumentsContext,
+          userMemories,
+          knowledgePack,
+          retrievedKnowledge,
+          courseContent
+        );
+        console.log('[CONDUCTOR] ❓ EXPLANATORY FLOW: Betty will ask comprehension question');
+        
+      } else {
+        // User responded to Betty - evaluate and potentially continue or move to next section
+        selectedPersona = 'BETTY';
+        systemPrompt = buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge, courseContent, attachedDocumentsContext);
+        console.log('[CONDUCTOR] 🔄 EXPLANATORY FLOW: Betty continues dialogue');
+      }
+      
     } else if (featureFlags['socratic_sandwich']?.enabled && shouldTriggerCoResponse) {
       // ⭐⭐ PHASE 5.2: CO-RESPONSE MODE - Al validates, then Betty deepens (only if feature enabled)
       isCoResponse = true;
@@ -2497,7 +2672,7 @@ Include the time elapsed (${minutesAway} minutes) and the specific topic in your
       // For now, set Betty as the primary persona (we'll override later)
       systemPrompt = buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge, courseContent, attachedDocumentsContext);
       
-    } 
+    }
     // ============ PHASE 3: PROACTIVE HANDOFF LOGIC ============
     else if (!inBettySession && detectedIntent === 'request_for_information' && selectedPersona === 'AL') {
       // Track consecutive informational turns on the same topic
@@ -3803,6 +3978,11 @@ Keep it brief (2-3 sentences total). Make the transition feel natural.`;
                 resumptionLockTurns,
                 isSocraticLoopActive,
                 socraticLoopStartTurn,
+                // PHASE 2: Persist flow state
+                activeFlow,
+                flowLocked,
+                flowStartTurn,
+                lastFlowPersona,
                 lastUpdated: new Date().toISOString()
               },
               updated_at: new Date().toISOString()
