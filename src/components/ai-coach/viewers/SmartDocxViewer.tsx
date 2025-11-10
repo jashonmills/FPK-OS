@@ -16,6 +16,20 @@ export const SmartDocxViewer: React.FC<SmartDocxViewerProps> = ({ fileUrl }) => 
   const [isActuallyJSON, setIsActuallyJSON] = useState(false);
   const [jsonUrl, setJsonUrl] = useState<string | null>(null);
   
+  // CRITICAL: Call hook at top level, before any conditional returns
+  const { 
+    pages, 
+    currentPage, 
+    totalPages, 
+    nextPage, 
+    previousPage, 
+    canGoNext, 
+    canGoPrevious 
+  } = useVirtualPagination(htmlContent, {
+    pageHeight: 850,
+    minElementsPerPage: 2
+  });
+  
   useEffect(() => {
     const loadDocx = async () => {
       try {
@@ -103,20 +117,6 @@ export const SmartDocxViewer: React.FC<SmartDocxViewerProps> = ({ fileUrl }) => 
     );
   }
   
-  // Use virtual pagination for the HTML content
-  const { 
-    pages, 
-    currentPage, 
-    totalPages, 
-    nextPage, 
-    previousPage, 
-    canGoNext, 
-    canGoPrevious 
-  } = useVirtualPagination(htmlContent, {
-    pageHeight: 850,
-    minElementsPerPage: 2
-  });
-
   return (
     <div className="flex flex-col h-full">
       {/* Page Content Area */}
