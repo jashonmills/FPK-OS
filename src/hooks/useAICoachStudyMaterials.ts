@@ -19,12 +19,14 @@ export function useAICoachStudyMaterials(orgId?: string) {
 
   const fetchStudyMaterials = async () => {
     if (!user?.id) {
+      console.log('[useAICoachStudyMaterials] No user ID, skipping fetch');
       setIsLoadingMaterials(false);
       return;
     }
 
     try {
       setIsLoadingMaterials(true);
+      console.log('[useAICoachStudyMaterials] Fetching materials for:', { userId: user.id, orgId });
       
       let query: any = supabase
         .from('ai_coach_study_materials')
@@ -38,11 +40,15 @@ export function useAICoachStudyMaterials(orgId?: string) {
       
       const { data, error } = await query;
 
-      if (error) throw error;
+      if (error) {
+        console.error('[useAICoachStudyMaterials] Fetch error:', error);
+        throw error;
+      }
 
+      console.log('[useAICoachStudyMaterials] Fetched materials:', { count: data?.length || 0 });
       setStudyMaterials(data || []);
     } catch (error) {
-      console.error('Error fetching study materials:', error);
+      console.error('[useAICoachStudyMaterials] Error fetching study materials:', error);
       toast.error('Failed to load study materials');
       setStudyMaterials([]);
     } finally {
@@ -52,6 +58,7 @@ export function useAICoachStudyMaterials(orgId?: string) {
 
   const uploadMaterial = async (file: File): Promise<string | null> => {
     if (!user?.id) {
+      console.error('[useAICoachStudyMaterials] Upload failed: No user ID');
       toast.error('You must be logged in to upload materials');
       return null;
     }
@@ -59,9 +66,17 @@ export function useAICoachStudyMaterials(orgId?: string) {
     // Validate file size (10MB limit)
     const MAX_FILE_SIZE = 10 * 1024 * 1024;
     if (file.size > MAX_FILE_SIZE) {
+      console.error('[useAICoachStudyMaterials] Upload failed: File too large:', file.size);
       toast.error('File size exceeds 10MB limit');
       return null;
     }
+
+    console.log('[useAICoachStudyMaterials] Starting upload for:', { 
+      fileName: file.name, 
+      fileSize: file.size, 
+      userId: user.id,
+      orgId 
+    });
 
     try {
       // Step 1: Sanitize filename - remove emojis and special characters
@@ -70,20 +85,31 @@ export function useAICoachStudyMaterials(orgId?: string) {
         .replace(/\s+/g, '_') // Replace spaces with underscores
         .trim();
       
+      console.log('[useAICoachStudyMaterials] Sanitized filename:', sanitizedFileName);
+      
       // Step 2: Upload to Supabase Storage
       const filePath = `${user.id}/${Date.now()}_${sanitizedFileName}`;
+      console.log('[useAICoachStudyMaterials] Uploading to storage path:', filePath);
+      
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('ai-coach-materials')
         .upload(filePath, file);
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('[useAICoachStudyMaterials] Storage upload error:', uploadError);
+        throw uploadError;
+      }
 
-      // Step 2: Get public URL
+      console.log('[useAICoachStudyMaterials] Storage upload successful');
+
+      // Step 3: Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('ai-coach-materials')
         .getPublicUrl(filePath);
 
-      // Step 3: Create database record
+      console.log('[useAICoachStudyMaterials] Public URL generated:', publicUrl);
+
+      // Step 4: Create database record
       const insertData: any = {
         user_id: user.id,
         title: file.name,
@@ -96,21 +122,27 @@ export function useAICoachStudyMaterials(orgId?: string) {
         insertData.org_id = orgId;
       }
 
+      console.log('[useAICoachStudyMaterials] Inserting database record:', insertData);
+
       const { data: insertedData, error: dbError } = await supabase
         .from('ai_coach_study_materials')
         .insert(insertData)
         .select('id')
         .single();
 
-      if (dbError) throw dbError;
+      if (dbError) {
+        console.error('[useAICoachStudyMaterials] Database insert error:', dbError);
+        throw dbError;
+      }
 
+      console.log('[useAICoachStudyMaterials] Material uploaded successfully with ID:', insertedData?.id);
       toast.success('Study material uploaded successfully!');
       
       // Refresh materials list
       await fetchStudyMaterials();
       return insertedData?.id || null;
     } catch (error) {
-      console.error('Upload error:', error);
+      console.error('[useAICoachStudyMaterials] Upload error:', error);
       toast.error('Failed to upload material');
       return null;
     }

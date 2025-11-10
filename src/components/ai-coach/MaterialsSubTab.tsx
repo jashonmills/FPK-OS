@@ -16,13 +16,21 @@ export function MaterialsSubTab({ orgId, onStartStudying }: MaterialsSubTabProps
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [draggedMaterialId, setDraggedMaterialId] = useState<string | null>(null);
 
+  console.log('[MaterialsSubTab] Rendered:', { 
+    orgId, 
+    materialsCount: studyMaterials.length,
+    isLoading: isLoadingMaterials
+  });
+
   const filteredMaterials = useMemo(() => {
     if (selectedFolderId === null) return studyMaterials;
     return studyMaterials.filter((m: any) => m.folder_id === selectedFolderId);
   }, [studyMaterials, selectedFolderId]);
 
   const handleUpload = async (file: File, folderId: string | null): Promise<string | null> => {
+    console.log('[MaterialsSubTab] handleUpload:', { fileName: file.name, folderId });
     const materialId = await uploadMaterial(file);
+    console.log('[MaterialsSubTab] Upload completed:', { materialId });
     if (materialId && folderId) {
       await assignToFolder(materialId, folderId);
     }

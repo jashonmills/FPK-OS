@@ -86,9 +86,12 @@ export function SmartUploadModal({
   };
 
   const handleStartStudying = () => {
+    console.log('[SmartUploadModal] Starting study session with:', { title, uploadedMaterialId });
     if (onStartStudying && title && uploadedMaterialId) {
       onStartStudying(title, uploadedMaterialId);
       handleClose();
+    } else {
+      console.error('[SmartUploadModal] Cannot start studying - missing data:', { hasCallback: !!onStartStudying, title, uploadedMaterialId });
     }
   };
 

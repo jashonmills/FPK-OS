@@ -32,7 +32,8 @@ export function useCommandCenterChat(userId?: string) {
       userId,
       hasMessage: !!messageText.trim(),
       messageLength: messageText.length,
-      attachedMaterialIds: attachedMaterialIds || []
+      attachedMaterialIds: attachedMaterialIds || [],
+      hasAttachments: (attachedMaterialIds && attachedMaterialIds.length > 0)
     });
     
     // Prevent concurrent streams
@@ -114,6 +115,30 @@ export function useCommandCenterChat(userId?: string) {
         throw new Error('No active session');
       }
 
+      const payload = {
+        message: messageText,
+        conversationId: activeSessionId,
+        conversationHistory: messages
+          .filter(m => m.persona !== 'USER' || !m.isStreaming)
+          .map(m => ({
+            persona: m.persona,
+            content: m.content
+          })),
+        metadata: {
+          source: 'ai_command_center_v2',
+          audioEnabled,
+          attachedMaterialIds: attachedMaterialIds || []
+        }
+      };
+
+      console.log('[useCommandCenterChat] 📤 Sending payload to orchestrator:', {
+        messageLength: messageText.length,
+        conversationId: activeSessionId,
+        historyLength: payload.conversationHistory.length,
+        attachedMaterialIds: payload.metadata.attachedMaterialIds,
+        source: payload.metadata.source
+      });
+
       // Call Phoenix orchestrator with streaming
       const response = await fetch(
         `https://zgcegkmqfgznbpdplscz.supabase.co/functions/v1/ai-coach-orchestrator`,
@@ -124,21 +149,7 @@ export function useCommandCenterChat(userId?: string) {
             'Authorization': `Bearer ${session.access_token}`,
             'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpnY2Vna21xZmd6bmJwZHBsc2N6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MDcxNTgsImV4cCI6MjA2NDk4MzE1OH0.RCtAqfgz7aqjG-QWiOqFBCG5xg2Rok9T4tbyGQMnCm8'
           },
-          body: JSON.stringify({
-            message: messageText,
-            conversationId: activeSessionId,
-            conversationHistory: messages
-              .filter(m => m.persona !== 'USER' || !m.isStreaming)
-              .map(m => ({
-                persona: m.persona,
-                content: m.content
-              })),
-            metadata: {
-              source: 'ai_command_center_v2',
-              audioEnabled,
-              attachedMaterialIds: attachedMaterialIds || []
-            }
-          }),
+          body: JSON.stringify(payload),
           signal: abortControllerRef.current.signal
         }
       );

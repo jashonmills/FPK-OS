@@ -602,25 +602,28 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
     prevMessagesLength.current = messages.length;
   }, [messages, voiceSettings.autoRead, voiceSettings.enabled, speak]);
 
-  const handleSendMessage = async () => {
+  const handleSendMessage = async (messageOverride?: string, materialIdsOverride?: string[]) => {
+    const currentInput = messageOverride || inputValue;
+    const currentAttachments = materialIdsOverride || attachedMaterialIds;
+    
     console.log('[AI COMMAND CENTER] 🚀 handleSendMessage called', { 
-      hasInput: !!inputValue.trim(), 
+      hasInput: !!currentInput.trim(), 
       isLoading, 
       hasUser: !!user,
-      userId: user?.id 
+      userId: user?.id,
+      messagePreview: currentInput.substring(0, 50) + '...',
+      attachments: currentAttachments
     });
     
-    if (!inputValue.trim() || !user) {
+    if (!currentInput.trim() || !user) {
       console.log('[AI COMMAND CENTER] ❌ Validation failed - not sending message');
       return;
     }
 
-    const currentInput = inputValue;
-    const currentAttachments = attachedMaterialIds;
     setInputValue('');
     setAttachedMaterialIds([]); // Clear attachments after sending
     
-    console.log('[AI COMMAND CENTER] ✅ Calling sendChatMessage with:', currentInput, 'attachments:', currentAttachments);
+    console.log('[AI COMMAND CENTER] ✅ Calling sendChatMessage with attachments:', currentAttachments);
     // Call the streaming hook's sendMessage with attachments
     await sendChatMessage(currentInput, currentAttachments);
 
@@ -691,11 +694,13 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
     toast.info('Chat cleared');
   };
 
-  const handleStartStudyingDocument = (documentTitle: string, materialId: string) => {
+  const handleStartStudyingDocument = async (documentTitle: string, materialId: string) => {
+    console.log('[AICoachCommandCenter] handleStartStudyingDocument called with:', { documentTitle, materialId });
     setActiveTab('chat');
-    setAttachedMaterialIds([materialId]);
     const prompt = `Let's study the document I just uploaded: "${documentTitle}". Can you help me understand the key concepts?`;
-    setInputValue(prompt);
+    console.log('[AICoachCommandCenter] Sending message immediately with materialId:', materialId);
+    // Send immediately with attached material to avoid race conditions
+    await handleSendMessage(prompt, [materialId]);
   };
 
   const handleLoadChat = async (chatId: string) => {
