@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Settings, User, ArrowLeft } from 'lucide-react';
+import { Search, Settings, User, ArrowLeft, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -24,7 +24,11 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { TourHelpButton } from '@/components/tour/TourHelpButton';
 
-const OrgHeader = () => {
+interface OrgHeaderProps {
+  onMenuToggle?: () => void;
+}
+
+const OrgHeader = ({ onMenuToggle }: OrgHeaderProps) => {
   const { user, signOut } = useAuth();
   const { profile } = useUserProfile();
   const navigate = useNavigate();
@@ -72,18 +76,30 @@ const OrgHeader = () => {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-16 items-center justify-between px-2 sm:px-4 gap-2">
-        {/* Left side - Back button and brand */}
+        {/* Left side - Hamburger menu (mobile) or Back button and brand */}
         <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0">
-          <Button 
-            variant="ghost" 
-            size={isMobile ? "icon" : "sm"}
-            onClick={() => navigate('/dashboard/organizations')}
-            className="hover:text-primary"
-            title="All Organizations"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            {!isMobile && <span className="ml-2">All Organizations</span>}
-          </Button>
+          {isMobile && onMenuToggle ? (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onMenuToggle}
+              className="bg-purple-600 text-white hover:bg-purple-700 hover:text-white"
+              aria-label="Toggle navigation menu"
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+          ) : (
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => navigate('/dashboard/organizations')}
+              className="hover:text-primary"
+              title="All Organizations"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span className="ml-2">All Organizations</span>
+            </Button>
+          )}
           <div className="hidden md:flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg flex items-center justify-center">
               <img 

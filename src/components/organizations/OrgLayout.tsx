@@ -19,6 +19,7 @@ import waterfordWexfordEducationBg from '@/assets/waterford-wexford-education-bg
 function OrgLayoutContent() {
   const { currentOrg } = useOrgContext();
   const [isCollapsed, setIsCollapsed] = useLocalStorage('orgNavCollapsed', false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
   // Listen for storage changes to sync collapse state across components
   React.useEffect(() => {
@@ -76,10 +77,15 @@ function OrgLayoutContent() {
       <div className="fixed inset-0 bg-gradient-to-br from-purple-900/20 via-purple-800/10 to-purple-900/30 pointer-events-none -z-10" />
       
       {/* Fixed Header */}
-      <OrgHeader />
+      <OrgHeader 
+        onMenuToggle={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+      />
       
       {/* Fixed Navigation */}
-      <OrgNavigation />
+      <OrgNavigation 
+        isMobileMenuOpen={isMobileMenuOpen}
+        onMobileMenuToggle={setIsMobileMenuOpen}
+      />
       
       {/* Main content area - responsive margins with transition */}
       <main className={`pt-16 min-h-screen transition-all duration-300 ${isCollapsed ? 'md:ml-16' : 'md:ml-64'}`}>

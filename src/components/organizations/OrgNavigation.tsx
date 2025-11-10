@@ -155,17 +155,6 @@ export function OrgNavigation({ isMobileMenuOpen: externalMobileMenuOpen, onMobi
   if (isMobile) {
     return (
       <>
-        {/* Mobile Menu Button - Only show if not controlled externally */}
-        {externalMobileMenuOpen === undefined && (
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="fixed top-20 left-4 z-50 p-3 bg-purple-900/90 backdrop-blur-sm rounded-lg text-white shadow-lg md:hidden hover:bg-purple-800/90 transition-colors"
-            aria-label="Toggle navigation menu"
-          >
-            {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
-        )}
-
         {/* Mobile Menu Overlay */}
         {isMobileMenuOpen && (
           <div 
