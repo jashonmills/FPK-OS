@@ -133,6 +133,7 @@ const InstructorConsole = lazy(() => import("./pages/admin/InstructorConsole"));
 const AdminSettings = lazy(() => import("./pages/admin/Settings"));
 const GenerateBackgrounds = lazy(() => import("./pages/admin/GenerateBackgrounds"));
 const PartnersManagement = lazy(() => import("./pages/admin/PartnersManagement"));
+const SyncCourseManifests = lazy(() => import("./pages/admin/SyncCourseManifests"));
 
 // Instructor pages
 const InstructorDashboard = lazy(() => import("./pages/dashboard/InstructorDashboard"));
@@ -513,6 +514,7 @@ const App: React.FC = () => {
             <Route path="admin/partners" element={<LazyRoute><PartnersManagement /></LazyRoute>} />
             <Route path="admin/settings" element={<LazyRoute><AdminSettings /></LazyRoute>} />
             <Route path="admin/generate-backgrounds" element={<LazyRoute><GenerateBackgrounds /></LazyRoute>} />
+            <Route path="admin/sync-course-manifests" element={<LazyRoute><SyncCourseManifests /></LazyRoute>} />
             <Route path="admin/blog" element={<LazyRoute><BlogHub /></LazyRoute>} />
             <Route path="admin/blog/posts" element={<LazyRoute><BlogPostManager /></LazyRoute>} />
             <Route path="admin/blog/content" element={<LazyRoute><ContentManager /></LazyRoute>} />
