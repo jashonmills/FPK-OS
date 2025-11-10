@@ -1,7 +1,6 @@
 {
   "name": "vite_react_shadcn_ts",
   "packageManager": "pnpm@9.6.0",
-
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -68,9 +67,11 @@
     "isomorphic-dompurify": "^2.26.0",
     "jszip": "^3.10.1",
     "lucide-react": "^0.462.0",
+    "mammoth": "^1.11.0",
     "next-themes": "^0.3.0",
     "node-html-parser": "^7.0.1",
     "papaparse": "^5.5.3",
+    "pdf-parse": "^2.4.5",
     "pdfjs-dist": "^4.8.69",
     "react": "^18.3.1",
     "react-day-picker": "^8.10.1",

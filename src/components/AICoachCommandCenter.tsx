@@ -28,6 +28,8 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { MaterialsSubTab } from '@/components/ai-coach/MaterialsSubTab';
 import { SavedChatsSubTab } from '@/components/ai-coach/SavedChatsSubTab';
 import { AttachContextButton } from '@/components/ai-coach/AttachContextButton';
+import { AttachedMaterialsBadge } from '@/components/ai-coach/AttachedMaterialsBadge';
+import { AttachMaterialButton } from '@/components/ai-coach/AttachMaterialButton';
 
 // Left Column: Context & History
 const ContextHistoryColumn: React.FC<{
@@ -314,8 +316,9 @@ const AIInteractionColumn: React.FC<{
   isLoading: boolean;
   attachedMaterialIds: string[];
   onAttachedMaterialsChange: (ids: string[]) => void;
+  studyMaterials: any[];
   orgId?: string;
-}> = ({ messages, inputValue, onInputChange, onSendMessage, onVoiceTranscription, onSaveChat, onSaveAndClear, onClearChat, isLoading, attachedMaterialIds, onAttachedMaterialsChange, orgId }) => {
+}> = ({ messages, inputValue, onInputChange, onSendMessage, onVoiceTranscription, onSaveChat, onSaveAndClear, onClearChat, isLoading, attachedMaterialIds, onAttachedMaterialsChange, studyMaterials, orgId }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const lastMessageRef = useRef<string | null>(null);
@@ -395,6 +398,18 @@ const AIInteractionColumn: React.FC<{
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       onSendMessage();
+    }
+  };
+
+  const handleRemoveMaterial = (materialId: string) => {
+    console.log('[AIInteractionColumn] Removing material:', materialId);
+    onAttachedMaterialsChange(attachedMaterialIds.filter(id => id !== materialId));
+  };
+
+  const handleAttachMaterial = (materialId: string) => {
+    console.log('[AIInteractionColumn] Attaching material:', materialId);
+    if (!attachedMaterialIds.includes(materialId)) {
+      onAttachedMaterialsChange([...attachedMaterialIds, materialId]);
     }
   };
 
@@ -482,12 +497,15 @@ const AIInteractionColumn: React.FC<{
 
       {/* Input Area */}
       <div className="border-t pt-4 flex-shrink-0">
+        {/* Attached Materials Badge */}
+        <AttachedMaterialsBadge
+          materialIds={attachedMaterialIds}
+          materials={studyMaterials}
+          onRemove={handleRemoveMaterial}
+          className="mb-2"
+        />
+        
         <div className="flex gap-2">
-          <AttachContextButton
-            orgId={orgId}
-            selectedMaterialIds={attachedMaterialIds}
-            onMaterialsChange={onAttachedMaterialsChange}
-          />
           <textarea
             value={inputValue}
             onChange={(e) => onInputChange(e.target.value)}
@@ -495,13 +513,22 @@ const AIInteractionColumn: React.FC<{
             placeholder="Ask a question or describe what you're studying..."
             className="flex-1 px-4 py-3 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-fpk-primary"
             rows={2}
+            disabled={isLoading}
           />
           <div className="flex flex-col gap-2">
-            <VoiceInputButton
-              onTranscription={onVoiceTranscription}
-              placeholder="AI Coach voice input"
-              disabled={isLoading}
-            />
+            <div className="flex gap-2">
+              <AttachMaterialButton
+                materials={studyMaterials}
+                attachedMaterialIds={attachedMaterialIds}
+                onAttach={handleAttachMaterial}
+                disabled={isLoading}
+              />
+              <VoiceInputButton
+                onTranscription={onVoiceTranscription}
+                placeholder="AI Coach voice input"
+                disabled={isLoading}
+              />
+            </div>
             <button
               onClick={onSendMessage}
               disabled={!inputValue.trim() || isLoading}
@@ -816,6 +843,7 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
                   isLoading={isLoading}
                   attachedMaterialIds={attachedMaterialIds}
                   onAttachedMaterialsChange={setAttachedMaterialIds}
+                  studyMaterials={studyMaterials}
                   orgId={orgId}
                 />
               </div>

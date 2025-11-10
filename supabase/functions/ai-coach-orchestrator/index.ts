@@ -7,6 +7,7 @@ import { retrieveRelevantKnowledge, formatKnowledgeForPrompt } from './helpers/r
 import { extractTopicKeywords } from './topic-extraction.ts';
 import { detectIntentFromTriggers, detectIntentFallback } from './helpers/triggerScoring.ts';
 import { detectMentionedCourse, retrieveCourseContent, formatCourseContentForPrompt } from './helpers/courseContentRetrieval.ts';
+import { parseDocument, truncateText } from './helpers/documentParser.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -1552,15 +1553,17 @@ In the meantime, you can still access your courses directly from the dashboard.`
       }
     }
 
-    // 📄 DOCUMENT CONTEXT: Fetch attached study materials
+    // 📄 DOCUMENT CONTEXT: Fetch and parse attached study materials
     let attachedDocumentsContext = '';
     if (attachedMaterialIds.length > 0) {
-      console.log('[CONDUCTOR] 📄 Fetching attached documents:', attachedMaterialIds);
+      console.log('[CONDUCTOR] 📄 Fetching and parsing attached documents:', attachedMaterialIds);
       const docStart = Date.now();
       
       try {
         const documents = [];
         for (const materialId of attachedMaterialIds) {
+          console.log('[CONDUCTOR] 📄 Processing material:', materialId);
+          
           // Fetch material record from database
           const { data: material, error: materialError } = await supabaseClient
             .from('ai_coach_study_materials')
@@ -1574,7 +1577,10 @@ In the meantime, you can still access your courses directly from the dashboard.`
             continue;
           }
           
-          console.log('[CONDUCTOR] ✅ Material record fetched:', material.title);
+          console.log('[CONDUCTOR] ✅ Material record fetched:', {
+            title: material.title,
+            fileType: material.file_type
+          });
           
           // Extract file path from URL
           const filePath = material.file_url.split('/ai-coach-materials/')[1];
@@ -1584,6 +1590,7 @@ In the meantime, you can still access your courses directly from the dashboard.`
           }
           
           // Download file content from storage
+          console.log('[CONDUCTOR] 📥 Downloading file from storage:', filePath);
           const { data: fileData, error: downloadError } = await supabaseClient.storage
             .from('ai-coach-materials')
             .download(filePath);
@@ -1593,38 +1600,73 @@ In the meantime, you can still access your courses directly from the dashboard.`
             continue;
           }
           
-          // Read file content as text
-          const content = await fileData.text();
-          console.log('[CONDUCTOR] ✅ Document content loaded:', {
+          console.log('[CONDUCTOR] ✅ File downloaded:', {
+            size: fileData.size,
+            type: fileData.type
+          });
+          
+          // Parse document based on file type
+          let parsedContent = '';
+          try {
+            const arrayBuffer = await fileData.arrayBuffer();
+            console.log('[CONDUCTOR] 🔍 Parsing document with type:', material.file_type);
+            
+            const parsed = await parseDocument(arrayBuffer, material.file_type, material.title);
+            parsedContent = parsed.text;
+            
+            console.log('[CONDUCTOR] ✅ Document parsed successfully:', {
+              title: material.title,
+              textLength: parsedContent.length,
+              metadata: parsed.metadata
+            });
+          } catch (parseError) {
+            console.error('[CONDUCTOR] ❌ Document parsing failed, falling back to raw text:', parseError);
+            // Fallback to raw text
+            try {
+              parsedContent = await fileData.text();
+            } catch (textError) {
+              console.error('[CONDUCTOR] ❌ Even raw text extraction failed:', textError);
+              continue;
+            }
+          }
+          
+          // Truncate to prevent token overflow (keep first 15,000 chars)
+          const truncatedContent = truncateText(parsedContent, 15000);
+          
+          console.log('[CONDUCTOR] 📄 Document ready for context:', {
             title: material.title,
-            contentLength: content.length,
-            fileType: material.file_type
+            originalLength: parsedContent.length,
+            truncatedLength: truncatedContent.length
           });
           
           documents.push({
             title: material.title,
             type: material.file_type,
-            content: content.substring(0, 15000) // Limit to prevent token overflow
+            content: truncatedContent
           });
         }
         
         if (documents.length > 0) {
           attachedDocumentsContext = `\n\n# ATTACHED STUDY MATERIALS\n\nThe student has attached the following documents for context:\n\n${
-            documents.map(doc => `## ${doc.title}\n\`\`\`\n${doc.content}\n\`\`\``).join('\n\n')
+            documents.map(doc => `## ${doc.title}\n\n\`\`\`\n${doc.content}\n\`\`\``).join('\n\n')
           }\n\n**IMPORTANT**: You now have direct access to this document content. Reference specific sections, quote passages, and help the student understand the concepts within. When the student asks about the document, discuss its actual content rather than saying you cannot access it.`;
           
           console.log('[CONDUCTOR] ✅ Document context prepared:', {
             documentCount: documents.length,
             totalContentLength: attachedDocumentsContext.length
           });
+        } else {
+          console.warn('[CONDUCTOR] ⚠️ No documents successfully processed');
         }
         
         timings.document_retrieval = Date.now() - docStart;
-        console.log(`[PERF] Document retrieval: ${timings.document_retrieval}ms`);
+        console.log(`[PERF] Document retrieval and parsing: ${timings.document_retrieval}ms`);
       } catch (docError) {
         console.error('[CONDUCTOR] ❌ Document retrieval failed (non-blocking):', docError);
         // Continue without document context
       }
+    } else {
+      console.log('[CONDUCTOR] 📄 No attached materials to process');
     }
 
     // 2. Verify access permissions based on context
