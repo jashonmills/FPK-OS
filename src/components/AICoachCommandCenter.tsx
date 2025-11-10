@@ -321,7 +321,9 @@ const AIInteractionColumn: React.FC<{
   orgId?: string;
   conversationDocumentContext: string[];
   onConversationDocumentContextChange: (ids: string[]) => void;
-}> = ({ messages, inputValue, onInputChange, onSendMessage, onVoiceTranscription, onSaveChat, onSaveAndClear, onClearChat, isLoading, attachedMaterialIds, onAttachedMaterialsChange, studyMaterials, orgId, conversationDocumentContext, onConversationDocumentContextChange }) => {
+  selectedCourseSlug?: string;
+  onCourseChange?: (slug: string | undefined) => void;
+}> = ({ messages, inputValue, onInputChange, onSendMessage, onVoiceTranscription, onSaveChat, onSaveAndClear, onClearChat, isLoading, attachedMaterialIds, onAttachedMaterialsChange, studyMaterials, orgId, conversationDocumentContext, onConversationDocumentContextChange, selectedCourseSlug, onCourseChange }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const lastMessageRef = useRef<string | null>(null);
@@ -591,15 +593,12 @@ const AIInteractionColumn: React.FC<{
           />
           <div className="flex flex-col gap-2">
             <div className="flex gap-2">
-              <AttachMaterialButton
-                materials={studyMaterials}
-                attachedMaterialIds={attachedMaterialIds}
-                onAttach={handleAttachMaterial}
-                onAttachAndStartFresh={(materialId) => {
-                  onClearChat();
-                  setTimeout(() => handleAttachMaterial(materialId), 100);
-                }}
-                disabled={isLoading}
+              <AttachContextButton
+                orgId={orgId}
+                selectedMaterialIds={attachedMaterialIds}
+                onMaterialsChange={onAttachedMaterialsChange}
+                selectedCourseSlug={selectedCourseSlug}
+                onCourseChange={onCourseChange}
               />
               <VoiceInputButton
                 onTranscription={onVoiceTranscription}
@@ -666,6 +665,7 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [activeTab, setActiveTab] = useState(initialTab);
   const [attachedMaterialIds, setAttachedMaterialIds] = useState<string[]>([]);
+  const [selectedCourseSlug, setSelectedCourseSlug] = useState<string | undefined>();
   
   // PHASE 2: Persistent document context with localStorage backup
   const [conversationDocumentContextState, setConversationDocumentContextState] = useState<string[]>(() => {
@@ -775,6 +775,7 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
       conversationContextFirstId: conversationDocumentContext[0] || 'NONE', // Show first ID
       mergedAttachments: allAttachments,
       mergedLength: allAttachments.length,
+      selectedCourseSlug,
       localStorageBackup: localStorage.getItem('activeStudySession')
     });
     
@@ -786,9 +787,15 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
     setInputValue('');
     setAttachedMaterialIds([]); // Clear message-specific attachments
     // NOTE: conversationDocumentContext NOT cleared - persists for session
+    // NOTE: selectedCourseSlug persists for session (only cleared via UI badge)
     
-    console.log('[AI COMMAND CENTER] ✅ Calling sendChatMessage with merged attachments:', allAttachments);
-    // Call the streaming hook's sendMessage with merged attachments (context + message)
+    console.log('[AI COMMAND CENTER] ✅ Calling sendChatMessage with merged attachments and course slug:', { 
+      attachments: allAttachments, 
+      courseSlug: selectedCourseSlug 
+    });
+    
+    // TODO: Update hooks to pass courseSlug as metadata to orchestrator
+    // For now, the orchestrator will detect course mentions in the message itself
     await sendChatMessage(currentInput, allAttachments);
 
     // Track analytics after interaction
@@ -1005,6 +1012,8 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
                   orgId={orgId}
                   conversationDocumentContext={conversationDocumentContext}
                   onConversationDocumentContextChange={setConversationDocumentContext}
+                  selectedCourseSlug={selectedCourseSlug}
+                  onCourseChange={setSelectedCourseSlug}
                 />
               </div>
             </TabsContent>
