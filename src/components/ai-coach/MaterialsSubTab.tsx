@@ -121,19 +121,19 @@ export function MaterialsSubTab({ orgId, onStartStudying, attachedMaterialIds = 
   return (
     <div className={cn(
       "flex gap-4",
-      isMobile ? "flex-col h-auto pb-20" : "flex-row h-full"
+      isMobile ? "flex-col h-full overflow-hidden" : "flex-row h-full"
     )}>
       {/* Left: Folder Navigation */}
       <div className={cn(
         "flex-shrink-0",
-        isMobile ? "w-full" : "md:w-64"
+        isMobile ? "w-full flex-none" : "md:w-64"
       )}>
-        <div className="bg-white rounded-lg border p-3 md:p-4">
+        <div className="bg-white rounded-lg border p-3 md:p-4 flex flex-col">
           <h3 className="font-semibold text-gray-800 flex items-center gap-2 mb-3 md:mb-4 text-sm md:text-base">
             <BookOpen className="w-4 h-4 md:w-5 md:h-5" />
             Folders
           </h3>
-          <ScrollArea className={cn(isMobile ? "max-h-[200px]" : "max-h-[300px]")}>
+          <ScrollArea className={cn(isMobile ? "h-[150px]" : "max-h-[300px]")}>
             <FolderManager
               folderType="study_material"
               orgId={orgId}
@@ -154,7 +154,10 @@ export function MaterialsSubTab({ orgId, onStartStudying, attachedMaterialIds = 
       </div>
 
       {/* Right: Materials List */}
-      <div className="flex-1 min-h-0">
+      <div className={cn(
+        "flex-1 overflow-hidden",
+        isMobile ? "flex flex-col" : "min-h-0"
+      )}>
         <div className="bg-white rounded-lg border p-3 md:p-4 flex flex-col h-full">
           <div className="flex items-center justify-between mb-3 md:mb-4 flex-shrink-0">
             <h3 className="font-semibold text-gray-800 text-sm md:text-base">
@@ -182,10 +185,7 @@ export function MaterialsSubTab({ orgId, onStartStudying, attachedMaterialIds = 
             />
           </div>
 
-          <ScrollArea className={cn(
-            "flex-1",
-            isMobile ? "h-[calc(100vh-450px)] min-h-[300px]" : "h-[calc(100vh-300px)] max-h-[600px]"
-          )}>
+          <ScrollArea className="flex-1 min-h-0">
             <div className="space-y-2 pr-2 md:pr-4">
               {isLoadingMaterials ? (
                 <p className="text-sm text-gray-500 italic animate-pulse">Loading materials...</p>
