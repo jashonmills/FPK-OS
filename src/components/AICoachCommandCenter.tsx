@@ -426,7 +426,7 @@ const AIInteractionColumn: React.FC<{
     <div className={cn(
       "bg-purple-50/90 border border-purple-100 shadow-md hover:shadow-lg rounded-xl flex flex-col transition-shadow duration-200",
       containerMode === 'split-pane' 
-        ? "p-3 md:p-4 h-full"
+        ? "p-2 h-full min-h-0"
         : isMobile 
           ? "p-3 h-[calc(100vh-200px)] min-h-[500px]"
           : "p-4 lg:p-6 h-[calc(100vh-240px)]"
@@ -443,8 +443,17 @@ const AIInteractionColumn: React.FC<{
       </div>
 
       {/* Messages Area */}
-      <ScrollArea ref={scrollAreaRef} className="flex-1 mb-4">
-        <div className="space-y-3 pr-2">
+      <ScrollArea 
+        ref={scrollAreaRef} 
+        className={cn(
+          "flex-1 mb-4",
+          containerMode === 'split-pane' ? "min-h-0" : ""
+        )}
+      >
+        <div className={cn(
+          "space-y-3 pr-2",
+          containerMode === 'split-pane' ? "min-h-[200px]" : ""
+        )}>
           {messages.length === 0 ? (
             <div className="flex items-center justify-center min-h-[200px] text-center">
               <div>
@@ -1067,12 +1076,15 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
             </TabsContent>
 
             <TabsContent value="chat" className="flex-1 overflow-hidden mt-0">
-              <div className="h-full p-2 sm:p-3 md:p-4 lg:p-6">
+              <div className={cn(
+                "h-full",
+                activeDocument ? "p-0" : "p-2 sm:p-3 md:p-4 lg:p-6"
+              )}>
                 {activeDocument ? (
                   // SPLIT-PANE LAYOUT: Chat + Document Viewer
                   <ResizablePanelGroup direction="vertical" className="h-full">
                     {/* Top Pane: Chat Interface */}
-                    <ResizablePanel defaultSize={60} minSize={30}>
+                    <ResizablePanel defaultSize={50} minSize={35}>
                       <AIInteractionColumn
                         messages={messages as any}
                         inputValue={inputValue}
@@ -1099,7 +1111,7 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
                     <ResizableHandle withHandle />
 
                     {/* Bottom Pane: Document Reader */}
-                    <ResizablePanel defaultSize={40} minSize={20}>
+                    <ResizablePanel defaultSize={50} minSize={25}>
                       <DocumentReader
                         document={activeDocument}
                         onClose={handleCloseDocumentViewer}
