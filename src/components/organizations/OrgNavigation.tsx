@@ -39,11 +39,20 @@ interface NavItem {
   roles?: string[];
 }
 
-export function OrgNavigation() {
+interface OrgNavigationProps {
+  isMobileMenuOpen?: boolean;
+  onMobileMenuToggle?: (open: boolean) => void;
+}
+
+export function OrgNavigation({ isMobileMenuOpen: externalMobileMenuOpen, onMobileMenuToggle }: OrgNavigationProps = {}) {
   const { currentOrg } = useOrgContext();
   const isMobile = useIsMobile();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [internalMobileMenuOpen, setInternalMobileMenuOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useLocalStorage('orgNavCollapsed', false);
+  
+  // Use external state if provided, otherwise use internal state
+  const isMobileMenuOpen = externalMobileMenuOpen !== undefined ? externalMobileMenuOpen : internalMobileMenuOpen;
+  const setIsMobileMenuOpen = onMobileMenuToggle || setInternalMobileMenuOpen;
 
   if (!currentOrg) return null;
 
@@ -146,15 +155,6 @@ export function OrgNavigation() {
   if (isMobile) {
     return (
       <>
-        {/* Mobile Menu Button */}
-        <button
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="fixed top-20 left-4 z-50 p-3 bg-purple-900/90 backdrop-blur-sm rounded-lg text-white shadow-lg md:hidden hover:bg-purple-800/90 transition-colors"
-          aria-label="Toggle navigation menu"
-        >
-          {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </button>
-
         {/* Mobile Menu Overlay */}
         {isMobileMenuOpen && (
           <div 

@@ -7,6 +7,7 @@ import React, { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { ContextualHelpButton } from '@/components/common/ContextualHelpButton';
+import { Menu } from 'lucide-react';
 
 interface MobilePageLayoutProps {
   children: ReactNode;
@@ -115,6 +116,8 @@ interface MobileSectionHeaderProps {
   actions?: ReactNode;
   className?: string;
   helpSection?: string; // For contextual help deep linking
+  showMenuButton?: boolean;
+  onMenuToggle?: () => void;
 }
 
 export const MobileSectionHeader: React.FC<MobileSectionHeaderProps> = ({
@@ -122,13 +125,26 @@ export const MobileSectionHeader: React.FC<MobileSectionHeaderProps> = ({
   subtitle,
   actions,
   className,
-  helpSection
+  helpSection,
+  showMenuButton,
+  onMenuToggle
 }) => {
+  const isMobile = useIsMobile();
+  
   return (
     <div className={cn('mobile-stack', className)}>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="mobile-stack">
+        <div className="mobile-stack flex-1">
           <div className="flex items-center gap-3">
+            {isMobile && showMenuButton && onMenuToggle && (
+              <button
+                onClick={onMenuToggle}
+                className="p-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex-shrink-0"
+                aria-label="Toggle navigation menu"
+              >
+                <Menu className="h-5 w-5" />
+              </button>
+            )}
             <h1 className="mobile-heading-xl mobile-safe-text">{title}</h1>
             {helpSection && (
               <ContextualHelpButton section={helpSection} size="icon" variant="ghost" />

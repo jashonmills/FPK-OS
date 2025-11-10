@@ -3,6 +3,8 @@ import { BookOpen, Upload as UploadIcon, Trash2, Paperclip, Search, Sparkles, Ch
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -30,6 +32,7 @@ export function MaterialsSubTab({ orgId, onStartStudying, attachedMaterialIds = 
   const { studyMaterials, isLoadingMaterials, uploadMaterial, deleteMaterial, assignToFolder } = useAICoachStudyMaterials(orgId);
   const { folders, refetchFolders } = useAICoachFolders('study_material', orgId);
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [draggedMaterialId, setDraggedMaterialId] = useState<string | null>(null);
@@ -166,15 +169,16 @@ export function MaterialsSubTab({ orgId, onStartStudying, attachedMaterialIds = 
             />
           </div>
 
-          <div className="space-y-2">
-            {isLoadingMaterials ? (
-              <p className="text-sm text-gray-500 italic animate-pulse">Loading materials...</p>
-            ) : filteredMaterials.length === 0 ? (
-              <p className="text-sm text-gray-500 italic">
-                {searchQuery ? 'No materials match your search.' : (selectedFolderId === null ? 'No materials uploaded yet' : 'This folder is empty')}
-              </p>
-            ) : (
-              filteredMaterials.map((material: any) => {
+          <ScrollArea className={cn(isMobile ? "max-h-[60vh]" : "max-h-[500px]")}>
+            <div className="space-y-2 pr-4">
+              {isLoadingMaterials ? (
+                <p className="text-sm text-gray-500 italic animate-pulse">Loading materials...</p>
+              ) : filteredMaterials.length === 0 ? (
+                <p className="text-sm text-gray-500 italic">
+                  {searchQuery ? 'No materials match your search.' : (selectedFolderId === null ? 'No materials uploaded yet' : 'This folder is empty')}
+                </p>
+              ) : (
+                filteredMaterials.map((material: any) => {
                 const isAttached = attachedMaterialIds.includes(material.id);
                 return (
                   <div
@@ -182,7 +186,8 @@ export function MaterialsSubTab({ orgId, onStartStudying, attachedMaterialIds = 
                     draggable
                     onDragStart={() => handleDragStart(material.id)}
                     className={cn(
-                      "p-3 rounded border cursor-move transition group relative",
+                      "rounded border cursor-move transition group relative",
+                      isMobile ? "p-4" : "p-3",
                       isAttached 
                         ? "bg-purple-100 border-purple-400 ring-2 ring-purple-500" 
                         : "bg-purple-50/80 border-purple-200/60 hover:bg-purple-100/80"
@@ -206,7 +211,10 @@ export function MaterialsSubTab({ orgId, onStartStudying, attachedMaterialIds = 
                           <Button
                             variant="default"
                             size="sm"
-                            className="w-full bg-purple-600 hover:bg-purple-700 text-white h-8"
+                            className={cn(
+                              "w-full bg-purple-600 hover:bg-purple-700 text-white",
+                              isMobile ? "h-9" : "h-8"
+                            )}
                             onClick={() => handleStartStudying(material.title, material.id)}
                             disabled={studyingMaterialId === material.id}
                           >
@@ -228,7 +236,10 @@ export function MaterialsSubTab({ orgId, onStartStudying, attachedMaterialIds = 
                             <Button
                               variant="outline"
                               size="sm"
-                              className="w-full h-8 border-purple-300 bg-purple-50 text-purple-700"
+                              className={cn(
+                                "w-full border-purple-300 bg-purple-50 text-purple-700",
+                                isMobile ? "h-9" : "h-8"
+                              )}
                               disabled
                             >
                               <Check className="w-3 h-3 mr-2" />
@@ -239,7 +250,10 @@ export function MaterialsSubTab({ orgId, onStartStudying, attachedMaterialIds = 
                               variant="outline"
                               size="sm"
                               onClick={() => onAttachToChat(material.id)}
-                              className="w-full h-8 border-purple-200 text-purple-700 hover:bg-purple-50"
+                              className={cn(
+                                "w-full border-purple-200 text-purple-700 hover:bg-purple-50",
+                                isMobile ? "h-9" : "h-8"
+                              )}
                             >
                               <Paperclip className="w-3 h-3 mr-2" />
                               Attach to Chat
@@ -323,7 +337,8 @@ export function MaterialsSubTab({ orgId, onStartStudying, attachedMaterialIds = 
                 );
               })
             )}
-          </div>
+            </div>
+          </ScrollArea>
         </div>
       </div>
 
