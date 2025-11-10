@@ -326,8 +326,7 @@ const AIInteractionColumn: React.FC<{
   onConversationDocumentContextChange: (ids: string[]) => void;
   selectedCourseSlug?: string;
   onCourseChange?: (slug: string | undefined) => void;
-  containerMode?: 'standalone' | 'split-pane';
-}> = ({ messages, inputValue, onInputChange, onSendMessage, onVoiceTranscription, onSaveChat, onSaveAndClear, onClearChat, isLoading, attachedMaterialIds, onAttachedMaterialsChange, studyMaterials, orgId, conversationDocumentContext, onConversationDocumentContextChange, selectedCourseSlug, onCourseChange, containerMode = 'standalone' }) => {
+}> = ({ messages, inputValue, onInputChange, onSendMessage, onVoiceTranscription, onSaveChat, onSaveAndClear, onClearChat, isLoading, attachedMaterialIds, onAttachedMaterialsChange, studyMaterials, orgId, conversationDocumentContext, onConversationDocumentContextChange, selectedCourseSlug, onCourseChange }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const lastMessageRef = useRef<string | null>(null);
@@ -425,11 +424,9 @@ const AIInteractionColumn: React.FC<{
   return (
     <div className={cn(
       "bg-purple-50/90 border border-purple-100 shadow-md hover:shadow-lg rounded-xl flex flex-col transition-shadow duration-200",
-      containerMode === 'split-pane' 
-        ? "p-2 h-full min-h-0"
-        : isMobile 
-          ? "p-3 h-[calc(100vh-200px)] min-h-[500px]"
-          : "p-4 lg:p-6 h-[calc(100vh-240px)]"
+      isMobile 
+        ? "p-3 h-[calc(100vh-200px)] min-h-[500px]"
+        : "p-4 lg:p-6 h-[calc(100vh-240px)]"
     )}>
       <div className={cn(
         "font-semibold text-gray-800 flex items-center justify-between mb-4",
@@ -445,15 +442,9 @@ const AIInteractionColumn: React.FC<{
       {/* Messages Area */}
       <ScrollArea 
         ref={scrollAreaRef} 
-        className={cn(
-          "flex-1 mb-4",
-          containerMode === 'split-pane' ? "min-h-0" : ""
-        )}
+        className="flex-1 mb-4"
       >
-        <div className={cn(
-          "space-y-3 pr-2",
-          containerMode === 'split-pane' ? "min-h-[200px]" : ""
-        )}>
+        <div className="space-y-3 pr-2">
           {messages.length === 0 ? (
             <div className="flex items-center justify-center min-h-[200px] text-center">
               <div>
@@ -685,13 +676,15 @@ interface AICoachCommandCenterProps {
   orgId?: string;
   orgName?: string;
   initialTab?: string;
+  onViewDocument?: (material: any) => void;
 }
 
 export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({ 
   isFreeChatAllowed = true,
   orgId,
   orgName,
-  initialTab = 'chat'
+  initialTab = 'chat',
+  onViewDocument
 }) => {
   const { user } = useAuth();
   const { identity } = useUserIdentity();
@@ -724,7 +717,6 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
   const [activeTab, setActiveTab] = useState(initialTab);
   const [attachedMaterialIds, setAttachedMaterialIds] = useState<string[]>([]);
   const [selectedCourseSlug, setSelectedCourseSlug] = useState<string | undefined>();
-  const [activeDocument, setActiveDocument] = useState<any | null>(null);
   
   // PHASE 2: Persistent document context with localStorage backup
   const [conversationDocumentContextState, setConversationDocumentContextState] = useState<string[]>(() => {
@@ -925,25 +917,20 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
   };
 
   const handleViewDocument = (material: any) => {
-    console.log('[AICoachCommandCenter] Opening document viewer:', material.title);
-    
-    // Set the document to view
-    setActiveDocument(material);
-    
-    // Automatically switch to Chat tab for split-view experience
-    setActiveTab('chat');
+    console.log('[AICoachCommandCenter] Delegating to parent:', material.title);
     
     // Automatically attach the document to chat context for AI discussion
     if (!attachedMaterialIds.includes(material.id) && !conversationDocumentContext.includes(material.id)) {
       setConversationDocumentContext([material.id]);
     }
     
-    toast.success(`Now viewing: ${material.title}`);
-  };
-
-  const handleCloseDocumentViewer = () => {
-    console.log('[AICoachCommandCenter] Closing document viewer');
-    setActiveDocument(null);
+    // Delegate to parent handler
+    if (onViewDocument) {
+      onViewDocument(material);
+    }
+    
+    // Switch to Chat tab so user can discuss the document
+    setActiveTab('chat');
   };
 
   const handleStartStudyingDocument = async (documentTitle: string, materialId: string) => {
@@ -1077,40 +1064,25 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
 
             <TabsContent value="chat" className="flex-1 overflow-hidden mt-0">
               <div className="h-full p-2 sm:p-3 md:p-4 lg:p-6">
-                <div className="h-full flex flex-col gap-4">
-                  {/* Chat Interface */}
-                  <div className={activeDocument ? "flex-shrink-0" : "h-full"}>
-                    <AIInteractionColumn
-                      messages={messages as any}
-                      inputValue={inputValue}
-                      onInputChange={setInputValue}
-                      onSendMessage={handleSendMessage}
-                      onVoiceTranscription={handleVoiceTranscription}
-                      onSaveChat={handleSaveChat}
-                      onSaveAndClear={() => setShowSaveDialog(true)}
-                      onClearChat={() => setShowClearConfirm(true)}
-                      isLoading={isLoading}
-                      attachedMaterialIds={attachedMaterialIds}
-                      onAttachedMaterialsChange={setAttachedMaterialIds}
-                      studyMaterials={studyMaterials}
-                      orgId={orgId}
-                      conversationDocumentContext={conversationDocumentContext}
-                      onConversationDocumentContextChange={setConversationDocumentContext}
-                      selectedCourseSlug={selectedCourseSlug}
-                      onCourseChange={setSelectedCourseSlug}
-                    />
-                  </div>
-
-                  {/* Document Reader - Shown below chat when active */}
-                  {activeDocument && (
-                    <div className="flex-1 min-h-[400px] overflow-hidden">
-                      <DocumentReader
-                        document={activeDocument}
-                        onClose={handleCloseDocumentViewer}
-                      />
-                    </div>
-                  )}
-                </div>
+                <AIInteractionColumn
+                  messages={messages as any}
+                  inputValue={inputValue}
+                  onInputChange={setInputValue}
+                  onSendMessage={handleSendMessage}
+                  onVoiceTranscription={handleVoiceTranscription}
+                  onSaveChat={handleSaveChat}
+                  onSaveAndClear={() => setShowSaveDialog(true)}
+                  onClearChat={() => setShowClearConfirm(true)}
+                  isLoading={isLoading}
+                  attachedMaterialIds={attachedMaterialIds}
+                  onAttachedMaterialsChange={setAttachedMaterialIds}
+                  studyMaterials={studyMaterials}
+                  orgId={orgId}
+                  conversationDocumentContext={conversationDocumentContext}
+                  onConversationDocumentContextChange={setConversationDocumentContext}
+                  selectedCourseSlug={selectedCourseSlug}
+                  onCourseChange={setSelectedCourseSlug}
+                />
               </div>
             </TabsContent>
 

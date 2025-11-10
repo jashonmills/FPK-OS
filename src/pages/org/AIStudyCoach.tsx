@@ -12,6 +12,8 @@ import { AdminAIAssistant } from '@/components/admin/AdminAIAssistant';
 import { OrgNavigation } from '@/components/organizations/OrgNavigation';
 import { supabase } from '@/integrations/supabase/client';
 import { useSearchParams } from 'react-router-dom';
+import { DocumentReader } from '@/components/ai-coach/DocumentReader';
+import { toast } from 'sonner';
 
 interface StudyTip {
   id: string;
@@ -69,6 +71,22 @@ export default function AIStudyCoach() {
   const initialTab = searchParams.get('tab') || 'chat';
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  // State for standalone document reader (below chat module)
+  const [activeDocument, setActiveDocument] = useState<any>(null);
+
+  // Handler to open document viewer
+  const handleViewDocument = (material: any) => {
+    console.log('[AIStudyCoach] Opening document viewer:', material.title);
+    setActiveDocument(material);
+    toast.success(`Now viewing: ${material.title}`);
+  };
+
+  // Handler to close document viewer
+  const handleCloseDocumentViewer = () => {
+    console.log('[AIStudyCoach] Closing document viewer');
+    setActiveDocument(null);
+  };
+
   // Check if user is admin (owner or instructor)
   const isAdmin = isOrgOwner() || isOrgInstructor();
 
@@ -117,13 +135,26 @@ export default function AIStudyCoach() {
             orgId={currentOrg?.organization_id}
           />
         ) : (
-          /* Student AI Command Center - with org context */
-          <AICoachCommandCenter
-            isFreeChatAllowed={isFreeChatAllowed}
-            orgId={currentOrg?.organization_id}
-            orgName={currentOrg?.organizations?.name}
-            initialTab={initialTab}
-          />
+          <>
+            {/* Student AI Command Center - with org context */}
+            <AICoachCommandCenter
+              isFreeChatAllowed={isFreeChatAllowed}
+              orgId={currentOrg?.organization_id}
+              orgName={currentOrg?.organizations?.name}
+              initialTab={initialTab}
+              onViewDocument={handleViewDocument}
+            />
+            
+            {/* Standalone Document Reader - Below Chat Module */}
+            {activeDocument && (
+              <div className="w-full">
+                <DocumentReader
+                  document={activeDocument}
+                  onClose={handleCloseDocumentViewer}
+                />
+              </div>
+            )}
+          </>
         )}
       </div>
     </MobilePageLayout>
