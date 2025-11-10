@@ -187,7 +187,7 @@ export function useAICoachStudyMaterials(orgId?: string) {
     fetchStudyMaterials();
   }, [user?.id, orgId]);
 
-  const assignToFolder = async (materialId: string, folderId: string | null): Promise<boolean> => {
+  const assignToFolder = async (materialId: string, folderId: string | null, folderName?: string): Promise<boolean> => {
     if (!user?.id) return false;
 
     try {
@@ -199,7 +199,11 @@ export function useAICoachStudyMaterials(orgId?: string) {
 
       if (error) throw error;
 
-      toast.success(folderId ? 'Material moved to folder' : 'Material removed from folder');
+      toast.success(
+        folderId 
+          ? `Material moved to ${folderName || 'folder'}` 
+          : 'Material removed from folder'
+      );
       await fetchStudyMaterials();
       return true;
     } catch (error) {

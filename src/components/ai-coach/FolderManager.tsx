@@ -25,6 +25,7 @@ interface FolderManagerProps {
   selectedFolderId: string | null;
   onSelectFolder: (folderId: string | null) => void;
   onFolderCreated?: () => void;
+  onDrop?: (folderId: string | null, folderName?: string) => void;
 }
 
 export function FolderManager({
@@ -32,13 +33,15 @@ export function FolderManager({
   orgId,
   selectedFolderId,
   onSelectFolder,
-  onFolderCreated
+  onFolderCreated,
+  onDrop
 }: FolderManagerProps) {
   const { folders, isLoadingFolders, createFolder, renameFolder, deleteFolder } = useAICoachFolders(folderType, orgId);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false);
   const [folderToRename, setFolderToRename] = useState<Folder | null>(null);
   const [newFolderName, setNewFolderName] = useState('');
+  const [dragOverFolderId, setDragOverFolderId] = useState<string | null>(null);
 
   const handleCreateFolder = async () => {
     if (!newFolderName.trim()) return;
@@ -74,10 +77,28 @@ export function FolderManager({
       {/* "All Items" view */}
       <div
         onClick={() => onSelectFolder(null)}
+        onDragOver={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setDragOverFolderId('all-items');
+        }}
+        onDragLeave={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setDragOverFolderId(null);
+        }}
+        onDrop={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setDragOverFolderId(null);
+          onDrop?.(null, 'All Items');
+        }}
         className={cn(
           "flex items-center justify-between p-2 rounded cursor-pointer transition",
           selectedFolderId === null
             ? "bg-blue-100 text-blue-900"
+            : dragOverFolderId === 'all-items'
+            ? "bg-blue-50 ring-2 ring-blue-400"
             : "hover:bg-gray-100"
         )}
       >
@@ -95,10 +116,28 @@ export function FolderManager({
           <div
             key={folder.id}
             onClick={() => onSelectFolder(folder.id)}
+            onDragOver={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setDragOverFolderId(folder.id);
+            }}
+            onDragLeave={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setDragOverFolderId(null);
+            }}
+            onDrop={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setDragOverFolderId(null);
+              onDrop?.(folder.id, folder.name);
+            }}
             className={cn(
               "flex items-center justify-between p-2 rounded cursor-pointer transition group",
               selectedFolderId === folder.id
                 ? "bg-blue-100 text-blue-900"
+                : dragOverFolderId === folder.id
+                ? "bg-blue-50 ring-2 ring-blue-400"
                 : "hover:bg-gray-100"
             )}
           >

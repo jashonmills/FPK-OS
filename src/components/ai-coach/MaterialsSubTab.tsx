@@ -67,12 +67,12 @@ export function MaterialsSubTab({ orgId, onStartStudying, attachedMaterialIds = 
     e.currentTarget.classList.remove('bg-blue-50');
   };
 
-  const handleDrop = async (e: React.DragEvent, targetFolderId: string | null) => {
+  const handleDrop = async (e: React.DragEvent, targetFolderId: string | null, folderName?: string) => {
     e.preventDefault();
     e.currentTarget.classList.remove('bg-blue-50');
     
     if (draggedMaterialId) {
-      await assignToFolder(draggedMaterialId, targetFolderId);
+      await assignToFolder(draggedMaterialId, targetFolderId, folderName);
       setDraggedMaterialId(null);
     }
   };
@@ -112,18 +112,18 @@ export function MaterialsSubTab({ orgId, onStartStudying, attachedMaterialIds = 
             <BookOpen className="w-5 h-5" />
             Folders
           </h3>
-          <div
-            onDragOver={(e) => handleDragOver(e, null)}
-            onDragLeave={handleDragLeave}
-            onDrop={(e) => handleDrop(e, null)}
-          >
-            <FolderManager
-              folderType="study_material"
-              orgId={orgId}
-              selectedFolderId={selectedFolderId}
-              onSelectFolder={setSelectedFolderId}
-            />
-          </div>
+          <FolderManager
+            folderType="study_material"
+            orgId={orgId}
+            selectedFolderId={selectedFolderId}
+            onSelectFolder={setSelectedFolderId}
+            onDrop={(folderId, folderName) => {
+              if (draggedMaterialId) {
+                assignToFolder(draggedMaterialId, folderId, folderName);
+                setDraggedMaterialId(null);
+              }
+            }}
+          />
         </div>
       </div>
 
