@@ -133,7 +133,7 @@ export function MaterialsSubTab({ orgId, onStartStudying, attachedMaterialIds = 
             <BookOpen className="w-4 h-4 md:w-5 md:h-5" />
             Folders
           </h3>
-          <ScrollArea className={cn(isMobile ? "h-[150px]" : "max-h-[300px]")}>
+          <ScrollArea className={cn(isMobile ? "h-[120px]" : "max-h-[300px]")}>
             <FolderManager
               folderType="study_material"
               orgId={orgId}

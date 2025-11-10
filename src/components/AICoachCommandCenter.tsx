@@ -1005,14 +1005,14 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="materials" className="flex-1 overflow-auto mt-0 p-2 sm:p-3 md:p-4 lg:p-6">
-              <Tabs defaultValue="study-materials" className="h-full">
+            <TabsContent value="materials" className="flex-1 overflow-hidden mt-0">
+              <Tabs defaultValue="study-materials" className="h-full flex flex-col">
                 <TabsList className="mb-4">
                   <TabsTrigger value="study-materials">Study Materials</TabsTrigger>
                   <TabsTrigger value="saved-chats">Saved Chats</TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="study-materials" className="h-full">
+                <TabsContent value="study-materials" className="flex-1 overflow-hidden p-2 sm:p-3 md:p-4 lg:p-6">
                   <MaterialsSubTab
                     orgId={orgId}
                     onStartStudying={handleStartStudyingDocument}
