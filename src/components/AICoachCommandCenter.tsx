@@ -498,6 +498,30 @@ const AIInteractionColumn: React.FC<{
 
       {/* Input Area */}
       <div className="border-t pt-4 flex-shrink-0">
+        {/* PHASE 3: Warning for attaching documents to existing conversation */}
+        {attachedMaterialIds.length > 0 && messages.length > 5 && (
+          <div className="mb-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+            <div className="flex items-start gap-2">
+              <span className="text-amber-600 text-lg">⚠️</span>
+              <div className="text-sm text-amber-800">
+                <strong>Tip:</strong> You're adding a document to an existing conversation. 
+                For best results, start a{' '}
+                <button 
+                  onClick={() => {
+                    if (confirm('Start a new conversation? Current chat will be cleared.')) {
+                      onClearChat();
+                    }
+                  }} 
+                  className="underline font-semibold hover:text-amber-900"
+                >
+                  new conversation
+                </button>
+                {' '}when studying different materials.
+              </div>
+            </div>
+          </div>
+        )}
+        
         {/* Attached Materials - Prominent Visual Indicator */}
         {attachedMaterialIds.length > 0 && (
           <div className="mb-3 p-3 bg-purple-50 border border-purple-200 rounded-lg">
@@ -541,6 +565,10 @@ const AIInteractionColumn: React.FC<{
                 materials={studyMaterials}
                 attachedMaterialIds={attachedMaterialIds}
                 onAttach={handleAttachMaterial}
+                onAttachAndStartFresh={(materialId) => {
+                  onClearChat();
+                  setTimeout(() => handleAttachMaterial(materialId), 100);
+                }}
                 disabled={isLoading}
               />
               <VoiceInputButton

@@ -1663,20 +1663,49 @@ In the meantime, you can still access your courses directly from the dashboard.`
         }
         
         if (documents.length > 0) {
-          attachedDocumentsContext = `\n\n# ATTACHED STUDY MATERIALS\n\nThe student has attached the following documents for context:\n\n${
-            documents.map(doc => `## ${doc.title}\n\n\`\`\`\n${doc.content}\n\`\`\``).join('\n\n')
-          }\n\n🎓 CRITICAL: You now have DIRECT ACCESS to this document content. The full text is above. You MUST:
-- Reference specific sections and quote passages
-- Discuss the ACTUAL content, not hypothetical content
-- NEVER say "I cannot see the document" or "I don't have access"
-- If asked "can you see this?", the answer is YES because the content is in your context
+          // PHASE 1: PRIORITIZE CURRENT ATTACHMENTS OVER HISTORY
+          attachedDocumentsContext = `\n\n# ⚡ CURRENTLY ATTACHED DOCUMENTS (HIGHEST PRIORITY)
 
-When the student asks about the document, analyze and discuss its actual content.`;
+🚨 CRITICAL INSTRUCTION: These are the documents the student has attached RIGHT NOW in THIS message.
+If the conversation history mentions different documents, IGNORE THOSE and focus on THESE current attachments:
+
+${documents.map(doc => `## 📄 ${doc.title}\n\n\`\`\`\n${doc.content}\n\`\`\``).join('\n\n')}
+
+🎯 MANDATORY BEHAVIOR:
+- When asked "can you see the attached document?", reference THIS document: "${documents[0].title}"
+- If conversation history mentions other documents, IGNORE them
+- The document title is: "${documents[0].title}" - Use this exact title when confirming access
+- Quote specific passages from the content above to prove you can see it
+- NEVER reference documents from earlier in the conversation history when new ones are attached
+`;
+
+          // PHASE 2: DETECT DOCUMENT SWITCHING
+          const conversationHistoryText = conversationHistory.map(m => m.content).join(' ').toLowerCase();
+          const currentDocTitle = documents[0].title.toLowerCase();
+          
+          // Extract potential old document titles from history
+          const documentMentions = conversationHistoryText.match(/"([^"]+\.(pdf|docx|doc|txt|plan))"/gi) || [];
+          const oldDocumentDetected = documentMentions.length > 0 && documentMentions.some(mention => 
+            !mention.toLowerCase().includes(currentDocTitle.split('.')[0].substring(0, 20).toLowerCase())
+          );
+          
+          if (oldDocumentDetected) {
+            console.warn('[CONDUCTOR] ⚠️ DOCUMENT SWITCH DETECTED');
+            console.warn('[CONDUCTOR] Conversation history references different documents');
+            console.warn('[CONDUCTOR] Current document:', documents[0].title);
+            console.warn('[CONDUCTOR] Old mentions found:', documentMentions.slice(0, 3));
+            
+            // Add explicit override instruction
+            attachedDocumentsContext += `\n\n🔄 CONTEXT SWITCH NOTICE: This conversation previously discussed different documents (${documentMentions.slice(0, 2).join(', ')}). 
+Those are NO LONGER attached. Focus ONLY on the currently attached document: "${documents[0].title}"
+When the student asks about "the document", they mean THIS one: "${documents[0].title}" - NOT the old ones from history.`;
+          }
           
           console.log('[CONDUCTOR] ✅ Document context prepared:', {
             documentCount: documents.length,
             totalContentLength: attachedDocumentsContext.length,
-            documents: documents.map(d => ({ title: d.title, contentLength: d.content.length }))
+            documents: documents.map(d => ({ title: d.title, contentLength: d.content.length })),
+            documentSwitchDetected: oldDocumentDetected
           });
         } else {
           console.warn('[CONDUCTOR] ⚠️ No documents successfully processed');
