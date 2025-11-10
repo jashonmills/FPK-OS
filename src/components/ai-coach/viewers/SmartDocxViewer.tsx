@@ -123,7 +123,7 @@ export const SmartDocxViewer: React.FC<SmartDocxViewerProps> = ({ fileUrl }) => 
         URL.revokeObjectURL(jsonUrl);
       }
     };
-  }, [fileUrl, jsonUrl]);
+  }, [fileUrl]);
   
   // If content is actually JSON, render JSONViewer with the blob URL
   if (isActuallyJSON && jsonUrl) {
