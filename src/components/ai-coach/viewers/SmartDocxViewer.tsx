@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { JSONViewer } from './JSONViewer';
+import { useVirtualPagination } from '@/hooks/useVirtualPagination';
 
 interface SmartDocxViewerProps {
   fileUrl: string;
@@ -100,12 +103,65 @@ export const SmartDocxViewer: React.FC<SmartDocxViewerProps> = ({ fileUrl }) => 
     );
   }
   
+  // Use virtual pagination for the HTML content
+  const { 
+    pages, 
+    currentPage, 
+    totalPages, 
+    nextPage, 
+    previousPage, 
+    canGoNext, 
+    canGoPrevious 
+  } = useVirtualPagination(htmlContent, {
+    pageHeight: 850,
+    minElementsPerPage: 2
+  });
+
   return (
-    <ScrollArea className="h-full">
-      <div 
-        className="p-6 prose prose-sm max-w-none"
-        dangerouslySetInnerHTML={{ __html: htmlContent }}
-      />
-    </ScrollArea>
+    <div className="flex flex-col h-full">
+      {/* Page Content Area */}
+      <ScrollArea className="flex-1">
+        <div 
+          className="p-6 prose prose-sm max-w-none min-h-[600px]"
+          dangerouslySetInnerHTML={{ __html: pages[currentPage] || '' }}
+        />
+      </ScrollArea>
+      
+      {/* Pagination Control Bar */}
+      <div className="flex-shrink-0 px-4 py-3 bg-muted/30 border-t border-border">
+        <div className="flex items-center justify-between max-w-4xl mx-auto">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={previousPage}
+            disabled={!canGoPrevious}
+            className="gap-2"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            Previous
+          </Button>
+          
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium text-foreground">
+              Page {currentPage + 1} of {totalPages}
+            </span>
+            <span className="text-xs text-muted-foreground">
+              ({Math.round(((currentPage + 1) / totalPages) * 100)}% complete)
+            </span>
+          </div>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={nextPage}
+            disabled={!canGoNext}
+            className="gap-2"
+          >
+            Next
+            <ChevronRight className="w-4 h-4" />
+          </Button>
+        </div>
+      </div>
+    </div>
   );
 };
