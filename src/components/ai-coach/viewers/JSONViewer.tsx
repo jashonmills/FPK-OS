@@ -51,11 +51,26 @@ export const JSONViewer: React.FC<JSONViewerProps> = ({ fileUrl }) => {
               contentVersion: 'v2',
               lessons: jsonData.units.flatMap((unit: any) => 
                 (unit.lessons || []).map((lesson: any) => {
+                  // Transform contentSections to normalize property names
+                  const normalizedSections = (lesson.contentSections || lesson.sections || []).map((section: any) => {
+                    const normalized: any = { ...section };
+                    
+                    // Transform "text" → "content" for headings and paragraphs
+                    if (section.text && !section.content) {
+                      normalized.content = section.text;
+                      delete normalized.text;
+                    }
+                    
+                    return normalized;
+                  });
+                  
                   console.log('[JSONViewer] Processing lesson:', {
                     title: lesson.lessonTitle,
                     hasSections: !!lesson.sections,
                     hasContentSections: !!lesson.contentSections,
-                    sectionCount: (lesson.sections || lesson.contentSections || []).length
+                    originalSectionCount: (lesson.contentSections || lesson.sections || []).length,
+                    normalizedSectionCount: normalizedSections.length,
+                    firstSection: normalizedSections[0]
                   });
                   
                   return {
@@ -64,7 +79,7 @@ export const JSONViewer: React.FC<JSONViewerProps> = ({ fileUrl }) => {
                     description: lesson.description || '',
                     estimatedMinutes: lesson.duration || lesson.estimatedMinutes,
                     contentType: 'text' as const,
-                    sections: lesson.contentSections || lesson.sections || []
+                    sections: normalizedSections
                   };
                 })
               )

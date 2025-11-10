@@ -51,7 +51,31 @@ export interface ImageSection {
   height?: string | number;
 }
 
-export type TextSection = BaseTextSection | CodeBlockSection | QuizSection | ImageSection;
+export interface RichTextSection {
+  type: 'richText';
+  content: Array<{
+    type: 'subheading' | 'text';
+    text: string;
+  }>;
+}
+
+export interface EnhancedQuizSection {
+  type: 'quiz';
+  quizTitle: string;
+  questions: Array<{
+    questionText: string;
+    options: string[];
+    correctAnswer: string;
+    points: number;
+  }>;
+  passingScore: number;
+  feedback: {
+    pass: string;
+    fail: string;
+  };
+}
+
+export type TextSection = BaseTextSection | CodeBlockSection | QuizSection | EnhancedQuizSection | RichTextSection | ImageSection;
 
 export interface LessonContentData {
   id: number;

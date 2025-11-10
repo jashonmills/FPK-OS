@@ -64,25 +64,32 @@ export const SmartDocxViewer: React.FC<SmartDocxViewerProps> = ({ fileUrl }) => 
         
         // Extract TEXT (not HTML) to check for JSON
         const textResult = await mammoth.extractRawText({ arrayBuffer });
-        const textContent = textResult.value.trim();
+        
+        // Try to extract JSON from markdown code fences (```json ... ```)
+        let jsonContent = textResult.value.trim();
+        const jsonCodeFenceMatch = jsonContent.match(/```json\s*\n([\s\S]*?)\n```/);
+        if (jsonCodeFenceMatch) {
+          console.log('[SmartDocxViewer] Found JSON in markdown code fence');
+          jsonContent = jsonCodeFenceMatch[1].trim();
+        }
         
         console.log('[SmartDocxViewer] Content analysis:', {
-          length: textContent.length,
-          startsWithBrace: textContent.startsWith('{'),
-          endsWithBrace: textContent.endsWith('}'),
-          firstChars: textContent.substring(0, 100),
-          lastChars: textContent.substring(Math.max(0, textContent.length - 50))
+          length: jsonContent.length,
+          startsWithBrace: jsonContent.startsWith('{'),
+          endsWithBrace: jsonContent.endsWith('}'),
+          firstChars: jsonContent.substring(0, 100),
+          lastChars: jsonContent.substring(Math.max(0, jsonContent.length - 50))
         });
         
-        // Check if extracted text is valid JSON (already trimmed)
-        if ((textContent.startsWith('{') || textContent.startsWith('[')) && 
-            (textContent.endsWith('}') || textContent.endsWith(']'))) {
+        // Check if extracted text is valid JSON
+        if ((jsonContent.startsWith('{') || jsonContent.startsWith('[')) && 
+            (jsonContent.endsWith('}') || jsonContent.endsWith(']'))) {
           try {
-            JSON.parse(textContent);
+            JSON.parse(jsonContent);
             console.log('[SmartDocxViewer] Content is valid JSON, delegating to JSONViewer');
             
             // Create a blob URL with the JSON text for JSONViewer
-            const jsonBlob = new Blob([textContent], { type: 'application/json' });
+            const jsonBlob = new Blob([jsonContent], { type: 'application/json' });
             const blobUrl = URL.createObjectURL(jsonBlob);
             setJsonUrl(blobUrl);
             setIsActuallyJSON(true);

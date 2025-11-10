@@ -110,7 +110,7 @@ const CodeBlockRenderer: React.FC<{ content: string; language?: string }> = ({ c
   );
 };
 
-const QuizRenderer: React.FC<{ section: Extract<TextSection, { type: 'quiz' }> }> = ({ section }) => {
+const QuizRenderer: React.FC<{ section: any }> = ({ section }) => {
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [showResult, setShowResult] = useState(false);
 
@@ -125,7 +125,7 @@ const QuizRenderer: React.FC<{ section: Extract<TextSection, { type: 'quiz' }> }
     <div className="mb-6 p-4 border rounded-lg bg-card">
       <h4 className="font-semibold mb-3 text-lg">{section.question}</h4>
       <div className="space-y-2">
-        {section.options.map((option, idx) => {
+        {section.options.map((option: string, idx: number) => {
           const isSelected = selectedAnswer === option;
           const isCorrectOption = option === section.correctAnswer;
           

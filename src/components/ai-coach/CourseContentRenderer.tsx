@@ -7,6 +7,8 @@ import { CalloutSection } from './content-sections/CalloutSection';
 import { QuoteSection } from './content-sections/QuoteSection';
 import { CodeSection } from './content-sections/CodeSection';
 import { QuizSection } from './content-sections/QuizSection';
+import { EnhancedQuizSection } from './content-sections/EnhancedQuizSection';
+import { RichTextSection } from './content-sections/RichTextSection';
 import { ImageSection } from './content-sections/ImageSection';
 
 interface CourseContentRendererProps {
@@ -49,15 +51,33 @@ export const CourseContentRenderer: React.FC<CourseContentRendererProps> = ({
         return <CodeSection key={index} content={section.content} language={section.language} />;
       
       case 'quiz':
+        // Check if it's the enhanced quiz format with multiple questions
+        if ('quizTitle' in section && 'questions' in section && Array.isArray((section as any).questions)) {
+          const enhancedSection = section as any;
+          return (
+            <EnhancedQuizSection
+              key={index}
+              quizTitle={enhancedSection.quizTitle}
+              questions={enhancedSection.questions}
+              passingScore={enhancedSection.passingScore}
+              feedback={enhancedSection.feedback}
+            />
+          );
+        }
+        // Fallback to simple quiz format
+        const simpleSection = section as any;
         return (
           <QuizSection 
             key={index} 
-            question={section.question} 
-            options={section.options} 
-            correctAnswer={section.correctAnswer}
-            explanation={section.explanation}
+            question={simpleSection.question} 
+            options={simpleSection.options} 
+            correctAnswer={simpleSection.correctAnswer}
+            explanation={simpleSection.explanation}
           />
         );
+      
+      case 'richText':
+        return <RichTextSection key={index} content={section.content} />;
       
       case 'image':
         return (
