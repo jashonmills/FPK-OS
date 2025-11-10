@@ -23,30 +23,61 @@ export function MessageBubble({
 
   const { speak, stop, isSpeaking, isAvailable } = useTextToSpeech();
   const [isThisMessageSpeaking, setIsThisMessageSpeaking] = useState(false);
+  const audioRef = React.useRef<HTMLAudioElement | null>(null);
+  const intervalRef = React.useRef<NodeJS.Timeout | null>(null);
 
   const handleSpeak = async () => {
     if (isThisMessageSpeaking) {
+      // STOP: Clean up ALL audio sources
+      
+      // 1. Stop browser TTS
       stop();
+      
+      // 2. Stop HTML5 audio if playing
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        audioRef.current = null;
+      }
+      
+      // 3. Clear monitoring interval
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+      
+      // 4. Reset state
       setIsThisMessageSpeaking(false);
+      
     } else {
-      // Single message audio using backend-generated audio or TTS fallback
+      // PLAY: Start audio
       if (message.audioUrl) {
-        // Play backend-generated audio
+        // Backend-generated audio
         console.log('[MessageBubble] 🎵 Playing backend-generated audio for', message.persona);
         setIsThisMessageSpeaking(true);
         await playAudioFile(message.audioUrl);
         setIsThisMessageSpeaking(false);
+        
       } else if (message.persona === 'BETTY' || message.persona === 'AL' || message.persona === 'NITE_OWL') {
-        // Fallback to browser TTS
+        // Browser TTS fallback
         console.log('[MessageBubble] 🔊 Falling back to browser TTS for', message.persona);
+        
+        // Clear any existing interval first
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+        }
+        
         speak(message.content, message.persona);
         setIsThisMessageSpeaking(true);
         
-        // Auto-reset when speech ends
-        const checkEnd = setInterval(() => {
+        // Monitor speech end with proper cleanup
+        intervalRef.current = setInterval(() => {
           if (!isSpeaking) {
             setIsThisMessageSpeaking(false);
-            clearInterval(checkEnd);
+            if (intervalRef.current) {
+              clearInterval(intervalRef.current);
+              intervalRef.current = null;
+            }
           }
         }, 100);
       }
@@ -55,15 +86,47 @@ export function MessageBubble({
 
   const playAudioFile = (audioUrl: string): Promise<void> => {
     return new Promise((resolve) => {
+      // Clean up any existing audio first
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+      
       const audio = new Audio(audioUrl);
-      audio.onended = () => resolve();
-      audio.onerror = () => {
-        console.error('Audio playback error for URL:', audioUrl);
+      audioRef.current = audio;
+      
+      audio.onended = () => {
+        audioRef.current = null;
         resolve();
       };
-      audio.play().catch(() => resolve());
+      
+      audio.onerror = () => {
+        console.error('Audio playback error for URL:', audioUrl);
+        audioRef.current = null;
+        resolve();
+      };
+      
+      audio.play().catch(() => {
+        audioRef.current = null;
+        resolve();
+      });
     });
   };
+
+  // Cleanup on unmount
+  React.useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+      stop();
+    };
+  }, [stop]);
 
   const getIcon = () => {
     if (isUser) return <User className="h-4 w-4" />;

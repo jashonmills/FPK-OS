@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { safeTextToSpeech } from '@/utils/speechUtils';
 import { useVoiceSettings } from '@/contexts/VoiceSettingsContext';
 import type { Persona } from '@/types/aiCoach';
@@ -8,6 +8,7 @@ export const useTextToSpeech = () => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const speechMonitorRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const loadVoices = () => {
@@ -24,7 +25,13 @@ export const useTextToSpeech = () => {
     }
 
     return () => {
-      // CRITICAL: Stop all speech when component unmounts (prevents audio playing after navigation)
+      // Clear monitoring interval
+      if (speechMonitorRef.current) {
+        clearInterval(speechMonitorRef.current);
+        speechMonitorRef.current = null;
+      }
+      
+      // Stop all speech
       if (window.speechSynthesis?.speaking) {
         window.speechSynthesis.cancel();
         console.log('[TTS] 🛑 Stopped speech due to component unmount');
@@ -277,11 +284,19 @@ export const useTextToSpeech = () => {
       persona: persona
     });
 
+    // Clear any existing monitor first
+    if (speechMonitorRef.current) {
+      clearInterval(speechMonitorRef.current);
+    }
+
     // Monitor when speech ends
-    const checkSpeechEnd = setInterval(() => {
+    speechMonitorRef.current = setInterval(() => {
       if (!window.speechSynthesis?.speaking) {
         setIsSpeaking(false);
-        clearInterval(checkSpeechEnd);
+        if (speechMonitorRef.current) {
+          clearInterval(speechMonitorRef.current);
+          speechMonitorRef.current = null;
+        }
       }
     }, 100);
 
@@ -292,6 +307,12 @@ export const useTextToSpeech = () => {
     safeTextToSpeech.stop();
     setIsSpeaking(false);
     setIsGenerating(false);
+    
+    // Clear monitoring interval if exists
+    if (speechMonitorRef.current) {
+      clearInterval(speechMonitorRef.current);
+      speechMonitorRef.current = null;
+    }
   }, []);
 
   const stopSpeech = useCallback(() => {
