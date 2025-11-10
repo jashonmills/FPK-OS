@@ -17,14 +17,19 @@ export const SmartDocxViewer: React.FC<SmartDocxViewerProps> = ({ fileUrl }) => 
       try {
         setIsLoading(true);
         
-        // First, fetch the raw content to check if it's actually JSON
+        // Fetch the file once
         const response = await fetch(fileUrl);
-        const rawText = await response.text();
+        const blob = await response.blob();
         
-        console.log('[SmartDocxViewer] Checking content type, first 100 chars:', rawText.substring(0, 100));
+        console.log('[SmartDocxViewer] File loaded, checking content type');
+        
+        // Read as text to check if it's JSON
+        const textContent = await blob.text();
+        const trimmedContent = textContent.trim();
+        
+        console.log('[SmartDocxViewer] First 100 chars:', trimmedContent.substring(0, 100));
         
         // Check if content is actually JSON
-        const trimmedContent = rawText.trim();
         if ((trimmedContent.startsWith('{') || trimmedContent.startsWith('[')) && 
             (trimmedContent.endsWith('}') || trimmedContent.endsWith(']'))) {
           try {
@@ -38,9 +43,9 @@ export const SmartDocxViewer: React.FC<SmartDocxViewerProps> = ({ fileUrl }) => 
           }
         }
         
-        // If not JSON, proceed with DOCX parsing
+        // If not JSON, proceed with DOCX parsing - convert blob to arrayBuffer
         const mammoth = await import('mammoth');
-        const arrayBuffer = await response.arrayBuffer();
+        const arrayBuffer = await blob.arrayBuffer();
         const result = await mammoth.convertToHtml({ arrayBuffer });
         setHtmlContent(result.value);
         
