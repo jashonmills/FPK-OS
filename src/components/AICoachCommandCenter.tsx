@@ -319,7 +319,9 @@ const AIInteractionColumn: React.FC<{
   onAttachedMaterialsChange: (ids: string[]) => void;
   studyMaterials: any[];
   orgId?: string;
-}> = ({ messages, inputValue, onInputChange, onSendMessage, onVoiceTranscription, onSaveChat, onSaveAndClear, onClearChat, isLoading, attachedMaterialIds, onAttachedMaterialsChange, studyMaterials, orgId }) => {
+  conversationDocumentContext: string[];
+  onConversationDocumentContextChange: (ids: string[]) => void;
+}> = ({ messages, inputValue, onInputChange, onSendMessage, onVoiceTranscription, onSaveChat, onSaveAndClear, onClearChat, isLoading, attachedMaterialIds, onAttachedMaterialsChange, studyMaterials, orgId, conversationDocumentContext, onConversationDocumentContextChange }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const lastMessageRef = useRef<string | null>(null);
@@ -498,6 +500,29 @@ const AIInteractionColumn: React.FC<{
 
       {/* Input Area */}
       <div className="border-t pt-4 flex-shrink-0">
+        {/* Persistent Document Context Indicator */}
+        {conversationDocumentContext.length > 0 && (
+          <div className="mb-3 p-3 bg-purple-50 border-2 border-purple-300 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <BookOpen className="w-4 h-4 text-purple-700" />
+                <span className="text-sm font-medium text-purple-900">
+                  📚 Studying: {studyMaterials.find(m => m.id === conversationDocumentContext[0])?.title || 'Document'}
+                </span>
+              </div>
+              <button
+                onClick={() => {
+                  onConversationDocumentContextChange([]);
+                  toast.info('Study session ended');
+                }}
+                className="px-3 py-1 text-xs text-purple-700 hover:text-purple-900 hover:bg-purple-100 rounded-md transition-colors font-medium"
+              >
+                End Study Session
+              </button>
+            </div>
+          </div>
+        )}
+        
         {/* PHASE 3: Warning for attaching documents to existing conversation */}
         {attachedMaterialIds.length > 0 && messages.length > 5 && (
           <div className="mb-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
@@ -636,6 +661,7 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [activeTab, setActiveTab] = useState(initialTab);
   const [attachedMaterialIds, setAttachedMaterialIds] = useState<string[]>([]);
+  const [conversationDocumentContext, setConversationDocumentContext] = useState<string[]>([]); // Persistent document context for study sessions
 
   // Live data hooks - replacing all placeholder data
   const { studyMaterials, isLoadingMaterials, uploadMaterial } = useAICoachStudyMaterials();
@@ -683,7 +709,10 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
       ? messageOverride 
       : inputValue;
     const currentInput = actualMessage;
-    const currentAttachments = materialIdsOverride || attachedMaterialIds;
+    
+    // Merge conversation context with message-specific attachments
+    const messageAttachments = materialIdsOverride || attachedMaterialIds;
+    const allAttachments = [...new Set([...conversationDocumentContext, ...messageAttachments])];
     
     console.log('[AI COMMAND CENTER] 🚀 handleSendMessage called', { 
       hasInput: !!currentInput.trim(), 
@@ -691,7 +720,9 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
       hasUser: !!user,
       userId: user?.id,
       messagePreview: currentInput.substring(0, 50) + '...',
-      attachments: currentAttachments
+      messageAttachments,
+      conversationContext: conversationDocumentContext,
+      mergedAttachments: allAttachments
     });
     
     if (!currentInput.trim() || !user) {
@@ -700,11 +731,12 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
     }
 
     setInputValue('');
-    setAttachedMaterialIds([]); // Clear attachments after sending
+    setAttachedMaterialIds([]); // Clear message-specific attachments
+    // NOTE: conversationDocumentContext NOT cleared - persists for session
     
-    console.log('[AI COMMAND CENTER] ✅ Calling sendChatMessage with attachments:', currentAttachments);
-    // Call the streaming hook's sendMessage with attachments
-    await sendChatMessage(currentInput, currentAttachments);
+    console.log('[AI COMMAND CENTER] ✅ Calling sendChatMessage with merged attachments:', allAttachments);
+    // Call the streaming hook's sendMessage with merged attachments (context + message)
+    await sendChatMessage(currentInput, allAttachments);
 
     // Track analytics after interaction
     await trackSession(5, [currentInput.substring(0, 50)]);
@@ -769,15 +801,21 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
     } else {
       standardChat.clearMessages();
     }
+    setConversationDocumentContext([]); // Clear persistent document context on new chat
     setShowClearConfirm(false);
     toast.info('Chat cleared');
   };
 
   const handleStartStudyingDocument = async (documentTitle: string, materialId: string) => {
-    console.log('[AICoachCommandCenter] handleStartStudyingDocument called with:', { documentTitle, materialId });
+    console.log('[AICoachCommandCenter] 📚 Starting document study session with:', { documentTitle, materialId });
     setActiveTab('chat');
+    
+    // Set BOTH message attachment AND conversation context for persistent study session
+    setAttachedMaterialIds([materialId]);
+    setConversationDocumentContext([materialId]); // Persists until user ends study session
+    
     const prompt = `Let's study the document I just uploaded: "${documentTitle}". Can you help me understand the key concepts?`;
-    console.log('[AICoachCommandCenter] Sending message immediately with materialId:', materialId);
+    console.log('[AICoachCommandCenter] Sending message with persistent document context');
     // Send immediately with attached material to avoid race conditions
     await handleSendMessage(prompt, [materialId]);
   };
@@ -869,9 +907,9 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
                   <MaterialsSubTab
                     orgId={orgId}
                     onStartStudying={handleStartStudyingDocument}
-                    attachedMaterialIds={attachedMaterialIds}
+                    attachedMaterialIds={[...conversationDocumentContext, ...attachedMaterialIds]}
                     onAttachToChat={(materialId) => {
-                      if (!attachedMaterialIds.includes(materialId)) {
+                      if (!attachedMaterialIds.includes(materialId) && !conversationDocumentContext.includes(materialId)) {
                         setAttachedMaterialIds(prev => [...prev, materialId]);
                       }
                       setActiveTab('chat');
@@ -904,6 +942,8 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
                   onAttachedMaterialsChange={setAttachedMaterialIds}
                   studyMaterials={studyMaterials}
                   orgId={orgId}
+                  conversationDocumentContext={conversationDocumentContext}
+                  onConversationDocumentContextChange={setConversationDocumentContext}
                 />
               </div>
             </TabsContent>
