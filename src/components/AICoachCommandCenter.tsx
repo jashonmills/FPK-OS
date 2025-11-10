@@ -608,18 +608,30 @@ const AIInteractionColumn: React.FC<{
           </div>
         )}
         
-        <div className="flex gap-2">
+        <div className={cn(
+          "flex gap-2",
+          isMobile ? "flex-col" : "flex-row"
+        )}>
           <textarea
             value={inputValue}
             onChange={(e) => onInputChange(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Ask a question or describe what you're studying..."
-            className="flex-1 px-4 py-3 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-fpk-primary"
-            rows={2}
+            className={cn(
+              "flex-1 px-4 py-3 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-fpk-primary",
+              isMobile && "min-h-[80px]"
+            )}
+            rows={isMobile ? 3 : 2}
             disabled={isLoading}
           />
-          <div className="flex flex-col gap-2">
-            <div className="flex gap-2">
+          <div className={cn(
+            "flex gap-2",
+            isMobile ? "flex-row w-full" : "flex-col"
+          )}>
+            <div className={cn(
+              "flex gap-2",
+              isMobile && "flex-1"
+            )}>
               <AttachContextButton
                 orgId={orgId}
                 selectedMaterialIds={attachedMaterialIds}
@@ -636,10 +648,13 @@ const AIInteractionColumn: React.FC<{
             <button
               onClick={() => onSendMessage()}
               disabled={!inputValue.trim() || isLoading}
-              className="p-3 bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-lg"
+              className={cn(
+                "p-3 bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-lg transition-colors",
+                isMobile ? "flex-1 min-h-[44px]" : ""
+              )}
               title="Send message"
             >
-              <Send className="w-5 h-5" />
+              <Send className={cn("w-5 h-5", isMobile && "mx-auto")} />
             </button>
           </div>
         </div>

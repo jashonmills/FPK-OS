@@ -8,11 +8,13 @@ import {
 } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { FolderManager } from './FolderManager';
 import { useAICoachStudyMaterials } from '@/hooks/useAICoachStudyMaterials';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface AttachContextButtonProps {
   orgId?: string;
@@ -33,6 +35,7 @@ export function AttachContextButton({
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('materials');
+  const isMobile = useIsMobile();
 
   // Fetch enrolled courses
   const { data: enrolledCourses = [] } = useQuery({
@@ -140,21 +143,44 @@ export function AttachContextButton({
       {/* Attach Button */}
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
-          <Button variant="ghost" size="sm">
+          <Button variant="ghost" size="sm" className={cn(isMobile && "min-h-[44px] min-w-[44px]")}>
             <Paperclip className="w-4 h-4" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[500px] p-0 bg-background z-50" align="start">
+        <PopoverContent 
+          className={cn(
+            "p-0 bg-background z-50",
+            isMobile 
+              ? "w-[calc(100vw-2rem)] max-h-[80vh]" 
+              : "w-[500px]"
+          )}
+          side={isMobile ? "top" : "bottom"}
+          align={isMobile ? "center" : "start"}
+          sideOffset={isMobile ? 8 : 4}
+        >
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="w-full grid grid-cols-2 rounded-none border-b">
-              <TabsTrigger value="materials">Study Materials</TabsTrigger>
-              <TabsTrigger value="courses">My Courses</TabsTrigger>
+            <TabsList className={cn(
+              "w-full grid grid-cols-2 rounded-none border-b",
+              isMobile ? "h-12" : "h-10"
+            )}>
+              <TabsTrigger value="materials" className={isMobile ? "text-sm" : "text-sm"}>
+                Study Materials
+              </TabsTrigger>
+              <TabsTrigger value="courses" className={isMobile ? "text-sm" : "text-sm"}>
+                My Courses
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="materials" className="p-4 m-0">
-              <div className="flex gap-4">
+              <div className={cn(
+                "flex gap-4",
+                isMobile ? "flex-col" : "flex-row"
+              )}>
                 {/* Folder Navigation */}
-                <div className="w-40 flex-shrink-0">
+                <div className={cn(
+                  "flex-shrink-0",
+                  isMobile ? "w-full" : "w-40"
+                )}>
                   <FolderManager
                     folderType="study_material"
                     orgId={orgId}
@@ -164,94 +190,120 @@ export function AttachContextButton({
                 </div>
 
                 {/* Materials List */}
-                <div className="flex-1 max-h-[300px] overflow-y-auto space-y-2">
-                  {filteredMaterials.length === 0 ? (
-                    <p className="text-sm text-muted-foreground text-center py-4">
-                      No study materials available
-                    </p>
-                  ) : (
-                    filteredMaterials.map((material: any) => (
-                      <div
-                        key={material.id}
-                        onClick={() => toggleMaterial(material.id)}
-                        className={cn(
-                          "p-2 rounded border cursor-pointer transition",
-                          selectedMaterialIds.includes(material.id)
-                            ? "bg-blue-50 border-blue-300"
-                            : "hover:bg-gray-50"
-                        )}
-                      >
-                        <p className="text-sm font-medium">{material.title}</p>
-                        <p className="text-xs text-gray-500">
-                          {material.file_type}
-                        </p>
-                      </div>
-                    ))
-                  )}
-                </div>
+                <ScrollArea className={cn(
+                  "flex-1",
+                  isMobile ? "max-h-[40vh]" : "max-h-[300px]"
+                )}>
+                  <div className="space-y-2 pr-4">
+                    {filteredMaterials.length === 0 ? (
+                      <p className="text-sm text-muted-foreground text-center py-4">
+                        No study materials available
+                      </p>
+                    ) : (
+                      filteredMaterials.map((material: any) => (
+                        <div
+                          key={material.id}
+                          onClick={() => toggleMaterial(material.id)}
+                          className={cn(
+                            "rounded border cursor-pointer transition",
+                            isMobile ? "p-3" : "p-2",
+                            selectedMaterialIds.includes(material.id)
+                              ? "bg-blue-50 border-blue-300"
+                              : "hover:bg-gray-50"
+                          )}
+                        >
+                          <p className={cn(
+                            "font-medium",
+                            isMobile ? "text-sm" : "text-sm"
+                          )}>{material.title}</p>
+                          <p className="text-xs text-gray-500 mt-0.5">
+                            {material.file_type}
+                          </p>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </ScrollArea>
               </div>
             </TabsContent>
 
             <TabsContent value="courses" className="p-4 m-0">
-              <div className="space-y-2 max-h-[350px] overflow-y-auto">
-                {enrolledCourses.length === 0 ? (
-                  <p className="text-sm text-muted-foreground text-center py-8">
-                    No enrolled courses found
-                  </p>
-                ) : (
-                  enrolledCourses.map((enrollment: any) => {
-                    const course = enrollment.course;
-                    if (!course) return null;
-                    
-                    const isSelected = selectedCourseSlug === course.slug;
-                    
-                    return (
-                      <div
-                        key={enrollment.course_id}
-                        onClick={() => handleCourseSelect(course.slug)}
-                        className={cn(
-                          "p-3 rounded-lg border cursor-pointer transition-all",
-                          isSelected
-                            ? "bg-blue-50 border-blue-400 shadow-sm"
-                            : "hover:bg-gray-50 border-gray-200"
-                        )}
-                      >
-                        <div className="flex gap-3">
-                          {course.thumbnail_url && (
-                            <div className="w-12 h-12 rounded overflow-hidden flex-shrink-0 bg-gray-100">
-                              <img
-                                src={course.thumbnail_url}
-                                alt={course.title}
-                                className="w-full h-full object-cover"
-                              />
-                            </div>
+              <ScrollArea className={cn(
+                isMobile ? "max-h-[60vh]" : "max-h-[350px]"
+              )}>
+                <div className={cn("space-y-2 pr-4", isMobile && "space-y-3")}>
+                  {enrolledCourses.length === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-8">
+                      No enrolled courses found
+                    </p>
+                  ) : (
+                    enrolledCourses.map((enrollment: any) => {
+                      const course = enrollment.course;
+                      if (!course) return null;
+                      
+                      const isSelected = selectedCourseSlug === course.slug;
+                      
+                      return (
+                        <div
+                          key={enrollment.course_id}
+                          onClick={() => handleCourseSelect(course.slug)}
+                          className={cn(
+                            "rounded-lg border cursor-pointer transition-all",
+                            isMobile ? "p-4" : "p-3",
+                            isSelected
+                              ? "bg-blue-50 border-blue-400 shadow-sm"
+                              : "hover:bg-gray-50 border-gray-200"
                           )}
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-gray-900 truncate">
-                              {course.title}
-                            </p>
-                            {course.description && (
-                              <p className="text-xs text-gray-600 line-clamp-1 mt-0.5">
-                                {course.description}
-                              </p>
+                        >
+                          <div className="flex gap-3">
+                            {course.thumbnail_url && (
+                              <div className={cn(
+                                "rounded overflow-hidden flex-shrink-0 bg-gray-100",
+                                isMobile ? "w-16 h-16" : "w-12 h-12"
+                              )}>
+                                <img
+                                  src={course.thumbnail_url}
+                                  alt={course.title}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
                             )}
-                            <div className="flex items-center gap-3 mt-1">
-                              <span className="text-xs text-gray-500">
-                                {Math.round(enrollment.completion_percentage || 0)}% complete
-                              </span>
-                              {enrollment.last_accessed_at && (
-                                <span className="text-xs text-gray-400">
-                                  Last accessed {new Date(enrollment.last_accessed_at).toLocaleDateString()}
-                                </span>
+                            <div className="flex-1 min-w-0">
+                              <p className={cn(
+                                "font-semibold text-gray-900",
+                                isMobile ? "text-base" : "text-sm"
+                              )}>
+                                {course.title}
+                              </p>
+                              {course.description && (
+                                <p className={cn(
+                                  "text-gray-600 mt-0.5",
+                                  isMobile ? "text-sm line-clamp-2" : "text-xs line-clamp-1"
+                                )}>
+                                  {course.description}
+                                </p>
                               )}
+                              <div className={cn(
+                                "flex items-center gap-2 mt-1",
+                                isMobile ? "flex-col items-start gap-1" : "flex-row gap-3"
+                              )}>
+                                <span className="text-xs text-gray-500">
+                                  {Math.round(enrollment.completion_percentage || 0)}% complete
+                                </span>
+                                {enrollment.last_accessed_at && (
+                                  <span className="text-xs text-gray-400">
+                                    Last accessed {new Date(enrollment.last_accessed_at).toLocaleDateString()}
+                                  </span>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    );
-                  })
-                )}
-              </div>
+                      );
+                    })
+                  )}
+                </div>
+              </ScrollArea>
             </TabsContent>
           </Tabs>
         </PopoverContent>

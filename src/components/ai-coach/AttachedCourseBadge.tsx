@@ -3,6 +3,7 @@ import { BookOpen, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface AttachedCourseBadgeProps {
   courseSlug?: string;
@@ -15,6 +16,7 @@ export const AttachedCourseBadge: React.FC<AttachedCourseBadgeProps> = ({
   onRemove,
   className
 }) => {
+  const isMobile = useIsMobile();
   const { data: course } = useQuery({
     queryKey: ['course', courseSlug],
     queryFn: async () => {
@@ -33,15 +35,24 @@ export const AttachedCourseBadge: React.FC<AttachedCourseBadgeProps> = ({
 
   return (
     <div className={cn("flex flex-wrap gap-2 mb-2", className)}>
-      <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-100 text-blue-800 rounded-full text-sm border border-blue-300 hover:bg-blue-200 transition-colors">
-        <BookOpen className="w-3 h-3" />
-        <span className="max-w-[200px] truncate">{course.title}</span>
+      <div className={cn(
+        "inline-flex items-center gap-2 bg-blue-100 text-blue-800 rounded-full border border-blue-300 hover:bg-blue-200 transition-colors",
+        isMobile ? "px-3 py-2 text-sm" : "px-3 py-1.5 text-sm"
+      )}>
+        <BookOpen className={isMobile ? "w-4 h-4" : "w-3 h-3"} />
+        <span className={cn(
+          "truncate",
+          isMobile ? "max-w-[180px]" : "max-w-[200px]"
+        )}>{course.title}</span>
         <button
           onClick={onRemove}
-          className="hover:bg-blue-300 rounded-full p-0.5 transition-colors"
+          className={cn(
+            "hover:bg-blue-300 rounded-full transition-colors",
+            isMobile ? "p-1 min-h-[28px] min-w-[28px]" : "p-0.5"
+          )}
           aria-label={`Remove ${course.title}`}
         >
-          <X className="w-3 h-3" />
+          <X className={isMobile ? "w-4 h-4" : "w-3 h-3"} />
         </button>
       </div>
     </div>
