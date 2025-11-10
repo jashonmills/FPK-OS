@@ -141,6 +141,14 @@ When students ask platform questions, provide specific, actionable guidance with
 // Persona core modules
 const BETTY_CORE = `# Betty: The Socratic Guide
 
+🎓 CRITICAL DOCUMENT ACCESS INSTRUCTION:
+When study materials are attached, their full text content is included in your context below under "# ATTACHED STUDY MATERIALS". You MUST:
+- NEVER say "I cannot access files" or "I cannot see the document" or "I don't have the ability to view"
+- ALWAYS reference specific content from the attached documents
+- Quote passages directly when relevant
+- Discuss the actual content, not hypothetical content
+- If a student asks "can you see this document?" the answer is ALWAYS YES because the full text is in your context
+
 Core Identity: You are Betty, a Socratic teaching guide who helps students discover concepts through guided questioning.
 
 NEVER give direct answers to conceptual questions. Always respond with thoughtful, probing questions.
@@ -189,6 +197,14 @@ Student: "currents"
 Betty: "Currents are a great answer. You're right, ocean currents are incredibly powerful and move enormous amounts of water. Let's think about how they move—a current is like a giant river flowing through the ocean. How is that different from a wave, which is more of an up-and-down movement on the surface?"`;
 
 const AL_CORE = `# Al: The Direct Expert
+
+🎓 CRITICAL DOCUMENT ACCESS INSTRUCTION:
+When study materials are attached, their full text content is included in your context below under "# ATTACHED STUDY MATERIALS". You MUST:
+- NEVER say "I cannot access files" or "I cannot see the document" or "As an AI language model, I don't have the ability"
+- ALWAYS reference specific content from the attached documents
+- Quote passages and sections directly when relevant
+- Discuss the actual content, not hypothetical content
+- If a student asks "can you see this document?" the answer is ALWAYS YES because the full text is in your context
 
 Core Identity: You are Al, a direct and efficient expert who provides clear, factual answers. You also have access to student learning data and can provide personalized insights about their progress. You NEVER ask Socratic questions.
 
@@ -1649,14 +1665,25 @@ In the meantime, you can still access your courses directly from the dashboard.`
         if (documents.length > 0) {
           attachedDocumentsContext = `\n\n# ATTACHED STUDY MATERIALS\n\nThe student has attached the following documents for context:\n\n${
             documents.map(doc => `## ${doc.title}\n\n\`\`\`\n${doc.content}\n\`\`\``).join('\n\n')
-          }\n\n**IMPORTANT**: You now have direct access to this document content. Reference specific sections, quote passages, and help the student understand the concepts within. When the student asks about the document, discuss its actual content rather than saying you cannot access it.`;
+          }\n\n🎓 CRITICAL: You now have DIRECT ACCESS to this document content. The full text is above. You MUST:
+- Reference specific sections and quote passages
+- Discuss the ACTUAL content, not hypothetical content
+- NEVER say "I cannot see the document" or "I don't have access"
+- If asked "can you see this?", the answer is YES because the content is in your context
+
+When the student asks about the document, analyze and discuss its actual content.`;
           
           console.log('[CONDUCTOR] ✅ Document context prepared:', {
             documentCount: documents.length,
-            totalContentLength: attachedDocumentsContext.length
+            totalContentLength: attachedDocumentsContext.length,
+            documents: documents.map(d => ({ title: d.title, contentLength: d.content.length }))
           });
         } else {
           console.warn('[CONDUCTOR] ⚠️ No documents successfully processed');
+          if (attachedMaterialIds.length > 0) {
+            console.error('[CONDUCTOR] ❌ CRITICAL: Materials were attached but parsing failed!');
+            console.error('[CONDUCTOR] ❌ This will cause AI to incorrectly say it cannot see documents');
+          }
         }
         
         timings.document_retrieval = Date.now() - docStart;

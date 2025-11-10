@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Upload, BookOpen, Clock, TrendingUp, Target, Award, Zap, MessageSquare, Volume2, Trash2, Save, Download } from 'lucide-react';
+import { Send, Upload, BookOpen, Clock, TrendingUp, Target, Award, Zap, MessageSquare, Volume2, Trash2, Save, Download, Paperclip } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { SpeedControl } from '@/components/coach/SpeedControl';
@@ -498,13 +498,32 @@ const AIInteractionColumn: React.FC<{
 
       {/* Input Area */}
       <div className="border-t pt-4 flex-shrink-0">
-        {/* Attached Materials Badge */}
-        <AttachedMaterialsBadge
-          materialIds={attachedMaterialIds}
-          materials={studyMaterials}
-          onRemove={handleRemoveMaterial}
-          className="mb-2"
-        />
+        {/* Attached Materials - Prominent Visual Indicator */}
+        {attachedMaterialIds.length > 0 && (
+          <div className="mb-3 p-3 bg-purple-50 border border-purple-200 rounded-lg">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2 text-sm font-medium text-purple-900">
+                <Paperclip className="w-4 h-4" />
+                <span>📎 Document attached - AI coaches can now see and discuss this content</span>
+              </div>
+              <button
+                onClick={() => {
+                  onInputChange({ target: { value: "Can you see the attached document? Please tell me what it's about." } } as any);
+                  setTimeout(() => onSendMessage(), 100);
+                }}
+                className="px-3 py-1 text-xs bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors flex items-center gap-1"
+                title="Test if AI can access the document"
+              >
+                🧪 Test Access
+              </button>
+            </div>
+            <AttachedMaterialsBadge
+              materialIds={attachedMaterialIds}
+              materials={studyMaterials}
+              onRemove={handleRemoveMaterial}
+            />
+          </div>
+        )}
         
         <div className="flex gap-2">
           <textarea
