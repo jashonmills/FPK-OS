@@ -326,7 +326,8 @@ const AIInteractionColumn: React.FC<{
   onConversationDocumentContextChange: (ids: string[]) => void;
   selectedCourseSlug?: string;
   onCourseChange?: (slug: string | undefined) => void;
-}> = ({ messages, inputValue, onInputChange, onSendMessage, onVoiceTranscription, onSaveChat, onSaveAndClear, onClearChat, isLoading, attachedMaterialIds, onAttachedMaterialsChange, studyMaterials, orgId, conversationDocumentContext, onConversationDocumentContextChange, selectedCourseSlug, onCourseChange }) => {
+  containerMode?: 'standalone' | 'split-pane';
+}> = ({ messages, inputValue, onInputChange, onSendMessage, onVoiceTranscription, onSaveChat, onSaveAndClear, onClearChat, isLoading, attachedMaterialIds, onAttachedMaterialsChange, studyMaterials, orgId, conversationDocumentContext, onConversationDocumentContextChange, selectedCourseSlug, onCourseChange, containerMode = 'standalone' }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const lastMessageRef = useRef<string | null>(null);
@@ -424,7 +425,11 @@ const AIInteractionColumn: React.FC<{
   return (
     <div className={cn(
       "bg-purple-50/90 border border-purple-100 shadow-md hover:shadow-lg rounded-xl flex flex-col transition-shadow duration-200",
-      isMobile ? "p-3 h-[calc(100vh-200px)] min-h-[500px]" : "p-4 lg:p-6 h-[calc(100vh-240px)]"
+      containerMode === 'split-pane' 
+        ? "p-3 md:p-4 h-full"
+        : isMobile 
+          ? "p-3 h-[calc(100vh-200px)] min-h-[500px]"
+          : "p-4 lg:p-6 h-[calc(100vh-240px)]"
     )}>
       <div className={cn(
         "font-semibold text-gray-800 flex items-center justify-between mb-4",
@@ -1086,6 +1091,7 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
                         onConversationDocumentContextChange={setConversationDocumentContext}
                         selectedCourseSlug={selectedCourseSlug}
                         onCourseChange={setSelectedCourseSlug}
+                        containerMode="split-pane"
                       />
                     </ResizablePanel>
 
