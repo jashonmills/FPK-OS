@@ -64,8 +64,14 @@ export function useAICoachStudyMaterials(orgId?: string) {
     }
 
     try {
-      // Step 1: Upload to Supabase Storage
-      const filePath = `${user.id}/${Date.now()}_${file.name}`;
+      // Step 1: Sanitize filename - remove emojis and special characters
+      const sanitizedFileName = file.name
+        .replace(/[^\w\s.-]/g, '') // Remove emojis and special chars
+        .replace(/\s+/g, '_') // Replace spaces with underscores
+        .trim();
+      
+      // Step 2: Upload to Supabase Storage
+      const filePath = `${user.id}/${Date.now()}_${sanitizedFileName}`;
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('ai-coach-materials')
         .upload(filePath, file);
