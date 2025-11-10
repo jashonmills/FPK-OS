@@ -10,6 +10,7 @@ export interface StudyMaterial {
   file_size: number;
   file_url: string;
   created_at: string;
+  folder_id: string | null;
 }
 
 export function useAICoachStudyMaterials(orgId?: string) {
@@ -30,7 +31,7 @@ export function useAICoachStudyMaterials(orgId?: string) {
       
       let query: any = supabase
         .from('ai_coach_study_materials')
-        .select('id, title, file_type, file_size, file_url, created_at')
+        .select('id, title, file_type, file_size, file_url, created_at, folder_id')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
       
