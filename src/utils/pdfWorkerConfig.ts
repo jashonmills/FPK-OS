@@ -6,18 +6,14 @@ const PDFJS_VERSION = '4.8.69';
 
 /**
  * Optimized PDF worker configuration with better error handling
- * For react-pdf v10.x compatibility
+ * For react-pdf v10.x compatibility - uses local worker file
  */
 const WORKER_URLS = [
-  // Use legacy worker files that don't require ES module imports
-  `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS_VERSION}/pdf.worker.min.js`,
-  `https://unpkg.com/pdfjs-dist@${PDFJS_VERSION}/legacy/build/pdf.worker.js`,
-  `https://cdn.jsdelivr.net/npm/pdfjs-dist@${PDFJS_VERSION}/legacy/build/pdf.worker.js`,
-  // Standard worker URLs as fallback
-  `https://unpkg.com/pdfjs-dist@${PDFJS_VERSION}/build/pdf.worker.js`,
-  `https://cdn.jsdelivr.net/npm/pdfjs-dist@${PDFJS_VERSION}/build/pdf.worker.js`,
-  // Try local worker last
-  '/pdf.worker.js'
+  // Use local worker file first (most reliable)
+  '/pdf.worker.min.js',
+  // CDN fallbacks only if local fails
+  `https://unpkg.com/pdfjs-dist@${PDFJS_VERSION}/build/pdf.worker.min.js`,
+  `https://cdn.jsdelivr.net/npm/pdfjs-dist@${PDFJS_VERSION}/build/pdf.worker.min.js`,
 ];
 
 /**
@@ -35,10 +31,8 @@ export const initializePDFWorker = async (): Promise<boolean> => {
     try {
       console.log(`🎯 Testing worker: ${workerUrl}`);
       
-      // Skip URL accessibility check for CDN URLs to speed up initialization
-      const skipCheck = workerUrl.includes('cdnjs.cloudflare.com');
-      
-      if (!skipCheck && workerUrl.startsWith('http')) {
+      // Don't check URL accessibility for local files - just try them directly
+      if (workerUrl.startsWith('http')) {
         try {
           const controller = new AbortController();
           const timeoutId = setTimeout(() => controller.abort(), 2000); // Reduced timeout
