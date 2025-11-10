@@ -531,7 +531,7 @@ const AIInteractionColumn: React.FC<{
               />
             </div>
             <button
-              onClick={onSendMessage}
+              onClick={() => onSendMessage()}
               disabled={!inputValue.trim() || isLoading}
               className="p-3 bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-lg"
               title="Send message"
@@ -631,7 +631,11 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
   }, [messages, voiceSettings.autoRead, voiceSettings.enabled, speak]);
 
   const handleSendMessage = async (messageOverride?: string, materialIdsOverride?: string[]) => {
-    const currentInput = messageOverride || inputValue;
+    // Defensive: ensure messageOverride is actually a string
+    const actualMessage = (typeof messageOverride === 'string' && messageOverride.length > 0) 
+      ? messageOverride 
+      : inputValue;
+    const currentInput = actualMessage;
     const currentAttachments = materialIdsOverride || attachedMaterialIds;
     
     console.log('[AI COMMAND CENTER] 🚀 handleSendMessage called', { 
