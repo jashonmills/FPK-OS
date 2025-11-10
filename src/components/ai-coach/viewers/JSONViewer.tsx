@@ -30,12 +30,39 @@ export const JSONViewer: React.FC<JSONViewerProps> = ({ fileUrl }) => {
         try {
           const jsonData = JSON.parse(rawText);
           
-          // Check if it's a v2 course manifest
+          // Check if it's a v2 course manifest (format 1: flat lessons)
           if (jsonData.courseId && jsonData.contentVersion === 'v2' && jsonData.lessons) {
-            console.log('[JSONViewer] Detected v2 course manifest');
+            console.log('[JSONViewer] Detected v2 course manifest (format 1)');
             setCourseData(jsonData);
             setIsV2Manifest(true);
             setTitle(jsonData.title || 'Course Content');
+            return;
+          }
+          
+          // Check if it's a v2 course manifest (format 2: units with nested lessons)
+          if (jsonData.courseTitle && jsonData.courseSlug && jsonData.units) {
+            console.log('[JSONViewer] Detected v2 course manifest (format 2: units)');
+            // Transform the structure to match our CourseContentRenderer expectations
+            const transformedData: CourseContentManifest = {
+              courseId: jsonData.courseSlug,
+              courseSlug: jsonData.courseSlug,
+              title: jsonData.courseTitle,
+              description: jsonData.description || '',
+              contentVersion: 'v2',
+              lessons: jsonData.units.flatMap((unit: any) => 
+                (unit.lessons || []).map((lesson: any) => ({
+                  id: lesson.lessonSlug || lesson.lessonTitle,
+                  title: lesson.lessonTitle || lesson.title || 'Untitled Lesson',
+                  description: lesson.description || '',
+                  estimatedMinutes: lesson.duration || lesson.estimatedMinutes,
+                  contentType: 'text' as const,
+                  sections: lesson.sections || lesson.contentSections || []
+                }))
+              )
+            };
+            setCourseData(transformedData);
+            setIsV2Manifest(true);
+            setTitle(jsonData.courseTitle);
             return;
           }
         } catch (parseError) {
