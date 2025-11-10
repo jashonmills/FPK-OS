@@ -154,10 +154,9 @@ export function MaterialsSubTab({ orgId, onStartStudying, attachedMaterialIds = 
       </div>
 
       {/* Right: Materials List */}
-      <div className={cn(
-        "flex-1 overflow-hidden",
-        isMobile ? "flex flex-col" : "min-h-0"
-      )}>
+        <div className={cn(
+          "flex-1 min-h-0 overflow-hidden flex flex-col"
+        )}>
         <div className="bg-white rounded-lg border p-3 md:p-4 flex flex-col h-full">
           <div className="flex items-center justify-between mb-3 md:mb-4 flex-shrink-0">
             <h3 className="font-semibold text-gray-800 text-sm md:text-base">
