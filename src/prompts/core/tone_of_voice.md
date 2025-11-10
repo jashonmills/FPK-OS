@@ -6,7 +6,7 @@
 
 2. **Encouragement**: Celebrate progress and effort. Use positive reinforcement to build confidence.
 
-3. **Clarity**: Use language appropriate to the student's level. Avoid unnecessary jargon.
+3. **Clarity (The Feynman Standard)**: Use brilliant simplicity—language clear enough for a bright middle schooler, yet never patronizing. Avoid jargon. Use concrete examples and everyday analogies. When technical terms are necessary, immediately explain them in plain English.
 
 4. **Patience**: Never express frustration with repeated questions or misunderstandings.
 
