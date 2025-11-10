@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { BookOpen, Upload as UploadIcon, Trash2, Paperclip, Search, Sparkles, Check, MoreVertical, FolderOpen, X } from 'lucide-react';
+import { BookOpen, Upload as UploadIcon, Trash2, Paperclip, Search, Sparkles, Check, MoreVertical, FolderOpen, X, FileText, FileSpreadsheet, File, CheckCircle2, Plus, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
@@ -118,6 +118,45 @@ export function MaterialsSubTab({ orgId, onStartStudying, attachedMaterialIds = 
     }
   };
 
+  const handleToggleAttachment = (materialId: string) => {
+    if (onAttachToChat) {
+      onAttachToChat(materialId);
+    }
+  };
+
+  const handleViewMaterial = (material: any) => {
+    toast({
+      title: 'View Material',
+      description: `Opening ${material.file_name}...`,
+    });
+  };
+
+  const handleMoveToFolder = (materialId: string) => {
+    toast({
+      title: 'Move to Folder',
+      description: 'Drag and drop materials onto folders to move them',
+    });
+  };
+
+  const handleDeleteMaterial = async (materialId: string) => {
+    const material = studyMaterials.find((m: any) => m.id === materialId);
+    if (!material) return;
+    
+    try {
+      await deleteMaterial(materialId, material.file_url || '');
+      toast({
+        title: 'Material deleted',
+        description: 'Study material has been removed',
+      });
+    } catch (error) {
+      toast({
+        title: 'Failed to delete material',
+        description: 'Please try again',
+        variant: 'destructive',
+      });
+    }
+  };
+
   return (
     <div className={cn(
       "flex gap-4",
@@ -184,8 +223,8 @@ export function MaterialsSubTab({ orgId, onStartStudying, attachedMaterialIds = 
             />
           </div>
 
-          <ScrollArea className="flex-1 min-h-0">
-            <div className="space-y-2 pr-2 md:pr-4">
+          <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden pr-2">
+            <div className="space-y-2">
               {isLoadingMaterials ? (
                 <p className="text-sm text-gray-500 italic animate-pulse">Loading materials...</p>
               ) : filteredMaterials.length === 0 ? (
@@ -198,148 +237,72 @@ export function MaterialsSubTab({ orgId, onStartStudying, attachedMaterialIds = 
                 return (
                   <div
                     key={material.id}
-                    draggable
-                    onDragStart={() => handleDragStart(material.id)}
                     className={cn(
-                      "rounded border cursor-move transition group relative",
-                      isMobile ? "p-4" : "p-3",
-                      isAttached 
-                        ? "bg-purple-100 border-purple-400 ring-2 ring-purple-500" 
-                        : "bg-purple-50/80 border-purple-200/60 hover:bg-purple-100/80"
+                      "group flex items-center justify-between p-2 md:p-3 bg-gray-50 rounded border border-gray-200 hover:bg-gray-100 transition-colors",
+                      isAttached && "bg-blue-50 border-blue-200 hover:bg-blue-100"
                     )}
                   >
-                    <div className="pr-8">
-                      <div className="flex items-center gap-2 mb-1">
-                        <p className="text-sm font-medium text-gray-800">{material.title}</p>
-                        {isAttached && (
-                          <span className="text-xs bg-purple-600 text-white px-2 py-0.5 rounded-full">
-                            Attached
-                          </span>
-                        )}
+                    <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
+                      <div className="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 bg-white rounded-lg border border-gray-200 flex items-center justify-center">
+                        {material.file_type === 'pdf' && <FileText className="w-4 h-4 md:w-5 md:h-5 text-red-500" />}
+                        {material.file_type === 'txt' && <FileText className="w-4 h-4 md:w-5 md:h-5 text-blue-500" />}
+                        {material.file_type === 'docx' && <FileText className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />}
+                        {material.file_type === 'csv' && <FileSpreadsheet className="w-4 h-4 md:w-5 md:h-5 text-green-600" />}
+                        {material.file_type === 'md' && <FileText className="w-4 h-4 md:w-5 md:h-5 text-gray-600" />}
+                        {!['pdf', 'txt', 'docx', 'csv', 'md'].includes(material.file_type) && <File className="w-4 h-4 md:w-5 md:h-5 text-gray-400" />}
                       </div>
-                      <p className="text-xs text-gray-500">
-                        {material.file_type || 'FILE'} • {new Date(material.created_at).toLocaleDateString()}
-                        {material.file_size && ` • ${(material.file_size / 1024 / 1024).toFixed(2)} MB`}
-                      </p>
-                      <div className="flex flex-col gap-2 mt-3">
-                        {onStartStudying && (
-                          <Button
-                            variant="default"
-                            size="sm"
-                            className={cn(
-                              "w-full bg-purple-600 hover:bg-purple-700 text-white",
-                              isMobile ? "h-9" : "h-8"
-                            )}
-                            onClick={() => handleStartStudying(material.title, material.id)}
-                            disabled={studyingMaterialId === material.id}
-                          >
-                            {studyingMaterialId === material.id ? (
-                              <>
-                                <div className="w-3 h-3 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                Opening...
-                              </>
-                            ) : (
-                              <>
-                                <Sparkles className="w-3 h-3 mr-2" />
-                                Start Studying
-                              </>
-                            )}
-                          </Button>
-                        )}
-                        {onAttachToChat && (
-                          isAttached ? (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className={cn(
-                                "w-full border-purple-300 bg-purple-50 text-purple-700",
-                                isMobile ? "h-9" : "h-8"
-                              )}
-                              disabled
-                            >
-                              <Check className="w-3 h-3 mr-2" />
-                              Attached
-                            </Button>
-                          ) : (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => onAttachToChat(material.id)}
-                              className={cn(
-                                "w-full border-purple-200 text-purple-700 hover:bg-purple-50",
-                                isMobile ? "h-9" : "h-8"
-                              )}
-                            >
-                              <Paperclip className="w-3 h-3 mr-2" />
-                              Attach to Chat
-                            </Button>
-                          )
-                        )}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-gray-900 truncate text-xs md:text-sm">{material.file_name}</p>
+                        <p className="text-xs text-gray-500">
+                          {material.file_size ? `${(material.file_size / 1024).toFixed(1)} KB` : 'Unknown size'} • 
+                          {material.uploaded_at ? ` ${new Date(material.uploaded_at).toLocaleDateString()}` : ' Date unknown'}
+                        </p>
                       </div>
                     </div>
-                    
-                    {/* Three-dot dropdown menu */}
-                    <div className="absolute top-2 right-2">
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      {isAttached ? (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleToggleAttachment(material.id)}
+                          className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 h-8"
+                        >
+                          <CheckCircle2 className="w-4 h-4 md:mr-1.5" />
+                          <span className="hidden md:inline text-xs">Attached</span>
+                        </Button>
+                      ) : (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleToggleAttachment(material.id)}
+                          className="h-8"
+                        >
+                          <Plus className="w-4 h-4 md:mr-1.5" />
+                          <span className="hidden md:inline text-xs">Attach</span>
+                        </Button>
+                      )}
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button
-                            variant="ghost"
                             size="sm"
-                            className="h-8 w-8 p-0 hover:bg-purple-100"
+                            variant="ghost"
+                            className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0"
                           >
-                            <MoreVertical className="w-4 h-4 text-gray-600" />
+                            <MoreVertical className="w-4 h-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-48">
-                          <DropdownMenuSub>
-                            <DropdownMenuSubTrigger>
-                              <FolderOpen className="w-4 h-4 mr-2" />
-                              Move to Folder
-                            </DropdownMenuSubTrigger>
-                            <DropdownMenuSubContent>
-                              {folders.length === 0 ? (
-                                <div className="px-2 py-1.5 text-sm text-gray-500 italic">
-                                  No folders yet
-                                </div>
-                              ) : (
-                                folders.map((folder) => (
-                                  <DropdownMenuItem
-                                    key={folder.id}
-                                    onClick={async () => {
-                                      const success = await assignToFolder(material.id, folder.id, folder.name);
-                                      if (success) {
-                                        await refetchFolders();
-                                      }
-                                    }}
-                                  >
-                                    {folder.name}
-                                  </DropdownMenuItem>
-                                ))
-                              )}
-                            </DropdownMenuSubContent>
-                          </DropdownMenuSub>
-                          
-                          {material.folder_id && (
-                            <DropdownMenuItem
-                              onClick={async () => {
-                                const success = await assignToFolder(material.id, null);
-                                if (success) {
-                                  await refetchFolders();
-                                }
-                              }}
-                            >
-                              <X className="w-4 h-4 mr-2" />
-                              Remove from Folder
-                            </DropdownMenuItem>
-                          )}
-                          
+                          <DropdownMenuItem onClick={() => handleViewMaterial(material)}>
+                            <Eye className="w-4 h-4 mr-2" />
+                            View Content
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleMoveToFolder(material.id)}>
+                            <FolderOpen className="w-4 h-4 mr-2" />
+                            Move to Folder
+                          </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          
-                          <DropdownMenuItem
-                            onClick={async () => {
-                              await deleteMaterial(material.id, material.file_url);
-                              await refetchFolders();
-                            }}
+                          <DropdownMenuItem 
+                            onClick={() => handleDeleteMaterial(material.id)}
                             className="text-red-600 focus:text-red-600"
                           >
                             <Trash2 className="w-4 h-4 mr-2" />
@@ -353,7 +316,7 @@ export function MaterialsSubTab({ orgId, onStartStudying, attachedMaterialIds = 
               })
             )}
             </div>
-          </ScrollArea>
+          </div>
         </div>
       </div>
 
