@@ -508,7 +508,7 @@ const AIInteractionColumn: React.FC<{
               </div>
               <button
                 onClick={() => {
-                  onInputChange({ target: { value: "Can you see the attached document? Please tell me what it's about." } } as any);
+                  onInputChange("Can you see the attached document? Please tell me what it's about.");
                   setTimeout(() => onSendMessage(), 100);
                 }}
                 className="px-3 py-1 text-xs bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors flex items-center gap-1"
