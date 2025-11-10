@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from 'react';
-import { BookOpen, Upload as UploadIcon, Trash2, Paperclip, Search } from 'lucide-react';
+import { BookOpen, Upload as UploadIcon, Trash2, Paperclip, Search, Sparkles, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useToast } from '@/hooks/use-toast';
 import { FolderManager } from './FolderManager';
 import { SmartUploadModal } from './SmartUploadModal';
 import { useAICoachStudyMaterials } from '@/hooks/useAICoachStudyMaterials';
@@ -16,10 +17,12 @@ interface MaterialsSubTabProps {
 
 export function MaterialsSubTab({ orgId, onStartStudying, attachedMaterialIds = [], onAttachToChat }: MaterialsSubTabProps) {
   const { studyMaterials, isLoadingMaterials, uploadMaterial, deleteMaterial, assignToFolder } = useAICoachStudyMaterials(orgId);
+  const { toast } = useToast();
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [draggedMaterialId, setDraggedMaterialId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [studyingMaterialId, setStudyingMaterialId] = useState<string | null>(null);
 
   console.log('[MaterialsSubTab] Rendered:', { 
     orgId, 
@@ -71,6 +74,32 @@ export function MaterialsSubTab({ orgId, onStartStudying, attachedMaterialIds = 
     if (draggedMaterialId) {
       await assignToFolder(draggedMaterialId, targetFolderId);
       setDraggedMaterialId(null);
+    }
+  };
+
+  const handleStartStudying = async (materialTitle: string, materialId: string) => {
+    if (!onStartStudying) return;
+    
+    setStudyingMaterialId(materialId);
+    
+    toast({
+      title: 'Opening study session',
+      description: `Starting to study "${materialTitle}"`,
+      duration: 2000
+    });
+
+    try {
+      await onStartStudying(materialTitle, materialId);
+    } catch (error) {
+      console.error('Failed to start study session:', error);
+      toast({
+        title: 'Failed to start study session',
+        description: 'Please try again',
+        variant: 'destructive',
+        duration: 3000
+      });
+    } finally {
+      setTimeout(() => setStudyingMaterialId(null), 1000);
     }
   };
 
@@ -157,17 +186,52 @@ export function MaterialsSubTab({ orgId, onStartStudying, attachedMaterialIds = 
                         {material.file_type || 'FILE'} • {new Date(material.created_at).toLocaleDateString()}
                         {material.file_size && ` • ${(material.file_size / 1024 / 1024).toFixed(2)} MB`}
                       </p>
-                      {onAttachToChat && !isAttached && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => onAttachToChat(material.id)}
-                          className="mt-2 h-7 text-xs"
-                        >
-                          <Paperclip className="w-3 h-3 mr-1" />
-                          Attach to Chat
-                        </Button>
-                      )}
+                      <div className="flex flex-col gap-2 mt-3">
+                        {onStartStudying && (
+                          <Button
+                            variant="default"
+                            size="sm"
+                            className="w-full bg-purple-600 hover:bg-purple-700 text-white h-8"
+                            onClick={() => handleStartStudying(material.title, material.id)}
+                            disabled={studyingMaterialId === material.id}
+                          >
+                            {studyingMaterialId === material.id ? (
+                              <>
+                                <div className="w-3 h-3 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                Opening...
+                              </>
+                            ) : (
+                              <>
+                                <Sparkles className="w-3 h-3 mr-2" />
+                                Start Studying
+                              </>
+                            )}
+                          </Button>
+                        )}
+                        {onAttachToChat && (
+                          isAttached ? (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="w-full h-8 border-purple-300 bg-purple-50 text-purple-700"
+                              disabled
+                            >
+                              <Check className="w-3 h-3 mr-2" />
+                              Attached
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => onAttachToChat(material.id)}
+                              className="w-full h-8 border-purple-200 text-purple-700 hover:bg-purple-50"
+                            >
+                              <Paperclip className="w-3 h-3 mr-2" />
+                              Attach to Chat
+                            </Button>
+                          )
+                        )}
+                      </div>
                     </div>
                     <button
                       onClick={() => deleteMaterial(material.id, material.file_url)}
