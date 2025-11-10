@@ -1076,70 +1076,41 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
             </TabsContent>
 
             <TabsContent value="chat" className="flex-1 overflow-hidden mt-0">
-              <div className={cn(
-                "h-full",
-                activeDocument ? "p-0" : "p-2 sm:p-3 md:p-4 lg:p-6"
-              )}>
-                {activeDocument ? (
-                  // SPLIT-PANE LAYOUT: Chat + Document Viewer
-                  <ResizablePanelGroup direction="vertical" className="h-full">
-                    {/* Top Pane: Chat Interface */}
-                    <ResizablePanel defaultSize={50} minSize={35}>
-                      <AIInteractionColumn
-                        messages={messages as any}
-                        inputValue={inputValue}
-                        onInputChange={setInputValue}
-                        onSendMessage={handleSendMessage}
-                        onVoiceTranscription={handleVoiceTranscription}
-                        onSaveChat={handleSaveChat}
-                        onSaveAndClear={() => setShowSaveDialog(true)}
-                        onClearChat={() => setShowClearConfirm(true)}
-                        isLoading={isLoading}
-                        attachedMaterialIds={attachedMaterialIds}
-                        onAttachedMaterialsChange={setAttachedMaterialIds}
-                        studyMaterials={studyMaterials}
-                        orgId={orgId}
-                        conversationDocumentContext={conversationDocumentContext}
-                        onConversationDocumentContextChange={setConversationDocumentContext}
-                        selectedCourseSlug={selectedCourseSlug}
-                        onCourseChange={setSelectedCourseSlug}
-                        containerMode="split-pane"
-                      />
-                    </ResizablePanel>
+              <div className="h-full p-2 sm:p-3 md:p-4 lg:p-6">
+                <div className="h-full flex flex-col gap-4">
+                  {/* Chat Interface */}
+                  <div className={activeDocument ? "flex-shrink-0" : "h-full"}>
+                    <AIInteractionColumn
+                      messages={messages as any}
+                      inputValue={inputValue}
+                      onInputChange={setInputValue}
+                      onSendMessage={handleSendMessage}
+                      onVoiceTranscription={handleVoiceTranscription}
+                      onSaveChat={handleSaveChat}
+                      onSaveAndClear={() => setShowSaveDialog(true)}
+                      onClearChat={() => setShowClearConfirm(true)}
+                      isLoading={isLoading}
+                      attachedMaterialIds={attachedMaterialIds}
+                      onAttachedMaterialsChange={setAttachedMaterialIds}
+                      studyMaterials={studyMaterials}
+                      orgId={orgId}
+                      conversationDocumentContext={conversationDocumentContext}
+                      onConversationDocumentContextChange={setConversationDocumentContext}
+                      selectedCourseSlug={selectedCourseSlug}
+                      onCourseChange={setSelectedCourseSlug}
+                    />
+                  </div>
 
-                    {/* Draggable Handle */}
-                    <ResizableHandle withHandle />
-
-                    {/* Bottom Pane: Document Reader */}
-                    <ResizablePanel defaultSize={50} minSize={25}>
+                  {/* Document Reader - Shown below chat when active */}
+                  {activeDocument && (
+                    <div className="flex-1 min-h-[400px] overflow-hidden">
                       <DocumentReader
                         document={activeDocument}
                         onClose={handleCloseDocumentViewer}
                       />
-                    </ResizablePanel>
-                  </ResizablePanelGroup>
-                ) : (
-                  // NORMAL LAYOUT: Just Chat (No Document Open)
-                  <AIInteractionColumn
-                    messages={messages as any}
-                    inputValue={inputValue}
-                    onInputChange={setInputValue}
-                    onSendMessage={handleSendMessage}
-                    onVoiceTranscription={handleVoiceTranscription}
-                    onSaveChat={handleSaveChat}
-                    onSaveAndClear={() => setShowSaveDialog(true)}
-                    onClearChat={() => setShowClearConfirm(true)}
-                    isLoading={isLoading}
-                    attachedMaterialIds={attachedMaterialIds}
-                    onAttachedMaterialsChange={setAttachedMaterialIds}
-                    studyMaterials={studyMaterials}
-                    orgId={orgId}
-                    conversationDocumentContext={conversationDocumentContext}
-                    onConversationDocumentContextChange={setConversationDocumentContext}
-                    selectedCourseSlug={selectedCourseSlug}
-                    onCourseChange={setSelectedCourseSlug}
-                  />
-                )}
+                    </div>
+                  )}
+                </div>
               </div>
             </TabsContent>
 
