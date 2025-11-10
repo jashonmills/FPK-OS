@@ -6,16 +6,16 @@ const PDFJS_VERSION = '4.8.69';
 
 /**
  * Optimized PDF worker configuration with better error handling
+ * For react-pdf v10.x compatibility
  */
 const WORKER_URLS = [
-  // Use standard .js files for best compatibility
+  // Use legacy worker files that don't require ES module imports
+  `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS_VERSION}/pdf.worker.min.js`,
+  `https://unpkg.com/pdfjs-dist@${PDFJS_VERSION}/legacy/build/pdf.worker.js`,
+  `https://cdn.jsdelivr.net/npm/pdfjs-dist@${PDFJS_VERSION}/legacy/build/pdf.worker.js`,
+  // Standard worker URLs as fallback
   `https://unpkg.com/pdfjs-dist@${PDFJS_VERSION}/build/pdf.worker.js`,
   `https://cdn.jsdelivr.net/npm/pdfjs-dist@${PDFJS_VERSION}/build/pdf.worker.js`,
-  // Fallback to .mjs for modern browsers
-  `https://unpkg.com/pdfjs-dist@${PDFJS_VERSION}/build/pdf.worker.mjs`,
-  `https://cdn.jsdelivr.net/npm/pdfjs-dist@${PDFJS_VERSION}/build/pdf.worker.mjs`,
-  // Legacy fallback
-  'https://mozilla.github.io/pdf.js/build/pdf.worker.js',
   // Try local worker last
   '/pdf.worker.js'
 ];
@@ -24,31 +24,21 @@ const WORKER_URLS = [
  * Initialize PDF worker with optimized performance and robust error handling
  */
 export const initializePDFWorker = async (): Promise<boolean> => {
-  // If already configured and working, don't reconfigure
-  if (pdfjs.GlobalWorkerOptions.workerSrc) {
-    try {
-      // Quick test with minimal PDF
-      const testDoc = await Promise.race([
-        pdfjs.getDocument('data:application/pdf;base64,JVBERi0xLjQKJdPr6eEKMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwovUGFnZXMgMiAwIFIKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL1R5cGUgL1BhZ2VzCi9LaWRzIFszIDAgUl0KL0NvdW50IDEKPJ4KZW5kb2JqCjMgMCBvYmoKPDwKL1R5cGUgL1BhZ2UKL1BhcmVudCAyIDAgUgovTWVkaWFCb3ggWzAgMCA2MTIgNzkyXQo+PgplbmRvYmoKeHJlZgowIDQKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNTggMDAwMDAgbiAKMDAwMDAwMDExNSAwMDAwMCBuIAp0cmFpbGVyCjw8Ci9TaXplIDQKL1Jvb3QgMSAwIFIKPj4Kc3RhcnR4cmVmCjE3NAolJUVPRgo=').promise,
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Test timeout')), 2000))
-      ]);
-      console.log('✅ PDF worker is already working optimally');
-      return true;
-    } catch (error) {
-      console.warn('⚠️ Current PDF worker failed test, reinitializing for better performance...');
-    }
-  }
-
-  console.log('🔧 Optimizing PDF.js worker initialization...');
+  // Force clear any existing worker configuration to avoid caching issues
+  pdfjs.GlobalWorkerOptions.workerSrc = '';
+  
+  console.log('🔧 Initializing PDF.js worker (react-pdf v10.x compatible)...');
 
   for (let i = 0; i < WORKER_URLS.length; i++) {
     const workerUrl = WORKER_URLS[i];
     
     try {
-      console.log(`🧪 Testing optimized PDF worker: ${workerUrl}`);
+      console.log(`🎯 Testing worker: ${workerUrl}`);
       
-      // Faster URL accessibility test for performance
-      if (workerUrl.startsWith('http')) {
+      // Skip URL accessibility check for CDN URLs to speed up initialization
+      const skipCheck = workerUrl.includes('cdnjs.cloudflare.com');
+      
+      if (!skipCheck && workerUrl.startsWith('http')) {
         try {
           const controller = new AbortController();
           const timeoutId = setTimeout(() => controller.abort(), 2000); // Reduced timeout
