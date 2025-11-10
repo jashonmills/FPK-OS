@@ -25,8 +25,8 @@ import { cn } from '@/lib/utils';
 interface SmartUploadModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onUpload: (file: File, folderId: string | null) => Promise<boolean>;
-  onStartStudying?: (fileName: string) => void;
+  onUpload: (file: File, folderId: string | null) => Promise<string | null>;
+  onStartStudying?: (fileName: string, materialId: string) => void;
   orgId?: string;
 }
 
@@ -44,6 +44,7 @@ export function SmartUploadModal({
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
+  const [uploadedMaterialId, setUploadedMaterialId] = useState<string | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -69,7 +70,7 @@ export function SmartUploadModal({
       setUploadProgress((prev) => Math.min(prev + 10, 90));
     }, 200);
 
-    const success = await onUpload(
+    const materialId = await onUpload(
       selectedFile,
       selectedFolderId === 'none' ? null : selectedFolderId
     );
@@ -78,14 +79,15 @@ export function SmartUploadModal({
     setUploadProgress(100);
     setIsUploading(false);
 
-    if (success) {
+    if (materialId) {
+      setUploadedMaterialId(materialId);
       setUploadSuccess(true);
     }
   };
 
   const handleStartStudying = () => {
-    if (onStartStudying && title) {
-      onStartStudying(title);
+    if (onStartStudying && title && uploadedMaterialId) {
+      onStartStudying(title, uploadedMaterialId);
       handleClose();
     }
   };
@@ -96,6 +98,7 @@ export function SmartUploadModal({
     setSelectedFolderId('none');
     setUploadProgress(0);
     setUploadSuccess(false);
+    setUploadedMaterialId(null);
     onOpenChange(false);
   };
 

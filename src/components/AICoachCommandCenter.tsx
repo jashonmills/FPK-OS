@@ -616,11 +616,13 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
     }
 
     const currentInput = inputValue;
+    const currentAttachments = attachedMaterialIds;
     setInputValue('');
+    setAttachedMaterialIds([]); // Clear attachments after sending
     
-    console.log('[AI COMMAND CENTER] ✅ Calling sendChatMessage with:', currentInput);
-    // Call the streaming hook's sendMessage
-    await sendChatMessage(currentInput);
+    console.log('[AI COMMAND CENTER] ✅ Calling sendChatMessage with:', currentInput, 'attachments:', currentAttachments);
+    // Call the streaming hook's sendMessage with attachments
+    await sendChatMessage(currentInput, currentAttachments);
 
     // Track analytics after interaction
     await trackSession(5, [currentInput.substring(0, 50)]);
@@ -689,8 +691,9 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
     toast.info('Chat cleared');
   };
 
-  const handleStartStudyingDocument = (documentTitle: string) => {
+  const handleStartStudyingDocument = (documentTitle: string, materialId: string) => {
     setActiveTab('chat');
+    setAttachedMaterialIds([materialId]);
     const prompt = `Let's study the document I just uploaded: "${documentTitle}". Can you help me understand the key concepts?`;
     setInputValue(prompt);
   };

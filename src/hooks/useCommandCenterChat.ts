@@ -26,12 +26,13 @@ export function useCommandCenterChat(userId?: string) {
   const abortControllerRef = useRef<AbortController | null>(null);
   const { toast } = useToast();
 
-  const sendMessage = useCallback(async (messageText: string) => {
+  const sendMessage = useCallback(async (messageText: string, attachedMaterialIds?: string[]) => {
     console.log('[useCommandCenterChat] 📨 sendMessage called', { 
       hasUserId: !!userId, 
       userId,
       hasMessage: !!messageText.trim(),
-      messageLength: messageText.length
+      messageLength: messageText.length,
+      attachedMaterialIds: attachedMaterialIds || []
     });
     
     // Prevent concurrent streams
@@ -134,7 +135,8 @@ export function useCommandCenterChat(userId?: string) {
               })),
             metadata: {
               source: 'ai_command_center_v2',
-              audioEnabled
+              audioEnabled,
+              attachedMaterialIds: attachedMaterialIds || []
             }
           }),
           signal: abortControllerRef.current.signal

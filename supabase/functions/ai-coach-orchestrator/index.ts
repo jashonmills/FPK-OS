@@ -288,7 +288,7 @@ Rules:
 const MODULE_SEPARATOR = '\n\n---\n\n';
 
 // Prompt assembly functions
-function buildBettySystemPrompt(memories?: any[], knowledgePack?: any, ragKnowledge?: any[], courseContent?: any): string {
+function buildBettySystemPrompt(memories?: any[], knowledgePack?: any, ragKnowledge?: any[], courseContent?: any, attachedDocuments?: string): string {
   const modules = [
     NO_META_REASONING,
     SELF_GOVERNANCE,
@@ -318,6 +318,11 @@ Your response structure:
 - "I can see you're eager to understand this deeply—that's great! You mentioned thinking it's X, which is a thoughtful hypothesis. As for Y, that's related but let's first explore X further. What made you think X might be the answer?"
 
 NEVER ignore the first part of their message. ALWAYS acknowledge all points before proceeding.`;
+  
+  // Inject Attached Documents if available (PRIORITY: Show this first)
+  if (attachedDocuments) {
+    prompt += `\n\n${MODULE_SEPARATOR}\n${attachedDocuments}`;
+  }
   
   // Inject RAG Knowledge if available
   if (ragKnowledge && ragKnowledge.length > 0) {
@@ -1348,7 +1353,8 @@ serve(async (req) => {
     const isOrgContext = metadata?.source === 'ai_command_center_v2' && 
                          metadata?.contextData?.isOrgContext === true;
     const contextType = metadata?.contextData?.context; // 'org_study_coach' or 'phoenix_lab'
-    console.log('[CONDUCTOR] 🔍 Parsed context:', { isOrgContext, contextType, source: metadata?.source });
+    const attachedMaterialIds = metadata?.attachedMaterialIds || [];
+    console.log('[CONDUCTOR] 🔍 Parsed context:', { isOrgContext, contextType, source: metadata?.source, attachedMaterialIds });
     
     // Validate required parameters
     if (!message || typeof message !== 'string') {
@@ -1543,6 +1549,81 @@ In the meantime, you can still access your courses directly from the dashboard.`
       } catch (courseError) {
         console.error('[COURSE RAG] ❌ Course content retrieval failed (non-blocking):', courseError);
         // Continue without course content
+      }
+    }
+
+    // 📄 DOCUMENT CONTEXT: Fetch attached study materials
+    let attachedDocumentsContext = '';
+    if (attachedMaterialIds.length > 0) {
+      console.log('[CONDUCTOR] 📄 Fetching attached documents:', attachedMaterialIds);
+      const docStart = Date.now();
+      
+      try {
+        const documents = [];
+        for (const materialId of attachedMaterialIds) {
+          // Fetch material record from database
+          const { data: material, error: materialError } = await supabaseClient
+            .from('ai_coach_study_materials')
+            .select('id, title, file_url, file_type')
+            .eq('id', materialId)
+            .eq('user_id', user.id)
+            .single();
+          
+          if (materialError || !material) {
+            console.error('[CONDUCTOR] ❌ Failed to fetch material:', materialId, materialError);
+            continue;
+          }
+          
+          console.log('[CONDUCTOR] ✅ Material record fetched:', material.title);
+          
+          // Extract file path from URL
+          const filePath = material.file_url.split('/ai-coach-materials/')[1];
+          if (!filePath) {
+            console.error('[CONDUCTOR] ❌ Invalid file URL format:', material.file_url);
+            continue;
+          }
+          
+          // Download file content from storage
+          const { data: fileData, error: downloadError } = await supabaseClient.storage
+            .from('ai-coach-materials')
+            .download(filePath);
+          
+          if (downloadError || !fileData) {
+            console.error('[CONDUCTOR] ❌ Failed to download file:', filePath, downloadError);
+            continue;
+          }
+          
+          // Read file content as text
+          const content = await fileData.text();
+          console.log('[CONDUCTOR] ✅ Document content loaded:', {
+            title: material.title,
+            contentLength: content.length,
+            fileType: material.file_type
+          });
+          
+          documents.push({
+            title: material.title,
+            type: material.file_type,
+            content: content.substring(0, 15000) // Limit to prevent token overflow
+          });
+        }
+        
+        if (documents.length > 0) {
+          attachedDocumentsContext = `\n\n# ATTACHED STUDY MATERIALS\n\nThe student has attached the following documents for context:\n\n${
+            documents.map(doc => `## ${doc.title}\n\`\`\`\n${doc.content}\n\`\`\``).join('\n\n')
+          }\n\n**IMPORTANT**: You now have direct access to this document content. Reference specific sections, quote passages, and help the student understand the concepts within. When the student asks about the document, discuss its actual content rather than saying you cannot access it.`;
+          
+          console.log('[CONDUCTOR] ✅ Document context prepared:', {
+            documentCount: documents.length,
+            totalContentLength: attachedDocumentsContext.length
+          });
+        }
+        
+        timings.document_retrieval = Date.now() - docStart;
+        console.log(`[PERF] Document retrieval: ${timings.document_retrieval}ms`);
+      } catch (docError) {
+        console.error('[CONDUCTOR] ❌ Document retrieval failed (non-blocking):', docError);
+        // Continue without document context
       }
     }
 
@@ -2228,7 +2309,7 @@ In the meantime, you can still access your courses directly from the dashboard.`
       const minutesAway = Math.round(timeSinceLastUpdate / 60000);
       
       if (selectedPersona === 'BETTY') {
-        systemPrompt = buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge, courseContent) + `\n\n---\n\n🔄 CRITICAL RESUMPTION INSTRUCTION 🔄
+        systemPrompt = buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge, courseContent, attachedDocumentsContext) + `\n\n---\n\n🔄 CRITICAL RESUMPTION INSTRUCTION 🔄
 
 The student just RETURNED to this conversation after being away for ${minutesAway} minutes. This is a RESUMPTION, not a continuation.
 
@@ -2299,7 +2380,7 @@ Include the time elapsed (${minutesAway} minutes) and the specific topic in your
       
       // We'll handle the dual response generation after the normal flow
       // For now, set Betty as the primary persona (we'll override later)
-      systemPrompt = buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge, courseContent);
+      systemPrompt = buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge, courseContent, attachedDocumentsContext);
       
     } 
     // ============ PHASE 3: PROACTIVE HANDOFF LOGIC ============
@@ -2384,7 +2465,7 @@ Their learning preference is valid. Respect it.`;
     } else if (detectedIntent === 'conversation_opener') {
       // CONVERSATION OPENER: Betty always greets and initiates Socratic dialogue
       selectedPersona = 'BETTY';
-      systemPrompt = buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge, courseContent);
+      systemPrompt = buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge, courseContent, attachedDocumentsContext);
       
       // 🔒 ACTIVATE PERSONA STICKINESS FROM THE START
       if (!isSocraticLoopActive) {
@@ -2425,7 +2506,7 @@ If they seem confused, provide clarification directly. Do NOT switch to Socratic
     } else if (detectedIntent === 'socratic_guidance') {
       // BETTY SOCRATIC SESSION: Increment counters and activate sticky mode
       selectedPersona = 'BETTY';
-      systemPrompt = buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge, courseContent);
+      systemPrompt = buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge, courseContent, attachedDocumentsContext);
       socraticTurnCounter++; // Increment turn counter for next Nite Owl check
       totalBettyTurns++;
       
@@ -2515,7 +2596,7 @@ If they seem confused, provide clarification directly. Do NOT switch to Socratic
         
         // Re-build system prompt for overridden persona
         if (selectedPersona === 'BETTY') {
-          systemPrompt = buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge, courseContent);
+          systemPrompt = buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge, courseContent, attachedDocumentsContext);
         } else if (selectedPersona === 'AL') {
           systemPrompt = buildAlSystemPrompt(studentContext, userMemories, knowledgePack, retrievedKnowledge);
         }
@@ -2731,7 +2812,7 @@ If they seem confused, provide clarification directly. Do NOT switch to Socratic
                   if (needsNiteOwlHandoff) {
                     console.log('[V2-DIALOGUE] 🔄 Generating Betty handoff after Nite Owl...');
                     
-                    const handoffPrompt = buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge, courseContent) + `\n\n🔄 HANDOFF INSTRUCTION:
+                    const handoffPrompt = buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge, courseContent, attachedDocumentsContext) + `\n\n🔄 HANDOFF INSTRUCTION:
 Nite Owl just shared a fun fact. Warmly acknowledge him ("Thanks, Nite Owl!"), then continue your Socratic dialogue with the student's last message: "${message}"
 
 Keep it brief (1-2 sentences) and ask a NEW question that builds on what they said.`;
@@ -2958,7 +3039,7 @@ Keep it under 100 words.`;
               body: JSON.stringify({
                 model: 'google/gemini-2.5-flash',
                 messages: [
-                  { role: 'system', content: buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge, courseContent) },
+                  { role: 'system', content: buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge, courseContent, attachedDocumentsContext) },
                   ...conversationHistory.slice(-5).map(msg => ({
                     role: msg.persona === 'USER' ? 'user' : 'assistant',
                     content: msg.content
@@ -3439,7 +3520,7 @@ Keep it under 100 words.`;
                 .reverse()
                 .find(m => m.persona === 'USER')?.content || message;
               
-              const bettyHandoffPrompt = buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge, courseContent) + `\n\n🔄 HANDOFF INSTRUCTION:
+              const bettyHandoffPrompt = buildBettySystemPrompt(userMemories, knowledgePack, retrievedKnowledge, courseContent, attachedDocumentsContext) + `\n\n🔄 HANDOFF INSTRUCTION:
 
 Nite Owl just shared a fun fact with the student. Your job:
 1. Warmly acknowledge Nite Owl ("Thanks, Nite Owl! That's interesting!")

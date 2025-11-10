@@ -7,7 +7,7 @@ import { useAICoachStudyMaterials } from '@/hooks/useAICoachStudyMaterials';
 
 interface MaterialsSubTabProps {
   orgId?: string;
-  onStartStudying?: (materialTitle: string) => void;
+  onStartStudying?: (materialTitle: string, materialId: string) => void;
 }
 
 export function MaterialsSubTab({ orgId, onStartStudying }: MaterialsSubTabProps) {
@@ -21,15 +21,12 @@ export function MaterialsSubTab({ orgId, onStartStudying }: MaterialsSubTabProps
     return studyMaterials.filter((m: any) => m.folder_id === selectedFolderId);
   }, [studyMaterials, selectedFolderId]);
 
-  const handleUpload = async (file: File, folderId: string | null): Promise<boolean> => {
-    const success = await uploadMaterial(file);
-    if (success && folderId) {
-      const latestMaterial = studyMaterials[0];
-      if (latestMaterial) {
-        await assignToFolder(latestMaterial.id, folderId);
-      }
+  const handleUpload = async (file: File, folderId: string | null): Promise<string | null> => {
+    const materialId = await uploadMaterial(file);
+    if (materialId && folderId) {
+      await assignToFolder(materialId, folderId);
     }
-    return success;
+    return materialId;
   };
 
   const handleDragStart = (materialId: string) => {

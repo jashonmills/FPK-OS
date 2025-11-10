@@ -50,17 +50,17 @@ export function useAICoachStudyMaterials(orgId?: string) {
     }
   };
 
-  const uploadMaterial = async (file: File): Promise<boolean> => {
+  const uploadMaterial = async (file: File): Promise<string | null> => {
     if (!user?.id) {
       toast.error('You must be logged in to upload materials');
-      return false;
+      return null;
     }
 
     // Validate file size (10MB limit)
     const MAX_FILE_SIZE = 10 * 1024 * 1024;
     if (file.size > MAX_FILE_SIZE) {
       toast.error('File size exceeds 10MB limit');
-      return false;
+      return null;
     }
 
     try {
@@ -96,9 +96,11 @@ export function useAICoachStudyMaterials(orgId?: string) {
         insertData.org_id = orgId;
       }
 
-      const { error: dbError } = await supabase
+      const { data: insertedData, error: dbError } = await supabase
         .from('ai_coach_study_materials')
-        .insert(insertData);
+        .insert(insertData)
+        .select('id')
+        .single();
 
       if (dbError) throw dbError;
 
@@ -106,11 +108,11 @@ export function useAICoachStudyMaterials(orgId?: string) {
       
       // Refresh materials list
       await fetchStudyMaterials();
-      return true;
+      return insertedData?.id || null;
     } catch (error) {
       console.error('Upload error:', error);
       toast.error('Failed to upload material');
-      return false;
+      return null;
     }
   };
 
