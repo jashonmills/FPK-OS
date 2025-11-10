@@ -2095,13 +2095,42 @@ When the student asks about "the document", they mean THIS one: "${documents[0].
     const messageLower = message.toLowerCase();
     
     // ============================================
+    // 🦉 NITE OWL PRIORITY TRIGGERS (BYPASS STICKINESS)
+    // ============================================
+    // Explicit user requests for fun facts override ALL other routing logic
+    const niteOwlExplicitTriggers = [
+      'fun fact', 
+      'tell me something interesting',
+      'nite owl',
+      'interesting fact',
+      'did you know',
+      'share a fact',
+      'tell me a fun fact'
+    ];
+
+    const hasExplicitNiteOwlRequest = niteOwlExplicitTriggers.some(trigger => 
+      messageLower.includes(trigger)
+    );
+
+    if (hasExplicitNiteOwlRequest && inBettySession) {
+      console.log('[CONDUCTOR] 🦉 EXPLICIT NITE OWL REQUEST - Bypassing persona stickiness');
+      detectedIntent = 'fun_fact_trigger';
+      intentConfidence = 0.98;
+      intentReasoning = 'User explicitly requested fun fact';
+      intentAlreadySet = true;
+      
+      // CRITICAL: Set flag to route to Nite Owl (will be used later)
+      console.log('[CONDUCTOR] ✅ Nite Owl trigger set: explicit_user_request');
+    }
+    
+    // ============================================
     // 🔒 PERSONA STICKINESS RULE (HIGHEST PRIORITY)
     // ============================================
     // Once Betty starts a Socratic dialogue, she "owns" the conversation
     // until the user explicitly exits or asks a factual question
     // ============================================
     
-    if (isSocraticLoopActive && lastPersona === 'BETTY') {
+    if (isSocraticLoopActive && lastPersona === 'BETTY' && !hasExplicitNiteOwlRequest) {
       console.log('[DIRECTOR] 🔒 PERSONA STICKINESS ACTIVE - Betty owns this conversation');
       
       const messageTrimmed = messageLower.trim();
@@ -2450,7 +2479,12 @@ When the student asks about "the document", they mean THIS one: "${documents[0].
     let shouldTriggerNiteOwl = false;
     let niteOwlTriggerReason = '';
     
-    if (featureFlags['nite_owl_interjections']?.enabled && inBettySession && detectedIntent === 'socratic_guidance') {
+    // PHASE 1: Check for explicit user request FIRST
+    if (hasExplicitNiteOwlRequest && inBettySession) {
+      shouldTriggerNiteOwl = true;
+      niteOwlTriggerReason = 'explicit_user_request';
+      console.log('[CONDUCTOR] 🦉 Nite Owl triggered by EXPLICIT USER REQUEST');
+    } else if (featureFlags['nite_owl_interjections']?.enabled && inBettySession && detectedIntent === 'socratic_guidance') {
       console.log('[CONDUCTOR] 🦉 Nite Owl feature ENABLED - checking trigger conditions');
       
       // 🚨 HARD GATE: Check context FIRST, before ANY trigger logic
@@ -2645,10 +2679,7 @@ Include the time elapsed (${minutesAway} minutes) and the specific topic in your
       selectedPersona = 'NITE_OWL';
       systemPrompt = buildNiteOwlSystemPrompt(knowledgePack);
       console.log('[CONDUCTOR] 🦉 Nite Owl interjection - HALTING all other AI processing');
-      
-      // Track if we need Betty handoff after Nite Owl
-      const needsNiteOwlHandoff = inBettySession;
-      console.log('[CONDUCTOR] Will need Betty handoff after Nite Owl:', needsNiteOwlHandoff);
+      console.log('[CONDUCTOR] Nite Owl trigger reason:', niteOwlTriggerReason);
       
       // Reset counter and set new random interjection point
       socraticTurnCounter = 0;
@@ -2869,15 +2900,16 @@ If they seem confused, provide clarification directly. Do NOT switch to Socratic
     }
     
     // ============================================
-    // NITE OWL HANDOFF DETECTION (moved earlier to work with all paths)
+    // NITE OWL HANDOFF FLAG (PROACTIVE APPROACH)
     // ============================================
-    // Check if Nite Owl just spoke (look at last 3 messages for safety)
-    const recentMessages = conversationHistory.slice(-3);
-    const niteOwlJustSpoke = recentMessages.some(m => m.persona === 'NITE_OWL');
-    const needsNiteOwlHandoff = niteOwlJustSpoke && inBettySession;
+    // Set flag WHEN Nite Owl is selected, not AFTER
+    let needsBettyHandoffAfterNiteOwl = false;
     
-    if (needsNiteOwlHandoff) {
-      console.log('[CONDUCTOR] 🦉 Nite Owl handoff required after next response');
+    // Set flag if we're about to route to Nite Owl in a Betty session
+    if (selectedPersona === 'NITE_OWL' && inBettySession) {
+      needsBettyHandoffAfterNiteOwl = true;
+      console.log('[CONDUCTOR] 🔄 Betty handoff WILL BE GENERATED after Nite Owl speaks');
+      console.log('[CONDUCTOR] Handoff trigger reason:', niteOwlTriggerReason);
     }
     
     console.log('[CONDUCTOR] Routing to persona:', selectedPersona, isSocraticHandoff ? '(Socratic Support Mode)' : '');
@@ -3816,6 +3848,33 @@ Keep it under 100 words.`;
               console.log('[CONDUCTOR] ✅ User message stored');
             }
 
+            // ============================================
+            // PERSONA VALIDATION & IMPERSONATION PREVENTION
+            // ============================================
+            // Ensure selectedPersona matches the actual speaker
+            console.log('[CONDUCTOR] 🔍 Persona validation before database insert:', {
+              selectedPersona,
+              willBeStoredAs: selectedPersona,
+              messagePreview: finalText.substring(0, 60)
+            });
+
+            // CRITICAL SANITY CHECK: Detect Betty impersonating Nite Owl
+            if (finalText.toLowerCase().includes('hoo-hoo') && selectedPersona !== 'NITE_OWL') {
+              console.error('[CONDUCTOR] ❌ PERSONA IMPERSONATION DETECTED!');
+              console.error('[CONDUCTOR] Betty is saying "Hoo-hoo!" but persona is:', selectedPersona);
+              console.error('[CONDUCTOR] FORCING CORRECTION to NITE_OWL');
+              selectedPersona = 'NITE_OWL';
+            }
+
+            // Additional check: Nite Owl's characteristic phrases
+            if ((finalText.includes('Nite Owl here') || finalText.includes('swooping in')) 
+                && selectedPersona !== 'NITE_OWL') {
+              console.error('[CONDUCTOR] ❌ PERSONA IMPERSONATION DETECTED (Nite Owl phrases)');
+              selectedPersona = 'NITE_OWL';
+            }
+
+            console.log('[CONDUCTOR] ✅ Final validated persona:', selectedPersona);
+
             // Insert AI response message
             const { error: aiMsgError } = await supabaseClient.from('phoenix_messages').insert({
               conversation_id: conversationUuid,
@@ -3850,7 +3909,7 @@ Keep it under 100 words.`;
             // ============================================
             // NITE OWL HANDOFF: Generate Betty's acknowledgment
             // ============================================
-            if (selectedPersona === 'NITE_OWL' && needsNiteOwlHandoff) {
+            if (selectedPersona === 'NITE_OWL' && needsBettyHandoffAfterNiteOwl) {
               console.log('[CONDUCTOR] 🔄 Generating Betty handoff after Nite Owl...');
               
               // Brief delay for UX (2.5 seconds)
@@ -3954,7 +4013,7 @@ Keep it brief (2-3 sentences total). Make the transition feel natural.`;
                     
                     // Send Betty's handoff as a new message event
                     const handoffMessage = `data: ${JSON.stringify({
-                      type: 'handoff',
+                      type: 'betty_handoff',
                       persona: 'BETTY',
                       content: bettyHandoffText,
                       audioUrl: bettyHandoffAudioUrl,

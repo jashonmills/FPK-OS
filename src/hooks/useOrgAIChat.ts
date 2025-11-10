@@ -191,8 +191,9 @@ export const useOrgAIChat = ({ userId, orgId, orgName }: UseOrgAIChatProps) => {
                   isStreaming: true
                 }];
               });
-            } else if (data.type === 'handoff') {
-              // Nite Owl handoff or persona transition
+            } else if (data.type === 'handoff' || data.type === 'betty_handoff') {
+              // Nite Owl handoff or persona transition (supports both legacy 'handoff' and new 'betty_handoff')
+              console.log('[useOrgAIChat] 🔄 Received handoff event:', data.type);
               const handoffMessage: OrgChatMessage = {
                 id: crypto.randomUUID(),
                 persona: data.persona,
