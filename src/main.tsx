@@ -2,22 +2,20 @@
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
-import { initializeReliablePDF, getPDFWorkerStatus } from './utils/reliablePdfConfig'
+import { initializePDFWorker, getWorkerInfo } from './utils/pdfWorkerConfig'
 
 console.log('🚀 Application starting...');
 
-// Initialize reliable PDF.js configuration with error handling
-try {
-  const pdfWorkerReady = initializeReliablePDF();
-  console.log('📄 PDF Worker Status:', getPDFWorkerStatus());
-
-  if (!pdfWorkerReady) {
-    console.warn('⚠️ PDF worker initialization failed - PDF viewing may be impacted');
+// Initialize PDF.js worker with optimized fallback configuration
+initializePDFWorker().then(success => {
+  console.log('📄 PDF Worker Status:', getWorkerInfo());
+  if (!success) {
+    console.warn('⚠️ PDF worker initialization failed - will retry on first PDF view');
   }
-} catch (error) {
+}).catch(error => {
   console.error('❌ PDF initialization error:', error);
-  console.log('📄 Continuing app startup without PDF support');
-}
+  console.log('📄 Continuing app startup - PDF worker will retry when needed');
+});
 
 // Enhanced error handler for PDF-related issues
 window.addEventListener('error', (event) => {
@@ -41,7 +39,7 @@ window.addEventListener('error', (event) => {
     if (event.error.message?.includes('worker')) {
       console.log('🔄 Attempting PDF worker reinitialization...');
       setTimeout(() => {
-        initializeReliablePDF();
+        initializePDFWorker().catch(console.error);
       }, 1000);
     }
   }

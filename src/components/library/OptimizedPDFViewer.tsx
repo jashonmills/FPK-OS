@@ -10,7 +10,7 @@ import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { initializeReliablePDF } from '@/utils/reliablePdfConfig';
+import { initializePDFWorker, reinitializeWorker } from '@/utils/pdfWorkerConfig';
 import { useCleanup } from '@/utils/cleanupManager';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
@@ -55,12 +55,15 @@ const OptimizedPDFViewer: React.FC<OptimizedPDFViewerProps> = ({ fileUrl, fileNa
   const MAX_RETRIES = 3;
   const LOADING_TIMEOUT = 45000; // 45 seconds timeout
 
-  // Initialize PDF worker on mount
+  // Initialize PDF worker on mount with better error handling
   useEffect(() => {
-    const workerInitialized = initializeReliablePDF();
-    if (!workerInitialized) {
-      console.warn('⚠️ PDF worker initialization failed, may cause loading issues');
-    }
+    initializePDFWorker().then(success => {
+      if (!success) {
+        console.warn('⚠️ PDF worker initialization failed, will retry on document load');
+      }
+    }).catch(error => {
+      console.error('❌ PDF worker initialization error:', error);
+    });
   }, []);
 
   // PDF.js options optimized for performance
@@ -236,8 +239,10 @@ const OptimizedPDFViewer: React.FC<OptimizedPDFViewerProps> = ({ fileUrl, fileNa
         loadingTimeoutRef.current = null;
       }
       
-      // Reinitialize PDF worker
-      initializeReliablePDF();
+      // Reinitialize PDF worker with better fallback handling
+      reinitializeWorker().catch(error => {
+        console.error('❌ PDF worker reinitialization failed:', error);
+      });
       
       toast({
         title: "Retrying...",

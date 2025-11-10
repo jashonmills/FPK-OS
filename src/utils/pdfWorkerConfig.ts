@@ -8,11 +8,12 @@ const PDFJS_VERSION = '4.8.69';
  * Optimized PDF worker configuration with better error handling
  */
 const WORKER_URLS = [
-  // Try local worker first (most reliable and fastest)
-  '/pdf.worker.min.js',
-  // Fallback to reliable CDNs with proper ordering
+  // Prioritize CDNs since we don't have local worker file
   `https://unpkg.com/pdfjs-dist@${PDFJS_VERSION}/build/pdf.worker.min.js`,
-  `https://cdn.jsdelivr.net/npm/pdfjs-dist@${PDFJS_VERSION}/build/pdf.worker.min.js`
+  `https://cdn.jsdelivr.net/npm/pdfjs-dist@${PDFJS_VERSION}/build/pdf.worker.min.js`,
+  'https://mozilla.github.io/pdf.js/build/pdf.worker.min.js',
+  // Try local worker last (in case user adds it)
+  '/pdf.worker.min.js'
 ];
 
 /**
