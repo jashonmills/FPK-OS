@@ -8,7 +8,10 @@ const PDFJS_VERSION = '4.8.69';
  * Optimized PDF worker configuration with better error handling
  */
 const WORKER_URLS = [
-  // Prioritize CDNs since we don't have local worker file
+  // Use .mjs files for modern ES module support (react-pdf 10.x compatibility)
+  `https://unpkg.com/pdfjs-dist@${PDFJS_VERSION}/build/pdf.worker.mjs`,
+  `https://cdn.jsdelivr.net/npm/pdfjs-dist@${PDFJS_VERSION}/build/pdf.worker.mjs`,
+  // Fallback to .min.js if .mjs fails
   `https://unpkg.com/pdfjs-dist@${PDFJS_VERSION}/build/pdf.worker.min.js`,
   `https://cdn.jsdelivr.net/npm/pdfjs-dist@${PDFJS_VERSION}/build/pdf.worker.min.js`,
   'https://mozilla.github.io/pdf.js/build/pdf.worker.min.js',
@@ -70,6 +73,14 @@ export const initializePDFWorker = async (): Promise<boolean> => {
 
       // Set the worker with performance optimization
       pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
+      console.log(`🎯 Attempting worker: ${workerUrl}`);
+      console.log(`📊 Worker info:`, {
+        version: pdfjs.version,
+        workerType: workerUrl.includes('.mjs') ? 'ES Module (.mjs)' : 'Classic (.js)',
+        source: workerUrl.includes('unpkg') ? 'unpkg CDN' : 
+                workerUrl.includes('jsdelivr') ? 'jsDelivr CDN' : 
+                workerUrl.includes('mozilla') ? 'Mozilla CDN' : 'Local'
+      });
       
       // Quick test with timeout
       try {

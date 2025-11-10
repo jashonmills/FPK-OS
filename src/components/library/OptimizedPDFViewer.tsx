@@ -200,27 +200,47 @@ const OptimizedPDFViewer: React.FC<OptimizedPDFViewerProps> = ({ fileUrl, fileNa
       loadingTimeoutRef.current = null;
     }
     
-    const errorMessage = `Failed to load PDF: ${error.message}`;
+    const errorMessage = error.message || String(error);
     let suggestion = '';
+    let shouldAutoRetry = false;
     
-    // Provide specific error handling
-    if (error.message.includes('CORS')) {
+    // Check for specific worker-related errors
+    if (errorMessage.includes('pdf.worker.mjs') || 
+        errorMessage.includes('module specifier') ||
+        errorMessage.includes('Setting up fake worker failed')) {
+      suggestion = 'PDF worker initialization failed. Attempting to reload with fallback configuration...';
+      shouldAutoRetry = true;
+      
+      // Immediately try to reinitialize with the correct worker
+      console.log('🔄 Auto-retrying with worker reinitialization...');
+      reinitializeWorker().then(() => {
+        // Give worker a moment to initialize, then retry
+        setTimeout(() => {
+          if (retryCount < MAX_RETRIES) {
+            retryLoading();
+          }
+        }, 500);
+      });
+    } else if (errorMessage.includes('CORS')) {
       suggestion = 'This PDF may have CORS restrictions. Try downloading it directly.';
-    } else if (error.message.includes('network') || error.message.includes('fetch')) {
+    } else if (errorMessage.includes('network') || errorMessage.includes('fetch')) {
       suggestion = 'Network issue detected. Please check your connection and try again.';
-    } else if (error.message.includes('Invalid PDF')) {
+    } else if (errorMessage.includes('Invalid PDF')) {
       suggestion = 'This file appears to be corrupted or is not a valid PDF.';
-    } else if (error.message.includes('Worker')) {
+    } else if (errorMessage.includes('Worker')) {
       suggestion = 'PDF.js worker issue. The page will attempt to reload the viewer.';
+      shouldAutoRetry = true;
     }
     
-    setError(`${errorMessage}${suggestion ? ` ${suggestion}` : ''}`);
+    setError(`Failed to load PDF: ${errorMessage}${suggestion ? ` ${suggestion}` : ''}`);
     
-    toast({
-      title: "PDF Error",
-      description: `Failed to load ${fileName}${suggestion ? `: ${suggestion}` : ''}`,
-      variant: "destructive"
-    });
+    if (!shouldAutoRetry) {
+      toast({
+        title: "PDF Error",
+        description: suggestion || `Failed to load ${fileName}`,
+        variant: "destructive"
+      });
+    }
   };
 
   const retryLoading = useCallback(() => {

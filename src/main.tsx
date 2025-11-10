@@ -8,12 +8,25 @@ console.log('🚀 Application starting...');
 
 // Initialize PDF.js worker with optimized fallback configuration
 initializePDFWorker().then(success => {
-  console.log('📄 PDF Worker Status:', getWorkerInfo());
+  const workerInfo = getWorkerInfo();
+  console.log('📄 PDF Worker Status:', workerInfo);
+  
   if (!success) {
     console.warn('⚠️ PDF worker initialization failed - will retry on first PDF view');
+  } else {
+    console.log(`✅ PDF worker ready: ${workerInfo.workerSrc}`);
+    console.log(`📊 Configuration:`, {
+      version: workerInfo.reactPdfVersion,
+      configured: workerInfo.configuredVersion,
+      optimized: workerInfo.optimized
+    });
   }
 }).catch(error => {
   console.error('❌ PDF initialization error:', error);
+  console.error('📊 Error details:', {
+    message: error.message,
+    stack: error.stack
+  });
   console.log('📄 Continuing app startup - PDF worker will retry when needed');
 });
 
