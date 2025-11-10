@@ -2120,6 +2120,8 @@ When the student asks about "the document", they mean THIS one: "${documents[0].
       intentAlreadySet = true;
       
       // CRITICAL: Set flag to route to Nite Owl (will be used later)
+      shouldTriggerNiteOwl = true;
+      niteOwlTriggerReason = 'explicit_user_request';
       console.log('[CONDUCTOR] ✅ Nite Owl trigger set: explicit_user_request');
     }
     
