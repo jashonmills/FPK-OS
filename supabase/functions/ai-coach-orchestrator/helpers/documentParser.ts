@@ -25,7 +25,7 @@ export interface ParsedDocument {
 async function parsePDF(fileBuffer: ArrayBuffer): Promise<ParsedDocument> {
   try {
     console.log('[PDF Parser] Starting PDF parsing...');
-    const data = await pdfParse(Buffer.from(fileBuffer));
+    const data = await pdfParse(new Uint8Array(fileBuffer));
     
     console.log('[PDF Parser] ✅ PDF parsed successfully:', {
       pages: data.numpages,
@@ -52,7 +52,7 @@ async function parsePDF(fileBuffer: ArrayBuffer): Promise<ParsedDocument> {
 async function parseDOCX(fileBuffer: ArrayBuffer): Promise<ParsedDocument> {
   try {
     console.log('[DOCX Parser] Starting DOCX parsing...');
-    const result = await mammoth.extractRawText({ buffer: Buffer.from(fileBuffer) });
+    const result = await mammoth.extractRawText({ buffer: new Uint8Array(fileBuffer) });
     
     console.log('[DOCX Parser] ✅ DOCX parsed successfully:', {
       textLength: result.value.length,
