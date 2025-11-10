@@ -30,6 +30,7 @@ import { SavedChatsSubTab } from '@/components/ai-coach/SavedChatsSubTab';
 import { AttachContextButton } from '@/components/ai-coach/AttachContextButton';
 import { AttachedMaterialsBadge } from '@/components/ai-coach/AttachedMaterialsBadge';
 import { AttachMaterialButton } from '@/components/ai-coach/AttachMaterialButton';
+import { DocumentAttachmentOnboarding } from '@/components/ai-coach/DocumentAttachmentOnboarding';
 
 // Left Column: Context & History
 const ContextHistoryColumn: React.FC<{
@@ -817,6 +818,13 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
                   <MaterialsSubTab
                     orgId={orgId}
                     onStartStudying={handleStartStudyingDocument}
+                    attachedMaterialIds={attachedMaterialIds}
+                    onAttachToChat={(materialId) => {
+                      if (!attachedMaterialIds.includes(materialId)) {
+                        setAttachedMaterialIds(prev => [...prev, materialId]);
+                      }
+                      setActiveTab('chat');
+                    }}
                   />
                 </TabsContent>
 
@@ -891,6 +899,12 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Document Attachment Onboarding */}
+      <DocumentAttachmentOnboarding
+        hasUploadedDocument={studyMaterials.length > 0}
+        isInChat={activeTab === 'chat'}
+      />
     </div>
   );
 };

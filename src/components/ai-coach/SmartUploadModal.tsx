@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Upload, X, FileText, Loader2 } from 'lucide-react';
+import { Upload, X, FileText, Loader2, Sparkles, BookOpen, Info } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -228,21 +228,47 @@ export function SmartUploadModal({
               </DialogDescription>
             </DialogHeader>
 
-            <div className="py-6 flex flex-col items-center gap-4">
+            <div className="py-4 flex flex-col items-center gap-4">
               <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
                 <FileText className="w-8 h-8 text-green-600" />
               </div>
-              <p className="text-center text-sm text-gray-600">
-                What would you like to do next?
-              </p>
+
+              {/* Info Banner */}
+              <div className="w-full bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
+                <div className="flex items-start gap-2">
+                  <Info className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+                  <div className="space-y-3 text-sm">
+                    <div className="flex items-start gap-2">
+                      <Sparkles className="w-4 h-4 text-purple-600 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-medium text-gray-900">Start Studying This Now</p>
+                        <p className="text-gray-600 text-xs">Opens chat with this document attached so Betty can reference and discuss its content</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <BookOpen className="w-4 h-4 text-gray-600 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-medium text-gray-900">Done</p>
+                        <p className="text-gray-600 text-xs">Save for later (you can attach it manually using the 📎 button in chat)</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <DialogFooter className="flex-col sm:flex-row gap-2">
               <Button variant="outline" onClick={handleClose} className="w-full sm:w-auto">
+                <BookOpen className="w-4 h-4 mr-2" />
                 Done
               </Button>
               {onStartStudying && (
-                <Button onClick={handleStartStudying} className="w-full sm:w-auto">
+                <Button 
+                  onClick={handleStartStudying} 
+                  className="w-full sm:w-auto bg-purple-600 hover:bg-purple-700"
+                  data-tour="upload-success-start-studying"
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />
                   Start Studying This Now
                 </Button>
               )}

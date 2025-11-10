@@ -1667,6 +1667,23 @@ In the meantime, you can still access your courses directly from the dashboard.`
       }
     } else {
       console.log('[CONDUCTOR] 📄 No attached materials to process');
+      
+      // 🔍 PHASE 6: Advanced logging for debugging document attachment issues
+      const userMessageLower = message.toLowerCase();
+      const documentKeywords = ['document', 'pdf', 'file', 'plan', 'upload', 'attach', 'material'];
+      const mentionsDocument = documentKeywords.some(keyword => userMessageLower.includes(keyword));
+      
+      if (mentionsDocument) {
+        console.warn('[CONDUCTOR] ⚠️ DOCUMENT ATTACHMENT ISSUE DETECTED');
+        console.warn('[CONDUCTOR] 💡 User mentioned document-related keywords but no materials attached!');
+        console.warn('[CONDUCTOR] 💡 User message:', message.substring(0, 100));
+        console.warn('[CONDUCTOR] 💡 Detected keywords:', documentKeywords.filter(k => userMessageLower.includes(k)));
+        console.warn('[CONDUCTOR] 💡 Suggestion for user: "Try clicking the 📎 button to attach your document before asking about it."');
+        console.warn('[CONDUCTOR] 💡 This may indicate:');
+        console.warn('[CONDUCTOR]    - User typed message manually instead of clicking "Start Studying This Now"');
+        console.warn('[CONDUCTOR]    - User forgot to attach document using 📎 button');
+        console.warn('[CONDUCTOR]    - Frontend state issue: attachedMaterialIds not being sent');
+      }
     }
 
     // 2. Verify access permissions based on context

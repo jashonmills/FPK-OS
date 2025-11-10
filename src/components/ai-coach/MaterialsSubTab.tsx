@@ -1,20 +1,25 @@
 import React, { useState, useMemo } from 'react';
-import { BookOpen, Upload as UploadIcon, Trash2 } from 'lucide-react';
+import { BookOpen, Upload as UploadIcon, Trash2, Paperclip, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { FolderManager } from './FolderManager';
 import { SmartUploadModal } from './SmartUploadModal';
 import { useAICoachStudyMaterials } from '@/hooks/useAICoachStudyMaterials';
+import { cn } from '@/lib/utils';
 
 interface MaterialsSubTabProps {
   orgId?: string;
   onStartStudying?: (materialTitle: string, materialId: string) => void;
+  attachedMaterialIds?: string[];
+  onAttachToChat?: (materialId: string) => void;
 }
 
-export function MaterialsSubTab({ orgId, onStartStudying }: MaterialsSubTabProps) {
+export function MaterialsSubTab({ orgId, onStartStudying, attachedMaterialIds = [], onAttachToChat }: MaterialsSubTabProps) {
   const { studyMaterials, isLoadingMaterials, uploadMaterial, deleteMaterial, assignToFolder } = useAICoachStudyMaterials(orgId);
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [draggedMaterialId, setDraggedMaterialId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   console.log('[MaterialsSubTab] Rendered:', { 
     orgId, 
@@ -23,9 +28,18 @@ export function MaterialsSubTab({ orgId, onStartStudying }: MaterialsSubTabProps
   });
 
   const filteredMaterials = useMemo(() => {
-    if (selectedFolderId === null) return studyMaterials;
-    return studyMaterials.filter((m: any) => m.folder_id === selectedFolderId);
-  }, [studyMaterials, selectedFolderId]);
+    return studyMaterials.filter((m: any) => {
+      // Filter by folder
+      if (selectedFolderId !== null && m.folder_id !== selectedFolderId) {
+        return false;
+      }
+      // Filter by search query
+      if (searchQuery && !m.title.toLowerCase().includes(searchQuery.toLowerCase())) {
+        return false;
+      }
+      return true;
+    });
+  }, [studyMaterials, selectedFolderId, searchQuery]);
 
   const handleUpload = async (file: File, folderId: string | null): Promise<string | null> => {
     console.log('[MaterialsSubTab] handleUpload:', { fileName: file.name, folderId });
@@ -97,34 +111,74 @@ export function MaterialsSubTab({ orgId, onStartStudying }: MaterialsSubTabProps
             </Button>
           </div>
 
+          {/* Search Bar */}
+          <div className="relative mb-4">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Search materials..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+
           <div className="space-y-2">
             {isLoadingMaterials ? (
               <p className="text-sm text-gray-500 italic animate-pulse">Loading materials...</p>
             ) : filteredMaterials.length === 0 ? (
               <p className="text-sm text-gray-500 italic">
-                {selectedFolderId === null ? 'No materials uploaded yet' : 'This folder is empty'}
+                {searchQuery ? 'No materials match your search.' : (selectedFolderId === null ? 'No materials uploaded yet' : 'This folder is empty')}
               </p>
             ) : (
-              filteredMaterials.map((material: any) => (
-                <div
-                  key={material.id}
-                  draggable
-                  onDragStart={() => handleDragStart(material.id)}
-                  className="p-3 bg-purple-50/80 rounded border border-purple-200/60 hover:bg-purple-100/80 cursor-move transition group relative"
-                >
-                  <p className="text-sm font-medium text-gray-800">{material.title}</p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {material.file_type || 'FILE'} • {new Date(material.created_at).toLocaleDateString()}
-                  </p>
-                  <button
-                    onClick={() => deleteMaterial(material.id, material.file_url)}
-                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-red-100 rounded"
-                    title="Delete material"
+              filteredMaterials.map((material: any) => {
+                const isAttached = attachedMaterialIds.includes(material.id);
+                return (
+                  <div
+                    key={material.id}
+                    draggable
+                    onDragStart={() => handleDragStart(material.id)}
+                    className={cn(
+                      "p-3 rounded border cursor-move transition group relative",
+                      isAttached 
+                        ? "bg-purple-100 border-purple-400 ring-2 ring-purple-500" 
+                        : "bg-purple-50/80 border-purple-200/60 hover:bg-purple-100/80"
+                    )}
                   >
-                    <Trash2 className="w-4 h-4 text-red-600" />
-                  </button>
-                </div>
-              ))
+                    <div className="pr-8">
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="text-sm font-medium text-gray-800">{material.title}</p>
+                        {isAttached && (
+                          <span className="text-xs bg-purple-600 text-white px-2 py-0.5 rounded-full">
+                            Attached
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-500">
+                        {material.file_type || 'FILE'} • {new Date(material.created_at).toLocaleDateString()}
+                        {material.file_size && ` • ${(material.file_size / 1024 / 1024).toFixed(2)} MB`}
+                      </p>
+                      {onAttachToChat && !isAttached && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => onAttachToChat(material.id)}
+                          className="mt-2 h-7 text-xs"
+                        >
+                          <Paperclip className="w-3 h-3 mr-1" />
+                          Attach to Chat
+                        </Button>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => deleteMaterial(material.id, material.file_url)}
+                      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-red-100 rounded"
+                      title="Delete material"
+                    >
+                      <Trash2 className="w-4 h-4 text-red-600" />
+                    </button>
+                  </div>
+                );
+              })
             )}
           </div>
         </div>
