@@ -145,15 +145,17 @@ export default function AIStudyCoach() {
               onViewDocument={handleViewDocument}
             />
             
-            {/* Standalone Document Reader - Below Chat Module */}
-            {activeDocument && (
-              <div className="w-full">
-                <DocumentReader
-                  document={activeDocument}
-                  onClose={handleCloseDocumentViewer}
-                />
-              </div>
-            )}
+      {/* Standalone Document Reader - Below Chat Module */}
+      {activeDocument && (
+        <div className="w-full max-w-7xl mx-auto px-4">
+          <div className="h-[600px]">
+            <DocumentReader
+              document={activeDocument}
+              onClose={handleCloseDocumentViewer}
+            />
+          </div>
+        </div>
+      )}
           </>
         )}
       </div>

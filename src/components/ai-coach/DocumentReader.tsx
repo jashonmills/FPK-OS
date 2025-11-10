@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import OptimizedPDFViewer from '@/components/library/OptimizedPDFViewer';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { JSONViewer } from './viewers/JSONViewer';
+import { SmartDocxViewer } from './viewers/SmartDocxViewer';
 
 interface DocumentReaderProps {
   document: {
@@ -25,6 +26,10 @@ export const DocumentReader: React.FC<DocumentReaderProps> = ({ document, onClos
   const renderContent = () => {
     const extension = getFileExtension();
     const mimeType = document.file_type?.toLowerCase() || '';
+    const fileName = document.file_name?.toLowerCase() || '';
+    const title = document.title?.toLowerCase() || '';
+    
+    console.log('[DocumentReader] File detection:', { extension, mimeType, fileName, title });
     
     // PDF Files
     if (extension === 'pdf' || mimeType.includes('pdf')) {
@@ -39,14 +44,20 @@ export const DocumentReader: React.FC<DocumentReaderProps> = ({ document, onClos
       );
     }
     
-    // JSON Files
-    if (extension === 'json' || mimeType.includes('json') || mimeType.includes('application/json')) {
+    // JSON Files - Smart detection
+    // Check extension, mime type, filename, or title for JSON indicators
+    if (extension === 'json' || 
+        mimeType.includes('json') || 
+        mimeType.includes('application/json') ||
+        fileName.includes('json') ||
+        title.includes('json')) {
+      console.log('[DocumentReader] Rendering as JSON');
       return <JSONViewer fileUrl={document.file_url} />;
     }
     
-    // DOCX Files - Use mammoth for conversion
+    // DOCX Files - Use smart viewer that detects JSON
     if (extension === 'docx' || mimeType.includes('wordprocessingml')) {
-      return <DocxViewer fileUrl={document.file_url} />;
+      return <SmartDocxViewer fileUrl={document.file_url} />;
     }
     
     // TXT Files
@@ -77,7 +88,7 @@ export const DocumentReader: React.FC<DocumentReaderProps> = ({ document, onClos
   };
   
   return (
-    <div className="flex flex-col h-full bg-white">
+    <div className="flex flex-col h-full bg-white rounded-xl overflow-hidden shadow-lg">
       {/* Header Bar */}
       <div className="flex items-center justify-between px-4 py-3 border-b bg-gray-50 flex-shrink-0">
         <div className="flex items-center gap-3 flex-1 min-w-0">

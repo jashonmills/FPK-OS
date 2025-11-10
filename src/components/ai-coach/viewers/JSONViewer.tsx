@@ -20,6 +20,8 @@ export const JSONViewer: React.FC<JSONViewerProps> = ({ fileUrl }) => {
         const response = await fetch(fileUrl);
         const rawText = await response.text();
         
+        console.log('[JSONViewer] Raw content preview:', rawText.substring(0, 200));
+        
         // Parse and format the JSON
         const parsed = parseCourseJSON(rawText);
         setContent(parsed.formatted);
