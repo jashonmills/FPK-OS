@@ -88,6 +88,35 @@ export const useOrgAIChat = ({ userId, orgId, orgName }: UseOrgAIChatProps) => {
       }
 
       // Call orchestrator with streaming
+      // Create request body
+      const requestBody = {
+        message: messageText,
+        conversationId,
+        conversationHistory: messages
+          .filter(m => m.persona !== 'USER' || !m.isStreaming)
+          .map(m => ({
+            persona: m.persona,
+            content: m.content
+          })),
+        metadata: {
+          source: 'ai_command_center_v2',
+          audioEnabled: false,
+          attachedMaterialIds: attachedMaterialIds || [], // ✅ Move inside metadata
+          contextData: {
+            context: 'org_study_coach',
+            orgId: orgId,
+            orgName: orgName,
+            isOrgContext: true
+          }
+        }
+      };
+
+      console.log('[useOrgAIChat] 📤 Request body being sent:', {
+        hasAttachments: (attachedMaterialIds || []).length > 0,
+        attachedMaterialIds: attachedMaterialIds || [],
+        messagePreview: requestBody.message.substring(0, 50)
+      });
+
       const response = await fetch(
         `https://zgcegkmqfgznbpdplscz.supabase.co/functions/v1/ai-coach-orchestrator`,
         {
@@ -97,27 +126,7 @@ export const useOrgAIChat = ({ userId, orgId, orgName }: UseOrgAIChatProps) => {
             'Authorization': `Bearer ${session.access_token}`,
             'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpnY2Vna21xZmd6bmJwZHBsc2N6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0MDcxNTgsImV4cCI6MjA2NDk4MzE1OH0.RCtAqfgz7aqjG-QWiOqFBCG5xg2Rok9T4tbyGQMnCm8'
           },
-          body: JSON.stringify({
-            message: messageText,
-            conversationId,
-            conversationHistory: messages
-              .filter(m => m.persona !== 'USER' || !m.isStreaming)
-              .map(m => ({
-                persona: m.persona,
-                content: m.content
-              })),
-            attachedMaterialIds: attachedMaterialIds || [],
-            metadata: {
-              source: 'ai_command_center_v2',
-              audioEnabled: false,
-              contextData: {
-                context: 'org_study_coach',
-                orgId: orgId,
-                orgName: orgName,
-                isOrgContext: true
-              }
-            }
-          }),
+          body: JSON.stringify(requestBody),
           signal: abortControllerRef.current.signal
         }
       );
