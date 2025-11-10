@@ -257,7 +257,9 @@ export function MaterialsSubTab({ orgId, onStartStudying, onViewDocument, attach
                         {!['pdf', 'txt', 'docx', 'csv', 'md'].includes(material.file_type) && <File className="w-4 h-4 md:w-5 md:h-5 text-gray-400" />}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-gray-900 truncate text-xs md:text-sm">{material.file_name}</p>
+                  <p className="font-medium text-gray-900 truncate text-xs md:text-sm">
+                    {material.title || material.file_name}
+                  </p>
                         <p className="text-xs text-gray-500">
                           {material.file_size ? `${(material.file_size / 1024).toFixed(1)} KB` : 'Unknown size'} • 
                           {material.uploaded_at ? ` ${new Date(material.uploaded_at).toLocaleDateString()}` : ' Date unknown'}
@@ -287,15 +289,15 @@ export function MaterialsSubTab({ orgId, onStartStudying, onViewDocument, attach
                         </Button>
                       )}
                       <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0"
-                          >
-                            <MoreVertical className="w-4 h-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-8 w-8 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                  >
+                    <MoreVertical className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-48">
                           <DropdownMenuItem onClick={() => handleViewMaterial(material)}>
                             <Eye className="w-4 h-4 mr-2" />
