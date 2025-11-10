@@ -31,6 +31,7 @@ import { AttachContextButton } from '@/components/ai-coach/AttachContextButton';
 import { AttachedMaterialsBadge } from '@/components/ai-coach/AttachedMaterialsBadge';
 import { AttachMaterialButton } from '@/components/ai-coach/AttachMaterialButton';
 import { DocumentAttachmentOnboarding } from '@/components/ai-coach/DocumentAttachmentOnboarding';
+import { AttachedCourseBadge } from '@/components/ai-coach/AttachedCourseBadge';
 
 // Left Column: Context & History
 const ContextHistoryColumn: React.FC<{
@@ -554,6 +555,32 @@ const AIInteractionColumn: React.FC<{
           </div>
         )}
         
+        {/* Attached Course - Visual Indicator */}
+        {selectedCourseSlug && (
+          <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2 text-sm font-medium text-blue-900">
+                <BookOpen className="w-4 h-4" />
+                <span>📚 Course attached - AI coaches can discuss this course content</span>
+              </div>
+              <button
+                onClick={() => {
+                  onInputChange("What lessons are in this course?");
+                  setTimeout(() => onSendMessage(), 100);
+                }}
+                className="px-3 py-1 text-xs bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center gap-1"
+                title="Test if AI can access the course"
+              >
+                🧪 Test Course Access
+              </button>
+            </div>
+            <AttachedCourseBadge
+              courseSlug={selectedCourseSlug}
+              onRemove={() => onCourseChange?.(undefined)}
+            />
+          </div>
+        )}
+        
         {/* Attached Materials - Prominent Visual Indicator */}
         {attachedMaterialIds.length > 0 && (
           <div className="mb-3 p-3 bg-purple-50 border border-purple-200 rounded-lg">
@@ -794,9 +821,8 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
       courseSlug: selectedCourseSlug 
     });
     
-    // TODO: Update hooks to pass courseSlug as metadata to orchestrator
-    // For now, the orchestrator will detect course mentions in the message itself
-    await sendChatMessage(currentInput, allAttachments);
+    // ✅ Pass selected course slug to orchestrator
+    await sendChatMessage(currentInput, allAttachments, selectedCourseSlug);
 
     // Track analytics after interaction
     await trackSession(5, [currentInput.substring(0, 50)]);

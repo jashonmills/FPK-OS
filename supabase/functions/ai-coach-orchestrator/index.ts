@@ -1517,7 +1517,8 @@ serve(async (req) => {
                          metadata?.contextData?.isOrgContext === true;
     const contextType = metadata?.contextData?.context; // 'org_study_coach' or 'phoenix_lab'
     const attachedMaterialIds = metadata?.attachedMaterialIds || [];
-    console.log('[CONDUCTOR] 🔍 Parsed context:', { isOrgContext, contextType, source: metadata?.source, attachedMaterialIds });
+    const selectedCourseSlug = metadata?.courseSlug; // ✅ Extract explicit course slug
+    console.log('[CONDUCTOR] 🔍 Parsed context:', { isOrgContext, contextType, source: metadata?.source, attachedMaterialIds, selectedCourseSlug });
     
     // Validate required parameters
     if (!message || typeof message !== 'string') {
@@ -1677,10 +1678,37 @@ In the meantime, you can still access your courses directly from the dashboard.`
       }
     }
 
-    // 🎓 COURSE CONTENT RAG: Detect and retrieve mentioned course content
+    // 🎓 COURSE CONTENT RAG: Use explicit course slug or detect from message
     let courseContent: any = null;
-    if (knowledgePack?.active_courses && Array.isArray(knowledgePack.active_courses)) {
-      console.log('[CONDUCTOR] 🎓 Checking for mentioned courses...');
+    
+    // PRIORITY 1: Use explicitly selected course from UI
+    if (selectedCourseSlug) {
+      console.log('[CONDUCTOR] 🎓 Using explicitly selected course:', selectedCourseSlug);
+      const courseStart = Date.now();
+      
+      try {
+        courseContent = await retrieveCourseContent(selectedCourseSlug, supabaseClient);
+        
+        if (courseContent) {
+          console.log('[CONDUCTOR] ✅ Explicit course content loaded:', {
+            title: courseContent.title,
+            lessons: courseContent.lessons.length,
+            firstLesson: courseContent.lessons[0]?.title
+          });
+        } else {
+          console.error('[CONDUCTOR] ❌ Explicit course content retrieval FAILED for slug:', selectedCourseSlug);
+        }
+        
+        timings.course_content = Date.now() - courseStart;
+        console.log(`[PERF] Explicit course content loading: ${timings.course_content}ms`);
+      } catch (courseError) {
+        console.error('[COURSE RAG] ❌ Explicit course content retrieval failed:', courseError);
+      }
+    }
+    
+    // PRIORITY 2: Fallback to course mention detection if no explicit selection
+    if (!courseContent && knowledgePack?.active_courses && Array.isArray(knowledgePack.active_courses)) {
+      console.log('[CONDUCTOR] 🎓 No explicit course - checking for mentioned courses...');
       const courseStart = Date.now();
       
       try {
@@ -1697,20 +1725,20 @@ In the meantime, you can still access your courses directly from the dashboard.`
           courseContent = await retrieveCourseContent(mentionedCourse.slug, supabaseClient);
           
           if (courseContent) {
-            console.log('[CONDUCTOR] ✅ Course content loaded:', {
+            console.log('[CONDUCTOR] ✅ Detected course content loaded:', {
               title: courseContent.title,
               lessons: courseContent.lessons.length,
               firstLesson: courseContent.lessons[0]?.title
             });
           } else {
-            console.error('[CONDUCTOR] ❌ Course content retrieval FAILED for slug:', mentionedCourse.slug);
+            console.error('[CONDUCTOR] ❌ Detected course content retrieval FAILED for slug:', mentionedCourse.slug);
           }
         }
         
         timings.course_content = Date.now() - courseStart;
-        console.log(`[PERF] Course content detection: ${timings.course_content}ms`);
+        console.log(`[PERF] Course mention detection: ${timings.course_content}ms`);
       } catch (courseError) {
-        console.error('[COURSE RAG] ❌ Course content retrieval failed (non-blocking):', courseError);
+        console.error('[COURSE RAG] ❌ Course mention detection failed (non-blocking):', courseError);
         // Continue without course content
       }
     }

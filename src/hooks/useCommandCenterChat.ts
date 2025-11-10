@@ -26,14 +26,15 @@ export function useCommandCenterChat(userId?: string) {
   const abortControllerRef = useRef<AbortController | null>(null);
   const { toast } = useToast();
 
-  const sendMessage = useCallback(async (messageText: string, attachedMaterialIds?: string[]) => {
+  const sendMessage = useCallback(async (messageText: string, attachedMaterialIds?: string[], courseSlug?: string) => {
     console.log('[useCommandCenterChat] 📨 sendMessage called', { 
       hasUserId: !!userId, 
       userId,
       hasMessage: !!messageText.trim(),
       messageLength: messageText.length,
       attachedMaterialIds: attachedMaterialIds || [],
-      hasAttachments: (attachedMaterialIds && attachedMaterialIds.length > 0)
+      hasAttachments: (attachedMaterialIds && attachedMaterialIds.length > 0),
+      courseSlug: courseSlug || 'none'
     });
     
     // Prevent concurrent streams
@@ -127,7 +128,8 @@ export function useCommandCenterChat(userId?: string) {
         metadata: {
           source: 'ai_command_center_v2',
           audioEnabled,
-          attachedMaterialIds: attachedMaterialIds || []
+          attachedMaterialIds: attachedMaterialIds || [],
+          courseSlug: courseSlug // ✅ Add selected course slug
         }
       };
 
@@ -136,6 +138,7 @@ export function useCommandCenterChat(userId?: string) {
         conversationId: activeSessionId,
         historyLength: payload.conversationHistory.length,
         attachedMaterialIds: payload.metadata.attachedMaterialIds,
+        courseSlug: payload.metadata.courseSlug,
         source: payload.metadata.source
       });
 

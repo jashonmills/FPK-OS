@@ -39,13 +39,14 @@ export const useOrgAIChat = ({ userId, orgId, orgName }: UseOrgAIChatProps) => {
   const abortControllerRef = useRef<AbortController | null>(null);
   const { toast } = useToast();
 
-  const sendMessage = useCallback(async (messageText: string, attachedMaterialIds?: string[]) => {
+  const sendMessage = useCallback(async (messageText: string, attachedMaterialIds?: string[], courseSlug?: string) => {
     console.log('[useOrgAIChat] 📨 sendMessage called', { 
       hasUserId: !!userId, 
       userId,
       hasMessage: !!messageText.trim(),
       messageLength: messageText.length,
-      attachedMaterialIds: attachedMaterialIds || []
+      attachedMaterialIds: attachedMaterialIds || [],
+      courseSlug: courseSlug || 'none'
     });
     
     // Prevent concurrent streams
@@ -101,7 +102,8 @@ export const useOrgAIChat = ({ userId, orgId, orgName }: UseOrgAIChatProps) => {
         metadata: {
           source: 'ai_command_center_v2',
           audioEnabled: false,
-          attachedMaterialIds: attachedMaterialIds || [], // ✅ Move inside metadata
+          attachedMaterialIds: attachedMaterialIds || [],
+          courseSlug: courseSlug, // ✅ Add selected course slug
           contextData: {
             context: 'org_study_coach',
             orgId: orgId,
@@ -114,6 +116,7 @@ export const useOrgAIChat = ({ userId, orgId, orgName }: UseOrgAIChatProps) => {
       console.log('[useOrgAIChat] 📤 Request body being sent:', {
         hasAttachments: (attachedMaterialIds || []).length > 0,
         attachedMaterialIds: attachedMaterialIds || [],
+        courseSlug: courseSlug || 'none',
         messagePreview: requestBody.message.substring(0, 50)
       });
 
