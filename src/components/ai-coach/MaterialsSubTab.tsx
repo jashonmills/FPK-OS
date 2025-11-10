@@ -24,11 +24,12 @@ import { cn } from '@/lib/utils';
 interface MaterialsSubTabProps {
   orgId?: string;
   onStartStudying?: (materialTitle: string, materialId: string) => void;
+  onViewDocument?: (material: any) => void;
   attachedMaterialIds?: string[];
   onAttachToChat?: (materialId: string) => void;
 }
 
-export function MaterialsSubTab({ orgId, onStartStudying, attachedMaterialIds = [], onAttachToChat }: MaterialsSubTabProps) {
+export function MaterialsSubTab({ orgId, onStartStudying, onViewDocument, attachedMaterialIds = [], onAttachToChat }: MaterialsSubTabProps) {
   const { studyMaterials, isLoadingMaterials, uploadMaterial, deleteMaterial, assignToFolder } = useAICoachStudyMaterials(orgId);
   const { folders, refetchFolders } = useAICoachFolders('study_material', orgId);
   const { toast } = useToast();
@@ -125,10 +126,14 @@ export function MaterialsSubTab({ orgId, onStartStudying, attachedMaterialIds = 
   };
 
   const handleViewMaterial = (material: any) => {
-    toast({
-      title: 'View Material',
-      description: `Opening ${material.file_name}...`,
-    });
+    if (onViewDocument) {
+      onViewDocument(material);
+    } else {
+      toast({
+        title: 'View Material',
+        description: `Opening ${material.file_name}...`,
+      });
+    }
   };
 
   const handleMoveToFolder = (materialId: string) => {

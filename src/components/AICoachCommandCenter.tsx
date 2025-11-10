@@ -32,6 +32,8 @@ import { AttachedMaterialsBadge } from '@/components/ai-coach/AttachedMaterialsB
 import { AttachMaterialButton } from '@/components/ai-coach/AttachMaterialButton';
 import { DocumentAttachmentOnboarding } from '@/components/ai-coach/DocumentAttachmentOnboarding';
 import { AttachedCourseBadge } from '@/components/ai-coach/AttachedCourseBadge';
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
+import { DocumentReader } from '@/components/ai-coach/DocumentReader';
 
 // Left Column: Context & History
 const ContextHistoryColumn: React.FC<{
@@ -708,6 +710,7 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
   const [activeTab, setActiveTab] = useState(initialTab);
   const [attachedMaterialIds, setAttachedMaterialIds] = useState<string[]>([]);
   const [selectedCourseSlug, setSelectedCourseSlug] = useState<string | undefined>();
+  const [activeDocument, setActiveDocument] = useState<any | null>(null);
   
   // PHASE 2: Persistent document context with localStorage backup
   const [conversationDocumentContextState, setConversationDocumentContextState] = useState<string[]>(() => {
@@ -907,6 +910,28 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
     toast.info('Chat cleared');
   };
 
+  const handleViewDocument = (material: any) => {
+    console.log('[AICoachCommandCenter] Opening document viewer:', material.title);
+    
+    // Set the document to view
+    setActiveDocument(material);
+    
+    // Automatically switch to Chat tab for split-view experience
+    setActiveTab('chat');
+    
+    // Automatically attach the document to chat context for AI discussion
+    if (!attachedMaterialIds.includes(material.id) && !conversationDocumentContext.includes(material.id)) {
+      setConversationDocumentContext([material.id]);
+    }
+    
+    toast.success(`Now viewing: ${material.title}`);
+  };
+
+  const handleCloseDocumentViewer = () => {
+    console.log('[AICoachCommandCenter] Closing document viewer');
+    setActiveDocument(null);
+  };
+
   const handleStartStudyingDocument = async (documentTitle: string, materialId: string) => {
     console.log('[AICoachCommandCenter] 📚 Starting document study session with:', { documentTitle, materialId });
     setActiveTab('chat');
@@ -1016,6 +1041,7 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
                   <MaterialsSubTab
                     orgId={orgId}
                     onStartStudying={handleStartStudyingDocument}
+                    onViewDocument={handleViewDocument}
                     attachedMaterialIds={[...conversationDocumentContext, ...attachedMaterialIds]}
                     onAttachToChat={(materialId) => {
                       if (!attachedMaterialIds.includes(materialId) && !conversationDocumentContext.includes(materialId)) {
@@ -1037,25 +1063,65 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
 
             <TabsContent value="chat" className="flex-1 overflow-hidden mt-0">
               <div className="h-full p-2 sm:p-3 md:p-4 lg:p-6">
-                <AIInteractionColumn
-                  messages={messages as any}
-                  inputValue={inputValue}
-                  onInputChange={setInputValue}
-                  onSendMessage={handleSendMessage}
-                  onVoiceTranscription={handleVoiceTranscription}
-                  onSaveChat={handleSaveChat}
-                  onSaveAndClear={() => setShowSaveDialog(true)}
-                  onClearChat={() => setShowClearConfirm(true)}
-                  isLoading={isLoading}
-                  attachedMaterialIds={attachedMaterialIds}
-                  onAttachedMaterialsChange={setAttachedMaterialIds}
-                  studyMaterials={studyMaterials}
-                  orgId={orgId}
-                  conversationDocumentContext={conversationDocumentContext}
-                  onConversationDocumentContextChange={setConversationDocumentContext}
-                  selectedCourseSlug={selectedCourseSlug}
-                  onCourseChange={setSelectedCourseSlug}
-                />
+                {activeDocument ? (
+                  // SPLIT-PANE LAYOUT: Chat + Document Viewer
+                  <ResizablePanelGroup direction="vertical" className="h-full">
+                    {/* Top Pane: Chat Interface */}
+                    <ResizablePanel defaultSize={60} minSize={30}>
+                      <AIInteractionColumn
+                        messages={messages as any}
+                        inputValue={inputValue}
+                        onInputChange={setInputValue}
+                        onSendMessage={handleSendMessage}
+                        onVoiceTranscription={handleVoiceTranscription}
+                        onSaveChat={handleSaveChat}
+                        onSaveAndClear={() => setShowSaveDialog(true)}
+                        onClearChat={() => setShowClearConfirm(true)}
+                        isLoading={isLoading}
+                        attachedMaterialIds={attachedMaterialIds}
+                        onAttachedMaterialsChange={setAttachedMaterialIds}
+                        studyMaterials={studyMaterials}
+                        orgId={orgId}
+                        conversationDocumentContext={conversationDocumentContext}
+                        onConversationDocumentContextChange={setConversationDocumentContext}
+                        selectedCourseSlug={selectedCourseSlug}
+                        onCourseChange={setSelectedCourseSlug}
+                      />
+                    </ResizablePanel>
+
+                    {/* Draggable Handle */}
+                    <ResizableHandle withHandle />
+
+                    {/* Bottom Pane: Document Reader */}
+                    <ResizablePanel defaultSize={40} minSize={20}>
+                      <DocumentReader
+                        document={activeDocument}
+                        onClose={handleCloseDocumentViewer}
+                      />
+                    </ResizablePanel>
+                  </ResizablePanelGroup>
+                ) : (
+                  // NORMAL LAYOUT: Just Chat (No Document Open)
+                  <AIInteractionColumn
+                    messages={messages as any}
+                    inputValue={inputValue}
+                    onInputChange={setInputValue}
+                    onSendMessage={handleSendMessage}
+                    onVoiceTranscription={handleVoiceTranscription}
+                    onSaveChat={handleSaveChat}
+                    onSaveAndClear={() => setShowSaveDialog(true)}
+                    onClearChat={() => setShowClearConfirm(true)}
+                    isLoading={isLoading}
+                    attachedMaterialIds={attachedMaterialIds}
+                    onAttachedMaterialsChange={setAttachedMaterialIds}
+                    studyMaterials={studyMaterials}
+                    orgId={orgId}
+                    conversationDocumentContext={conversationDocumentContext}
+                    onConversationDocumentContextChange={setConversationDocumentContext}
+                    selectedCourseSlug={selectedCourseSlug}
+                    onCourseChange={setSelectedCourseSlug}
+                  />
+                )}
               </div>
             </TabsContent>
 
