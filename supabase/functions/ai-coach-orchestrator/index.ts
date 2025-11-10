@@ -3964,51 +3964,49 @@ Keep it brief (2-3 sentences total). Make the transition feel natural.`;
                     
                     // Generate TTS for Betty's handoff if enabled
                     let bettyHandoffAudioUrl: string | undefined;
-                    if (ttsEnabled) {
-                      console.log('[CONDUCTOR] 🎙️ Generating TTS for Betty handoff...');
-                      try {
-                        const ttsResponse = await fetch(
-                          `https://texttospeech.googleapis.com/v1/text:synthesize?key=${GOOGLE_TTS_API_KEY}`,
-                          {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                              input: { text: bettyHandoffText },
-                              voice: { 
-                                languageCode: 'en-US',
-                                name: 'en-US-Wavenet-F'
-                              },
-                              audioConfig: { audioEncoding: 'MP3' }
-                            }),
-                          }
-                        );
-
-                        if (ttsResponse.ok) {
-                          const ttsData = await ttsResponse.json();
-                          const audioContent = ttsData.audioContent;
-                          
-                          // Upload to storage
-                          const audioFileName = `betty-handoff-${conversationUuid}-${Date.now()}.mp3`;
-                          const audioBuffer = Uint8Array.from(atob(audioContent), c => c.charCodeAt(0));
-                          
-                          const { data: uploadData, error: uploadError } = await supabaseClient.storage
-                            .from('phoenix-audio')
-                            .upload(audioFileName, audioBuffer, {
-                              contentType: 'audio/mpeg',
-                              upsert: false
-                            });
-
-                          if (!uploadError && uploadData) {
-                            const { data: { publicUrl } } = supabaseClient.storage
-                              .from('phoenix-audio')
-                              .getPublicUrl(audioFileName);
-                            bettyHandoffAudioUrl = publicUrl;
-                            console.log('[CONDUCTOR] ✅ Betty handoff audio uploaded');
-                          }
+                    console.log('[CONDUCTOR] 🎙️ Generating TTS for Betty handoff...');
+                    try {
+                      const ttsResponse = await fetch(
+                        `https://texttospeech.googleapis.com/v1/text:synthesize?key=${GOOGLE_TTS_API_KEY}`,
+                        {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            input: { text: bettyHandoffText },
+                            voice: { 
+                              languageCode: 'en-US',
+                              name: 'en-US-Wavenet-F'
+                            },
+                            audioConfig: { audioEncoding: 'MP3' }
+                          }),
                         }
-                      } catch (ttsError) {
-                        console.error('[CONDUCTOR] ⚠️ Betty handoff TTS failed (non-blocking):', ttsError);
+                      );
+
+                      if (ttsResponse.ok) {
+                        const ttsData = await ttsResponse.json();
+                        const audioContent = ttsData.audioContent;
+                        
+                        // Upload to storage
+                        const audioFileName = `betty-handoff-${conversationUuid}-${Date.now()}.mp3`;
+                        const audioBuffer = Uint8Array.from(atob(audioContent), c => c.charCodeAt(0));
+                        
+                        const { data: uploadData, error: uploadError } = await supabaseClient.storage
+                          .from('phoenix-audio')
+                          .upload(audioFileName, audioBuffer, {
+                            contentType: 'audio/mpeg',
+                            upsert: false
+                          });
+
+                        if (!uploadError && uploadData) {
+                          const { data: { publicUrl } } = supabaseClient.storage
+                            .from('phoenix-audio')
+                            .getPublicUrl(audioFileName);
+                          bettyHandoffAudioUrl = publicUrl;
+                          console.log('[CONDUCTOR] ✅ Betty handoff audio uploaded');
+                        }
                       }
+                    } catch (ttsError) {
+                      console.error('[CONDUCTOR] ⚠️ Betty handoff TTS failed (non-blocking):', ttsError);
                     }
                     
                     // Send Betty's handoff as a new message event
