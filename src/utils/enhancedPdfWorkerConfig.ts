@@ -16,13 +16,11 @@ class PDFWorkerManager {
     retryCount: 0
   };
 
-  private readonly PDFJS_VERSION = '4.8.69';
   private readonly MAX_RETRIES = 3;
   private readonly WORKER_URLS = [
-    `https://cdn.jsdelivr.net/npm/pdfjs-dist@${this.PDFJS_VERSION}/build/pdf.worker.min.js`,
-    `https://unpkg.com/pdfjs-dist@${this.PDFJS_VERSION}/build/pdf.worker.min.js`,
-    `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${this.PDFJS_VERSION}/pdf.worker.min.js`,
-    // Fallback to bundled worker if CDNs fail
+    `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`,
+    `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`,
+    'https://mozilla.github.io/pdf.js/build/pdf.worker.min.js',
     '/pdf.worker.min.js'
   ];
 

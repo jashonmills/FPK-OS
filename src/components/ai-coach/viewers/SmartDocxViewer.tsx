@@ -11,46 +11,49 @@ export const SmartDocxViewer: React.FC<SmartDocxViewerProps> = ({ fileUrl }) => 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isActuallyJSON, setIsActuallyJSON] = useState(false);
+  const [jsonUrl, setJsonUrl] = useState<string | null>(null);
   
   useEffect(() => {
     const loadDocx = async () => {
       try {
         setIsLoading(true);
         
-        // Fetch the file once and convert to ArrayBuffer immediately
+        // Fetch and parse DOCX first
         const response = await fetch(fileUrl);
         const arrayBuffer = await response.arrayBuffer();
+        const mammoth = await import('mammoth');
         
-        console.log('[SmartDocxViewer] File loaded, checking content type');
+        // Extract TEXT (not HTML) to check for JSON
+        const textResult = await mammoth.extractRawText({ arrayBuffer });
+        const textContent = textResult.value.trim();
         
-        // Convert ArrayBuffer to text for JSON detection (doesn't consume it!)
-        const decoder = new TextDecoder('utf-8');
-        const textContent = decoder.decode(arrayBuffer);
-        const trimmedContent = textContent.trim();
+        console.log('[SmartDocxViewer] Extracted text, first 200 chars:', textContent.substring(0, 200));
         
-        console.log('[SmartDocxViewer] First 100 chars:', trimmedContent.substring(0, 100));
-        
-        // Check if content is actually JSON
-        if ((trimmedContent.startsWith('{') || trimmedContent.startsWith('[')) && 
-            (trimmedContent.endsWith('}') || trimmedContent.endsWith(']'))) {
+        // Check if extracted text is valid JSON
+        if ((textContent.startsWith('{') || textContent.startsWith('[')) && 
+            (textContent.endsWith('}') || textContent.endsWith(']'))) {
           try {
-            JSON.parse(trimmedContent);
+            JSON.parse(textContent);
             console.log('[SmartDocxViewer] Content is valid JSON, delegating to JSONViewer');
+            
+            // Create a blob URL with the JSON text for JSONViewer
+            const jsonBlob = new Blob([textContent], { type: 'application/json' });
+            const blobUrl = URL.createObjectURL(jsonBlob);
+            setJsonUrl(blobUrl);
             setIsActuallyJSON(true);
             setIsLoading(false);
             return;
-          } catch {
-            console.log('[SmartDocxViewer] Looks like JSON but invalid, continuing with DOCX parsing');
+          } catch (e) {
+            console.log('[SmartDocxViewer] Not valid JSON, rendering as DOCX');
           }
         }
         
-        // If not JSON, proceed with DOCX parsing using the SAME arrayBuffer
-        const mammoth = await import('mammoth');
-        const result = await mammoth.convertToHtml({ arrayBuffer });
-        setHtmlContent(result.value);
+        // If not JSON, convert to HTML for display
+        const htmlResult = await mammoth.convertToHtml({ arrayBuffer });
+        setHtmlContent(htmlResult.value);
         
-        if (result.messages.length > 0) {
-          console.warn('DOCX conversion warnings:', result.messages);
+        if (htmlResult.messages.length > 0) {
+          console.warn('DOCX conversion warnings:', htmlResult.messages);
         }
       } catch (err) {
         console.error('Error loading DOCX:', err);
@@ -61,11 +64,18 @@ export const SmartDocxViewer: React.FC<SmartDocxViewerProps> = ({ fileUrl }) => 
     };
     
     loadDocx();
-  }, [fileUrl]);
+    
+    // Cleanup blob URL on unmount
+    return () => {
+      if (jsonUrl) {
+        URL.revokeObjectURL(jsonUrl);
+      }
+    };
+  }, [fileUrl, jsonUrl]);
   
-  // If content is actually JSON, render JSONViewer
-  if (isActuallyJSON) {
-    return <JSONViewer fileUrl={fileUrl} />;
+  // If content is actually JSON, render JSONViewer with the blob URL
+  if (isActuallyJSON && jsonUrl) {
+    return <JSONViewer fileUrl={jsonUrl} />;
   }
   
   if (isLoading) {
