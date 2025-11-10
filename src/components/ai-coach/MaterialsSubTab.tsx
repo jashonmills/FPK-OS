@@ -1,8 +1,18 @@
 import React, { useState, useMemo } from 'react';
-import { BookOpen, Upload as UploadIcon, Trash2, Paperclip, Search, Sparkles, Check } from 'lucide-react';
+import { BookOpen, Upload as UploadIcon, Trash2, Paperclip, Search, Sparkles, Check, MoreVertical, FolderOpen, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu';
 import { FolderManager } from './FolderManager';
 import { SmartUploadModal } from './SmartUploadModal';
 import { useAICoachStudyMaterials } from '@/hooks/useAICoachStudyMaterials';
@@ -18,7 +28,7 @@ interface MaterialsSubTabProps {
 
 export function MaterialsSubTab({ orgId, onStartStudying, attachedMaterialIds = [], onAttachToChat }: MaterialsSubTabProps) {
   const { studyMaterials, isLoadingMaterials, uploadMaterial, deleteMaterial, assignToFolder } = useAICoachStudyMaterials(orgId);
-  const { refetchFolders } = useAICoachFolders('study_material', orgId);
+  const { folders, refetchFolders } = useAICoachFolders('study_material', orgId);
   const { toast } = useToast();
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
@@ -238,16 +248,77 @@ export function MaterialsSubTab({ orgId, onStartStudying, attachedMaterialIds = 
                         )}
                       </div>
                     </div>
-                    <button
-                      onClick={async () => {
-                        await deleteMaterial(material.id, material.file_url);
-                        await refetchFolders();
-                      }}
-                      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-red-100 rounded"
-                      title="Delete material"
-                    >
-                      <Trash2 className="w-4 h-4 text-red-600" />
-                    </button>
+                    
+                    {/* Three-dot dropdown menu */}
+                    <div className="absolute top-2 right-2">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0 hover:bg-purple-100"
+                          >
+                            <MoreVertical className="w-4 h-4 text-gray-600" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48">
+                          <DropdownMenuSub>
+                            <DropdownMenuSubTrigger>
+                              <FolderOpen className="w-4 h-4 mr-2" />
+                              Move to Folder
+                            </DropdownMenuSubTrigger>
+                            <DropdownMenuSubContent>
+                              {folders.length === 0 ? (
+                                <div className="px-2 py-1.5 text-sm text-gray-500 italic">
+                                  No folders yet
+                                </div>
+                              ) : (
+                                folders.map((folder) => (
+                                  <DropdownMenuItem
+                                    key={folder.id}
+                                    onClick={async () => {
+                                      const success = await assignToFolder(material.id, folder.id, folder.name);
+                                      if (success) {
+                                        await refetchFolders();
+                                      }
+                                    }}
+                                  >
+                                    {folder.name}
+                                  </DropdownMenuItem>
+                                ))
+                              )}
+                            </DropdownMenuSubContent>
+                          </DropdownMenuSub>
+                          
+                          {material.folder_id && (
+                            <DropdownMenuItem
+                              onClick={async () => {
+                                const success = await assignToFolder(material.id, null);
+                                if (success) {
+                                  await refetchFolders();
+                                }
+                              }}
+                            >
+                              <X className="w-4 h-4 mr-2" />
+                              Remove from Folder
+                            </DropdownMenuItem>
+                          )}
+                          
+                          <DropdownMenuSeparator />
+                          
+                          <DropdownMenuItem
+                            onClick={async () => {
+                              await deleteMaterial(material.id, material.file_url);
+                              await refetchFolders();
+                            }}
+                            className="text-red-600 focus:text-red-600"
+                          >
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            Delete Material
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </div>
                 );
               })

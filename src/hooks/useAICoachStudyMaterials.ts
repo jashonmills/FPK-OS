@@ -198,16 +198,29 @@ export function useAICoachStudyMaterials(orgId?: string) {
         .eq('id', materialId)
         .eq('user_id', user.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error assigning material to folder:', error);
+        
+        // Check for specific error types
+        if (error.code === '42501' || error.message?.toLowerCase().includes('permission')) {
+          toast.error('Permission denied. Please refresh the page and try again.');
+        } else if (error.message?.toLowerCase().includes('policy')) {
+          toast.error('Unable to update material. Please contact support.');
+        } else {
+          toast.error(`Failed to organize material: ${error.message}`);
+        }
+        
+        return false;
+      }
 
       toast.success(
         folderId 
-          ? `Material moved to ${folderName || 'folder'}` 
+          ? `Material moved to "${folderName || 'folder'}"` 
           : 'Material removed from folder'
       );
       await fetchStudyMaterials();
       return true;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error assigning material to folder:', error);
       toast.error('Failed to organize material');
       return false;
