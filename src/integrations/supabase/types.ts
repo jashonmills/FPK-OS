@@ -151,26 +151,47 @@ export type Database = {
       ai_coach_conversations: {
         Row: {
           created_at: string
+          folder_id: string | null
           id: string
+          org_id: string | null
           title: string
           updated_at: string
           user_id: string
         }
         Insert: {
           created_at?: string
+          folder_id?: string | null
           id?: string
+          org_id?: string | null
           title?: string
           updated_at?: string
           user_id: string
         }
         Update: {
           created_at?: string
+          folder_id?: string | null
           id?: string
+          org_id?: string | null
           title?: string
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "ai_coach_conversations_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "folders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_coach_conversations_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       ai_coach_messages: {
         Row: {
@@ -213,6 +234,7 @@ export type Database = {
           file_size: number | null
           file_type: string | null
           file_url: string
+          folder_id: string | null
           id: string
           title: string
           user_id: string
@@ -222,6 +244,7 @@ export type Database = {
           file_size?: number | null
           file_type?: string | null
           file_url: string
+          folder_id?: string | null
           id?: string
           title: string
           user_id: string
@@ -231,11 +254,20 @@ export type Database = {
           file_size?: number | null
           file_type?: string | null
           file_url?: string
+          folder_id?: string | null
           id?: string
           title?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "ai_coach_study_materials_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "folders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       ai_coach_study_plans: {
         Row: {
@@ -3115,6 +3147,44 @@ export type Database = {
             columns: ["note_id"]
             isOneToOne: false
             referencedRelation: "notes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      folders: {
+        Row: {
+          created_at: string
+          folder_type: string
+          id: string
+          name: string
+          org_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          folder_type: string
+          id?: string
+          name: string
+          org_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          folder_type?: string
+          id?: string
+          name?: string
+          org_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "folders_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]

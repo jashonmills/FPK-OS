@@ -1,6 +1,11 @@
 import { AICoachCommandCenter } from '@/components/AICoachCommandCenter';
+import { useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 const AICoach = () => {
+  const [searchParams] = useSearchParams();
+  const initialTab = searchParams.get('tab') || 'chat';
+
   return (
     <div 
       className="min-h-screen"
@@ -11,7 +16,7 @@ const AICoach = () => {
         backgroundAttachment: 'fixed'
       }}
     >
-      <AICoachCommandCenter />
+      <AICoachCommandCenter initialTab={initialTab} />
     </div>
   );
 };

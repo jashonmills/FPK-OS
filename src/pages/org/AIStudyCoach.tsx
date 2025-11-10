@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Lightbulb, BookOpen, Target, Clock, Brain } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -10,6 +10,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { AICoachCommandCenter } from '@/components/AICoachCommandCenter';
 import { AdminAIAssistant } from '@/components/admin/AdminAIAssistant';
 import { supabase } from '@/integrations/supabase/client';
+import { useSearchParams } from 'react-router-dom';
 
 interface StudyTip {
   id: string;
@@ -63,6 +64,8 @@ export default function AIStudyCoach() {
   const isMobile = useIsMobile();
   const { isOrgOwner, isOrgInstructor } = useOrgPermissions();
   const [isFreeChatAllowed, setIsFreeChatAllowed] = React.useState(true);
+  const [searchParams] = useSearchParams();
+  const initialTab = searchParams.get('tab') || 'chat';
 
   // Check if user is admin (owner or instructor)
   const isAdmin = isOrgOwner() || isOrgInstructor();
@@ -110,6 +113,7 @@ export default function AIStudyCoach() {
             isFreeChatAllowed={isFreeChatAllowed}
             orgId={currentOrg?.organization_id}
             orgName={currentOrg?.organizations?.name}
+            initialTab={initialTab}
           />
         )}
       </div>

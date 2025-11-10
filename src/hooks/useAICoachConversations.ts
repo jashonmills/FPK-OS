@@ -205,6 +205,28 @@ export function useAICoachConversations(orgId?: string) {
     fetchConversations();
   }, [user?.id, orgId]);
 
+  const assignToFolder = async (conversationId: string, folderId: string | null): Promise<boolean> => {
+    if (!user?.id) return false;
+
+    try {
+      const { error } = await supabase
+        .from('ai_coach_conversations')
+        .update({ folder_id: folderId })
+        .eq('id', conversationId)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      toast.success(folderId ? 'Chat moved to folder' : 'Chat removed from folder');
+      await fetchConversations();
+      return true;
+    } catch (error) {
+      console.error('Error assigning conversation to folder:', error);
+      toast.error('Failed to organize chat');
+      return false;
+    }
+  };
+
   return {
     conversations,
     isLoadingConversations,
@@ -212,6 +234,7 @@ export function useAICoachConversations(orgId?: string) {
     saveConversation,
     updateConversationTitle,
     deleteConversation,
+    assignToFolder,
     refetchConversations: fetchConversations
   };
 }

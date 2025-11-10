@@ -147,11 +147,34 @@ export function useAICoachStudyMaterials(orgId?: string) {
     fetchStudyMaterials();
   }, [user?.id, orgId]);
 
+  const assignToFolder = async (materialId: string, folderId: string | null): Promise<boolean> => {
+    if (!user?.id) return false;
+
+    try {
+      const { error } = await supabase
+        .from('ai_coach_study_materials')
+        .update({ folder_id: folderId })
+        .eq('id', materialId)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      toast.success(folderId ? 'Material moved to folder' : 'Material removed from folder');
+      await fetchStudyMaterials();
+      return true;
+    } catch (error) {
+      console.error('Error assigning material to folder:', error);
+      toast.error('Failed to organize material');
+      return false;
+    }
+  };
+
   return {
     studyMaterials,
     isLoadingMaterials,
     uploadMaterial,
     deleteMaterial,
+    assignToFolder,
     refetchMaterials: fetchStudyMaterials
   };
 }

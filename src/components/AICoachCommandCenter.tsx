@@ -25,6 +25,9 @@ import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import { useVoiceSettings } from '@/contexts/VoiceSettingsContext';
 import { SaveBeforeClearDialog } from '@/components/ai-coach/SaveBeforeClearDialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { MaterialsSubTab } from '@/components/ai-coach/MaterialsSubTab';
+import { SavedChatsSubTab } from '@/components/ai-coach/SavedChatsSubTab';
+import { AttachContextButton } from '@/components/ai-coach/AttachContextButton';
 
 // Left Column: Context & History
 const ContextHistoryColumn: React.FC<{
@@ -298,7 +301,7 @@ const InsightsAnalyticsColumn: React.FC<{
   );
 };
 
-// Center Column: AI Interaction
+// AI Interaction Column
 const AIInteractionColumn: React.FC<{
   messages: CommandCenterMessage[];
   inputValue: string;
@@ -309,7 +312,10 @@ const AIInteractionColumn: React.FC<{
   onSaveAndClear: () => void;
   onClearChat: () => void;
   isLoading: boolean;
-}> = ({ messages, inputValue, onInputChange, onSendMessage, onVoiceTranscription, onSaveChat, onSaveAndClear, onClearChat, isLoading }) => {
+  attachedMaterialIds: string[];
+  onAttachedMaterialsChange: (ids: string[]) => void;
+  orgId?: string;
+}> = ({ messages, inputValue, onInputChange, onSendMessage, onVoiceTranscription, onSaveChat, onSaveAndClear, onClearChat, isLoading, attachedMaterialIds, onAttachedMaterialsChange, orgId }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const lastMessageRef = useRef<string | null>(null);
@@ -477,6 +483,11 @@ const AIInteractionColumn: React.FC<{
       {/* Input Area */}
       <div className="border-t pt-4 flex-shrink-0">
         <div className="flex gap-2">
+          <AttachContextButton
+            orgId={orgId}
+            selectedMaterialIds={attachedMaterialIds}
+            onMaterialsChange={onAttachedMaterialsChange}
+          />
           <textarea
             value={inputValue}
             onChange={(e) => onInputChange(e.target.value)}
@@ -511,12 +522,14 @@ interface AICoachCommandCenterProps {
   isFreeChatAllowed?: boolean;
   orgId?: string;
   orgName?: string;
+  initialTab?: string;
 }
 
 export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({ 
   isFreeChatAllowed = true,
   orgId,
-  orgName 
+  orgName,
+  initialTab = 'chat'
 }) => {
   const { user } = useAuth();
   const { identity } = useUserIdentity();
@@ -546,7 +559,8 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
   const [inputValue, setInputValue] = useState('');
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
-  const [activeTab, setActiveTab] = useState('chat');
+  const [activeTab, setActiveTab] = useState(initialTab);
+  const [attachedMaterialIds, setAttachedMaterialIds] = useState<string[]>([]);
 
   // Live data hooks - replacing all placeholder data
   const { studyMaterials, isLoadingMaterials, uploadMaterial } = useAICoachStudyMaterials();
@@ -675,6 +689,12 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
     toast.info('Chat cleared');
   };
 
+  const handleStartStudyingDocument = (documentTitle: string) => {
+    setActiveTab('chat');
+    const prompt = `Let's study the document I just uploaded: "${documentTitle}". Can you help me understand the key concepts?`;
+    setInputValue(prompt);
+  };
+
   const handleLoadChat = async (chatId: string) => {
     try {
       toast.loading('Loading conversation...', { id: 'load-chat' });
@@ -752,15 +772,26 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
             </TabsList>
 
             <TabsContent value="materials" className="flex-1 overflow-auto mt-0 p-2 sm:p-3 md:p-4 lg:p-6">
-              <ContextHistoryColumn
-                studyMaterials={studyMaterials}
-                savedChats={conversations}
-                onLoadChat={handleLoadChat}
-                onDeleteChat={handleDeleteChat}
-                onUploadMaterial={uploadMaterial}
-                isLoadingMaterials={isLoadingMaterials}
-                isLoadingChats={isLoadingConversations}
-              />
+              <Tabs defaultValue="study-materials" className="h-full">
+                <TabsList className="mb-4">
+                  <TabsTrigger value="study-materials">Study Materials</TabsTrigger>
+                  <TabsTrigger value="saved-chats">Saved Chats</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="study-materials" className="h-full">
+                  <MaterialsSubTab
+                    orgId={orgId}
+                    onStartStudying={handleStartStudyingDocument}
+                  />
+                </TabsContent>
+
+                <TabsContent value="saved-chats" className="h-full">
+                  <SavedChatsSubTab
+                    orgId={orgId}
+                    onLoadChat={handleLoadChat}
+                  />
+                </TabsContent>
+              </Tabs>
             </TabsContent>
 
             <TabsContent value="chat" className="flex-1 overflow-hidden mt-0">
@@ -775,6 +806,9 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
                   onSaveAndClear={() => setShowSaveDialog(true)}
                   onClearChat={() => setShowClearConfirm(true)}
                   isLoading={isLoading}
+                  attachedMaterialIds={attachedMaterialIds}
+                  onAttachedMaterialsChange={setAttachedMaterialIds}
+                  orgId={orgId}
                 />
               </div>
             </TabsContent>
