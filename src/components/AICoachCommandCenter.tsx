@@ -500,22 +500,27 @@ const AIInteractionColumn: React.FC<{
 
       {/* Input Area */}
       <div className="border-t pt-4 flex-shrink-0">
-        {/* Persistent Document Context Indicator */}
+        {/* PHASE 3: Enhanced Persistent Document Context Indicator with Debug Info */}
         {conversationDocumentContext.length > 0 && (
           <div className="mb-3 p-3 bg-purple-50 border-2 border-purple-300 rounded-lg">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <BookOpen className="w-4 h-4 text-purple-700" />
-                <span className="text-sm font-medium text-purple-900">
-                  📚 Studying: {studyMaterials.find(m => m.id === conversationDocumentContext[0])?.title || 'Document'}
-                </span>
+              <div className="flex items-center gap-2 flex-1 min-w-0">
+                <BookOpen className="w-4 h-4 text-purple-700 flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <span className="text-sm font-medium text-purple-900 block">
+                    📚 Studying: {studyMaterials.find(m => m.id === conversationDocumentContext[0])?.title || 'Document'}
+                  </span>
+                  <span className="text-xs text-purple-500 block mt-1 font-mono truncate">
+                    Context ID: {conversationDocumentContext[0]?.substring(0, 12)}...
+                  </span>
+                </div>
               </div>
               <button
                 onClick={() => {
                   onConversationDocumentContextChange([]);
                   toast.info('Study session ended');
                 }}
-                className="px-3 py-1 text-xs text-purple-700 hover:text-purple-900 hover:bg-purple-100 rounded-md transition-colors font-medium"
+                className="px-3 py-1 text-xs text-purple-700 hover:text-purple-900 hover:bg-purple-100 rounded-md transition-colors font-medium flex-shrink-0 ml-2"
               >
                 End Study Session
               </button>
@@ -661,7 +666,49 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [activeTab, setActiveTab] = useState(initialTab);
   const [attachedMaterialIds, setAttachedMaterialIds] = useState<string[]>([]);
-  const [conversationDocumentContext, setConversationDocumentContext] = useState<string[]>([]); // Persistent document context for study sessions
+  
+  // PHASE 2: Persistent document context with localStorage backup
+  const [conversationDocumentContextState, setConversationDocumentContextState] = useState<string[]>(() => {
+    // Load from localStorage on mount
+    try {
+      const stored = localStorage.getItem('activeStudySession');
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  // Wrapper to also persist to localStorage
+  const setConversationDocumentContext = (value: string[] | ((prev: string[]) => string[])) => {
+    const newValue = typeof value === 'function' ? value(conversationDocumentContextState) : value;
+    setConversationDocumentContextState(newValue);
+    if (newValue.length > 0) {
+      localStorage.setItem('activeStudySession', JSON.stringify(newValue));
+      console.log('[🔍 STORAGE] Saved to localStorage:', newValue);
+    } else {
+      localStorage.removeItem('activeStudySession');
+      console.log('[🔍 STORAGE] Cleared localStorage');
+    }
+  };
+  
+  const conversationDocumentContext = conversationDocumentContextState;
+  
+  // PHASE 1: Lifecycle logging for debugging
+  useEffect(() => {
+    console.log('[🔍 STATE DEBUG] conversationDocumentContext changed:', {
+      context: conversationDocumentContext,
+      length: conversationDocumentContext.length,
+      firstId: conversationDocumentContext[0] || 'NONE',
+      timestamp: new Date().toISOString()
+    });
+  }, [conversationDocumentContext]);
+
+  useEffect(() => {
+    console.log('[🔍 MOUNT DEBUG] AICoachCommandCenter mounted');
+    return () => {
+      console.log('[🔍 UNMOUNT DEBUG] AICoachCommandCenter unmounting');
+    };
+  }, []);
 
   // Live data hooks - replacing all placeholder data
   const { studyMaterials, isLoadingMaterials, uploadMaterial } = useAICoachStudyMaterials();
@@ -714,6 +761,7 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
     const messageAttachments = materialIdsOverride || attachedMaterialIds;
     const allAttachments = [...new Set([...conversationDocumentContext, ...messageAttachments])];
     
+    // PHASE 4: Enhanced logging in handleSendMessage
     console.log('[AI COMMAND CENTER] 🚀 handleSendMessage called', { 
       hasInput: !!currentInput.trim(), 
       isLoading, 
@@ -721,8 +769,13 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
       userId: user?.id,
       messagePreview: currentInput.substring(0, 50) + '...',
       messageAttachments,
-      conversationContext: conversationDocumentContext,
-      mergedAttachments: allAttachments
+      messageAttachmentsLength: messageAttachments.length,
+      conversationContext: conversationDocumentContext, // Show exact array
+      conversationContextLength: conversationDocumentContext.length, // Show count
+      conversationContextFirstId: conversationDocumentContext[0] || 'NONE', // Show first ID
+      mergedAttachments: allAttachments,
+      mergedLength: allAttachments.length,
+      localStorageBackup: localStorage.getItem('activeStudySession')
     });
     
     if (!currentInput.trim() || !user) {
@@ -813,6 +866,14 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
     // Set BOTH message attachment AND conversation context for persistent study session
     setAttachedMaterialIds([materialId]);
     setConversationDocumentContext([materialId]); // Persists until user ends study session
+    
+    // PHASE 5: Add safeguard with localStorage backup
+    localStorage.setItem('activeStudySession', JSON.stringify([materialId]));
+    console.log('[AICoachCommandCenter] 📌 Set conversation context:', { 
+      materialId, 
+      contextArray: [materialId],
+      localStorage: localStorage.getItem('activeStudySession')
+    });
     
     const prompt = `Let's study the document I just uploaded: "${documentTitle}". Can you help me understand the key concepts?`;
     console.log('[AICoachCommandCenter] Sending message with persistent document context');
