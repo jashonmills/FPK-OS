@@ -236,6 +236,7 @@ export type Database = {
           file_url: string
           folder_id: string | null
           id: string
+          org_id: string | null
           title: string
           user_id: string
         }
@@ -246,6 +247,7 @@ export type Database = {
           file_url: string
           folder_id?: string | null
           id?: string
+          org_id?: string | null
           title: string
           user_id: string
         }
@@ -256,6 +258,7 @@ export type Database = {
           file_url?: string
           folder_id?: string | null
           id?: string
+          org_id?: string | null
           title?: string
           user_id?: string
         }
@@ -265,6 +268,13 @@ export type Database = {
             columns: ["folder_id"]
             isOneToOne: false
             referencedRelation: "folders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_coach_study_materials_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]
