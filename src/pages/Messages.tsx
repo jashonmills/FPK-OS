@@ -4,7 +4,7 @@ import { ChatWindow } from "@/components/messaging/ChatWindow";
 import { NewConversationDialog } from "@/components/messaging/NewConversationDialog";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, ArrowLeft } from "lucide-react";
+import { Menu, ArrowLeft, Settings } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 
@@ -33,7 +33,15 @@ const Messages = () => {
         >
           <ArrowLeft className="w-5 h-5" />
         </Button>
-        <h1 className="text-2xl font-bold">Messages</h1>
+        <h1 className="text-2xl font-bold flex-1">Messages</h1>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => navigate('/settings/captions')}
+          title="Caption Settings"
+        >
+          <Settings className="w-5 h-5" />
+        </Button>
       </header>
 
       <div className="flex-1 flex overflow-hidden">

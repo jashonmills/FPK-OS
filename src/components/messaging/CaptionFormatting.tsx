@@ -4,7 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Bold, Italic, Sparkles } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CAPTION_TEMPLATES } from "@/hooks/useCaptionPreferences";
+import { useCaptionPreferences } from "@/hooks/useCaptionPreferences";
 
 export interface CaptionStyle {
   fontFamily?: string;
@@ -44,6 +44,8 @@ const COLORS = [
 ];
 
 export const CaptionFormatting = ({ style, onStyleChange, showTemplates = false }: CaptionFormattingProps) => {
+  const { allTemplates } = useCaptionPreferences();
+  
   return (
     <div className="flex flex-col gap-3 p-3 border rounded-lg bg-muted/30">
       <Label className="text-xs font-semibold">Caption Formatting</Label>
@@ -54,7 +56,7 @@ export const CaptionFormatting = ({ style, onStyleChange, showTemplates = false 
           <Select
             value=""
             onValueChange={(templateId) => {
-              const template = CAPTION_TEMPLATES.find(t => t.id === templateId);
+              const template = allTemplates.find(t => t.id === templateId);
               if (template) onStyleChange(template.style);
             }}
           >
@@ -62,7 +64,7 @@ export const CaptionFormatting = ({ style, onStyleChange, showTemplates = false 
               <SelectValue placeholder="Apply template..." />
             </SelectTrigger>
             <SelectContent>
-              {CAPTION_TEMPLATES.map((template) => (
+              {allTemplates.map((template) => (
                 <SelectItem key={template.id} value={template.id} className="text-xs">
                   {template.name}
                 </SelectItem>

@@ -77,6 +77,7 @@ export const CAPTION_TEMPLATES: CaptionTemplate[] = [
 ];
 
 const STORAGE_KEY = 'caption-default-style';
+const CUSTOM_TEMPLATES_KEY = 'caption-custom-templates';
 
 export const useCaptionPreferences = () => {
   const [defaultStyle, setDefaultStyle] = useState<CaptionStyle>(() => {
@@ -88,6 +89,15 @@ export const useCaptionPreferences = () => {
     }
   });
 
+  const [customTemplates, setCustomTemplates] = useState<CaptionTemplate[]>(() => {
+    try {
+      const stored = localStorage.getItem(CUSTOM_TEMPLATES_KEY);
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
+
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultStyle));
@@ -96,17 +106,60 @@ export const useCaptionPreferences = () => {
     }
   }, [defaultStyle]);
 
+  useEffect(() => {
+    try {
+      localStorage.setItem(CUSTOM_TEMPLATES_KEY, JSON.stringify(customTemplates));
+    } catch (error) {
+      console.error('Failed to save custom templates:', error);
+    }
+  }, [customTemplates]);
+
   const applyTemplate = (templateId: string) => {
-    const template = CAPTION_TEMPLATES.find(t => t.id === templateId);
-    if (template) {
-      setDefaultStyle(template.style);
+    // Check built-in templates first
+    const builtInTemplate = CAPTION_TEMPLATES.find(t => t.id === templateId);
+    if (builtInTemplate) {
+      setDefaultStyle(builtInTemplate.style);
+      return;
+    }
+    
+    // Check custom templates
+    const customTemplate = customTemplates.find(t => t.id === templateId);
+    if (customTemplate) {
+      setDefaultStyle(customTemplate.style);
     }
   };
+
+  const addCustomTemplate = (name: string, style: CaptionStyle): boolean => {
+    // Check if name already exists
+    const exists = customTemplates.some(t => t.name.toLowerCase() === name.toLowerCase());
+    if (exists) {
+      return false;
+    }
+
+    const newTemplate: CaptionTemplate = {
+      id: `custom-${Date.now()}`,
+      name,
+      style,
+    };
+
+    setCustomTemplates(prev => [...prev, newTemplate]);
+    return true;
+  };
+
+  const removeCustomTemplate = (templateId: string) => {
+    setCustomTemplates(prev => prev.filter(t => t.id !== templateId));
+  };
+
+  const allTemplates = [...CAPTION_TEMPLATES, ...customTemplates];
 
   return {
     defaultStyle,
     setDefaultStyle,
     applyTemplate,
     templates: CAPTION_TEMPLATES,
+    customTemplates,
+    addCustomTemplate,
+    removeCustomTemplate,
+    allTemplates,
   };
 };

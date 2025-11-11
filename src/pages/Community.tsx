@@ -208,6 +208,17 @@ const Community = () => {
                 Sign Out
               </Button>
               
+              {/* Caption Settings Button */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate('/settings/captions')}
+                className="w-full justify-start mt-1 text-muted-foreground"
+              >
+                <Settings className="h-4 w-4 mr-2" />
+                Caption Settings
+              </Button>
+              
               {/* Collapse Button */}
               <Button
                 variant="ghost"

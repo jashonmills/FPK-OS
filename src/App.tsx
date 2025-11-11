@@ -16,6 +16,7 @@ import Dashboard from "./pages/Dashboard";
 import Messages from "./pages/Messages";
 import Banned from "./pages/Banned";
 import MyAppeals from "./pages/MyAppeals";
+import CaptionSettings from "./pages/CaptionSettings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +41,7 @@ const App = () => (
                 <Route path="/admin" element={<AdminPanel />} />
                 <Route path="/banned" element={<Banned />} />
                 <Route path="/my-appeals" element={<MyAppeals />} />
+                <Route path="/settings/captions" element={<CaptionSettings />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
