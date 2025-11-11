@@ -1,8 +1,7 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Mic, MicOff, Loader2 } from "lucide-react";
+import { Mic, MicOff } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
 import {
   Tooltip,
   TooltipContent,
@@ -16,92 +15,101 @@ interface SpeechToTextButtonProps {
 }
 
 export const SpeechToTextButton = ({ onTranscript, disabled }: SpeechToTextButtonProps) => {
-  const [isRecording, setIsRecording] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioChunksRef = useRef<Blob[]>([]);
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef<any>(null);
+  const interimTranscriptRef = useRef<string>("");
 
-  const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: 'audio/webm',
-      });
-
-      mediaRecorderRef.current = mediaRecorder;
-      audioChunksRef.current = [];
-
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunksRef.current.push(event.data);
-        }
-      };
-
-      mediaRecorder.onstop = async () => {
-        stream.getTracks().forEach(track => track.stop());
-        await processRecording();
-      };
-
-      mediaRecorder.start();
-      setIsRecording(true);
-      toast.info("Recording started...");
-    } catch (error) {
-      console.error('Error accessing microphone:', error);
-      toast.error("Failed to access microphone");
-    }
-  };
-
-  const stopRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
-      setIsRecording(false);
-    }
-  };
-
-  const processRecording = async () => {
-    setIsProcessing(true);
+  useEffect(() => {
+    // Check if browser supports speech recognition
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     
-    try {
-      const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-      
-      // Convert blob to base64
-      const reader = new FileReader();
-      const base64Audio = await new Promise<string>((resolve, reject) => {
-        reader.onloadend = () => {
-          const base64 = (reader.result as string).split(',')[1];
-          resolve(base64);
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(audioBlob);
-      });
-
-      // Send to transcription edge function
-      const { data, error } = await supabase.functions.invoke('transcribe-audio', {
-        body: { audio: base64Audio }
-      });
-
-      if (error) throw error;
-
-      if (data?.text) {
-        onTranscript(data.text);
-        toast.success("Transcription complete!");
-      } else {
-        throw new Error('No transcription received');
-      }
-    } catch (error) {
-      console.error('Error processing audio:', error);
-      toast.error("Failed to transcribe audio");
-    } finally {
-      setIsProcessing(false);
-      audioChunksRef.current = [];
+    if (!SpeechRecognition) {
+      console.error('Speech recognition not supported in this browser');
+      return;
     }
-  };
 
-  const handleClick = () => {
-    if (isRecording) {
-      stopRecording();
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+
+    recognition.onstart = () => {
+      setIsListening(true);
+      interimTranscriptRef.current = "";
+      toast.info("Listening... Speak now", {
+        description: "Click the microphone again to stop",
+        duration: 2000,
+      });
+    };
+
+    recognition.onresult = (event: any) => {
+      let interimTranscript = '';
+      let finalTranscript = '';
+
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          finalTranscript += transcript + ' ';
+        } else {
+          interimTranscript += transcript;
+        }
+      }
+
+      if (finalTranscript) {
+        onTranscript(finalTranscript.trim());
+      }
+      
+      interimTranscriptRef.current = interimTranscript;
+    };
+
+    recognition.onerror = (event: any) => {
+      console.error('Speech recognition error:', event.error);
+      setIsListening(false);
+      
+      if (event.error === 'not-allowed') {
+        toast.error("Microphone access denied", {
+          description: "Please allow microphone access in your browser settings"
+        });
+      } else if (event.error === 'no-speech') {
+        toast.info("No speech detected", {
+          description: "Try speaking closer to your microphone"
+        });
+      } else {
+        toast.error("Speech recognition error", {
+          description: event.error
+        });
+      }
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+      if (interimTranscriptRef.current) {
+        onTranscript(interimTranscriptRef.current.trim());
+      }
+    };
+
+    recognitionRef.current = recognition;
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, [onTranscript]);
+
+  const toggleListening = () => {
+    if (!recognitionRef.current) {
+      toast.error("Speech recognition not supported", {
+        description: "Please use Chrome, Edge, or Safari browser"
+      });
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current.stop();
+      toast.success("Transcription complete!");
     } else {
-      startRecording();
+      recognitionRef.current.start();
     }
   };
 
@@ -110,26 +118,22 @@ export const SpeechToTextButton = ({ onTranscript, disabled }: SpeechToTextButto
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
-            onClick={handleClick}
-            variant="outline"
+            onClick={toggleListening}
+            variant={isListening ? "destructive" : "outline"}
             size="icon"
             className="h-[28px] w-[60px]"
-            disabled={disabled || isProcessing}
+            disabled={disabled}
           >
-            {isProcessing ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : isRecording ? (
-              <MicOff className="w-4 h-4 text-destructive" />
+            {isListening ? (
+              <MicOff className="w-4 h-4 animate-pulse" />
             ) : (
               <Mic className="w-4 h-4" />
             )}
           </Button>
         </TooltipTrigger>
         <TooltipContent>
-          {isProcessing ? (
-            <p>Processing...</p>
-          ) : isRecording ? (
-            <p>Click to stop recording</p>
+          {isListening ? (
+            <p>Click to stop listening</p>
           ) : (
             <p>Click to start voice input</p>
           )}
