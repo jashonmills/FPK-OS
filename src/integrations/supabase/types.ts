@@ -528,6 +528,10 @@ export type Database = {
           conversation_id: string
           created_at: string | null
           deleted_at: string | null
+          file_name: string | null
+          file_size: number | null
+          file_type: string | null
+          file_url: string | null
           id: string
           is_deleted: boolean
           is_edited: boolean | null
@@ -541,6 +545,10 @@ export type Database = {
           conversation_id: string
           created_at?: string | null
           deleted_at?: string | null
+          file_name?: string | null
+          file_size?: number | null
+          file_type?: string | null
+          file_url?: string | null
           id?: string
           is_deleted?: boolean
           is_edited?: boolean | null
@@ -554,6 +562,10 @@ export type Database = {
           conversation_id?: string
           created_at?: string | null
           deleted_at?: string | null
+          file_name?: string | null
+          file_size?: number | null
+          file_type?: string | null
+          file_url?: string | null
           id?: string
           is_deleted?: boolean
           is_edited?: boolean | null

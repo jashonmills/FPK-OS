@@ -2,11 +2,12 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Send } from "lucide-react";
+import { Send, Paperclip } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { ReplyPreview } from "./ReplyPreview";
+import { FileUpload } from "./FileUpload";
 
 interface MessageInputProps {
   conversationId: string;
@@ -22,6 +23,8 @@ interface MessageInputProps {
 export const MessageInput = ({ conversationId, onOptimisticMessage, replyingTo, onCancelReply }: MessageInputProps) => {
   const [content, setContent] = useState("");
   const [sending, setSending] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [showFileUpload, setShowFileUpload] = useState(false);
   const [currentPersona, setCurrentPersona] = useState<{ id: string; display_name: string; avatar_url: string | null } | null>(null);
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -119,10 +122,43 @@ export const MessageInput = ({ conversationId, onOptimisticMessage, replyingTo, 
   };
 
   const handleSend = async () => {
-    if (!content.trim() || sending || !currentPersona) return;
+    if ((!content.trim() && !selectedFile) || sending || !currentPersona) return;
 
     const messageContent = content.trim();
     setSending(true);
+
+    let fileUrl: string | null = null;
+    let fileName: string | null = null;
+    let fileType: string | null = null;
+    let fileSize: number | null = null;
+
+    // Upload file if present
+    if (selectedFile) {
+      try {
+        const fileExt = selectedFile.name.split('.').pop();
+        const filePath = `${user?.id}/${Date.now()}.${fileExt}`;
+
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('message-attachments')
+          .upload(filePath, selectedFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('message-attachments')
+          .getPublicUrl(filePath);
+
+        fileUrl = publicUrl;
+        fileName = selectedFile.name;
+        fileType = selectedFile.type;
+        fileSize = selectedFile.size;
+      } catch (error) {
+        console.error('Error uploading file:', error);
+        toast.error("Failed to upload file");
+        setSending(false);
+        return;
+      }
+    }
 
     // Optimistic update: create temporary message with full persona info
     const optimisticMessage = {
@@ -131,6 +167,10 @@ export const MessageInput = ({ conversationId, onOptimisticMessage, replyingTo, 
       sender_id: currentPersona.id,
       conversation_id: conversationId,
       created_at: new Date().toISOString(),
+      file_url: fileUrl,
+      file_name: fileName,
+      file_type: fileType,
+      file_size: fileSize,
       sender: {
         display_name: currentPersona.display_name,
         avatar_url: currentPersona.avatar_url,
@@ -142,8 +182,10 @@ export const MessageInput = ({ conversationId, onOptimisticMessage, replyingTo, 
       onOptimisticMessage(optimisticMessage);
     }
 
-    // Clear input immediately for better UX
+    // Clear input and file immediately for better UX
     setContent("");
+    setSelectedFile(null);
+    setShowFileUpload(false);
     
     // Stop typing indicator
     broadcastTyping(false);
@@ -157,6 +199,10 @@ export const MessageInput = ({ conversationId, onOptimisticMessage, replyingTo, 
           conversation_id: conversationId,
           content: messageContent,
           reply_to_message_id: replyingTo?.id || null,
+          file_url: fileUrl,
+          file_name: fileName,
+          file_type: fileType,
+          file_size: fileSize,
         },
       });
 
@@ -212,6 +258,13 @@ export const MessageInput = ({ conversationId, onOptimisticMessage, replyingTo, 
           onCancel={onCancelReply!}
         />
       )}
+      {showFileUpload && (
+        <FileUpload
+          onFileSelect={setSelectedFile}
+          selectedFile={selectedFile}
+          onClearFile={() => setSelectedFile(null)}
+        />
+      )}
       <div className="flex gap-2">
         <Textarea
           value={content}
@@ -221,14 +274,25 @@ export const MessageInput = ({ conversationId, onOptimisticMessage, replyingTo, 
           className="min-h-[60px] resize-none"
           disabled={sending}
         />
-        <Button
-          onClick={handleSend}
-          disabled={!content.trim() || sending}
-          size="icon"
-          className="h-[60px] w-[60px]"
-        >
-          <Send className="w-4 h-4" />
-        </Button>
+        <div className="flex flex-col gap-2">
+          <Button
+            onClick={() => setShowFileUpload(!showFileUpload)}
+            variant="outline"
+            size="icon"
+            className="h-[28px] w-[60px]"
+            disabled={sending}
+          >
+            <Paperclip className="w-4 h-4" />
+          </Button>
+          <Button
+            onClick={handleSend}
+            disabled={(!content.trim() && !selectedFile) || sending}
+            size="icon"
+            className="h-[28px] w-[60px]"
+          >
+            <Send className="w-4 h-4" />
+          </Button>
+        </div>
       </div>
     </div>
   );

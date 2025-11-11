@@ -121,10 +121,10 @@ serve(async (req) => {
 
     const personaId = persona.id;
 
-    const { conversation_id, content, reply_to_message_id } = await req.json();
-    console.log('Sending message:', { conversation_id, content_length: content?.length, user_id: user.id, has_reply: !!reply_to_message_id });
+    const { conversation_id, content, reply_to_message_id, file_url, file_name, file_type, file_size } = await req.json();
+    console.log('Sending message:', { conversation_id, content_length: content?.length, user_id: user.id, has_reply: !!reply_to_message_id, has_file: !!file_url });
 
-    if (!conversation_id || !content || content.trim() === '') {
+    if (!conversation_id || (!content && !file_url)) {
       console.error('Invalid input');
       return new Response(JSON.stringify({ error: 'Invalid input' }), {
         status: 400,
@@ -164,8 +164,12 @@ serve(async (req) => {
         .insert({
           conversation_id,
           sender_id: personaId,
-          content: content.trim(),
+          content: content?.trim() || null,
           reply_to_message_id: reply_to_message_id || null,
+          file_url: file_url || null,
+          file_name: file_name || null,
+          file_type: file_type || null,
+          file_size: file_size || null,
         })
         .select()
         .single();
@@ -176,7 +180,7 @@ serve(async (req) => {
       }
 
       // Create notifications for other participants
-      await createMessageNotifications(supabaseAdmin, conversation_id, user.id, content.trim());
+      await createMessageNotifications(supabaseAdmin, conversation_id, user.id, content?.trim() || 'Sent a file');
 
       console.log('Message sent successfully (moderation disabled):', message.id);
       return new Response(JSON.stringify({ message }), {
@@ -185,6 +189,34 @@ serve(async (req) => {
     }
 
     // === OPERATION SPEARHEAD ENABLED ===
+    
+    // Skip AI moderation if message is only a file with no text content
+    if (!content || content.trim() === '') {
+      const { data: message, error } = await supabaseClient
+        .from('messages')
+        .insert({
+          conversation_id,
+          sender_id: personaId,
+          content: null,
+          reply_to_message_id: reply_to_message_id || null,
+          file_url: file_url || null,
+          file_name: file_name || null,
+          file_type: file_type || null,
+          file_size: file_size || null,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Create notifications for other participants
+      await createMessageNotifications(supabaseAdmin, conversation_id, user.id, 'Sent a file');
+
+      console.log('File message sent (no text to moderate):', message.id);
+      return new Response(JSON.stringify({ message }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
     // Check if user is currently banned
     const { data: activeBan } = await supabaseAdmin
@@ -223,7 +255,7 @@ serve(async (req) => {
     const contextMessages = (recentMessages || []).reverse();
     const contextPrompt = `CONVERSATION HISTORY:\n${contextMessages.map(m => 
       `[${m.sender_id === user.id ? 'CURRENT_USER' : 'OTHER'}]: ${m.content}`
-    ).join('\n')}\n\nNEW_MESSAGE: ${content.trim()}`;
+    ).join('\n')}\n\nNEW_MESSAGE: ${content?.trim() || '[File attachment]'}`;
 
     // Call Lovable AI
     const aiStartTime = Date.now();
@@ -236,8 +268,12 @@ serve(async (req) => {
         .insert({ 
           conversation_id, 
           sender_id: personaId, 
-          content: content.trim(),
+          content: content?.trim() || null,
           reply_to_message_id: reply_to_message_id || null,
+          file_url: file_url || null,
+          file_name: file_name || null,
+          file_type: file_type || null,
+          file_size: file_size || null,
         })
         .select()
         .single();
@@ -274,8 +310,12 @@ serve(async (req) => {
         .insert({ 
           conversation_id, 
           sender_id: personaId, 
-          content: content.trim(),
+          content: content?.trim() || null,
           reply_to_message_id: reply_to_message_id || null,
+          file_url: file_url || null,
+          file_name: file_name || null,
+          file_type: file_type || null,
+          file_size: file_size || null,
         })
         .select()
         .single();
@@ -304,8 +344,12 @@ serve(async (req) => {
         .insert({ 
           conversation_id, 
           sender_id: personaId, 
-          content: content.trim(),
+          content: content?.trim() || null,
           reply_to_message_id: reply_to_message_id || null,
+          file_url: file_url || null,
+          file_name: file_name || null,
+          file_type: file_type || null,
+          file_size: file_size || null,
         })
         .select()
         .single();
@@ -326,7 +370,7 @@ serve(async (req) => {
     await supabaseAdmin.from('ai_moderation_log').insert({
       conversation_id,
       sender_id: personaId,
-      message_content: content.trim(),
+      message_content: content?.trim() || '[File attachment]',
       severity_score: analysis.severity,
       violation_category: analysis.violation_category,
       action_taken: actionTaken,
@@ -343,8 +387,12 @@ serve(async (req) => {
         .insert({ 
           conversation_id, 
           sender_id: personaId, 
-          content: content.trim(),
+          content: content?.trim() || null,
           reply_to_message_id: reply_to_message_id || null,
+          file_url: file_url || null,
+          file_name: file_name || null,
+          file_type: file_type || null,
+          file_size: file_size || null,
         })
         .select()
         .single();
@@ -352,7 +400,7 @@ serve(async (req) => {
       if (error) throw error;
 
       // Create notifications for other participants
-      await createMessageNotifications(supabaseAdmin, conversation_id, user.id, content.trim());
+      await createMessageNotifications(supabaseAdmin, conversation_id, user.id, content?.trim() || 'Sent a file');
 
       console.log('Message allowed:', message.id);
       return new Response(JSON.stringify({ message }), {
@@ -373,8 +421,12 @@ serve(async (req) => {
         .insert({ 
           conversation_id, 
           sender_id: personaId, 
-          content: content.trim(),
+          content: content?.trim() || null,
           reply_to_message_id: reply_to_message_id || null,
+          file_url: file_url || null,
+          file_name: file_name || null,
+          file_type: file_type || null,
+          file_size: file_size || null,
         })
         .select()
         .single();
@@ -382,7 +434,7 @@ serve(async (req) => {
       if (msgError) throw msgError;
 
       // Create notifications for other participants
-      await createMessageNotifications(supabaseAdmin, conversation_id, user.id, content.trim());
+      await createMessageNotifications(supabaseAdmin, conversation_id, user.id, content?.trim() || 'Sent a file');
 
       console.log('✅ Message allowed (shadow mode - would have de-escalated):', message.id);
       return new Response(JSON.stringify({ message }), {
@@ -403,8 +455,12 @@ serve(async (req) => {
       .insert({ 
         conversation_id, 
         sender_id: personaId, 
-        content: content.trim(),
+        content: content?.trim() || null,
         reply_to_message_id: reply_to_message_id || null,
+        file_url: file_url || null,
+        file_name: file_name || null,
+        file_type: file_type || null,
+        file_size: file_size || null,
       })
       .select()
       .single();
@@ -412,7 +468,7 @@ serve(async (req) => {
     if (severeMsgError) throw severeMsgError;
 
     // Create notifications for other participants
-    await createMessageNotifications(supabaseAdmin, conversation_id, user.id, content.trim());
+    await createMessageNotifications(supabaseAdmin, conversation_id, user.id, content?.trim() || 'Sent a file');
 
     console.log('✅ Message allowed (shadow mode - would have banned user):', message.id);
     return new Response(JSON.stringify({ message }), {

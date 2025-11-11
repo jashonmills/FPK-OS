@@ -12,6 +12,7 @@ import { RepliedMessage } from "./RepliedMessage";
 import { ReadReceipts } from "./ReadReceipts";
 import { EditMessageDialog } from "./EditMessageDialog";
 import { DeleteMessageDialog } from "./DeleteMessageDialog";
+import { FileAttachment } from "./FileAttachment";
 import { formatDistanceToNow } from "date-fns";
 import { Loader2, Reply, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -26,6 +27,10 @@ interface Message {
   is_deleted?: boolean;
   deleted_at?: string | null;
   reply_to_message_id?: string | null;
+  file_url?: string | null;
+  file_name?: string | null;
+  file_type?: string | null;
+  file_size?: number | null;
   sender?: {
     display_name: string;
     avatar_url: string | null;
@@ -154,7 +159,7 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
     const fetchMessages = async () => {
       const { data, error } = await supabase
         .from('messages')
-        .select('id, content, sender_id, created_at, updated_at, is_edited, is_deleted, deleted_at, reply_to_message_id, conversation_id')
+        .select('id, content, sender_id, created_at, updated_at, is_edited, is_deleted, deleted_at, reply_to_message_id, conversation_id, file_url, file_name, file_type, file_size')
         .eq('conversation_id', conversationId)
         .order('created_at', { ascending: true });
 
@@ -453,11 +458,29 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
                               : 'bg-muted'
                           }`}
                         >
-                          <p className={`text-sm whitespace-pre-wrap break-words ${
-                            message.is_deleted ? 'italic text-muted-foreground' : ''
-                          }`}>
-                            {message.is_deleted ? 'Message deleted' : message.content}
-                          </p>
+                          {message.is_deleted ? (
+                            <p className="text-sm italic text-muted-foreground">
+                              Message deleted
+                            </p>
+                          ) : (
+                            <>
+                              {message.content && (
+                                <p className="text-sm whitespace-pre-wrap break-words">
+                                  {message.content}
+                                </p>
+                              )}
+                              {message.file_url && message.file_name && message.file_type && (
+                                <div className="mt-2">
+                                  <FileAttachment
+                                    fileUrl={message.file_url}
+                                    fileName={message.file_name}
+                                    fileType={message.file_type}
+                                    fileSize={message.file_size || undefined}
+                                  />
+                                </div>
+                              )}
+                            </>
+                          )}
                         </div>
                         {!message.is_deleted && (
                           <div className="flex gap-1">
