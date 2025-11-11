@@ -53,19 +53,19 @@ serve(async (req) => {
 
     console.log('[create-educator-invite] User authenticated:', user.id);
 
-    // Verify org exists and user is owner
+    // Verify org exists and user has permission
     const { data: orgMember, error: orgError } = await supabaseClient
       .from('org_members')
       .select('role')
       .eq('org_id', org_id)
       .eq('user_id', user.id)
-      .eq('role', 'owner')
+      .eq('status', 'active')
       .single();
 
-    if (orgError || !orgMember) {
-      console.error('[create-educator-invite] Not org owner:', orgError);
+    if (orgError || !orgMember || !['owner', 'admin', 'instructor'].includes(orgMember.role)) {
+      console.error('[create-educator-invite] Insufficient permissions:', orgError);
       return new Response(
-        JSON.stringify({ error: 'Only organization owners can invite educators' }),
+        JSON.stringify({ error: 'Only organization owners, admins, and instructors can invite educators' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }

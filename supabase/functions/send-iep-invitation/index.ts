@@ -47,8 +47,8 @@ serve(async (req: Request) => {
       .eq('status', 'active')
       .single();
 
-    if (memberError || !member || !['owner', 'instructor'].includes(member.role)) {
-      throw new Error('Insufficient permissions to create IEP invites');
+    if (memberError || !member || !['owner', 'admin', 'instructor'].includes(member.role)) {
+      throw new Error('Only organization owners, admins, and instructors can create IEP invites');
     }
 
     // Generate unique invite code
