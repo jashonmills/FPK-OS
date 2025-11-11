@@ -37,47 +37,67 @@ export function AttachContextButton({
   const [activeTab, setActiveTab] = useState('materials');
   const isMobile = useIsMobile();
 
-  // Fetch enrolled courses
+  // Fetch enrolled courses from BOTH enrollment tables
   const { data: enrolledCourses = [] } = useQuery({
     queryKey: ['enrolled-courses'],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return [];
 
-      // Fetch enrollments
-      const { data: enrollments, error: enrollmentError } = await supabase
+      // Query BOTH enrollment tables
+      const { data: regularEnrollments } = await supabase
+        .from('enrollments')
+        .select('course_id')
+        .eq('user_id', user.id);
+
+      const { data: interactiveEnrollments } = await supabase
         .from('interactive_course_enrollments')
         .select('course_id, course_title, completion_percentage, last_accessed_at')
         .eq('user_id', user.id)
         .order('last_accessed_at', { ascending: false });
 
-      if (enrollmentError) {
-        console.error('Error fetching enrollments:', enrollmentError);
-        return [];
-      }
+      // Merge and deduplicate by course_id
+      const enrollmentMap = new Map();
+      
+      (regularEnrollments || []).forEach(e => {
+        enrollmentMap.set(e.course_id, { 
+          course_id: e.course_id,
+          completion_percentage: 0,
+          last_accessed_at: null
+        });
+      });
+      
+      (interactiveEnrollments || []).forEach(e => {
+        enrollmentMap.set(e.course_id, {
+          course_id: e.course_id,
+          course_title: e.course_title,
+          completion_percentage: e.completion_percentage,
+          last_accessed_at: e.last_accessed_at
+        });
+      });
 
-      if (!enrollments || enrollments.length === 0) return [];
+      const allCourseIds = Array.from(enrollmentMap.keys());
+      if (allCourseIds.length === 0) return [];
 
-      // Fetch course details separately
-      const courseIds = enrollments.map(e => e.course_id);
+      // Fetch course details for all enrolled courses
       const { data: courses, error: coursesError } = await supabase
         .from('courses')
         .select('id, slug, title, thumbnail_url, description')
-        .in('id', courseIds);
+        .in('id', allCourseIds);
 
       if (coursesError) {
         console.error('Error fetching courses:', coursesError);
-        return enrollments.map(e => ({ ...e, course: null }));
+        return [];
       }
 
-      // Merge enrollments with course data
-      return enrollments.map(enrollment => {
+      // Merge enrollment data with course details
+      return Array.from(enrollmentMap.values()).map(enrollment => {
         const course = courses?.find(c => c.id === enrollment.course_id);
-        return {
-          ...enrollment,
-          course
+        return { 
+          ...enrollment, 
+          course 
         };
-      });
+      }).filter(e => e.course !== null);
     },
     enabled: isOpen,
   });
