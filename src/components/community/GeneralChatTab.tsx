@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -32,7 +32,7 @@ export const GeneralChatTab = () => {
   const [sending, setSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [currentPersona, setCurrentPersona] = useState<{ id: string; display_name: string; avatar_url: string | null } | null>(null);
-  const [optimisticMessages, setOptimisticMessages] = useState<Set<string>>(new Set());
+  const lastSentMessageRef = useRef<{ content: string; timestamp: number } | null>(null);
 
   // Fetch current user's persona with full details
   useEffect(() => {
@@ -134,18 +134,22 @@ export const GeneralChatTab = () => {
           filter: `conversation_id=eq.${conversationId}`,
         },
         async (payload) => {
-          const newMessage = payload.new;
+          const newMessage = payload.new as any;
+          
+          console.log('Realtime message received:', newMessage);
 
-          // Check if this is an optimistic message we already displayed
-          if (optimisticMessages.has(newMessage.id)) {
-            // Remove from optimistic set and replace the temporary message
-            setOptimisticMessages(prev => {
-              const newSet = new Set(prev);
-              newSet.delete(newMessage.id);
-              return newSet;
-            });
+          // Check if this is our own message we just sent (within last 5 seconds)
+          const isOwnRecentMessage = 
+            currentPersona &&
+            newMessage.sender_id === currentPersona.id &&
+            lastSentMessageRef.current &&
+            newMessage.content === lastSentMessageRef.current.content &&
+            (Date.now() - lastSentMessageRef.current.timestamp) < 5000;
+
+          if (isOwnRecentMessage) {
+            // This is our optimistic message being confirmed - replace the temp one
+            console.log('Replacing optimistic message with real one');
             
-            // Fetch persona info for the confirmed message
             const { data: personaData } = await supabase
               .from("personas")
               .select("id, display_name, avatar_url")
@@ -158,14 +162,20 @@ export const GeneralChatTab = () => {
                 personas: personaData,
               } as Message;
 
-              setMessages((current) => 
-                current.map(msg => 
-                  msg.id === newMessage.id ? fullMessage : msg
-                )
-              );
+              setMessages((current) => {
+                // Remove temp message and add real one
+                const withoutTemp = current.filter(msg => !msg.id.startsWith('temp-'));
+                // Check if real message already exists
+                const exists = withoutTemp.find(m => m.id === newMessage.id);
+                if (exists) return current;
+                return [...withoutTemp, fullMessage];
+              });
             }
+            
+            // Clear the last sent reference
+            lastSentMessageRef.current = null;
           } else {
-            // This is a message from another user
+            // Message from another user or older message
             const { data: personaData } = await supabase
               .from("personas")
               .select("id, display_name, avatar_url")
@@ -178,17 +188,24 @@ export const GeneralChatTab = () => {
                 personas: personaData,
               } as Message;
 
-              setMessages((current) => [...current, fullMessage]);
+              setMessages((current) => {
+                // Check if message already exists (prevent duplicates)
+                const exists = current.find(m => m.id === newMessage.id);
+                if (exists) return current;
+                return [...current, fullMessage];
+              });
             }
           }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('General Chat subscription status:', status);
+      });
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [conversationId, optimisticMessages]);
+  }, [conversationId, currentPersona]);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -204,6 +221,12 @@ export const GeneralChatTab = () => {
     const messageContent = content.trim();
     const tempId = `temp-${Date.now()}`;
     
+    // Store reference for deduplication
+    lastSentMessageRef.current = {
+      content: messageContent,
+      timestamp: Date.now(),
+    };
+    
     // Optimistic UI update - show message immediately
     const optimisticMessage: Message = {
       id: tempId,
@@ -218,7 +241,6 @@ export const GeneralChatTab = () => {
     };
 
     setMessages((current) => [...current, optimisticMessage]);
-    setOptimisticMessages(prev => new Set(prev).add(tempId));
     setContent("");
 
     try {
@@ -235,11 +257,7 @@ export const GeneralChatTab = () => {
       
       // Remove the optimistic message on error
       setMessages((current) => current.filter(msg => msg.id !== tempId));
-      setOptimisticMessages(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(tempId);
-        return newSet;
-      });
+      lastSentMessageRef.current = null;
       
       if (error.message?.includes("banned")) {
         toast.error("You have been temporarily banned from messaging");
