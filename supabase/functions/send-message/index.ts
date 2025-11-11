@@ -25,7 +25,8 @@ async function createMessageNotifications(supabaseAdmin: any, conversationId: st
     .single();
 
   const senderName = senderPersona?.display_name || 'Someone';
-  const preview = messageContent.length > 50 ? messageContent.substring(0, 50) + '...' : messageContent;
+  const safeContent = messageContent || 'Sent a file'; // Defensive fallback
+  const preview = safeContent.length > 50 ? safeContent.substring(0, 50) + '...' : safeContent;
 
   // Create notification for each participant
   const notifications = participants.map((p: any) => ({
@@ -180,7 +181,8 @@ serve(async (req) => {
       }
 
       // Create notifications for other participants
-      await createMessageNotifications(supabaseAdmin, conversation_id, user.id, content?.trim() || 'Sent a file');
+      const notificationMessage = !content || content.trim() === '' ? 'Sent a file' : content.trim();
+      await createMessageNotifications(supabaseAdmin, conversation_id, user.id, notificationMessage);
 
       console.log('Message sent successfully (moderation disabled):', message.id);
       return new Response(JSON.stringify({ message }), {
@@ -237,7 +239,8 @@ serve(async (req) => {
     }
 
     // Create notifications for other participants
-    await createMessageNotifications(supabaseAdmin, conversation_id, user.id, content?.trim() || 'Sent a file');
+    const notificationMessage = !content || content.trim() === '' ? 'Sent a file' : content.trim();
+    await createMessageNotifications(supabaseAdmin, conversation_id, user.id, notificationMessage);
 
     console.log('Message sent immediately:', message.id);
 
