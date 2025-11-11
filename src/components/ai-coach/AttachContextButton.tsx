@@ -81,11 +81,13 @@ export function AttachContextButton({
       const allCourseIds = Array.from(enrollmentMap.keys());
       if (allCourseIds.length === 0) return [];
 
-      // Fetch course details for all enrolled courses
+      // Fetch course details for all enrolled courses (only published and discoverable)
       const { data: courses, error: coursesError } = await supabase
         .from('courses')
         .select('id, slug, title, thumbnail_url, description')
-        .in('id', allCourseIds);
+        .in('id', allCourseIds)
+        .eq('discoverable', true)
+        .eq('status', 'published');
 
       if (coursesError) {
         console.error('Error fetching courses:', coursesError);
@@ -251,7 +253,8 @@ export function AttachContextButton({
 
             <TabsContent value="courses" className="p-4 m-0">
               <ScrollArea className={cn(
-                isMobile ? "max-h-[60vh]" : "max-h-[350px]"
+                "w-full",
+                isMobile ? "h-[60vh]" : "h-[350px]"
               )}>
                 <div className={cn("space-y-2 pr-4", isMobile && "space-y-3")}>
                   {enrolledCourses.length === 0 ? (
