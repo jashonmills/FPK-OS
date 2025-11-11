@@ -19,6 +19,20 @@ export default function Analytics() {
 
   const { startDate } = getDateRange(parseInt(dateRange));
 
+  // Redirect if not authenticated
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Card className="p-8 text-center max-w-md">
+          <CardHeader>
+            <CardTitle>Authentication Required</CardTitle>
+            <CardDescription>Please log in to view your analytics</CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
+
   // Fetch user's persona
   const { data: persona, isLoading: personaLoading } = useQuery({
     queryKey: ["persona", user?.id],
@@ -110,7 +124,7 @@ export default function Analytics() {
   });
 
   // Fetch followers
-  const { data: followersData } = useQuery({
+  const { data: followersData, isLoading: followersLoading } = useQuery({
     queryKey: ["analytics-followers", user?.id],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -124,7 +138,7 @@ export default function Analytics() {
   });
 
   // Fetch following
-  const { data: followingData } = useQuery({
+  const { data: followingData, isLoading: followingLoading } = useQuery({
     queryKey: ["analytics-following", user?.id],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -138,7 +152,7 @@ export default function Analytics() {
   });
 
   // Fetch messages sent
-  const { data: messagesData } = useQuery({
+  const { data: messagesData, isLoading: messagesLoading } = useQuery({
     queryKey: ["analytics-messages", persona?.id, startDate],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -153,7 +167,7 @@ export default function Analytics() {
   });
 
   // Fetch reflections
-  const { data: reflectionsData } = useQuery({
+  const { data: reflectionsData, isLoading: reflectionsLoading } = useQuery({
     queryKey: ["analytics-reflections", persona?.id, startDate],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -167,7 +181,7 @@ export default function Analytics() {
     enabled: !!persona?.id,
   });
 
-  const isLoading = personaLoading || postsLoading;
+  const isLoading = personaLoading || postsLoading || followersLoading || followingLoading || messagesLoading || reflectionsLoading;
 
   if (isLoading) {
     return (
