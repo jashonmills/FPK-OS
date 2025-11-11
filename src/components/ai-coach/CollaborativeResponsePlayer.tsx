@@ -21,6 +21,7 @@ export function CollaborativeResponsePlayer({
   const [hasAutoPlayed, setHasAutoPlayed] = useState(false);
   const audioPlayerRef = useRef<MobileAwareAudioPlayer>(new MobileAwareAudioPlayer());
   const isStoppedRef = useRef(false);
+  const wasStoppedByUser = useRef(false);
   const { settings } = useVoiceSettings();
 
   // Cleanup on unmount
@@ -41,16 +42,16 @@ export function CollaborativeResponsePlayer({
     if (autoPlayEnabled && 
         !hasAutoPlayed && 
         audioPlaylist.length > 0 && 
-        audioPlaylist.every(url => url && url.length > 0) &&
-        !isPlaying) {
+        audioPlaylist.every(url => url && url.length > 0)) {
       console.log('[Unified Player] 🔊 Auto-playing collaborative response');
       setHasAutoPlayed(true);
       playSequentially();
     }
-  }, [autoPlayEnabled, audioPlaylist, hasAutoPlayed, isPlaying, settings.hasInteracted]);
+  }, [autoPlayEnabled, audioPlaylist, hasAutoPlayed, settings.hasInteracted]);
 
   const stopPlayback = () => {
     isStoppedRef.current = true;
+    wasStoppedByUser.current = true;
     audioPlayerRef.current.stop();
     setIsPlaying(false);
     setCurrentTrackIndex(0);
@@ -63,10 +64,11 @@ export function CollaborativeResponsePlayer({
     }
 
     isStoppedRef.current = false;
+    wasStoppedByUser.current = false;
     setIsPlaying(true);
 
     for (let i = 0; i < audioPlaylist.length; i++) {
-      if (isStoppedRef.current) break;
+      if (isStoppedRef.current || wasStoppedByUser.current) break;
 
       setCurrentTrackIndex(i);
       
@@ -74,7 +76,7 @@ export function CollaborativeResponsePlayer({
         await playAudioFile(audioPlaylist[i]);
         
         // Add 750ms pause between tracks (except after the last one)
-        if (i < audioPlaylist.length - 1 && !isStoppedRef.current) {
+        if (i < audioPlaylist.length - 1 && !isStoppedRef.current && !wasStoppedByUser.current) {
           await new Promise(resolve => setTimeout(resolve, 750));
         }
       } catch (error) {
@@ -84,7 +86,7 @@ export function CollaborativeResponsePlayer({
     }
 
     // Playback completed
-    if (!isStoppedRef.current) {
+    if (!isStoppedRef.current && !wasStoppedByUser.current) {
       setIsPlaying(false);
       setCurrentTrackIndex(0);
     }
