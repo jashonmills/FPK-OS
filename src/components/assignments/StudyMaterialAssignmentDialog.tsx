@@ -257,7 +257,7 @@ export function StudyMaterialAssignmentDialog({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="flex-1 flex flex-col overflow-hidden">
-          <ScrollArea className="flex-1 pr-4">
+          <div className="flex-1 pr-4 overflow-y-auto">
             <div className="space-y-6 pb-4">
               {/* Material Info */}
               <div className="flex items-start gap-3 p-4 rounded-lg bg-muted/50">
@@ -450,10 +450,13 @@ export function StudyMaterialAssignmentDialog({
                           </Button>
                         </div>
                       </div>
-                      <ScrollArea className="h-48 border rounded-lg p-3">
+                      <div className="h-48 overflow-y-auto border-2 border-blue-500 rounded-lg p-3 bg-white">
+                        <div className="text-xs text-red-500 mb-2 font-bold">
+                          DEBUG: Rendering {groups.length} groups (groupsLoading: {groupsLoading.toString()})
+                        </div>
                         {groupsLoading ? (
                           <div className="flex justify-center py-8">
-                            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                            <Loader2 className="h-6 w-6 animate-spin text-primary" />
                           </div>
                         ) : groups.length === 0 ? (
                           <div className="text-center py-8 text-muted-foreground text-sm">
@@ -461,26 +464,37 @@ export function StudyMaterialAssignmentDialog({
                           </div>
                         ) : (
                           <div className="space-y-2">
-                            {groups.map((group) => (
-                              <label
-                                key={group.id}
-                                className="flex items-center gap-3 p-2 rounded hover:bg-muted cursor-pointer"
-                              >
-                                <Checkbox
-                                  checked={selectedGroups.includes(group.id)}
-                                  onCheckedChange={() => toggleGroup(group.id)}
-                                />
-                                <div className="flex-1">
-                                  <span className="text-sm font-medium">{group.name}</span>
-                                  <p className="text-xs text-muted-foreground">
-                                    {group.member_count || 0} member{group.member_count !== 1 ? 's' : ''}
-                                  </p>
-                                </div>
-                              </label>
-                            ))}
+                            {groups.map((group, index) => {
+                              const isSelected = selectedGroups.includes(group.id);
+                              return (
+                                <Card
+                                  key={group.id}
+                                  className={`p-3 cursor-pointer transition-colors min-h-[60px] block mb-3 ${
+                                    isSelected 
+                                      ? 'bg-blue-100 border-2 border-blue-500 text-black' 
+                                      : 'bg-white border-2 border-gray-300 text-black hover:bg-gray-50'
+                                  } ${index === 0 ? 'ring-4 ring-red-500' : ''}`}
+                                  onClick={() => toggleGroup(group.id)}
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <Checkbox
+                                      checked={isSelected}
+                                      onCheckedChange={() => toggleGroup(group.id)}
+                                      onClick={(e) => e.stopPropagation()}
+                                    />
+                                    <div className="flex-1">
+                                      <p className="font-medium text-sm text-black">{group.name}</p>
+                                      <p className="text-xs text-gray-600">
+                                        {group.member_count || 0} member{group.member_count !== 1 ? 's' : ''}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </Card>
+                              );
+                            })}
                           </div>
                         )}
-                      </ScrollArea>
+                      </div>
                     </div>
                   </TabsContent>
 
@@ -499,10 +513,10 @@ export function StudyMaterialAssignmentDialog({
                             </Button>
                           </div>
                         </div>
-                        <ScrollArea className="h-24 border rounded-lg p-3">
+                        <div className="h-24 overflow-y-auto border-2 border-blue-500 rounded-lg p-3 bg-white">
                           {membersLoading ? (
                             <div className="flex justify-center py-4">
-                              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                              <Loader2 className="h-5 w-5 animate-spin text-primary" />
                             </div>
                           ) : students.length === 0 ? (
                             <div className="text-center py-4 text-muted-foreground text-xs">
@@ -513,18 +527,18 @@ export function StudyMaterialAssignmentDialog({
                               {students.map((student) => (
                                 <label
                                   key={student.id}
-                                  className="flex items-center gap-3 p-2 rounded hover:bg-muted cursor-pointer"
+                                  className="flex items-center gap-3 p-2 rounded hover:bg-muted cursor-pointer bg-white text-black"
                                 >
                                   <Checkbox
                                     checked={selectedMembers.includes(student.linked_user_id!)}
                                     onCheckedChange={() => toggleMember(student.linked_user_id!)}
                                   />
-                                  <span className="text-sm">{student.full_name}</span>
+                                  <span className="text-sm font-medium">{student.full_name}</span>
                                 </label>
                               ))}
                             </div>
                           )}
-                        </ScrollArea>
+                        </div>
                       </div>
 
                       <div>
@@ -539,10 +553,10 @@ export function StudyMaterialAssignmentDialog({
                             </Button>
                           </div>
                         </div>
-                        <ScrollArea className="h-24 border rounded-lg p-3">
+                        <div className="h-24 overflow-y-auto border-2 border-blue-500 rounded-lg p-3 bg-white">
                           {groupsLoading ? (
                             <div className="flex justify-center py-4">
-                              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                              <Loader2 className="h-5 w-5 animate-spin text-primary" />
                             </div>
                           ) : groups.length === 0 ? (
                             <div className="text-center py-4 text-muted-foreground text-xs">
@@ -553,7 +567,7 @@ export function StudyMaterialAssignmentDialog({
                               {groups.map((group) => (
                                 <label
                                   key={group.id}
-                                  className="flex items-center gap-3 p-2 rounded hover:bg-muted cursor-pointer"
+                                  className="flex items-center gap-3 p-2 rounded hover:bg-muted cursor-pointer bg-white text-black"
                                 >
                                   <Checkbox
                                     checked={selectedGroups.includes(group.id)}
@@ -561,7 +575,7 @@ export function StudyMaterialAssignmentDialog({
                                   />
                                   <div className="flex-1">
                                     <span className="text-sm font-medium">{group.name}</span>
-                                    <p className="text-xs text-muted-foreground">
+                                    <p className="text-xs text-gray-600">
                                       {group.member_count || 0} member{group.member_count !== 1 ? 's' : ''}
                                     </p>
                                   </div>
@@ -569,14 +583,14 @@ export function StudyMaterialAssignmentDialog({
                               ))}
                             </div>
                           )}
-                        </ScrollArea>
+                        </div>
                       </div>
                     </div>
                   </TabsContent>
                 </Tabs>
               </div>
             </div>
-          </ScrollArea>
+          </div>
 
           {/* Actions */}
           <div className="flex justify-end gap-2 pt-4 border-t">
