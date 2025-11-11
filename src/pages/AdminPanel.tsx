@@ -53,6 +53,7 @@ export default function AdminPanel() {
   const [bulkBanDialogOpen, setBulkBanDialogOpen] = useState(false);
   const [bulkAction, setBulkAction] = useState<'ban' | 'unban'>('ban');
   const [processingBulk, setProcessingBulk] = useState(false);
+  const [userStatusFilter, setUserStatusFilter] = useState<string>("all");
   const isInviteSystemEnabled = useFeatureFlag('user_invite_system_enabled');
   const isOperationSpearheadEnabled = useFeatureFlag('operation_spearhead_enabled');
 
@@ -505,6 +506,20 @@ export default function AdminPanel() {
       user.persona?.display_name?.toLowerCase().includes(query) ||
       user.user_id?.toLowerCase().includes(query)
     );
+  }).filter(user => {
+    // Apply status filter
+    switch (userStatusFilter) {
+      case 'banned':
+        return user.activeBan !== null;
+      case 'active':
+        return user.activeBan === null;
+      case 'with_history':
+        return user.moderationHistory.length > 0 || user.banHistory.length > 0;
+      case 'no_history':
+        return user.moderationHistory.length === 0 && user.banHistory.length === 0;
+      default:
+        return true;
+    }
   });
 
   if (roleLoading) {
@@ -646,6 +661,18 @@ export default function AdminPanel() {
                       className="pl-9"
                     />
                   </div>
+                  <Select value={userStatusFilter} onValueChange={setUserStatusFilter}>
+                    <SelectTrigger className="w-full md:w-[220px]">
+                      <SelectValue placeholder="Filter by status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Users ({users.length})</SelectItem>
+                      <SelectItem value="active">Active Users ({users.filter(u => !u.activeBan).length})</SelectItem>
+                      <SelectItem value="banned">Banned Users ({users.filter(u => u.activeBan).length})</SelectItem>
+                      <SelectItem value="with_history">With Mod History ({users.filter(u => u.moderationHistory.length > 0 || u.banHistory.length > 0).length})</SelectItem>
+                      <SelectItem value="no_history">Clean Record ({users.filter(u => u.moderationHistory.length === 0 && u.banHistory.length === 0).length})</SelectItem>
+                    </SelectContent>
+                  </Select>
                   {selectedUserIds.size > 0 && (
                     <div className="flex gap-2">
                       <Button
@@ -657,7 +684,7 @@ export default function AdminPanel() {
                         }}
                       >
                         <Ban className="h-4 w-4 mr-2" />
-                        Ban Selected ({selectedUserIds.size})
+                        Ban ({selectedUserIds.size})
                       </Button>
                       <Button
                         variant="outline"
@@ -668,22 +695,27 @@ export default function AdminPanel() {
                         }}
                       >
                         <CheckCircle className="h-4 w-4 mr-2" />
-                        Unban Selected ({selectedUserIds.size})
+                        Unban ({selectedUserIds.size})
                       </Button>
                     </div>
                   )}
                 </div>
 
                 {filteredUsers.length > 0 && (
-                  <div className="flex items-center gap-2 pb-2 border-b">
-                    <Checkbox
-                      checked={selectedUserIds.size === filteredUsers.length && filteredUsers.length > 0}
-                      onCheckedChange={toggleAllUsers}
-                      id="select-all"
-                    />
-                    <Label htmlFor="select-all" className="text-sm text-muted-foreground cursor-pointer">
-                      Select all ({filteredUsers.length} users)
-                    </Label>
+                  <div className="flex items-center justify-between pb-2 border-b">
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        checked={selectedUserIds.size === filteredUsers.length && filteredUsers.length > 0}
+                        onCheckedChange={toggleAllUsers}
+                        id="select-all"
+                      />
+                      <Label htmlFor="select-all" className="text-sm text-muted-foreground cursor-pointer">
+                        Select all ({filteredUsers.length} users)
+                      </Label>
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Showing {filteredUsers.length} of {users.length} users
+                    </div>
                   </div>
                 )}
 
