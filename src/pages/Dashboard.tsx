@@ -215,7 +215,7 @@ export default function Dashboard() {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => navigate("/community")}
+          onClick={() => navigate("/community/dashboard")}
           className="mb-4"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
