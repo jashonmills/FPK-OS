@@ -43,19 +43,21 @@ export const FileAttachment = ({ fileUrl, fileName, fileType, fileSize, caption,
           onClick={() => onOpenImage?.(fileUrl)}
         />
         {caption && (
-          <p 
-            className="text-sm mt-2 px-1 break-words"
-            style={captionStyle ? getCaptionStyles(captionStyle) : undefined}
-          >
-            {caption}
-          </p>
+          <div className="mt-2 bg-black/60 backdrop-blur-sm rounded-md p-2">
+            <p 
+              className="text-sm text-white font-medium break-words"
+              style={captionStyle ? getCaptionStyles(captionStyle) : undefined}
+            >
+              {caption}
+            </p>
+          </div>
         )}
-        <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground">
-          <span className="truncate flex-1">{fileName}</span>
+        <div className="flex items-center justify-between mt-2 bg-black/60 backdrop-blur-sm rounded-md p-2">
+          <span className="text-xs text-white font-medium truncate flex-1">{fileName}</span>
           <Button
             variant="ghost"
             size="sm"
-            className="h-6 px-2 ml-2"
+            className="h-6 px-2 ml-2 text-white hover:text-white hover:bg-white/20"
             onClick={handleDownload}
           >
             <Download className="w-3 h-3" />
@@ -66,10 +68,10 @@ export const FileAttachment = ({ fileUrl, fileName, fileType, fileSize, caption,
   }
 
   return (
-    <div className="flex items-center gap-3 p-3 border rounded-lg bg-muted/30 max-w-sm">
+    <div className="flex items-center gap-3 p-3 border border-border/50 rounded-lg bg-background/80 backdrop-blur-md max-w-sm shadow-lg">
       <File className="w-8 h-8 text-primary flex-shrink-0" />
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium truncate">{fileName}</p>
+        <p className="text-sm font-medium text-foreground truncate">{fileName}</p>
         {fileSize && (
           <p className="text-xs text-muted-foreground">{formatFileSize(fileSize)}</p>
         )}
@@ -77,7 +79,7 @@ export const FileAttachment = ({ fileUrl, fileName, fileType, fileSize, caption,
       <Button
         variant="ghost"
         size="icon"
-        className="h-8 w-8 flex-shrink-0"
+        className="h-8 w-8 flex-shrink-0 hover:bg-primary/20"
         onClick={handleDownload}
       >
         <Download className="w-4 h-4" />
