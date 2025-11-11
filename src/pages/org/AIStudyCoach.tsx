@@ -15,6 +15,7 @@ import { AssignmentsManagementTab } from '@/components/ai-coach/AssignmentsManag
 import { supabase } from '@/integrations/supabase/client';
 import { useSearchParams } from 'react-router-dom';
 import { DocumentReader } from '@/components/ai-coach/DocumentReader';
+import { CourseContentViewer } from '@/components/ai-coach/CourseContentViewer';
 import { toast } from 'sonner';
 
 interface StudyTip {
@@ -191,10 +192,17 @@ export default function AIStudyCoach() {
                       {/* Document Preview for Attached Materials */}
                       {activeDocument && (
                         <div className="mb-4 border rounded-lg overflow-hidden">
-                          <DocumentReader 
-                            document={activeDocument} 
-                            onClose={handleCloseDocumentViewer} 
-                          />
+                          {activeDocument.type === 'course' ? (
+                            <CourseContentViewer
+                              course={activeDocument}
+                              onClose={handleCloseDocumentViewer}
+                            />
+                          ) : (
+                            <DocumentReader 
+                              document={activeDocument} 
+                              onClose={handleCloseDocumentViewer} 
+                            />
+                          )}
                         </div>
                       )}
                     </div>
@@ -216,10 +224,17 @@ export default function AIStudyCoach() {
                         <h3 className="text-lg font-semibold">Document Preview</h3>
                       </div>
                       <div className="border rounded-lg overflow-hidden">
-                        <DocumentReader 
-                          document={activeDocument} 
-                          onClose={handleCloseDocumentViewer} 
-                        />
+                        {activeDocument.type === 'course' ? (
+                          <CourseContentViewer
+                            course={activeDocument}
+                            onClose={handleCloseDocumentViewer}
+                          />
+                        ) : (
+                          <DocumentReader 
+                            document={activeDocument} 
+                            onClose={handleCloseDocumentViewer} 
+                          />
+                        )}
                       </div>
                     </div>
                   )}
@@ -238,10 +253,17 @@ export default function AIStudyCoach() {
                         <h3 className="text-lg font-semibold">Assignment Material Preview</h3>
                       </div>
                       <div className="border rounded-lg overflow-hidden">
-                        <DocumentReader 
-                          document={activeDocument} 
-                          onClose={handleCloseDocumentViewer} 
-                        />
+                        {activeDocument.type === 'course' ? (
+                          <CourseContentViewer
+                            course={activeDocument}
+                            onClose={handleCloseDocumentViewer}
+                          />
+                        ) : (
+                          <DocumentReader 
+                            document={activeDocument} 
+                            onClose={handleCloseDocumentViewer} 
+                          />
+                        )}
                       </div>
                     </div>
                   )}
@@ -264,10 +286,17 @@ export default function AIStudyCoach() {
       {activeDocument && (
         <div className="w-full max-w-7xl mx-auto px-4">
           <div className="h-[600px]">
-            <DocumentReader
-              document={activeDocument}
-              onClose={handleCloseDocumentViewer}
-            />
+            {activeDocument.type === 'course' ? (
+              <CourseContentViewer
+                course={activeDocument}
+                onClose={handleCloseDocumentViewer}
+              />
+            ) : (
+              <DocumentReader
+                document={activeDocument}
+                onClose={handleCloseDocumentViewer}
+              />
+            )}
           </div>
         </div>
       )}
