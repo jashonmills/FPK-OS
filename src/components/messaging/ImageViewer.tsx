@@ -1,29 +1,91 @@
 import React, { useState, useRef, useEffect } from "react";
-import { X } from "lucide-react";
+import { X, Download, RotateCw, RotateCcw, ChevronLeft, ChevronRight } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
-interface ImageViewerProps {
-  imageUrl: string;
+export interface ImageItem {
+  url: string;
   fileName: string;
+}
+
+interface ImageViewerProps {
+  images: ImageItem[];
+  initialIndex: number;
   isOpen: boolean;
   onClose: () => void;
 }
 
-export const ImageViewer = ({ imageUrl, fileName, isOpen, onClose }: ImageViewerProps) => {
+export const ImageViewer = ({ images, initialIndex, isOpen, onClose }: ImageViewerProps) => {
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [scale, setScale] = useState(1);
+  const [rotation, setRotation] = useState(0);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const imageRef = useRef<HTMLDivElement>(null);
   const lastTouchDistance = useRef<number | null>(null);
+  const touchStartX = useRef<number | null>(null);
+
+  const currentImage = images[currentIndex];
 
   useEffect(() => {
     if (!isOpen) {
       setScale(1);
+      setRotation(0);
       setPosition({ x: 0, y: 0 });
+    } else {
+      setCurrentIndex(initialIndex);
     }
-  }, [isOpen]);
+  }, [isOpen, initialIndex]);
+
+  useEffect(() => {
+    // Reset zoom/pan when changing images
+    setScale(1);
+    setRotation(0);
+    setPosition({ x: 0, y: 0 });
+  }, [currentIndex]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!isOpen) return;
+      if (e.key === "ArrowLeft") goToPrevious();
+      if (e.key === "ArrowRight") goToNext();
+      if (e.key === "Escape") onClose();
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, currentIndex, images.length]);
+
+  const goToNext = () => {
+    if (currentIndex < images.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+    }
+  };
+
+  const goToPrevious = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex(currentIndex - 1);
+    }
+  };
+
+  const handleDownload = () => {
+    const link = document.createElement("a");
+    link.href = currentImage.url;
+    link.download = currentImage.fileName;
+    link.target = "_blank";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const rotateClockwise = () => {
+    setRotation((prev) => (prev + 90) % 360);
+  };
+
+  const rotateCounterClockwise = () => {
+    setRotation((prev) => (prev - 90 + 360) % 360);
+  };
 
   const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault();
@@ -43,12 +105,15 @@ export const ImageViewer = ({ imageUrl, fileName, isOpen, onClose }: ImageViewer
         e.touches[0].clientY - e.touches[1].clientY
       );
       lastTouchDistance.current = distance;
-    } else if (e.touches.length === 1 && scale > 1) {
-      setIsDragging(true);
-      setDragStart({
-        x: e.touches[0].clientX - position.x,
-        y: e.touches[0].clientY - position.y,
-      });
+    } else if (e.touches.length === 1) {
+      touchStartX.current = e.touches[0].clientX;
+      if (scale > 1) {
+        setIsDragging(true);
+        setDragStart({
+          x: e.touches[0].clientX - position.x,
+          y: e.touches[0].clientY - position.y,
+        });
+      }
     }
   };
 
@@ -74,7 +139,21 @@ export const ImageViewer = ({ imageUrl, fileName, isOpen, onClose }: ImageViewer
     }
   };
 
-  const handleTouchEnd = () => {
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current !== null && e.changedTouches.length > 0 && scale === 1) {
+      const touchEndX = e.changedTouches[0].clientX;
+      const diff = touchStartX.current - touchEndX;
+      
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) {
+          goToNext();
+        } else {
+          goToPrevious();
+        }
+      }
+    }
+    
+    touchStartX.current = null;
     lastTouchDistance.current = null;
     setIsDragging(false);
   };
@@ -115,14 +194,68 @@ export const ImageViewer = ({ imageUrl, fileName, isOpen, onClose }: ImageViewer
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[100vw] max-h-[100vh] w-full h-full p-0 bg-black/95 border-none">
         <div className="relative w-full h-full flex items-center justify-center">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute top-4 right-4 z-50 text-white hover:bg-white/20"
-            onClick={onClose}
-          >
-            <X className="w-6 h-6" />
-          </Button>
+          <div className="absolute top-4 right-4 z-50 flex gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-white hover:bg-white/20"
+              onClick={handleDownload}
+              title="Download"
+            >
+              <Download className="w-5 h-5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-white hover:bg-white/20"
+              onClick={rotateCounterClockwise}
+              title="Rotate counter-clockwise"
+            >
+              <RotateCcw className="w-5 h-5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-white hover:bg-white/20"
+              onClick={rotateClockwise}
+              title="Rotate clockwise"
+            >
+              <RotateCw className="w-5 h-5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-white hover:bg-white/20"
+              onClick={onClose}
+            >
+              <X className="w-6 h-6" />
+            </Button>
+          </div>
+
+          {images.length > 1 && (
+            <>
+              {currentIndex > 0 && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute left-4 z-50 text-white hover:bg-white/20 h-12 w-12"
+                  onClick={goToPrevious}
+                >
+                  <ChevronLeft className="w-8 h-8" />
+                </Button>
+              )}
+              {currentIndex < images.length - 1 && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-4 z-50 text-white hover:bg-white/20 h-12 w-12"
+                  onClick={goToNext}
+                >
+                  <ChevronRight className="w-8 h-8" />
+                </Button>
+              )}
+            </>
+          )}
           
           <div
             ref={imageRef}
@@ -138,19 +271,24 @@ export const ImageViewer = ({ imageUrl, fileName, isOpen, onClose }: ImageViewer
             onDoubleClick={handleDoubleClick}
           >
             <img
-              src={imageUrl}
-              alt={fileName}
+              src={currentImage.url}
+              alt={currentImage.fileName}
               className="max-w-full max-h-full object-contain select-none"
               style={{
-                transform: `scale(${scale}) translate(${position.x / scale}px, ${position.y / scale}px)`,
+                transform: `scale(${scale}) rotate(${rotation}deg) translate(${position.x / scale}px, ${position.y / scale}px)`,
                 transition: isDragging ? "none" : "transform 0.1s ease-out",
               }}
               draggable={false}
             />
           </div>
 
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white text-sm bg-black/50 px-4 py-2 rounded-full">
-            {scale > 1 ? `${Math.round(scale * 100)}%` : "Double-click or pinch to zoom"}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white text-sm bg-black/50 px-4 py-2 rounded-full flex items-center gap-3">
+            {images.length > 1 && (
+              <span className="border-r border-white/30 pr-3">
+                {currentIndex + 1} / {images.length}
+              </span>
+            )}
+            <span>{scale > 1 ? `${Math.round(scale * 100)}%` : "Double-click or pinch to zoom"}</span>
           </div>
         </div>
       </DialogContent>

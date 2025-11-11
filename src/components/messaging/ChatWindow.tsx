@@ -13,6 +13,7 @@ import { ReadReceipts } from "./ReadReceipts";
 import { EditMessageDialog } from "./EditMessageDialog";
 import { DeleteMessageDialog } from "./DeleteMessageDialog";
 import { FileAttachment } from "./FileAttachment";
+import { ImageViewer, ImageItem } from "./ImageViewer";
 import { formatDistanceToNow } from "date-fns";
 import { Loader2, Reply, Pencil, Trash2, Clock } from "lucide-react";
 import { toast } from "sonner";
@@ -58,11 +59,37 @@ const ChatWindowComponent = ({ conversationId }: ChatWindowProps) => {
   const [editingMessage, setEditingMessage] = useState<{ id: string; content: string } | null>(null);
   const [deletingMessageId, setDeletingMessageId] = useState<string | null>(null);
   const [userPersonaId, setUserPersonaId] = useState<string | null>(null);
+  const [imageViewerState, setImageViewerState] = useState<{ isOpen: boolean; images: ImageItem[]; initialIndex: number }>({
+    isOpen: false,
+    images: [],
+    initialIndex: 0,
+  });
   const { user } = useAuth();
   const virtuosoRef = useRef<VirtuosoHandle>(null);
   const lastSentMessageRef = useRef<{ content: string; timestamp: number } | null>(null);
   const personaCacheRef = useRef<Map<string, { display_name: string; avatar_url: string | null }>>(new Map());
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
+
+  // Collect all images from messages for gallery navigation
+  const allImages = useMemo(() => {
+    return messages
+      .filter(msg => msg.file_url && msg.file_type?.startsWith("image/") && !msg.is_deleted)
+      .map(msg => ({
+        url: msg.file_url!,
+        fileName: msg.file_name!,
+      }));
+  }, [messages]);
+
+  const handleOpenImage = useCallback((imageUrl: string) => {
+    const imageIndex = allImages.findIndex(img => img.url === imageUrl);
+    if (imageIndex !== -1) {
+      setImageViewerState({
+        isOpen: true,
+        images: allImages,
+        initialIndex: imageIndex,
+      });
+    }
+  }, [allImages]);
 
   // Fetch current user's persona ID
   useEffect(() => {
@@ -604,6 +631,7 @@ const ChatWindowComponent = ({ conversationId }: ChatWindowProps) => {
                                     fileName={message.file_name}
                                     fileType={message.file_type}
                                     fileSize={message.file_size || undefined}
+                                    onOpenImage={handleOpenImage}
                                   />
                                 </div>
                           )}
@@ -625,7 +653,7 @@ const ChatWindowComponent = ({ conversationId }: ChatWindowProps) => {
                 </div>
         </div>
     );
-  }, [userPersonaId, setReplyingTo, setEditingMessage, setDeletingMessageId, handleAddReaction]);
+  }, [userPersonaId, setReplyingTo, setEditingMessage, setDeletingMessageId, handleAddReaction, handleOpenImage]);
 
   if (loading) {
     return (
@@ -682,6 +710,12 @@ const ChatWindowComponent = ({ conversationId }: ChatWindowProps) => {
           messageId={deletingMessageId}
         />
       )}
+      <ImageViewer
+        images={imageViewerState.images}
+        initialIndex={imageViewerState.initialIndex}
+        isOpen={imageViewerState.isOpen}
+        onClose={() => setImageViewerState(prev => ({ ...prev, isOpen: false }))}
+      />
     </div>
   );
 };
