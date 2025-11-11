@@ -10,6 +10,7 @@ import { useTextSelection } from '@/hooks/useTextSelection';
 import { featureFlagService } from '@/services/FeatureFlagService';
 import SaveToNotesButton from '@/components/ai-coach/SaveToNotesButton';
 import { useCleanup } from '@/utils/cleanupManager';
+import { isMobileBrowser, resumeAudioContextOnMobile } from '@/utils/mobileAudioUtils';
 
 interface ChatMessage {
   id: string;
@@ -62,13 +63,19 @@ const ChatMessagesPane = ({
   };
 
   const handlePlayVoice = useCallback((messageId: string, content: string) => {
-    if (ttsSupported) {
-      // Stop any current speech
-      stop();
-      // Start speaking the specific message
-      speak(content, { interrupt: true });
+    if (!ttsSupported) return;
+    
+    // MOBILE FIX: Call speak directly with interrupt flag
+    // This keeps everything synchronous for mobile browsers
+    speak(content, { interrupt: true, hasInteracted: settings.hasInteracted });
+  }, [speak, ttsSupported, settings.hasInteracted]);
+
+  // MOBILE FIX: Resume audio context on mobile when user has interacted
+  useEffect(() => {
+    if (isMobileBrowser() && settings.hasInteracted) {
+      resumeAudioContextOnMobile().catch(console.error);
     }
-  }, [speak, stop, ttsSupported]);
+  }, [settings.hasInteracted]);
 
   // Improved auto-scroll logic that respects user scroll position
   const scrollToBottom = useCallback(() => {
@@ -159,6 +166,14 @@ const ChatMessagesPane = ({
       fixedHeight ? "h-full" : "flex-1"
     )}>
       <div ref={messagesContainerRef} className="space-y-2 sm:space-y-3 md:space-y-4">
+        {/* MOBILE AUDIO STATUS */}
+        {isMobileBrowser() && !settings.hasInteracted && messages.length > 0 && (
+          <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-4">
+            <p className="text-sm text-blue-900 dark:text-blue-100">
+              📱 Tap anywhere to enable audio playback
+            </p>
+          </div>
+        )}
         {messages.map((message) => {
           // Find the corresponding user question for context
           const messageIndex = messages.findIndex(msg => msg.id === message.id);

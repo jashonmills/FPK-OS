@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { safeLocalStorage } from '@/utils/safeStorage';
 import { useCleanup } from '@/utils/cleanupManager';
+import { isMobileBrowser, resumeAudioContextOnMobile } from '@/utils/mobileAudioUtils';
 
 interface VoiceSettings {
   enabled: boolean;
@@ -140,14 +141,22 @@ export const VoiceSettingsProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Track user interaction for TTS
   useEffect(() => {
-    const handleUserInteraction = () => {
+    const handleUserInteraction = async () => {
       if (!settings.hasInteracted) {
         console.log('🔊 User interaction detected, enabling browser TTS');
+        
+        // MOBILE FIX: Resume audio context immediately on mobile
+        if (isMobileBrowser()) {
+          await resumeAudioContextOnMobile();
+          console.log('📱 Mobile audio context resumed');
+        }
+        
         setSettings(prev => ({ ...prev, hasInteracted: true }));
       }
     };
 
     cleanup.addEventListener(document, 'click', handleUserInteraction);
+    cleanup.addEventListener(document, 'touchstart', handleUserInteraction);
     cleanup.addEventListener(document, 'keydown', handleUserInteraction);
   }, [settings.hasInteracted, cleanup]);
 

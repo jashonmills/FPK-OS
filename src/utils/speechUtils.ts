@@ -1,7 +1,10 @@
 
 /**
  * Safe Text-to-Speech utilities that handle deprecated APIs properly
+ * Includes mobile browser compatibility fixes
  */
+
+import { isIOSBrowser } from './mobileAudioUtils';
 
 interface SpeechOptions {
   rate?: number;
@@ -26,29 +29,46 @@ class SafeTextToSpeech {
     }
 
     try {
-      // Stop any current speech if interrupt is requested
+      // MOBILE FIX: Stop current speech synchronously
       if (options.interrupt && window.speechSynthesis.speaking) {
         window.speechSynthesis.cancel();
       }
 
+      // MOBILE FIX: Create utterance immediately (no delays)
       const utterance = new SpeechSynthesisUtterance(text);
       
-      // Set options with defaults
+      // MOBILE FIX: Set all properties before speaking
       utterance.rate = options.rate ?? 1.0;
       utterance.pitch = options.pitch ?? 1.0;
       utterance.volume = options.volume ?? 1.0;
       if (options.voice) utterance.voice = options.voice;
 
-      // Add error handling
+      // MOBILE FIX: Add mobile-specific error recovery
       utterance.onerror = (event) => {
         console.warn('Speech synthesis error:', event.error);
+        
+        // Retry on mobile if interrupted or canceled
+        if (event.error === 'interrupted' || event.error === 'canceled') {
+          console.log('📱 Speech interrupted, retrying...');
+          setTimeout(() => {
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(utterance);
+          }, 100);
+        }
       };
 
       utterance.onend = () => {
         console.log('Speech synthesis completed');
       };
 
+      // MOBILE FIX: For iOS, must speak() in same event loop tick
       window.speechSynthesis.speak(utterance);
+      
+      // MOBILE FIX: iOS workaround - resume if paused
+      if (isIOSBrowser() && window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+      }
+
       return true;
     } catch (error) {
       console.error('Speech synthesis failed:', error);
