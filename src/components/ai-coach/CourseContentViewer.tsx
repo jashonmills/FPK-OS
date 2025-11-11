@@ -39,7 +39,7 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({ course
         setManifest(content);
       } catch (err) {
         console.error('Error loading course content:', err);
-        setError('Unable to load course content. This course may not have content available yet.');
+        setError(`Unable to load course content for "${course.slug}". This course may not have content available yet, or there may be a slug mismatch.`);
       } finally {
         setIsLoading(false);
       }
