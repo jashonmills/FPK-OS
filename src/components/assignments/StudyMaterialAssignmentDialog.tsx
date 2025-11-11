@@ -369,7 +369,7 @@ export function StudyMaterialAssignmentDialog({
                           </Button>
                         </div>
                       </div>
-                      <div className="h-48 overflow-y-auto border-2 border-blue-500 rounded-lg p-3 bg-background">
+                      <div className="h-48 overflow-y-auto border-2 border-blue-500 rounded-lg p-3 bg-white relative">
                         <div className="text-xs text-red-500 mb-2 font-bold">
                           DEBUG: Rendering {students.length} students (membersLoading: {membersLoading.toString()})
                         </div>
@@ -393,36 +393,36 @@ export function StudyMaterialAssignmentDialog({
                                 linkedUserId: student.linked_user_id,
                                 isSelected: selectedMembers.includes(student.linked_user_id!)
                               });
+                              const isSelected = selectedMembers.includes(student.linked_user_id!);
                               return (
                                 <Card
                                   key={student.id}
-                                  className={cn(
-                                    "p-3 cursor-pointer transition-colors hover:shadow-sm",
-                                    selectedMembers.includes(student.linked_user_id!)
-                                      ? "border-primary bg-primary/5 shadow-sm"
-                                      : "hover:bg-accent"
-                                  )}
+                                  className={`p-3 cursor-pointer transition-colors min-h-[60px] block mb-3 ${
+                                    isSelected 
+                                      ? 'bg-blue-100 border-2 border-blue-500 text-black' 
+                                      : 'bg-white border-2 border-gray-300 text-black hover:bg-gray-50'
+                                  } ${index === 0 ? 'ring-4 ring-red-500' : ''}`}
                                   onClick={() => toggleMember(student.linked_user_id!)}
                                 >
                                   <div className="flex items-center gap-3">
                                     <Checkbox
-                                      checked={selectedMembers.includes(student.linked_user_id!)}
+                                      checked={isSelected}
                                       onCheckedChange={() => toggleMember(student.linked_user_id!)}
                                       onClick={(e) => e.stopPropagation()}
                                     />
-                                    <Avatar className="h-10 w-10 border">
+                                    <Avatar className="h-10 w-10 border-2 border-gray-400 bg-gray-200">
                                       <AvatarImage src={student.avatar_url} alt={student.full_name} />
-                                      <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                                      <AvatarFallback className="bg-blue-200 text-blue-800 font-semibold">
                                         {student.full_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
                                       </AvatarFallback>
                                     </Avatar>
                                     <div className="flex-1 min-w-0">
-                                      <p className="font-medium text-sm">{student.full_name}</p>
+                                      <p className="font-medium text-sm text-black">{student.full_name}</p>
                                       {student.student_id && (
-                                        <p className="text-xs text-muted-foreground">ID: {student.student_id}</p>
+                                        <p className="text-xs text-gray-600">ID: {student.student_id}</p>
                                       )}
                                       {student.student_email && (
-                                        <p className="text-xs text-muted-foreground truncate">{student.student_email}</p>
+                                        <p className="text-xs text-gray-600 truncate">{student.student_email}</p>
                                       )}
                                     </div>
                                   </div>
