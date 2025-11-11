@@ -7,6 +7,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, ArrowLeft, Settings } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 
 const Messages = () => {
   const { conversationId } = useParams();
@@ -34,6 +35,7 @@ const Messages = () => {
           <ArrowLeft className="w-5 h-5" />
         </Button>
         <h1 className="text-2xl font-bold flex-1">Messages</h1>
+        <NotificationBell />
         <Button
           variant="ghost"
           size="icon"

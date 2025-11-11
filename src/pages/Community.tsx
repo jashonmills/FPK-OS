@@ -130,6 +130,7 @@ const Community = () => {
                 <img src={fpkLogo} alt="FPK Nexus" className="h-8 sm:h-10 w-auto" />
               </div>
               <div className="flex gap-2">
+                <NotificationBell />
                 <Button
                   variant="ghost"
                   size="icon"
