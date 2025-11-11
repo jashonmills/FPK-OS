@@ -9,8 +9,8 @@ const PDFJS_VERSION = '5.3.93';
  * For react-pdf v10.x compatibility - uses local worker file
  */
 const WORKER_URLS = [
-  // Use local worker file first (most reliable)
-  '/pdf.worker.min.js',
+  // Use local worker file first (most reliable) - matches copy script destination
+  '/pdfjs/pdf.worker.min.js',
   // CDN fallbacks only if local fails
   `https://unpkg.com/pdfjs-dist@${PDFJS_VERSION}/build/pdf.worker.min.js`,
   `https://cdn.jsdelivr.net/npm/pdfjs-dist@${PDFJS_VERSION}/build/pdf.worker.min.js`,
@@ -30,6 +30,11 @@ export const initializePDFWorker = async (): Promise<boolean> => {
     
     try {
       console.log(`🎯 Testing worker: ${workerUrl}`);
+      
+      // Add explicit local file detection for debugging
+      if (!workerUrl.startsWith('http')) {
+        console.log(`📦 Attempting to use self-hosted worker from: ${workerUrl}`);
+      }
       
       // Don't check URL accessibility for local files - just try them directly
       if (workerUrl.startsWith('http')) {
