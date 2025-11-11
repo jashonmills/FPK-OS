@@ -175,6 +175,13 @@ export function MaterialsSubTab({ orgId, onStartStudying, onViewDocument, attach
     setIsAssignmentDialogOpen(true);
   };
 
+  const handleAssignFromUpload = (material: { title: string; id: string }) => {
+    const fullMaterial = studyMaterials.find((m: any) => m.id === material.id);
+    if (fullMaterial) {
+      handleAssignMaterial(fullMaterial);
+    }
+  };
+
   return (
     <div className={cn(
       "flex gap-4",
@@ -353,7 +360,9 @@ export function MaterialsSubTab({ orgId, onStartStudying, onViewDocument, attach
         open={isUploadModalOpen}
         onOpenChange={setIsUploadModalOpen}
         onUpload={handleUpload}
-        onStartStudying={onStartStudying}
+        onStartStudying={!isEducator ? onStartStudying : undefined}
+        onAssignToStudents={isEducator ? handleAssignFromUpload : undefined}
+        userType={isEducator ? 'educator' : 'student'}
         orgId={orgId}
       />
 

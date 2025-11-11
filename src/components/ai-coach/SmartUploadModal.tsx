@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Upload, X, FileText, Loader2, Sparkles, BookOpen, Info } from 'lucide-react';
+import { Upload, X, FileText, Loader2, Sparkles, BookOpen, Info, UserPlus } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -27,6 +27,8 @@ interface SmartUploadModalProps {
   onOpenChange: (open: boolean) => void;
   onUpload: (file: File, folderId: string | null) => Promise<string | null>;
   onStartStudying?: (fileName: string, materialId: string) => void;
+  onAssignToStudents?: (material: { title: string; id: string }) => void;
+  userType?: 'student' | 'educator';
   orgId?: string;
 }
 
@@ -35,6 +37,8 @@ export function SmartUploadModal({
   onOpenChange,
   onUpload,
   onStartStudying,
+  onAssignToStudents,
+  userType = 'student',
   orgId
 }: SmartUploadModalProps) {
   const { folders } = useAICoachFolders('study_material', orgId);
@@ -233,44 +237,81 @@ export function SmartUploadModal({
                 <FileText className="w-8 h-8 text-green-600" />
               </div>
 
-              {/* Info Banner */}
-              <div className="w-full bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
-                <div className="flex items-start gap-2">
-                  <Info className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
-                  <div className="space-y-3 text-sm">
-                    <div className="flex items-start gap-2">
-                      <Sparkles className="w-4 h-4 text-purple-600 shrink-0 mt-0.5" />
-                      <div>
-                        <p className="font-medium text-gray-900">Start Studying This Now</p>
-                        <p className="text-gray-600 text-xs">Opens chat with this document attached so Betty can reference and discuss its content</p>
-                      </div>
+              {/* Conditional Info Banner based on user type */}
+              {userType === 'student' ? (
+                <div className="w-full bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
+                  <div className="flex items-start gap-2">
+                    <Sparkles className="w-4 h-4 text-purple-600 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-medium text-gray-900">Start Studying This Now</p>
+                      <p className="text-gray-600 text-xs">Opens chat with this document attached so Betty can reference and discuss its content</p>
                     </div>
-                    <div className="flex items-start gap-2">
-                      <BookOpen className="w-4 h-4 text-gray-600 shrink-0 mt-0.5" />
-                      <div>
-                        <p className="font-medium text-gray-900">Done</p>
-                        <p className="text-gray-600 text-xs">Save for later (you can attach it manually using the 📎 button in chat)</p>
-                      </div>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <BookOpen className="w-4 h-4 text-gray-600 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-medium text-gray-900">Done</p>
+                      <p className="text-gray-600 text-xs">Save for later (you can attach it manually using the 📎 button in chat)</p>
                     </div>
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div className="w-full bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
+                  <div className="flex items-start gap-2">
+                    <UserPlus className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-medium text-gray-900">Assign to Students</p>
+                      <p className="text-gray-600 text-xs">Create an assignment with custom AI instructions to guide student learning</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <FileText className="w-4 h-4 text-gray-600 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-medium text-gray-900">Manage Later</p>
+                      <p className="text-gray-600 text-xs">View in "Study Materials" tab or "Assignments" tab to assign later</p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             <DialogFooter className="flex-col sm:flex-row gap-2">
-              <Button variant="outline" onClick={handleClose} className="w-full sm:w-auto">
-                <BookOpen className="w-4 h-4 mr-2" />
-                Done
-              </Button>
-              {onStartStudying && (
-                <Button 
-                  onClick={handleStartStudying} 
-                  className="w-full sm:w-auto bg-purple-600 hover:bg-purple-700"
-                  data-tour="upload-success-start-studying"
-                >
-                  <Sparkles className="w-4 h-4 mr-2" />
-                  Start Studying This Now
-                </Button>
+              {userType === 'student' ? (
+                <>
+                  <Button variant="outline" onClick={handleClose} className="w-full sm:w-auto">
+                    <BookOpen className="w-4 h-4 mr-2" />
+                    Done
+                  </Button>
+                  {onStartStudying && (
+                    <Button 
+                      onClick={handleStartStudying} 
+                      className="w-full sm:w-auto bg-purple-600 hover:bg-purple-700"
+                      data-tour="upload-success-start-studying"
+                    >
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      Start Studying This Now
+                    </Button>
+                  )}
+                </>
+              ) : (
+                <>
+                  <Button variant="outline" onClick={handleClose} className="w-full sm:w-auto">
+                    <FileText className="w-4 h-4 mr-2" />
+                    Done
+                  </Button>
+                  {onAssignToStudents && uploadedMaterialId && (
+                    <Button 
+                      onClick={() => {
+                        onAssignToStudents({ title, id: uploadedMaterialId });
+                        handleClose();
+                      }} 
+                      className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700"
+                    >
+                      <UserPlus className="w-4 h-4 mr-2" />
+                      Assign to Students
+                    </Button>
+                  )}
+                </>
               )}
             </DialogFooter>
           </>
