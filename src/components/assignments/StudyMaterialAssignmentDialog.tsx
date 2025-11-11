@@ -69,26 +69,47 @@ export function StudyMaterialAssignmentDialog({
   const { toast } = useToast();
   const orgId = currentOrg?.organization_id || '';
   
-  console.log('[StudyMaterialAssignmentDialog] Org ID:', orgId);
+  // Validate orgId
+  if (!orgId) {
+    console.error('[StudyMaterialAssignmentDialog] ❌ No orgId provided!');
+  } else {
+    console.log('[StudyMaterialAssignmentDialog] ✅ Org ID:', orgId);
+  }
   
-  // useOrgStudents takes (orgId, searchQuery)
-  const { students: allStudents, isLoading: membersLoading } = useOrgStudents(orgId, undefined);
+  // useOrgStudents takes (orgId, searchQuery) - with refetch capability
+  const { students: allStudents, isLoading: membersLoading, refetch: refetchStudents } = useOrgStudents(orgId, undefined);
   const { groups, isLoading: groupsLoading } = useOrgGroups();
   const { createAssignment, isCreating } = useOrgAssignments();
 
   // Only show students with linked accounts
   const students = (allStudents || []).filter(s => s.linked_user_id);
   
-  console.log('[StudyMaterialAssignmentDialog] Students loaded:', {
-    total: allStudents.length,
-    withLinkedAccount: students.length,
-    loading: membersLoading
-  });
+  // Debug logging when dialog opens or students change
+  React.useEffect(() => {
+    if (open) {
+      console.log('[StudyMaterialAssignmentDialog] 📊 Dialog opened - Current state:', {
+        orgId: orgId,
+        orgIdValid: !!orgId,
+        studentsLoading: membersLoading,
+        allStudentsCount: allStudents?.length || 0,
+        filteredStudentsCount: students.length,
+        students: students.map(s => ({
+          id: s.id,
+          name: s.full_name,
+          email: s.student_email,
+          linked_user_id: s.linked_user_id
+        }))
+      });
+    }
+  }, [open, students, allStudents, membersLoading, orgId]);
   
-  console.log('[StudyMaterialAssignmentDialog] Groups loaded:', {
-    count: groups.length,
-    loading: groupsLoading
-  });
+  // Refetch students when dialog opens to ensure fresh data
+  React.useEffect(() => {
+    if (open && orgId) {
+      console.log('[StudyMaterialAssignmentDialog] 🔄 Refetching students...');
+      refetchStudents();
+    }
+  }, [open, orgId, refetchStudents]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -318,8 +339,11 @@ export function StudyMaterialAssignmentDialog({
                       </div>
                       <ScrollArea className="h-48 border rounded-lg p-3">
                         {membersLoading ? (
-                          <div className="flex justify-center py-8">
-                            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                          <div className="flex flex-col items-center justify-center py-8 space-y-2">
+                            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                            <p className="text-sm text-muted-foreground">
+                              Loading students from {orgId ? 'organization' : 'unknown org'}...
+                            </p>
                           </div>
                         ) : students.length === 0 ? (
                           <div className="text-center py-8 text-muted-foreground text-sm">

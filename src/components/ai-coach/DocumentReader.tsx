@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, FileText, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import OptimizedPDFViewer from '@/components/library/OptimizedPDFViewer';
+import InlinePDFViewer from '@/components/library/InlinePDFViewer';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { JSONViewer } from './viewers/JSONViewer';
 import { SmartDocxViewer } from './viewers/SmartDocxViewer';
@@ -15,9 +16,10 @@ interface DocumentReaderProps {
     file_type: string;
   };
   onClose: () => void;
+  mode?: 'inline' | 'modal'; // Default: inline for embedded viewing
 }
 
-export const DocumentReader: React.FC<DocumentReaderProps> = ({ document, onClose }) => {
+export const DocumentReader: React.FC<DocumentReaderProps> = ({ document, onClose, mode = 'inline' }) => {
   const getFileExtension = () => {
     const fileName = document.file_name || '';
     return fileName.split('.').pop()?.toLowerCase() || '';
@@ -31,17 +33,29 @@ export const DocumentReader: React.FC<DocumentReaderProps> = ({ document, onClos
     
     console.log('[DocumentReader] File detection:', { extension, mimeType, fileName, title });
     
-    // PDF Files
+    // PDF Files - use inline or modal based on mode
     if (extension === 'pdf' || mimeType.includes('pdf')) {
-      return (
-        <div className="h-full w-full">
-          <OptimizedPDFViewer
-            fileUrl={document.file_url}
-            fileName={document.file_name}
-            onClose={onClose}
-          />
-        </div>
-      );
+      if (mode === 'inline') {
+        return (
+          <div className="h-full w-full">
+            <InlinePDFViewer
+              fileUrl={document.file_url}
+              fileName={document.file_name}
+              onClose={onClose}
+            />
+          </div>
+        );
+      } else {
+        return (
+          <div className="h-full w-full">
+            <OptimizedPDFViewer
+              fileUrl={document.file_url}
+              fileName={document.file_name}
+              onClose={onClose}
+            />
+          </div>
+        );
+      }
     }
     
     // JSON Files - Smart detection
