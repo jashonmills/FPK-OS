@@ -527,7 +527,9 @@ export type Database = {
           content: string
           conversation_id: string
           created_at: string | null
+          deleted_at: string | null
           id: string
+          is_deleted: boolean
           is_edited: boolean | null
           is_system_message: boolean | null
           reply_to_message_id: string | null
@@ -538,7 +540,9 @@ export type Database = {
           content: string
           conversation_id: string
           created_at?: string | null
+          deleted_at?: string | null
           id?: string
+          is_deleted?: boolean
           is_edited?: boolean | null
           is_system_message?: boolean | null
           reply_to_message_id?: string | null
@@ -549,7 +553,9 @@ export type Database = {
           content?: string
           conversation_id?: string
           created_at?: string | null
+          deleted_at?: string | null
           id?: string
+          is_deleted?: boolean
           is_edited?: boolean | null
           is_system_message?: boolean | null
           reply_to_message_id?: string | null
