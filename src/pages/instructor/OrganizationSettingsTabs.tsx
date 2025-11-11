@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Settings, Palette, UserPlus, Upload, X, Eye, Mail, Link2, Copy, RefreshCw, Plus, Check, Info, Users, Calendar, UserCircle, LayoutGrid, LayoutList, Grid3x3 } from 'lucide-react';
+import { Settings, Palette, UserPlus, Upload, X, Eye, Mail, Link2, Copy, RefreshCw, Plus, Check, Info, Users, Calendar, UserCircle, LayoutGrid, LayoutList, Grid3x3, FileSpreadsheet } from 'lucide-react';
 import { useOrgContext } from '@/components/organizations/OrgContext';
 import { useOrgBranding, useUpdateOrgBranding, useUploadBrandingFile } from '@/hooks/useOrgBranding';
 import { useEmailInvitation } from '@/hooks/useInvitationSystem';
@@ -35,6 +35,7 @@ import { InstructorProfileSection } from '@/components/instructor/InstructorProf
 import { MemberCard } from '@/components/org/MemberCard';
 import { PendingInvitationsList } from '@/components/org/PendingInvitationsList';
 import { AILearningCoachSettings } from '@/components/org/AILearningCoachSettings';
+import { BulkInviteDialog } from '@/components/org/BulkInviteDialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -88,6 +89,7 @@ export default function OrganizationSettingsTabs() {
   const [inviteMessage, setInviteMessage] = useState('');
   const [expiresIn, setExpiresIn] = useState('7');
   const [manualAddDialogOpen, setManualAddDialogOpen] = useState(false);
+  const [bulkInviteDialogOpen, setBulkInviteDialogOpen] = useState(false);
   const emailInviteMutation = useEmailInvitation();
   
   // Members state
@@ -740,6 +742,31 @@ export default function OrganizationSettingsTabs() {
               </OrgCardContent>
             </OrgCard>
 
+            {/* Bulk Invite via CSV */}
+            <OrgCard className="bg-orange-500/65 border-orange-400/50">
+              <OrgCardHeader>
+                <OrgCardTitle className="flex items-center gap-2 text-white">
+                  <FileSpreadsheet className="h-5 w-5" />
+                  Bulk Invite via CSV
+                </OrgCardTitle>
+                <OrgCardDescription className="text-white/80">
+                  Upload a CSV file to invite multiple staff members at once
+                </OrgCardDescription>
+              </OrgCardHeader>
+              <OrgCardContent>
+                <Button
+                  onClick={() => setBulkInviteDialogOpen(true)}
+                  className="w-full bg-white/20 hover:bg-white/30 text-white border-white/30"
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  Upload CSV File
+                </Button>
+                <p className="text-xs text-white/70 mt-3">
+                  Invite multiple educators, instructors, aides, or admins in one go. Download our CSV template to get started.
+                </p>
+              </OrgCardContent>
+            </OrgCard>
+
             {/* Pending Invitations List */}
             <PendingInvitationsList />
 
@@ -754,6 +781,13 @@ export default function OrganizationSettingsTabs() {
               toast({ title: 'Staff member added successfully' });
               refetchMembers();
             }}
+          />
+
+          {/* Bulk Invite Dialog */}
+          <BulkInviteDialog
+            open={bulkInviteDialogOpen}
+            onOpenChange={setBulkInviteDialogOpen}
+            organizationId={currentOrg.organization_id}
           />
         </TabsContent>
 
