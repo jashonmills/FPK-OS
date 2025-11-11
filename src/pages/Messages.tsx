@@ -22,9 +22,9 @@ const Messages = () => {
   }
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className="h-screen flex flex-col bg-gradient-to-b from-background via-muted/10 to-background">
       {/* Header */}
-      <header className="border-b p-4 flex items-center gap-4">
+      <header className="border-b p-4 flex items-center gap-4 bg-gradient-to-r from-background via-primary/5 to-background shadow-sm backdrop-blur-sm">
         <Button
           variant="ghost"
           size="icon"

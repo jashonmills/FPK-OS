@@ -598,14 +598,14 @@ const ChatWindowComponent = ({ conversationId }: ChatWindowProps) => {
                         />
                       )}
                       <div
-                        className={`rounded-lg px-4 py-2 max-w-md ${
+                        className={`rounded-lg px-4 py-2 max-w-md transition-all duration-200 ${
                           message.is_deleted
                             ? message.deleted_by_ai
-                              ? 'bg-destructive/10 border-2 border-destructive/50'
+                              ? 'bg-destructive/10 border-2 border-destructive/50 shadow-sm'
                               : 'bg-muted/50 border border-dashed border-border'
                             : isOwn
-                            ? 'bg-primary text-primary-foreground'
-                            : 'bg-muted'
+                            ? 'bg-primary text-primary-foreground shadow-md hover:shadow-lg shadow-primary/20'
+                            : 'bg-muted shadow-sm hover:shadow-md'
                         }`}
                       >
                           {message.is_deleted ? (
@@ -675,7 +675,7 @@ const ChatWindowComponent = ({ conversationId }: ChatWindowProps) => {
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full bg-gradient-to-b from-background/50 via-muted/5 to-background/30">
       {messages.length === 0 ? (
         <div className="flex-1 flex items-center justify-center text-muted-foreground">
           <div className="text-center py-8">
@@ -698,7 +698,7 @@ const ChatWindowComponent = ({ conversationId }: ChatWindowProps) => {
           }}
         />
       )}
-      <div className="border-t p-4">
+      <div className="border-t p-4 bg-background/80 backdrop-blur-sm shadow-lg">
         <MessageInput 
           conversationId={conversationId}
           onOptimisticMessage={handleOptimisticMessage}

@@ -205,7 +205,7 @@ const ConversationListComponent = ({ activeConversationId }: { activeConversatio
 
   return (
     <ScrollArea className="h-full">
-      <div className="space-y-1 p-2">
+      <div className="space-y-2 p-2">
         {conversations.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <p>No conversations yet</p>
@@ -216,8 +216,10 @@ const ConversationListComponent = ({ activeConversationId }: { activeConversatio
             <button
               key={conv.id}
               onClick={() => navigate(`/messages/${conv.id}`)}
-              className={`w-full p-3 rounded-lg text-left transition-colors hover:bg-accent ${
-                activeConversationId === conv.id ? 'bg-accent' : ''
+              className={`w-full p-3 rounded-lg text-left transition-all duration-200 ${
+                activeConversationId === conv.id 
+                  ? 'bg-primary/10 shadow-md ring-2 ring-primary/20 scale-[1.02]' 
+                  : 'bg-muted/20 shadow-sm hover:bg-accent hover:shadow-md hover:scale-[1.01]'
               }`}
             >
               <div className="flex items-start gap-3">
