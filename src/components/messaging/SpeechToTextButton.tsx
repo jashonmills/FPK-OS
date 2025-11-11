@@ -21,8 +21,15 @@ export const SpeechToTextButton = ({ onTranscript, disabled }: SpeechToTextButto
   const isStoppingRef = useRef(false);
   const finalTranscriptRef = useRef<string>("");
   const silenceTimerRef = useRef<NodeJS.Timeout>();
+  const onTranscriptRef = useRef(onTranscript);
+
+  // Keep onTranscriptRef updated without recreating the recognition instance
+  useEffect(() => {
+    onTranscriptRef.current = onTranscript;
+  }, [onTranscript]);
 
   const cleanup = useCallback(() => {
+    console.log('[SpeechToText] Cleanup called');
     if (silenceTimerRef.current) {
       clearTimeout(silenceTimerRef.current);
       silenceTimerRef.current = undefined;
@@ -31,10 +38,12 @@ export const SpeechToTextButton = ({ onTranscript, disabled }: SpeechToTextButto
     if (recognitionRef.current) {
       try {
         recognitionRef.current.stop();
+        console.log('[SpeechToText] Recognition stopped');
       } catch (e) {
-        // Already stopped
+        console.log('[SpeechToText] Recognition already stopped');
       }
     }
+    isStoppingRef.current = false;
   }, []);
 
   useEffect(() => {
@@ -44,6 +53,7 @@ export const SpeechToTextButton = ({ onTranscript, disabled }: SpeechToTextButto
       return;
     }
 
+    console.log('[SpeechToText] Creating new recognition instance');
     const recognition = new SpeechRecognition();
     recognition.continuous = true;
     recognition.interimResults = true;
@@ -51,6 +61,7 @@ export const SpeechToTextButton = ({ onTranscript, disabled }: SpeechToTextButto
     recognition.maxAlternatives = 1;
 
     recognition.onstart = () => {
+      console.log('[SpeechToText] Recognition started');
       setIsListening(true);
       setIsInitializing(false);
       isStoppingRef.current = false;
@@ -58,6 +69,7 @@ export const SpeechToTextButton = ({ onTranscript, disabled }: SpeechToTextButto
     };
 
     recognition.onresult = (event: any) => {
+      console.log('[SpeechToText] Got result');
       // Reset silence timer on new speech
       if (silenceTimerRef.current) {
         clearTimeout(silenceTimerRef.current);
@@ -74,12 +86,14 @@ export const SpeechToTextButton = ({ onTranscript, disabled }: SpeechToTextButto
 
       if (currentFinalTranscript) {
         finalTranscriptRef.current += currentFinalTranscript;
-        onTranscript(currentFinalTranscript.trim());
+        onTranscriptRef.current(currentFinalTranscript.trim());
       }
 
       // Auto-stop after 2 seconds of silence
       silenceTimerRef.current = setTimeout(() => {
-        if (isListening && !isStoppingRef.current) {
+        // Check if recognition is still active instead of relying on captured isListening value
+        if (recognitionRef.current && !isStoppingRef.current) {
+          console.log('[SpeechToText] Auto-stopping due to silence');
           cleanup();
           setIsListening(false);
           if (finalTranscriptRef.current.trim()) {
@@ -90,7 +104,7 @@ export const SpeechToTextButton = ({ onTranscript, disabled }: SpeechToTextButto
     };
 
     recognition.onerror = (event: any) => {
-      console.error('Speech recognition error:', event.error);
+      console.error('[SpeechToText] Recognition error:', event.error);
       
       if (event.error === 'not-allowed') {
         toast.error("Microphone access denied");
@@ -106,6 +120,7 @@ export const SpeechToTextButton = ({ onTranscript, disabled }: SpeechToTextButto
     };
 
     recognition.onend = () => {
+      console.log('[SpeechToText] Recognition ended');
       if (!isStoppingRef.current) {
         setIsListening(false);
         setIsInitializing(false);
@@ -115,13 +130,17 @@ export const SpeechToTextButton = ({ onTranscript, disabled }: SpeechToTextButto
     recognitionRef.current = recognition;
 
     return () => {
+      console.log('[SpeechToText] Component unmounting, cleaning up');
       cleanup();
     };
-  }, [onTranscript, cleanup, isListening]);
+  }, [cleanup]);
 
   const toggleListening = useCallback(() => {
     // Prevent rapid clicks
-    if (isInitializing) return;
+    if (isInitializing) {
+      console.log('[SpeechToText] Still initializing, ignoring click');
+      return;
+    }
     
     if (!recognitionRef.current) {
       toast.error("Speech recognition not available", {
@@ -131,6 +150,7 @@ export const SpeechToTextButton = ({ onTranscript, disabled }: SpeechToTextButto
     }
 
     if (isListening) {
+      console.log('[SpeechToText] User clicked stop');
       isStoppingRef.current = true;
       cleanup();
       setIsListening(false);
@@ -138,6 +158,7 @@ export const SpeechToTextButton = ({ onTranscript, disabled }: SpeechToTextButto
         toast.success("Transcription saved");
       }
     } else {
+      console.log('[SpeechToText] User clicked start');
       setIsInitializing(true);
       try {
         recognitionRef.current.start();
@@ -146,7 +167,7 @@ export const SpeechToTextButton = ({ onTranscript, disabled }: SpeechToTextButto
           duration: 1500
         });
       } catch (error) {
-        console.error('Failed to start recognition:', error);
+        console.error('[SpeechToText] Failed to start recognition:', error);
         setIsInitializing(false);
         toast.error("Failed to start microphone");
       }
