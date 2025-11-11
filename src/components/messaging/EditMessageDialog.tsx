@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { checkProfanity } from "@/utils/profanityFilter";
+import { CaptionFormatting, CaptionStyle, getCaptionStyles } from "./CaptionFormatting";
 
 interface EditMessageDialogProps {
   open: boolean;
@@ -21,6 +22,7 @@ interface EditMessageDialogProps {
   messageId: string;
   currentContent: string;
   currentCaption?: string | null;
+  currentCaptionStyle?: CaptionStyle | null;
   hasImage?: boolean;
   onSuccess?: () => void;
 }
@@ -31,16 +33,23 @@ export const EditMessageDialog = ({
   messageId,
   currentContent,
   currentCaption,
+  currentCaptionStyle,
   hasImage,
   onSuccess,
 }: EditMessageDialogProps) => {
   const [content, setContent] = useState(currentContent);
   const [caption, setCaption] = useState(currentCaption || "");
+  const [captionStyle, setCaptionStyle] = useState<CaptionStyle>(
+    currentCaptionStyle || { fontFamily: "inter", fontSize: "base", color: "#000000" }
+  );
   const [saving, setSaving] = useState(false);
 
   const handleSave = async () => {
     const contentChanged = content.trim() !== currentContent;
-    const captionChanged = hasImage && caption !== (currentCaption || "");
+    const captionChanged = hasImage && (
+      caption !== (currentCaption || "") ||
+      JSON.stringify(captionStyle) !== JSON.stringify(currentCaptionStyle || {})
+    );
     
     if (!contentChanged && !captionChanged) {
       onOpenChange(false);
@@ -118,6 +127,7 @@ export const EditMessageDialog = ({
 
       if (captionChanged) {
         updateData.image_caption = caption.trim() || null;
+        updateData.caption_style = caption.trim() ? captionStyle : null;
       }
 
       const { error } = await supabase
@@ -168,21 +178,36 @@ export const EditMessageDialog = ({
             />
           </div>
           {hasImage && (
-            <div>
-              <Label htmlFor="image-caption">Image Caption (optional)</Label>
-              <Input
-                id="image-caption"
-                type="text"
-                value={caption}
-                onChange={(e) => setCaption(e.target.value)}
-                placeholder="Add or edit caption..."
-                maxLength={200}
-                className="mt-2"
-                disabled={saving}
-              />
-              <p className="text-xs text-muted-foreground mt-1">
-                {caption.length}/200 characters
-              </p>
+            <div className="flex flex-col gap-2">
+              <div>
+                <Label htmlFor="image-caption">Image Caption (optional)</Label>
+                <Input
+                  id="image-caption"
+                  type="text"
+                  value={caption}
+                  onChange={(e) => setCaption(e.target.value)}
+                  placeholder="Add or edit caption..."
+                  maxLength={200}
+                  className="mt-2"
+                  disabled={saving}
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  {caption.length}/200 characters
+                </p>
+              </div>
+              
+              {caption && (
+                <>
+                  <CaptionFormatting
+                    style={captionStyle}
+                    onStyleChange={setCaptionStyle}
+                  />
+                  <div className="p-3 border rounded-lg bg-background">
+                    <Label className="text-xs text-muted-foreground mb-2 block">Preview:</Label>
+                    <p style={getCaptionStyles(captionStyle)}>{caption}</p>
+                  </div>
+                </>
+              )}
             </div>
           )}
         </div>
