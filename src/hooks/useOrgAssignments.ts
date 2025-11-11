@@ -60,6 +60,7 @@ export function useOrgAssignments() {
           title: assignmentData.title,
           type: assignmentData.type,
           resource_id: assignmentData.resource_id,
+          metadata: assignmentData.metadata || null,
           org_id: orgId,
           created_by: (await supabase.auth.getUser()).data.user?.id,
         })

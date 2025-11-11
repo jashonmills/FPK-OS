@@ -18,6 +18,7 @@ import { useOrgStudents } from '@/hooks/useOrgStudents';
 import { useOrgGroups } from '@/hooks/useOrgGroups';
 import { useOrgAssignments } from '@/hooks/useOrgAssignments';
 import { useOrgContext } from '@/components/organizations/OrgContext';
+import { useToast } from '@/hooks/use-toast';
 import { Calendar, Loader2, UserPlus, Users, FileText, Sparkles } from 'lucide-react';
 
 interface StudyMaterial {
@@ -62,20 +63,51 @@ export function StudyMaterialAssignmentDialog({
   const [activeTab, setActiveTab] = useState<'students' | 'groups' | 'both'>('students');
 
   const { currentOrg } = useOrgContext();
-  const { students: allStudents, isLoading: membersLoading } = useOrgStudents(currentOrg?.organization_id || '', undefined);
+  const { toast } = useToast();
+  const orgId = currentOrg?.organization_id || '';
+  
+  console.log('[StudyMaterialAssignmentDialog] Org ID:', orgId);
+  
+  const { students: allStudents, isLoading: membersLoading } = useOrgStudents(orgId, undefined);
   const { groups, isLoading: groupsLoading } = useOrgGroups();
   const { createAssignment, isCreating } = useOrgAssignments();
 
   // Only show students with linked accounts
   const students = allStudents.filter(s => s.linked_user_id);
+  
+  console.log('[StudyMaterialAssignmentDialog] Students loaded:', {
+    total: allStudents.length,
+    withLinkedAccount: students.length,
+    loading: membersLoading
+  });
+  
+  console.log('[StudyMaterialAssignmentDialog] Groups loaded:', {
+    count: groups.length,
+    loading: groupsLoading
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const targetMembers = activeTab === 'groups' ? [] : selectedMembers;
-    const targetGroups = activeTab === 'students' ? [] : selectedGroups;
+    // Determine which targets to use based on active tab
+    const targetMembers = (activeTab === 'students' || activeTab === 'both') ? selectedMembers : [];
+    const targetGroups = (activeTab === 'groups' || activeTab === 'both') ? selectedGroups : [];
     
-    if (targetMembers.length === 0 && targetGroups.length === 0) return;
+    if (targetMembers.length === 0 && targetGroups.length === 0) {
+      toast({
+        title: 'No targets selected',
+        description: 'Please select at least one student or group to assign to.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    console.log('[StudyMaterialAssignmentDialog] Creating assignment:', {
+      title: assignmentTitle,
+      targetMembers: targetMembers.length,
+      targetGroups: targetGroups.length,
+      metadata: { instructions, due_at: dueDate, required: isRequired }
+    });
 
     await createAssignment({
       title: assignmentTitle,
