@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/tooltip";
 
 interface SpeechToTextButtonProps {
-  onTranscript: (text: string) => void;
+  onTranscript: (text: string, isFinal: boolean) => void;
   disabled?: boolean;
 }
 
@@ -20,8 +20,10 @@ export const SpeechToTextButton = ({ onTranscript, disabled }: SpeechToTextButto
   const recognitionRef = useRef<any>(null);
   const isStoppingRef = useRef(false);
   const finalTranscriptRef = useRef<string>("");
+  const interimTranscriptRef = useRef<string>("");
   const silenceTimerRef = useRef<NodeJS.Timeout>();
   const onTranscriptRef = useRef(onTranscript);
+  const lastClickTimeRef = useRef<number>(0);
 
   // Keep onTranscriptRef updated without recreating the recognition instance
   useEffect(() => {
@@ -66,6 +68,7 @@ export const SpeechToTextButton = ({ onTranscript, disabled }: SpeechToTextButto
       setIsInitializing(false);
       isStoppingRef.current = false;
       finalTranscriptRef.current = "";
+      interimTranscriptRef.current = "";
     };
 
     recognition.onresult = (event: any) => {
@@ -76,31 +79,42 @@ export const SpeechToTextButton = ({ onTranscript, disabled }: SpeechToTextButto
       }
 
       let currentFinalTranscript = '';
+      let currentInterimTranscript = '';
       
       for (let i = 0; i < event.results.length; i++) {
         const transcript = event.results[i][0].transcript;
         if (event.results[i].isFinal) {
           currentFinalTranscript += transcript + ' ';
+        } else {
+          currentInterimTranscript += transcript;
         }
       }
 
+      // Send final transcript
       if (currentFinalTranscript) {
         finalTranscriptRef.current += currentFinalTranscript;
-        onTranscriptRef.current(currentFinalTranscript.trim());
+        onTranscriptRef.current(currentFinalTranscript.trim(), true);
+      }
+      
+      // Send interim transcript
+      if (currentInterimTranscript && currentInterimTranscript !== interimTranscriptRef.current) {
+        interimTranscriptRef.current = currentInterimTranscript;
+        onTranscriptRef.current(currentInterimTranscript.trim(), false);
       }
 
-      // Auto-stop after 2 seconds of silence
-      silenceTimerRef.current = setTimeout(() => {
-        // Check if recognition is still active instead of relying on captured isListening value
-        if (recognitionRef.current && !isStoppingRef.current) {
-          console.log('[SpeechToText] Auto-stopping due to silence');
-          cleanup();
-          setIsListening(false);
-          if (finalTranscriptRef.current.trim()) {
-            toast.success("Transcription complete");
+      // Auto-stop after 3 seconds of silence (only if we have transcript)
+      if (finalTranscriptRef.current.trim() || interimTranscriptRef.current.trim()) {
+        silenceTimerRef.current = setTimeout(() => {
+          if (recognitionRef.current && !isStoppingRef.current) {
+            console.log('[SpeechToText] Auto-stopping due to silence');
+            cleanup();
+            setIsListening(false);
+            if (finalTranscriptRef.current.trim()) {
+              toast.success("Transcription complete");
+            }
           }
-        }
-      }, 2000);
+        }, 3000);
+      }
     };
 
     recognition.onerror = (event: any) => {
@@ -120,11 +134,8 @@ export const SpeechToTextButton = ({ onTranscript, disabled }: SpeechToTextButto
     };
 
     recognition.onend = () => {
-      console.log('[SpeechToText] Recognition ended');
-      if (!isStoppingRef.current) {
-        setIsListening(false);
-        setIsInitializing(false);
-      }
+      console.log('[SpeechToText] Recognition ended, isStoppingRef:', isStoppingRef.current);
+      // Don't change state here - let explicit actions handle it
     };
 
     recognitionRef.current = recognition;
@@ -136,7 +147,15 @@ export const SpeechToTextButton = ({ onTranscript, disabled }: SpeechToTextButto
   }, [cleanup]);
 
   const toggleListening = useCallback(() => {
-    // Prevent rapid clicks
+    // Debounce: Prevent clicks within 300ms of each other
+    const now = Date.now();
+    if (now - lastClickTimeRef.current < 300) {
+      console.log('[SpeechToText] Click debounced');
+      return;
+    }
+    lastClickTimeRef.current = now;
+    
+    // Prevent rapid clicks while initializing
     if (isInitializing) {
       console.log('[SpeechToText] Still initializing, ignoring click');
       return;
@@ -152,8 +171,17 @@ export const SpeechToTextButton = ({ onTranscript, disabled }: SpeechToTextButto
     if (isListening) {
       console.log('[SpeechToText] User clicked stop');
       isStoppingRef.current = true;
+      
+      // Clear silence timer
+      if (silenceTimerRef.current) {
+        clearTimeout(silenceTimerRef.current);
+        silenceTimerRef.current = undefined;
+      }
+      
       cleanup();
       setIsListening(false);
+      setIsInitializing(false);
+      
       if (finalTranscriptRef.current.trim()) {
         toast.success("Transcription saved");
       }

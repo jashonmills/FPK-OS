@@ -31,6 +31,8 @@ export const MessageInput = ({ conversationId, onOptimisticMessage, replyingTo, 
   const { user } = useAuth();
   const typingTimeoutRef = useRef<NodeJS.Timeout>();
   const channelRef = useRef<ReturnType<typeof supabase.channel>>();
+  const interimTextRef = useRef<string>("");
+  const contentBeforeInterimRef = useRef<string>("");
 
   // Fetch current user's persona
   useEffect(() => {
@@ -250,10 +252,28 @@ export const MessageInput = ({ conversationId, onOptimisticMessage, replyingTo, 
     }
   };
 
-  const handleTranscript = (text: string) => {
+  const handleTranscript = (text: string, isFinal: boolean) => {
     setContent(prev => {
-      const newContent = prev ? `${prev} ${text}` : text;
-      return newContent;
+      if (isFinal) {
+        // Final transcript: append to content before interim started
+        const base = contentBeforeInterimRef.current || prev;
+        const newContent = base ? `${base} ${text}` : text;
+        
+        // Reset refs
+        interimTextRef.current = "";
+        contentBeforeInterimRef.current = newContent;
+        
+        return newContent;
+      } else {
+        // Interim transcript: replace previous interim
+        if (!contentBeforeInterimRef.current) {
+          contentBeforeInterimRef.current = prev;
+        }
+        
+        interimTextRef.current = text;
+        const base = contentBeforeInterimRef.current;
+        return base ? `${base} ${text}` : text;
+      }
     });
   };
 
