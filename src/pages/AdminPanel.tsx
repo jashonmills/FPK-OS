@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Shield, Flag, Users, Play, Loader2, AlertOctagon, LayoutDashboard, FileText, Search } from "lucide-react";
+import { ArrowLeft, Shield, Flag, Users, Play, Loader2, AlertOctagon, LayoutDashboard, FileText, Search, Download } from "lucide-react";
 import { toast } from "sonner";
 import { AppealReviewDialog } from "@/components/admin/AppealReviewDialog";
 import { format } from "date-fns";
@@ -214,6 +214,73 @@ export default function AdminPanel() {
     return <Badge variant="outline">Low ({score}/10)</Badge>;
   };
 
+  const exportToJSON = () => {
+    const dataStr = JSON.stringify(filteredLogs, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `moderation-logs-${format(new Date(), 'yyyy-MM-dd-HHmmss')}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+    toast.success('Logs exported as JSON');
+  };
+
+  const exportToCSV = () => {
+    const headers = ['Timestamp', 'Type', 'Severity', 'Action/Status', 'Reason/Category', 'Content', 'Notes'];
+    const rows = filteredLogs.map(log => {
+      const timestamp = format(new Date(log.created_at), 'yyyy-MM-dd HH:mm:ss');
+      const type = log.log_type;
+      const severity = log.severity_score || '';
+      
+      let action = '';
+      let reason = '';
+      let content = '';
+      let notes = '';
+
+      if (log.log_type === 'ai_moderation') {
+        action = log.action_taken || '';
+        reason = log.violation_category || '';
+        content = log.message_content || '';
+        notes = log.de_escalation_message || '';
+      } else if (log.log_type === 'ban') {
+        action = log.status || '';
+        reason = log.reason || '';
+        content = log.offending_message_content || '';
+        notes = `Expires: ${format(new Date(log.expires_at), 'yyyy-MM-dd HH:mm')}`;
+      } else if (log.log_type === 'appeal') {
+        action = log.status || '';
+        reason = '';
+        content = log.user_justification || '';
+        notes = log.admin_notes || '';
+      }
+
+      return [
+        timestamp,
+        type,
+        severity,
+        action,
+        reason,
+        content.replace(/"/g, '""'), // Escape quotes
+        notes.replace(/"/g, '""')
+      ];
+    });
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n');
+
+    const dataBlob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `moderation-logs-${format(new Date(), 'yyyy-MM-dd-HHmmss')}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+    toast.success('Logs exported as CSV');
+  };
+
   if (roleLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -370,13 +437,27 @@ export default function AdminPanel() {
           <TabsContent value="logs" className="space-y-6 mt-6">
             <Card>
               <CardHeader>
-                <div className="flex items-center gap-2">
-                  <FileText className="h-5 w-5 text-primary" />
-                  <CardTitle>Moderation Logs</CardTitle>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <FileText className="h-5 w-5 text-primary" />
+                      <CardTitle>Moderation Logs</CardTitle>
+                    </div>
+                    <CardDescription className="mt-2">
+                      View all AI moderation actions, ban history, and appeal outcomes
+                    </CardDescription>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={exportToJSON}>
+                      <Download className="h-4 w-4 mr-2" />
+                      JSON
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={exportToCSV}>
+                      <Download className="h-4 w-4 mr-2" />
+                      CSV
+                    </Button>
+                  </div>
                 </div>
-                <CardDescription>
-                  View all AI moderation actions, ban history, and appeal outcomes
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex flex-col md:flex-row gap-3">
