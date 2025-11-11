@@ -9,7 +9,8 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Shield, Flag, Users, Play, Loader2, AlertOctagon } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ArrowLeft, Shield, Flag, Users, Play, Loader2, AlertOctagon, LayoutDashboard } from "lucide-react";
 import { toast } from "sonner";
 import { AppealReviewDialog } from "@/components/admin/AppealReviewDialog";
 import { format } from "date-fns";
@@ -166,7 +167,92 @@ export default function AdminPanel() {
           </div>
         </div>
 
-        <Card>
+        <Tabs defaultValue="overview" className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="overview">
+              <LayoutDashboard className="h-4 w-4 mr-2" />
+              Overview
+            </TabsTrigger>
+            <TabsTrigger value="flags">
+              <Flag className="h-4 w-4 mr-2" />
+              Feature Flags
+            </TabsTrigger>
+            {isOperationSpearheadEnabled && (
+              <TabsTrigger value="appeals">
+                <AlertOctagon className="h-4 w-4 mr-2" />
+                Ban Appeals
+                {pendingAppeals.length > 0 && (
+                  <Badge variant="destructive" className="ml-2">{pendingAppeals.length}</Badge>
+                )}
+              </TabsTrigger>
+            )}
+            {isInviteSystemEnabled && (
+              <TabsTrigger value="invites">
+                <Users className="h-4 w-4 mr-2" />
+                Invite System
+              </TabsTrigger>
+            )}
+          </TabsList>
+
+          <TabsContent value="overview" className="space-y-6 mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Admin Dashboard</CardTitle>
+                <CardDescription>
+                  Welcome to the admin panel. Use the tabs above to navigate between different admin sections.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid gap-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Flag className="h-5 w-5 text-primary" />
+                      <span className="font-medium">Feature Flags</span>
+                    </div>
+                    <Badge variant="outline">{flags.length} flags</Badge>
+                  </div>
+                  {isOperationSpearheadEnabled && (
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <AlertOctagon className="h-5 w-5 text-destructive" />
+                        <span className="font-medium">Pending Appeals</span>
+                      </div>
+                      <Badge variant={pendingAppeals.length > 0 ? "destructive" : "outline"}>
+                        {pendingAppeals.length}
+                      </Badge>
+                    </div>
+                  )}
+                  {isInviteSystemEnabled && (
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Users className="h-5 w-5 text-primary" />
+                        <span className="font-medium">Total Referrals</span>
+                      </div>
+                      <Badge variant="outline">{inviteStats.referrals}</Badge>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>About Feature Flags</CardTitle>
+                <CardDescription>
+                  Feature flags allow you to enable or disable features without deploying new code.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-2 text-sm text-muted-foreground">
+                <p>• Changes take effect immediately for all users</p>
+                <p>• User-specific overrides can be set in the database for beta testing</p>
+                <p>• All flags are disabled by default for safety</p>
+                <p>• Flags can be toggled on/off at any time without data loss</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="flags" className="space-y-6 mt-6">
+            <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
               <Flag className="h-5 w-5 text-primary" />
@@ -203,9 +289,11 @@ export default function AdminPanel() {
             ))}
           </CardContent>
         </Card>
+          </TabsContent>
 
-        {isOperationSpearheadEnabled && (
-          <Card>
+          {isOperationSpearheadEnabled && (
+            <TabsContent value="appeals" className="space-y-6 mt-6">
+              <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
                 <AlertOctagon className="h-5 w-5 text-destructive" />
@@ -268,10 +356,12 @@ export default function AdminPanel() {
               )}
             </CardContent>
           </Card>
-        )}
+            </TabsContent>
+          )}
 
-        {isInviteSystemEnabled && (
-          <Card>
+          {isInviteSystemEnabled && (
+            <TabsContent value="invites" className="space-y-6 mt-6">
+              <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
                 <Users className="h-5 w-5 text-primary" />
@@ -319,22 +409,9 @@ export default function AdminPanel() {
               </Button>
             </CardContent>
           </Card>
-        )}
-
-        <Card>
-          <CardHeader>
-            <CardTitle>About Feature Flags</CardTitle>
-            <CardDescription>
-              Feature flags allow you to enable or disable features without deploying new code.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2 text-sm text-muted-foreground">
-            <p>• Changes take effect immediately for all users</p>
-            <p>• User-specific overrides can be set in the database for beta testing</p>
-            <p>• All flags are disabled by default for safety</p>
-            <p>• Flags can be toggled on/off at any time without data loss</p>
-          </CardContent>
-        </Card>
+            </TabsContent>
+          )}
+        </Tabs>
 
         <AppealReviewDialog
           appeal={selectedAppeal}
