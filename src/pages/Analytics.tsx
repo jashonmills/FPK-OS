@@ -19,20 +19,6 @@ export default function Analytics() {
 
   const { startDate } = getDateRange(parseInt(dateRange));
 
-  // Redirect if not authenticated
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Card className="p-8 text-center max-w-md">
-          <CardHeader>
-            <CardTitle>Authentication Required</CardTitle>
-            <CardDescription>Please log in to view your analytics</CardDescription>
-          </CardHeader>
-        </Card>
-      </div>
-    );
-  }
-
   // Fetch user's persona
   const { data: persona, isLoading: personaLoading } = useQuery({
     queryKey: ["persona", user?.id],
@@ -182,6 +168,20 @@ export default function Analytics() {
   });
 
   const isLoading = personaLoading || postsLoading || followersLoading || followingLoading || messagesLoading || reflectionsLoading;
+
+  // Check authentication after all hooks
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Card className="p-8 text-center max-w-md">
+          <CardHeader>
+            <CardTitle>Authentication Required</CardTitle>
+            <CardDescription>Please log in to view your analytics</CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
