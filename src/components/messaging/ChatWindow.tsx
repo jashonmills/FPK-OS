@@ -70,7 +70,7 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
           const { data: persona } = await supabase
             .from('personas')
             .select('display_name, avatar_url')
-            .eq('user_id', msg.sender_id)
+            .eq('id', msg.sender_id)
             .single();
 
           return {
@@ -109,7 +109,7 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
           const { data: persona } = await supabase
             .from('personas')
             .select('display_name, avatar_url')
-            .eq('user_id', (payload.new as any).sender_id)
+            .eq('id', (payload.new as any).sender_id)
             .single();
 
           const newMessage = {
