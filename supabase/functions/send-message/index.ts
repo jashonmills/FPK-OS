@@ -276,13 +276,17 @@ serve(async (req) => {
     }
 
     const aiResult = await aiResponse.json();
-    const aiContent = aiResult.choices?.[0]?.message?.content;
+    let aiContent = aiResult.choices?.[0]?.message?.content;
     
     let analysis;
     try {
+      // Strip markdown code blocks if present (```json ... ```)
+      if (aiContent.includes('```')) {
+        aiContent = aiContent.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
+      }
       analysis = JSON.parse(aiContent);
     } catch (e) {
-      console.error('Failed to parse AI response:', e);
+      console.error('Failed to parse AI response:', e, 'Raw content:', aiContent);
       // Fallback: allow message
       const { data: message, error } = await supabaseClient
         .from('messages')
