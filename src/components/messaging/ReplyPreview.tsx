@@ -10,7 +10,7 @@ interface ReplyPreviewProps {
 
 export const ReplyPreview = ({ senderName, content, onCancel }: ReplyPreviewProps) => {
   return (
-    <div className="bg-muted border-l-4 border-primary px-3 py-2 mb-2 flex items-start justify-between gap-2 rounded-r-lg shadow-md transition-all duration-200">
+    <div className="bg-muted border-l-4 border-primary px-3 py-2 mb-2 flex items-start justify-between gap-2 rounded-r-lg shadow-xl shadow-primary/30 transition-all duration-200">
       <div className="flex-1 min-w-0">
         <div className="text-xs font-medium text-primary mb-1">
           Replying to {senderName}

@@ -218,8 +218,8 @@ const ConversationListComponent = ({ activeConversationId }: { activeConversatio
               onClick={() => navigate(`/messages/${conv.id}`)}
               className={`w-full p-3 rounded-lg text-left transition-all duration-200 ${
                 activeConversationId === conv.id 
-                  ? 'bg-primary/10 shadow-md ring-2 ring-primary/20 scale-[1.02]' 
-                  : 'bg-muted/20 shadow-sm hover:bg-accent hover:shadow-md hover:scale-[1.01]'
+                  ? 'bg-primary/20 shadow-2xl ring-4 ring-primary/40 scale-[1.03] shadow-primary/50' 
+                  : 'bg-card/60 shadow-lg hover:bg-accent/70 hover:shadow-2xl hover:scale-[1.02] shadow-black/20 hover:shadow-primary/30'
               }`}
             >
               <div className="flex items-start gap-3">

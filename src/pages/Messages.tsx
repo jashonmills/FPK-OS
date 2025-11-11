@@ -22,9 +22,9 @@ const Messages = () => {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-gradient-to-b from-background via-muted/10 to-background">
+    <div className="h-screen flex flex-col bg-gradient-to-b from-background via-muted/30 to-background/80">
       {/* Header */}
-      <header className="border-b p-4 flex items-center gap-4 bg-gradient-to-r from-background via-primary/5 to-background shadow-sm backdrop-blur-sm">
+      <header className="border-b p-4 flex items-center gap-4 bg-gradient-to-r from-background via-primary/10 to-background shadow-xl shadow-primary/20 backdrop-blur-md">
         <Button
           variant="ghost"
           size="icon"
@@ -44,9 +44,9 @@ const Messages = () => {
         </Button>
       </header>
 
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden bg-muted/20">
         {/* Conversation List - Desktop */}
-        <aside className="hidden md:flex w-80 border-r flex-col">
+        <aside className="hidden md:flex w-80 border-r flex-col bg-card/80 backdrop-blur-md shadow-2xl shadow-black/10">
           <div className="p-4 border-b">
             <NewConversationDialog />
           </div>
@@ -75,7 +75,7 @@ const Messages = () => {
         )}
 
         {/* Chat Window - Desktop */}
-        <main className="hidden md:flex flex-1 flex-col">
+        <main className="hidden md:flex flex-1 flex-col bg-background/80">
           {conversationId ? (
             <ChatWindow conversationId={conversationId} />
           ) : (

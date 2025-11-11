@@ -601,11 +601,11 @@ const ChatWindowComponent = ({ conversationId }: ChatWindowProps) => {
                         className={`rounded-lg px-4 py-2 max-w-md transition-all duration-200 ${
                           message.is_deleted
                             ? message.deleted_by_ai
-                              ? 'bg-destructive/10 border-2 border-destructive/50 shadow-sm'
-                              : 'bg-muted/50 border border-dashed border-border'
+                              ? 'bg-destructive/20 border-2 border-destructive shadow-lg shadow-destructive/30'
+                              : 'bg-muted/60 border-2 border-dashed border-border shadow-md'
                             : isOwn
-                            ? 'bg-primary text-primary-foreground shadow-md hover:shadow-lg shadow-primary/20'
-                            : 'bg-muted shadow-sm hover:shadow-md'
+                            ? 'bg-primary text-primary-foreground shadow-2xl hover:shadow-[0_20px_60px_-15px] hover:shadow-primary/60 shadow-primary/40'
+                            : 'bg-muted shadow-xl hover:shadow-2xl shadow-black/30'
                         }`}
                       >
                           {message.is_deleted ? (
@@ -675,7 +675,7 @@ const ChatWindowComponent = ({ conversationId }: ChatWindowProps) => {
   }
 
   return (
-    <div className="flex flex-col h-full bg-gradient-to-b from-background/50 via-muted/5 to-background/30">
+    <div className="flex flex-col h-full bg-gradient-to-b from-background via-muted/20 to-background/80 shadow-inner">
       {messages.length === 0 ? (
         <div className="flex-1 flex items-center justify-center text-muted-foreground">
           <div className="text-center py-8">
@@ -698,8 +698,8 @@ const ChatWindowComponent = ({ conversationId }: ChatWindowProps) => {
           }}
         />
       )}
-      <div className="border-t p-4 bg-background/80 backdrop-blur-sm shadow-lg">
-        <MessageInput 
+      <div className="border-t p-4 bg-card/80 backdrop-blur-md shadow-2xl shadow-black/20">
+        <MessageInput
           conversationId={conversationId}
           onOptimisticMessage={handleOptimisticMessage}
           replyingTo={replyingTo}

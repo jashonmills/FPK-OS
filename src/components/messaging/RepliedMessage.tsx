@@ -10,7 +10,7 @@ interface RepliedMessageProps {
 export const RepliedMessage = ({ senderName, content, onClick }: RepliedMessageProps) => {
   return (
     <div 
-      className="bg-muted/50 border-l-2 border-primary/50 px-3 py-2 mb-1 text-sm cursor-pointer hover:bg-muted/70 transition-all duration-200 rounded shadow-sm hover:shadow-md"
+      className="bg-muted/70 border-l-4 border-primary/70 px-3 py-2 mb-1 text-sm cursor-pointer hover:bg-muted/90 transition-all duration-200 rounded shadow-lg hover:shadow-xl shadow-primary/20"
       onClick={onClick}
     >
       <div className="flex items-center gap-1 mb-1">
