@@ -130,3 +130,134 @@ export const generateIntroText = (lessonTitle: string, lessonNumber: number, tot
 export const generateOutroText = (lessonTitle: string): string => {
   return `This completes the lesson on ${lessonTitle}. Great job on your learning progress!`;
 };
+
+/**
+ * Extracts plain text from course manifest JSON for AI Study Coach context
+ */
+export const extractCourseManifestText = (manifest: any): string => {
+  let output = '';
+  
+  // Course header
+  output += `${manifest.title.toUpperCase()}\n\n`;
+  output += `${manifest.description}\n\n`;
+  output += `${'─'.repeat(60)}\n\n`;
+  
+  // Process each lesson
+  manifest.lessons?.forEach((lesson: any, index: number) => {
+    output += `LESSON ${lesson.id}: ${lesson.title.toUpperCase()}\n`;
+    if (lesson.description) {
+      output += `${lesson.description}\n\n`;
+    }
+    
+    // Extract text from sections
+    if (lesson.sections && lesson.sections.length > 0) {
+      lesson.sections.forEach((section: any) => {
+        output += extractSectionText(section);
+      });
+    } else if (lesson.textContent) {
+      // Fallback to legacy textContent
+      output += `${lesson.textContent}\n\n`;
+    }
+    
+    output += `${'─'.repeat(60)}\n\n`;
+  });
+  
+  return output;
+};
+
+/**
+ * Extracts text from a single section
+ */
+const extractSectionText = (section: any): string => {
+  let text = '';
+  
+  switch (section.type) {
+    case 'heading':
+      const level = section.level || 2;
+      text += `${'#'.repeat(level)} ${section.content}\n\n`;
+      break;
+      
+    case 'paragraph':
+      text += `${section.content}\n\n`;
+      break;
+      
+    case 'list':
+      if (section.items && Array.isArray(section.items)) {
+        section.items.forEach((item: string) => {
+          text += `• ${item}\n`;
+        });
+        text += '\n';
+      }
+      break;
+      
+    case 'callout':
+      const icon = section.style === 'teaching' ? '📚' : 
+                   section.style === 'info' ? 'ℹ️' : 
+                   section.style === 'warning' ? '⚠️' : 
+                   section.style === 'success' ? '✓' : '💡';
+      text += `${icon} ${section.content}\n\n`;
+      break;
+      
+    case 'quote':
+      text += `"${section.content}"\n\n`;
+      break;
+      
+    case 'code':
+      text += `\`\`\`${section.language || ''}\n${section.content}\n\`\`\`\n\n`;
+      break;
+      
+    case 'quiz':
+      if (section.question) {
+        text += `❓ ${section.question}\n`;
+        if (section.options && Array.isArray(section.options)) {
+          section.options.forEach((opt: string, i: number) => {
+            text += `  ${i + 1}. ${opt}\n`;
+          });
+        }
+        if (section.correctAnswer) {
+          text += `  ✓ Answer: ${section.correctAnswer}\n`;
+        }
+        if (section.explanation) {
+          text += `  ${section.explanation}\n`;
+        }
+        text += '\n';
+      } else if (section.quizTitle) {
+        // Enhanced quiz format
+        text += `📝 ${section.quizTitle}\n\n`;
+        section.questions?.forEach((q: any, i: number) => {
+          text += `Question ${i + 1}: ${q.questionText}\n`;
+          q.options?.forEach((opt: string, j: number) => {
+            text += `  ${j + 1}. ${opt}\n`;
+          });
+          text += `  ✓ Answer: ${q.correctAnswer}\n`;
+          if (q.points) {
+            text += `  Points: ${q.points}\n`;
+          }
+          text += '\n';
+        });
+      }
+      break;
+      
+    case 'richText':
+      if (section.content && Array.isArray(section.content)) {
+        section.content.forEach((block: any) => {
+          if (block.type === 'subheading') {
+            text += `**${block.text}**\n\n`;
+          } else if (block.type === 'text') {
+            text += `${block.text}\n\n`;
+          }
+        });
+      }
+      break;
+      
+    case 'image':
+      text += `[Image: ${section.alt || 'Course image'}]\n\n`;
+      break;
+      
+    default:
+      // Skip video, audio, and unknown types
+      break;
+  }
+  
+  return text;
+};

@@ -15,7 +15,7 @@ import { AssignmentsManagementTab } from '@/components/ai-coach/AssignmentsManag
 import { supabase } from '@/integrations/supabase/client';
 import { useSearchParams } from 'react-router-dom';
 import { DocumentReader } from '@/components/ai-coach/DocumentReader';
-import { CourseContentViewer } from '@/components/ai-coach/CourseContentViewer';
+import { CourseTextViewer } from '@/components/ai-coach/CourseTextViewer';
 import { toast } from 'sonner';
 
 interface StudyTip {
@@ -193,7 +193,7 @@ export default function AIStudyCoach() {
                       {activeDocument && (
                         <div className="mb-4 border rounded-lg overflow-hidden">
                           {activeDocument.type === 'course' ? (
-                            <CourseContentViewer
+                            <CourseTextViewer
                               course={activeDocument}
                               onClose={handleCloseDocumentViewer}
                             />
@@ -225,7 +225,7 @@ export default function AIStudyCoach() {
                       </div>
                       <div className="border rounded-lg overflow-hidden">
                         {activeDocument.type === 'course' ? (
-                          <CourseContentViewer
+                          <CourseTextViewer
                             course={activeDocument}
                             onClose={handleCloseDocumentViewer}
                           />
@@ -254,7 +254,7 @@ export default function AIStudyCoach() {
                       </div>
                       <div className="border rounded-lg overflow-hidden">
                         {activeDocument.type === 'course' ? (
-                          <CourseContentViewer
+                          <CourseTextViewer
                             course={activeDocument}
                             onClose={handleCloseDocumentViewer}
                           />
@@ -287,7 +287,7 @@ export default function AIStudyCoach() {
         <div className="w-full max-w-7xl mx-auto px-4">
           <div className="h-[600px]">
             {activeDocument.type === 'course' ? (
-              <CourseContentViewer
+              <CourseTextViewer
                 course={activeDocument}
                 onClose={handleCloseDocumentViewer}
               />
