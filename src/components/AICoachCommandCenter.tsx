@@ -326,7 +326,8 @@ const AIInteractionColumn: React.FC<{
   onConversationDocumentContextChange: (ids: string[]) => void;
   selectedCourseSlug?: string;
   onCourseChange?: (slug: string | undefined) => void;
-}> = ({ messages, inputValue, onInputChange, onSendMessage, onVoiceTranscription, onSaveChat, onSaveAndClear, onClearChat, isLoading, attachedMaterialIds, onAttachedMaterialsChange, studyMaterials, orgId, conversationDocumentContext, onConversationDocumentContextChange, selectedCourseSlug, onCourseChange }) => {
+  onViewDocument?: (document: any) => void;
+}> = ({ messages, inputValue, onInputChange, onSendMessage, onVoiceTranscription, onSaveChat, onSaveAndClear, onClearChat, isLoading, attachedMaterialIds, onAttachedMaterialsChange, studyMaterials, orgId, conversationDocumentContext, onConversationDocumentContextChange, selectedCourseSlug, onCourseChange, onViewDocument }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const lastMessageRef = useRef<string | null>(null);
@@ -645,6 +646,7 @@ const AIInteractionColumn: React.FC<{
                 onMaterialsChange={onAttachedMaterialsChange}
                 selectedCourseSlug={selectedCourseSlug}
                 onCourseChange={onCourseChange}
+                onViewDocument={onViewDocument}
               />
               <VoiceInputButton
                 onTranscription={onVoiceTranscription}
@@ -1082,6 +1084,7 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
                   onConversationDocumentContextChange={setConversationDocumentContext}
                   selectedCourseSlug={selectedCourseSlug}
                   onCourseChange={setSelectedCourseSlug}
+                  onViewDocument={handleViewDocument}
                 />
               </div>
             </TabsContent>

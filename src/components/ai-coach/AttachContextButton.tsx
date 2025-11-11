@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Paperclip, X, BookOpen } from 'lucide-react';
+import { Paperclip, X, BookOpen, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Popover,
@@ -22,6 +22,7 @@ interface AttachContextButtonProps {
   onMaterialsChange: (materialIds: string[]) => void;
   selectedCourseSlug?: string;
   onCourseChange?: (courseSlug: string | undefined) => void;
+  onViewDocument?: (document: any) => void;
 }
 
 export function AttachContextButton({
@@ -29,7 +30,8 @@ export function AttachContextButton({
   selectedMaterialIds,
   onMaterialsChange,
   selectedCourseSlug,
-  onCourseChange
+  onCourseChange,
+  onViewDocument
 }: AttachContextButtonProps) {
   const { studyMaterials } = useAICoachStudyMaterials(orgId);
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
@@ -266,9 +268,8 @@ export function AttachContextButton({
                       return (
                         <div
                           key={enrollment.course_id}
-                          onClick={() => handleCourseSelect(course.slug)}
                           className={cn(
-                            "rounded-lg border cursor-pointer transition-all",
+                            "rounded-lg border transition-all",
                             isMobile ? "p-4" : "p-3",
                             isSelected
                               ? "bg-blue-50 border-blue-400 shadow-sm"
@@ -288,7 +289,10 @@ export function AttachContextButton({
                                 />
                               </div>
                             )}
-                            <div className="flex-1 min-w-0">
+                            <div 
+                              className="flex-1 min-w-0 cursor-pointer"
+                              onClick={() => handleCourseSelect(course.slug)}
+                            >
                               <p className={cn(
                                 "font-semibold text-gray-900",
                                 isMobile ? "text-base" : "text-sm"
@@ -317,6 +321,23 @@ export function AttachContextButton({
                                 )}
                               </div>
                             </div>
+                            {onViewDocument && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onViewDocument({
+                                    type: 'course',
+                                    ...course,
+                                  });
+                                }}
+                                className="flex-shrink-0"
+                                title="View course content"
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            )}
                           </div>
                         </div>
                       );

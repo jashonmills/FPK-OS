@@ -2,6 +2,7 @@ import { AICoachCommandCenter } from '@/components/AICoachCommandCenter';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { DocumentReader } from '@/components/ai-coach/DocumentReader';
+import { CourseContentViewer } from '@/components/ai-coach/CourseContentViewer';
 import { toast } from 'sonner';
 
 const AICoach = () => {
@@ -41,14 +42,21 @@ const AICoach = () => {
           onViewDocument={handleViewDocument}
         />
         
-        {/* Standalone Document Reader - Below Chat Module */}
+        {/* Standalone Document/Course Reader - Below Chat Module */}
         {activeDocument && (
           <div className="w-full max-w-7xl mx-auto px-4">
             <div className="h-[600px]">
-              <DocumentReader
-                document={activeDocument}
-                onClose={handleCloseDocumentViewer}
-              />
+              {activeDocument.type === 'course' ? (
+                <CourseContentViewer
+                  course={activeDocument}
+                  onClose={handleCloseDocumentViewer}
+                />
+              ) : (
+                <DocumentReader
+                  document={activeDocument}
+                  onClose={handleCloseDocumentViewer}
+                />
+              )}
             </div>
           </div>
         )}
