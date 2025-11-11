@@ -1,13 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
-import { Clock, Play, Square } from 'lucide-react';
+import { Clock, Play, Square, AlertTriangle } from 'lucide-react';
 import { format } from 'date-fns';
 import { useSidebar } from '@/components/ui/sidebar';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface ActiveSession {
   projectId: string;
@@ -31,127 +32,105 @@ export const TimeClockWidget = () => {
   const [elapsedTime, setElapsedTime] = useState(0);
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<string>('');
-  
-  // Store user ID in a ref to avoid effect dependency issues
-  const userIdRef = useRef(user?.id);
+  const [isStale, setIsStale] = useState(false);
 
-  // Update ref when user ID changes
+  // Initialize: Fetch projects and active session from database ONLY
   useEffect(() => {
-    userIdRef.current = user?.id;
-  }, [user?.id]);
-
-  // Effect 1: Initialize projects and restore session (when user is loaded)
-  useEffect(() => {
-    if (!user?.id) return; // Don't run if user not loaded
+    if (!user?.id) return;
     
     fetchProjects();
-    
-    // Restore session from localStorage
-    const storedSession = localStorage.getItem('fpk_pulse_active_time_session');
-    if (storedSession) {
-      try {
-        const session = JSON.parse(storedSession);
-        setActiveSession({
-          ...session,
-          startTime: new Date(session.startTime)
-        });
-        
-        // Verify/restore database record (userIdRef.current is now guaranteed to be set)
-        restoreDatabaseSession(user.id, session);
-      } catch (error) {
-        console.error('Failed to restore session:', error);
-        localStorage.removeItem('fpk_pulse_active_time_session');
-      }
-    }
-  }, [user?.id]); // Run when user.id is available
+    fetchActiveSession();
+  }, [user?.id]);
 
-  // Effect 2: Setup beforeunload handler (once on mount)
+  // Real-time sync: Subscribe to active_time_sessions changes
   useEffect(() => {
-    const handleBeforeUnload = () => {
-      if (userIdRef.current) {
-        // Delete session from database when page is closing
-        supabase
-          .from('active_time_sessions')
-          .delete()
-          .eq('user_id', userIdRef.current);
-      }
-    };
+    if (!user?.id) return;
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
+    const channel = supabase
+      .channel('active_session_sync')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'active_time_sessions',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          console.log('Session change detected:', payload);
+          
+          if (payload.eventType === 'DELETE') {
+            // Session was stopped on another device
+            setActiveSession(null);
+            setElapsedTime(0);
+            setIsStale(false);
+          } else if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+            // Session was started/updated on another device
+            fetchActiveSession();
+          }
+        }
+      )
+      .subscribe();
 
     return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
+      supabase.removeChannel(channel);
     };
-  }, []); // Empty dependency - run once on mount
+  }, [user?.id]);
 
-  useEffect(() => {
-    // Save to localStorage whenever activeSession changes
-    if (activeSession) {
-      localStorage.setItem('fpk_pulse_active_time_session', JSON.stringify(activeSession));
-    } else {
-      localStorage.removeItem('fpk_pulse_active_time_session');
-    }
-  }, [activeSession]);
-
-  // Effect 3: Heartbeat and elapsed time updates
+  // Timer: Update elapsed time every second
   useEffect(() => {
     if (!activeSession) return;
 
-    // Update elapsed time every second
     const timerInterval = setInterval(() => {
       const elapsed = Math.floor((new Date().getTime() - activeSession.startTime.getTime()) / 1000);
       setElapsedTime(elapsed);
+      
+      // Check if session is stale (>12 hours)
+      const hoursElapsed = elapsed / 3600;
+      setIsStale(hoursElapsed > 12);
     }, 1000);
 
-    // Send heartbeat every 60 seconds
-    const heartbeatInterval = setInterval(async () => {
-      if (!userIdRef.current || !activeSession) return;
-      
-      // Check if session still exists
-      const { data: existing } = await supabase
-        .from('active_time_sessions')
-        .select('id')
-        .eq('user_id', userIdRef.current)
-        .maybeSingle();
-      
-      if (!existing) {
-        // Session was deleted somehow, re-insert it
-        console.warn('Session missing from database, restoring...');
-        await restoreDatabaseSession(userIdRef.current, activeSession);
-      } else {
-        // Update heartbeat
-        await supabase
-          .from('active_time_sessions')
-          .update({ last_heartbeat: new Date().toISOString() })
-          .eq('user_id', userIdRef.current);
-      }
-    }, 60000);
-
-    return () => {
-      clearInterval(timerInterval);
-      clearInterval(heartbeatInterval);
-    };
+    return () => clearInterval(timerInterval);
   }, [activeSession]);
 
-  // Helper: Restore database session if missing
-  const restoreDatabaseSession = async (userId: string, session: ActiveSession) => {
-    // Check if session exists in database
-    const { data: existing } = await supabase
-      .from('active_time_sessions')
-      .select('id')
-      .eq('user_id', userId)
-      .maybeSingle();
+  // Heartbeat: Update last_heartbeat every 60 seconds
+  useEffect(() => {
+    if (!activeSession || !user?.id) return;
 
-    if (!existing) {
-      // Re-insert the session
+    const heartbeatInterval = setInterval(async () => {
       await supabase
         .from('active_time_sessions')
-        .insert({
-          user_id: userId,
-          project_id: session.projectId,
-          task_id: session.taskId || null,
-          start_time: new Date(session.startTime).toISOString(),
-        });
+        .update({ last_heartbeat: new Date().toISOString() })
+        .eq('user_id', user.id);
+    }, 60000);
+
+    return () => clearInterval(heartbeatInterval);
+  }, [activeSession, user?.id]);
+
+  const fetchActiveSession = async () => {
+    if (!user?.id) return;
+
+    const { data, error } = await supabase
+      .from('active_time_sessions')
+      .select('*, projects(name)')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Error fetching active session:', error);
+      return;
+    }
+
+    if (data) {
+      setActiveSession({
+        projectId: data.project_id,
+        projectName: data.projects?.name || 'Unknown Project',
+        taskId: data.task_id || undefined,
+        startTime: new Date(data.start_time)
+      });
+    } else {
+      setActiveSession(null);
+      setElapsedTime(0);
     }
   };
 
@@ -255,7 +234,34 @@ export const TimeClockWidget = () => {
       });
       setActiveSession(null);
       setElapsedTime(0);
+      setIsStale(false);
     }
+  };
+
+  const handleForceClockOut = async () => {
+    if (!user) return;
+
+    const { data, error } = await supabase.functions.invoke('force-clock-out', {
+      body: {}
+    });
+
+    if (error) {
+      toast({
+        title: 'Error',
+        description: `Failed to force clock out: ${error.message}`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    toast({
+      title: 'Force Clocked Out',
+      description: `Logged ${data.hoursLogged} hours for ${data.projectName}`,
+    });
+
+    setActiveSession(null);
+    setElapsedTime(0);
+    setIsStale(false);
   };
 
   const formatElapsedTime = (seconds: number) => {
@@ -307,12 +313,22 @@ export const TimeClockWidget = () => {
           </>
         ) : (
           <>
+            {isStale && (
+              <Alert variant="destructive" className="mb-2">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription className="text-xs">
+                  This session has been running for over 12 hours. Please clock out or use Force Clock Out.
+                </AlertDescription>
+              </Alert>
+            )}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-muted-foreground">Active Session</span>
                 <div className="flex items-center gap-1">
-                  <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                  <span className="text-xs text-green-600 dark:text-green-400">Live</span>
+                  <div className={`h-2 w-2 rounded-full ${isStale ? 'bg-orange-500' : 'bg-green-500 animate-pulse'}`} />
+                  <span className={`text-xs ${isStale ? 'text-orange-600 dark:text-orange-400' : 'text-green-600 dark:text-green-400'}`}>
+                    {isStale ? 'Stale' : 'Live'}
+                  </span>
                 </div>
               </div>
               <div className="text-sm font-medium truncate">{activeSession.projectName}</div>
@@ -323,14 +339,27 @@ export const TimeClockWidget = () => {
                 Started at {format(activeSession.startTime, 'h:mm a')}
               </div>
             </div>
-            <Button
-              onClick={handleClockOut}
-              className="w-full h-9 gap-2"
-              variant="destructive"
-            >
-              <Square className="h-4 w-4" />
-              Clock Out
-            </Button>
+            <div className="space-y-2">
+              <Button
+                onClick={handleClockOut}
+                className="w-full h-9 gap-2"
+                variant="destructive"
+              >
+                <Square className="h-4 w-4" />
+                Clock Out
+              </Button>
+              {isStale && (
+                <Button
+                  onClick={handleForceClockOut}
+                  className="w-full h-9 gap-2"
+                  variant="outline"
+                  size="sm"
+                >
+                  <AlertTriangle className="h-4 w-4" />
+                  Force Clock Out
+                </Button>
+              )}
+            </div>
           </>
         )}
       </CardContent>
