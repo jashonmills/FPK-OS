@@ -498,7 +498,7 @@ const ChatWindowComponent = ({ conversationId }: ChatWindowProps) => {
     const canDelete = isOwn && !message.is_deleted;
     
     return (
-      <div className={`group flex items-start gap-3 px-4 py-2 ${isOwn ? 'flex-row-reverse' : ''}`}>
+      <div className={`group flex items-start gap-3 px-4 py-2 animate-fade-in ${isOwn ? 'flex-row-reverse' : ''}`}>
                   <Avatar className="w-8 h-8">
                     <AvatarImage src={message.sender?.avatar_url || undefined} />
                     <AvatarFallback>
@@ -598,14 +598,14 @@ const ChatWindowComponent = ({ conversationId }: ChatWindowProps) => {
                         />
                       )}
                       <div
-                        className={`rounded-lg px-4 py-2 max-w-md transition-all duration-200 ${
+                        className={`rounded-xl px-4 py-2 max-w-md transition-all duration-300 backdrop-blur-xl border ${
                           message.is_deleted
                             ? message.deleted_by_ai
                               ? 'bg-destructive/20 border-2 border-destructive shadow-lg shadow-destructive/30'
-                              : 'bg-muted/60 border-2 border-dashed border-border shadow-md'
+                              : 'bg-muted/40 border-2 border-dashed border-border/50 shadow-md backdrop-blur-md'
                             : isOwn
-                            ? 'bg-primary text-primary-foreground shadow-2xl hover:shadow-[0_20px_60px_-15px] hover:shadow-primary/60 shadow-primary/40'
-                            : 'bg-muted shadow-xl hover:shadow-2xl shadow-black/30'
+                            ? 'bg-primary/90 text-primary-foreground shadow-2xl hover:shadow-[0_20px_60px_-15px] hover:shadow-primary/70 shadow-primary/50 border-primary/30'
+                            : 'bg-background/50 shadow-xl hover:shadow-2xl shadow-black/40 border-border/30'
                         }`}
                       >
                           {message.is_deleted ? (
@@ -698,7 +698,7 @@ const ChatWindowComponent = ({ conversationId }: ChatWindowProps) => {
           }}
         />
       )}
-      <div className="border-t p-4 bg-card/80 backdrop-blur-md shadow-2xl shadow-black/20">
+      <div className="border-t p-4 bg-background/40 backdrop-blur-2xl shadow-2xl shadow-black/20 border-border/40">
         <MessageInput
           conversationId={conversationId}
           onOptimisticMessage={handleOptimisticMessage}

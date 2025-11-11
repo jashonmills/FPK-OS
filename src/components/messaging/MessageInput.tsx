@@ -306,7 +306,7 @@ export const MessageInput = ({ conversationId, onOptimisticMessage, replyingTo, 
   };
 
   return (
-    <div className="flex flex-col gap-2 p-3 rounded-lg bg-card/60 shadow-xl shadow-black/10 backdrop-blur-sm border border-border/50">
+    <div className="flex flex-col gap-2 p-3 rounded-lg bg-background/40 shadow-xl shadow-black/10 backdrop-blur-xl border border-border/40">
       {replyingTo && (
         <ReplyPreview
           senderName={replyingTo.senderName}
