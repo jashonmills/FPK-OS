@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { X } from "lucide-react";
 
 interface Reaction {
   id: string;
@@ -141,27 +143,41 @@ export const MessageReactions = ({ messageId }: MessageReactionsProps) => {
   if (groupedReactions.length === 0) return null;
 
   return (
-    <div className="flex flex-wrap gap-1.5 mt-2">
-      {groupedReactions.map((reaction) => (
-        <Button
-          key={reaction.emoji}
-          variant="ghost"
-          size="sm"
-          className={cn(
-            "h-7 px-2.5 py-0 text-sm gap-1.5 transition-all rounded-full backdrop-blur-md border",
-            reaction.userReacted 
-              ? "bg-primary/20 border-primary/40 hover:bg-primary/30 shadow-md" 
-              : "bg-background/40 border-border/30 hover:bg-background/60 shadow-sm"
-          )}
-          onClick={() => toggleReaction(reaction.emoji)}
-        >
-          <span className="text-base">{reaction.emoji}</span>
-          <span className={cn(
-            "text-xs font-medium",
-            reaction.userReacted ? "text-primary" : "text-muted-foreground"
-          )}>{reaction.count}</span>
-        </Button>
-      ))}
-    </div>
+    <TooltipProvider>
+      <div className="flex flex-wrap gap-1.5 mt-2">
+        {groupedReactions.map((reaction) => (
+          <Tooltip key={reaction.emoji}>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className={cn(
+                  "h-7 px-2.5 py-0 text-sm gap-1.5 transition-all rounded-full backdrop-blur-md border group/reaction relative",
+                  reaction.userReacted 
+                    ? "bg-primary/20 border-primary/40 hover:bg-destructive/20 hover:border-destructive/40 shadow-md" 
+                    : "bg-background/40 border-border/30 hover:bg-background/60 shadow-sm"
+                )}
+                onClick={() => toggleReaction(reaction.emoji)}
+              >
+                <span className={cn(
+                  "text-base transition-all",
+                  reaction.userReacted && "group-hover/reaction:opacity-30"
+                )}>{reaction.emoji}</span>
+                <span className={cn(
+                  "text-xs font-medium",
+                  reaction.userReacted ? "text-primary group-hover/reaction:text-destructive" : "text-muted-foreground"
+                )}>{reaction.count}</span>
+                {reaction.userReacted && (
+                  <X className="w-3 h-3 absolute inset-0 m-auto opacity-0 group-hover/reaction:opacity-100 transition-opacity text-destructive" />
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{reaction.userReacted ? "Click to remove your reaction" : "React with this emoji"}</p>
+            </TooltipContent>
+          </Tooltip>
+        ))}
+      </div>
+    </TooltipProvider>
   );
 };
