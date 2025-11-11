@@ -31,7 +31,7 @@ export const FileAttachment = ({ fileUrl, fileName, fileType, fileSize }: FileAt
 
   if (isImage) {
     return (
-      <div className="w-full max-w-[280px] sm:max-w-sm">
+      <div className="w-full max-w-[280px] sm:max-w-sm mx-auto">
         <img
           src={fileUrl}
           alt={fileName}
