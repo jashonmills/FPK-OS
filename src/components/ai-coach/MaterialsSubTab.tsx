@@ -22,6 +22,9 @@ import { useAICoachFolders } from '@/hooks/useAICoachFolders';
 import { StudyMaterialAssignmentDialog } from '@/components/assignments/StudyMaterialAssignmentDialog';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { useOrgPermissions } from '@/hooks/useOrgPermissions';
 
 interface MaterialsSubTabProps {
   orgId?: string;
@@ -49,8 +52,68 @@ export function MaterialsSubTab({ orgId, onStartStudying, onViewDocument, attach
   const [selectedMaterialIds, setSelectedMaterialIds] = useState<string[]>([]);
   const [isBulkMode, setIsBulkMode] = useState(false);
 
-  // Check if user is an educator (has orgId context)
-  const isEducator = !!orgId;
+  // Check if user is an educator using proper role permissions
+  const { isOrgOwner, isOrgInstructor } = useOrgPermissions();
+  const isEducator = isOrgOwner() || isOrgInstructor();
+
+  // Fetch enrolled and assigned courses
+  const { data: enrolledCourses = [] } = useQuery({
+    queryKey: ['ai-coach-materials-courses', orgId],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return [];
+
+      const courseIds = new Set<string>();
+
+      // Get assigned courses if in org context
+      if (orgId) {
+        const { data: assignedTargets } = await supabase
+          .from('org_assignment_targets')
+          .select(`
+            assignment_id,
+            org_assignments!inner (
+              resource_id,
+              type
+            )
+          `)
+          .eq('target_id', user.id)
+          .eq('target_type', 'member');
+
+        (assignedTargets || []).forEach(target => {
+          const assignment = target.org_assignments;
+          if (assignment.type === 'course') {
+            courseIds.add(assignment.resource_id);
+          }
+        });
+      }
+
+      // Get enrolled courses
+      const { data: regularEnrollments } = await supabase
+        .from('enrollments')
+        .select('course_id')
+        .eq('user_id', user.id);
+
+      (regularEnrollments || []).forEach(e => courseIds.add(e.course_id));
+
+      const { data: interactiveEnrollments } = await supabase
+        .from('interactive_course_enrollments')
+        .select('course_id')
+        .eq('user_id', user.id);
+
+      (interactiveEnrollments || []).forEach(e => courseIds.add(e.course_id));
+
+      // Fetch course details
+      const allCourseIds = Array.from(courseIds);
+      if (allCourseIds.length === 0) return [];
+
+      const { data: courses } = await supabase
+        .from('courses')
+        .select('id, slug, title, thumbnail_url, description')
+        .in('id', allCourseIds);
+
+      return courses || [];
+    },
+  });
 
   console.log('[MaterialsSubTab] Rendered:', { 
     orgId, 
@@ -352,12 +415,44 @@ export function MaterialsSubTab({ orgId, onStartStudying, onViewDocument, attach
             <div className="space-y-2">
               {isLoadingMaterials ? (
                 <p className="text-sm text-gray-500 italic animate-pulse">Loading materials...</p>
-              ) : filteredMaterials.length === 0 ? (
-                <p className="text-sm text-gray-500 italic">
-                  {searchQuery ? 'No materials match your search.' : (selectedFolderId === null ? 'No materials uploaded yet' : 'This folder is empty')}
-                </p>
               ) : (
-                filteredMaterials.map((material: any) => {
+                <>
+                  {/* Render Courses */}
+                  {enrolledCourses.map((course: any) => (
+                    <div
+                      key={`course-${course.id}`}
+                      className="group flex items-center justify-between p-2 md:p-3 bg-blue-50 rounded border border-blue-200 hover:bg-blue-100 transition-colors"
+                    >
+                      <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
+                        {course.thumbnail_url && (
+                          <div className="flex-shrink-0 w-10 h-10 bg-white rounded-lg border overflow-hidden">
+                            <img src={course.thumbnail_url} alt={course.title} className="w-full h-full object-cover" />
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-gray-900 truncate text-xs md:text-sm flex items-center gap-2">
+                            <BookOpen className="w-4 h-4 text-blue-600" />
+                            {course.title}
+                          </p>
+                          <p className="text-xs text-gray-500">Course • Available for study</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleViewMaterial({ ...course, type: 'course' })}
+                          className="h-8"
+                        >
+                          <Eye className="w-4 h-4 md:mr-1.5" />
+                          <span className="hidden md:inline text-xs">View</span>
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                  
+                  {/* Render Uploaded Materials */}
+                  {filteredMaterials.map((material: any) => {
                 const isAttached = attachedMaterialIds.includes(material.id);
                 const isSelected = selectedMaterialIds.includes(material.id);
                 return (
@@ -428,24 +523,24 @@ export function MaterialsSubTab({ orgId, onStartStudying, onViewDocument, attach
                     <MoreVertical className="w-4 h-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuContent align="end" className="w-48 z-50 bg-white">
                           <DropdownMenuItem onClick={() => handleViewMaterial(material)}>
                             <Eye className="w-4 h-4 mr-2" />
                             View Content
                           </DropdownMenuItem>
-                          {isEducator && (
-                            <>
-                              <DropdownMenuItem onClick={() => handleAssignMaterial(material)}>
-                                <UserPlus className="w-4 h-4 mr-2" />
-                                Assign to Students
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                            </>
-                          )}
                           <DropdownMenuItem onClick={() => handleMoveToFolder(material.id)}>
                             <FolderOpen className="w-4 h-4 mr-2" />
                             Move to Folder
                           </DropdownMenuItem>
+                          {isEducator && (
+                            <>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem onClick={() => handleAssignMaterial(material)}>
+                                <UserPlus className="w-4 h-4 mr-2" />
+                                Assign to Students
+                              </DropdownMenuItem>
+                            </>
+                          )}
                           <DropdownMenuSeparator />
                           <DropdownMenuItem 
                             onClick={() => handleDeleteMaterial(material.id)}
@@ -459,7 +554,15 @@ export function MaterialsSubTab({ orgId, onStartStudying, onViewDocument, attach
                     </div>
                   </div>
                 );
-              })
+              })}
+              
+              {/* Empty State */}
+              {enrolledCourses.length === 0 && filteredMaterials.length === 0 && !isLoadingMaterials && (
+                <p className="text-sm text-gray-500 italic">
+                  {searchQuery ? 'No materials match your search.' : (selectedFolderId === null ? 'No materials or courses available yet' : 'This folder is empty')}
+                </p>
+              )}
+            </>
             )}
             </div>
           </div>

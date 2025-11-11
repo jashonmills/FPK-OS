@@ -302,7 +302,7 @@ export function AttachContextButton({
                               : "hover:bg-gray-50 border-gray-200"
                           )}
                         >
-                          <div className="flex gap-3">
+                          <div className="flex items-start gap-3">
                             {course.thumbnail_url && (
                               <div className={cn(
                                 "rounded overflow-hidden flex-shrink-0 bg-gray-100",
@@ -350,7 +350,7 @@ export function AttachContextButton({
                             {onViewDocument && (
                               <Button
                                 variant="ghost"
-                                size="sm"
+                                size={isMobile ? "default" : "sm"}
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   onViewDocument({
@@ -358,10 +358,12 @@ export function AttachContextButton({
                                     ...course,
                                   });
                                 }}
-                                className="flex-shrink-0"
+                                className="flex-shrink-0 h-fit self-start"
                                 title="View course content"
                               >
-                                <Eye className="h-4 w-4" />
+                                <Eye className={cn(
+                                  isMobile ? "h-5 w-5" : "h-4 w-4"
+                                )} />
                               </Button>
                             )}
                           </div>
