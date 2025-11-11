@@ -211,6 +211,7 @@ const ChatWindowComponent = ({ conversationId }: ChatWindowProps) => {
           file_name, 
           file_type, 
           file_size,
+          image_caption,
           personas!messages_sender_id_fkey (
             display_name,
             avatar_url
