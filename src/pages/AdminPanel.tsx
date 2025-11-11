@@ -12,7 +12,9 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Shield, Flag, Users, Play, Loader2, AlertOctagon, LayoutDashboard, FileText, Search, Download } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { ArrowLeft, Shield, Flag, Users, Play, Loader2, AlertOctagon, LayoutDashboard, FileText, Search, Download, UserCog, Ban, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import { AppealReviewDialog } from "@/components/admin/AppealReviewDialog";
 import { format } from "date-fns";
@@ -39,6 +41,13 @@ export default function AdminPanel() {
   const [searchQuery, setSearchQuery] = useState("");
   const [logTypeFilter, setLogTypeFilter] = useState<string>("all");
   const [severityFilter, setSeverityFilter] = useState<string>("all");
+  const [users, setUsers] = useState<any[]>([]);
+  const [userSearchQuery, setUserSearchQuery] = useState("");
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [banDialogOpen, setBanDialogOpen] = useState(false);
+  const [banReason, setBanReason] = useState("");
+  const [banDuration, setBanDuration] = useState("24");
+  const [banningUser, setBanningUser] = useState(false);
   const isInviteSystemEnabled = useFeatureFlag('user_invite_system_enabled');
   const isOperationSpearheadEnabled = useFeatureFlag('operation_spearhead_enabled');
 
@@ -54,6 +63,7 @@ export default function AdminPanel() {
     if (isAdmin) {
       fetchFlags();
       fetchModerationLogs();
+      fetchUsers();
       if (isInviteSystemEnabled) {
         fetchInviteStats();
       }
@@ -112,6 +122,118 @@ export default function AdminPanel() {
     }
 
     setPendingAppeals(data || []);
+  };
+
+  const fetchUsers = async () => {
+    try {
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (profilesError) throw profilesError;
+
+      const usersWithDetails = await Promise.all(
+        (profilesData || []).map(async (profile) => {
+          const [personas, activeBan, banHistory, moderationHistory] = await Promise.all([
+            supabase
+              .from('personas')
+              .select('*')
+              .eq('user_id', profile.user_id)
+              .limit(1)
+              .single(),
+            supabase
+              .from('user_bans')
+              .select('*')
+              .eq('user_id', profile.user_id)
+              .eq('status', 'active')
+              .single(),
+            supabase
+              .from('user_bans')
+              .select('*')
+              .eq('user_id', profile.user_id)
+              .order('created_at', { ascending: false }),
+            supabase
+              .from('ai_moderation_log')
+              .select('*')
+              .eq('sender_id', profile.user_id)
+              .order('created_at', { ascending: false })
+              .limit(10)
+          ]);
+
+          return {
+            ...profile,
+            persona: personas.data,
+            activeBan: activeBan.data,
+            banHistory: banHistory.data || [],
+            moderationHistory: moderationHistory.data || []
+          };
+        })
+      );
+
+      setUsers(usersWithDetails);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      toast.error('Failed to load users');
+    }
+  };
+
+  const handleManualBan = async () => {
+    if (!selectedUser || !banReason.trim()) {
+      toast.error('Please provide a ban reason');
+      return;
+    }
+
+    setBanningUser(true);
+    try {
+      const expiresAt = new Date();
+      expiresAt.setHours(expiresAt.getHours() + parseInt(banDuration));
+
+      const { error } = await supabase
+        .from('user_bans')
+        .insert({
+          user_id: selectedUser.user_id,
+          reason: banReason,
+          offending_message_content: 'Manual ban by admin',
+          severity_score: 10,
+          expires_at: expiresAt.toISOString(),
+          status: 'active',
+          is_ai_ban: false,
+          banned_by_user_id: (await supabase.auth.getUser()).data.user?.id
+        });
+
+      if (error) throw error;
+
+      toast.success('User banned successfully');
+      setBanDialogOpen(false);
+      setBanReason('');
+      setBanDuration('24');
+      await fetchUsers();
+      await fetchModerationLogs();
+    } catch (error) {
+      console.error('Error banning user:', error);
+      toast.error('Failed to ban user');
+    } finally {
+      setBanningUser(false);
+    }
+  };
+
+  const handleUnban = async (userId: string, banId: string) => {
+    try {
+      const { error } = await supabase
+        .from('user_bans')
+        .update({ status: 'expired', updated_at: new Date().toISOString() })
+        .eq('id', banId);
+
+      if (error) throw error;
+
+      toast.success('User unbanned successfully');
+      await fetchUsers();
+      await fetchModerationLogs();
+    } catch (error) {
+      console.error('Error unbanning user:', error);
+      toast.error('Failed to unban user');
+    }
   };
 
   const fetchInviteStats = async () => {
@@ -281,6 +403,16 @@ export default function AdminPanel() {
     toast.success('Logs exported as CSV');
   };
 
+  const filteredUsers = users.filter(user => {
+    if (!userSearchQuery) return true;
+    const query = userSearchQuery.toLowerCase();
+    return (
+      user.email?.toLowerCase().includes(query) ||
+      user.persona?.display_name?.toLowerCase().includes(query) ||
+      user.user_id?.toLowerCase().includes(query)
+    );
+  });
+
   if (roleLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -307,10 +439,14 @@ export default function AdminPanel() {
         </div>
 
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="overview">
               <LayoutDashboard className="h-4 w-4 mr-2" />
               Overview
+            </TabsTrigger>
+            <TabsTrigger value="users">
+              <UserCog className="h-4 w-4 mr-2" />
+              Users
             </TabsTrigger>
             <TabsTrigger value="flags">
               <Flag className="h-4 w-4 mr-2" />
@@ -390,6 +526,154 @@ export default function AdminPanel() {
                 <p>• User-specific overrides can be set in the database for beta testing</p>
                 <p>• All flags are disabled by default for safety</p>
                 <p>• Flags can be toggled on/off at any time without data loss</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="users" className="space-y-6 mt-6">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <UserCog className="h-5 w-5 text-primary" />
+                  <CardTitle>User Management</CardTitle>
+                </div>
+                <CardDescription>
+                  Search users, view profiles, and manage bans
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search by email, username, or ID..."
+                    value={userSearchQuery}
+                    onChange={(e) => setUserSearchQuery(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+
+                <div className="space-y-3 max-h-[600px] overflow-y-auto">
+                  {filteredUsers.length === 0 ? (
+                    <p className="text-muted-foreground text-center py-8">No users found</p>
+                  ) : (
+                    filteredUsers.map((user) => (
+                      <div
+                        key={user.user_id}
+                        className="border rounded-lg p-4 space-y-3"
+                      >
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1 space-y-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h3 className="font-semibold">
+                                {user.persona?.display_name || 'No Persona'}
+                              </h3>
+                              {user.activeBan && (
+                                <Badge variant="destructive">
+                                  <Ban className="h-3 w-3 mr-1" />
+                                  Banned
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-sm text-muted-foreground">{user.email}</p>
+                            <p className="text-xs text-muted-foreground font-mono">
+                              ID: {user.user_id}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              Joined: {format(new Date(user.created_at), 'MMM d, yyyy')}
+                            </p>
+                          </div>
+
+                          <div className="flex gap-2">
+                            {user.activeBan ? (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleUnban(user.user_id, user.activeBan.id)}
+                              >
+                                <CheckCircle className="h-4 w-4 mr-2" />
+                                Unban
+                              </Button>
+                            ) : (
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => {
+                                  setSelectedUser(user);
+                                  setBanDialogOpen(true);
+                                }}
+                              >
+                                <Ban className="h-4 w-4 mr-2" />
+                                Ban
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+
+                        {user.activeBan && (
+                          <div className="bg-destructive/10 border border-destructive/20 rounded p-3 space-y-1">
+                            <p className="text-sm font-medium text-destructive">Active Ban</p>
+                            <p className="text-sm">Reason: {user.activeBan.reason}</p>
+                            <p className="text-xs text-muted-foreground">
+                              Expires: {format(new Date(user.activeBan.expires_at), 'MMM d, yyyy h:mm a')}
+                            </p>
+                          </div>
+                        )}
+
+                        {user.moderationHistory.length > 0 && (
+                          <details className="text-sm">
+                            <summary className="cursor-pointer text-muted-foreground hover:text-foreground">
+                              Moderation History ({user.moderationHistory.length} events)
+                            </summary>
+                            <div className="mt-2 space-y-2 pl-4">
+                              {user.moderationHistory.slice(0, 5).map((event: any) => (
+                                <div key={event.id} className="text-xs space-y-1 border-l-2 border-muted pl-3">
+                                  <div className="flex items-center gap-2">
+                                    {getSeverityBadge(event.severity_score)}
+                                    <span className="text-muted-foreground">
+                                      {format(new Date(event.created_at), 'MMM d, h:mm a')}
+                                    </span>
+                                  </div>
+                                  <p>{event.action_taken}</p>
+                                  {event.violation_category && (
+                                    <p className="text-muted-foreground">
+                                      Category: {event.violation_category}
+                                    </p>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </details>
+                        )}
+
+                        {user.banHistory.length > 0 && (
+                          <details className="text-sm">
+                            <summary className="cursor-pointer text-muted-foreground hover:text-foreground">
+                              Ban History ({user.banHistory.length} bans)
+                            </summary>
+                            <div className="mt-2 space-y-2 pl-4">
+                              {user.banHistory.slice(0, 5).map((ban: any) => (
+                                <div key={ban.id} className="text-xs space-y-1 border-l-2 border-destructive/50 pl-3">
+                                  <div className="flex items-center gap-2">
+                                    <Badge variant={ban.status === 'active' ? 'destructive' : 'outline'}>
+                                      {ban.status}
+                                    </Badge>
+                                    <span className="text-muted-foreground">
+                                      {format(new Date(ban.created_at), 'MMM d, h:mm a')}
+                                    </span>
+                                  </div>
+                                  <p>{ban.reason}</p>
+                                  <p className="text-muted-foreground">
+                                    {ban.is_ai_ban ? 'AI Ban' : 'Manual Ban'}
+                                  </p>
+                                </div>
+                              ))}
+                            </div>
+                          </details>
+                        )}
+                      </div>
+                    ))
+                  )}
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -711,6 +995,66 @@ export default function AdminPanel() {
           onOpenChange={setAppealDialogOpen}
           onUpdate={fetchPendingAppeals}
         />
+
+        <AlertDialog open={banDialogOpen} onOpenChange={setBanDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Ban User</AlertDialogTitle>
+              <AlertDialogDescription>
+                You are about to manually ban {selectedUser?.persona?.display_name || selectedUser?.email}.
+                This action will prevent them from accessing messaging features.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="banReason">Ban Reason *</Label>
+                <Textarea
+                  id="banReason"
+                  placeholder="Enter the reason for this ban..."
+                  value={banReason}
+                  onChange={(e) => setBanReason(e.target.value)}
+                  rows={3}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="banDuration">Duration (hours)</Label>
+                <Select value={banDuration} onValueChange={setBanDuration}>
+                  <SelectTrigger id="banDuration">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">1 hour</SelectItem>
+                    <SelectItem value="6">6 hours</SelectItem>
+                    <SelectItem value="24">24 hours</SelectItem>
+                    <SelectItem value="72">3 days</SelectItem>
+                    <SelectItem value="168">1 week</SelectItem>
+                    <SelectItem value="720">30 days</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={banningUser}>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleManualBan}
+                disabled={banningUser || !banReason.trim()}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {banningUser ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Banning...
+                  </>
+                ) : (
+                  <>
+                    <Ban className="mr-2 h-4 w-4" />
+                    Ban User
+                  </>
+                )}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );
