@@ -22,22 +22,35 @@ interface MessageInputProps {
 export const MessageInput = ({ conversationId, onOptimisticMessage, replyingTo, onCancelReply }: MessageInputProps) => {
   const [content, setContent] = useState("");
   const [sending, setSending] = useState(false);
+  const [currentPersona, setCurrentPersona] = useState<{ id: string; display_name: string; avatar_url: string | null } | null>(null);
   const navigate = useNavigate();
   const { user } = useAuth();
   const typingTimeoutRef = useRef<NodeJS.Timeout>();
   const channelRef = useRef<ReturnType<typeof supabase.channel>>();
 
-  // Set up typing indicator
+  // Fetch current user's persona
   useEffect(() => {
-    const setupPresence = async () => {
-      // Fetch user's persona for typing indicator
+    const fetchPersona = async () => {
+      if (!user?.id) return;
+      
       const { data: persona } = await supabase
         .from('personas')
         .select('id, display_name, avatar_url')
-        .eq('user_id', user?.id)
+        .eq('user_id', user.id)
         .single();
 
-      if (!persona) return;
+      if (persona) {
+        setCurrentPersona(persona);
+      }
+    };
+
+    fetchPersona();
+  }, [user?.id]);
+
+  // Set up typing indicator
+  useEffect(() => {
+    const setupPresence = async () => {
+      if (!currentPersona) return;
 
       const channel = supabase.channel(`typing:${conversationId}`, {
         config: { presence: { key: user?.id } }
@@ -54,33 +67,25 @@ export const MessageInput = ({ conversationId, onOptimisticMessage, replyingTo, 
         });
     };
 
-    if (user?.id && conversationId) {
+    if (currentPersona && conversationId) {
       setupPresence();
     }
 
     return () => {
       if (channelRef.current) {
-        supabase.removeChannel(channelRef.current);
-      }
-    };
-  }, [conversationId, user?.id]);
+      supabase.removeChannel(channelRef.current);
+    }
+  };
+}, [conversationId, currentPersona]);
 
   const broadcastTyping = async (isTyping: boolean) => {
-    if (!channelRef.current) return;
-
-    const { data: persona } = await supabase
-      .from('personas')
-      .select('id, display_name, avatar_url')
-      .eq('user_id', user?.id)
-      .single();
-
-    if (!persona) return;
+    if (!channelRef.current || !currentPersona) return;
 
     if (isTyping) {
       await channelRef.current.track({
         user_id: user?.id,
-        persona_id: persona.id,
-        display_name: persona.display_name,
+        persona_id: currentPersona.id,
+        display_name: currentPersona.display_name,
         typing: true,
         timestamp: Date.now()
       });
@@ -114,19 +119,22 @@ export const MessageInput = ({ conversationId, onOptimisticMessage, replyingTo, 
   };
 
   const handleSend = async () => {
-    if (!content.trim() || sending) return;
+    if (!content.trim() || sending || !currentPersona) return;
 
     const messageContent = content.trim();
     setSending(true);
 
-    // Optimistic update: create temporary message
+    // Optimistic update: create temporary message with full persona info
     const optimisticMessage = {
       id: `temp-${Date.now()}`,
       content: messageContent,
-      sender_id: user?.id || '',
+      sender_id: currentPersona.id,
       conversation_id: conversationId,
       created_at: new Date().toISOString(),
-      is_sending: true, // Flag to indicate this is optimistic
+      sender: {
+        display_name: currentPersona.display_name,
+        avatar_url: currentPersona.avatar_url,
+      },
     };
 
     // Immediately show the message to the user

@@ -40,8 +40,29 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
   const [loading, setLoading] = useState(true);
   const [typingUsers, setTypingUsers] = useState<Array<{ display_name: string }>>([]);
   const [replyingTo, setReplyingTo] = useState<{ id: string; senderName: string; content: string } | null>(null);
+  const [userPersonaId, setUserPersonaId] = useState<string | null>(null);
   const { user } = useAuth();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const lastSentMessageRef = useRef<{ content: string; timestamp: number } | null>(null);
+
+  // Fetch current user's persona ID
+  useEffect(() => {
+    const fetchUserPersona = async () => {
+      if (!user?.id) return;
+      
+      const { data: persona } = await supabase
+        .from('personas')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (persona) {
+        setUserPersonaId(persona.id);
+      }
+    };
+
+    fetchUserPersona();
+  }, [user?.id]);
 
   const handleOptimisticMessage = (optimisticMsg: any) => {
     if (optimisticMsg.failed) {
@@ -49,6 +70,12 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
       setMessages(prev => prev.filter(m => m.id !== optimisticMsg.id));
       return;
     }
+    
+    // Track this message for deduplication
+    lastSentMessageRef.current = {
+      content: optimisticMsg.content,
+      timestamp: Date.now(),
+    };
     
     // Add optimistic message if not already present
     setMessages(prev => {
@@ -180,24 +207,58 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
             .eq('id', (payload.new as any).sender_id)
             .single();
 
+          let replied_message = undefined;
+          if ((payload.new as any).reply_to_message_id) {
+            const { data: repliedMsg } = await supabase
+              .from('messages')
+              .select('content, sender_id')
+              .eq('id', (payload.new as any).reply_to_message_id)
+              .single();
+
+            if (repliedMsg) {
+              const { data: repliedPersona } = await supabase
+                .from('personas')
+                .select('display_name')
+                .eq('id', repliedMsg.sender_id)
+                .single();
+
+              replied_message = {
+                content: repliedMsg.content,
+                sender: repliedPersona || undefined,
+              };
+            }
+          }
+
           const newMessage = {
             ...payload.new,
             sender: persona || undefined,
+            replied_message,
           } as Message;
 
-          // Remove optimistic message if it exists and replace with real message
+          // Check if this is a recent message we just sent (deduplication)
+          const isOwnRecentMessage = 
+            lastSentMessageRef.current &&
+            newMessage.content === lastSentMessageRef.current.content &&
+            (Date.now() - lastSentMessageRef.current.timestamp) < 5000;
+
           setMessages(prev => {
-            // Filter out any optimistic messages (temporary IDs)
-            const withoutOptimistic = prev.filter(m => 
-              !m.id.toString().startsWith('temp-') || 
-              m.sender_id !== newMessage.sender_id
-            );
+            // If this is our own recent message, remove the optimistic version
+            if (isOwnRecentMessage) {
+              const withoutTemp = prev.filter(m => !m.id.toString().startsWith('temp-'));
+              lastSentMessageRef.current = null;
+              
+              // Check if real message already exists
+              const exists = withoutTemp.find(m => m.id === newMessage.id);
+              if (exists) return withoutTemp;
+              
+              return [...withoutTemp, newMessage];
+            }
             
-            // Check if this message is already in the list
-            const exists = withoutOptimistic.find(m => m.id === newMessage.id);
-            if (exists) return withoutOptimistic;
+            // For messages from others, just add if not duplicate
+            const exists = prev.find(m => m.id === newMessage.id);
+            if (exists) return prev;
             
-            return [...withoutOptimistic, newMessage];
+            return [...prev, newMessage];
           });
           
           // Scroll to bottom
@@ -272,7 +333,7 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
             </div>
           ) : (
             messages.map((message) => {
-              const isOwn = message.sender_id === user?.id;
+              const isOwn = message.sender_id === userPersonaId;
               return (
                 <div
                   key={message.id}
