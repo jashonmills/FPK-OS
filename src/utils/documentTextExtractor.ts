@@ -7,7 +7,7 @@ import * as pdfjs from 'pdfjs-dist';
 
 // Initialize PDF.js worker
 if (typeof window !== 'undefined') {
-  pdfjs.GlobalWorkerOptions.workerSrc = '/pdfjs/pdf.worker.min.js';
+  pdfjs.GlobalWorkerOptions.workerSrc = '/pdfjs/pdf.worker.min.mjs';
 }
 
 export interface ExtractedContent {

@@ -38,7 +38,7 @@ export class ImageOptimizer {
    */
   async preloadCriticalResources(): Promise<void> {
     const criticalResources = [
-      '/pdf.worker.min.js',
+      '/pdfjs/pdf.worker.min.mjs',
       // Add streaming-specific resources
     ];
 
