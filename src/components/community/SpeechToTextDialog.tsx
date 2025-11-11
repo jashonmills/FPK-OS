@@ -1,9 +1,11 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Mic, MicOff, Check, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { AudioRecorder, blobToBase64 } from "@/utils/audioRecorder";
+import { supabase } from "@/integrations/supabase/client";
 
 interface SpeechToTextDialogProps {
   open: boolean;
@@ -13,96 +15,72 @@ interface SpeechToTextDialogProps {
 
 export const SpeechToTextDialog = ({ open, onOpenChange, onConfirm }: SpeechToTextDialogProps) => {
   const { toast } = useToast();
-  const [isListening, setIsListening] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [transcript, setTranscript] = useState("");
-  const recognitionRef = useRef<any>(null);
+  const recorderRef = useRef<AudioRecorder | null>(null);
 
-  useEffect(() => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    
-    if (!SpeechRecognition) {
-      return;
-    }
-
-    const recognition = new SpeechRecognition();
-    recognition.continuous = false; // Get one result at a time
-    recognition.interimResults = false; // Only final results
-    recognition.lang = 'en-US';
-
-    recognition.onresult = (event: any) => {
-      const result = event.results[0][0].transcript;
-      // Append the new result to existing transcript
-      setTranscript(prev => {
-        const newText = prev ? prev + ' ' + result : result;
-        return newText;
+  const startRecording = async () => {
+    try {
+      recorderRef.current = new AudioRecorder();
+      await recorderRef.current.start();
+      setIsRecording(true);
+      toast({
+        title: "🎤 Recording...",
+        description: "Speak in any language",
       });
-    };
+    } catch (error) {
+      console.error('Error starting recording:', error);
+      toast({
+        title: "Microphone access denied",
+        description: "Please allow microphone access",
+        variant: "destructive",
+      });
+    }
+  };
 
-    recognition.onerror = (event: any) => {
-      console.error('Speech recognition error:', event.error);
-      setIsListening(false);
+  const stopRecording = async () => {
+    if (!recorderRef.current) return;
+    
+    setIsRecording(false);
+    setIsProcessing(true);
+    
+    try {
+      const audioBlob = await recorderRef.current.stop();
+      const base64Audio = await blobToBase64(audioBlob);
       
-      if (event.error === 'not-allowed') {
+      toast({
+        title: "Transcribing...",
+        description: "Processing your audio",
+      });
+      
+      const { data, error } = await supabase.functions.invoke('transcribe-audio', {
+        body: { audio: base64Audio }
+      });
+      
+      if (error) throw error;
+      
+      if (data?.text) {
+        setTranscript(prev => prev ? prev + ' ' + data.text : data.text);
         toast({
-          title: "Microphone access denied",
-          description: "Please allow microphone access",
-          variant: "destructive",
+          title: "✓ Transcription complete",
         });
-      } else if (event.error === 'no-speech') {
+      } else {
         toast({
           title: "No speech detected",
           description: "Try speaking again",
         });
       }
-    };
-
-    recognition.onend = () => {
-      setIsListening(false);
-    };
-
-    recognitionRef.current = recognition;
-
-    return () => {
-      if (recognitionRef.current) {
-        try {
-          recognitionRef.current.abort();
-        } catch (e) {
-          // ignore
-        }
-      }
-    };
-  }, [toast]);
-
-  const startRecording = () => {
-    if (!recognitionRef.current) {
+    } catch (error) {
+      console.error('Transcription error:', error);
       toast({
-        title: "Not supported",
-        description: "Speech recognition is not supported in your browser",
+        title: "Transcription failed",
+        description: "Please try again",
         variant: "destructive",
       });
-      return;
-    }
-
-    try {
-      recognitionRef.current.start();
-      setIsListening(true);
-      toast({
-        title: "🎤 Listening...",
-        description: "Speak your message",
-      });
-    } catch (error: any) {
-      if (error.message?.includes('already started')) {
-        // Ignore if already running
-        return;
-      }
-      console.error('Error starting recognition:', error);
-    }
-  };
-
-  const stopRecording = () => {
-    if (recognitionRef.current && isListening) {
-      recognitionRef.current.stop();
-      setIsListening(false);
+    } finally {
+      setIsProcessing(false);
+      recorderRef.current = null;
     }
   };
 
@@ -115,7 +93,7 @@ export const SpeechToTextDialog = ({ open, onOpenChange, onConfirm }: SpeechToTe
   };
 
   const handleCancel = () => {
-    if (isListening) {
+    if (isRecording) {
       stopRecording();
     }
     setTranscript("");
@@ -135,12 +113,13 @@ export const SpeechToTextDialog = ({ open, onOpenChange, onConfirm }: SpeechToTe
         
         <div className="space-y-4 py-4">
           <div className="flex items-center justify-center gap-4">
-            {isListening ? (
+            {isRecording ? (
               <Button
                 onClick={stopRecording}
                 variant="destructive"
                 size="lg"
                 className="animate-pulse"
+                disabled={isProcessing}
               >
                 <MicOff className="h-5 w-5 mr-2" />
                 Stop
@@ -150,12 +129,13 @@ export const SpeechToTextDialog = ({ open, onOpenChange, onConfirm }: SpeechToTe
                 onClick={startRecording}
                 variant="default"
                 size="lg"
+                disabled={isProcessing}
               >
                 <Mic className="h-5 w-5 mr-2" />
-                Record
+                {isProcessing ? "Processing..." : "Record"}
               </Button>
             )}
-            {transcript && (
+            {transcript && !isRecording && !isProcessing && (
               <Button
                 onClick={handleClearTranscript}
                 variant="outline"
@@ -167,12 +147,13 @@ export const SpeechToTextDialog = ({ open, onOpenChange, onConfirm }: SpeechToTe
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Transcript</label>
+            <label className="text-sm font-medium">Transcript (Multi-language supported)</label>
             <Textarea
               value={transcript}
               onChange={(e) => setTranscript(e.target.value)}
-              placeholder="Click Record and speak. Click Stop when done. You can record multiple times to add more text."
+              placeholder="Click Record and speak in any language. Click Stop when done. You can record multiple times to add more text."
               className="min-h-[150px]"
+              disabled={isProcessing}
             />
           </div>
         </div>

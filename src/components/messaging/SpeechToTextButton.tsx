@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Mic, MicOff } from "lucide-react";
 import { toast } from "sonner";
@@ -8,6 +8,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { AudioRecorder, blobToBase64 } from "@/utils/audioRecorder";
+import { supabase } from "@/integrations/supabase/client";
 
 interface SpeechToTextButtonProps {
   onTranscript: (text: string, isFinal: boolean) => void;
@@ -15,205 +17,81 @@ interface SpeechToTextButtonProps {
 }
 
 export const SpeechToTextButton = ({ onTranscript, disabled }: SpeechToTextButtonProps) => {
-  const [isListening, setIsListening] = useState(false);
-  const [isInitializing, setIsInitializing] = useState(false);
-  const recognitionRef = useRef<any>(null);
-  const isStoppingRef = useRef(false);
-  const finalTranscriptRef = useRef<string>("");
-  const interimTranscriptRef = useRef<string>("");
-  const silenceTimerRef = useRef<NodeJS.Timeout>();
-  const onTranscriptRef = useRef(onTranscript);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const recorderRef = useRef<AudioRecorder | null>(null);
   const lastClickTimeRef = useRef<number>(0);
 
-  // Keep onTranscriptRef updated without recreating the recognition instance
-  useEffect(() => {
-    onTranscriptRef.current = onTranscript;
-  }, [onTranscript]);
-
-  const cleanup = useCallback(() => {
-    console.log('[SpeechToText] Cleanup called');
-    if (silenceTimerRef.current) {
-      clearTimeout(silenceTimerRef.current);
-      silenceTimerRef.current = undefined;
-    }
-    
-    if (recognitionRef.current) {
-      try {
-        recognitionRef.current.stop();
-        console.log('[SpeechToText] Recognition stopped');
-      } catch (e) {
-        console.log('[SpeechToText] Recognition already stopped');
-      }
-    }
-    isStoppingRef.current = false;
-  }, []);
-
-  useEffect(() => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    
-    if (!SpeechRecognition) {
-      return;
-    }
-
-    console.log('[SpeechToText] Creating new recognition instance');
-    const recognition = new SpeechRecognition();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = 'en-US';
-    recognition.maxAlternatives = 1;
-
-    recognition.onstart = () => {
-      console.log('[SpeechToText] Recognition started');
-      setIsListening(true);
-      setIsInitializing(false);
-      isStoppingRef.current = false;
-      finalTranscriptRef.current = "";
-      interimTranscriptRef.current = "";
-    };
-
-    recognition.onresult = (event: any) => {
-      console.log('[SpeechToText] Got result');
-      // Reset silence timer on new speech
-      if (silenceTimerRef.current) {
-        clearTimeout(silenceTimerRef.current);
-      }
-
-      let currentFinalTranscript = '';
-      let currentInterimTranscript = '';
-      
-      for (let i = 0; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
-        if (event.results[i].isFinal) {
-          currentFinalTranscript += transcript + ' ';
-        } else {
-          currentInterimTranscript += transcript;
-        }
-      }
-
-      // Send final transcript
-      if (currentFinalTranscript) {
-        finalTranscriptRef.current += currentFinalTranscript;
-        onTranscriptRef.current(currentFinalTranscript.trim(), true);
-      }
-      
-      // Send interim transcript
-      if (currentInterimTranscript && currentInterimTranscript !== interimTranscriptRef.current) {
-        interimTranscriptRef.current = currentInterimTranscript;
-        onTranscriptRef.current(currentInterimTranscript.trim(), false);
-      }
-
-      // Auto-stop after 3 seconds of silence (only if we have transcript)
-      if (finalTranscriptRef.current.trim() || interimTranscriptRef.current.trim()) {
-        silenceTimerRef.current = setTimeout(() => {
-          if (recognitionRef.current && !isStoppingRef.current) {
-            console.log('[SpeechToText] Auto-stopping due to silence');
-            cleanup();
-            setIsListening(false);
-            if (finalTranscriptRef.current.trim()) {
-              toast.success("Transcription complete");
-            }
-          }
-        }, 3000);
-      }
-    };
-
-    recognition.onerror = (event: any) => {
-      console.error('[SpeechToText] Recognition error:', event.error);
-      
-      if (event.error === 'not-allowed') {
-        toast.error("Microphone access denied");
-        setIsListening(false);
-        setIsInitializing(false);
-      } else if (event.error === 'no-speech') {
-        // Silently handle no-speech, let silence timer handle it
-      } else if (event.error !== 'aborted') {
-        toast.error("Speech recognition error");
-        setIsListening(false);
-        setIsInitializing(false);
-      }
-    };
-
-    recognition.onend = () => {
-      console.log('[SpeechToText] Recognition ended, isStoppingRef:', isStoppingRef.current);
-      // Don't change state here - let explicit actions handle it
-    };
-
-    recognitionRef.current = recognition;
-
-    return () => {
-      console.log('[SpeechToText] Component unmounting, cleaning up');
-      cleanup();
-    };
-  }, [cleanup]);
-
-  const toggleListening = useCallback(() => {
-    // Debounce: Prevent clicks within 300ms of each other
+  const toggleRecording = useCallback(async () => {
+    // Debounce clicks
     const now = Date.now();
     if (now - lastClickTimeRef.current < 300) {
-      console.log('[SpeechToText] Click debounced');
       return;
     }
     lastClickTimeRef.current = now;
-    
-    // Prevent rapid clicks while initializing
-    if (isInitializing) {
-      console.log('[SpeechToText] Still initializing, ignoring click');
-      return;
-    }
-    
-    if (!recognitionRef.current) {
-      toast.error("Speech recognition not available", {
-        description: "Please use Chrome, Edge, or Safari"
-      });
-      return;
-    }
 
-    if (isListening) {
-      console.log('[SpeechToText] User clicked stop');
-      isStoppingRef.current = true;
+    if (isRecording) {
+      // Stop recording and process
+      setIsRecording(false);
+      setIsProcessing(true);
       
-      // Clear silence timer
-      if (silenceTimerRef.current) {
-        clearTimeout(silenceTimerRef.current);
-        silenceTimerRef.current = undefined;
-      }
-      
-      cleanup();
-      setIsListening(false);
-      setIsInitializing(false);
-      
-      if (finalTranscriptRef.current.trim()) {
-        toast.success("Transcription saved");
+      try {
+        if (!recorderRef.current) return;
+        
+        const audioBlob = await recorderRef.current.stop();
+        const base64Audio = await blobToBase64(audioBlob);
+        
+        toast.info("Transcribing audio...");
+        
+        const { data, error } = await supabase.functions.invoke('transcribe-audio', {
+          body: { audio: base64Audio }
+        });
+        
+        if (error) throw error;
+        
+        if (data?.text) {
+          onTranscript(data.text, true);
+          toast.success("Transcription complete");
+        } else {
+          toast.error("No transcription received");
+        }
+      } catch (error) {
+        console.error('Transcription error:', error);
+        toast.error("Failed to transcribe audio");
+      } finally {
+        setIsProcessing(false);
+        recorderRef.current = null;
       }
     } else {
-      console.log('[SpeechToText] User clicked start');
-      setIsInitializing(true);
+      // Start recording
       try {
-        recognitionRef.current.start();
-        toast.info("Listening...", {
-          description: "Speak clearly into your microphone",
-          duration: 1500
+        recorderRef.current = new AudioRecorder();
+        await recorderRef.current.start();
+        setIsRecording(true);
+        toast.info("Recording...", {
+          description: "Speak in any language. Click again to stop.",
+          duration: 2000
         });
       } catch (error) {
-        console.error('[SpeechToText] Failed to start recognition:', error);
-        setIsInitializing(false);
-        toast.error("Failed to start microphone");
+        console.error('Failed to start recording:', error);
+        toast.error("Failed to access microphone");
+        recorderRef.current = null;
       }
     }
-  }, [isListening, isInitializing, cleanup]);
+  }, [isRecording, onTranscript]);
 
   return (
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
-            onClick={toggleListening}
-            variant={isListening ? "destructive" : "outline"}
+            onClick={toggleRecording}
+            variant={isRecording ? "destructive" : "outline"}
             size="icon"
             className="h-[28px] w-[60px] transition-all"
-            disabled={disabled || isInitializing}
+            disabled={disabled || isProcessing}
           >
-            {isListening ? (
+            {isRecording ? (
               <MicOff className="w-4 h-4 animate-pulse" />
             ) : (
               <Mic className="w-4 h-4" />
@@ -221,12 +99,12 @@ export const SpeechToTextButton = ({ onTranscript, disabled }: SpeechToTextButto
           </Button>
         </TooltipTrigger>
         <TooltipContent>
-          {isInitializing ? (
-            <p>Starting microphone...</p>
-          ) : isListening ? (
-            <p>Click to stop • Auto-stops after silence</p>
+          {isProcessing ? (
+            <p>Processing audio...</p>
+          ) : isRecording ? (
+            <p>Click to stop & transcribe</p>
           ) : (
-            <p>Voice input</p>
+            <p>Voice input (multi-language)</p>
           )}
         </TooltipContent>
       </Tooltip>
