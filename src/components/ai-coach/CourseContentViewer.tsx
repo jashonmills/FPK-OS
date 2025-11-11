@@ -152,7 +152,7 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({ course
         </div>
 
         {/* Content */}
-        <ScrollArea className="flex-1">
+        <ScrollArea className="flex-1" style={{ height: '450px' }}>
           <div className="p-6 max-w-4xl mx-auto">
             {currentLesson && (
               <div className="space-y-6">
