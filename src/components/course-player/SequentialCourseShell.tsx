@@ -534,6 +534,7 @@ export const SequentialCourseShell: React.FC<SequentialCourseShellProps> = ({ co
                 courseId={courseData.id}
                 lessonId={currentLesson}
                 lessonTitle={currentLessonData.title}
+                audioUrl={currentLessonData.audioUrl}
                 onComplete={() => handleLessonComplete(currentLesson)}
                 onNext={hasNext ? handleNextLesson : undefined}
                 hasNext={hasNext}

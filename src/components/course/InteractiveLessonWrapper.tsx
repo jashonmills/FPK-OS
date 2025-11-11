@@ -4,13 +4,14 @@ import { useLessonEngagement } from '@/hooks/useLessonEngagement';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle, Clock, TrendingUp } from 'lucide-react';
-import LessonTTSControls from '@/components/course/LessonTTSControls';
+import LessonAudioPlayer from '@/components/course-player/LessonAudioPlayer';
 import { useCleanup } from '@/utils/cleanupManager';
 
 interface InteractiveLessonWrapperProps {
   courseId: string;
   lessonId: number;
   lessonTitle: string;
+  audioUrl?: string; // MP3 narration URL from Supabase
   children: React.ReactNode;
   onComplete?: () => void;
   onNext?: () => void;
@@ -23,6 +24,7 @@ export const InteractiveLessonWrapper: React.FC<InteractiveLessonWrapperProps> =
   courseId,
   lessonId,
   lessonTitle,
+  audioUrl,
   children,
   onComplete,
   onNext,
@@ -154,9 +156,10 @@ export const InteractiveLessonWrapper: React.FC<InteractiveLessonWrapperProps> =
         </CardContent>
       </Card>
 
-      {/* TTS Controls */}
+      {/* Audio Player (MP3 or TTS) */}
       <div className="mb-6">
-        <LessonTTSControls
+        <LessonAudioPlayer
+          audioUrl={audioUrl}
           lessonTitle={lessonTitle}
           lessonNumber={lessonId}
           totalLessons={totalLessons}
