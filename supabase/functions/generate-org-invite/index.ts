@@ -113,10 +113,10 @@ const handler = async (req: Request): Promise<Response> => {
       .eq('status', 'active')
       .single();
 
-    if (membershipError || !membership || !['owner', 'instructor'].includes(membership.role)) {
+    if (membershipError || !membership || !['owner', 'admin', 'instructor'].includes(membership.role)) {
       console.error("Permission denied:", membershipError);
       return new Response(
-        JSON.stringify({ error: "Only organization owners and instructors can create invites" }),
+        JSON.stringify({ error: "Only organization owners, admins, and instructors can create invites" }),
         { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
