@@ -368,7 +368,10 @@ export function StudyMaterialAssignmentDialog({
                           </Button>
                         </div>
                       </div>
-                      <ScrollArea className="h-48 border rounded-lg p-3">
+                      <div className="h-48 overflow-y-auto border-2 border-blue-500 rounded-lg p-3 bg-background">
+                        <div className="text-xs text-red-500 mb-2 font-bold">
+                          DEBUG: Rendering {students.length} students (membersLoading: {membersLoading.toString()})
+                        </div>
                         {membersLoading ? (
                           <div className="flex flex-col items-center justify-center py-8 space-y-2">
                             <Loader2 className="h-6 w-6 animate-spin text-primary" />
@@ -382,44 +385,52 @@ export function StudyMaterialAssignmentDialog({
                           </div>
                         ) : (
                           <div className="space-y-2">
-                            {students.map((student) => (
-                              <Card
-                                key={student.id}
-                                className={cn(
-                                  "p-3 cursor-pointer transition-colors hover:shadow-sm",
-                                  selectedMembers.includes(student.linked_user_id!)
-                                    ? "border-primary bg-primary/5 shadow-sm"
-                                    : "hover:bg-accent"
-                                )}
-                                onClick={() => toggleMember(student.linked_user_id!)}
-                              >
-                                <div className="flex items-center gap-3">
-                                  <Checkbox
-                                    checked={selectedMembers.includes(student.linked_user_id!)}
-                                    onCheckedChange={() => toggleMember(student.linked_user_id!)}
-                                    onClick={(e) => e.stopPropagation()}
-                                  />
-                                  <Avatar className="h-10 w-10 border">
-                                    <AvatarImage src={student.avatar_url} alt={student.full_name} />
-                                    <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-                                      {student.full_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
-                                    </AvatarFallback>
-                                  </Avatar>
-                                  <div className="flex-1 min-w-0">
-                                    <p className="font-medium text-sm">{student.full_name}</p>
-                                    {student.student_id && (
-                                      <p className="text-xs text-muted-foreground">ID: {student.student_id}</p>
-                                    )}
-                                    {student.student_email && (
-                                      <p className="text-xs text-muted-foreground truncate">{student.student_email}</p>
-                                    )}
+                            {students.map((student, index) => {
+                              console.log(`[StudyMaterialAssignmentDialog] 🎨 Rendering student ${index}:`, {
+                                id: student.id,
+                                name: student.full_name,
+                                linkedUserId: student.linked_user_id,
+                                isSelected: selectedMembers.includes(student.linked_user_id!)
+                              });
+                              return (
+                                <Card
+                                  key={student.id}
+                                  className={cn(
+                                    "p-3 cursor-pointer transition-colors hover:shadow-sm",
+                                    selectedMembers.includes(student.linked_user_id!)
+                                      ? "border-primary bg-primary/5 shadow-sm"
+                                      : "hover:bg-accent"
+                                  )}
+                                  onClick={() => toggleMember(student.linked_user_id!)}
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <Checkbox
+                                      checked={selectedMembers.includes(student.linked_user_id!)}
+                                      onCheckedChange={() => toggleMember(student.linked_user_id!)}
+                                      onClick={(e) => e.stopPropagation()}
+                                    />
+                                    <Avatar className="h-10 w-10 border">
+                                      <AvatarImage src={student.avatar_url} alt={student.full_name} />
+                                      <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                                        {student.full_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                                      </AvatarFallback>
+                                    </Avatar>
+                                    <div className="flex-1 min-w-0">
+                                      <p className="font-medium text-sm">{student.full_name}</p>
+                                      {student.student_id && (
+                                        <p className="text-xs text-muted-foreground">ID: {student.student_id}</p>
+                                      )}
+                                      {student.student_email && (
+                                        <p className="text-xs text-muted-foreground truncate">{student.student_email}</p>
+                                      )}
+                                    </div>
                                   </div>
-                                </div>
-                              </Card>
-                            ))}
+                                </Card>
+                              );
+                            })}
                           </div>
                         )}
-                      </ScrollArea>
+                      </div>
                     </div>
                   </TabsContent>
 
