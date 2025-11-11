@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, Bell, Volume2, VolumeX } from "lucide-react";
 import { toast } from "sonner";
+import { PushNotificationManager } from "@/components/notifications/PushNotificationManager";
 
 interface NotificationPreference {
   id: string;
@@ -148,6 +149,16 @@ const NotificationPreferences = () => {
           <h1 className="text-3xl font-bold mb-2">Notification Preferences</h1>
           <p className="text-muted-foreground">
             Customize how you want to be notified about activity
+          </p>
+        </div>
+
+        {/* Push Notification Manager */}
+        <PushNotificationManager />
+
+        <div className="mt-8">
+          <h2 className="text-2xl font-semibold mb-4">Notification Types</h2>
+          <p className="text-sm text-muted-foreground mb-6">
+            Control which types of notifications you want to receive and their sound settings
           </p>
         </div>
 

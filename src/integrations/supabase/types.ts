@@ -863,6 +863,39 @@ export type Database = {
         }
         Relationships: []
       }
+      push_subscriptions: {
+        Row: {
+          auth_key: string
+          created_at: string
+          endpoint: string
+          id: string
+          p256dh_key: string
+          updated_at: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          auth_key: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          p256dh_key: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          auth_key?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          p256dh_key?: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       referrals: {
         Row: {
           created_at: string | null
@@ -1109,6 +1142,7 @@ export type Database = {
           id: string
           is_enabled: boolean
           notification_type: string
+          push_enabled: boolean
           sound_enabled: boolean
           updated_at: string
           user_id: string
@@ -1118,6 +1152,7 @@ export type Database = {
           id?: string
           is_enabled?: boolean
           notification_type: string
+          push_enabled?: boolean
           sound_enabled?: boolean
           updated_at?: string
           user_id: string
@@ -1127,6 +1162,7 @@ export type Database = {
           id?: string
           is_enabled?: boolean
           notification_type?: string
+          push_enabled?: boolean
           sound_enabled?: boolean
           updated_at?: string
           user_id?: string

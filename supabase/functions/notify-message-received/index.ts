@@ -102,6 +102,43 @@ Deno.serve(async (req) => {
 
     console.log(`Created ${notifications.length} notifications for message ${message.id}`);
 
+    // Send push notifications to recipients (async, don't wait)
+    // Check each participant's push preferences and send if enabled
+    for (const participant of participants) {
+      try {
+        // Check if user has push notifications enabled for MESSAGE type
+        const { data: pushPref } = await supabaseClient
+          .from('user_notification_preferences')
+          .select('push_enabled, is_enabled')
+          .eq('user_id', participant.user_id)
+          .eq('notification_type', 'MESSAGE')
+          .single();
+
+        // Only send push if both notification type and push are enabled
+        if (pushPref?.is_enabled && pushPref?.push_enabled) {
+          // Invoke push notification function (don't await, fire and forget)
+          supabaseClient.functions.invoke('send-push-notification', {
+            body: {
+              user_id: participant.user_id,
+              title: `New message from ${conversationTitle}`,
+              body: `${senderName}: ${messagePreview}`,
+              icon: '/favicon.ico',
+              badge: '/favicon.ico',
+              data: {
+                conversation_id: message.conversation_id,
+                message_id: message.id,
+                url: `/messages/${message.conversation_id}`
+              }
+            }
+          }).catch(err => {
+            console.error('Error sending push notification:', err);
+          });
+        }
+      } catch (error) {
+        console.error('Error checking push preferences:', error);
+      }
+    }
+
     return new Response(
       JSON.stringify({ success: true, notified: notifications.length }),
       {
