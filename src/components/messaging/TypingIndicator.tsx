@@ -1,3 +1,5 @@
+import React from "react";
+
 interface TypingIndicatorProps {
   typingUsers: Array<{ display_name: string }>;
 }
