@@ -34,9 +34,16 @@ export const ImageViewer = ({ images, initialIndex, isOpen, onClose }: ImageView
       setRotation(0);
       setPosition({ x: 0, y: 0 });
     } else {
-      setCurrentIndex(initialIndex);
+      // Ensure initialIndex is valid
+      const validIndex = Math.max(0, Math.min(initialIndex, images.length - 1));
+      setCurrentIndex(validIndex);
     }
-  }, [isOpen, initialIndex]);
+  }, [isOpen, initialIndex, images.length]);
+
+  // Don't render if no images or invalid state
+  if (!isOpen || images.length === 0 || !currentImage) {
+    return null;
+  }
 
   useEffect(() => {
     // Reset zoom/pan when changing images
@@ -70,6 +77,7 @@ export const ImageViewer = ({ images, initialIndex, isOpen, onClose }: ImageView
   };
 
   const handleDownload = () => {
+    if (!currentImage) return;
     const link = document.createElement("a");
     link.href = currentImage.url;
     link.download = currentImage.fileName;
