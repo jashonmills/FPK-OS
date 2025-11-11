@@ -74,6 +74,10 @@ export default function AIStudyCoach() {
 
   // State for standalone document reader (below chat module)
   const [activeDocument, setActiveDocument] = useState<any>(null);
+  
+  // State for attached materials in AI Assistant
+  const [attachedMaterialIds, setAttachedMaterialIds] = useState<string[]>([]);
+  const [attachedMaterials, setAttachedMaterials] = useState<any[]>([]);
 
   // Handler to open document viewer
   const handleViewDocument = (material: any) => {
@@ -86,6 +90,31 @@ export default function AIStudyCoach() {
   const handleCloseDocumentViewer = () => {
     console.log('[AIStudyCoach] Closing document viewer');
     setActiveDocument(null);
+  };
+
+  // Handler to attach/detach materials to AI Assistant
+  const handleAttachToChat = async (materialId: string) => {
+    console.log('[AIStudyCoach] Toggle attach material:', materialId);
+    
+    if (attachedMaterialIds.includes(materialId)) {
+      // Remove from attached
+      setAttachedMaterialIds(prev => prev.filter(id => id !== materialId));
+      setAttachedMaterials(prev => prev.filter(m => m.id !== materialId));
+      toast.success('Material detached from AI Assistant');
+    } else {
+      // Add to attached - fetch full material details
+      const { data } = await supabase
+        .from('ai_coach_study_materials')
+        .select('*')
+        .eq('id', materialId)
+        .single();
+      
+      if (data) {
+        setAttachedMaterialIds(prev => [...prev, materialId]);
+        setAttachedMaterials(prev => [...prev, data]);
+        toast.success('Material attached to AI Assistant');
+      }
+    }
   };
 
   // Check if user is admin (owner or instructor)
@@ -147,13 +176,53 @@ export default function AIStudyCoach() {
                     userId={user?.id}
                     orgId={currentOrg?.organization_id}
                   />
+                  
+                  {/* Attached Materials Section - Below AI Chat */}
+                  {attachedMaterials.length > 0 && (
+                    <div className="mt-6 border-t pt-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-semibold flex items-center gap-2">
+                          <FileText className="h-5 w-5" />
+                          Attached Study Materials
+                        </h3>
+                        <Badge variant="secondary">{attachedMaterials.length}</Badge>
+                      </div>
+                      
+                      {/* Document Preview for Attached Materials */}
+                      {activeDocument && (
+                        <div className="mb-4 border rounded-lg overflow-hidden">
+                          <DocumentReader 
+                            document={activeDocument} 
+                            onClose={handleCloseDocumentViewer} 
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </TabsContent>
 
                 <TabsContent value="materials">
                   <MaterialsSubTab 
                     orgId={currentOrg?.organization_id}
                     onViewDocument={handleViewDocument}
+                    attachedMaterialIds={attachedMaterialIds}
+                    onAttachToChat={handleAttachToChat}
                   />
+                  
+                  {/* Document Preview - Below Materials List */}
+                  {activeDocument && (
+                    <div className="mt-6 border-t pt-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-semibold">Document Preview</h3>
+                      </div>
+                      <div className="border rounded-lg overflow-hidden">
+                        <DocumentReader 
+                          document={activeDocument} 
+                          onClose={handleCloseDocumentViewer} 
+                        />
+                      </div>
+                    </div>
+                  )}
                 </TabsContent>
 
                 <TabsContent value="assignments">

@@ -16,6 +16,7 @@ export interface OrgStudent {
   notes?: string;
   status: 'active' | 'inactive' | 'graduated';
   linked_user_id?: string;
+  avatar_url?: string;
   pin_hash?: string;
   activation_token?: string;
   activation_status?: 'pending' | 'activated' | 'expired';
@@ -101,6 +102,19 @@ export function useOrgStudents(orgId: string, searchQuery?: string) {
           }])
         );
 
+        // Fetch avatar URLs from profiles table for all members
+        const memberUserIds = (orgMembersData || []).map(m => m.user_id).filter(Boolean);
+        const { data: profilesData } = await supabase
+          .from('profiles')
+          .select('id, avatar_url')
+          .in('id', memberUserIds);
+
+        const avatarMap = new Map(
+          (profilesData || []).map((p: any) => [p.id, p.avatar_url])
+        );
+
+        console.log('✅ [useOrgStudents] Fetched avatars for', profilesData?.length || 0, 'profiles');
+
         // For each org_member, check if they have a profile in org_students
         const memberStudents: OrgStudent[] = [];
         
@@ -117,9 +131,10 @@ export function useOrgStudents(orgId: string, searchQuery?: string) {
           );
           
           if (existingProfile) {
-            // Use the org_students profile data
+            // Use the org_students profile data, add avatar from profiles
             memberStudents.push({
               ...existingProfile,
+              avatar_url: existingProfile.avatar_url || avatarMap.get(member.user_id),
               status: existingProfile.status as 'active' | 'inactive' | 'graduated',
               activation_status: existingProfile.activation_status as 'pending' | 'activated' | 'expired' | undefined,
               emergency_contact: existingProfile.emergency_contact as Record<string, any> | undefined,
@@ -131,6 +146,8 @@ export function useOrgStudents(orgId: string, searchQuery?: string) {
               id: `member-${member.id}`, // Temporary ID marker
               org_id: member.org_id || orgId,
               full_name: activityInfo?.name || activityInfo?.email || 'Unknown Student',
+              student_email: activityInfo?.email,
+              avatar_url: avatarMap.get(member.user_id),
               grade_level: undefined,
               student_id: undefined,
               date_of_birth: undefined,
@@ -156,9 +173,9 @@ export function useOrgStudents(orgId: string, searchQuery?: string) {
           : memberStudents;
 
         // Get students from org_students that aren't already in memberStudents
-        const memberUserIds = new Set(memberStudents.map(s => s.linked_user_id).filter(Boolean));
+        const existingMemberUserIds = new Set(memberStudents.map(s => s.linked_user_id).filter(Boolean));
         const remainingOrgStudents = (orgStudentsData || [])
-          .filter((s: any) => !s.linked_user_id || !memberUserIds.has(s.linked_user_id))
+          .filter((s: any) => !s.linked_user_id || !existingMemberUserIds.has(s.linked_user_id))
           .map((student: any) => ({
             ...student,
             status: student.status as 'active' | 'inactive' | 'graduated',

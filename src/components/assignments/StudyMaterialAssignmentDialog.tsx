@@ -14,12 +14,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card } from '@/components/ui/card';
 import { useOrgStudents } from '@/hooks/useOrgStudents';
 import { useOrgGroups } from '@/hooks/useOrgGroups';
 import { useOrgAssignments } from '@/hooks/useOrgAssignments';
 import { useOrgContext } from '@/components/organizations/OrgContext';
 import { useToast } from '@/hooks/use-toast';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Calendar, Loader2, UserPlus, Users, FileText, Sparkles } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface StudyMaterial {
   id: string;
@@ -289,16 +292,39 @@ export function StudyMaterialAssignmentDialog({
                         ) : (
                           <div className="space-y-2">
                             {students.map((student) => (
-                              <label
+                              <Card
                                 key={student.id}
-                                className="flex items-center gap-3 p-2 rounded hover:bg-muted cursor-pointer"
+                                className={cn(
+                                  "p-3 cursor-pointer transition-colors hover:shadow-sm",
+                                  selectedMembers.includes(student.linked_user_id!)
+                                    ? "border-primary bg-primary/5 shadow-sm"
+                                    : "hover:bg-accent"
+                                )}
+                                onClick={() => toggleMember(student.linked_user_id!)}
                               >
-                                <Checkbox
-                                  checked={selectedMembers.includes(student.linked_user_id!)}
-                                  onCheckedChange={() => toggleMember(student.linked_user_id!)}
-                                />
-                                <span className="text-sm">{student.full_name}</span>
-                              </label>
+                                <div className="flex items-center gap-3">
+                                  <Checkbox
+                                    checked={selectedMembers.includes(student.linked_user_id!)}
+                                    onCheckedChange={() => toggleMember(student.linked_user_id!)}
+                                    onClick={(e) => e.stopPropagation()}
+                                  />
+                                  <Avatar className="h-10 w-10 border">
+                                    <AvatarImage src={student.avatar_url} alt={student.full_name} />
+                                    <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                                      {student.full_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="font-medium text-sm">{student.full_name}</p>
+                                    {student.student_id && (
+                                      <p className="text-xs text-muted-foreground">ID: {student.student_id}</p>
+                                    )}
+                                    {student.student_email && (
+                                      <p className="text-xs text-muted-foreground truncate">{student.student_email}</p>
+                                    )}
+                                  </div>
+                                </div>
+                              </Card>
                             ))}
                           </div>
                         )}
