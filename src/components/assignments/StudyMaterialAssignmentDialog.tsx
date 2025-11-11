@@ -109,7 +109,7 @@ export function StudyMaterialAssignmentDialog({
         }))
       });
     }
-  }, [open, students, allStudents, membersLoading, orgId]);
+  }, [open, allStudents, membersLoading, orgId]);
   
   // Refetch students when dialog opens to ensure fresh data
   React.useEffect(() => {
@@ -117,7 +117,8 @@ export function StudyMaterialAssignmentDialog({
       console.log('[StudyMaterialAssignmentDialog] 🔄 Refetching students...');
       refetchStudents();
     }
-  }, [open, orgId, refetchStudents]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, orgId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
