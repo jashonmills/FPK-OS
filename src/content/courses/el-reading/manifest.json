@@ -1,0 +1,276 @@
+{
+  "courseId": "el-reading",
+  "courseSlug": "el-reading",
+  "contentVersion": "v2",
+  "title": "EL Reading",
+  "description": "Master reading through optimal learning states and proper positioning. A focused 4-lesson program with video and audio support for confident, empowered reading.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Introduction",
+      "description": "A new perspective on learning to read",
+      "contentType": "video+text",
+      "video": {
+        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/el-reading-og/el-reading-og-mp4/Module%201%20-%20Introduction.mp4",
+        "title": "Module 1 - Introduction"
+      },
+      "audioUrl": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/el-reading-og/el-reading-og-mp3/Module%201%20-%20Introduction.mp3",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Welcome to the EL Reading Programme",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "This programme introduces a revolutionary approach to learning reading. We focus on creating the optimal learning state and using proper positioning techniques to help you or your child develop confident, fluent reading skills."
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "What You'll Learn",
+          "items": [
+            "How to create the optimal learning state for reading",
+            "The importance of proper positioning and emotional state",
+            "Practical techniques for confident reading development",
+            "How to apply these principles in daily practice"
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "A Different Approach",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Traditional reading instruction often focuses solely on phonics and decoding. While these skills are important, we believe that creating the right conditions for learning is equally crucial. By calming the nervous system and ensuring proper physical positioning, we create an environment where reading skills can develop naturally and confidently."
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "Teaching Moment",
+          "items": [
+            "Reading difficulties often stem from stress and improper positioning rather than cognitive deficits",
+            "When the nervous system is calm, the brain can process visual information more effectively",
+            "Proper posture and positioning optimize visual tracking and comprehension"
+          ]
+        }
+      ],
+      "unit": "Welcome to the Programme",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 2,
+      "title": "The Optimal Learning State",
+      "description": "Calm your nervous system for effective reading",
+      "contentType": "video+text",
+      "video": {
+        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/el-reading-og/el-reading-og-mp4/Module%202%20-%20The%20Optimal%20Learning%20State.mp4",
+        "title": "Module 2 - The Optimal Learning State"
+      },
+      "audioUrl": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/el-reading-og/el-reading-og-mp3/Module%202%20-%20The%20Optimal%20Learning%20State.mp3",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Understanding the Optimal Learning State",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The optimal learning state is a calm, focused condition where your nervous system is regulated and your mind is receptive to new information. When we're stressed or anxious, our ability to process visual information and decode text is significantly reduced. Creating this optimal state is the foundation of effective reading instruction."
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "Key Benefits",
+          "items": [
+            "Enhanced visual processing and tracking",
+            "Improved comprehension and retention",
+            "Reduced reading anxiety and frustration",
+            "More enjoyable learning experience"
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Creating the Optimal State",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "To create the optimal learning state, we use simple breathing exercises and calming techniques. Deep, slow breathing activates the parasympathetic nervous system, which promotes relaxation and focus. Before each reading session, take a few moments to breathe deeply and settle into a calm, receptive state."
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "Practical Technique",
+          "items": [
+            "Take 3-5 deep breaths before starting to read",
+            "Breathe in through your nose for 4 counts, out through your mouth for 6 counts",
+            "Notice your body relaxing with each exhale",
+            "Begin reading only when you feel calm and focused"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": "This simple practice can transform the reading experience. When the nervous system is calm, the eyes can track text more smoothly, the brain can process information more efficiently, and comprehension improves naturally."
+        }
+      ],
+      "unit": "The Learning Process",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 3,
+      "title": "The Technique",
+      "description": "Proper positioning and emotional state for reading",
+      "contentType": "video+text",
+      "video": {
+        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/el-reading-og/el-reading-og-mp4/Module%203%20-%20The%20Technique.mp4",
+        "title": "Module 3 - The Technique"
+      },
+      "audioUrl": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/el-reading-og/el-reading-og-mp3/Module%203%20-%20The%20Technique.mp3",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Physical Positioning for Reading",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Proper physical positioning is crucial for effective reading. The way you hold a book or position yourself in front of text directly impacts your ability to track words, process information, and maintain focus. Small adjustments to positioning can make a significant difference in reading comfort and comprehension."
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "Optimal Reading Position",
+          "items": [
+            "Sit with your back supported and feet flat on the floor",
+            "Hold the book at a 45-degree angle, about 30-40cm from your eyes",
+            "Ensure good lighting that doesn't create glare on the page",
+            "Keep your neck and shoulders relaxed"
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Emotional Component",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Reading is not just a physical and cognitive activity—it's also an emotional one. When we approach reading with stress, fear of making mistakes, or pressure to perform, our ability to read fluently decreases. Creating a positive emotional association with reading is essential for long-term success."
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "Building Positive Associations",
+          "items": [
+            "Celebrate small victories and progress",
+            "Read books that genuinely interest you or your child",
+            "Never force reading when stress levels are high",
+            "Use encouraging language and avoid criticism",
+            "Make reading a pleasant, low-pressure activity"
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Putting It All Together",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Combining the optimal learning state with proper positioning and a positive emotional approach creates the ideal conditions for reading development. Practice these techniques consistently, and you'll notice improvements in fluency, comprehension, and confidence."
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "Daily Practice Routine",
+          "items": [
+            "Start with 3-5 deep breaths to create the optimal state",
+            "Set up your reading position correctly",
+            "Choose engaging reading material",
+            "Read for short periods (10-15 minutes) with breaks",
+            "End each session on a positive note"
+          ]
+        }
+      ],
+      "unit": "The Learning Process",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 4,
+      "title": "Conclusion",
+      "description": "Celebrating your reading journey and next steps",
+      "contentType": "video+text",
+      "video": {
+        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/el-reading-og/el-reading-og-mp4/Module%204%20-%20Conclusion.mp4",
+        "title": "Module 4 - Conclusion"
+      },
+      "audioUrl": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/el-reading-og/el-reading-og-mp3/Module%204%20-%20Conclusion.mp3",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Congratulations on Completing the Programme",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You've now learned the fundamental principles of our reading approach: creating the optimal learning state, using proper positioning, and maintaining a positive emotional connection with reading. These tools will serve you well on your continued reading journey."
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "What You've Accomplished",
+          "items": [
+            "Learned techniques to create the optimal learning state",
+            "Understood the importance of proper physical positioning",
+            "Developed strategies for positive emotional associations with reading",
+            "Gained practical tools for daily reading practice"
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Moving Forward",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The key to continued progress is consistent practice using these principles. Remember that reading development is a journey, not a destination. Some days will feel easier than others, and that's completely normal. Trust the process, maintain patience, and celebrate every step forward."
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "Next Steps",
+          "items": [
+            "Practice daily using the optimal learning state technique",
+            "Continue to refine your reading position",
+            "Choose books that genuinely interest you",
+            "Track your progress and celebrate improvements",
+            "Be patient and kind to yourself throughout the process"
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Final Words of Encouragement",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Reading is one of the most empowering skills you can develop. It opens doors to knowledge, imagination, and communication. By using the techniques you've learned in this programme, you're setting yourself up for a lifetime of confident, enjoyable reading. Trust in your ability to learn and grow, and remember that every reader started exactly where you are now."
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "Remember",
+          "items": [
+            "The optimal learning state is the foundation of all learning",
+            "Proper positioning supports visual processing and comprehension",
+            "Positive emotions enhance learning and retention",
+            "Consistent practice with patience leads to mastery",
+            "You have everything you need to become a confident reader"
+          ]
+        }
+      ],
+      "unit": "Final Tips for Success",
+      "unitColor": "bg-yellow-100 text-yellow-700"
+    }
+  ]
+}

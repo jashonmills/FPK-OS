@@ -6,6 +6,7 @@
  * route through the UniversalCoursePlayer and SequentialCourseShell.
  */
 export const V2_SEQUENTIAL_COURSE_SLUGS = [
+  'el-reading',
   'el-spelling',
   'el-handwriting',
   'empowering-learning-numeracy',
