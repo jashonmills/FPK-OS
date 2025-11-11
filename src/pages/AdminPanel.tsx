@@ -13,8 +13,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { ArrowLeft, Shield, Flag, Users, Play, Loader2, AlertOctagon, LayoutDashboard, FileText, Search, Download, UserCog, Ban, CheckCircle } from "lucide-react";
+import { ArrowLeft, Shield, Flag, Users, Play, Loader2, AlertOctagon, LayoutDashboard, FileText, Search, Download, UserCog, Ban, CheckCircle, CheckSquare, Square } from "lucide-react";
 import { toast } from "sonner";
 import { AppealReviewDialog } from "@/components/admin/AppealReviewDialog";
 import { format } from "date-fns";
@@ -48,6 +49,10 @@ export default function AdminPanel() {
   const [banReason, setBanReason] = useState("");
   const [banDuration, setBanDuration] = useState("24");
   const [banningUser, setBanningUser] = useState(false);
+  const [selectedUserIds, setSelectedUserIds] = useState<Set<string>>(new Set());
+  const [bulkBanDialogOpen, setBulkBanDialogOpen] = useState(false);
+  const [bulkAction, setBulkAction] = useState<'ban' | 'unban'>('ban');
+  const [processingBulk, setProcessingBulk] = useState(false);
   const isInviteSystemEnabled = useFeatureFlag('user_invite_system_enabled');
   const isOperationSpearheadEnabled = useFeatureFlag('operation_spearhead_enabled');
 
@@ -233,6 +238,95 @@ export default function AdminPanel() {
     } catch (error) {
       console.error('Error unbanning user:', error);
       toast.error('Failed to unban user');
+    }
+  };
+
+  const toggleUserSelection = (userId: string) => {
+    setSelectedUserIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(userId)) {
+        newSet.delete(userId);
+      } else {
+        newSet.add(userId);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleAllUsers = () => {
+    if (selectedUserIds.size === filteredUsers.length) {
+      setSelectedUserIds(new Set());
+    } else {
+      setSelectedUserIds(new Set(filteredUsers.map(u => u.user_id)));
+    }
+  };
+
+  const handleBulkAction = async () => {
+    if (selectedUserIds.size === 0) {
+      toast.error('No users selected');
+      return;
+    }
+
+    if (bulkAction === 'ban' && !banReason.trim()) {
+      toast.error('Please provide a ban reason');
+      return;
+    }
+
+    setProcessingBulk(true);
+    try {
+      if (bulkAction === 'ban') {
+        const expiresAt = new Date();
+        expiresAt.setHours(expiresAt.getHours() + parseInt(banDuration));
+        const currentUserId = (await supabase.auth.getUser()).data.user?.id;
+
+        const bansToInsert = Array.from(selectedUserIds).map(userId => ({
+          user_id: userId,
+          reason: banReason,
+          offending_message_content: 'Bulk ban by admin',
+          severity_score: 10,
+          expires_at: expiresAt.toISOString(),
+          status: 'active',
+          is_ai_ban: false,
+          banned_by_user_id: currentUserId
+        }));
+
+        const { error } = await supabase
+          .from('user_bans')
+          .insert(bansToInsert);
+
+        if (error) throw error;
+        toast.success(`Successfully banned ${selectedUserIds.size} users`);
+      } else {
+        // Bulk unban
+        const selectedUsers = users.filter(u => selectedUserIds.has(u.user_id) && u.activeBan);
+        const banIds = selectedUsers.map(u => u.activeBan.id);
+
+        if (banIds.length === 0) {
+          toast.error('No banned users selected');
+          setProcessingBulk(false);
+          return;
+        }
+
+        const { error } = await supabase
+          .from('user_bans')
+          .update({ status: 'expired', updated_at: new Date().toISOString() })
+          .in('id', banIds);
+
+        if (error) throw error;
+        toast.success(`Successfully unbanned ${banIds.length} users`);
+      }
+
+      setBulkBanDialogOpen(false);
+      setBanReason('');
+      setBanDuration('24');
+      setSelectedUserIds(new Set());
+      await fetchUsers();
+      await fetchModerationLogs();
+    } catch (error) {
+      console.error('Error performing bulk action:', error);
+      toast.error(`Failed to ${bulkAction} users`);
+    } finally {
+      setProcessingBulk(false);
     }
   };
 
@@ -542,15 +636,56 @@ export default function AdminPanel() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search by email, username, or ID..."
-                    value={userSearchQuery}
-                    onChange={(e) => setUserSearchQuery(e.target.value)}
-                    className="pl-9"
-                  />
+                <div className="flex flex-col md:flex-row gap-3">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Search by email, username, or ID..."
+                      value={userSearchQuery}
+                      onChange={(e) => setUserSearchQuery(e.target.value)}
+                      className="pl-9"
+                    />
+                  </div>
+                  {selectedUserIds.size > 0 && (
+                    <div className="flex gap-2">
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => {
+                          setBulkAction('ban');
+                          setBulkBanDialogOpen(true);
+                        }}
+                      >
+                        <Ban className="h-4 w-4 mr-2" />
+                        Ban Selected ({selectedUserIds.size})
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setBulkAction('unban');
+                          setBulkBanDialogOpen(true);
+                        }}
+                      >
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Unban Selected ({selectedUserIds.size})
+                      </Button>
+                    </div>
+                  )}
                 </div>
+
+                {filteredUsers.length > 0 && (
+                  <div className="flex items-center gap-2 pb-2 border-b">
+                    <Checkbox
+                      checked={selectedUserIds.size === filteredUsers.length && filteredUsers.length > 0}
+                      onCheckedChange={toggleAllUsers}
+                      id="select-all"
+                    />
+                    <Label htmlFor="select-all" className="text-sm text-muted-foreground cursor-pointer">
+                      Select all ({filteredUsers.length} users)
+                    </Label>
+                  </div>
+                )}
 
                 <div className="space-y-3 max-h-[600px] overflow-y-auto">
                   {filteredUsers.length === 0 ? (
@@ -561,7 +696,12 @@ export default function AdminPanel() {
                         key={user.user_id}
                         className="border rounded-lg p-4 space-y-3"
                       >
-                        <div className="flex items-start justify-between gap-4">
+                        <div className="flex items-start gap-4">
+                          <Checkbox
+                            checked={selectedUserIds.has(user.user_id)}
+                            onCheckedChange={() => toggleUserSelection(user.user_id)}
+                            className="mt-1"
+                          />
                           <div className="flex-1 space-y-1">
                             <div className="flex items-center gap-2 flex-wrap">
                               <h3 className="font-semibold">
@@ -1049,6 +1189,73 @@ export default function AdminPanel() {
                   <>
                     <Ban className="mr-2 h-4 w-4" />
                     Ban User
+                  </>
+                )}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        <AlertDialog open={bulkBanDialogOpen} onOpenChange={setBulkBanDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                {bulkAction === 'ban' ? 'Bulk Ban Users' : 'Bulk Unban Users'}
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                You are about to {bulkAction} {selectedUserIds.size} selected user{selectedUserIds.size !== 1 ? 's' : ''}.
+                {bulkAction === 'ban' && ' This action will prevent them from accessing messaging features.'}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            {bulkAction === 'ban' && (
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="bulkBanReason">Ban Reason *</Label>
+                  <Textarea
+                    id="bulkBanReason"
+                    placeholder="Enter the reason for these bans..."
+                    value={banReason}
+                    onChange={(e) => setBanReason(e.target.value)}
+                    rows={3}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="bulkBanDuration">Duration (hours)</Label>
+                  <Select value={banDuration} onValueChange={setBanDuration}>
+                    <SelectTrigger id="bulkBanDuration">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">1 hour</SelectItem>
+                      <SelectItem value="6">6 hours</SelectItem>
+                      <SelectItem value="24">24 hours</SelectItem>
+                      <SelectItem value="72">3 days</SelectItem>
+                      <SelectItem value="168">1 week</SelectItem>
+                      <SelectItem value="720">30 days</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            )}
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={processingBulk}>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleBulkAction}
+                disabled={processingBulk || (bulkAction === 'ban' && !banReason.trim())}
+                className={bulkAction === 'ban' ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90' : ''}
+              >
+                {processingBulk ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    {bulkAction === 'ban' ? (
+                      <><Ban className="mr-2 h-4 w-4" />Ban {selectedUserIds.size} Users</>
+                    ) : (
+                      <><CheckCircle className="mr-2 h-4 w-4" />Unban {selectedUserIds.size} Users</>
+                    )}
                   </>
                 )}
               </AlertDialogAction>
