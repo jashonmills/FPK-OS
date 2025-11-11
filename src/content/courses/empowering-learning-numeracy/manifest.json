@@ -17,18 +17,8 @@
       "audioUrl": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/el-numeracy-og/el-numeracy-og-mp3/Module%201%20-%20Introduction.mp3",
       "sections": [
         {
-          "type": "heading",
-          "content": "Welcome to Empowering Learning: Numeracy",
-          "level": 2
-        },
-        {
           "type": "paragraph",
-          "content": "Welcome to this transformative journey into mathematical thinking. This course will help you understand mathematics not as a series of abstract rules, but as visual patterns and relationships that make sense."
-        },
-        {
-          "type": "callout",
-          "style": "teaching",
-          "content": "Mathematics is fundamentally about patterns and relationships. By learning to see these patterns visually, you'll develop a deeper, more intuitive understanding of numbers."
+          "content": "Hello welcome to the Empowering Learning for numeracy programme. This is gonna be a nice short course to start to help you understand: 1) why numbers are the way they are and 2) how we can use number triangles to help us with our addition, subtraction, multiplication and division. It's very straightforward. It's gonna use a lot of the techniques in the Empowering Learning Spelling. So let's jump right in!"
         }
       ],
       "unit": "Welcome to the Programme",
@@ -46,24 +36,8 @@
       "audioUrl": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/el-numeracy-og/el-numeracy-og-mp3/Module%202%20-%20Optimal%20Learning%20State.mp3",
       "sections": [
         {
-          "type": "heading",
-          "content": "The Optimal Learning State",
-          "level": 2
-        },
-        {
           "type": "paragraph",
-          "content": "Before we dive into mathematics, we need to prepare our minds and bodies for learning. The optimal learning state is a calm, focused state where your brain is ready to absorb new information."
-        },
-        {
-          "type": "callout",
-          "style": "success",
-          "content": "Key Techniques:",
-          "items": [
-            "Deep breathing exercises",
-            "Body relaxation methods",
-            "Mental focus preparation",
-            "Creating a distraction-free environment"
-          ]
+          "content": "Okay before we get started, first things first, if you've done the Empowering Learning Spelling programme, you'll know that we need to get into the optimal learning state. For me personally I prefer the Big Strong Tree and the Box Breathing. They worked really really for me, but for you, you may have found a different way to do it. So if you haven't done it yet, jump into the Optimal Learning State course and you will learn a few different techniques that will help you to get yourself into the best position to be able to learn. Right, go give it a go and when you're ready let's jump into the next module. That's so simple!"
         }
       ],
       "unit": "The Learning Process",
@@ -81,18 +55,8 @@
       "audioUrl": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/el-numeracy-og/el-numeracy-og-mp3/Module%203%20-%20Why%20Numbers%20Are%20The%20Way%20They%20Are.mp3",
       "sections": [
         {
-          "type": "heading",
-          "content": "The Visual Logic of Numbers",
-          "level": 2
-        },
-        {
           "type": "paragraph",
-          "content": "Have you ever wondered why the number 8 looks the way it does? Or why 0 is a circle? Each number's shape has meaning and purpose. Understanding this visual logic helps you remember and work with numbers more effectively."
-        },
-        {
-          "type": "callout",
-          "style": "info",
-          "content": "Numbers are not arbitrary symbols—they carry visual meaning that reflects their mathematical properties. Learning to see these patterns unlocks intuitive understanding."
+          "content": "Okay, before we delve into the actual technique, it is interesting to know why numbers are the way they are? Why is a one like a one? Why is a five like a five? Well it goes right back to ancient times where it's to do with the amount of angles that there are in the number. So on number one we had one angle. In two we had two. In number three, 1, 2, 3 and so on and so on. As you can see, I'm very good at art, but then when they got to nine, there was no more, so they had to come up with one with no angles that could be added to any number to create infinity and that's why we have infinity numbers. It's a really interesting little fact but it's a simple thing to help us try and remember that amount of angles are related to the number. So there you go, go and practise your angles, try and remember them and then we'll move onto the next module where we'll use the Empowering Learning technique to help you add, subtract, multiply and divide much easier."
         }
       ],
       "unit": "The Learning Process",
@@ -110,18 +74,27 @@
       "audioUrl": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/el-numeracy-og/el-numeracy-og-mp3/Module%204%20-%20The%20Technique.mp3",
       "sections": [
         {
-          "type": "heading",
-          "content": "The Number Triangle Technique",
-          "level": 2
-        },
-        {
           "type": "paragraph",
-          "content": "The Number Triangle is a powerful visual tool that helps you understand the relationships between numbers in addition, subtraction, multiplication, and division. It transforms abstract operations into visual patterns you can see and understand."
+          "content": "Okay, before you dive into this, you need to have done the Empowering Learning Spelling programme. It's very quick. It's very short so if you haven't please go back and do that because that gives you the foundation that your gonna use to do the mathematics and numeracy. If you remember, we all went through picturing the nouns in our heads, the dogs, the cats, the tigers and then we moved onto the swan and we got the swan to swim away and leave the words on your brand-new whiteboard. So we're gonna use that whiteboard again."
         },
         {
           "type": "callout",
           "style": "teaching",
-          "content": "By visualizing mathematical relationships as triangles, you create a mental map that makes calculations intuitive rather than memorized. This technique works because your visual brain is incredibly powerful at recognizing and recalling patterns."
+          "content": "For Parents/Teachers: Draw a triangle and put some numbers in it, with the largest number at the top and then the numbers that add up to it that you want to focus on in the other two corners. Add the two minus (-) signs on the sides and the plus (+) at the bottom. Hold it up to where their visual field is and ask them to place the number triangle on the whiteboard."
+        },
+        {
+          "type": "paragraph",
+          "content": "When they have the triangle visualized, you take the post-it note down and you ask them, 'What does x+x make?' and they will be able to picture it and see that the two numbers at the bottom plus each other equals the number on the top. Then you can check subtraction: 'What does x-x equal?' and they will know that the number on the top minus one of the numbers on the bottom gives you the answer of the number in the other corner."
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "We can do the exact same thing for multiplication and division. Just replace the minus (-) and plus (+) signs with divide (÷) and multiply (x) signs and the correct numbers in place."
+        },
+        {
+          "type": "callout",
+          "style": "warning",
+          "content": "Important Reminders: Don't rush through this really fast - take the time and try to work with where your child is at in terms of school. Remember it's okay for all of us to make mistakes. Practice for five minutes a day."
         }
       ],
       "unit": "The Learning Process",
@@ -139,24 +112,8 @@
       "audioUrl": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/el-numeracy-og/el-numeracy-og-mp3/Module%205%20-%20Conclusion.mp3",
       "sections": [
         {
-          "type": "heading",
-          "content": "Your Mathematical Journey Continues",
-          "level": 2
-        },
-        {
           "type": "paragraph",
-          "content": "Congratulations on completing the core Empowering Learning: Numeracy course! You've learned powerful visual techniques that will serve you for life. Mathematics is no longer about memorizing rules—it's about seeing patterns and relationships."
-        },
-        {
-          "type": "callout",
-          "style": "success",
-          "content": "Next Steps:",
-          "items": [
-            "Continue practicing the Number Triangle technique daily",
-            "Apply visual thinking to other mathematical concepts",
-            "Explore the Deep Dive lessons for advanced insights",
-            "Share your newfound confidence with others"
-          ]
+          "content": "OK hope your practice has gone well. Hopefully you guys will be seeing improvements like we've seen with the hundreds of young people that we have worked with over the years and that it is making learning so much easier for your children. If you've got concerns over their handwriting or their reading, jump into those courses cause they're even simpler. So, I hope you've enjoyed the Empowering Learning Numeracy course, well done for completing it and yeah, you've got this."
         }
       ],
       "unit": "Final Tips for Success",
