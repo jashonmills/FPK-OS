@@ -71,12 +71,13 @@ export function StudyMaterialAssignmentDialog({
   
   console.log('[StudyMaterialAssignmentDialog] Org ID:', orgId);
   
+  // useOrgStudents takes (orgId, searchQuery)
   const { students: allStudents, isLoading: membersLoading } = useOrgStudents(orgId, undefined);
   const { groups, isLoading: groupsLoading } = useOrgGroups();
   const { createAssignment, isCreating } = useOrgAssignments();
 
   // Only show students with linked accounts
-  const students = allStudents.filter(s => s.linked_user_id);
+  const students = (allStudents || []).filter(s => s.linked_user_id);
   
   console.log('[StudyMaterialAssignmentDialog] Students loaded:', {
     total: allStudents.length,
@@ -152,11 +153,46 @@ export function StudyMaterialAssignmentDialog({
   };
 
   const selectAllStudents = () => {
-    setSelectedMembers(students.map(s => s.linked_user_id!).filter(Boolean));
+    try {
+      if (!students || students.length === 0) {
+        toast({
+          title: 'No Students Available',
+          description: 'Please add students to your organization first.',
+          variant: 'destructive',
+        });
+        return;
+      }
+      const validUserIds = students.map(s => s.linked_user_id).filter(Boolean) as string[];
+      setSelectedMembers(validUserIds);
+    } catch (error) {
+      console.error('[StudyMaterialAssignmentDialog] Error selecting all students:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to select students. Please try again.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const selectAllGroups = () => {
-    setSelectedGroups(groups.map(g => g.id));
+    try {
+      if (!groups || groups.length === 0) {
+        toast({
+          title: 'No Groups Available',
+          description: 'Create groups to assign materials to them.',
+          variant: 'destructive',
+        });
+        return;
+      }
+      setSelectedGroups(groups.map(g => g.id));
+    } catch (error) {
+      console.error('[StudyMaterialAssignmentDialog] Error selecting all groups:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to select groups. Please try again.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const clearStudents = () => setSelectedMembers([]);

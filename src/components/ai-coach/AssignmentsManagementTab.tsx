@@ -23,13 +23,16 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useOrgAssignments } from '@/hooks/useOrgAssignments';
 import { useAssignmentTargetCounts } from '@/hooks/useAssignmentTargetCounts';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 import { format } from 'date-fns';
 
 interface AssignmentsManagementTabProps {
   orgId?: string;
+  onViewDocument?: (material: any) => void;
 }
 
-export function AssignmentsManagementTab({ orgId }: AssignmentsManagementTabProps) {
+export function AssignmentsManagementTab({ orgId, onViewDocument }: AssignmentsManagementTabProps) {
   const { assignments, isLoading, deleteAssignment, isDeleting } = useOrgAssignments();
   const { getCountsForAssignment } = useAssignmentTargetCounts();
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
@@ -67,6 +70,26 @@ export function AssignmentsManagementTab({ orgId }: AssignmentsManagementTabProp
   const handleDeleteAssignment = (assignmentId: string) => {
     deleteAssignment(assignmentId);
     setDeleteConfirmId(null);
+  };
+
+  const handleViewMaterial = async (resourceId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('ai_coach_study_materials')
+        .select('*')
+        .eq('id', resourceId)
+        .single();
+      
+      if (error) throw error;
+      
+      if (data && onViewDocument) {
+        onViewDocument(data);
+        toast.success('Opening material preview');
+      }
+    } catch (error) {
+      console.error('[AssignmentsManagementTab] Error fetching material:', error);
+      toast.error('Failed to load material preview');
+    }
   };
 
   if (isLoading) {
@@ -170,9 +193,9 @@ export function AssignmentsManagementTab({ orgId }: AssignmentsManagementTabProp
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleViewMaterial(assignment.resource_id)}>
                             <Eye className="w-4 h-4 mr-2" />
-                            View Details
+                            View Material
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem

@@ -228,7 +228,23 @@ export default function AIStudyCoach() {
                 <TabsContent value="assignments">
                   <AssignmentsManagementTab 
                     orgId={currentOrg?.organization_id}
+                    onViewDocument={handleViewDocument}
                   />
+                  
+                  {/* Document Preview - Below Assignments List */}
+                  {activeDocument && (
+                    <div className="mt-6 border-t pt-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-semibold">Assignment Material Preview</h3>
+                      </div>
+                      <div className="border rounded-lg overflow-hidden">
+                        <DocumentReader 
+                          document={activeDocument} 
+                          onClose={handleCloseDocumentViewer} 
+                        />
+                      </div>
+                    </div>
+                  )}
                 </TabsContent>
               </Tabs>
             </CardContent>
