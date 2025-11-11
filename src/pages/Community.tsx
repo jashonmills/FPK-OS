@@ -6,7 +6,7 @@ import fpkLogo from '@/assets/fpk-nexus-logo.png';
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2, Users, LogOut, Menu, MessageSquare, LayoutDashboard, Settings, ChevronLeft, ChevronRight, Shield } from "lucide-react";
+import { Loader2, Users, LogOut, Menu, MessageSquare, LayoutDashboard, Settings, ChevronLeft, ChevronRight, Shield, BarChart3 } from "lucide-react";
 import CircleList from "@/components/community/CircleList";
 import PostFeed from "@/components/community/PostFeed";
 import { GeneralChatTab } from "@/components/community/GeneralChatTab";
@@ -155,6 +155,14 @@ const Community = () => {
                   title="Messages"
                 >
                   <MessageSquare className="h-5 w-5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => navigate("/community/analytics")}
+                  title="Analytics"
+                >
+                  <BarChart3 className="h-5 w-5" />
                 </Button>
               </div>
             </div>

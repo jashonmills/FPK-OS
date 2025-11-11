@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, FileText, MessageSquare, Heart, Award, Users, LayoutGrid, List, Maximize2, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowLeft, FileText, MessageSquare, Heart, Award, Users, LayoutGrid, List, Maximize2, ChevronDown, ChevronUp, BarChart3 } from "lucide-react";
 import PostCard from "@/components/community/PostCard";
 import EditProfileDialog from "@/components/community/EditProfileDialog";
 import { InviteFriendsSection } from "@/components/community/InviteFriendsSection";
@@ -292,6 +292,45 @@ export default function Dashboard() {
               </div>
             </Card>
           )}
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid gap-4 md:grid-cols-2 mb-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MessageSquare className="h-5 w-5" />
+                Messages
+              </CardTitle>
+              <CardDescription>
+                Connect with your community
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button onClick={() => navigate("/messages")} variant="outline" className="w-full">
+                <MessageSquare className="mr-2 h-4 w-4" />
+                Open Messages
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="h-5 w-5" />
+                Your Analytics
+              </CardTitle>
+              <CardDescription>
+                Track your engagement and community impact
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button onClick={() => navigate("/community/analytics")} variant="outline" className="w-full">
+                <BarChart3 className="mr-2 h-4 w-4" />
+                View Analytics
+              </Button>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Content Tabs */}
