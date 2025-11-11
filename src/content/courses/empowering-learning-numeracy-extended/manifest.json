@@ -11,9 +11,10 @@
       "description": "A new perspective on learning mathematics",
       "contentType": "video+text",
       "video": {
-        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/numeracy/Module%201%20-%20Introduction.mp4",
+        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/el-numeracy-og/el-numeracy-mp4/Module%201%20-%20Introduction.mp4",
         "title": "Module 1 - Introduction"
       },
+      "audioUrl": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/el-numeracy-og/el-numeracy-og-mp3/Module%201%20-%20Introduction.mp3",
       "sections": [
         {
           "type": "heading",
@@ -39,9 +40,10 @@
       "description": "Calm your nervous system for effective learning",
       "contentType": "video+text",
       "video": {
-        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/numeracy/Module%202%20-%20Optimal%20Learning%20State.mp4",
+        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/el-numeracy-og/el-numeracy-mp4/Module%202%20-%20Optimal%20Learning%20State.mp4",
         "title": "Module 2 - The Optimal Learning State"
       },
+      "audioUrl": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/el-numeracy-og/el-numeracy-og-mp3/Module%202%20-%20Optimal%20Learning%20State.mp3",
       "sections": [
         {
           "type": "heading",
@@ -73,9 +75,10 @@
       "description": "Understanding number symbols and their visual meaning",
       "contentType": "video+text",
       "video": {
-        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/numeracy/Module%203%20-%20Number%20Shapes.mp4",
+        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/el-numeracy-og/el-numeracy-mp4/Module%203%20-%20Why%20Numbers%20Are%20The%20Way%20They%20Are.mp4",
         "title": "Module 3 - Why Numbers Are Shaped The Way They Are"
       },
+      "audioUrl": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/el-numeracy-og/el-numeracy-og-mp3/Module%203%20-%20Why%20Numbers%20Are%20The%20Way%20They%20Are.mp3",
       "sections": [
         {
           "type": "heading",
@@ -101,9 +104,10 @@
       "description": "Visual method for understanding mathematical operations",
       "contentType": "video+text",
       "video": {
-        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/numeracy/Module%204%20-%20Number%20Triangle.mp4",
+        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/el-numeracy-og/el-numeracy-mp4/Module%204%20-%20The%20Technique.mp4",
         "title": "Module 4 - The Number Triangle Technique"
       },
+      "audioUrl": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/el-numeracy-og/el-numeracy-og-mp3/Module%204%20-%20The%20Technique.mp3",
       "sections": [
         {
           "type": "heading",
@@ -129,9 +133,10 @@
       "description": "Celebrating your mathematical journey and next steps",
       "contentType": "video+text",
       "video": {
-        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/numeracy/Module%205%20-%20Conclusion.mp4",
+        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/el-numeracy-og/el-numeracy-mp4/Module%205%20-%20Conclusion.mp4",
         "title": "Module 5 - Conclusion"
       },
+      "audioUrl": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/el-numeracy-og/el-numeracy-og-mp3/Module%205%20-%20Conclusion.mp3",
       "sections": [
         {
           "type": "heading",

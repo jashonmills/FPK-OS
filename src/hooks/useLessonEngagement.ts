@@ -117,10 +117,10 @@ export function useLessonEngagement(courseId: string, lessonId: number, lessonTi
           interactions_count: metrics.interactionCount,
           scroll_depth_percentage: metrics.scrollDepth,
           org_id: orgId,
-          started_at: new Date(startTimeRef.current).toISOString(),
-          completed_at: completionStatus === 'completed' ? new Date().toISOString() : null
+          completed_at: completionStatus === 'completed' ? new Date().toISOString() : null,
+          updated_at: new Date().toISOString()
         }, {
-          onConflict: 'user_id,course_id,lesson_id,started_at'
+          onConflict: 'user_id,course_id,lesson_id'
         });
 
       if (error) throw error;
