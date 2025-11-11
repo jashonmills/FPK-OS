@@ -10,6 +10,7 @@ export const V2_SEQUENTIAL_COURSE_SLUGS = [
   'el-spelling',
   'el-handwriting',
   'empowering-learning-numeracy',
+  'empowering-learning-numeracy-extended',
   'empowering-learning-reading',
   'optimal-learning-state',
   'elt-empowering-learning-techniques',

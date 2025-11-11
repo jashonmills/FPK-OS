@@ -35,6 +35,7 @@ import dataStructures from '@/content/courses/data-structures-algorithms/manifes
 import trigonometry from '@/content/courses/interactive-trigonometry/manifest.json';
 import linearEquations from '@/content/courses/interactive-linear-equations/manifest.json';
 import logicCriticalThinking from '@/content/courses/logic-critical-thinking/manifest.json';
+import numeracyExtended from '@/content/courses/empowering-learning-numeracy-extended/manifest.json';
 
 export const syncCourseManifests = async () => {
   console.log('[SYNC] Starting course manifest sync...');
@@ -69,6 +70,7 @@ export const syncCourseManifests = async () => {
     'interactive-trigonometry': trigonometry,
     'interactive-linear-equations': linearEquations,
     'logic-critical-thinking': logicCriticalThinking,
+    'empowering-learning-numeracy-extended': numeracyExtended,
   };
 
   const courses = Object.entries(manifestMap).map(([slug, manifest]) => ({
