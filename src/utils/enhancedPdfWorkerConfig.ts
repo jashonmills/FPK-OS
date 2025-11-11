@@ -18,12 +18,12 @@ class PDFWorkerManager {
 
   private readonly MAX_RETRIES = 3;
   private readonly WORKER_URLS = [
-    // Use cdnjs which has better CORS support
-    `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`,
-    // Fallback to jsdelivr
-    `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`,
+    // Use local worker file (downloaded from cdnjs)
+    '/pdfjs/pdf.worker.min.mjs',
+    // Fallback to cdnjs
+    `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`,
     // Mozilla CDN as backup
-    'https://mozilla.github.io/pdf.js/build/pdf.worker.min.js'
+    'https://mozilla.github.io/pdf.js/build/pdf.worker.min.mjs'
   ];
 
   async initialize(): Promise<boolean> {
@@ -58,6 +58,11 @@ class PDFWorkerManager {
 
   private async validateWorkerUrl(url: string): Promise<boolean> {
     try {
+      // For local URLs, skip validation - they should work
+      if (url.startsWith('/')) {
+        return true;
+      }
+      
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000);
 
