@@ -5,8 +5,11 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MessageInput } from "./MessageInput";
 import { TypingIndicator } from "./TypingIndicator";
+import { ReactionPicker } from "./ReactionPicker";
+import { MessageReactions } from "./MessageReactions";
 import { formatDistanceToNow } from "date-fns";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface Message {
   id: string;
@@ -48,6 +51,36 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
     setTimeout(() => {
       scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, 100);
+  };
+
+  const handleAddReaction = async (messageId: string, emoji: string) => {
+    if (!user) return;
+
+    // Get user's persona
+    const { data: persona } = await supabase
+      .from('personas')
+      .select('id')
+      .eq('user_id', user.id)
+      .single();
+
+    if (!persona) {
+      toast.error("Could not find your profile");
+      return;
+    }
+
+    const { error } = await supabase
+      .from('message_reactions')
+      .insert({
+        message_id: messageId,
+        user_id: user.id,
+        persona_id: persona.id,
+        emoji,
+      });
+
+    if (error) {
+      console.error('Error adding reaction:', error);
+      toast.error("Failed to add reaction");
+    }
   };
 
   useEffect(() => {
@@ -210,7 +243,7 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
               return (
                 <div
                   key={message.id}
-                  className={`flex items-start gap-3 ${isOwn ? 'flex-row-reverse' : ''}`}
+                  className={`group flex items-start gap-3 ${isOwn ? 'flex-row-reverse' : ''}`}
                 >
                   <Avatar className="w-8 h-8">
                     <AvatarImage src={message.sender?.avatar_url || undefined} />
@@ -229,17 +262,21 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
                         })}
                       </span>
                     </div>
-                    <div
-                      className={`rounded-lg px-4 py-2 max-w-md ${
-                        isOwn
-                          ? 'bg-primary text-primary-foreground'
-                          : 'bg-muted'
-                      }`}
-                    >
-                      <p className="text-sm whitespace-pre-wrap break-words">
-                        {message.content}
-                      </p>
+                    <div className="flex items-start gap-2">
+                      <div
+                        className={`rounded-lg px-4 py-2 max-w-md ${
+                          isOwn
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-muted'
+                        }`}
+                      >
+                        <p className="text-sm whitespace-pre-wrap break-words">
+                          {message.content}
+                        </p>
+                      </div>
+                      <ReactionPicker onSelect={(emoji) => handleAddReaction(message.id, emoji)} />
                     </div>
+                    <MessageReactions messageId={message.id} />
                   </div>
                 </div>
               );
