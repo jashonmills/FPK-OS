@@ -57,7 +57,7 @@ const ChatWindowComponent = ({ conversationId }: ChatWindowProps) => {
   const [loading, setLoading] = useState(true);
   const [typingUsers, setTypingUsers] = useState<Array<{ display_name: string }>>([]);
   const [replyingTo, setReplyingTo] = useState<{ id: string; senderName: string; content: string } | null>(null);
-  const [editingMessage, setEditingMessage] = useState<{ id: string; content: string } | null>(null);
+  const [editingMessage, setEditingMessage] = useState<{ id: string; content: string; caption?: string | null; hasImage?: boolean } | null>(null);
   const [deletingMessageId, setDeletingMessageId] = useState<string | null>(null);
   const [userPersonaId, setUserPersonaId] = useState<string | null>(null);
   const [imageViewerState, setImageViewerState] = useState<{ isOpen: boolean; images: ImageItem[]; initialIndex: number }>({
@@ -551,7 +551,9 @@ const ChatWindowComponent = ({ conversationId }: ChatWindowProps) => {
                               className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
                               onClick={() => setEditingMessage({
                                 id: message.id,
-                                content: message.content
+                                content: message.content || "",
+                                caption: message.image_caption,
+                                hasImage: !!(message.file_url && message.file_type?.startsWith("image/"))
                               })}
                             >
                               <Pencil className="w-4 h-4" />
@@ -633,6 +635,7 @@ const ChatWindowComponent = ({ conversationId }: ChatWindowProps) => {
                                     fileName={message.file_name}
                                     fileType={message.file_type}
                                     fileSize={message.file_size || undefined}
+                                    caption={message.image_caption}
                                     onOpenImage={handleOpenImage}
                                   />
                                 </div>
@@ -703,6 +706,8 @@ const ChatWindowComponent = ({ conversationId }: ChatWindowProps) => {
           onOpenChange={(open) => !open && setEditingMessage(null)}
           messageId={editingMessage.id}
           currentContent={editingMessage.content}
+          currentCaption={editingMessage.caption}
+          hasImage={editingMessage.hasImage}
         />
       )}
       {deletingMessageId && (

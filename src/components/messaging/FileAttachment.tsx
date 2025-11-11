@@ -7,10 +7,11 @@ interface FileAttachmentProps {
   fileName: string;
   fileType: string;
   fileSize?: number;
+  caption?: string | null;
   onOpenImage?: (imageUrl: string) => void;
 }
 
-export const FileAttachment = ({ fileUrl, fileName, fileType, fileSize, onOpenImage }: FileAttachmentProps) => {
+export const FileAttachment = ({ fileUrl, fileName, fileType, fileSize, caption, onOpenImage }: FileAttachmentProps) => {
   const isImage = fileType.startsWith("image/");
 
   const formatFileSize = (bytes?: number) => {
@@ -39,6 +40,9 @@ export const FileAttachment = ({ fileUrl, fileName, fileType, fileSize, onOpenIm
           className="rounded-lg max-h-[300px] w-full object-contain cursor-pointer hover:opacity-90 transition-opacity"
           onClick={() => onOpenImage?.(fileUrl)}
         />
+        {caption && (
+          <p className="text-sm text-foreground mt-2 px-1 break-words">{caption}</p>
+        )}
         <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground">
           <span className="truncate flex-1">{fileName}</span>
           <Button
