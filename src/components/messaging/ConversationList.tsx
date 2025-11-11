@@ -188,12 +188,12 @@ export const ConversationList = ({ activeConversationId }: { activeConversationI
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-1">
-                    <h3 className="font-semibold text-sm truncate">
+                  <div className="flex items-center justify-between gap-2 mb-1">
+                    <h3 className="font-semibold text-sm truncate flex-1">
                       {getConversationName(conv)}
                     </h3>
                     {conv.lastMessage && (
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-xs text-muted-foreground whitespace-nowrap flex-shrink-0">
                         {formatDistanceToNow(new Date(conv.lastMessage.created_at), {
                           addSuffix: true,
                         })}
@@ -201,7 +201,7 @@ export const ConversationList = ({ activeConversationId }: { activeConversationI
                     )}
                   </div>
                   {conv.lastMessage && (
-                    <p className="text-sm text-muted-foreground truncate">
+                    <p className="text-sm text-muted-foreground line-clamp-2">
                       {conv.lastMessage.content}
                     </p>
                   )}
