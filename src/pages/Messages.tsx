@@ -1,4 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { ConversationList } from "@/components/messaging/ConversationList";
 import { ChatWindow } from "@/components/messaging/ChatWindow";
 import { NewConversationDialog } from "@/components/messaging/NewConversationDialog";
@@ -8,11 +9,20 @@ import { Menu, ArrowLeft, Settings } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
+import { PullToRefresh } from "@/components/mobile/PullToRefresh";
 
 const Messages = () => {
   const { conversationId } = useParams();
   const navigate = useNavigate();
   const { user, loading } = useAuth();
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const handleRefresh = async () => {
+    // Trigger a re-render of the conversation list
+    setRefreshKey(prev => prev + 1);
+    // Add a small delay for visual feedback
+    await new Promise(resolve => setTimeout(resolve, 500));
+  };
 
   if (loading) {
     return null;
@@ -52,9 +62,11 @@ const Messages = () => {
           <div className="p-4 border-b">
             <NewConversationDialog />
           </div>
-          <div className="flex-1 overflow-hidden">
-            <ConversationList activeConversationId={conversationId} />
-          </div>
+          <PullToRefresh onRefresh={handleRefresh}>
+            <div className="min-h-full">
+              <ConversationList key={`desktop-${refreshKey}`} activeConversationId={conversationId} />
+            </div>
+          </PullToRefresh>
         </aside>
 
         {/* Conversation List - Mobile */}
@@ -63,9 +75,11 @@ const Messages = () => {
             <div className="p-4 border-b">
               <NewConversationDialog />
             </div>
-            <div className="flex-1 overflow-hidden">
-              <ConversationList activeConversationId={conversationId} />
-            </div>
+            <PullToRefresh onRefresh={handleRefresh}>
+              <div className="min-h-full">
+                <ConversationList key={`mobile-${refreshKey}`} activeConversationId={conversationId} />
+              </div>
+            </PullToRefresh>
           </div>
         )}
 

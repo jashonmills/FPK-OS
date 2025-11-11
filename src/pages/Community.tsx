@@ -19,6 +19,7 @@ import { WidgetsColumn } from "@/components/community/WidgetsColumn";
 import { WelcomeOnboarding } from "@/components/community/WelcomeOnboarding";
 import { useUserRole } from "@/contexts/UserRoleContext";
 import { DiscoverPeopleDrawer } from "@/components/community/DiscoverPeopleDrawer";
+import { PullToRefresh } from "@/components/mobile/PullToRefresh";
 
 const Community = () => {
   const navigate = useNavigate();
@@ -106,6 +107,13 @@ const Community = () => {
     if (data) {
       setPersona(data);
     }
+  };
+
+  const handleRefresh = async () => {
+    await Promise.all([
+      fetchCircles(),
+      refetchPersona()
+    ]);
   };
 
   useEffect(() => {
@@ -371,27 +379,29 @@ const Community = () => {
           </div>
         )}
         
-        <div className="flex-1 overflow-hidden">
-          {selectedCircleId === "general-chat" ? (
-            <div className="h-full p-4 overflow-y-auto">
-              <GeneralChatTab />
-            </div>
-          ) : selectedCircleId ? (
-            <PostFeed circleId={selectedCircleId} />
-          ) : (
-            <div className="flex h-full items-center justify-center p-4 sm:p-8">
-              <div className="text-center space-y-4 max-w-md animate-fade-in">
-                <Users className="h-12 w-12 sm:h-16 sm:w-16 text-muted-foreground mx-auto" />
-                <h2 className="text-xl sm:text-2xl font-semibold text-foreground">
-                  Welcome to FPK Nexus
-                </h2>
-                <p className="text-sm sm:text-base text-muted-foreground">
-                  Select a circle to start connecting with your community, or create a new circle to begin your journey.
-                </p>
+        <PullToRefresh onRefresh={handleRefresh}>
+          <div className="min-h-full">
+            {selectedCircleId === "general-chat" ? (
+              <div className="h-full p-4">
+                <GeneralChatTab />
               </div>
-            </div>
-          )}
-        </div>
+            ) : selectedCircleId ? (
+              <PostFeed circleId={selectedCircleId} />
+            ) : (
+              <div className="flex min-h-screen items-center justify-center p-4 sm:p-8">
+                <div className="text-center space-y-4 max-w-md animate-fade-in">
+                  <Users className="h-12 w-12 sm:h-16 sm:w-16 text-muted-foreground mx-auto" />
+                  <h2 className="text-xl sm:text-2xl font-semibold text-foreground">
+                    Welcome to FPK Nexus
+                  </h2>
+                  <p className="text-sm sm:text-base text-muted-foreground">
+                    Select a circle to start connecting with your community, or create a new circle to begin your journey.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        </PullToRefresh>
       </main>
 
       {/* Widgets Column - Responsive: stacked on mobile, side column on desktop */}
