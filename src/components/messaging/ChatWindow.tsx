@@ -14,8 +14,9 @@ import { EditMessageDialog } from "./EditMessageDialog";
 import { DeleteMessageDialog } from "./DeleteMessageDialog";
 import { FileAttachment } from "./FileAttachment";
 import { formatDistanceToNow } from "date-fns";
-import { Loader2, Reply, Pencil, Trash2 } from "lucide-react";
+import { Loader2, Reply, Pencil, Trash2, Clock } from "lucide-react";
 import { toast } from "sonner";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface Message {
   id: string;
@@ -425,16 +426,42 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
                       {message.sender?.display_name?.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                  <div className={`flex flex-col ${isOwn ? 'items-end' : 'items-start'}`}>
+                   <div className={`flex flex-col ${isOwn ? 'items-end' : 'items-start'}`}>
                      <div className="flex items-center gap-2 mb-1">
                       <span className="text-sm font-medium">
                         {message.sender?.display_name || 'Unknown'}
                       </span>
-                      <span className="text-xs text-muted-foreground">
-                        {formatDistanceToNow(new Date(message.created_at), {
-                          addSuffix: true,
-                        })}
-                      </span>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className={`text-xs flex items-center gap-1 ${
+                              isOwn && !canEdit && !message.is_deleted 
+                                ? 'text-muted-foreground/60' 
+                                : 'text-muted-foreground'
+                            }`}>
+                              {isOwn && !message.is_deleted && (
+                                <Clock className="w-3 h-3" />
+                              )}
+                              {formatDistanceToNow(new Date(message.created_at), {
+                                addSuffix: true,
+                              })}
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            {isOwn && !message.is_deleted ? (
+                              canEdit ? (
+                                <p>
+                                  Can edit for {Math.ceil((15 * 60 * 1000 - messageAge) / 60000)} more minute{Math.ceil((15 * 60 * 1000 - messageAge) / 60000) !== 1 ? 's' : ''}
+                                </p>
+                              ) : (
+                                <p>Too old to edit (15 min limit)</p>
+                              )
+                            ) : (
+                              <p>{new Date(message.created_at).toLocaleString()}</p>
+                            )}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                       {message.is_edited && !message.is_deleted && (
                         <span className="text-xs text-muted-foreground italic">
                           (edited)
