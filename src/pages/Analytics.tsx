@@ -20,7 +20,7 @@ export default function Analytics() {
   const { startDate } = getDateRange(parseInt(dateRange));
 
   // Fetch user's persona
-  const { data: persona } = useQuery({
+  const { data: persona, isLoading: personaLoading } = useQuery({
     queryKey: ["persona", user?.id],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -35,7 +35,7 @@ export default function Analytics() {
   });
 
   // Fetch posts data
-  const { data: postsData } = useQuery({
+  const { data: postsData, isLoading: postsLoading } = useQuery({
     queryKey: ["analytics-posts", persona?.id, startDate],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -167,7 +167,7 @@ export default function Analytics() {
     enabled: !!persona?.id,
   });
 
-  const isLoading = !persona || !postsData;
+  const isLoading = personaLoading || postsLoading;
 
   if (isLoading) {
     return (
