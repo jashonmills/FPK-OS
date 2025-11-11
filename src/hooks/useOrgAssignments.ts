@@ -154,6 +154,46 @@ export function useOrgAssignments() {
     },
   });
 
+  const deleteAssignmentMutation = useMutation({
+    mutationFn: async (assignmentId: string) => {
+      // First delete assignment targets
+      const { error: targetsError } = await supabase
+        .from('org_assignment_targets')
+        .delete()
+        .eq('assignment_id', assignmentId);
+
+      if (targetsError) {
+        console.error('Error deleting assignment targets:', targetsError);
+        throw targetsError;
+      }
+
+      // Then delete the assignment itself
+      const { error: assignmentError } = await supabase
+        .from('org_assignments')
+        .delete()
+        .eq('id', assignmentId)
+        .eq('org_id', orgId);
+
+      if (assignmentError) throw assignmentError;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['org-assignments'] });
+      queryClient.invalidateQueries({ queryKey: ['assignment-targets'] });
+      toast({
+        title: "Success",
+        description: "Assignment deleted successfully.",
+      });
+    },
+    onError: (error) => {
+      console.error('Error deleting assignment:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete assignment.",
+        variant: "destructive",
+      });
+    },
+  });
+
   return {
     assignments,
     isLoading,
@@ -161,8 +201,10 @@ export function useOrgAssignments() {
     refetch,
     createAssignment: createAssignmentMutation.mutate,
     updateAssignment: updateAssignmentMutation.mutate,
+    deleteAssignment: deleteAssignmentMutation.mutate,
     isCreating: createAssignmentMutation.isPending,
     isUpdating: updateAssignmentMutation.isPending,
+    isDeleting: deleteAssignmentMutation.isPending,
   };
 }
 

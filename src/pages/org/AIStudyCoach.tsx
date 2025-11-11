@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Lightbulb, BookOpen, Target, Clock, Brain } from 'lucide-react';
+import { Lightbulb, BookOpen, Target, Clock, Brain, FileText, ClipboardList } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useOrgContext } from '@/components/organizations/OrgContext';
 import { useAuth } from '@/hooks/useAuth';
 import { useOrgPermissions } from '@/hooks/useOrgPermissions';
@@ -9,6 +10,8 @@ import { MobilePageLayout, MobileSectionHeader } from '@/components/layout/Mobil
 import { useIsMobile } from '@/hooks/use-mobile';
 import { AICoachCommandCenter } from '@/components/AICoachCommandCenter';
 import { AdminAIAssistant } from '@/components/admin/AdminAIAssistant';
+import { MaterialsSubTab } from '@/components/ai-coach/MaterialsSubTab';
+import { AssignmentsManagementTab } from '@/components/ai-coach/AssignmentsManagementTab';
 import { supabase } from '@/integrations/supabase/client';
 import { useSearchParams } from 'react-router-dom';
 import { DocumentReader } from '@/components/ai-coach/DocumentReader';
@@ -120,11 +123,47 @@ export default function AIStudyCoach() {
 
       <div className="flex flex-col gap-6 pb-4">
         {isAdmin ? (
-          /* Admin AI Assistant */
-          <AdminAIAssistant
-            userId={user?.id}
-            orgId={currentOrg?.organization_id}
-          />
+          /* Educator AI Command Center - Tabbed Interface */
+          <Card className="w-full max-w-7xl mx-auto">
+            <CardContent className="pt-6">
+              <Tabs defaultValue={initialTab} className="w-full">
+                <TabsList className="grid w-full grid-cols-3 mb-6">
+                  <TabsTrigger value="chat">
+                    <Brain className="w-4 h-4 mr-2" />
+                    AI Assistant
+                  </TabsTrigger>
+                  <TabsTrigger value="materials">
+                    <FileText className="w-4 h-4 mr-2" />
+                    Study Materials
+                  </TabsTrigger>
+                  <TabsTrigger value="assignments">
+                    <ClipboardList className="w-4 h-4 mr-2" />
+                    Assignments
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="chat">
+                  <AdminAIAssistant
+                    userId={user?.id}
+                    orgId={currentOrg?.organization_id}
+                  />
+                </TabsContent>
+
+                <TabsContent value="materials">
+                  <MaterialsSubTab 
+                    orgId={currentOrg?.organization_id}
+                    onViewDocument={handleViewDocument}
+                  />
+                </TabsContent>
+
+                <TabsContent value="assignments">
+                  <AssignmentsManagementTab 
+                    orgId={currentOrg?.organization_id}
+                  />
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
         ) : (
           <>
             {/* Student AI Command Center - with org context */}
