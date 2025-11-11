@@ -23,7 +23,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { CreateOrgStudentData } from '@/hooks/useOrgStudents';
 
 const studentSchema = z.object({
-  full_name: z.string().optional(),
+  full_name: z.string().min(1, 'Full name is required'),
   student_email: z.string().email('Invalid email').optional().or(z.literal('')),
   grade_level: z.string().optional(),
   student_id: z.string().optional(),
@@ -64,7 +64,7 @@ export function AddStudentDialog({
 
   const handleSubmit = (data: StudentFormData) => {
     const formData: CreateOrgStudentData = {
-      full_name: data.full_name || undefined,
+      full_name: data.full_name,
       student_email: data.student_email || undefined,
       grade_level: data.grade_level || undefined,
       student_id: data.student_id || undefined,
@@ -93,24 +93,10 @@ export function AddStudentDialog({
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="student_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Student ID</FormLabel>
-                  <FormControl>
-                    <Input placeholder="School ID (optional)" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
               name="full_name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Full Name</FormLabel>
+                  <FormLabel>Full Name *</FormLabel>
                   <FormControl>
                     <Input placeholder="Enter student's full name" {...field} />
                   </FormControl>
@@ -133,19 +119,35 @@ export function AddStudentDialog({
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="grade_level"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Grade Level</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., 9th Grade" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="grade_level"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Grade Level</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., 9th Grade" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="student_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Student ID</FormLabel>
+                    <FormControl>
+                      <Input placeholder="School ID (optional)" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <div className="grid grid-cols-2 gap-4">
               <FormField
