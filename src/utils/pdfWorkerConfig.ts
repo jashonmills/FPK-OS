@@ -10,10 +10,10 @@ const PDFJS_VERSION = '5.3.93';
  */
 const WORKER_URLS = [
   // Use local worker file first (most reliable) - matches copy script destination
-  '/pdfjs/pdf.worker.min.js',
+  '/pdfjs/pdf.worker.min.mjs',
   // CDN fallbacks only if local fails
-  `https://unpkg.com/pdfjs-dist@${PDFJS_VERSION}/build/pdf.worker.min.js`,
-  `https://cdn.jsdelivr.net/npm/pdfjs-dist@${PDFJS_VERSION}/build/pdf.worker.min.js`,
+  `https://unpkg.com/pdfjs-dist@${PDFJS_VERSION}/build/pdf.worker.min.mjs`,
+  `https://cdn.jsdelivr.net/npm/pdfjs-dist@${PDFJS_VERSION}/build/pdf.worker.min.mjs`,
 ];
 
 /**
