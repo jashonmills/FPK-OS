@@ -199,9 +199,28 @@ export const useTextToSpeech = () => {
       // Check if user has EXPLICITLY selected a voice (not null/undefined/empty)
       if (voiceSettings.selectedVoice && voiceSettings.selectedVoice.trim() !== '') {
         const userVoice = voices.find(v => v.name === voiceSettings.selectedVoice);
+        
         if (userVoice) {
-          console.log(`[TTS] 🎯 Using user-selected voice override: ${userVoice.name}`);
-          selectedVoice = userVoice;
+          // Validate that the voice gender matches the persona
+          const expectedGender = persona === 'AL' ? 'male' : 'female';
+          const voiceName = userVoice.name.toLowerCase();
+          
+          // Check if voice matches expected gender
+          const isMaleVoice = voiceName.includes('male') || voiceName.includes('david') || 
+                              voiceName.includes('george') || voiceName.includes('james');
+          const isFemaleVoice = voiceName.includes('female') || voiceName.includes('zira') || 
+                                voiceName.includes('susan') || voiceName.includes('hazel');
+          
+          const voiceMatchesGender = (expectedGender === 'male' && isMaleVoice) || 
+                                     (expectedGender === 'female' && isFemaleVoice);
+          
+          if (voiceMatchesGender) {
+            console.log(`[TTS] 🎯 Using user-selected voice override: ${userVoice.name}`);
+            selectedVoice = userVoice;
+          } else {
+            console.log(`[TTS] ⚠️ User voice "${voiceSettings.selectedVoice}" doesn't match ${persona} gender (${expectedGender}), using persona default`);
+            selectedVoice = getVoiceForPersona(persona);
+          }
         } else {
           console.log(`[TTS] ⚠️ User-selected voice "${voiceSettings.selectedVoice}" not found, using persona default`);
           selectedVoice = getVoiceForPersona(persona);
