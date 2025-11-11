@@ -1,6 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Play, Square, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { MobileAwareAudioPlayer } from '@/utils/mobileAudioPlayer';
+import { isMobileBrowser } from '@/utils/mobileAudioUtils';
+import { useVoiceSettings } from '@/contexts/VoiceSettingsContext';
 
 interface CollaborativeResponsePlayerProps {
   audioPlaylist: string[];
@@ -16,21 +19,25 @@ export function CollaborativeResponsePlayer({
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [hasAutoPlayed, setHasAutoPlayed] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioPlayerRef = useRef<MobileAwareAudioPlayer>(new MobileAwareAudioPlayer());
   const isStoppedRef = useRef(false);
+  const { settings } = useVoiceSettings();
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
+      audioPlayerRef.current.stop();
     };
   }, []);
 
   // Auto-play effect (fires once when audio is ready and autoplay is enabled)
   useEffect(() => {
+    // MOBILE FIX: Don't auto-play until user has interacted
+    if (isMobileBrowser() && !settings.hasInteracted) {
+      console.log('[CollaborativePlayer] Waiting for user interaction on mobile');
+      return;
+    }
+    
     if (autoPlayEnabled && 
         !hasAutoPlayed && 
         audioPlaylist.length > 0 && 
@@ -40,15 +47,11 @@ export function CollaborativeResponsePlayer({
       setHasAutoPlayed(true);
       playSequentially();
     }
-  }, [autoPlayEnabled, audioPlaylist, hasAutoPlayed, isPlaying]);
+  }, [autoPlayEnabled, audioPlaylist, hasAutoPlayed, isPlaying, settings.hasInteracted]);
 
   const stopPlayback = () => {
     isStoppedRef.current = true;
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-      audioRef.current = null;
-    }
+    audioPlayerRef.current.stop();
     setIsPlaying(false);
     setCurrentTrackIndex(0);
   };
@@ -87,33 +90,22 @@ export function CollaborativeResponsePlayer({
     }
   };
 
-  const playAudioFile = (audioUrl: string): Promise<void> => {
-    return new Promise((resolve, reject) => {
-      if (isStoppedRef.current) {
-        resolve();
-        return;
+  const playAudioFile = async (audioUrl: string): Promise<void> => {
+    if (isStoppedRef.current) return;
+
+    const success = await audioPlayerRef.current.play(audioUrl, {
+      hasUserInteracted: settings.hasInteracted,
+      onEnded: () => {
+        // Will be handled by the sequential player
+      },
+      onError: (error) => {
+        console.error('[CollaborativePlayer] Mobile audio error:', error);
       }
-
-      const audio = new Audio(audioUrl);
-      audioRef.current = audio;
-
-      audio.onended = () => {
-        audioRef.current = null;
-        resolve();
-      };
-
-      audio.onerror = (error) => {
-        console.error('Audio playback error for URL:', audioUrl, error);
-        audioRef.current = null;
-        resolve(); // Continue even if one fails
-      };
-
-      audio.play().catch((error) => {
-        console.error('Audio play failed:', error);
-        audioRef.current = null;
-        resolve();
-      });
     });
+
+    if (!success && isMobileBrowser()) {
+      console.error('[CollaborativePlayer] Mobile playback failed - user may need to interact');
+    }
   };
 
   const handlePlayPause = () => {
@@ -152,15 +144,24 @@ export function CollaborativeResponsePlayer({
   }
 
   return (
-    <div className="flex items-center justify-between gap-3 mb-2">
-      <div className="flex items-center gap-2">
-        <Users className="w-4 h-4 text-purple-500 dark:text-purple-400" />
-        {isPlaying && getSpeakerLabel() && (
-          <span className="text-xs text-muted-foreground animate-pulse">
-            {getSpeakerLabel()}
-          </span>
-        )}
-      </div>
+    <div className="space-y-2">
+      {/* Mobile interaction prompt */}
+      {isMobileBrowser() && !settings.hasInteracted && (
+        <div className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
+          <span>📱</span>
+          <span>Tap to enable audio playback</span>
+        </div>
+      )}
+      
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <Users className="w-4 h-4 text-purple-500 dark:text-purple-400" />
+          {isPlaying && getSpeakerLabel() && (
+            <span className="text-xs text-muted-foreground animate-pulse">
+              {getSpeakerLabel()}
+            </span>
+          )}
+        </div>
       
       <button
         onClick={handlePlayPause}
@@ -185,6 +186,7 @@ export function CollaborativeResponsePlayer({
           </>
         )}
       </button>
+      </div>
     </div>
   );
 }

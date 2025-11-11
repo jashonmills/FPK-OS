@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Upload, BookOpen, Clock, TrendingUp, Target, Award, Zap, MessageSquare, Volume2, Trash2, Save, Download, Paperclip } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { isMobileBrowser } from '@/utils/mobileAudioUtils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { SpeedControl } from '@/components/coach/SpeedControl';
 import type { Persona, AIDrill } from '@/types/aiCoach';
@@ -448,6 +449,16 @@ const AIInteractionColumn: React.FC<{
         className="flex-1 mb-4"
       >
         <div className="space-y-3 pr-2">
+          {/* Mobile Audio Enablement Banner */}
+          {isMobileBrowser() && messages.length > 0 && (
+            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3 mb-4">
+              <p className="text-sm text-amber-900 dark:text-amber-100 flex items-center gap-2">
+                <Volume2 className="w-4 h-4" />
+                📱 Tap anywhere to enable audio playback
+              </p>
+            </div>
+          )}
+          
           {messages.length === 0 ? (
             <div className="flex items-center justify-center min-h-[200px] text-center">
               <div>

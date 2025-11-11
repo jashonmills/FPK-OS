@@ -4,6 +4,8 @@ import { CommandCenterMessage } from '@/hooks/useCommandCenterChat';
 import { User, Sparkles, Brain, Podcast, Volume2, VolumeX } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
+import { MobileAwareAudioPlayer } from '@/utils/mobileAudioPlayer';
+import { useVoiceSettings } from '@/contexts/VoiceSettingsContext';
 
 interface MessageBubbleProps {
   message: CommandCenterMessage;
@@ -23,8 +25,9 @@ export function MessageBubble({
 
   const { speak, stop, isSpeaking, isAvailable } = useTextToSpeech();
   const [isThisMessageSpeaking, setIsThisMessageSpeaking] = useState(false);
-  const audioRef = React.useRef<HTMLAudioElement | null>(null);
+  const audioPlayerRef = React.useRef<MobileAwareAudioPlayer>(new MobileAwareAudioPlayer());
   const intervalRef = React.useRef<NodeJS.Timeout | null>(null);
+  const { settings: voiceSettings } = useVoiceSettings();
 
   const handleSpeak = async () => {
     if (isThisMessageSpeaking) {
@@ -34,11 +37,7 @@ export function MessageBubble({
       stop();
       
       // 2. Stop HTML5 audio if playing
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.currentTime = 0;
-        audioRef.current = null;
-      }
+      audioPlayerRef.current.stop();
       
       // 3. Clear monitoring interval
       if (intervalRef.current) {
@@ -84,42 +83,28 @@ export function MessageBubble({
     }
   };
 
-  const playAudioFile = (audioUrl: string): Promise<void> => {
-    return new Promise((resolve) => {
-      // Clean up any existing audio first
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
+  const playAudioFile = async (audioUrl: string): Promise<void> => {
+    const success = await audioPlayerRef.current.play(audioUrl, {
+      hasUserInteracted: voiceSettings.hasInteracted,
+      onEnded: () => {
+        setIsThisMessageSpeaking(false);
+      },
+      onError: (error) => {
+        console.error('[MessageBubble] Mobile audio error:', error);
+        setIsThisMessageSpeaking(false);
       }
-      
-      const audio = new Audio(audioUrl);
-      audioRef.current = audio;
-      
-      audio.onended = () => {
-        audioRef.current = null;
-        resolve();
-      };
-      
-      audio.onerror = () => {
-        console.error('Audio playback error for URL:', audioUrl);
-        audioRef.current = null;
-        resolve();
-      };
-      
-      audio.play().catch(() => {
-        audioRef.current = null;
-        resolve();
-      });
     });
+
+    if (!success) {
+      console.error('[MessageBubble] Audio playback failed');
+      setIsThisMessageSpeaking(false);
+    }
   };
 
   // Cleanup on unmount
   React.useEffect(() => {
     return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
+      audioPlayerRef.current.stop();
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
