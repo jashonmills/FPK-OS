@@ -33,7 +33,7 @@ interface StudyMaterial {
 }
 
 interface StudyMaterialAssignmentDialogProps {
-  material: StudyMaterial;
+  material: StudyMaterial | StudyMaterial[];
   trigger?: React.ReactNode;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -57,7 +57,15 @@ export function StudyMaterialAssignmentDialog({
     }
   };
 
-  const [assignmentTitle, setAssignmentTitle] = useState(material.title);
+  // Support both single material and bulk assignment (array of materials)
+  const isBulkAssignment = Array.isArray(material);
+  const materials = isBulkAssignment ? material : [material];
+  const materialCount = materials.length;
+  const firstMaterial = materials[0];
+
+  const [assignmentTitle, setAssignmentTitle] = useState(
+    isBulkAssignment ? `Bulk Assignment (${materialCount} materials)` : firstMaterial.title
+  );
   const [instructions, setInstructions] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [isRequired, setIsRequired] = useState(false);
@@ -129,26 +137,32 @@ export function StudyMaterialAssignmentDialog({
 
     console.log('[StudyMaterialAssignmentDialog] Creating assignment:', {
       title: assignmentTitle,
+      materialCount: materials.length,
       targetMembers: targetMembers.length,
       targetGroups: targetGroups.length,
       metadata: { instructions, due_at: dueDate, required: isRequired }
     });
 
-    await createAssignment({
-      title: assignmentTitle,
-      type: 'study_material',
-      resource_id: material.id,
-      metadata: { 
-        instructions,
-        due_at: dueDate ? new Date(dueDate).toISOString() : undefined,
-        required: isRequired
-      },
-      target_members: targetMembers.length > 0 ? targetMembers : undefined,
-      target_groups: targetGroups.length > 0 ? targetGroups : undefined,
-    });
+    // Create assignments for all materials
+    const assignmentPromises = materials.map(mat =>
+      createAssignment({
+        title: isBulkAssignment ? `${mat.title}` : assignmentTitle,
+        type: 'study_material',
+        resource_id: mat.id,
+        metadata: { 
+          instructions,
+          due_at: dueDate ? new Date(dueDate).toISOString() : undefined,
+          required: isRequired
+        },
+        target_members: targetMembers.length > 0 ? targetMembers : undefined,
+        target_groups: targetGroups.length > 0 ? targetGroups : undefined,
+      })
+    );
+
+    await Promise.all(assignmentPromises);
 
     // Reset form
-    setAssignmentTitle(material.title);
+    setAssignmentTitle(isBulkAssignment ? `Bulk Assignment (${materialCount} materials)` : firstMaterial.title);
     setInstructions('');
     setDueDate('');
     setIsRequired(false);
@@ -230,9 +244,14 @@ export function StudyMaterialAssignmentDialog({
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
         <DialogHeader>
-          <DialogTitle>Assign Study Material</DialogTitle>
+          <DialogTitle>
+            {isBulkAssignment ? 'Bulk Assign Study Materials' : 'Assign Study Material'}
+          </DialogTitle>
           <DialogDescription>
-            Assign {material.title} to students with AI coaching guidance
+            {isBulkAssignment 
+              ? `Assign ${materialCount} material${materialCount > 1 ? 's' : ''} to students with AI coaching guidance`
+              : `Assign ${firstMaterial.title} to students with AI coaching guidance`
+            }
           </DialogDescription>
         </DialogHeader>
 
@@ -243,10 +262,22 @@ export function StudyMaterialAssignmentDialog({
               <div className="flex items-start gap-3 p-4 rounded-lg bg-muted/50">
                 <FileText className="w-10 h-10 text-primary flex-shrink-0 mt-1" />
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium truncate">{material.title}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {material.file_type} • {formatFileSize(material.file_size)}
-                  </p>
+                  {isBulkAssignment ? (
+                    <>
+                      <p className="font-medium">{materialCount} Materials Selected</p>
+                      <p className="text-sm text-muted-foreground">
+                        {materials.map(m => m.title).join(', ').slice(0, 100)}
+                        {materials.map(m => m.title).join(', ').length > 100 && '...'}
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="font-medium truncate">{firstMaterial.title}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {firstMaterial.file_type} • {formatFileSize(firstMaterial.file_size)}
+                      </p>
+                    </>
+                  )}
                 </div>
               </div>
 

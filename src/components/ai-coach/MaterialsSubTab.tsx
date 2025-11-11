@@ -44,6 +44,10 @@ export function MaterialsSubTab({ orgId, onStartStudying, onViewDocument, attach
   const [studyingMaterialId, setStudyingMaterialId] = useState<string | null>(null);
   const [selectedMaterialForAssignment, setSelectedMaterialForAssignment] = useState<any | null>(null);
   const [isAssignmentDialogOpen, setIsAssignmentDialogOpen] = useState(false);
+  
+  // Bulk selection state
+  const [selectedMaterialIds, setSelectedMaterialIds] = useState<string[]>([]);
+  const [isBulkMode, setIsBulkMode] = useState(false);
 
   // Check if user is an educator (has orgId context)
   const isEducator = !!orgId;
@@ -182,6 +186,36 @@ export function MaterialsSubTab({ orgId, onStartStudying, onViewDocument, attach
     }
   };
 
+  // Bulk selection handlers
+  const handleToggleSelectMaterial = (materialId: string) => {
+    setSelectedMaterialIds(prev => 
+      prev.includes(materialId) 
+        ? prev.filter(id => id !== materialId)
+        : [...prev, materialId]
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (selectedMaterialIds.length === filteredMaterials.length) {
+      setSelectedMaterialIds([]);
+    } else {
+      setSelectedMaterialIds(filteredMaterials.map((m: any) => m.id));
+    }
+  };
+
+  const handleBulkAssign = () => {
+    const selectedMaterials = studyMaterials.filter((m: any) => 
+      selectedMaterialIds.includes(m.id)
+    );
+    setSelectedMaterialForAssignment(selectedMaterials);
+    setIsAssignmentDialogOpen(true);
+  };
+
+  const handleCancelBulkMode = () => {
+    setIsBulkMode(false);
+    setSelectedMaterialIds([]);
+  };
+
   return (
     <div className={cn(
       "flex gap-4",
@@ -222,30 +256,96 @@ export function MaterialsSubTab({ orgId, onStartStudying, onViewDocument, attach
           "flex-1 min-h-0 overflow-hidden flex flex-col"
         )}>
         <div className="bg-white rounded-lg border p-3 md:p-4 flex flex-col h-full">
-          <div className="flex items-center justify-between mb-3 md:mb-4 flex-shrink-0">
+          <div className="flex items-center justify-between mb-3 md:mb-4 flex-shrink-0 gap-2">
             <h3 className="font-semibold text-gray-800 text-sm md:text-base">
               {selectedFolderId === null ? 'All Materials' : 'Folder Contents'}
+              {isBulkMode && selectedMaterialIds.length > 0 && (
+                <span className="ml-2 text-xs text-muted-foreground">
+                  ({selectedMaterialIds.length} selected)
+                </span>
+              )}
             </h3>
-            <Button 
-              onClick={() => setIsUploadModalOpen(true)} 
-              size="sm"
-              className={cn(isMobile && "h-9 px-3 text-xs")}
-            >
-              <UploadIcon className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
-              <span className={cn(isMobile && "hidden sm:inline")}>Upload</span>
-              <span className={cn(!isMobile && "hidden sm:inline")}> Material</span>
-            </Button>
+            <div className="flex items-center gap-2">
+              {isEducator && (
+                <>
+                  {isBulkMode ? (
+                    <>
+                      <Button
+                        onClick={handleBulkAssign}
+                        size="sm"
+                        disabled={selectedMaterialIds.length === 0}
+                        className={cn(isMobile && "h-9 px-3 text-xs")}
+                      >
+                        <UserPlus className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
+                        Assign ({selectedMaterialIds.length})
+                      </Button>
+                      <Button
+                        onClick={handleCancelBulkMode}
+                        size="sm"
+                        variant="outline"
+                        className={cn(isMobile && "h-9 px-3 text-xs")}
+                      >
+                        <X className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
+                        Cancel
+                      </Button>
+                    </>
+                  ) : (
+                    <Button
+                      onClick={() => setIsBulkMode(true)}
+                      size="sm"
+                      variant="outline"
+                      className={cn(isMobile && "h-9 px-3 text-xs")}
+                    >
+                      <CheckCircle2 className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
+                      <span className="hidden sm:inline">Bulk Assign</span>
+                    </Button>
+                  )}
+                </>
+              )}
+              <Button 
+                onClick={() => setIsUploadModalOpen(true)} 
+                size="sm"
+                className={cn(isMobile && "h-9 px-3 text-xs")}
+              >
+                <UploadIcon className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
+                <span className={cn(isMobile && "hidden sm:inline")}>Upload</span>
+                <span className={cn(!isMobile && "hidden sm:inline")}> Material</span>
+              </Button>
+            </div>
           </div>
 
-          {/* Search Bar */}
-          <div className="relative mb-3 md:mb-4 flex-shrink-0">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Search materials..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 h-9 md:h-10 text-sm"
-            />
+          {/* Search Bar and Bulk Actions */}
+          <div className="space-y-2 mb-3 md:mb-4 flex-shrink-0">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search materials..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 h-9 md:h-10 text-sm"
+              />
+            </div>
+            
+            {isBulkMode && filteredMaterials.length > 0 && (
+              <Button
+                onClick={handleSelectAll}
+                size="sm"
+                variant="outline"
+                className="w-full h-8 text-xs"
+              >
+                {selectedMaterialIds.length === filteredMaterials.length ? (
+                  <>
+                    <X className="w-3 h-3 mr-1.5" />
+                    Deselect All
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="w-3 h-3 mr-1.5" />
+                    Select All ({filteredMaterials.length})
+                  </>
+                )}
+              </Button>
+            )}
           </div>
 
           <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden pr-2">
@@ -259,15 +359,25 @@ export function MaterialsSubTab({ orgId, onStartStudying, onViewDocument, attach
               ) : (
                 filteredMaterials.map((material: any) => {
                 const isAttached = attachedMaterialIds.includes(material.id);
+                const isSelected = selectedMaterialIds.includes(material.id);
                 return (
                   <div
                     key={material.id}
                     className={cn(
                       "group flex items-center justify-between p-2 md:p-3 bg-gray-50 rounded border border-gray-200 hover:bg-gray-100 transition-colors",
-                      isAttached && "bg-blue-50 border-blue-200 hover:bg-blue-100"
+                      isAttached && "bg-blue-50 border-blue-200 hover:bg-blue-100",
+                      isSelected && "bg-primary/10 border-primary/30"
                     )}
                   >
                     <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
+                      {isBulkMode && (
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => handleToggleSelectMaterial(material.id)}
+                          className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
+                        />
+                      )}
                       <div className="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 bg-white rounded-lg border border-gray-200 flex items-center justify-center">
                         {material.file_type === 'pdf' && <FileText className="w-4 h-4 md:w-5 md:h-5 text-red-500" />}
                         {material.file_type === 'txt' && <FileText className="w-4 h-4 md:w-5 md:h-5 text-blue-500" />}
