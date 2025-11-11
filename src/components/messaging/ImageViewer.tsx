@@ -26,24 +26,19 @@ export const ImageViewer = ({ images, initialIndex, isOpen, onClose }: ImageView
   const lastTouchDistance = useRef<number | null>(null);
   const touchStartX = useRef<number | null>(null);
 
-  const currentImage = images[currentIndex];
+  const currentImage = images[currentIndex] || null;
 
   useEffect(() => {
     if (!isOpen) {
       setScale(1);
       setRotation(0);
       setPosition({ x: 0, y: 0 });
-    } else {
+    } else if (images.length > 0) {
       // Ensure initialIndex is valid
       const validIndex = Math.max(0, Math.min(initialIndex, images.length - 1));
       setCurrentIndex(validIndex);
     }
   }, [isOpen, initialIndex, images.length]);
-
-  // Don't render if no images or invalid state
-  if (!isOpen || images.length === 0 || !currentImage) {
-    return null;
-  }
 
   useEffect(() => {
     // Reset zoom/pan when changing images
@@ -199,8 +194,9 @@ export const ImageViewer = ({ images, initialIndex, isOpen, onClose }: ImageView
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen && images.length > 0 && currentImage !== null} onOpenChange={onClose}>
       <DialogContent className="max-w-[100vw] max-h-[100vh] w-full h-full p-0 bg-black/95 border-none">
+        {currentImage && (
         <div className="relative w-full h-full flex items-center justify-center">
           <div className="absolute top-4 right-4 z-50 flex gap-2">
             <Button
@@ -299,6 +295,7 @@ export const ImageViewer = ({ images, initialIndex, isOpen, onClose }: ImageView
             <span>{scale > 1 ? `${Math.round(scale * 100)}%` : "Double-click or pinch to zoom"}</span>
           </div>
         </div>
+        )}
       </DialogContent>
     </Dialog>
   );
