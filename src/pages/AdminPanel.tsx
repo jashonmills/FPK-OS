@@ -10,7 +10,9 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Shield, Flag, Users, Play, Loader2, AlertOctagon, LayoutDashboard } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ArrowLeft, Shield, Flag, Users, Play, Loader2, AlertOctagon, LayoutDashboard, FileText, Search } from "lucide-react";
 import { toast } from "sonner";
 import { AppealReviewDialog } from "@/components/admin/AppealReviewDialog";
 import { format } from "date-fns";
@@ -33,6 +35,10 @@ export default function AdminPanel() {
   const [pendingAppeals, setPendingAppeals] = useState<any[]>([]);
   const [selectedAppeal, setSelectedAppeal] = useState<any>(null);
   const [appealDialogOpen, setAppealDialogOpen] = useState(false);
+  const [moderationLogs, setModerationLogs] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [logTypeFilter, setLogTypeFilter] = useState<string>("all");
+  const [severityFilter, setSeverityFilter] = useState<string>("all");
   const isInviteSystemEnabled = useFeatureFlag('user_invite_system_enabled');
   const isOperationSpearheadEnabled = useFeatureFlag('operation_spearhead_enabled');
 
@@ -47,6 +53,7 @@ export default function AdminPanel() {
   useEffect(() => {
     if (isAdmin) {
       fetchFlags();
+      fetchModerationLogs();
       if (isInviteSystemEnabled) {
         fetchInviteStats();
       }
@@ -55,6 +62,39 @@ export default function AdminPanel() {
       }
     }
   }, [isAdmin, isInviteSystemEnabled, isOperationSpearheadEnabled]);
+
+  const fetchModerationLogs = async () => {
+    try {
+      const [aiLogs, bans, appeals] = await Promise.all([
+        supabase
+          .from('ai_moderation_log')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(100),
+        supabase
+          .from('user_bans')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(100),
+        supabase
+          .from('ban_appeals')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(100)
+      ]);
+
+      const combinedLogs = [
+        ...(aiLogs.data || []).map(log => ({ ...log, log_type: 'ai_moderation' })),
+        ...(bans.data || []).map(ban => ({ ...ban, log_type: 'ban' })),
+        ...(appeals.data || []).map(appeal => ({ ...appeal, log_type: 'appeal' }))
+      ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+      setModerationLogs(combinedLogs);
+    } catch (error) {
+      console.error('Error fetching moderation logs:', error);
+      toast.error('Failed to load moderation logs');
+    }
+  };
 
   const fetchPendingAppeals = async () => {
     const { data, error } = await supabase
@@ -142,6 +182,38 @@ export default function AdminPanel() {
     setUpdating(null);
   };
 
+  const filteredLogs = moderationLogs.filter(log => {
+    const matchesSearch = searchQuery === "" || 
+      JSON.stringify(log).toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesType = logTypeFilter === "all" || log.log_type === logTypeFilter;
+    
+    const matchesSeverity = severityFilter === "all" || 
+      (log.severity_score && log.severity_score >= parseInt(severityFilter));
+
+    return matchesSearch && matchesType && matchesSeverity;
+  });
+
+  const getLogTypeBadge = (type: string) => {
+    switch (type) {
+      case 'ai_moderation':
+        return <Badge variant="outline" className="bg-blue-500/10 text-blue-500 border-blue-500/20">AI Action</Badge>;
+      case 'ban':
+        return <Badge variant="destructive">Ban</Badge>;
+      case 'appeal':
+        return <Badge variant="secondary">Appeal</Badge>;
+      default:
+        return <Badge>{type}</Badge>;
+    }
+  };
+
+  const getSeverityBadge = (score?: number) => {
+    if (!score) return null;
+    if (score >= 8) return <Badge variant="destructive">High ({score}/10)</Badge>;
+    if (score >= 5) return <Badge className="bg-orange-500/10 text-orange-500 border-orange-500/20">Medium ({score}/10)</Badge>;
+    return <Badge variant="outline">Low ({score}/10)</Badge>;
+  };
+
   if (roleLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -168,19 +240,23 @@ export default function AdminPanel() {
         </div>
 
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">
               <LayoutDashboard className="h-4 w-4 mr-2" />
               Overview
             </TabsTrigger>
             <TabsTrigger value="flags">
               <Flag className="h-4 w-4 mr-2" />
-              Feature Flags
+              Flags
+            </TabsTrigger>
+            <TabsTrigger value="logs">
+              <FileText className="h-4 w-4 mr-2" />
+              Logs
             </TabsTrigger>
             {isOperationSpearheadEnabled && (
               <TabsTrigger value="appeals">
                 <AlertOctagon className="h-4 w-4 mr-2" />
-                Ban Appeals
+                Appeals
                 {pendingAppeals.length > 0 && (
                   <Badge variant="destructive" className="ml-2">{pendingAppeals.length}</Badge>
                 )}
@@ -189,7 +265,7 @@ export default function AdminPanel() {
             {isInviteSystemEnabled && (
               <TabsTrigger value="invites">
                 <Users className="h-4 w-4 mr-2" />
-                Invite System
+                Invites
               </TabsTrigger>
             )}
           </TabsList>
@@ -289,6 +365,141 @@ export default function AdminPanel() {
             ))}
           </CardContent>
         </Card>
+          </TabsContent>
+
+          <TabsContent value="logs" className="space-y-6 mt-6">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-primary" />
+                  <CardTitle>Moderation Logs</CardTitle>
+                </div>
+                <CardDescription>
+                  View all AI moderation actions, ban history, and appeal outcomes
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex flex-col md:flex-row gap-3">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Search logs..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-9"
+                    />
+                  </div>
+                  <Select value={logTypeFilter} onValueChange={setLogTypeFilter}>
+                    <SelectTrigger className="w-full md:w-[180px]">
+                      <SelectValue placeholder="Log Type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Types</SelectItem>
+                      <SelectItem value="ai_moderation">AI Actions</SelectItem>
+                      <SelectItem value="ban">Bans</SelectItem>
+                      <SelectItem value="appeal">Appeals</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select value={severityFilter} onValueChange={setSeverityFilter}>
+                    <SelectTrigger className="w-full md:w-[180px]">
+                      <SelectValue placeholder="Severity" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Severity</SelectItem>
+                      <SelectItem value="8">High (8+)</SelectItem>
+                      <SelectItem value="5">Medium (5+)</SelectItem>
+                      <SelectItem value="1">Low (1+)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-3 max-h-[600px] overflow-y-auto">
+                  {filteredLogs.length === 0 ? (
+                    <p className="text-muted-foreground text-center py-8">No logs found</p>
+                  ) : (
+                    filteredLogs.map((log) => (
+                      <div
+                        key={log.id}
+                        className="border rounded-lg p-4 space-y-2 hover:bg-muted/50 transition-colors"
+                      >
+                        <div className="flex items-start justify-between gap-2 flex-wrap">
+                          <div className="flex items-center gap-2">
+                            {getLogTypeBadge(log.log_type)}
+                            {getSeverityBadge(log.severity_score)}
+                          </div>
+                          <span className="text-xs text-muted-foreground">
+                            {format(new Date(log.created_at), 'MMM d, yyyy h:mm a')}
+                          </span>
+                        </div>
+
+                        {log.log_type === 'ai_moderation' && (
+                          <div className="space-y-1">
+                            <p className="text-sm font-medium">
+                              Action: {log.action_taken}
+                            </p>
+                            {log.violation_category && (
+                              <p className="text-sm text-muted-foreground">
+                                Category: {log.violation_category}
+                              </p>
+                            )}
+                            {log.message_content && (
+                              <p className="text-sm text-muted-foreground line-clamp-2">
+                                Message: "{log.message_content}"
+                              </p>
+                            )}
+                            {log.de_escalation_message && (
+                              <p className="text-sm text-blue-600 dark:text-blue-400">
+                                De-escalation: {log.de_escalation_message}
+                              </p>
+                            )}
+                          </div>
+                        )}
+
+                        {log.log_type === 'ban' && (
+                          <div className="space-y-1">
+                            <p className="text-sm font-medium">
+                              Status: {log.status}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              Reason: {log.reason}
+                            </p>
+                            {log.offending_message_content && (
+                              <p className="text-sm text-muted-foreground line-clamp-2">
+                                Message: "{log.offending_message_content}"
+                              </p>
+                            )}
+                            <p className="text-xs text-muted-foreground">
+                              Expires: {format(new Date(log.expires_at), 'MMM d, yyyy h:mm a')}
+                            </p>
+                          </div>
+                        )}
+
+                        {log.log_type === 'appeal' && (
+                          <div className="space-y-1">
+                            <p className="text-sm font-medium">
+                              Status: {log.status}
+                            </p>
+                            <p className="text-sm text-muted-foreground line-clamp-2">
+                              Justification: "{log.user_justification}"
+                            </p>
+                            {log.admin_notes && (
+                              <p className="text-sm text-green-600 dark:text-green-400">
+                                Admin notes: {log.admin_notes}
+                              </p>
+                            )}
+                            {log.reviewed_at && (
+                              <p className="text-xs text-muted-foreground">
+                                Reviewed: {format(new Date(log.reviewed_at), 'MMM d, yyyy h:mm a')}
+                              </p>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ))
+                  )}
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {isOperationSpearheadEnabled && (
