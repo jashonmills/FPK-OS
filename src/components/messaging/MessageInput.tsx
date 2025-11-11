@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { ReplyPreview } from "./ReplyPreview";
 import { FileUpload } from "./FileUpload";
 import { SpeechToTextButton } from "./SpeechToTextButton";
+import { checkProfanity } from "@/utils/profanityFilter";
 
 interface MessageInputProps {
   conversationId: string;
@@ -128,6 +129,20 @@ export const MessageInput = ({ conversationId, onOptimisticMessage, replyingTo, 
     if ((!content.trim() && !selectedFile) || sending || !currentPersona) return;
 
     const messageContent = content.trim();
+    
+    // Client-side profanity check for immediate feedback
+    if (messageContent) {
+      const profanityCheck = checkProfanity(messageContent);
+      if (!profanityCheck.isClean) {
+        toast.error("Message blocked", {
+          description: profanityCheck.reason || "Your message contains inappropriate content.",
+          duration: 5000,
+        });
+        setSending(false);
+        return;
+      }
+    }
+    
     setSending(true);
 
     let fileUrl: string | null = null;
