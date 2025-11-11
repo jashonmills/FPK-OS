@@ -18,6 +18,7 @@ import Banned from "./pages/Banned";
 import MyAppeals from "./pages/MyAppeals";
 import CaptionSettings from "./pages/CaptionSettings";
 import Analytics from "./pages/Analytics";
+import NotificationPreferences from "./pages/NotificationPreferences";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -43,6 +44,7 @@ const App = () => (
                 <Route path="/banned" element={<Banned />} />
                 <Route path="/my-appeals" element={<MyAppeals />} />
                 <Route path="/settings/captions" element={<CaptionSettings />} />
+                <Route path="/settings/notifications" element={<NotificationPreferences />} />
                 <Route path="/community/analytics" element={<Analytics />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />

@@ -8,9 +8,10 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Bell, CheckCircle, Gift, MessageSquare } from "lucide-react";
+import { Bell, CheckCircle, Gift, MessageSquare, Settings } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNavigate } from "react-router-dom";
@@ -34,6 +35,23 @@ export const NotificationBell = () => {
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(10);
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user
+  });
+
+  // Fetch user notification preferences
+  const { data: preferences } = useQuery({
+    queryKey: ['notification-preferences', user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      
+      const { data, error } = await supabase
+        .from('user_notification_preferences')
+        .select('*')
+        .eq('user_id', user.id);
       
       if (error) throw error;
       return data;
@@ -80,15 +98,27 @@ export const NotificationBell = () => {
     audioRef.current = { play: () => Promise.resolve().then(createNotificationSound) } as any;
   }, []);
 
-  // Play sound when new notification arrives
+  // Play sound when new notification arrives (respecting user preferences)
   useEffect(() => {
     if (notifications && notifications.length > lastNotificationCount && lastNotificationCount > 0) {
-      audioRef.current?.play().catch(err => console.log('Audio play failed:', err));
+      // Get the newest notification
+      const newestNotification = notifications[0];
+      
+      // Check if user has sound enabled for this notification type
+      const preference = preferences?.find(
+        p => p.notification_type === newestNotification.type
+      );
+      
+      const shouldPlaySound = preference?.sound_enabled !== false;
+      
+      if (shouldPlaySound) {
+        audioRef.current?.play().catch(err => console.log('Audio play failed:', err));
+      }
     }
     if (notifications) {
       setLastNotificationCount(notifications.length);
     }
-  }, [notifications, lastNotificationCount]);
+  }, [notifications, lastNotificationCount, preferences]);
 
   // Subscribe to real-time notifications
   useEffect(() => {
@@ -159,8 +189,16 @@ export const NotificationBell = () => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-80">
-        <div className="p-2 border-b">
+        <div className="p-2 border-b flex items-center justify-between">
           <h3 className="font-semibold">Notifications</h3>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/settings/notifications')}
+            className="h-8 px-2"
+          >
+            <Settings className="w-4 h-4" />
+          </Button>
         </div>
         <ScrollArea className="h-[400px]">
           {notifications && notifications.length > 0 ? (
