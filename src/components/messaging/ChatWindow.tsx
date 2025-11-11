@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -50,7 +50,7 @@ interface ChatWindowProps {
   conversationId: string;
 }
 
-export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
+const ChatWindowComponent = ({ conversationId }: ChatWindowProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
   const [typingUsers, setTypingUsers] = useState<Array<{ display_name: string }>>([]);
@@ -82,7 +82,7 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
     fetchUserPersona();
   }, [user?.id]);
 
-  const handleOptimisticMessage = (optimisticMsg: any) => {
+  const handleOptimisticMessage = useCallback((optimisticMsg: any) => {
     if (optimisticMsg.failed) {
       // Remove failed message
       setMessages(prev => prev.filter(m => m.id !== optimisticMsg.id));
@@ -106,9 +106,9 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
     setTimeout(() => {
       scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, 100);
-  };
+  }, []);
 
-  const handleAddReaction = async (messageId: string, emoji: string) => {
+  const handleAddReaction = useCallback(async (messageId: string, emoji: string) => {
     if (!user) return;
 
     // Get user's persona
@@ -136,9 +136,9 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
       console.error('Error adding reaction:', error);
       toast.error("Failed to add reaction");
     }
-  };
+  }, [user]);
 
-  const markMessagesAsRead = async (messageIds: string[]) => {
+  const markMessagesAsRead = useCallback(async (messageIds: string[]) => {
     if (!user || messageIds.length === 0) return;
 
     // Mark messages as read (ignore duplicates)
@@ -155,15 +155,37 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
     if (error && !error.message.includes('duplicate key')) {
       console.error('Error marking messages as read:', error);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     if (!conversationId) return;
 
     const fetchMessages = async () => {
+      // OPTIMIZED: Fetch messages with personas in one query using JOIN
       const { data, error } = await supabase
         .from('messages')
-        .select('id, content, sender_id, created_at, updated_at, is_edited, is_deleted, deleted_at, deleted_by_ai, moderation_reason, reply_to_message_id, conversation_id, file_url, file_name, file_type, file_size')
+        .select(`
+          id, 
+          content, 
+          sender_id, 
+          created_at, 
+          updated_at, 
+          is_edited, 
+          is_deleted, 
+          deleted_at, 
+          deleted_by_ai, 
+          moderation_reason, 
+          reply_to_message_id, 
+          conversation_id, 
+          file_url, 
+          file_name, 
+          file_type, 
+          file_size,
+          personas!messages_sender_id_fkey (
+            display_name,
+            avatar_url
+          )
+        `)
         .eq('conversation_id', conversationId)
         .order('created_at', { ascending: true });
 
@@ -173,44 +195,50 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
         return;
       }
 
-      // Fetch sender personas and replied messages for all messages
-      const enriched = await Promise.all(
-        data.map(async (msg) => {
-          const { data: persona } = await supabase
-            .from('personas')
-            .select('display_name, avatar_url')
-            .eq('id', msg.sender_id)
-            .single();
+      // OPTIMIZED: Build persona cache for replied messages
+      const uniqueSenderIds = [...new Set(data.map(m => m.sender_id))];
+      const { data: allPersonas } = await supabase
+        .from('personas')
+        .select('id, display_name, avatar_url')
+        .in('id', uniqueSenderIds);
 
-          let replied_message = undefined;
-          if (msg.reply_to_message_id) {
-            const { data: repliedMsg } = await supabase
-              .from('messages')
-              .select('content, sender_id')
-              .eq('id', msg.reply_to_message_id)
-              .single();
+      allPersonas?.forEach(p => {
+        personaCacheRef.current.set(p.id, { display_name: p.display_name, avatar_url: p.avatar_url });
+      });
 
-            if (repliedMsg) {
-              const { data: repliedPersona } = await supabase
-                .from('personas')
-                .select('display_name')
-                .eq('id', repliedMsg.sender_id)
-                .single();
+      // OPTIMIZED: Get unique reply_to_message_ids
+      const replyToIds = [...new Set(
+        data.filter(m => m.reply_to_message_id).map(m => m.reply_to_message_id)
+      )].filter(Boolean) as string[];
 
-              replied_message = {
-                content: repliedMsg.content,
-                sender: repliedPersona || undefined,
-              };
-            }
-          }
+      let repliedMessagesMap = new Map();
+      if (replyToIds.length > 0) {
+        const { data: repliedMsgs } = await supabase
+          .from('messages')
+          .select('id, content, sender_id')
+          .in('id', replyToIds);
 
-          return {
-            ...msg,
-            sender: persona || undefined,
-            replied_message,
-          };
-        })
-      );
+        repliedMsgs?.forEach(rm => {
+          const senderPersona = personaCacheRef.current.get(rm.sender_id);
+          repliedMessagesMap.set(rm.id, {
+            content: rm.content,
+            sender: senderPersona,
+          });
+        });
+      }
+
+      // Build enriched messages
+      const enriched = data.map(msg => {
+        const sender = (msg as any).personas;
+        
+        return {
+          ...msg,
+          sender: sender || undefined,
+          replied_message: msg.reply_to_message_id 
+            ? repliedMessagesMap.get(msg.reply_to_message_id) 
+            : undefined,
+        };
+      });
 
       setMessages(enriched);
       setLoading(false);
@@ -650,3 +678,6 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
     </div>
   );
 };
+
+// OPTIMIZED: Memoized component to prevent unnecessary re-renders
+export const ChatWindow = React.memo(ChatWindowComponent);
