@@ -141,20 +141,25 @@ export const MessageReactions = ({ messageId }: MessageReactionsProps) => {
   if (groupedReactions.length === 0) return null;
 
   return (
-    <div className="flex flex-wrap gap-1 mt-1">
+    <div className="flex flex-wrap gap-1.5 mt-2">
       {groupedReactions.map((reaction) => (
         <Button
           key={reaction.emoji}
           variant="ghost"
           size="sm"
           className={cn(
-            "h-6 px-2 py-0 text-xs gap-1",
-            reaction.userReacted && "bg-primary/10 border border-primary"
+            "h-7 px-2.5 py-0 text-sm gap-1.5 transition-all rounded-full backdrop-blur-md border",
+            reaction.userReacted 
+              ? "bg-primary/20 border-primary/40 hover:bg-primary/30 shadow-md" 
+              : "bg-background/40 border-border/30 hover:bg-background/60 shadow-sm"
           )}
           onClick={() => toggleReaction(reaction.emoji)}
         >
-          <span>{reaction.emoji}</span>
-          <span className="text-muted-foreground">{reaction.count}</span>
+          <span className="text-base">{reaction.emoji}</span>
+          <span className={cn(
+            "text-xs font-medium",
+            reaction.userReacted ? "text-primary" : "text-muted-foreground"
+          )}>{reaction.count}</span>
         </Button>
       ))}
     </div>

@@ -23,19 +23,20 @@ export const ReactionPicker = ({ onSelect }: ReactionPickerProps) => {
         <Button
           variant="ghost"
           size="sm"
-          className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+          className="h-7 w-7 p-0 opacity-60 hover:opacity-100 group-hover:opacity-100 transition-all hover:bg-accent/50"
+          title="Add reaction"
         >
           <Smile className="w-4 h-4" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-64 p-2">
-        <div className="grid grid-cols-6 gap-1">
+      <PopoverContent className="w-64 p-3 bg-card/95 backdrop-blur-xl border-border/50 shadow-xl">
+        <div className="grid grid-cols-6 gap-2">
           {COMMON_EMOJIS.map((emoji) => (
             <Button
               key={emoji}
               variant="ghost"
               size="sm"
-              className="h-10 w-10 p-0 text-xl hover:bg-accent"
+              className="h-10 w-10 p-0 text-xl hover:bg-primary/20 hover:scale-110 transition-all rounded-lg"
               onClick={() => onSelect(emoji)}
             >
               {emoji}
