@@ -238,43 +238,87 @@ export default function AdminPanel() {
       // Generate trend data for the chart
       let trendData: any[] = [];
       if (startDate) {
+        // Fetch all data for the period at once
+        const allPeriodPosts = posts.data || [];
+        const allPeriodComments = comments.data || [];
+        const allPeriodMessages = messages.data || [];
+        
         const days = timeRange === 'today' ? 24 : timeRange === 'week' ? 7 : 30;
         const isHourly = timeRange === 'today';
         
+        // Group data by time period
+        const dataByPeriod: { [key: string]: { posts: number; comments: number; messages: number } } = {};
+        
         for (let i = days - 1; i >= 0; i--) {
-          const periodEnd = new Date(now);
           const periodStart = new Date(now);
           
           if (isHourly) {
-            periodEnd.setHours(now.getHours() - i);
-            periodStart.setHours(now.getHours() - i - 1);
+            periodStart.setHours(now.getHours() - i, 0, 0, 0);
           } else {
-            periodEnd.setDate(now.getDate() - i);
             periodStart.setDate(now.getDate() - i);
             periodStart.setHours(0, 0, 0, 0);
-            periodEnd.setHours(23, 59, 59, 999);
           }
-
-          const [dayPosts, dayComments, dayMessages] = await Promise.all([
-            supabase.from('posts').select('id', { count: 'exact', head: true })
-              .gte('created_at', periodStart.toISOString())
-              .lte('created_at', periodEnd.toISOString()),
-            supabase.from('post_comments').select('id', { count: 'exact', head: true })
-              .gte('created_at', periodStart.toISOString())
-              .lte('created_at', periodEnd.toISOString()),
-            supabase.from('messages').select('id', { count: 'exact', head: true })
-              .gte('created_at', periodStart.toISOString())
-              .lte('created_at', periodEnd.toISOString())
-          ]);
-
-          trendData.push({
-            date: isHourly ? format(periodStart, 'ha') : format(periodStart, 'MMM d'),
-            posts: dayPosts.count || 0,
-            comments: dayComments.count || 0,
-            messages: dayMessages.count || 0,
-            total: (dayPosts.count || 0) + (dayComments.count || 0) + (dayMessages.count || 0)
+          
+          const key = isHourly ? format(periodStart, 'ha') : format(periodStart, 'MMM d');
+          dataByPeriod[key] = { posts: 0, comments: 0, messages: 0 };
+          
+          // Count posts for this period
+          allPeriodPosts.forEach((post: any) => {
+            const postDate = new Date(post.created_at);
+            let postKey: string;
+            
+            if (isHourly) {
+              postKey = format(new Date(postDate.getFullYear(), postDate.getMonth(), postDate.getDate(), postDate.getHours()), 'ha');
+            } else {
+              postKey = format(new Date(postDate.getFullYear(), postDate.getMonth(), postDate.getDate()), 'MMM d');
+            }
+            
+            if (postKey === key) {
+              dataByPeriod[key].posts++;
+            }
+          });
+          
+          // Count comments for this period
+          allPeriodComments.forEach((comment: any) => {
+            const commentDate = new Date(comment.created_at);
+            let commentKey: string;
+            
+            if (isHourly) {
+              commentKey = format(new Date(commentDate.getFullYear(), commentDate.getMonth(), commentDate.getDate(), commentDate.getHours()), 'ha');
+            } else {
+              commentKey = format(new Date(commentDate.getFullYear(), commentDate.getMonth(), commentDate.getDate()), 'MMM d');
+            }
+            
+            if (commentKey === key) {
+              dataByPeriod[key].comments++;
+            }
+          });
+          
+          // Count messages for this period
+          allPeriodMessages.forEach((message: any) => {
+            const messageDate = new Date(message.created_at);
+            let messageKey: string;
+            
+            if (isHourly) {
+              messageKey = format(new Date(messageDate.getFullYear(), messageDate.getMonth(), messageDate.getDate(), messageDate.getHours()), 'ha');
+            } else {
+              messageKey = format(new Date(messageDate.getFullYear(), messageDate.getMonth(), messageDate.getDate()), 'MMM d');
+            }
+            
+            if (messageKey === key) {
+              dataByPeriod[key].messages++;
+            }
           });
         }
+        
+        // Convert to array for chart
+        trendData = Object.keys(dataByPeriod).map(key => ({
+          date: key,
+          posts: dataByPeriod[key].posts,
+          comments: dataByPeriod[key].comments,
+          messages: dataByPeriod[key].messages,
+          total: dataByPeriod[key].posts + dataByPeriod[key].comments + dataByPeriod[key].messages
+        }));
       }
 
       // Calculate top contributors by posts
