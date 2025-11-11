@@ -20,13 +20,15 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 
 interface Message {
   id: string;
-  content: string;
+  content: string | null;
   sender_id: string;
   created_at: string;
   updated_at?: string;
   is_edited?: boolean;
   is_deleted?: boolean;
   deleted_at?: string | null;
+  deleted_by_ai?: boolean;
+  moderation_reason?: string | null;
   reply_to_message_id?: string | null;
   file_url?: string | null;
   file_name?: string | null;
@@ -161,7 +163,7 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
     const fetchMessages = async () => {
       const { data, error } = await supabase
         .from('messages')
-        .select('id, content, sender_id, created_at, updated_at, is_edited, is_deleted, deleted_at, reply_to_message_id, conversation_id, file_url, file_name, file_type, file_size')
+        .select('id, content, sender_id, created_at, updated_at, is_edited, is_deleted, deleted_at, deleted_by_ai, moderation_reason, reply_to_message_id, conversation_id, file_url, file_name, file_type, file_size')
         .eq('conversation_id', conversationId)
         .order('created_at', { ascending: true });
 
@@ -491,16 +493,32 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
                         <div
                           className={`rounded-lg px-4 py-2 max-w-md ${
                             message.is_deleted
-                              ? 'bg-muted/50 border border-dashed border-border'
+                              ? message.deleted_by_ai
+                                ? 'bg-destructive/10 border-2 border-destructive/50'
+                                : 'bg-muted/50 border border-dashed border-border'
                               : isOwn
                               ? 'bg-primary text-primary-foreground'
                               : 'bg-muted'
                           }`}
                         >
                           {message.is_deleted ? (
-                            <p className="text-sm italic text-muted-foreground">
-                              Message deleted
-                            </p>
+                            <div className="flex flex-col gap-1">
+                              <p className="text-sm italic text-muted-foreground flex items-center gap-2">
+                                {message.deleted_by_ai ? (
+                                  <>
+                                    <span className="inline-block w-2 h-2 bg-destructive rounded-full animate-pulse" />
+                                    <span className="font-medium text-destructive">Removed by AI moderation</span>
+                                  </>
+                                ) : (
+                                  'Message deleted'
+                                )}
+                              </p>
+                              {message.deleted_by_ai && message.moderation_reason && (
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  {message.moderation_reason}
+                                </p>
+                              )}
+                            </div>
                           ) : (
                             <>
                               {message.content && (

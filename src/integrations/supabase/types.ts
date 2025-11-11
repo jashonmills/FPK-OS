@@ -524,10 +524,11 @@ export type Database = {
       }
       messages: {
         Row: {
-          content: string
+          content: string | null
           conversation_id: string
           created_at: string | null
           deleted_at: string | null
+          deleted_by_ai: boolean | null
           file_name: string | null
           file_size: number | null
           file_type: string | null
@@ -536,15 +537,17 @@ export type Database = {
           is_deleted: boolean
           is_edited: boolean | null
           is_system_message: boolean | null
+          moderation_reason: string | null
           reply_to_message_id: string | null
           sender_id: string
           updated_at: string | null
         }
         Insert: {
-          content: string
+          content?: string | null
           conversation_id: string
           created_at?: string | null
           deleted_at?: string | null
+          deleted_by_ai?: boolean | null
           file_name?: string | null
           file_size?: number | null
           file_type?: string | null
@@ -553,15 +556,17 @@ export type Database = {
           is_deleted?: boolean
           is_edited?: boolean | null
           is_system_message?: boolean | null
+          moderation_reason?: string | null
           reply_to_message_id?: string | null
           sender_id: string
           updated_at?: string | null
         }
         Update: {
-          content?: string
+          content?: string | null
           conversation_id?: string
           created_at?: string | null
           deleted_at?: string | null
+          deleted_by_ai?: boolean | null
           file_name?: string | null
           file_size?: number | null
           file_type?: string | null
@@ -570,6 +575,7 @@ export type Database = {
           is_deleted?: boolean
           is_edited?: boolean | null
           is_system_message?: boolean | null
+          moderation_reason?: string | null
           reply_to_message_id?: string | null
           sender_id?: string
           updated_at?: string | null

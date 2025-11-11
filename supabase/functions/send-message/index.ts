@@ -334,13 +334,20 @@ serve(async (req) => {
 
         // RETROACTIVE ENFORCEMENT
         if (analysis.severity >= 7) {
-          console.log(`🚨 RETROACTIVE: Deleting message ${message.id} and banning user ${user.id}`);
+          console.log(`🚨 RETROACTIVE: Marking message ${message.id} as AI-moderated and banning user ${user.id}`);
           console.log(`📊 Severity: ${analysis.severity}, Category: ${analysis.violation_category}`);
 
-          // Delete the message
+          // Mark the message as deleted by AI with reason
+          const moderationReason = `Removed by AI moderation: ${analysis.violation_category || 'Policy violation'}`;
           await supabaseAdmin
             .from('messages')
-            .delete()
+            .update({ 
+              is_deleted: true,
+              deleted_at: new Date().toISOString(),
+              deleted_by_ai: true,
+              moderation_reason: moderationReason,
+              content: null
+            })
             .eq('id', message.id);
 
           // Ban the user
@@ -350,12 +357,16 @@ serve(async (req) => {
           await supabaseAdmin.from('user_bans').insert({
             user_id: user.id,
             reason: `Automatic ban: ${analysis.violation_category || 'Policy violation'}`,
-            banned_by: null,
+            banned_by_user_id: null,
             expires_at: banExpiresAt.toISOString(),
             status: 'active',
+            offending_message_content: content.trim(),
+            offending_conversation_id: conversation_id,
+            severity_score: analysis.severity,
+            is_ai_ban: true
           });
 
-          console.log(`✅ User ${user.id} banned for 24 hours, message deleted`);
+          console.log(`✅ User ${user.id} banned for 24 hours, message marked as AI-moderated`);
         } else if (analysis.severity >= 4 && analysis.severity <= 6) {
           console.log(`🔍 De-escalation recommended (severity ${analysis.severity}): "${analysis.de_escalation_message}"`);
         }
