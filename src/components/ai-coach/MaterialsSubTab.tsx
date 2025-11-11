@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { BookOpen, Upload as UploadIcon, Trash2, Paperclip, Search, Sparkles, Check, MoreVertical, FolderOpen, X, FileText, FileSpreadsheet, File, CheckCircle2, Plus, Eye } from 'lucide-react';
+import { BookOpen, Upload as UploadIcon, Trash2, Paperclip, Search, Sparkles, Check, MoreVertical, FolderOpen, X, FileText, FileSpreadsheet, File, CheckCircle2, Plus, Eye, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
@@ -19,6 +19,8 @@ import { FolderManager } from './FolderManager';
 import { SmartUploadModal } from './SmartUploadModal';
 import { useAICoachStudyMaterials } from '@/hooks/useAICoachStudyMaterials';
 import { useAICoachFolders } from '@/hooks/useAICoachFolders';
+import { StudyMaterialAssignmentDialog } from '@/components/assignments/StudyMaterialAssignmentDialog';
+import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 
 interface MaterialsSubTabProps {
@@ -33,12 +35,18 @@ export function MaterialsSubTab({ orgId, onStartStudying, onViewDocument, attach
   const { studyMaterials, isLoadingMaterials, uploadMaterial, deleteMaterial, assignToFolder } = useAICoachStudyMaterials(orgId);
   const { folders, refetchFolders } = useAICoachFolders('study_material', orgId);
   const { toast } = useToast();
+  const { user } = useAuth();
   const isMobile = useIsMobile();
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [draggedMaterialId, setDraggedMaterialId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [studyingMaterialId, setStudyingMaterialId] = useState<string | null>(null);
+  const [selectedMaterialForAssignment, setSelectedMaterialForAssignment] = useState<any | null>(null);
+  const [isAssignmentDialogOpen, setIsAssignmentDialogOpen] = useState(false);
+
+  // Check if user is an educator (has orgId context)
+  const isEducator = !!orgId;
 
   console.log('[MaterialsSubTab] Rendered:', { 
     orgId, 
@@ -160,6 +168,11 @@ export function MaterialsSubTab({ orgId, onStartStudying, onViewDocument, attach
         variant: 'destructive',
       });
     }
+  };
+
+  const handleAssignMaterial = (material: any) => {
+    setSelectedMaterialForAssignment(material);
+    setIsAssignmentDialogOpen(true);
   };
 
   return (
@@ -303,6 +316,15 @@ export function MaterialsSubTab({ orgId, onStartStudying, onViewDocument, attach
                             <Eye className="w-4 h-4 mr-2" />
                             View Content
                           </DropdownMenuItem>
+                          {isEducator && (
+                            <>
+                              <DropdownMenuItem onClick={() => handleAssignMaterial(material)}>
+                                <UserPlus className="w-4 h-4 mr-2" />
+                                Assign to Students
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                            </>
+                          )}
                           <DropdownMenuItem onClick={() => handleMoveToFolder(material.id)}>
                             <FolderOpen className="w-4 h-4 mr-2" />
                             Move to Folder
@@ -334,6 +356,14 @@ export function MaterialsSubTab({ orgId, onStartStudying, onViewDocument, attach
         onStartStudying={onStartStudying}
         orgId={orgId}
       />
+
+      {isEducator && selectedMaterialForAssignment && (
+        <StudyMaterialAssignmentDialog
+          open={isAssignmentDialogOpen}
+          onOpenChange={setIsAssignmentDialogOpen}
+          material={selectedMaterialForAssignment}
+        />
+      )}
     </div>
   );
 }
