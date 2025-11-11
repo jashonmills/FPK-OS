@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { Download, File, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ImageViewer } from "./ImageViewer";
 
 interface FileAttachmentProps {
   fileUrl: string;
@@ -11,6 +12,7 @@ interface FileAttachmentProps {
 
 export const FileAttachment = ({ fileUrl, fileName, fileType, fileSize }: FileAttachmentProps) => {
   const isImage = fileType.startsWith("image/");
+  const [isViewerOpen, setIsViewerOpen] = useState(false);
 
   const formatFileSize = (bytes?: number) => {
     if (!bytes) return "";
@@ -31,13 +33,14 @@ export const FileAttachment = ({ fileUrl, fileName, fileType, fileSize }: FileAt
 
   if (isImage) {
     return (
-      <div className="w-full max-w-[280px] sm:max-w-sm mx-auto">
-        <img
-          src={fileUrl}
-          alt={fileName}
-          className="rounded-lg max-h-[300px] w-full object-contain cursor-pointer hover:opacity-90 transition-opacity"
-          onClick={() => window.open(fileUrl, "_blank")}
-        />
+      <>
+        <div className="w-full max-w-[280px] sm:max-w-sm mx-auto">
+          <img
+            src={fileUrl}
+            alt={fileName}
+            className="rounded-lg max-h-[300px] w-full object-contain cursor-pointer hover:opacity-90 transition-opacity"
+            onClick={() => setIsViewerOpen(true)}
+          />
         <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground">
           <span className="truncate flex-1">{fileName}</span>
           <Button
@@ -50,6 +53,13 @@ export const FileAttachment = ({ fileUrl, fileName, fileType, fileSize }: FileAt
           </Button>
         </div>
       </div>
+      <ImageViewer
+        imageUrl={fileUrl}
+        fileName={fileName}
+        isOpen={isViewerOpen}
+        onClose={() => setIsViewerOpen(false)}
+      />
+    </>
     );
   }
 
