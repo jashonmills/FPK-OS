@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,7 +17,10 @@ export default function Analytics() {
   const { user } = useAuth();
   const [dateRange, setDateRange] = useState("30");
 
-  const { startDate } = getDateRange(parseInt(dateRange));
+  // Memoize date range to prevent infinite re-renders
+  const { startDate, endDate } = useMemo(() => {
+    return getDateRange(parseInt(dateRange));
+  }, [dateRange]);
 
   // Fetch user's persona
   const { data: persona, isLoading: personaLoading, isError: personaError, error: personaErrorDetails } = useQuery({
