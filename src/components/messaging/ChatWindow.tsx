@@ -472,7 +472,7 @@ const ChatWindowComponent = ({ conversationId }: ChatWindowProps) => {
                       {message.sender?.display_name?.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                   <div className={`flex flex-col ${isOwn ? 'items-end' : 'items-start'}`}>
+                    <div className={`flex flex-col ${isOwn ? 'items-end' : 'items-start'}`}>
                      <div className="flex items-center gap-2 mb-1">
                       <span className="text-sm font-medium">
                         {message.sender?.display_name || 'Unknown'}
@@ -513,6 +513,46 @@ const ChatWindowComponent = ({ conversationId }: ChatWindowProps) => {
                           (edited)
                         </span>
                       )}
+                      {!message.is_deleted && (
+                        <div className={`flex gap-1 ml-auto ${isOwn ? 'flex-row-reverse' : ''}`}>
+                          {canEdit && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={() => setEditingMessage({
+                                id: message.id,
+                                content: message.content
+                              })}
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </Button>
+                          )}
+                          {canDelete && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive"
+                              onClick={() => setDeletingMessageId(message.id)}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          )}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() => setReplyingTo({
+                              id: message.id,
+                              senderName: message.sender?.display_name || 'Unknown',
+                              content: message.content
+                            })}
+                          >
+                            <Reply className="w-4 h-4" />
+                          </Button>
+                          <ReactionPicker onSelect={(emoji) => handleAddReaction(message.id, emoji)} />
+                        </div>
+                      )}
                     </div>
                     <div className="flex flex-col">
                       {message.replied_message && !message.is_deleted && (
@@ -521,18 +561,17 @@ const ChatWindowComponent = ({ conversationId }: ChatWindowProps) => {
                           content={message.replied_message.content}
                         />
                       )}
-                      <div className="flex items-start gap-2">
-                        <div
-                          className={`rounded-lg px-4 py-2 max-w-md ${
-                            message.is_deleted
-                              ? message.deleted_by_ai
-                                ? 'bg-destructive/10 border-2 border-destructive/50'
-                                : 'bg-muted/50 border border-dashed border-border'
-                              : isOwn
-                              ? 'bg-primary text-primary-foreground'
-                              : 'bg-muted'
-                          }`}
-                        >
+                      <div
+                        className={`rounded-lg px-4 py-2 max-w-md ${
+                          message.is_deleted
+                            ? message.deleted_by_ai
+                              ? 'bg-destructive/10 border-2 border-destructive/50'
+                              : 'bg-muted/50 border border-dashed border-border'
+                            : isOwn
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-muted'
+                        }`}
+                      >
                           {message.is_deleted ? (
                             <div className="flex flex-col gap-1">
                               <p className="text-sm italic text-muted-foreground flex items-center gap-2">
@@ -567,64 +606,23 @@ const ChatWindowComponent = ({ conversationId }: ChatWindowProps) => {
                                     fileSize={message.file_size || undefined}
                                   />
                                 </div>
-                              )}
-                            </>
                           )}
-                        </div>
-                        {!message.is_deleted && (
-                          <div className="flex gap-1">
-                            {canEdit && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                                onClick={() => setEditingMessage({
-                                  id: message.id,
-                                  content: message.content
-                                })}
-                              >
-                                <Pencil className="w-4 h-4" />
-                              </Button>
-                            )}
-                            {canDelete && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive"
-                                onClick={() => setDeletingMessageId(message.id)}
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            )}
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                              onClick={() => setReplyingTo({
-                                id: message.id,
-                                senderName: message.sender?.display_name || 'Unknown',
-                                content: message.content
-                              })}
-                            >
-                              <Reply className="w-4 h-4" />
-                            </Button>
-                            <ReactionPicker onSelect={(emoji) => handleAddReaction(message.id, emoji)} />
-                          </div>
-                        )}
-                      </div>
+                        </>
+                      )}
                     </div>
-                    {!message.is_deleted && (
-                      <div className="flex items-center gap-2">
-                        <MessageReactions messageId={message.id} />
-                        <ReadReceipts 
-                          messageId={message.id}
-                          senderId={message.sender_id}
-                          conversationId={conversationId}
-                          currentUserPersonaId={userPersonaId}
-                        />
-                      </div>
-                    )}
                   </div>
+                  {!message.is_deleted && (
+                    <div className="flex items-center gap-2">
+                      <MessageReactions messageId={message.id} />
+                      <ReadReceipts 
+                        messageId={message.id}
+                        senderId={message.sender_id}
+                        conversationId={conversationId}
+                        currentUserPersonaId={userPersonaId}
+                      />
+                    </div>
+                  )}
+                </div>
         </div>
     );
   }, [userPersonaId, setReplyingTo, setEditingMessage, setDeletingMessageId, handleAddReaction]);
