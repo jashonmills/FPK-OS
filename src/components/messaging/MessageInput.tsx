@@ -190,6 +190,10 @@ export const MessageInput = ({ conversationId, onOptimisticMessage, replyingTo, 
     setSelectedFile(null);
     setShowFileUpload(false);
     
+    // Reset speech-to-text refs to prevent stacking on next voice input
+    interimTextRef.current = "";
+    contentBeforeInterimRef.current = "";
+    
     // Stop typing indicator
     broadcastTyping(false);
     if (typingTimeoutRef.current) {
