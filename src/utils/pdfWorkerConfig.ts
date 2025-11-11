@@ -1,8 +1,8 @@
 
 import { pdfjs } from 'react-pdf';
 
-// Use the version that matches react-pdf's expectation
-const PDFJS_VERSION = '4.8.69';
+// Use the version that matches react-pdf v10.x expectation
+const PDFJS_VERSION = '5.3.93';
 
 /**
  * Optimized PDF worker configuration with better error handling

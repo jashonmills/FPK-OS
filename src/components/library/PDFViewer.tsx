@@ -25,11 +25,11 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ fileUrl, fileName, onClose }) => 
   const { toast } = useToast();
   const cleanup = useCleanup('PDFViewer');
 
-  // Memoize the options to avoid react-pdf warnings
+  // Memoize the options to avoid react-pdf warnings - use dynamic version from pdfjs
   const pdfOptions = React.useMemo(() => ({
-    cMapUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@4.8.69/cmaps/`,
+    cMapUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/cmaps/`,
     cMapPacked: true,
-    standardFontDataUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@4.8.69/standard_fonts/`,
+    standardFontDataUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/standard_fonts/`,
   }), []);
 
   useEffect(() => {

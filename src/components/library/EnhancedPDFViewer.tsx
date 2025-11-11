@@ -30,11 +30,11 @@ const EnhancedPDFViewer: React.FC<EnhancedPDFViewerProps> = ({ fileUrl, fileName
   const [processedUrl, setProcessedUrl] = useState<string>('');
   const { toast } = useToast();
 
-  // Enhanced PDF options
+  // Enhanced PDF options - use dynamic version from pdfjs
   const pdfOptions = React.useMemo(() => ({
-    cMapUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@4.8.69/cmaps/`,
+    cMapUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/cmaps/`,
     cMapPacked: true,
-    standardFontDataUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@4.8.69/standard_fonts/`,
+    standardFontDataUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/standard_fonts/`,
   }), []);
 
   useEffect(() => {
