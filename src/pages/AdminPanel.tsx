@@ -19,7 +19,7 @@ import { ArrowLeft, Shield, Flag, Users, Play, Loader2, AlertOctagon, LayoutDash
 import { toast } from "sonner";
 import { AppealReviewDialog } from "@/components/admin/AppealReviewDialog";
 import { format } from "date-fns";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, LineChart, Line, Area, AreaChart } from "recharts";
 
 interface FeatureFlag {
   id: string;
@@ -190,14 +190,22 @@ export default function AdminPanel() {
         supportsQuery.gte('created_at', startDate.toISOString());
       }
 
-      const [posts, comments, messages, supports, totalUsers, bannedUsers] = await Promise.all([
+      // Fetch user profiles with created_at for growth chart
+      const profilesQuery = supabase.from('profiles').select('id, created_at', { count: 'exact', head: false });
+      if (startDate) {
+        profilesQuery.gte('created_at', startDate.toISOString());
+      }
+
+      const [posts, comments, messages, supports, profiles, bannedUsers] = await Promise.all([
         postsQuery,
         commentsQuery,
         messagesQuery,
         supportsQuery,
-        supabase.from('profiles').select('id', { count: 'exact', head: true }),
+        profilesQuery,
         supabase.from('user_bans').select('id', { count: 'exact', head: true }).eq('status', 'active')
       ]);
+
+      const totalUsers = profiles.count || 0;
 
       // Fetch previous period data for comparison
       let previousPosts = 0, previousComments = 0, previousMessages = 0, previousSupports = 0;
@@ -237,17 +245,19 @@ export default function AdminPanel() {
 
       // Generate trend data for the chart
       let trendData: any[] = [];
+      let userGrowthData: any[] = [];
       if (startDate) {
         // Fetch all data for the period at once
         const allPeriodPosts = posts.data || [];
         const allPeriodComments = comments.data || [];
         const allPeriodMessages = messages.data || [];
+        const allPeriodProfiles = profiles.data || [];
         
         const days = timeRange === 'today' ? 24 : timeRange === 'week' ? 7 : 30;
         const isHourly = timeRange === 'today';
         
         // Group data by time period
-        const dataByPeriod: { [key: string]: { posts: number; comments: number; messages: number } } = {};
+        const dataByPeriod: { [key: string]: { posts: number; comments: number; messages: number; newUsers: number } } = {};
         
         for (let i = days - 1; i >= 0; i--) {
           const periodStart = new Date(now);
@@ -260,7 +270,7 @@ export default function AdminPanel() {
           }
           
           const key = isHourly ? format(periodStart, 'ha') : format(periodStart, 'MMM d');
-          dataByPeriod[key] = { posts: 0, comments: 0, messages: 0 };
+          dataByPeriod[key] = { posts: 0, comments: 0, messages: 0, newUsers: 0 };
           
           // Count posts for this period
           allPeriodPosts.forEach((post: any) => {
@@ -309,6 +319,22 @@ export default function AdminPanel() {
               dataByPeriod[key].messages++;
             }
           });
+          
+          // Count new users for this period
+          allPeriodProfiles.forEach((profile: any) => {
+            const profileDate = new Date(profile.created_at);
+            let profileKey: string;
+            
+            if (isHourly) {
+              profileKey = format(new Date(profileDate.getFullYear(), profileDate.getMonth(), profileDate.getDate(), profileDate.getHours()), 'ha');
+            } else {
+              profileKey = format(new Date(profileDate.getFullYear(), profileDate.getMonth(), profileDate.getDate()), 'MMM d');
+            }
+            
+            if (profileKey === key) {
+              dataByPeriod[key].newUsers++;
+            }
+          });
         }
         
         // Convert to array for chart
@@ -319,6 +345,17 @@ export default function AdminPanel() {
           messages: dataByPeriod[key].messages,
           total: dataByPeriod[key].posts + dataByPeriod[key].comments + dataByPeriod[key].messages
         }));
+        
+        // Create cumulative user growth data
+        let cumulativeUsers = 0;
+        userGrowthData = Object.keys(dataByPeriod).map(key => {
+          cumulativeUsers += dataByPeriod[key].newUsers;
+          return {
+            date: key,
+            newUsers: dataByPeriod[key].newUsers,
+            totalUsers: cumulativeUsers
+          };
+        });
       }
 
       // Calculate top contributors by posts
@@ -368,13 +405,14 @@ export default function AdminPanel() {
         totalComments: currentComments,
         totalMessages: currentMessages,
         totalSupports: currentSupports,
-        totalUsers: totalUsers.count || 0,
+        totalUsers,
         activeBans: bannedUsers.count || 0,
         postsChange: calculateChange(currentPosts, previousPosts),
         commentsChange: calculateChange(currentComments, previousComments),
         messagesChange: calculateChange(currentMessages, previousMessages),
         supportsChange: calculateChange(currentSupports, previousSupports),
         trendData,
+        userGrowthData,
         topContributors: activityByPersona,
         activityBreakdown: [
           { name: 'Posts', value: currentPosts, color: 'hsl(var(--primary))' },
@@ -971,32 +1009,74 @@ export default function AdminPanel() {
                   </Card>
                 </div>
 
-                {timeRange !== 'all' && overviewStats.trendData && overviewStats.trendData.length > 0 && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Activity Trends</CardTitle>
-                      <CardDescription>
-                        {timeRange === 'today' ? 'Hourly activity for today' : 
-                         timeRange === 'week' ? 'Daily activity for the last 7 days' :
-                         'Daily activity for the last 30 days'}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="h-[300px]">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={overviewStats.trendData}>
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="date" />
-                          <YAxis />
-                          <Tooltip />
-                          <Legend />
-                          <Bar dataKey="posts" fill="hsl(var(--primary))" name="Posts" stackId="a" />
-                          <Bar dataKey="comments" fill="#3b82f6" name="Comments" stackId="a" />
-                          <Bar dataKey="messages" fill="#10b981" name="Messages" stackId="a" />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </CardContent>
-                  </Card>
-                )}
+                <div className="grid gap-4 md:grid-cols-2">
+                  {timeRange !== 'all' && overviewStats.trendData && overviewStats.trendData.length > 0 && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Activity Trends</CardTitle>
+                        <CardDescription>
+                          {timeRange === 'today' ? 'Hourly activity for today' : 
+                           timeRange === 'week' ? 'Daily activity for the last 7 days' :
+                           'Daily activity for the last 30 days'}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="h-[300px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart data={overviewStats.trendData}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="date" />
+                            <YAxis />
+                            <Tooltip />
+                            <Legend />
+                            <Bar dataKey="posts" fill="hsl(var(--primary))" name="Posts" stackId="a" />
+                            <Bar dataKey="comments" fill="#3b82f6" name="Comments" stackId="a" />
+                            <Bar dataKey="messages" fill="#10b981" name="Messages" stackId="a" />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {timeRange !== 'all' && overviewStats.userGrowthData && overviewStats.userGrowthData.length > 0 && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>User Growth</CardTitle>
+                        <CardDescription>
+                          {timeRange === 'today' ? 'New registrations today' : 
+                           timeRange === 'week' ? 'New registrations over the last 7 days' :
+                           'New registrations over the last 30 days'}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="h-[300px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <AreaChart data={overviewStats.userGrowthData}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="date" />
+                            <YAxis />
+                            <Tooltip />
+                            <Legend />
+                            <Area 
+                              type="monotone" 
+                              dataKey="totalUsers" 
+                              stroke="hsl(var(--primary))" 
+                              fill="hsl(var(--primary))" 
+                              fillOpacity={0.6}
+                              name="Total Users" 
+                            />
+                            <Area 
+                              type="monotone" 
+                              dataKey="newUsers" 
+                              stroke="#10b981" 
+                              fill="#10b981" 
+                              fillOpacity={0.4}
+                              name="New Users" 
+                            />
+                          </AreaChart>
+                        </ResponsiveContainer>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
 
                 <div className="grid gap-4 md:grid-cols-2">
                   <Card>
