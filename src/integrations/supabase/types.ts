@@ -1683,6 +1683,16 @@ export type Database = {
       }
     }
     Functions: {
+      cleanup_stale_sessions: {
+        Args: { hours_threshold?: number }
+        Returns: {
+          hours_logged: number
+          project_id: string
+          session_id: string
+          user_id: string
+          was_stale: boolean
+        }[]
+      }
       get_or_create_dm_conversation: {
         Args: { user1_id: string; user2_id: string }
         Returns: string
