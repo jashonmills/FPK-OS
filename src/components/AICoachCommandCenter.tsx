@@ -34,6 +34,8 @@ import { DocumentAttachmentOnboarding } from '@/components/ai-coach/DocumentAtta
 import { AttachedCourseBadge } from '@/components/ai-coach/AttachedCourseBadge';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { DocumentReader } from '@/components/ai-coach/DocumentReader';
+import { AssignedMaterialsTab } from '@/components/ai-coach/AssignedMaterialsTab';
+import type { StudentAssignment } from '@/hooks/useStudentAssignments';
 
 // Left Column: Context & History
 const ContextHistoryColumn: React.FC<{
@@ -679,6 +681,13 @@ interface AICoachCommandCenterProps {
   orgName?: string;
   initialTab?: string;
   onViewDocument?: (material: any) => void;
+  onStartStudying?: (assignment: StudentAssignment) => Promise<void>;
+  assignmentContext?: {
+    materialContent: string;
+    educatorInstructions: string;
+    materialTitle: string;
+    assignmentId: string;
+  } | null;
 }
 
 export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({ 
@@ -686,7 +695,9 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
   orgId,
   orgName,
   initialTab = 'chat',
-  onViewDocument
+  onViewDocument,
+  onStartStudying,
+  assignmentContext
 }) => {
   const { user } = useAuth();
   const { identity } = useUserIdentity();
@@ -1035,8 +1046,9 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
 
             <TabsContent value="materials" className="flex-1 overflow-hidden mt-0">
               <Tabs defaultValue="study-materials" className="h-full flex flex-col">
-                <TabsList className="mb-4">
+                <TabsList className="mb-4 grid grid-cols-3">
                   <TabsTrigger value="study-materials">Study Materials</TabsTrigger>
+                  <TabsTrigger value="assigned">Assigned</TabsTrigger>
                   <TabsTrigger value="saved-chats">Saved Chats</TabsTrigger>
                 </TabsList>
 
@@ -1053,6 +1065,19 @@ export const AICoachCommandCenter: React.FC<AICoachCommandCenterProps> = ({
                       setActiveTab('chat');
                     }}
                   />
+                </TabsContent>
+
+                <TabsContent value="assigned" className="flex-1 overflow-hidden p-2 sm:p-3 md:p-4 lg:p-6">
+                  {onStartStudying ? (
+                    <AssignedMaterialsTab
+                      orgId={orgId}
+                      onStartStudying={onStartStudying}
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center py-12">
+                      <p className="text-sm text-muted-foreground">Assignment feature not available</p>
+                    </div>
+                  )}
                 </TabsContent>
 
                 <TabsContent value="saved-chats" className="h-full">

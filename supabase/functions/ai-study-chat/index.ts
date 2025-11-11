@@ -81,6 +81,7 @@ serve(async (req) => {
       clientHistory = [],
       originalTopic,
       lessonContext,
+      assignmentContext, // NEW: Assignment context for guided study
       // Socratic session parameters
       socraticMode,
       socraticIntent,
@@ -391,7 +392,29 @@ Topic:`;
       lessonId: lessonContext?.lessonId,
     };
 
-    const contextPrompt = buildSimplePrompt(detectedPromptType as PromptType, promptContext);
+    let contextPrompt = buildSimplePrompt(detectedPromptType as PromptType, promptContext);
+    
+    // ASSIGNMENT CONTEXT INJECTION: If this is an assignment-guided study session
+    if (assignmentContext) {
+      console.log('📚 Assignment context detected - enhancing prompt');
+      contextPrompt = `
+## ASSIGNMENT CONTEXT
+
+You are helping a student with an assigned study material.
+
+**Material:** ${assignmentContext.materialTitle}
+
+**Educator's Instructions:**
+${assignmentContext.educatorInstructions}
+
+**Material Content (Reference):**
+${assignmentContext.materialContent}
+
+---
+
+${contextPrompt}
+`;
+    }
     
     // Select the appropriate prompt based on mode and data source
     // This logic is unified for ALL user types (personal and organization)

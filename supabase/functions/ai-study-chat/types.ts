@@ -31,6 +31,12 @@ export interface ChatRequest {
     lessonContent: string;
   };
   extractTopicOnly?: boolean; // Flag to request topic extraction from chat history
+  assignmentContext?: {
+    materialContent: string;
+    educatorInstructions: string;
+    materialTitle: string;
+    assignmentId: string;
+  };
 }
 
 export type QueryMode = 'personal' | 'general' | 'mixed' | 'org_admin';
