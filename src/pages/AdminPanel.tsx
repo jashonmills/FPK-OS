@@ -141,6 +141,7 @@ export default function AdminPanel() {
 
       const usersWithDetails = await Promise.all(
         (profilesData || []).map(async (profile) => {
+          // First fetch persona and basic info
           const [personas, activeBan, banHistory, moderationHistory] = await Promise.all([
             supabase
               .from('personas')
@@ -167,12 +168,42 @@ export default function AdminPanel() {
               .limit(10)
           ]);
 
+          // Then fetch activity stats using persona ID
+          const personaId = personas.data?.id || '';
+          const [posts, comments, messages, supports] = await Promise.all([
+            supabase
+              .from('posts')
+              .select('id', { count: 'exact', head: true })
+              .eq('author_id', personaId),
+            supabase
+              .from('post_comments')
+              .select('id', { count: 'exact', head: true })
+              .eq('author_id', personaId),
+            supabase
+              .from('messages')
+              .select('id', { count: 'exact', head: true })
+              .eq('sender_id', personaId),
+            supabase
+              .from('post_supports')
+              .select('id', { count: 'exact', head: true })
+              .eq('user_id', profile.user_id)
+          ]);
+
+          const activityStats = {
+            posts: posts.count || 0,
+            comments: comments.count || 0,
+            messages: messages.count || 0,
+            supports: supports.count || 0,
+            total: (posts.count || 0) + (comments.count || 0) + (messages.count || 0) + (supports.count || 0)
+          };
+
           return {
             ...profile,
             persona: personas.data,
             activeBan: activeBan.data,
             banHistory: banHistory.data || [],
-            moderationHistory: moderationHistory.data || []
+            moderationHistory: moderationHistory.data || [],
+            activityStats
           };
         })
       );
@@ -841,6 +872,67 @@ export default function AdminPanel() {
                               ))}
                             </div>
                           </details>
+                        )}
+
+                        {user.activityStats && (
+                          <div className="bg-muted/50 rounded-lg p-3 space-y-3">
+                            <div className="flex items-center justify-between">
+                              <p className="text-sm font-medium">Activity Statistics</p>
+                              <Badge variant="secondary">
+                                Total: {user.activityStats.total}
+                              </Badge>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="space-y-1">
+                                <div className="flex items-center justify-between text-xs">
+                                  <span className="text-muted-foreground">Posts</span>
+                                  <span className="font-medium">{user.activityStats.posts}</span>
+                                </div>
+                                <div className="h-2 bg-background rounded-full overflow-hidden">
+                                  <div 
+                                    className="h-full bg-primary transition-all"
+                                    style={{ width: `${Math.min((user.activityStats.posts / Math.max(user.activityStats.total, 1)) * 100, 100)}%` }}
+                                  />
+                                </div>
+                              </div>
+                              <div className="space-y-1">
+                                <div className="flex items-center justify-between text-xs">
+                                  <span className="text-muted-foreground">Comments</span>
+                                  <span className="font-medium">{user.activityStats.comments}</span>
+                                </div>
+                                <div className="h-2 bg-background rounded-full overflow-hidden">
+                                  <div 
+                                    className="h-full bg-blue-500 transition-all"
+                                    style={{ width: `${Math.min((user.activityStats.comments / Math.max(user.activityStats.total, 1)) * 100, 100)}%` }}
+                                  />
+                                </div>
+                              </div>
+                              <div className="space-y-1">
+                                <div className="flex items-center justify-between text-xs">
+                                  <span className="text-muted-foreground">Messages</span>
+                                  <span className="font-medium">{user.activityStats.messages}</span>
+                                </div>
+                                <div className="h-2 bg-background rounded-full overflow-hidden">
+                                  <div 
+                                    className="h-full bg-green-500 transition-all"
+                                    style={{ width: `${Math.min((user.activityStats.messages / Math.max(user.activityStats.total, 1)) * 100, 100)}%` }}
+                                  />
+                                </div>
+                              </div>
+                              <div className="space-y-1">
+                                <div className="flex items-center justify-between text-xs">
+                                  <span className="text-muted-foreground">Supports</span>
+                                  <span className="font-medium">{user.activityStats.supports}</span>
+                                </div>
+                                <div className="h-2 bg-background rounded-full overflow-hidden">
+                                  <div 
+                                    className="h-full bg-purple-500 transition-all"
+                                    style={{ width: `${Math.min((user.activityStats.supports / Math.max(user.activityStats.total, 1)) * 100, 100)}%` }}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         )}
                       </div>
                     ))
