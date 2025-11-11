@@ -173,6 +173,14 @@ export default function Banned() {
               )}
             </div>
             
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => navigate('/my-appeals')}
+            >
+              View My Appeals History
+            </Button>
+            
             <p className="text-xs text-muted-foreground">
               Appeals are reviewed by human moderators, not AI. We take every case seriously.
             </p>

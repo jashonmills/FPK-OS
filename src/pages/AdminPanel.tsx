@@ -250,6 +250,18 @@ export default function AdminPanel() {
                       <p className="text-sm line-clamp-2 text-muted-foreground">
                         "{appeal.user_justification}"
                       </p>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="mt-3 w-full"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedAppeal(appeal);
+                          setAppealDialogOpen(true);
+                        }}
+                      >
+                        Review Appeal
+                      </Button>
                     </div>
                   ))}
                 </div>

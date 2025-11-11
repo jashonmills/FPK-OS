@@ -45,13 +45,16 @@ export function AppealReviewDialog({ appeal, open, onOpenChange, onUpdate }: App
     
     try {
       if (decision === 'approved') {
-        // Overturn ban - delete user_bans record
-        const { error: deleteError } = await supabase
+        // Overturn ban - update status to expired
+        const { error: banUpdateError } = await supabase
           .from('user_bans')
-          .delete()
+          .update({ 
+            status: 'expired',
+            updated_at: new Date().toISOString()
+          })
           .eq('id', appeal.ban_id);
         
-        if (deleteError) throw deleteError;
+        if (banUpdateError) throw banUpdateError;
       }
       
       // Update appeal status
