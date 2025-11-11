@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,94 @@ export const MessageInput = ({ conversationId, onOptimisticMessage }: MessageInp
   const [sending, setSending] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
+  const typingTimeoutRef = useRef<NodeJS.Timeout>();
+  const channelRef = useRef<ReturnType<typeof supabase.channel>>();
+
+  // Set up typing indicator
+  useEffect(() => {
+    const setupPresence = async () => {
+      // Fetch user's persona for typing indicator
+      const { data: persona } = await supabase
+        .from('personas')
+        .select('id, display_name, avatar_url')
+        .eq('user_id', user?.id)
+        .single();
+
+      if (!persona) return;
+
+      const channel = supabase.channel(`typing:${conversationId}`, {
+        config: { presence: { key: user?.id } }
+      });
+
+      channel
+        .on('presence', { event: 'sync' }, () => {
+          // Presence state synced
+        })
+        .subscribe(async (status) => {
+          if (status === 'SUBSCRIBED') {
+            channelRef.current = channel;
+          }
+        });
+    };
+
+    if (user?.id && conversationId) {
+      setupPresence();
+    }
+
+    return () => {
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current);
+      }
+    };
+  }, [conversationId, user?.id]);
+
+  const broadcastTyping = async (isTyping: boolean) => {
+    if (!channelRef.current) return;
+
+    const { data: persona } = await supabase
+      .from('personas')
+      .select('id, display_name, avatar_url')
+      .eq('user_id', user?.id)
+      .single();
+
+    if (!persona) return;
+
+    if (isTyping) {
+      await channelRef.current.track({
+        user_id: user?.id,
+        persona_id: persona.id,
+        display_name: persona.display_name,
+        typing: true,
+        timestamp: Date.now()
+      });
+    } else {
+      await channelRef.current.untrack();
+    }
+  };
+
+  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setContent(e.target.value);
+
+    // Broadcast typing indicator
+    if (e.target.value.trim()) {
+      broadcastTyping(true);
+
+      // Clear existing timeout
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+
+      // Stop typing after 2 seconds of inactivity
+      typingTimeoutRef.current = setTimeout(() => {
+        broadcastTyping(false);
+      }, 2000);
+    } else {
+      broadcastTyping(false);
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+    }
+  };
 
   const handleSend = async () => {
     if (!content.trim() || sending) return;
@@ -41,6 +129,12 @@ export const MessageInput = ({ conversationId, onOptimisticMessage }: MessageInp
 
     // Clear input immediately for better UX
     setContent("");
+    
+    // Stop typing indicator
+    broadcastTyping(false);
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
 
     try {
       const { data, error } = await supabase.functions.invoke('send-message', {
@@ -92,7 +186,7 @@ export const MessageInput = ({ conversationId, onOptimisticMessage }: MessageInp
     <div className="flex gap-2">
       <Textarea
         value={content}
-        onChange={(e) => setContent(e.target.value)}
+        onChange={handleContentChange}
         onKeyDown={handleKeyDown}
         placeholder="Type a message..."
         className="min-h-[60px] resize-none"

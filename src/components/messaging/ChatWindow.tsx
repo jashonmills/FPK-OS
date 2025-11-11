@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MessageInput } from "./MessageInput";
+import { TypingIndicator } from "./TypingIndicator";
 import { formatDistanceToNow } from "date-fns";
 import { Loader2 } from "lucide-react";
 
@@ -25,6 +26,7 @@ interface ChatWindowProps {
 export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
+  const [typingUsers, setTypingUsers] = useState<Array<{ display_name: string }>>([]);
   const { user } = useAuth();
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -147,6 +149,44 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
     };
   }, [conversationId]);
 
+  // Set up typing indicator presence
+  useEffect(() => {
+    if (!conversationId) return;
+
+    const typingChannel = supabase.channel(`typing:${conversationId}`, {
+      config: { presence: { key: user?.id } }
+    });
+
+    typingChannel
+      .on('presence', { event: 'sync' }, () => {
+        const state = typingChannel.presenceState();
+        const typing: Array<{ display_name: string }> = [];
+        
+        Object.keys(state).forEach((key) => {
+          const presences = state[key] as any[];
+          presences.forEach((presence) => {
+            // Don't show current user as typing
+            if (presence.user_id !== user?.id && presence.typing) {
+              typing.push({ display_name: presence.display_name });
+            }
+          });
+        });
+        
+        setTypingUsers(typing);
+      })
+      .on('presence', { event: 'join' }, ({ newPresences }) => {
+        console.log('User started typing:', newPresences);
+      })
+      .on('presence', { event: 'leave' }, ({ leftPresences }) => {
+        console.log('User stopped typing:', leftPresences);
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(typingChannel);
+    };
+  }, [conversationId, user?.id]);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -207,6 +247,7 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
           )}
           <div ref={scrollRef} />
         </div>
+        <TypingIndicator typingUsers={typingUsers} />
       </ScrollArea>
       <div className="border-t p-4">
         <MessageInput 
