@@ -175,13 +175,13 @@ export const useTextToSpeech = () => {
     return undefined;
   }, [voices]);
 
-  const speak = useCallback((
+  const speak = useCallback(async (
     text: string, 
     personaOrOptions?: Persona | { voice?: string; interrupt?: boolean; hasInteracted?: boolean }
   ) => {
     if (!safeTextToSpeech.isAvailable()) {
       console.warn('[TTS] Text-to-speech not available');
-      return Promise.resolve(false);
+      return false;
     }
 
     setIsGenerating(true);
@@ -260,7 +260,7 @@ export const useTextToSpeech = () => {
     });
     console.log(`[TTS] ✅ Final speech config:`, finalConfig);
 
-    const success = safeTextToSpeech.speak(text, {
+    const success = await safeTextToSpeech.speak(text, {
       voice: selectedVoice,
       rate: finalConfig.rate,
       pitch: finalConfig.pitch,
@@ -300,7 +300,7 @@ export const useTextToSpeech = () => {
       }
     }, 100);
 
-    return Promise.resolve(success);
+    return success;
   }, [getVoiceForPersona]);
 
   const stop = useCallback(() => {

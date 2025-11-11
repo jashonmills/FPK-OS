@@ -1,10 +1,10 @@
 
 /**
  * Safe Text-to-Speech utilities that handle deprecated APIs properly
- * Includes mobile browser compatibility fixes
+ * Includes mobile browser compatibility fixes and OpenAI fallback
  */
 
-import { isIOSBrowser } from './mobileAudioUtils';
+import { isIOSBrowser, isMobileBrowser, speakWithOpenAIFallback } from './mobileAudioUtils';
 
 interface SpeechOptions {
   rate?: number;
@@ -13,18 +13,28 @@ interface SpeechOptions {
   voice?: SpeechSynthesisVoice;
   interrupt?: boolean;
   hasInteracted?: boolean;
+  useFallback?: boolean;
 }
 
 class SafeTextToSpeech {
   private isSupported: boolean;
+  private failureCount: number = 0;
+  private readonly MAX_FAILURES = 2;
 
   constructor() {
     this.isSupported = 'speechSynthesis' in window;
   }
 
-  speak(text: string, options: SpeechOptions = {}) {
+  async speak(text: string, options: SpeechOptions = {}): Promise<boolean> {
     if (!this.isSupported) {
       console.warn('Text-to-speech not supported in this browser');
+      
+      // Try OpenAI fallback on mobile if available
+      if (isMobileBrowser()) {
+        console.log('📱 Attempting OpenAI TTS fallback...');
+        return await speakWithOpenAIFallback(text);
+      }
+      
       return false;
     }
 
@@ -43,12 +53,28 @@ class SafeTextToSpeech {
       utterance.volume = options.volume ?? 1.0;
       if (options.voice) utterance.voice = options.voice;
 
+      // Track failures for fallback decision
+      let speechFailed = false;
+
       // MOBILE FIX: Add mobile-specific error recovery
-      utterance.onerror = (event) => {
+      utterance.onerror = async (event) => {
         console.warn('Speech synthesis error:', event.error);
+        speechFailed = true;
         
-        // Retry on mobile if interrupted or canceled
-        if (event.error === 'interrupted' || event.error === 'canceled') {
+        // Track failure count
+        this.failureCount++;
+        console.log(`📱 Speech failure count: ${this.failureCount}/${this.MAX_FAILURES}`);
+        
+        // After multiple failures, try OpenAI fallback on mobile
+        if (isMobileBrowser() && this.failureCount >= this.MAX_FAILURES) {
+          console.log('📱 Multiple Web Speech API failures detected, switching to OpenAI TTS fallback...');
+          await speakWithOpenAIFallback(text);
+          this.failureCount = 0; // Reset counter after fallback
+          return;
+        }
+        
+        // Retry on mobile if interrupted or canceled (first time only)
+        if ((event.error === 'interrupted' || event.error === 'canceled') && this.failureCount < this.MAX_FAILURES) {
           console.log('📱 Speech interrupted, retrying...');
           setTimeout(() => {
             window.speechSynthesis.cancel();
@@ -58,7 +84,11 @@ class SafeTextToSpeech {
       };
 
       utterance.onend = () => {
-        console.log('Speech synthesis completed');
+        if (!speechFailed) {
+          // Reset failure count on success
+          this.failureCount = 0;
+          console.log('Speech synthesis completed successfully');
+        }
       };
 
       // MOBILE FIX: For iOS, must speak() in same event loop tick
@@ -72,8 +102,19 @@ class SafeTextToSpeech {
       return true;
     } catch (error) {
       console.error('Speech synthesis failed:', error);
+      
+      // Try OpenAI fallback on mobile if browser TTS completely fails
+      if (isMobileBrowser()) {
+        console.log('📱 Browser TTS failed, attempting OpenAI TTS fallback...');
+        return await speakWithOpenAIFallback(text);
+      }
+      
       return false;
     }
+  }
+
+  resetFailureCount() {
+    this.failureCount = 0;
   }
 
   stop() {

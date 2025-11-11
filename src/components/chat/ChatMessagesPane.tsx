@@ -56,18 +56,18 @@ const ChatMessagesPane = ({
     });
   };
 
-  const handleSpeakMessage = (content: string) => {
+  const handleSpeakMessage = async (content: string) => {
     if (ttsSupported && settings.enabled) {
-      speak(content, { interrupt: true });
+      await speak(content, { interrupt: true });
     }
   };
 
-  const handlePlayVoice = useCallback((messageId: string, content: string) => {
+  const handlePlayVoice = useCallback(async (messageId: string, content: string) => {
     if (!ttsSupported) return;
     
     // MOBILE FIX: Call speak directly with interrupt flag
     // This keeps everything synchronous for mobile browsers
-    speak(content, { interrupt: true, hasInteracted: settings.hasInteracted });
+    await speak(content, { interrupt: true, hasInteracted: settings.hasInteracted });
   }, [speak, ttsSupported, settings.hasInteracted]);
 
   // MOBILE FIX: Resume audio context on mobile when user has interacted
