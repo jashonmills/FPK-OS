@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, ChevronLeft, ChevronRight, BookOpen, Clock } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, BookOpen, Clock, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { loadCourseContent } from '@/utils/courseContentLoader';
@@ -121,10 +121,10 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({ course
   }
 
   return (
-    <div className="h-full bg-background/95 backdrop-blur-sm rounded-lg border shadow-lg">
+    <div className="h-full bg-background rounded-lg border shadow-2xl overflow-hidden" style={{ maxHeight: '600px' }}>
       <div className="flex flex-col h-full">
         {/* Header */}
-        <div className="flex-shrink-0 p-4 border-b bg-background">
+        <div className="flex-shrink-0 p-4 border-b bg-muted/50">
           <div className="flex items-center justify-between">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-3">
@@ -226,18 +226,28 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({ course
         </ScrollArea>
 
         {/* Footer Navigation */}
-        <div className="flex-shrink-0 p-4 border-t bg-background">
-          <div className="flex items-center justify-between">
-            <Button
-              variant="outline"
-              onClick={goToPrevLesson}
-              disabled={currentLessonIndex === 0}
-            >
-              <ChevronLeft className="h-4 w-4 mr-2" />
-              Previous Lesson
-            </Button>
+        <div className="flex-shrink-0 p-4 border-t bg-muted/50">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentLessonIndex(0)}
+                disabled={currentLessonIndex === 0}
+              >
+                <Home className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                onClick={goToPrevLesson}
+                disabled={currentLessonIndex === 0}
+              >
+                <ChevronLeft className="h-4 w-4 mr-2" />
+                Previous
+              </Button>
+            </div>
             
-            <div className="text-sm text-muted-foreground">
+            <div className="text-sm text-muted-foreground font-medium">
               {currentLessonIndex + 1} / {totalLessons}
             </div>
             
@@ -246,7 +256,7 @@ export const CourseContentViewer: React.FC<CourseContentViewerProps> = ({ course
               onClick={goToNextLesson}
               disabled={currentLessonIndex >= totalLessons - 1}
             >
-              Next Lesson
+              Next
               <ChevronRight className="h-4 w-4 ml-2" />
             </Button>
           </div>
