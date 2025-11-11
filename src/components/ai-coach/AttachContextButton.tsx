@@ -39,36 +39,57 @@ export function AttachContextButton({
   const [activeTab, setActiveTab] = useState('materials');
   const isMobile = useIsMobile();
 
-  // Fetch enrolled courses from BOTH enrollment tables
+  // Fetch courses from BOTH assignments AND enrollments
   const { data: enrolledCourses = [] } = useQuery({
-    queryKey: ['enrolled-courses'],
+    queryKey: ['ai-coach-available-courses', orgId],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return [];
 
-      // Query BOTH enrollment tables
+      const courseIds = new Set<string>();
+
+      // 1. Fetch assigned courses from org_assignment_targets
+      if (orgId) {
+        const { data: assignedTargets, error: assignmentError } = await supabase
+          .from('org_assignment_targets')
+          .select(`
+            assignment_id,
+            org_assignments!inner (
+              resource_id,
+              type
+            )
+          `)
+          .eq('target_id', user.id)
+          .eq('target_type', 'member');
+
+        if (!assignmentError && assignedTargets) {
+          assignedTargets.forEach(target => {
+            const assignment = target.org_assignments;
+            if (assignment.type === 'course') {
+              courseIds.add(assignment.resource_id);
+            }
+          });
+        }
+      }
+
+      // 2. Fetch enrolled courses from enrollments table
       const { data: regularEnrollments } = await supabase
         .from('enrollments')
         .select('course_id')
         .eq('user_id', user.id);
 
+      (regularEnrollments || []).forEach(e => {
+        courseIds.add(e.course_id);
+      });
+
+      // 3. Fetch enrolled courses from interactive_course_enrollments
       const { data: interactiveEnrollments } = await supabase
         .from('interactive_course_enrollments')
         .select('course_id, course_title, completion_percentage, last_accessed_at')
         .eq('user_id', user.id)
         .order('last_accessed_at', { ascending: false });
 
-      // Merge and deduplicate by course_id
       const enrollmentMap = new Map();
-      
-      (regularEnrollments || []).forEach(e => {
-        enrollmentMap.set(e.course_id, { 
-          course_id: e.course_id,
-          completion_percentage: 0,
-          last_accessed_at: null
-        });
-      });
-      
       (interactiveEnrollments || []).forEach(e => {
         enrollmentMap.set(e.course_id, {
           course_id: e.course_id,
@@ -76,12 +97,13 @@ export function AttachContextButton({
           completion_percentage: e.completion_percentage,
           last_accessed_at: e.last_accessed_at
         });
+        courseIds.add(e.course_id);
       });
 
-      const allCourseIds = Array.from(enrollmentMap.keys());
+      // Fetch course details for all available courses (only published and discoverable)
+      const allCourseIds = Array.from(courseIds);
       if (allCourseIds.length === 0) return [];
 
-      // Fetch course details for all enrolled courses (only published and discoverable)
       const { data: courses, error: coursesError } = await supabase
         .from('courses')
         .select('id, slug, title, thumbnail_url, description')
@@ -95,13 +117,16 @@ export function AttachContextButton({
       }
 
       // Merge enrollment data with course details
-      return Array.from(enrollmentMap.values()).map(enrollment => {
-        const course = courses?.find(c => c.id === enrollment.course_id);
+      return (courses || []).map(course => {
+        const enrollment = enrollmentMap.get(course.id);
         return { 
-          ...enrollment, 
+          course_id: course.id,
+          course_title: course.title,
+          completion_percentage: enrollment?.completion_percentage || 0,
+          last_accessed_at: enrollment?.last_accessed_at || null,
           course 
         };
-      }).filter(e => e.course !== null);
+      });
     },
     enabled: isOpen,
   });
