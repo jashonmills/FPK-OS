@@ -49,14 +49,20 @@ export const InteractiveCourseWrapper: React.FC<InteractiveCourseWrapperProps> =
     // Use requestIdleCallback for better performance
     const enrollWhenIdle = () => {
       if ('requestIdleCallback' in window) {
-        requestIdleCallback(() => enrollInCourse(), { timeout: 2000 });
+        requestIdleCallback(() => {
+          enrollInCourse();
+          startCourseSession('overview'); // Start session tracking
+        }, { timeout: 2000 });
       } else {
-        cleanup.setTimeout(enrollInCourse, 1000);
+        cleanup.setTimeout(() => {
+          enrollInCourse();
+          startCourseSession('overview'); // Start session tracking
+        }, 1000);
       }
     };
 
     enrollWhenIdle();
-  }, [courseId, courseTitle, enrollInCourse]);
+  }, [courseId, courseTitle, enrollInCourse, startCourseSession]);
 
   // Cleanup on unmount - enhanced with error handling
   useEffect(() => {
@@ -71,19 +77,68 @@ export const InteractiveCourseWrapper: React.FC<InteractiveCourseWrapperProps> =
     };
   }, [endCourseSession]);
 
-  // Track scroll depth - lightweight and optimized
+  // Track scroll depth - optimized with throttling
   useEffect(() => {
-    // Skip scroll tracking entirely for better performance
-    // This was causing major performance issues during navigation
-    return;
-  }, []);
+    let scrollTimeout: NodeJS.Timeout;
+    let isThrottled = false;
 
-  // Track click interactions - disabled for performance
+    const handleScroll = () => {
+      if (isThrottled) return;
+      
+      isThrottled = true;
+      cleanup.setTimeout(() => {
+        isThrottled = false;
+      }, 1000); // Throttle to once per second
+
+      const scrollPercentage = Math.round(
+        (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100
+      );
+
+      if (Math.abs(scrollPercentage - lastScrollPercentage.current) >= 10) {
+        lastScrollPercentage.current = scrollPercentage;
+        trackScrollDepth(scrollPercentage);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+    };
+  }, [trackScrollDepth]);
+
+  // Track click interactions - optimized with throttling
   useEffect(() => {
-    // Skip click tracking entirely for better performance
-    // This was causing performance issues during navigation
-    return;
-  }, []);
+    let isThrottled = false;
+
+    const handleClick = (e: MouseEvent) => {
+      if (isThrottled) return;
+      
+      isThrottled = true;
+      cleanup.setTimeout(() => {
+        isThrottled = false;
+      }, 2000); // Throttle to once per 2 seconds
+
+      const target = e.target as HTMLElement;
+      const elementType = target.tagName.toLowerCase();
+      const elementClass = target.className;
+
+      // Only track meaningful interactions
+      if (['button', 'a', 'input', 'select', 'textarea'].includes(elementType) || 
+          elementClass.includes('interactive')) {
+        trackInteraction('click', {
+          element_type: elementType,
+          element_class: elementClass,
+          timestamp: new Date().toISOString()
+        });
+      }
+    };
+
+    document.addEventListener('click', handleClick, { passive: true });
+    return () => {
+      document.removeEventListener('click', handleClick);
+    };
+  }, [trackInteraction]);
 
   // Update progress when completed lessons change - optimized
   useEffect(() => {

@@ -130,6 +130,29 @@ export const useInteractiveCourseAnalytics = (courseId: string, courseTitle: str
       trackDailyActivity('study', durationMinutes, user.id, orgId).catch(err => 
         console.warn('Daily activity tracking failed:', err)
       );
+
+      // Update enrollment total time spent (non-blocking)
+      if (durationMinutes > 0) {
+        (async () => {
+          try {
+            const { data } = await supabase
+              .from('interactive_course_enrollments')
+              .select('total_time_spent_minutes')
+              .eq('user_id', user.id)
+              .eq('course_id', courseId)
+              .single();
+            
+            const currentTime = data?.total_time_spent_minutes || 0;
+            await supabase
+              .from('interactive_course_enrollments')
+              .update({ total_time_spent_minutes: currentTime + durationMinutes })
+              .eq('user_id', user.id)
+              .eq('course_id', courseId);
+          } catch (err) {
+            console.warn('Failed to update enrollment time:', err);
+          }
+        })();
+      }
     } catch (error) {
       console.error('❌ Error ending course session:', error);
     }
