@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { MessageInput } from "./MessageInput";
@@ -59,9 +59,10 @@ const ChatWindowComponent = ({ conversationId }: ChatWindowProps) => {
   const [deletingMessageId, setDeletingMessageId] = useState<string | null>(null);
   const [userPersonaId, setUserPersonaId] = useState<string | null>(null);
   const { user } = useAuth();
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const virtuosoRef = useRef<VirtuosoHandle>(null);
   const lastSentMessageRef = useRef<{ content: string; timestamp: number } | null>(null);
   const personaCacheRef = useRef<Map<string, { display_name: string; avatar_url: string | null }>>(new Map());
+  const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
 
   // Fetch current user's persona ID
   useEffect(() => {
@@ -104,7 +105,7 @@ const ChatWindowComponent = ({ conversationId }: ChatWindowProps) => {
     
     // Scroll to bottom
     setTimeout(() => {
-      scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
+      virtuosoRef.current?.scrollToIndex({ index: 'LAST', behavior: 'smooth' });
     }, 100);
   }, []);
 
@@ -254,7 +255,7 @@ const ChatWindowComponent = ({ conversationId }: ChatWindowProps) => {
       
       // Scroll to bottom
       setTimeout(() => {
-        scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
+        virtuosoRef.current?.scrollToIndex({ index: 'LAST', behavior: 'smooth' });
       }, 100);
     };
 
@@ -353,7 +354,7 @@ const ChatWindowComponent = ({ conversationId }: ChatWindowProps) => {
           
           // Scroll to bottom
           setTimeout(() => {
-            scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
+            virtuosoRef.current?.scrollToIndex({ index: 'LAST', behavior: 'smooth' });
           }, 100);
         }
       )
@@ -456,35 +457,15 @@ const ChatWindowComponent = ({ conversationId }: ChatWindowProps) => {
     };
   }, [conversationId, user?.id]);
 
-  if (loading) {
+  // Memoized message renderer for virtualization
+  const MessageItem = useCallback(({ message }: { message: Message }) => {
+    const isOwn = message.sender_id === userPersonaId;
+    const messageAge = Date.now() - new Date(message.created_at).getTime();
+    const canEdit = isOwn && !message.is_deleted && messageAge < 15 * 60 * 1000; // 15 minutes
+    const canDelete = isOwn && !message.is_deleted;
+    
     return (
-      <div className="flex items-center justify-center h-full">
-        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex flex-col h-full">
-      <ScrollArea className="flex-1 p-4">
-        <div className="space-y-4">
-          {messages.length === 0 ? (
-            <div className="text-center text-muted-foreground py-8">
-              <p>No messages yet</p>
-              <p className="text-sm">Start the conversation!</p>
-            </div>
-          ) : (
-            messages.map((message) => {
-              const isOwn = message.sender_id === userPersonaId;
-              const messageAge = Date.now() - new Date(message.created_at).getTime();
-              const canEdit = isOwn && !message.is_deleted && messageAge < 15 * 60 * 1000; // 15 minutes
-              const canDelete = isOwn && !message.is_deleted;
-              
-              return (
-                <div
-                  key={message.id}
-                  className={`group flex items-start gap-3 ${isOwn ? 'flex-row-reverse' : ''}`}
-                >
+      <div className={`group flex items-start gap-3 px-4 py-2 ${isOwn ? 'flex-row-reverse' : ''}`}>
                   <Avatar className="w-8 h-8">
                     <AvatarImage src={message.sender?.avatar_url || undefined} />
                     <AvatarFallback>
@@ -644,14 +625,42 @@ const ChatWindowComponent = ({ conversationId }: ChatWindowProps) => {
                       </div>
                     )}
                   </div>
-                </div>
-              );
-            })
-          )}
-          <div ref={scrollRef} />
         </div>
-        <TypingIndicator typingUsers={typingUsers} />
-      </ScrollArea>
+    );
+  }, [userPersonaId, setReplyingTo, setEditingMessage, setDeletingMessageId, handleAddReaction]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col h-full">
+      {messages.length === 0 ? (
+        <div className="flex-1 flex items-center justify-center text-muted-foreground">
+          <div className="text-center py-8">
+            <p>No messages yet</p>
+            <p className="text-sm">Start the conversation!</p>
+          </div>
+        </div>
+      ) : (
+        <Virtuoso
+          ref={virtuosoRef}
+          data={messages}
+          className="flex-1"
+          followOutput="smooth"
+          alignToBottom
+          itemContent={(index, message) => (
+            <MessageItem key={message.id} message={message} />
+          )}
+          components={{
+            Footer: () => <TypingIndicator typingUsers={typingUsers} />
+          }}
+        />
+      )}
       <div className="border-t p-4">
         <MessageInput 
           conversationId={conversationId}
