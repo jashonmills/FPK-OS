@@ -1,12 +1,14 @@
 import { useState, useMemo } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BarChart3, TrendingUp, Users, MessageSquare, Heart, Calendar } from "lucide-react";
+import { BarChart3, TrendingUp, Users, MessageSquare, Heart, Calendar, ArrowLeft } from "lucide-react";
 import StatsCard from "@/components/analytics/StatsCard";
 import EngagementChart from "@/components/analytics/EngagementChart";
 import ActivityChart from "@/components/analytics/ActivityChart";
@@ -15,6 +17,7 @@ import { getDateRange, calculateGrowthRate } from "@/utils/analyticsHelpers";
 
 export default function Analytics() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [dateRange, setDateRange] = useState("30");
 
   // Memoize date range to prevent infinite re-renders
@@ -262,14 +265,24 @@ export default function Analytics() {
       <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-8">
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
-              <BarChart3 className="h-8 w-8 text-primary" />
-              Your Analytics
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              Track your engagement, growth, and community impact
-            </p>
+          <div className="flex items-start gap-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate(-1)}
+              className="mt-1"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
+                <BarChart3 className="h-8 w-8 text-primary" />
+                Your Analytics
+              </h1>
+              <p className="text-muted-foreground mt-1">
+                Track your engagement, growth, and community impact
+              </p>
+            </div>
           </div>
           <Select value={dateRange} onValueChange={setDateRange}>
             <SelectTrigger className="w-[180px]">
