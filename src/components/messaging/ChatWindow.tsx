@@ -340,11 +340,17 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
         async (payload) => {
           console.log('Message updated:', payload);
           
+          // Check if this is an AI moderation deletion
+          const newData = payload.new as any;
+          const oldData = payload.old as any;
+          const wasModerated = !oldData.is_deleted && newData.is_deleted && newData.deleted_by_ai;
+          const isOwnMessage = newData.sender_id === userPersonaId;
+          
           // Fetch sender persona info
           const { data: persona } = await supabase
             .from('personas')
             .select('display_name, avatar_url')
-            .eq('id', (payload.new as any).sender_id)
+            .eq('id', newData.sender_id)
             .single();
 
           const updatedMessage = {
@@ -356,6 +362,23 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
           setMessages(prev => 
             prev.map(m => m.id === updatedMessage.id ? updatedMessage : m)
           );
+          
+          // Show toast if user's own message was removed by AI
+          if (wasModerated && isOwnMessage) {
+            toast.error("Your message was removed by AI moderation", {
+              description: newData.moderation_reason || "Your message violated community guidelines.",
+              action: {
+                label: "Appeal",
+                onClick: () => {
+                  window.location.href = '/community'; // Navigate to appeal page
+                  toast.info("Appeal feature coming soon", {
+                    description: "Contact support to appeal this decision."
+                  });
+                }
+              },
+              duration: 10000, // Show for 10 seconds
+            });
+          }
         }
       )
       .subscribe((status) => {
