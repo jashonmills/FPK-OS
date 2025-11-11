@@ -72,15 +72,6 @@ class SafeTextToSpeech {
           this.failureCount = 0; // Reset counter after fallback
           return;
         }
-        
-        // Retry on mobile if interrupted or canceled (first time only)
-        if ((event.error === 'interrupted' || event.error === 'canceled') && this.failureCount < this.MAX_FAILURES) {
-          console.log('📱 Speech interrupted, retrying...');
-          setTimeout(() => {
-            window.speechSynthesis.cancel();
-            window.speechSynthesis.speak(utterance);
-          }, 100);
-        }
       };
 
       utterance.onend = () => {
@@ -121,6 +112,7 @@ class SafeTextToSpeech {
     if (this.isSupported && window.speechSynthesis.speaking) {
       window.speechSynthesis.cancel();
     }
+    this.failureCount = 0; // Reset counter when user stops
   }
 
   getVoices(): SpeechSynthesisVoice[] {
