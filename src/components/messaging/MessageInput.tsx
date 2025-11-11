@@ -26,6 +26,7 @@ export const MessageInput = ({ conversationId, onOptimisticMessage, replyingTo, 
   const [content, setContent] = useState("");
   const [sending, setSending] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [imageCaption, setImageCaption] = useState("");
   const [showFileUpload, setShowFileUpload] = useState(false);
   const [currentPersona, setCurrentPersona] = useState<{ id: string; display_name: string; avatar_url: string | null } | null>(null);
   const navigate = useNavigate();
@@ -203,6 +204,7 @@ export const MessageInput = ({ conversationId, onOptimisticMessage, replyingTo, 
     // Clear input and file immediately for better UX
     setContent("");
     setSelectedFile(null);
+    setImageCaption("");
     setShowFileUpload(false);
     
     // Reset speech-to-text refs to prevent stacking on next voice input
@@ -225,6 +227,7 @@ export const MessageInput = ({ conversationId, onOptimisticMessage, replyingTo, 
           file_name: fileName,
           file_type: fileType,
           file_size: fileSize,
+          image_caption: fileType?.startsWith("image/") ? imageCaption : null,
         },
       });
 
@@ -309,7 +312,12 @@ export const MessageInput = ({ conversationId, onOptimisticMessage, replyingTo, 
         <FileUpload
           onFileSelect={setSelectedFile}
           selectedFile={selectedFile}
-          onClearFile={() => setSelectedFile(null)}
+          onClearFile={() => {
+            setSelectedFile(null);
+            setImageCaption("");
+          }}
+          caption={imageCaption}
+          onCaptionChange={setImageCaption}
         />
       )}
       <div className="flex gap-2">

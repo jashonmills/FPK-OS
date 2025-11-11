@@ -534,6 +534,7 @@ export type Database = {
           file_type: string | null
           file_url: string | null
           id: string
+          image_caption: string | null
           is_deleted: boolean
           is_edited: boolean | null
           is_system_message: boolean | null
@@ -553,6 +554,7 @@ export type Database = {
           file_type?: string | null
           file_url?: string | null
           id?: string
+          image_caption?: string | null
           is_deleted?: boolean
           is_edited?: boolean | null
           is_system_message?: boolean | null
@@ -572,6 +574,7 @@ export type Database = {
           file_type?: string | null
           file_url?: string | null
           id?: string
+          image_caption?: string | null
           is_deleted?: boolean
           is_edited?: boolean | null
           is_system_message?: boolean | null

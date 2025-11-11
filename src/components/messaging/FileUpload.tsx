@@ -1,15 +1,18 @@
 import React, { useCallback, useState } from "react";
 import { Upload, X, File, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
 interface FileUploadProps {
   onFileSelect: (file: File) => void;
   selectedFile: File | null;
   onClearFile: () => void;
+  caption: string;
+  onCaptionChange: (caption: string) => void;
 }
 
-export const FileUpload = ({ onFileSelect, selectedFile, onClearFile }: FileUploadProps) => {
+export const FileUpload = ({ onFileSelect, selectedFile, onClearFile, caption, onCaptionChange }: FileUploadProps) => {
   const [isDragging, setIsDragging] = useState(false);
 
   const handleDrop = useCallback(
@@ -70,28 +73,40 @@ export const FileUpload = ({ onFileSelect, selectedFile, onClearFile }: FileUplo
 
   if (selectedFile) {
     return (
-      <div className="flex items-center gap-2 p-2 border rounded-lg bg-muted/50">
-        <div className="flex items-center gap-2 flex-1 min-w-0">
-          {isImage ? (
-            <ImageIcon className="w-4 h-4 text-primary flex-shrink-0" />
-          ) : (
-            <File className="w-4 h-4 text-primary flex-shrink-0" />
-          )}
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate">{selectedFile.name}</p>
-            <p className="text-xs text-muted-foreground">
-              {formatFileSize(selectedFile.size)}
-            </p>
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-2 p-2 border rounded-lg bg-muted/50">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            {isImage ? (
+              <ImageIcon className="w-4 h-4 text-primary flex-shrink-0" />
+            ) : (
+              <File className="w-4 h-4 text-primary flex-shrink-0" />
+            )}
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium truncate">{selectedFile.name}</p>
+              <p className="text-xs text-muted-foreground">
+                {formatFileSize(selectedFile.size)}
+              </p>
+            </div>
           </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 flex-shrink-0"
+            onClick={onClearFile}
+          >
+            <X className="w-4 h-4" />
+          </Button>
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8 flex-shrink-0"
-          onClick={onClearFile}
-        >
-          <X className="w-4 h-4" />
-        </Button>
+        {isImage && (
+          <Input
+            type="text"
+            placeholder="Add a caption for this image (optional)"
+            value={caption}
+            onChange={(e) => onCaptionChange(e.target.value)}
+            maxLength={200}
+            className="text-sm"
+          />
+        )}
       </div>
     );
   }

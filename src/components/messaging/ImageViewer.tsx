@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 export interface ImageItem {
   url: string;
   fileName: string;
+  caption?: string;
 }
 
 interface ImageViewerProps {
@@ -286,13 +287,18 @@ export const ImageViewer = ({ images, initialIndex, isOpen, onClose }: ImageView
             />
           </div>
 
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white text-sm bg-black/50 px-4 py-2 rounded-full flex items-center gap-3">
-            {images.length > 1 && (
-              <span className="border-r border-white/30 pr-3">
-                {currentIndex + 1} / {images.length}
-              </span>
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white text-sm bg-black/50 px-4 py-2 rounded-full flex flex-col items-center gap-2 max-w-[90%]">
+            <div className="flex items-center gap-3">
+              {images.length > 1 && (
+                <span className="border-r border-white/30 pr-3">
+                  {currentIndex + 1} / {images.length}
+                </span>
+              )}
+              <span>{scale > 1 ? `${Math.round(scale * 100)}%` : "Double-click or pinch to zoom"}</span>
+            </div>
+            {currentImage.caption && (
+              <p className="text-center text-sm max-w-full break-words">{currentImage.caption}</p>
             )}
-            <span>{scale > 1 ? `${Math.round(scale * 100)}%` : "Double-click or pinch to zoom"}</span>
           </div>
         </div>
         )}

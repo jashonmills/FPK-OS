@@ -35,6 +35,7 @@ interface Message {
   file_name?: string | null;
   file_type?: string | null;
   file_size?: number | null;
+  image_caption?: string | null;
   sender?: {
     display_name: string;
     avatar_url: string | null;
@@ -77,6 +78,7 @@ const ChatWindowComponent = ({ conversationId }: ChatWindowProps) => {
       .map(msg => ({
         url: msg.file_url!,
         fileName: msg.file_name!,
+        caption: msg.image_caption || undefined,
       }));
   }, [messages]);
 
