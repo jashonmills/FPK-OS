@@ -10,8 +10,9 @@ import { ReactionPicker } from "./ReactionPicker";
 import { MessageReactions } from "./MessageReactions";
 import { RepliedMessage } from "./RepliedMessage";
 import { ReadReceipts } from "./ReadReceipts";
+import { EditMessageDialog } from "./EditMessageDialog";
 import { formatDistanceToNow } from "date-fns";
-import { Loader2, Reply } from "lucide-react";
+import { Loader2, Reply, Pencil } from "lucide-react";
 import { toast } from "sonner";
 
 interface Message {
@@ -19,6 +20,8 @@ interface Message {
   content: string;
   sender_id: string;
   created_at: string;
+  updated_at?: string;
+  is_edited?: boolean;
   reply_to_message_id?: string | null;
   sender?: {
     display_name: string;
@@ -41,6 +44,7 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
   const [loading, setLoading] = useState(true);
   const [typingUsers, setTypingUsers] = useState<Array<{ display_name: string }>>([]);
   const [replyingTo, setReplyingTo] = useState<{ id: string; senderName: string; content: string } | null>(null);
+  const [editingMessage, setEditingMessage] = useState<{ id: string; content: string } | null>(null);
   const [userPersonaId, setUserPersonaId] = useState<string | null>(null);
   const { user } = useAuth();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -146,7 +150,7 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
     const fetchMessages = async () => {
       const { data, error } = await supabase
         .from('messages')
-        .select('*')
+        .select('id, content, sender_id, created_at, updated_at, is_edited, reply_to_message_id, conversation_id')
         .eq('conversation_id', conversationId)
         .order('created_at', { ascending: true });
 
@@ -215,7 +219,7 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
 
     fetchMessages();
 
-    // Subscribe to new messages
+    // Subscribe to new and updated messages
     const channel = supabase
       .channel(`messages:${conversationId}`)
       .on(
@@ -301,6 +305,35 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
           }, 100);
         }
       )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'messages',
+          filter: `conversation_id=eq.${conversationId}`,
+        },
+        async (payload) => {
+          console.log('Message updated:', payload);
+          
+          // Fetch sender persona info
+          const { data: persona } = await supabase
+            .from('personas')
+            .select('display_name, avatar_url')
+            .eq('id', (payload.new as any).sender_id)
+            .single();
+
+          const updatedMessage = {
+            ...payload.new,
+            sender: persona || undefined,
+          } as Message;
+
+          // Update the message in the list
+          setMessages(prev => 
+            prev.map(m => m.id === updatedMessage.id ? updatedMessage : m)
+          );
+        }
+      )
       .subscribe((status) => {
         console.log('Realtime subscription status:', status);
       });
@@ -308,7 +341,7 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [conversationId]);
+  }, [conversationId, userPersonaId, markMessagesAsRead]);
 
   // Set up typing indicator presence
   useEffect(() => {
@@ -368,6 +401,9 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
           ) : (
             messages.map((message) => {
               const isOwn = message.sender_id === userPersonaId;
+              const messageAge = Date.now() - new Date(message.created_at).getTime();
+              const canEdit = isOwn && messageAge < 15 * 60 * 1000; // 15 minutes
+              
               return (
                 <div
                   key={message.id}
@@ -389,6 +425,11 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
                           addSuffix: true,
                         })}
                       </span>
+                      {message.is_edited && (
+                        <span className="text-xs text-muted-foreground italic">
+                          (edited)
+                        </span>
+                      )}
                     </div>
                     <div className="flex flex-col">
                       {message.replied_message && (
@@ -410,6 +451,19 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
                           </p>
                         </div>
                         <div className="flex gap-1">
+                          {canEdit && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={() => setEditingMessage({
+                                id: message.id,
+                                content: message.content
+                              })}
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </Button>
+                          )}
                           <Button
                             variant="ghost"
                             size="sm"
@@ -452,6 +506,14 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
           onCancelReply={() => setReplyingTo(null)}
         />
       </div>
+      {editingMessage && (
+        <EditMessageDialog
+          open={!!editingMessage}
+          onOpenChange={(open) => !open && setEditingMessage(null)}
+          messageId={editingMessage.id}
+          currentContent={editingMessage.content}
+        />
+      )}
     </div>
   );
 };
