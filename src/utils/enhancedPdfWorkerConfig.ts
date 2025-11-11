@@ -18,10 +18,12 @@ class PDFWorkerManager {
 
   private readonly MAX_RETRIES = 3;
   private readonly WORKER_URLS = [
+    // Use cdnjs which has better CORS support
+    `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`,
+    // Fallback to jsdelivr
     `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`,
-    `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`,
-    'https://mozilla.github.io/pdf.js/build/pdf.worker.min.js',
-    '/pdf.worker.min.js'
+    // Mozilla CDN as backup
+    'https://mozilla.github.io/pdf.js/build/pdf.worker.min.js'
   ];
 
   async initialize(): Promise<boolean> {
