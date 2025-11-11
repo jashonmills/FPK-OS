@@ -100,16 +100,14 @@ export function AttachContextButton({
         courseIds.add(e.course_id);
       });
 
-      // Fetch course details for all available courses (only published and discoverable)
+      // Fetch course details for all available courses (assigned or enrolled)
       const allCourseIds = Array.from(courseIds);
       if (allCourseIds.length === 0) return [];
 
       const { data: courses, error: coursesError } = await supabase
         .from('courses')
         .select('id, slug, title, thumbnail_url, description')
-        .in('id', allCourseIds)
-        .eq('discoverable', true)
-        .eq('status', 'published');
+        .in('id', allCourseIds);
 
       if (coursesError) {
         console.error('Error fetching courses:', coursesError);
