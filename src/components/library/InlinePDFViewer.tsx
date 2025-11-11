@@ -273,36 +273,27 @@ const InlinePDFViewer: React.FC<InlinePDFViewerProps> = ({ fileUrl, fileName, on
       {/* PDF Content Area */}
       <ScrollArea className="flex-1" style={{ height: '480px' }}>
         <div className="flex items-center justify-center p-4" ref={containerRef}>
-          {isLoading ? (
-            <div className="space-y-4 w-full max-w-2xl">
-              <Skeleton className="h-[600px] w-full" />
-              <div className="text-center text-sm text-muted-foreground">
-                Loading PDF... {loadingProgress > 0 && `${loadingProgress}%`}
+          <Document
+            file={fileUrl}
+            onLoadSuccess={onDocumentLoadSuccess}
+            onLoadError={onDocumentLoadError}
+            options={pdfOptions}
+            loading={
+              <div className="flex flex-col items-center gap-4 py-8">
+                <Skeleton className="h-[600px] w-[450px]" />
+                <p className="text-sm text-muted-foreground">Loading PDF...</p>
               </div>
-            </div>
-          ) : (
-            <Document
-              file={fileUrl}
-              onLoadSuccess={onDocumentLoadSuccess}
-              onLoadError={onDocumentLoadError}
-              options={pdfOptions}
-              loading={
-                <div className="flex flex-col items-center gap-4 py-8">
-                  <Skeleton className="h-[600px] w-[450px]" />
-                  <p className="text-sm text-muted-foreground">Loading PDF...</p>
-                </div>
-              }
-            >
-              <Page
-                pageNumber={pageNumber}
-                scale={scale}
-                rotate={rotation}
-                renderTextLayer={true}
-                renderAnnotationLayer={true}
-                loading={<Skeleton className="h-[600px] w-[450px]" />}
-              />
-            </Document>
-          )}
+            }
+          >
+            <Page
+              pageNumber={pageNumber}
+              scale={scale}
+              rotate={rotation}
+              renderTextLayer={true}
+              renderAnnotationLayer={true}
+              loading={<Skeleton className="h-[600px] w-[450px]" />}
+            />
+          </Document>
         </div>
       </ScrollArea>
     </div>
