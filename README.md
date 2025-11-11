@@ -1,10 +1,61 @@
-# Welcome to your Lovable project
+# FPK Nexus - Community Platform
 
 ## Project info
 
 **URL**: https://lovable.dev/projects/82f1d6f6-2d72-46ae-8cc7-ab78f6c3d641
 
-## How can I edit this code?
+## Overview
+
+FPK Nexus is a private, high-trust community platform designed for the neurodiverse world. It features a fully-functional Progressive Web App (PWA) with mobile-first design, offline capabilities, and push notifications.
+
+## Key Features
+
+- 🌐 **Progressive Web App**: Install on any device for a native app experience
+- 📱 **Mobile-First Design**: Optimized for all screen sizes with touch-friendly UI
+- 🔔 **Push Notifications**: Stay connected with real-time updates
+- 💬 **Real-time Messaging**: Connect with community members instantly
+- 📊 **Analytics Dashboard**: Track your engagement and community impact
+- 🎨 **Customizable Captions**: Personalize your visual content
+- 🔒 **Secure & Private**: Built with user privacy and safety in mind
+
+## PWA Features
+
+This app is a fully-featured Progressive Web App with:
+- Offline support with service worker caching
+- Installable on mobile and desktop
+- Push notification support
+- Mobile-optimized UI with 44px minimum touch targets
+- Safe area insets for notched devices
+- Responsive design across all breakpoints
+
+For detailed PWA information, see [PWA_GUIDE.md](./PWA_GUIDE.md)
+
+## Technologies Used
+
+This project is built with:
+
+- **Frontend**: React 18, TypeScript, Vite
+- **Styling**: Tailwind CSS, shadcn-ui components
+- **Backend**: Supabase (Database, Auth, Storage, Edge Functions)
+- **PWA**: vite-plugin-pwa, Workbox
+- **Real-time**: Supabase Realtime
+- **Charts**: Recharts
+- **Forms**: React Hook Form, Zod validation
+
+## Installation (Mobile & Desktop)
+
+### Android / Desktop Chrome
+1. Visit the app in Chrome
+2. Look for the install banner or click the install icon in the address bar
+3. Click "Install" to add to home screen/app drawer
+
+### iOS (Safari)
+1. Open the app in Safari
+2. Tap the Share button
+3. Select "Add to Home Screen"
+4. Tap "Add"
+
+## Development Setup
 
 There are several ways of editing your application.
 

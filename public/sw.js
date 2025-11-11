@@ -1,14 +1,41 @@
-// Service Worker for Web Push Notifications
-// This file handles push notifications when the app is closed or in background
+// Service Worker for Web Push Notifications and PWA Offline Support
+// This file handles push notifications and caching for offline functionality
+
+const CACHE_NAME = 'fpk-nexus-v1';
+const OFFLINE_URL = '/offline.html';
+
+const urlsToCache = [
+  '/',
+  '/offline.html',
+  '/manifest.json'
+];
 
 self.addEventListener('install', (event) => {
   console.log('Service Worker installing...');
-  self.skipWaiting();
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => {
+        console.log('Opened cache');
+        return cache.addAll(urlsToCache);
+      })
+      .then(() => self.skipWaiting())
+  );
 });
 
 self.addEventListener('activate', (event) => {
   console.log('Service Worker activating...');
-  event.waitUntil(clients.claim());
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cacheName => {
+          if (cacheName !== CACHE_NAME) {
+            console.log('Deleting old cache:', cacheName);
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    }).then(() => clients.claim())
+  );
 });
 
 // Listen for push events
@@ -34,7 +61,6 @@ self.addEventListener('push', (event) => {
         data: payload.data || notificationData.data,
         tag: payload.tag || 'notification',
         requireInteraction: false,
-        // Add vibration pattern for mobile
         vibrate: [200, 100, 200]
       };
     }
@@ -64,7 +90,6 @@ self.addEventListener('notificationclick', (event) => {
   
   event.notification.close();
 
-  // Determine the URL to open
   let urlToOpen = '/';
   
   if (event.notification.data && event.notification.data.url) {
@@ -73,19 +98,16 @@ self.addEventListener('notificationclick', (event) => {
     urlToOpen = `/messages/${event.notification.data.conversation_id}`;
   }
 
-  // Open or focus the app window
   const promiseChain = clients
     .matchAll({
       type: 'window',
       includeUncontrolled: true
     })
     .then((windowClients) => {
-      // Check if there's already a window open
       for (let i = 0; i < windowClients.length; i++) {
         const client = windowClients[i];
         if (client.url.includes(self.location.origin) && 'focus' in client) {
           return client.focus().then(client => {
-            // Navigate to the URL
             if ('navigate' in client) {
               return client.navigate(urlToOpen);
             }
@@ -93,7 +115,6 @@ self.addEventListener('notificationclick', (event) => {
         }
       }
       
-      // If no window is open, open a new one
       if (clients.openWindow) {
         return clients.openWindow(urlToOpen);
       }
