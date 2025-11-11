@@ -59,6 +59,7 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
   const { user } = useAuth();
   const scrollRef = useRef<HTMLDivElement>(null);
   const lastSentMessageRef = useRef<{ content: string; timestamp: number } | null>(null);
+  const personaCacheRef = useRef<Map<string, { display_name: string; avatar_url: string | null }>>(new Map());
 
   // Fetch current user's persona ID
   useEffect(() => {
@@ -243,12 +244,23 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
         async (payload) => {
           console.log('Realtime message received:', payload);
           
-          // Fetch sender persona info
-          const { data: persona } = await supabase
-            .from('personas')
-            .select('display_name, avatar_url')
-            .eq('id', (payload.new as any).sender_id)
-            .single();
+          // Check persona cache first to avoid redundant fetches
+          const senderId = (payload.new as any).sender_id;
+          let persona = personaCacheRef.current.get(senderId);
+          
+          if (!persona) {
+            // Fetch sender persona info only if not cached
+            const { data: fetchedPersona } = await supabase
+              .from('personas')
+              .select('display_name, avatar_url')
+              .eq('id', senderId)
+              .single();
+            
+            if (fetchedPersona) {
+              persona = fetchedPersona;
+              personaCacheRef.current.set(senderId, fetchedPersona);
+            }
+          }
 
           let replied_message = undefined;
           if ((payload.new as any).reply_to_message_id) {

@@ -190,34 +190,6 @@ serve(async (req) => {
 
     // === OPERATION SPEARHEAD ENABLED ===
     
-    // Skip AI moderation if message is only a file with no text content
-    if (!content || content.trim() === '') {
-      const { data: message, error } = await supabaseClient
-        .from('messages')
-        .insert({
-          conversation_id,
-          sender_id: personaId,
-          content: null,
-          reply_to_message_id: reply_to_message_id || null,
-          file_url: file_url || null,
-          file_name: file_name || null,
-          file_type: file_type || null,
-          file_size: file_size || null,
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      // Create notifications for other participants
-      await createMessageNotifications(supabaseAdmin, conversation_id, user.id, 'Sent a file');
-
-      console.log('File message sent (no text to moderate):', message.id);
-      return new Response(JSON.stringify({ message }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
     // Check if user is currently banned
     const { data: activeBan } = await supabaseAdmin
       .from('user_bans')
@@ -243,214 +215,8 @@ serve(async (req) => {
       });
     }
 
-    // Fetch conversation context (last 10 messages)
-    const { data: recentMessages } = await supabaseAdmin
-      .from('messages')
-      .select('content, sender_id, created_at')
-      .eq('conversation_id', conversation_id)
-      .order('created_at', { ascending: false })
-      .limit(10);
-
-    // Build context for AI
-    const contextMessages = (recentMessages || []).reverse();
-    const contextPrompt = `CONVERSATION HISTORY:\n${contextMessages.map(m => 
-      `[${m.sender_id === user.id ? 'CURRENT_USER' : 'OTHER'}]: ${m.content}`
-    ).join('\n')}\n\nNEW_MESSAGE: ${content?.trim() || '[File attachment]'}`;
-
-    // Call Lovable AI
-    const aiStartTime = Date.now();
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
-      console.error('LOVABLE_API_KEY not configured');
-      // Fallback: allow message without moderation
-      const { data: message, error } = await supabaseClient
-        .from('messages')
-        .insert({ 
-          conversation_id, 
-          sender_id: personaId, 
-          content: content?.trim() || null,
-          reply_to_message_id: reply_to_message_id || null,
-          file_url: file_url || null,
-          file_name: file_name || null,
-          file_type: file_type || null,
-          file_size: file_size || null,
-        })
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return new Response(JSON.stringify({ message }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          { role: 'system', content: GUARDIAN_SYSTEM_PROMPT },
-          { role: 'user', content: contextPrompt }
-        ],
-        temperature: 0.3,
-      }),
-    });
-
-    const processingTime = Date.now() - aiStartTime;
-
-    if (!aiResponse.ok) {
-      console.error('AI gateway error:', aiResponse.status);
-      // Fallback: allow message
-      const { data: message, error } = await supabaseClient
-        .from('messages')
-        .insert({ 
-          conversation_id, 
-          sender_id: personaId, 
-          content: content?.trim() || null,
-          reply_to_message_id: reply_to_message_id || null,
-          file_url: file_url || null,
-          file_name: file_name || null,
-          file_type: file_type || null,
-          file_size: file_size || null,
-        })
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return new Response(JSON.stringify({ message }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    const aiResult = await aiResponse.json();
-    let aiContent = aiResult.choices?.[0]?.message?.content;
-    
-    let analysis;
-    try {
-      // Strip markdown code blocks if present (```json ... ```)
-      if (aiContent.includes('```')) {
-        aiContent = aiContent.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
-      }
-      analysis = JSON.parse(aiContent);
-    } catch (e) {
-      console.error('Failed to parse AI response:', e, 'Raw content:', aiContent);
-      // Fallback: allow message
-      const { data: message, error } = await supabaseClient
-        .from('messages')
-        .insert({ 
-          conversation_id, 
-          sender_id: personaId, 
-          content: content?.trim() || null,
-          reply_to_message_id: reply_to_message_id || null,
-          file_url: file_url || null,
-          file_name: file_name || null,
-          file_type: file_type || null,
-          file_size: file_size || null,
-        })
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return new Response(JSON.stringify({ message }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    console.log('AI Analysis:', { severity: analysis.severity, category: analysis.violation_category });
-
-    // Log to ai_moderation_log
-    const actionTaken = analysis.severity <= 3 ? 'ALLOWED' : 
-                        analysis.severity <= 6 ? 'DE_ESCALATED' : 
-                        'BLOCKED_AND_BANNED';
-
-    await supabaseAdmin.from('ai_moderation_log').insert({
-      conversation_id,
-      sender_id: personaId,
-      message_content: content?.trim() || '[File attachment]',
-      severity_score: analysis.severity,
-      violation_category: analysis.violation_category,
-      action_taken: actionTaken,
-      de_escalation_message: analysis.de_escalation_message,
-      raw_ai_response: aiResult,
-      processing_time_ms: processingTime
-    });
-
-    // Execute action based on severity
-    if (analysis.severity <= 3) {
-      // SAFE: Insert message
-      const { data: message, error } = await supabaseClient
-        .from('messages')
-        .insert({ 
-          conversation_id, 
-          sender_id: personaId, 
-          content: content?.trim() || null,
-          reply_to_message_id: reply_to_message_id || null,
-          file_url: file_url || null,
-          file_name: file_name || null,
-          file_type: file_type || null,
-          file_size: file_size || null,
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      // Create notifications for other participants
-      await createMessageNotifications(supabaseAdmin, conversation_id, user.id, content?.trim() || 'Sent a file');
-
-      console.log('Message allowed:', message.id);
-      return new Response(JSON.stringify({ message }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    if (analysis.severity >= 4 && analysis.severity <= 6) {
-      // ========== SHADOW MODE: DE-ESCALATION ==========
-      // AI recommended de-escalation, but we're only logging in Shadow Mode
-      console.log(`🔍 SHADOW MODE: Would have DE-ESCALATED message from user ${user.id}`);
-      console.log(`📊 Severity: ${analysis.severity}, Category: ${analysis.violation_category}`);
-      console.log(`💬 De-escalation message that would have been sent: "${analysis.de_escalation_message}"`);
-      
-      // Insert the original message normally (no de-escalation action taken)
-      const { data: message, error: msgError } = await supabaseClient
-        .from('messages')
-        .insert({ 
-          conversation_id, 
-          sender_id: personaId, 
-          content: content?.trim() || null,
-          reply_to_message_id: reply_to_message_id || null,
-          file_url: file_url || null,
-          file_name: file_name || null,
-          file_type: file_type || null,
-          file_size: file_size || null,
-        })
-        .select()
-        .single();
-
-      if (msgError) throw msgError;
-
-      // Create notifications for other participants
-      await createMessageNotifications(supabaseAdmin, conversation_id, user.id, content?.trim() || 'Sent a file');
-
-      console.log('✅ Message allowed (shadow mode - would have de-escalated):', message.id);
-      return new Response(JSON.stringify({ message }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    // ========== SHADOW MODE: SEVERE VIOLATION (7-10) ==========
-    // AI recommended ban, but we're only logging in Shadow Mode
-    console.log(`🚨 SHADOW MODE: Would have BANNED user ${user.id}`);
-    console.log(`📊 Severity: ${analysis.severity}, Category: ${analysis.violation_category}`);
-    console.log(`⚠️ Offending content: "${content.trim()}"`);
-    console.log(`🔒 Ban duration that would have been applied: 24 hours`);
-
-    // Insert the message normally (no ban or block action taken)
-    const { data: message, error: severeMsgError } = await supabaseClient
+    // INSERT MESSAGE IMMEDIATELY (before AI moderation)
+    const { data: message, error: insertError } = await supabaseClient
       .from('messages')
       .insert({ 
         conversation_id, 
@@ -465,15 +231,143 @@ serve(async (req) => {
       .select()
       .single();
 
-    if (severeMsgError) throw severeMsgError;
+    if (insertError) {
+      console.error('Error inserting message:', insertError);
+      throw insertError;
+    }
 
     // Create notifications for other participants
     await createMessageNotifications(supabaseAdmin, conversation_id, user.id, content?.trim() || 'Sent a file');
 
-    console.log('✅ Message allowed (shadow mode - would have banned user):', message.id);
-    return new Response(JSON.stringify({ message }), {
+    console.log('Message sent immediately:', message.id);
+
+    // Return success response immediately
+    const responsePromise = new Response(JSON.stringify({ message }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
+
+    // Skip AI moderation for file-only messages
+    if (!content || content.trim() === '') {
+      console.log('Skipping AI moderation for file-only message');
+      return responsePromise;
+    }
+
+    // Run AI moderation asynchronously (doesn't block response)
+    const moderateAsync = async () => {
+      try {
+        const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+        if (!LOVABLE_API_KEY) {
+          console.log('LOVABLE_API_KEY not configured, skipping background moderation');
+          return;
+        }
+
+        // Fetch conversation context (last 10 messages)
+        const { data: recentMessages } = await supabaseAdmin
+          .from('messages')
+          .select('content, sender_id, created_at')
+          .eq('conversation_id', conversation_id)
+          .order('created_at', { ascending: false })
+          .limit(10);
+
+        // Build context for AI
+        const contextMessages = (recentMessages || []).reverse();
+        const contextPrompt = `CONVERSATION HISTORY:\n${contextMessages.map(m => 
+          `[${m.sender_id === personaId ? 'CURRENT_USER' : 'OTHER'}]: ${m.content}`
+        ).join('\n')}\n\nNEW_MESSAGE: ${content.trim()}`;
+
+        const aiStartTime = Date.now();
+        const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'google/gemini-2.5-flash',
+            messages: [
+              { role: 'system', content: GUARDIAN_SYSTEM_PROMPT },
+              { role: 'user', content: contextPrompt }
+            ],
+            temperature: 0.3,
+          }),
+        });
+
+        const processingTime = Date.now() - aiStartTime;
+
+        if (!aiResponse.ok) {
+          console.error('Background AI moderation failed:', aiResponse.status);
+          return;
+        }
+
+        const aiResult = await aiResponse.json();
+        let aiContent = aiResult.choices?.[0]?.message?.content;
+        
+        let analysis;
+        try {
+          if (aiContent.includes('```')) {
+            aiContent = aiContent.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
+          }
+          analysis = JSON.parse(aiContent);
+        } catch (e) {
+          console.error('Failed to parse background AI response:', e);
+          return;
+        }
+
+        console.log('Background AI Analysis:', { severity: analysis.severity, category: analysis.violation_category });
+
+        // Log to ai_moderation_log
+        const actionTaken = analysis.severity <= 3 ? 'ALLOWED' : 
+                            analysis.severity <= 6 ? 'DE_ESCALATED' : 
+                            'BLOCKED_AND_BANNED';
+
+        await supabaseAdmin.from('ai_moderation_log').insert({
+          conversation_id,
+          sender_id: personaId,
+          message_content: content.trim(),
+          severity_score: analysis.severity,
+          violation_category: analysis.violation_category,
+          action_taken: actionTaken,
+          de_escalation_message: analysis.de_escalation_message,
+          raw_ai_response: aiResult,
+          processing_time_ms: processingTime
+        });
+
+        // RETROACTIVE ENFORCEMENT
+        if (analysis.severity >= 7) {
+          console.log(`🚨 RETROACTIVE: Deleting message ${message.id} and banning user ${user.id}`);
+          console.log(`📊 Severity: ${analysis.severity}, Category: ${analysis.violation_category}`);
+
+          // Delete the message
+          await supabaseAdmin
+            .from('messages')
+            .delete()
+            .eq('id', message.id);
+
+          // Ban the user
+          const banExpiresAt = new Date();
+          banExpiresAt.setHours(banExpiresAt.getHours() + 24);
+
+          await supabaseAdmin.from('user_bans').insert({
+            user_id: user.id,
+            reason: `Automatic ban: ${analysis.violation_category || 'Policy violation'}`,
+            banned_by: null,
+            expires_at: banExpiresAt.toISOString(),
+            status: 'active',
+          });
+
+          console.log(`✅ User ${user.id} banned for 24 hours, message deleted`);
+        } else if (analysis.severity >= 4 && analysis.severity <= 6) {
+          console.log(`🔍 De-escalation recommended (severity ${analysis.severity}): "${analysis.de_escalation_message}"`);
+        }
+      } catch (error) {
+        console.error('Background moderation error:', error);
+      }
+    };
+
+    // Start background moderation (non-blocking)
+    moderateAsync().catch(err => console.error('Background moderation error:', err));
+
+    return responsePromise;
 
   } catch (error) {
     console.error('Error in send-message:', error);
