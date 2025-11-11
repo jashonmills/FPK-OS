@@ -20,22 +20,30 @@ export default function Analytics() {
   const { startDate } = getDateRange(parseInt(dateRange));
 
   // Fetch user's persona
-  const { data: persona, isLoading: personaLoading } = useQuery({
+  const { data: persona, isLoading: personaLoading, isError: personaError, error: personaErrorDetails } = useQuery({
     queryKey: ["persona", user?.id],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("personas")
         .select("*")
         .eq("user_id", user?.id)
-        .single();
+        .maybeSingle();
       if (error) throw error;
       return data;
     },
     enabled: !!user?.id,
   });
 
+  // Debug logging
+  console.log('Analytics Debug:', {
+    personaLoading,
+    personaError,
+    hasPersona: !!persona,
+    userId: user?.id,
+  });
+
   // Fetch posts data
-  const { data: postsData, isLoading: postsLoading } = useQuery({
+  const { data: postsData, isLoading: postsLoading, isError: postsError } = useQuery({
     queryKey: ["analytics-posts", persona?.id, startDate],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -168,6 +176,7 @@ export default function Analytics() {
   });
 
   const isLoading = personaLoading || postsLoading || followersLoading || followingLoading || messagesLoading || reflectionsLoading;
+  const hasError = personaError || postsError;
 
   // Check authentication after all hooks
   if (!user) {
@@ -177,6 +186,24 @@ export default function Analytics() {
           <CardHeader>
             <CardTitle>Authentication Required</CardTitle>
             <CardDescription>Please log in to view your analytics</CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
+
+  // Handle errors
+  if (hasError) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="p-8 text-center max-w-md">
+          <CardHeader>
+            <CardTitle className="text-destructive">Error Loading Analytics</CardTitle>
+            <CardDescription>
+              {personaError ? "Unable to load your profile. " : ""}
+              {postsError ? "Unable to load your posts. " : ""}
+              Please try refreshing the page.
+            </CardDescription>
           </CardHeader>
         </Card>
       </div>
@@ -195,6 +222,22 @@ export default function Analytics() {
           </div>
           <Skeleton className="h-96" />
         </div>
+      </div>
+    );
+  }
+
+  // Handle no persona case
+  if (!persona) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="p-8 text-center max-w-md">
+          <CardHeader>
+            <CardTitle>No Profile Found</CardTitle>
+            <CardDescription>
+              Please create a profile to view your analytics. Go to Community page to create your persona.
+            </CardDescription>
+          </CardHeader>
+        </Card>
       </div>
     );
   }
