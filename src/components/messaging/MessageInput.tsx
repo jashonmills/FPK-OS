@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { ReplyPreview } from "./ReplyPreview";
 import { FileUpload } from "./FileUpload";
+import { SpeechToTextButton } from "./SpeechToTextButton";
 
 interface MessageInputProps {
   conversationId: string;
@@ -249,6 +250,13 @@ export const MessageInput = ({ conversationId, onOptimisticMessage, replyingTo, 
     }
   };
 
+  const handleTranscript = (text: string) => {
+    setContent(prev => {
+      const newContent = prev ? `${prev} ${text}` : text;
+      return newContent;
+    });
+  };
+
   return (
     <div className="flex flex-col gap-2">
       {replyingTo && (
@@ -275,6 +283,10 @@ export const MessageInput = ({ conversationId, onOptimisticMessage, replyingTo, 
           disabled={sending}
         />
         <div className="flex flex-col gap-2">
+          <SpeechToTextButton
+            onTranscript={handleTranscript}
+            disabled={sending}
+          />
           <Button
             onClick={() => setShowFileUpload(!showFileUpload)}
             variant="outline"
