@@ -269,7 +269,7 @@ export default function Analytics() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => navigate("/dashboard")}
+              onClick={() => navigate("/community/dashboard")}
               className="mt-1"
             >
               <ArrowLeft className="h-5 w-5" />
