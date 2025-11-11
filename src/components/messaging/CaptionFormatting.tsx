@@ -2,8 +2,9 @@ import React from "react";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Bold, Italic, Type } from "lucide-react";
+import { Bold, Italic, Sparkles } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { CAPTION_TEMPLATES } from "@/hooks/useCaptionPreferences";
 
 export interface CaptionStyle {
   fontFamily?: string;
@@ -16,6 +17,7 @@ export interface CaptionStyle {
 interface CaptionFormattingProps {
   style: CaptionStyle;
   onStyleChange: (style: CaptionStyle) => void;
+  showTemplates?: boolean;
 }
 
 const FONT_FAMILIES = [
@@ -41,10 +43,34 @@ const COLORS = [
   { value: "#EC4899", label: "Pink" },
 ];
 
-export const CaptionFormatting = ({ style, onStyleChange }: CaptionFormattingProps) => {
+export const CaptionFormatting = ({ style, onStyleChange, showTemplates = false }: CaptionFormattingProps) => {
   return (
     <div className="flex flex-col gap-3 p-3 border rounded-lg bg-muted/30">
       <Label className="text-xs font-semibold">Caption Formatting</Label>
+      
+      {showTemplates && (
+        <div className="flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-primary" />
+          <Select
+            value=""
+            onValueChange={(templateId) => {
+              const template = CAPTION_TEMPLATES.find(t => t.id === templateId);
+              if (template) onStyleChange(template.style);
+            }}
+          >
+            <SelectTrigger className="h-8 text-xs">
+              <SelectValue placeholder="Apply template..." />
+            </SelectTrigger>
+            <SelectContent>
+              {CAPTION_TEMPLATES.map((template) => (
+                <SelectItem key={template.id} value={template.id} className="text-xs">
+                  {template.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
       
       <div className="flex flex-wrap gap-2">
         {/* Font Family */}

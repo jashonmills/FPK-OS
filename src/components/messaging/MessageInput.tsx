@@ -10,6 +10,8 @@ import { ReplyPreview } from "./ReplyPreview";
 import { FileUpload } from "./FileUpload";
 import { SpeechToTextButton } from "./SpeechToTextButton";
 import { checkProfanity } from "@/utils/profanityFilter";
+import { CaptionStyle } from "./CaptionFormatting";
+import { useCaptionPreferences } from "@/hooks/useCaptionPreferences";
 
 interface MessageInputProps {
   conversationId: string;
@@ -27,8 +29,10 @@ export const MessageInput = ({ conversationId, onOptimisticMessage, replyingTo, 
   const [sending, setSending] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [imageCaption, setImageCaption] = useState("");
+  const [captionStyle, setCaptionStyle] = useState<CaptionStyle>({});
   const [showFileUpload, setShowFileUpload] = useState(false);
   const [currentPersona, setCurrentPersona] = useState<{ id: string; display_name: string; avatar_url: string | null } | null>(null);
+  const { defaultStyle } = useCaptionPreferences();
   const navigate = useNavigate();
   const { user } = useAuth();
   const typingTimeoutRef = useRef<NodeJS.Timeout>();
@@ -205,6 +209,7 @@ export const MessageInput = ({ conversationId, onOptimisticMessage, replyingTo, 
     setContent("");
     setSelectedFile(null);
     setImageCaption("");
+    setCaptionStyle({});
     setShowFileUpload(false);
     
     // Reset speech-to-text refs to prevent stacking on next voice input
@@ -228,6 +233,7 @@ export const MessageInput = ({ conversationId, onOptimisticMessage, replyingTo, 
           file_type: fileType,
           file_size: fileSize,
           image_caption: fileType?.startsWith("image/") ? imageCaption : null,
+          caption_style: fileType?.startsWith("image/") && imageCaption ? captionStyle : null,
         },
       });
 
@@ -315,9 +321,12 @@ export const MessageInput = ({ conversationId, onOptimisticMessage, replyingTo, 
           onClearFile={() => {
             setSelectedFile(null);
             setImageCaption("");
+            setCaptionStyle({});
           }}
           caption={imageCaption}
           onCaptionChange={setImageCaption}
+          captionStyle={captionStyle}
+          onCaptionStyleChange={setCaptionStyle}
         />
       )}
       <div className="flex gap-2">

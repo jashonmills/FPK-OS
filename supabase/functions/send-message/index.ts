@@ -122,7 +122,7 @@ serve(async (req) => {
 
     const personaId = persona.id;
 
-    const { conversation_id, content, reply_to_message_id, file_url, file_name, file_type, file_size, image_caption } = await req.json();
+    const { conversation_id, content, reply_to_message_id, file_url, file_name, file_type, file_size, image_caption, caption_style } = await req.json();
     console.log('Sending message:', { conversation_id, content_length: content?.length, user_id: user.id, has_reply: !!reply_to_message_id, has_file: !!file_url, has_caption: !!image_caption });
 
     if (!conversation_id || (!content && !file_url)) {
@@ -172,6 +172,7 @@ serve(async (req) => {
           file_type: file_type || null,
           file_size: file_size || null,
           image_caption: image_caption || null,
+          caption_style: caption_style || null,
         })
         .select()
         .single();
@@ -231,6 +232,7 @@ serve(async (req) => {
         file_type: file_type || null,
         file_size: file_size || null,
         image_caption: image_caption || null,
+        caption_style: caption_style || null,
       })
       .select()
       .single();

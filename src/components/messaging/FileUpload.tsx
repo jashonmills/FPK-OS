@@ -3,6 +3,8 @@ import { Upload, X, File, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { CaptionFormatting, CaptionStyle } from "./CaptionFormatting";
+import { useCaptionPreferences } from "@/hooks/useCaptionPreferences";
 
 interface FileUploadProps {
   onFileSelect: (file: File) => void;
@@ -10,10 +12,13 @@ interface FileUploadProps {
   onClearFile: () => void;
   caption: string;
   onCaptionChange: (caption: string) => void;
+  captionStyle: CaptionStyle;
+  onCaptionStyleChange: (style: CaptionStyle) => void;
 }
 
-export const FileUpload = ({ onFileSelect, selectedFile, onClearFile, caption, onCaptionChange }: FileUploadProps) => {
+export const FileUpload = ({ onFileSelect, selectedFile, onClearFile, caption, onCaptionChange, captionStyle, onCaptionStyleChange }: FileUploadProps) => {
   const [isDragging, setIsDragging] = useState(false);
+  const { defaultStyle } = useCaptionPreferences();
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
@@ -32,8 +37,12 @@ export const FileUpload = ({ onFileSelect, selectedFile, onClearFile, caption, o
       }
 
       onFileSelect(file);
+      // Apply default formatting for images
+      if (file.type.startsWith("image/")) {
+        onCaptionStyleChange(defaultStyle);
+      }
     },
-    [onFileSelect]
+    [onFileSelect, defaultStyle, onCaptionStyleChange]
   );
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -59,8 +68,12 @@ export const FileUpload = ({ onFileSelect, selectedFile, onClearFile, caption, o
       }
 
       onFileSelect(file);
+      // Apply default formatting for images
+      if (file.type.startsWith("image/")) {
+        onCaptionStyleChange(defaultStyle);
+      }
     },
-    [onFileSelect]
+    [onFileSelect, defaultStyle, onCaptionStyleChange]
   );
 
   const formatFileSize = (bytes: number) => {
@@ -98,14 +111,23 @@ export const FileUpload = ({ onFileSelect, selectedFile, onClearFile, caption, o
           </Button>
         </div>
         {isImage && (
-          <Input
-            type="text"
-            placeholder="Add a caption for this image (optional)"
-            value={caption}
-            onChange={(e) => onCaptionChange(e.target.value)}
-            maxLength={200}
-            className="text-sm"
-          />
+          <div className="flex flex-col gap-2">
+            <Input
+              type="text"
+              placeholder="Add a caption for this image (optional)"
+              value={caption}
+              onChange={(e) => onCaptionChange(e.target.value)}
+              maxLength={200}
+              className="text-sm"
+            />
+            {caption && (
+              <CaptionFormatting
+                style={captionStyle}
+                onStyleChange={onCaptionStyleChange}
+                showTemplates={true}
+              />
+            )}
+          </div>
         )}
       </div>
     );

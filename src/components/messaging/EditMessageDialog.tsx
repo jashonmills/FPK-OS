@@ -201,6 +201,7 @@ export const EditMessageDialog = ({
                   <CaptionFormatting
                     style={captionStyle}
                     onStyleChange={setCaptionStyle}
+                    showTemplates={true}
                   />
                   <div className="p-3 border rounded-lg bg-background">
                     <Label className="text-xs text-muted-foreground mb-2 block">Preview:</Label>
