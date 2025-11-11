@@ -145,22 +145,35 @@ export default function AdminPanel() {
       // Calculate date range
       const now = new Date();
       let startDate: Date | null = null;
+      let previousStartDate: Date | null = null;
+      let previousEndDate: Date | null = null;
       
       switch (timeRange) {
         case 'today':
           startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          previousStartDate = new Date(startDate);
+          previousStartDate.setDate(startDate.getDate() - 1);
+          previousEndDate = new Date(startDate);
           break;
         case 'week':
           startDate = new Date(now);
           startDate.setDate(now.getDate() - 7);
+          previousStartDate = new Date(startDate);
+          previousStartDate.setDate(startDate.getDate() - 7);
+          previousEndDate = new Date(startDate);
           break;
         case 'month':
           startDate = new Date(now);
           startDate.setMonth(now.getMonth() - 1);
+          previousStartDate = new Date(startDate);
+          previousStartDate.setMonth(startDate.getMonth() - 1);
+          previousEndDate = new Date(startDate);
           break;
         case 'all':
         default:
           startDate = null;
+          previousStartDate = null;
+          previousEndDate = null;
           break;
       }
 
@@ -185,6 +198,84 @@ export default function AdminPanel() {
         supabase.from('profiles').select('id', { count: 'exact', head: true }),
         supabase.from('user_bans').select('id', { count: 'exact', head: true }).eq('status', 'active')
       ]);
+
+      // Fetch previous period data for comparison
+      let previousPosts = 0, previousComments = 0, previousMessages = 0, previousSupports = 0;
+      
+      if (previousStartDate && previousEndDate) {
+        const [prevPosts, prevComments, prevMessages, prevSupports] = await Promise.all([
+          supabase.from('posts').select('id', { count: 'exact', head: true })
+            .gte('created_at', previousStartDate.toISOString())
+            .lt('created_at', previousEndDate.toISOString()),
+          supabase.from('post_comments').select('id', { count: 'exact', head: true })
+            .gte('created_at', previousStartDate.toISOString())
+            .lt('created_at', previousEndDate.toISOString()),
+          supabase.from('messages').select('id', { count: 'exact', head: true })
+            .gte('created_at', previousStartDate.toISOString())
+            .lt('created_at', previousEndDate.toISOString()),
+          supabase.from('post_supports').select('id', { count: 'exact', head: true })
+            .gte('created_at', previousStartDate.toISOString())
+            .lt('created_at', previousEndDate.toISOString())
+        ]);
+
+        previousPosts = prevPosts.count || 0;
+        previousComments = prevComments.count || 0;
+        previousMessages = prevMessages.count || 0;
+        previousSupports = prevSupports.count || 0;
+      }
+
+      // Calculate percentage changes
+      const calculateChange = (current: number, previous: number) => {
+        if (previous === 0) return current > 0 ? 100 : 0;
+        return Math.round(((current - previous) / previous) * 100);
+      };
+
+      const currentPosts = posts.count || 0;
+      const currentComments = comments.count || 0;
+      const currentMessages = messages.count || 0;
+      const currentSupports = supports.count || 0;
+
+      // Generate trend data for the chart
+      let trendData: any[] = [];
+      if (startDate) {
+        const days = timeRange === 'today' ? 24 : timeRange === 'week' ? 7 : 30;
+        const isHourly = timeRange === 'today';
+        
+        for (let i = days - 1; i >= 0; i--) {
+          const periodEnd = new Date(now);
+          const periodStart = new Date(now);
+          
+          if (isHourly) {
+            periodEnd.setHours(now.getHours() - i);
+            periodStart.setHours(now.getHours() - i - 1);
+          } else {
+            periodEnd.setDate(now.getDate() - i);
+            periodStart.setDate(now.getDate() - i);
+            periodStart.setHours(0, 0, 0, 0);
+            periodEnd.setHours(23, 59, 59, 999);
+          }
+
+          const [dayPosts, dayComments, dayMessages] = await Promise.all([
+            supabase.from('posts').select('id', { count: 'exact', head: true })
+              .gte('created_at', periodStart.toISOString())
+              .lte('created_at', periodEnd.toISOString()),
+            supabase.from('post_comments').select('id', { count: 'exact', head: true })
+              .gte('created_at', periodStart.toISOString())
+              .lte('created_at', periodEnd.toISOString()),
+            supabase.from('messages').select('id', { count: 'exact', head: true })
+              .gte('created_at', periodStart.toISOString())
+              .lte('created_at', periodEnd.toISOString())
+          ]);
+
+          trendData.push({
+            date: isHourly ? format(periodStart, 'ha') : format(periodStart, 'MMM d'),
+            posts: dayPosts.count || 0,
+            comments: dayComments.count || 0,
+            messages: dayMessages.count || 0,
+            total: (dayPosts.count || 0) + (dayComments.count || 0) + (dayMessages.count || 0)
+          });
+        }
+      }
 
       // Calculate top contributors by posts
       const postsByAuthor = (posts.data || []).reduce((acc: any, post: any) => {
@@ -229,18 +320,23 @@ export default function AdminPanel() {
       }).sort((a, b) => b.total - a.total).slice(0, 10);
 
       setOverviewStats({
-        totalPosts: posts.count || 0,
-        totalComments: comments.count || 0,
-        totalMessages: messages.count || 0,
-        totalSupports: supports.count || 0,
+        totalPosts: currentPosts,
+        totalComments: currentComments,
+        totalMessages: currentMessages,
+        totalSupports: currentSupports,
         totalUsers: totalUsers.count || 0,
         activeBans: bannedUsers.count || 0,
+        postsChange: calculateChange(currentPosts, previousPosts),
+        commentsChange: calculateChange(currentComments, previousComments),
+        messagesChange: calculateChange(currentMessages, previousMessages),
+        supportsChange: calculateChange(currentSupports, previousSupports),
+        trendData,
         topContributors: activityByPersona,
         activityBreakdown: [
-          { name: 'Posts', value: posts.count || 0, color: 'hsl(var(--primary))' },
-          { name: 'Comments', value: comments.count || 0, color: '#3b82f6' },
-          { name: 'Messages', value: messages.count || 0, color: '#10b981' },
-          { name: 'Supports', value: supports.count || 0, color: '#a855f7' }
+          { name: 'Posts', value: currentPosts, color: 'hsl(var(--primary))' },
+          { name: 'Comments', value: currentComments, color: '#3b82f6' },
+          { name: 'Messages', value: currentMessages, color: '#10b981' },
+          { name: 'Supports', value: currentSupports, color: '#a855f7' }
         ]
       });
     } catch (error) {
@@ -773,9 +869,18 @@ export default function AdminPanel() {
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-bold">{overviewStats.totalPosts}</div>
-                      <p className="text-xs text-muted-foreground">
-                        Across all circles
-                      </p>
+                      {timeRange !== 'all' && (
+                        <p className="text-xs flex items-center gap-1">
+                          <TrendingUp className={`h-3 w-3 ${overviewStats.postsChange >= 0 ? 'text-green-500' : 'text-red-500'}`} />
+                          <span className={overviewStats.postsChange >= 0 ? 'text-green-500' : 'text-red-500'}>
+                            {overviewStats.postsChange >= 0 ? '+' : ''}{overviewStats.postsChange}%
+                          </span>
+                          <span className="text-muted-foreground">from previous period</span>
+                        </p>
+                      )}
+                      {timeRange === 'all' && (
+                        <p className="text-xs text-muted-foreground">Across all circles</p>
+                      )}
                     </CardContent>
                   </Card>
                   <Card>
@@ -785,9 +890,18 @@ export default function AdminPanel() {
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-bold">{overviewStats.totalMessages}</div>
-                      <p className="text-xs text-muted-foreground">
-                        {overviewStats.totalComments} comments
-                      </p>
+                      {timeRange !== 'all' && (
+                        <p className="text-xs flex items-center gap-1">
+                          <TrendingUp className={`h-3 w-3 ${overviewStats.messagesChange >= 0 ? 'text-green-500' : 'text-red-500'}`} />
+                          <span className={overviewStats.messagesChange >= 0 ? 'text-green-500' : 'text-red-500'}>
+                            {overviewStats.messagesChange >= 0 ? '+' : ''}{overviewStats.messagesChange}%
+                          </span>
+                          <span className="text-muted-foreground">from previous period</span>
+                        </p>
+                      )}
+                      {timeRange === 'all' && (
+                        <p className="text-xs text-muted-foreground">{overviewStats.totalComments} comments</p>
+                      )}
                     </CardContent>
                   </Card>
                   <Card>
@@ -797,12 +911,48 @@ export default function AdminPanel() {
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-bold">{overviewStats.totalSupports}</div>
-                      <p className="text-xs text-muted-foreground">
-                        Reactions given
-                      </p>
+                      {timeRange !== 'all' && (
+                        <p className="text-xs flex items-center gap-1">
+                          <TrendingUp className={`h-3 w-3 ${overviewStats.supportsChange >= 0 ? 'text-green-500' : 'text-red-500'}`} />
+                          <span className={overviewStats.supportsChange >= 0 ? 'text-green-500' : 'text-red-500'}>
+                            {overviewStats.supportsChange >= 0 ? '+' : ''}{overviewStats.supportsChange}%
+                          </span>
+                          <span className="text-muted-foreground">from previous period</span>
+                        </p>
+                      )}
+                      {timeRange === 'all' && (
+                        <p className="text-xs text-muted-foreground">Reactions given</p>
+                      )}
                     </CardContent>
                   </Card>
                 </div>
+
+                {timeRange !== 'all' && overviewStats.trendData && overviewStats.trendData.length > 0 && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Activity Trends</CardTitle>
+                      <CardDescription>
+                        {timeRange === 'today' ? 'Hourly activity for today' : 
+                         timeRange === 'week' ? 'Daily activity for the last 7 days' :
+                         'Daily activity for the last 30 days'}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="h-[300px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={overviewStats.trendData}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="date" />
+                          <YAxis />
+                          <Tooltip />
+                          <Legend />
+                          <Bar dataKey="posts" fill="hsl(var(--primary))" name="Posts" stackId="a" />
+                          <Bar dataKey="comments" fill="#3b82f6" name="Comments" stackId="a" />
+                          <Bar dataKey="messages" fill="#10b981" name="Messages" stackId="a" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </CardContent>
+                  </Card>
+                )}
 
                 <div className="grid gap-4 md:grid-cols-2">
                   <Card>
