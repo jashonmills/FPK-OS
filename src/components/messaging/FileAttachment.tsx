@@ -31,11 +31,11 @@ export const FileAttachment = ({ fileUrl, fileName, fileType, fileSize }: FileAt
 
   if (isImage) {
     return (
-      <div className="max-w-sm">
+      <div className="w-full max-w-[280px] sm:max-w-sm">
         <img
           src={fileUrl}
           alt={fileName}
-          className="rounded-lg max-h-[300px] w-auto cursor-pointer hover:opacity-90 transition-opacity"
+          className="rounded-lg max-h-[300px] w-full object-contain cursor-pointer hover:opacity-90 transition-opacity"
           onClick={() => window.open(fileUrl, "_blank")}
         />
         <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground">
