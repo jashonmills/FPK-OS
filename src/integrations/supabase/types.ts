@@ -524,6 +524,7 @@ export type Database = {
       }
       messages: {
         Row: {
+          caption_style: Json | null
           content: string | null
           conversation_id: string
           created_at: string | null
@@ -544,6 +545,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          caption_style?: Json | null
           content?: string | null
           conversation_id: string
           created_at?: string | null
@@ -564,6 +566,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          caption_style?: Json | null
           content?: string | null
           conversation_id?: string
           created_at?: string | null

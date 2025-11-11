@@ -2,11 +2,13 @@ import React, { useState, useRef, useEffect } from "react";
 import { X, Download, RotateCw, RotateCcw, ChevronLeft, ChevronRight } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { getCaptionStyles, CaptionStyle } from "./CaptionFormatting";
 
 export interface ImageItem {
   url: string;
   fileName: string;
   caption?: string;
+  captionStyle?: CaptionStyle;
 }
 
 interface ImageViewerProps {
@@ -297,7 +299,12 @@ export const ImageViewer = ({ images, initialIndex, isOpen, onClose }: ImageView
               <span>{scale > 1 ? `${Math.round(scale * 100)}%` : "Double-click or pinch to zoom"}</span>
             </div>
             {currentImage.caption && (
-              <p className="text-center text-sm max-w-full break-words">{currentImage.caption}</p>
+              <p 
+                className="text-center text-sm max-w-full break-words"
+                style={currentImage.captionStyle ? getCaptionStyles(currentImage.captionStyle) : undefined}
+              >
+                {currentImage.caption}
+              </p>
             )}
           </div>
         </div>

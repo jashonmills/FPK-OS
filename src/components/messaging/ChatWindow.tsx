@@ -36,6 +36,7 @@ interface Message {
   file_type?: string | null;
   file_size?: number | null;
   image_caption?: string | null;
+  caption_style?: any | null;
   sender?: {
     display_name: string;
     avatar_url: string | null;
@@ -57,7 +58,7 @@ const ChatWindowComponent = ({ conversationId }: ChatWindowProps) => {
   const [loading, setLoading] = useState(true);
   const [typingUsers, setTypingUsers] = useState<Array<{ display_name: string }>>([]);
   const [replyingTo, setReplyingTo] = useState<{ id: string; senderName: string; content: string } | null>(null);
-  const [editingMessage, setEditingMessage] = useState<{ id: string; content: string; caption?: string | null; hasImage?: boolean } | null>(null);
+  const [editingMessage, setEditingMessage] = useState<{ id: string; content: string; caption?: string | null; captionStyle?: any | null; hasImage?: boolean } | null>(null);
   const [deletingMessageId, setDeletingMessageId] = useState<string | null>(null);
   const [userPersonaId, setUserPersonaId] = useState<string | null>(null);
   const [imageViewerState, setImageViewerState] = useState<{ isOpen: boolean; images: ImageItem[]; initialIndex: number }>({
@@ -79,6 +80,7 @@ const ChatWindowComponent = ({ conversationId }: ChatWindowProps) => {
         url: msg.file_url!,
         fileName: msg.file_name!,
         caption: msg.image_caption || undefined,
+        captionStyle: msg.caption_style || undefined,
       }));
   }, [messages]);
 
@@ -212,6 +214,7 @@ const ChatWindowComponent = ({ conversationId }: ChatWindowProps) => {
           file_type, 
           file_size,
           image_caption,
+          caption_style,
           personas!messages_sender_id_fkey (
             display_name,
             avatar_url
@@ -554,6 +557,7 @@ const ChatWindowComponent = ({ conversationId }: ChatWindowProps) => {
                                 id: message.id,
                                 content: message.content || "",
                                 caption: message.image_caption,
+                                captionStyle: message.caption_style,
                                 hasImage: !!(message.file_url && message.file_type?.startsWith("image/"))
                               })}
                             >
@@ -637,6 +641,7 @@ const ChatWindowComponent = ({ conversationId }: ChatWindowProps) => {
                                     fileType={message.file_type}
                                     fileSize={message.file_size || undefined}
                                     caption={message.image_caption}
+                                    captionStyle={message.caption_style}
                                     onOpenImage={handleOpenImage}
                                   />
                                 </div>
@@ -708,6 +713,7 @@ const ChatWindowComponent = ({ conversationId }: ChatWindowProps) => {
           messageId={editingMessage.id}
           currentContent={editingMessage.content}
           currentCaption={editingMessage.caption}
+          currentCaptionStyle={editingMessage.captionStyle}
           hasImage={editingMessage.hasImage}
         />
       )}

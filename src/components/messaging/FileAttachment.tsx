@@ -1,6 +1,7 @@
 import React from "react";
 import { Download, File } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getCaptionStyles, CaptionStyle } from "./CaptionFormatting";
 
 interface FileAttachmentProps {
   fileUrl: string;
@@ -8,10 +9,11 @@ interface FileAttachmentProps {
   fileType: string;
   fileSize?: number;
   caption?: string | null;
+  captionStyle?: CaptionStyle | null;
   onOpenImage?: (imageUrl: string) => void;
 }
 
-export const FileAttachment = ({ fileUrl, fileName, fileType, fileSize, caption, onOpenImage }: FileAttachmentProps) => {
+export const FileAttachment = ({ fileUrl, fileName, fileType, fileSize, caption, captionStyle, onOpenImage }: FileAttachmentProps) => {
   const isImage = fileType.startsWith("image/");
 
   const formatFileSize = (bytes?: number) => {
@@ -41,7 +43,12 @@ export const FileAttachment = ({ fileUrl, fileName, fileType, fileSize, caption,
           onClick={() => onOpenImage?.(fileUrl)}
         />
         {caption && (
-          <p className="text-sm text-foreground mt-2 px-1 break-words">{caption}</p>
+          <p 
+            className="text-sm mt-2 px-1 break-words"
+            style={captionStyle ? getCaptionStyles(captionStyle) : undefined}
+          >
+            {caption}
+          </p>
         )}
         <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground">
           <span className="truncate flex-1">{fileName}</span>
