@@ -48,9 +48,9 @@ export const CourseTextViewer = ({ course, onClose }: CourseTextViewerProps) => 
   }, [course.id, course.slug]);
 
   return (
-    <div className="flex flex-col h-full bg-background">
+    <div className="border rounded-lg bg-background shadow-md overflow-hidden" style={{ maxHeight: '600px' }}>
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b">
+      <div className="flex items-center justify-between p-4 border-b bg-muted/50">
         <h3 className="text-lg font-semibold truncate flex-1">{course.title}</h3>
         <Button
           variant="ghost"

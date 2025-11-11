@@ -102,9 +102,9 @@ export const DocumentReader: React.FC<DocumentReaderProps> = ({ document, onClos
   };
   
   return (
-    <div className="flex flex-col h-full bg-white rounded-xl overflow-hidden shadow-lg">
+    <div className="flex flex-col h-full bg-background rounded-lg overflow-hidden shadow-md">
       {/* Header Bar */}
-      <div className="flex items-center justify-between px-4 py-3 border-b bg-gray-50 flex-shrink-0">
+      <div className="flex items-center justify-between px-4 py-3 border-b bg-muted/50 flex-shrink-0">
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <FileText className="w-5 h-5 text-purple-600 flex-shrink-0" />
           <div className="flex-1 min-w-0">
