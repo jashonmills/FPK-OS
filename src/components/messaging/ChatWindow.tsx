@@ -1,14 +1,16 @@
-import { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { MessageInput } from "./MessageInput";
 import { TypingIndicator } from "./TypingIndicator";
 import { ReactionPicker } from "./ReactionPicker";
 import { MessageReactions } from "./MessageReactions";
+import { RepliedMessage } from "./RepliedMessage";
 import { formatDistanceToNow } from "date-fns";
-import { Loader2 } from "lucide-react";
+import { Loader2, Reply } from "lucide-react";
 import { toast } from "sonner";
 
 interface Message {
@@ -16,9 +18,16 @@ interface Message {
   content: string;
   sender_id: string;
   created_at: string;
+  reply_to_message_id?: string | null;
   sender?: {
     display_name: string;
     avatar_url: string | null;
+  };
+  replied_message?: {
+    content: string;
+    sender?: {
+      display_name: string;
+    };
   };
 }
 
@@ -30,6 +39,7 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
   const [typingUsers, setTypingUsers] = useState<Array<{ display_name: string }>>([]);
+  const [replyingTo, setReplyingTo] = useState<{ id: string; senderName: string; content: string } | null>(null);
   const { user } = useAuth();
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -99,7 +109,7 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
         return;
       }
 
-      // Fetch sender personas for all messages
+      // Fetch sender personas and replied messages for all messages
       const enriched = await Promise.all(
         data.map(async (msg) => {
           const { data: persona } = await supabase
@@ -108,9 +118,32 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
             .eq('id', msg.sender_id)
             .single();
 
+          let replied_message = undefined;
+          if (msg.reply_to_message_id) {
+            const { data: repliedMsg } = await supabase
+              .from('messages')
+              .select('content, sender_id')
+              .eq('id', msg.reply_to_message_id)
+              .single();
+
+            if (repliedMsg) {
+              const { data: repliedPersona } = await supabase
+                .from('personas')
+                .select('display_name')
+                .eq('id', repliedMsg.sender_id)
+                .single();
+
+              replied_message = {
+                content: repliedMsg.content,
+                sender: repliedPersona || undefined,
+              };
+            }
+          }
+
           return {
             ...msg,
             sender: persona || undefined,
+            replied_message,
           };
         })
       );
@@ -252,7 +285,7 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
                     </AvatarFallback>
                   </Avatar>
                   <div className={`flex flex-col ${isOwn ? 'items-end' : 'items-start'}`}>
-                    <div className="flex items-center gap-2 mb-1">
+                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-sm font-medium">
                         {message.sender?.display_name || 'Unknown'}
                       </span>
@@ -262,19 +295,41 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
                         })}
                       </span>
                     </div>
-                    <div className="flex items-start gap-2">
-                      <div
-                        className={`rounded-lg px-4 py-2 max-w-md ${
-                          isOwn
-                            ? 'bg-primary text-primary-foreground'
-                            : 'bg-muted'
-                        }`}
-                      >
-                        <p className="text-sm whitespace-pre-wrap break-words">
-                          {message.content}
-                        </p>
+                    <div className="flex flex-col">
+                      {message.replied_message && (
+                        <RepliedMessage
+                          senderName={message.replied_message.sender?.display_name || 'Unknown'}
+                          content={message.replied_message.content}
+                        />
+                      )}
+                      <div className="flex items-start gap-2">
+                        <div
+                          className={`rounded-lg px-4 py-2 max-w-md ${
+                            isOwn
+                              ? 'bg-primary text-primary-foreground'
+                              : 'bg-muted'
+                          }`}
+                        >
+                          <p className="text-sm whitespace-pre-wrap break-words">
+                            {message.content}
+                          </p>
+                        </div>
+                        <div className="flex gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() => setReplyingTo({
+                              id: message.id,
+                              senderName: message.sender?.display_name || 'Unknown',
+                              content: message.content
+                            })}
+                          >
+                            <Reply className="w-4 h-4" />
+                          </Button>
+                          <ReactionPicker onSelect={(emoji) => handleAddReaction(message.id, emoji)} />
+                        </div>
                       </div>
-                      <ReactionPicker onSelect={(emoji) => handleAddReaction(message.id, emoji)} />
                     </div>
                     <MessageReactions messageId={message.id} />
                   </div>
@@ -290,6 +345,8 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
         <MessageInput 
           conversationId={conversationId}
           onOptimisticMessage={handleOptimisticMessage}
+          replyingTo={replyingTo}
+          onCancelReply={() => setReplyingTo(null)}
         />
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -6,13 +6,20 @@ import { Send } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { ReplyPreview } from "./ReplyPreview";
 
 interface MessageInputProps {
   conversationId: string;
   onOptimisticMessage?: (message: any) => void;
+  replyingTo?: {
+    id: string;
+    senderName: string;
+    content: string;
+  } | null;
+  onCancelReply?: () => void;
 }
 
-export const MessageInput = ({ conversationId, onOptimisticMessage }: MessageInputProps) => {
+export const MessageInput = ({ conversationId, onOptimisticMessage, replyingTo, onCancelReply }: MessageInputProps) => {
   const [content, setContent] = useState("");
   const [sending, setSending] = useState(false);
   const navigate = useNavigate();
@@ -141,6 +148,7 @@ export const MessageInput = ({ conversationId, onOptimisticMessage }: MessageInp
         body: {
           conversation_id: conversationId,
           content: messageContent,
+          reply_to_message_id: replyingTo?.id || null,
         },
       });
 
@@ -165,6 +173,11 @@ export const MessageInput = ({ conversationId, onOptimisticMessage }: MessageInp
           description: "Thank you for being part of our community!"
         });
       }
+      
+      // Clear reply after successful send
+      if (onCancelReply) {
+        onCancelReply();
+      }
     } catch (error) {
       console.error('Error sending message:', error);
       toast.error("Failed to send message. Please try again.");
@@ -183,23 +196,32 @@ export const MessageInput = ({ conversationId, onOptimisticMessage }: MessageInp
   };
 
   return (
-    <div className="flex gap-2">
-      <Textarea
-        value={content}
-        onChange={handleContentChange}
-        onKeyDown={handleKeyDown}
-        placeholder="Type a message..."
-        className="min-h-[60px] resize-none"
-        disabled={sending}
-      />
-      <Button
-        onClick={handleSend}
-        disabled={!content.trim() || sending}
-        size="icon"
-        className="h-[60px] w-[60px]"
-      >
-        <Send className="w-4 h-4" />
-      </Button>
+    <div className="flex flex-col gap-2">
+      {replyingTo && (
+        <ReplyPreview
+          senderName={replyingTo.senderName}
+          content={replyingTo.content}
+          onCancel={onCancelReply!}
+        />
+      )}
+      <div className="flex gap-2">
+        <Textarea
+          value={content}
+          onChange={handleContentChange}
+          onKeyDown={handleKeyDown}
+          placeholder="Type a message..."
+          className="min-h-[60px] resize-none"
+          disabled={sending}
+        />
+        <Button
+          onClick={handleSend}
+          disabled={!content.trim() || sending}
+          size="icon"
+          className="h-[60px] w-[60px]"
+        >
+          <Send className="w-4 h-4" />
+        </Button>
+      </div>
     </div>
   );
 };

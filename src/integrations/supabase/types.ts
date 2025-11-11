@@ -498,6 +498,7 @@ export type Database = {
           id: string
           is_edited: boolean | null
           is_system_message: boolean | null
+          reply_to_message_id: string | null
           sender_id: string
           updated_at: string | null
         }
@@ -508,6 +509,7 @@ export type Database = {
           id?: string
           is_edited?: boolean | null
           is_system_message?: boolean | null
+          reply_to_message_id?: string | null
           sender_id: string
           updated_at?: string | null
         }
@@ -518,6 +520,7 @@ export type Database = {
           id?: string
           is_edited?: boolean | null
           is_system_message?: boolean | null
+          reply_to_message_id?: string | null
           sender_id?: string
           updated_at?: string | null
         }
@@ -527,6 +530,13 @@ export type Database = {
             columns: ["conversation_id"]
             isOneToOne: false
             referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_reply_to_message_id_fkey"
+            columns: ["reply_to_message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
             referencedColumns: ["id"]
           },
           {
