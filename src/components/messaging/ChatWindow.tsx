@@ -9,6 +9,7 @@ import { TypingIndicator } from "./TypingIndicator";
 import { ReactionPicker } from "./ReactionPicker";
 import { MessageReactions } from "./MessageReactions";
 import { RepliedMessage } from "./RepliedMessage";
+import { ReadReceipts } from "./ReadReceipts";
 import { formatDistanceToNow } from "date-fns";
 import { Loader2, Reply } from "lucide-react";
 import { toast } from "sonner";
@@ -120,6 +121,25 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
     }
   };
 
+  const markMessagesAsRead = async (messageIds: string[]) => {
+    if (!user || messageIds.length === 0) return;
+
+    // Mark messages as read (ignore duplicates)
+    const { error } = await supabase
+      .from('message_read_receipts')
+      .insert(
+        messageIds.map(id => ({
+          message_id: id,
+          user_id: user.id,
+        }))
+      )
+      .select();
+
+    if (error && !error.message.includes('duplicate key')) {
+      console.error('Error marking messages as read:', error);
+    }
+  };
+
   useEffect(() => {
     if (!conversationId) return;
 
@@ -177,6 +197,15 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
 
       setMessages(enriched);
       setLoading(false);
+      
+      // Mark messages from others as read
+      const messagesToMarkAsRead = enriched
+        .filter(msg => msg.sender_id !== userPersonaId && !msg.id.toString().startsWith('temp-'))
+        .map(msg => msg.id);
+      
+      if (messagesToMarkAsRead.length > 0) {
+        markMessagesAsRead(messagesToMarkAsRead);
+      }
       
       // Scroll to bottom
       setTimeout(() => {
@@ -257,6 +286,11 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
             // For messages from others, just add if not duplicate
             const exists = prev.find(m => m.id === newMessage.id);
             if (exists) return prev;
+            
+            // Mark this new message as read if it's from someone else
+            if (newMessage.sender_id !== userPersonaId) {
+              markMessagesAsRead([newMessage.id]);
+            }
             
             return [...prev, newMessage];
           });
@@ -392,7 +426,15 @@ export const ChatWindow = ({ conversationId }: ChatWindowProps) => {
                         </div>
                       </div>
                     </div>
-                    <MessageReactions messageId={message.id} />
+                    <div className="flex items-center gap-2">
+                      <MessageReactions messageId={message.id} />
+                      <ReadReceipts 
+                        messageId={message.id}
+                        senderId={message.sender_id}
+                        conversationId={conversationId}
+                        currentUserPersonaId={userPersonaId}
+                      />
+                    </div>
                   </div>
                 </div>
               );
