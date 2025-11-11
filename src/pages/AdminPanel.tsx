@@ -15,10 +15,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { ArrowLeft, Shield, Flag, Users, Play, Loader2, AlertOctagon, LayoutDashboard, FileText, Search, Download, UserCog, Ban, CheckCircle, CheckSquare, Square } from "lucide-react";
+import { ArrowLeft, Shield, Flag, Users, Play, Loader2, AlertOctagon, LayoutDashboard, FileText, Search, Download, UserCog, Ban, CheckCircle, CheckSquare, Square, TrendingUp, MessageSquare, Heart } from "lucide-react";
 import { toast } from "sonner";
 import { AppealReviewDialog } from "@/components/admin/AppealReviewDialog";
 import { format } from "date-fns";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 
 interface FeatureFlag {
   id: string;
@@ -54,6 +55,7 @@ export default function AdminPanel() {
   const [bulkAction, setBulkAction] = useState<'ban' | 'unban'>('ban');
   const [processingBulk, setProcessingBulk] = useState(false);
   const [userStatusFilter, setUserStatusFilter] = useState<string>("all");
+  const [overviewStats, setOverviewStats] = useState<any>(null);
   const isInviteSystemEnabled = useFeatureFlag('user_invite_system_enabled');
   const isOperationSpearheadEnabled = useFeatureFlag('operation_spearhead_enabled');
 
@@ -70,6 +72,7 @@ export default function AdminPanel() {
       fetchFlags();
       fetchModerationLogs();
       fetchUsers();
+      fetchOverviewStats();
       if (isInviteSystemEnabled) {
         fetchInviteStats();
       }
@@ -128,6 +131,80 @@ export default function AdminPanel() {
     }
 
     setPendingAppeals(data || []);
+  };
+
+  const fetchOverviewStats = async () => {
+    try {
+      const [posts, comments, messages, supports, totalUsers, bannedUsers] = await Promise.all([
+        supabase.from('posts').select('id, author_id, created_at', { count: 'exact', head: false }),
+        supabase.from('post_comments').select('id, author_id, created_at', { count: 'exact', head: false }),
+        supabase.from('messages').select('id, sender_id, created_at', { count: 'exact', head: false }),
+        supabase.from('post_supports').select('id, user_id, created_at', { count: 'exact', head: false }),
+        supabase.from('profiles').select('id', { count: 'exact', head: true }),
+        supabase.from('user_bans').select('id', { count: 'exact', head: true }).eq('status', 'active')
+      ]);
+
+      // Calculate top contributors by posts
+      const postsByAuthor = (posts.data || []).reduce((acc: any, post: any) => {
+        acc[post.author_id] = (acc[post.author_id] || 0) + 1;
+        return acc;
+      }, {});
+
+      const commentsByAuthor = (comments.data || []).reduce((acc: any, comment: any) => {
+        acc[comment.author_id] = (acc[comment.author_id] || 0) + 1;
+        return acc;
+      }, {});
+
+      const messagesBySender = (messages.data || []).reduce((acc: any, message: any) => {
+        acc[message.sender_id] = (acc[message.sender_id] || 0) + 1;
+        return acc;
+      }, {});
+
+      // Get all unique persona IDs
+      const personaIds = new Set([
+        ...Object.keys(postsByAuthor),
+        ...Object.keys(commentsByAuthor),
+        ...Object.keys(messagesBySender)
+      ]);
+
+      // Fetch persona details for top contributors
+      const { data: personas } = await supabase
+        .from('personas')
+        .select('id, display_name, user_id')
+        .in('id', Array.from(personaIds));
+
+      // Calculate total activity per persona
+      const activityByPersona = Array.from(personaIds).map(personaId => {
+        const persona = personas?.find(p => p.id === personaId);
+        return {
+          personaId,
+          displayName: persona?.display_name || 'Unknown',
+          posts: postsByAuthor[personaId] || 0,
+          comments: commentsByAuthor[personaId] || 0,
+          messages: messagesBySender[personaId] || 0,
+          total: (postsByAuthor[personaId] || 0) + (commentsByAuthor[personaId] || 0) + (messagesBySender[personaId] || 0)
+        };
+      }).sort((a, b) => b.total - a.total).slice(0, 10);
+
+      setOverviewStats({
+        totalPosts: posts.count || 0,
+        totalComments: comments.count || 0,
+        totalMessages: messages.count || 0,
+        totalSupports: supports.count || 0,
+        totalUsers: totalUsers.count || 0,
+        activeBans: bannedUsers.count || 0,
+        topContributors: activityByPersona,
+        activityBreakdown: [
+          { name: 'Posts', value: posts.count || 0, color: 'hsl(var(--primary))' },
+          { name: 'Comments', value: comments.count || 0, color: '#3b82f6' },
+          { name: 'Messages', value: messages.count || 0, color: '#10b981' },
+          { name: 'Supports', value: supports.count || 0, color: '#a855f7' }
+        ]
+      });
+    } catch (error) {
+      console.error('Error fetching overview stats:', error);
+      toast.error('Failed to load overview statistics');
+    }
   };
 
   const fetchUsers = async () => {
@@ -614,60 +691,146 @@ export default function AdminPanel() {
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6 mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Admin Dashboard</CardTitle>
-                <CardDescription>
-                  Welcome to the admin panel. Use the tabs above to navigate between different admin sections.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid gap-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Flag className="h-5 w-5 text-primary" />
-                      <span className="font-medium">Feature Flags</span>
-                    </div>
-                    <Badge variant="outline">{flags.length} flags</Badge>
-                  </div>
-                  {isOperationSpearheadEnabled && (
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <AlertOctagon className="h-5 w-5 text-destructive" />
-                        <span className="font-medium">Pending Appeals</span>
-                      </div>
-                      <Badge variant={pendingAppeals.length > 0 ? "destructive" : "outline"}>
-                        {pendingAppeals.length}
-                      </Badge>
-                    </div>
-                  )}
-                  {isInviteSystemEnabled && (
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Users className="h-5 w-5 text-primary" />
-                        <span className="font-medium">Total Referrals</span>
-                      </div>
-                      <Badge variant="outline">{inviteStats.referrals}</Badge>
-                    </div>
-                  )}
+            {overviewStats ? (
+              <>
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+                      <Users className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{overviewStats.totalUsers}</div>
+                      <p className="text-xs text-muted-foreground">
+                        {overviewStats.activeBans} active bans
+                      </p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">Total Posts</CardTitle>
+                      <FileText className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{overviewStats.totalPosts}</div>
+                      <p className="text-xs text-muted-foreground">
+                        Across all circles
+                      </p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">Total Messages</CardTitle>
+                      <MessageSquare className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{overviewStats.totalMessages}</div>
+                      <p className="text-xs text-muted-foreground">
+                        {overviewStats.totalComments} comments
+                      </p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">Total Supports</CardTitle>
+                      <Heart className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{overviewStats.totalSupports}</div>
+                      <p className="text-xs text-muted-foreground">
+                        Reactions given
+                      </p>
+                    </CardContent>
+                  </Card>
                 </div>
-              </CardContent>
-            </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>About Feature Flags</CardTitle>
-                <CardDescription>
-                  Feature flags allow you to enable or disable features without deploying new code.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-2 text-sm text-muted-foreground">
-                <p>• Changes take effect immediately for all users</p>
-                <p>• User-specific overrides can be set in the database for beta testing</p>
-                <p>• All flags are disabled by default for safety</p>
-                <p>• Flags can be toggled on/off at any time without data loss</p>
-              </CardContent>
-            </Card>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Activity Breakdown</CardTitle>
+                      <CardDescription>Distribution of user activity across platform</CardDescription>
+                    </CardHeader>
+                    <CardContent className="h-[300px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={overviewStats.activityBreakdown}
+                            cx="50%"
+                            cy="50%"
+                            labelLine={false}
+                            label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                            outerRadius={80}
+                            fill="#8884d8"
+                            dataKey="value"
+                          >
+                            {overviewStats.activityBreakdown.map((entry: any, index: number) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))}
+                          </Pie>
+                          <Tooltip />
+                          <Legend />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Top Contributors</CardTitle>
+                      <CardDescription>Users with most activity</CardDescription>
+                    </CardHeader>
+                    <CardContent className="h-[300px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={overviewStats.topContributors}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="displayName" angle={-45} textAnchor="end" height={100} />
+                          <YAxis />
+                          <Tooltip />
+                          <Legend />
+                          <Bar dataKey="posts" fill="hsl(var(--primary))" name="Posts" />
+                          <Bar dataKey="comments" fill="#3b82f6" name="Comments" />
+                          <Bar dataKey="messages" fill="#10b981" name="Messages" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Top 10 Contributors</CardTitle>
+                    <CardDescription>Most active users on the platform</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {overviewStats.topContributors.map((contributor: any, index: number) => (
+                        <div key={contributor.personaId} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <Badge variant="secondary" className="font-mono">
+                              #{index + 1}
+                            </Badge>
+                            <div>
+                              <p className="font-medium">{contributor.displayName}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {contributor.posts} posts • {contributor.comments} comments • {contributor.messages} messages
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                            <span className="font-bold">{contributor.total}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </>
+            ) : (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="users" className="space-y-6 mt-6">
