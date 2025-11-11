@@ -56,6 +56,7 @@ export default function AdminPanel() {
   const [processingBulk, setProcessingBulk] = useState(false);
   const [userStatusFilter, setUserStatusFilter] = useState<string>("all");
   const [overviewStats, setOverviewStats] = useState<any>(null);
+  const [timeRange, setTimeRange] = useState<string>("all");
   const isInviteSystemEnabled = useFeatureFlag('user_invite_system_enabled');
   const isOperationSpearheadEnabled = useFeatureFlag('operation_spearhead_enabled');
 
@@ -81,6 +82,12 @@ export default function AdminPanel() {
       }
     }
   }, [isAdmin, isInviteSystemEnabled, isOperationSpearheadEnabled]);
+
+  useEffect(() => {
+    if (isAdmin) {
+      fetchOverviewStats();
+    }
+  }, [timeRange, isAdmin]);
 
   const fetchModerationLogs = async () => {
     try {
@@ -135,11 +142,46 @@ export default function AdminPanel() {
 
   const fetchOverviewStats = async () => {
     try {
+      // Calculate date range
+      const now = new Date();
+      let startDate: Date | null = null;
+      
+      switch (timeRange) {
+        case 'today':
+          startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          break;
+        case 'week':
+          startDate = new Date(now);
+          startDate.setDate(now.getDate() - 7);
+          break;
+        case 'month':
+          startDate = new Date(now);
+          startDate.setMonth(now.getMonth() - 1);
+          break;
+        case 'all':
+        default:
+          startDate = null;
+          break;
+      }
+
+      // Build queries with optional date filtering
+      const postsQuery = supabase.from('posts').select('id, author_id, created_at', { count: 'exact', head: false });
+      const commentsQuery = supabase.from('post_comments').select('id, author_id, created_at', { count: 'exact', head: false });
+      const messagesQuery = supabase.from('messages').select('id, sender_id, created_at', { count: 'exact', head: false });
+      const supportsQuery = supabase.from('post_supports').select('id, user_id, created_at', { count: 'exact', head: false });
+
+      if (startDate) {
+        postsQuery.gte('created_at', startDate.toISOString());
+        commentsQuery.gte('created_at', startDate.toISOString());
+        messagesQuery.gte('created_at', startDate.toISOString());
+        supportsQuery.gte('created_at', startDate.toISOString());
+      }
+
       const [posts, comments, messages, supports, totalUsers, bannedUsers] = await Promise.all([
-        supabase.from('posts').select('id, author_id, created_at', { count: 'exact', head: false }),
-        supabase.from('post_comments').select('id, author_id, created_at', { count: 'exact', head: false }),
-        supabase.from('messages').select('id, sender_id, created_at', { count: 'exact', head: false }),
-        supabase.from('post_supports').select('id, user_id, created_at', { count: 'exact', head: false }),
+        postsQuery,
+        commentsQuery,
+        messagesQuery,
+        supportsQuery,
         supabase.from('profiles').select('id', { count: 'exact', head: true }),
         supabase.from('user_bans').select('id', { count: 'exact', head: true }).eq('status', 'active')
       ]);
@@ -691,6 +733,24 @@ export default function AdminPanel() {
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6 mt-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-lg font-semibold">Activity Overview</h3>
+                <p className="text-sm text-muted-foreground">Platform statistics and analytics</p>
+              </div>
+              <Select value={timeRange} onValueChange={setTimeRange}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select time range" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Time</SelectItem>
+                  <SelectItem value="today">Today</SelectItem>
+                  <SelectItem value="week">Last 7 Days</SelectItem>
+                  <SelectItem value="month">Last 30 Days</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
             {overviewStats ? (
               <>
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
