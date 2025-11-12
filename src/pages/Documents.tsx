@@ -332,189 +332,48 @@ export default function Documents() {
     }
   };
 
-  const handleAnalyzeDocument = async (documentId: string) => {
-    setAnalyzingDocId(documentId);
-    const toastId = toast.loading("Preparing document for analysis...");
-    
+  const handleQueueForAnalysis = async (documentId: string) => {
     try {
-      // First check if document has extracted content
-      const { data: doc } = await supabase
-        .from('documents')
-        .select('extracted_content, file_path, file_type')
-        .eq('id', documentId)
-        .single();
-
-      // If no extracted content and it's a PDF, extract it first
-      if (!doc?.extracted_content && doc?.file_type === 'application/pdf') {
-        toast.loading("Extracting text from PDF...", { id: toastId });
-        
-        // Extract storage path from full URL if needed
-        let storagePath = doc.file_path;
-        if (storagePath.includes('/storage/v1/object/public/family-documents/')) {
-          // Extract path after the bucket name
-          const match = storagePath.match(/\/family-documents\/(.+)$/);
-          storagePath = match ? match[1] : storagePath;
-        }
-        
-        console.log('📥 Downloading document from storage path:', storagePath);
-        
-        // Download the PDF from storage
-        const { data: fileData, error: downloadError } = await supabase.storage
-          .from('family-documents')
-          .download(storagePath);
-
-        if (downloadError || !fileData) {
-          console.error('❌ Download error:', downloadError);
-          throw new Error("Failed to download document");
-        }
-
-        // Extract text using PDF.js
-        const extractedText = await extractTextFromPDF(fileData);
-        
-        // Update the document with extracted content
-        const { error: updateError } = await supabase
-          .from('documents')
-          .update({ extracted_content: extractedText })
-          .eq('id', documentId);
-
-        if (updateError) {
-          throw new Error("Failed to save extracted text");
-        }
+      // Check if already queued or processing
+      const { data: existingJob } = await supabase
+        .from('document_processing_queue')
+        .select('*')
+        .eq('document_id', documentId)
+        .in('status', ['queued', 'processing'])
+        .maybeSingle();
+      
+      if (existingJob) {
+        toast.info('Document is already queued for processing');
+        return;
       }
 
-      // Now analyze the document with timeout protection
-      toast.loading("Analyzing document with AI...", { id: toastId });
-      
-      // Super admins bypass usage limits for testing
-      const bypassLimit = isSuperAdmin || false;
-      
-      if (bypassLimit) {
-        console.log('🔓 Super Admin mode: Bypassing usage limits');
-      }
-      
-      // Client-side timeout: 90 seconds max
-      const analysisPromise = (async () => {
-        let retries = 0;
-        const maxRetries = 3;
-        let delay = 2000;
-        
-        while (retries < maxRetries) {
-          try {
-            const { data, error } = await supabase.functions.invoke("analyze-document", {
-              body: { 
-                document_id: documentId,
-                bypass_limit: bypassLimit 
-              },
-            });
+      // Add to processing queue
+      const { error } = await supabase
+        .from('document_processing_queue')
+        .insert({
+          document_id: documentId,
+          family_id: selectedFamily.id,
+          job_type: 'ANALYZE',
+          status: 'queued',
+          priority: 1,
+        });
 
-            if (error) {
-              if (error.message?.includes('429') || error.message?.includes('Too Many Requests')) {
-                retries++;
-                if (retries < maxRetries) {
-                  toast.loading(`Rate limited, retrying in ${delay/1000}s...`, { id: toastId });
-                  await new Promise(resolve => setTimeout(resolve, delay));
-                  delay *= 2;
-                  continue;
-                }
-              }
-              throw error;
-            }
-
-            return data;
-          } catch (innerError) {
-            if (retries >= maxRetries - 1) {
-              throw innerError;
-            }
-          }
-        }
-      })();
+      if (error) throw error;
       
-      // Race between analysis and timeout
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Analysis timed out after 90 seconds')), 90000)
-      );
-      
-      const data = await Promise.race([analysisPromise, timeoutPromise]) as any;
-      
-      toast.success(`Analysis complete! Found ${data.metrics_count} metrics, ${data.insights_count} insights`, { id: toastId });
+      toast.success('Document queued for analysis. Processing will begin shortly.');
       queryClient.invalidateQueries({ queryKey: ["documents"] });
     } catch (error: any) {
-      console.error('Document analysis error:', error);
-      
-      // PHASE 1 FIX: Better error handling for different failure scenarios
-      
-      // Document was cleaned up (404/not found)
-      if (error.message?.includes('404') || 
-          error.message?.includes('not found') || 
-          error.message?.includes('Document not found')) {
-        toast.info('Document was removed due to upload failure. Refreshing...', { id: toastId });
-        queryClient.invalidateQueries({ queryKey: ["documents"] });
-        setAnalyzingDocId(null);
-        return;
-      }
-      
-      // Extraction timeout (408)
-      if (error.message?.includes('EXTRACTION_TIMEOUT') || 
-          error.message?.includes('timeout') || 
-          error.message?.includes('timed out')) {
-        toast.error(
-          'Text extraction timed out. File may be too complex. Try splitting it into smaller documents (under 1MB each).', 
-          { id: toastId, duration: 10000 }
-        );
-        queryClient.invalidateQueries({ queryKey: ["documents"] });
-        setAnalyzingDocId(null);
-        return;
-      }
-      
-      // File too large (413)
-      if (error.message?.includes('FILE_TOO_LARGE') || 
-          error.message?.includes('too large') ||
-          error.message?.includes('exceeds maximum')) {
-        toast.error(
-          'File too large (max 2MB). Please split the document into smaller parts.', 
-          { id: toastId, duration: 10000 }
-        );
-        queryClient.invalidateQueries({ queryKey: ["documents"] });
-        setAnalyzingDocId(null);
-        return;
-      }
-      
-      // Parse error response for monthly limit
-      let errorData: any = {};
-      try {
-        if (error.message) {
-          const jsonMatch = error.message.match(/\{.*\}/);
-          if (jsonMatch) {
-            errorData = JSON.parse(jsonMatch[0]);
-          }
-        }
-      } catch (e) {
-        // Not JSON, continue with regular error handling
-      }
-      
-      // Specific error messages based on error type
-      let errorMsg = "Failed to analyze document";
-      
-      if (errorData.error?.includes('Monthly document analysis limit reached') || 
-          error.message?.includes('Monthly document analysis limit')) {
-        errorMsg = `📊 Monthly limit reached (${errorData.used || 20}/${errorData.limit || 20} documents). Upgrade your subscription or wait until next month.`;
-      } else if (error.message?.includes('extraction') || error.message?.includes('Text extraction')) {
-        errorMsg = "Text extraction failed. Document removed. Please try uploading again.";
-      } else if (error.message?.includes('429') || error.message?.includes('Too Many Requests')) {
-        errorMsg = "🚦 Too many requests - please wait 30 seconds and try again";
-      } else if (error.message?.includes('Rate limit')) {
-        errorMsg = "🚦 Rate limit exceeded - please wait a moment and try again";
-      } else if (error.message) {
-        errorMsg = error.message;
-      }
-      
-      toast.error(errorMsg, { id: toastId, duration: 8000 });
-      
-      // Always refresh the document list to clear stale state
-      queryClient.invalidateQueries({ queryKey: ["documents"] });
-    } finally {
-      setAnalyzingDocId(null);
+      console.error('Failed to queue document:', error);
+      toast.error('Failed to queue document: ' + error.message);
     }
+  };
+
+  const handleAnalyzeDocument = handleQueueForAnalysis;
+
+  const handleAnalyzeDocumentOld = async (documentId: string) => {
+    // This function is no longer used - all analysis goes through the queue
+    toast.info('Please use the queue system for document analysis');
+    return;
   };
 
   const handleDeepReAnalysis = async () => {
