@@ -1755,6 +1755,120 @@ export type Database = {
           },
         ]
       }
+      extraction_circuit_breaker: {
+        Row: {
+          consecutive_failures: number | null
+          created_at: string | null
+          disabled_until: string | null
+          failure_count: number | null
+          file_type: string
+          id: string
+          is_disabled: boolean | null
+          last_failure_at: string | null
+          last_success_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          consecutive_failures?: number | null
+          created_at?: string | null
+          disabled_until?: string | null
+          failure_count?: number | null
+          file_type: string
+          id?: string
+          is_disabled?: boolean | null
+          last_failure_at?: string | null
+          last_success_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          consecutive_failures?: number | null
+          created_at?: string | null
+          disabled_until?: string | null
+          failure_count?: number | null
+          file_type?: string
+          id?: string
+          is_disabled?: boolean | null
+          last_failure_at?: string | null
+          last_success_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      extraction_telemetry: {
+        Row: {
+          api_cost_estimate: number | null
+          circuit_breaker_triggered: boolean | null
+          created_at: string | null
+          document_id: string | null
+          error_message: string | null
+          error_type: string | null
+          extracted_length: number | null
+          extraction_method: string
+          extraction_time_ms: number | null
+          family_id: string | null
+          file_name: string
+          file_size_kb: number
+          file_type: string
+          id: string
+          model_used: string | null
+          retry_count: number | null
+          success: boolean
+        }
+        Insert: {
+          api_cost_estimate?: number | null
+          circuit_breaker_triggered?: boolean | null
+          created_at?: string | null
+          document_id?: string | null
+          error_message?: string | null
+          error_type?: string | null
+          extracted_length?: number | null
+          extraction_method: string
+          extraction_time_ms?: number | null
+          family_id?: string | null
+          file_name: string
+          file_size_kb: number
+          file_type: string
+          id?: string
+          model_used?: string | null
+          retry_count?: number | null
+          success: boolean
+        }
+        Update: {
+          api_cost_estimate?: number | null
+          circuit_breaker_triggered?: boolean | null
+          created_at?: string | null
+          document_id?: string | null
+          error_message?: string | null
+          error_type?: string | null
+          extracted_length?: number | null
+          extraction_method?: string
+          extraction_time_ms?: number | null
+          family_id?: string | null
+          file_name?: string
+          file_size_kb?: number
+          file_type?: string
+          id?: string
+          model_used?: string | null
+          retry_count?: number | null
+          success?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "extraction_telemetry_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "extraction_telemetry_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       families: {
         Row: {
           created_at: string | null
@@ -4011,6 +4125,19 @@ export type Database = {
         }
         Relationships: []
       }
+      extraction_analytics: {
+        Row: {
+          avg_time_seconds: number | null
+          circuit_breaker_hits: number | null
+          date: string | null
+          failed: number | null
+          file_type: string | null
+          successful: number | null
+          total_attempts: number | null
+          total_cost_cents: number | null
+        }
+        Relationships: []
+      }
       system_health_metrics: {
         Row: {
           active_organizations: number | null
@@ -4481,6 +4608,7 @@ export type Database = {
         Returns: boolean
       }
       has_super_admin_role: { Args: { _user_id: string }; Returns: boolean }
+      is_extraction_allowed: { Args: { p_file_type: string }; Returns: boolean }
       is_family_member: {
         Args: { _family_id: string; _user_id: string }
         Returns: boolean
@@ -4541,6 +4669,10 @@ export type Database = {
           p_student_id: string
           p_tab_id: string
         }
+        Returns: undefined
+      }
+      update_circuit_breaker: {
+        Args: { p_file_type: string; p_success: boolean }
         Returns: undefined
       }
       user_can_access_org: {
