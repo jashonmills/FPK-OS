@@ -71,10 +71,10 @@ serve(async (req) => {
         .from('documents')
         .update({
           metadata: {
-            ...document.metadata,
             is_processable: false,
             rejection_reason: 'file_too_large',
-            max_size_kb: MAX_FILE_SIZE_KB
+            max_size_kb: MAX_FILE_SIZE_KB,
+            note: 'File size exceeds maximum allowed for processing'
           }
         })
         .eq('id', document_id);
