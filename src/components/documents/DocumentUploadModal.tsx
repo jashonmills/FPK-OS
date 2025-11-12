@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { logDocumentUploadFailure } from "@/utils/errorLogger";
 
 interface DocumentUploadModalProps {
   open: boolean;
@@ -145,6 +146,15 @@ export function DocumentUploadModal({ open, onOpenChange }: DocumentUploadModalP
           }
         } catch (error: any) {
           console.error(`Failed to upload ${file.name}:`, error);
+          
+          // Log the error to the database for admin monitoring
+          logDocumentUploadFailure(
+            file.name,
+            file.size,
+            file.type,
+            error.message,
+            error.code || 'UPLOAD_ERROR'
+          );
           
           // Update status: error
           setFileStatuses(prev => ({
