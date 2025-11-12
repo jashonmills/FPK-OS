@@ -29,6 +29,7 @@ import Pricing from "./pages/Pricing";
 import PricingAuthenticated from "./pages/PricingAuthenticated";
 import ChartLibrary from "./pages/ChartLibrary";
 import { SuperAdminRoute } from "@/components/routes/SuperAdminRoute";
+import SuperAdminDashboard from "./pages/admin/SuperAdminDashboard";
 import LiveDataHub from "./pages/LiveDataHub";
 import GarminDemo from "./pages/GarminDemo";
 import GarminHub from "./pages/GarminHub";
@@ -336,6 +337,18 @@ const App = () => (
                       <AdminStripe />
                     </AppLayout>
                   </FeatureFlaggedRoute>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/dashboard"
+              element={
+                <ProtectedRoute>
+                  <SuperAdminRoute>
+                    <AppLayout>
+                      <SuperAdminDashboard />
+                    </AppLayout>
+                  </SuperAdminRoute>
                 </ProtectedRoute>
               }
             />

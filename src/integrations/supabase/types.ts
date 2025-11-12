@@ -3429,6 +3429,59 @@ export type Database = {
           },
         ]
       }
+      system_error_log: {
+        Row: {
+          context_data: Json | null
+          created_at: string
+          error_code: string | null
+          error_message: string
+          error_type: string
+          family_id: string | null
+          id: string
+          ip_address: string | null
+          stack_trace: string | null
+          user_action: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          context_data?: Json | null
+          created_at?: string
+          error_code?: string | null
+          error_message: string
+          error_type: string
+          family_id?: string | null
+          id?: string
+          ip_address?: string | null
+          stack_trace?: string | null
+          user_action: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          context_data?: Json | null
+          created_at?: string
+          error_code?: string | null
+          error_message?: string
+          error_type?: string
+          family_id?: string | null
+          id?: string
+          ip_address?: string | null
+          stack_trace?: string | null
+          user_action?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "system_error_log_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       team_discussion_notifications: {
         Row: {
           actor_user_id: string
@@ -3934,6 +3987,25 @@ export type Database = {
           photo_url: string | null
           roles: string[] | null
           user_id: string | null
+        }
+        Relationships: []
+      }
+      system_health_metrics: {
+        Row: {
+          active_organizations: number | null
+          active_users_24h: number | null
+          active_users_7d: number | null
+          documents_uploaded_24h: number | null
+          errors_24h: number | null
+          errors_7d: number | null
+          new_families_30d: number | null
+          new_users_30d: number | null
+          total_documents: number | null
+          total_families: number | null
+          total_organizations: number | null
+          total_storage_kb: number | null
+          total_users: number | null
+          upload_failures_24h: number | null
         }
         Relationships: []
       }
