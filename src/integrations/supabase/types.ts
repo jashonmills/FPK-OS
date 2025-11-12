@@ -14,6 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_audit_log: {
+        Row: {
+          action_details: Json | null
+          action_type: string
+          admin_user_id: string
+          created_at: string | null
+          id: string
+          ip_address: string | null
+          target_user_id: string | null
+        }
+        Insert: {
+          action_details?: Json | null
+          action_type: string
+          admin_user_id: string
+          created_at?: string | null
+          id?: string
+          ip_address?: string | null
+          target_user_id?: string | null
+        }
+        Update: {
+          action_details?: Json | null
+          action_type?: string
+          admin_user_id?: string
+          created_at?: string | null
+          id?: string
+          ip_address?: string | null
+          target_user_id?: string | null
+        }
+        Relationships: []
+      }
+      admin_impersonation_sessions: {
+        Row: {
+          admin_user_id: string
+          created_at: string | null
+          expires_at: string
+          id: string
+          is_active: boolean | null
+          target_user_id: string
+          token: string
+        }
+        Insert: {
+          admin_user_id: string
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          is_active?: boolean | null
+          target_user_id: string
+          token: string
+        }
+        Update: {
+          admin_user_id?: string
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          is_active?: boolean | null
+          target_user_id?: string
+          token?: string
+        }
+        Relationships: []
+      }
       ai_credit_balances: {
         Row: {
           created_at: string | null
@@ -1878,6 +1938,13 @@ export type Database = {
             foreignKeyName: "family_members_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "admin_user_management_view"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "family_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -3475,6 +3542,39 @@ export type Database = {
           },
         ]
       }
+      user_account_status: {
+        Row: {
+          created_at: string | null
+          id: string
+          metadata: Json | null
+          modified_at: string | null
+          modified_by: string | null
+          status: string
+          status_reason: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          modified_at?: string | null
+          modified_by?: string | null
+          status: string
+          status_reason?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          modified_at?: string | null
+          modified_by?: string | null
+          status?: string
+          status_reason?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_chart_layouts: {
         Row: {
           created_at: string | null
@@ -3821,6 +3921,24 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_user_management_view: {
+        Row: {
+          account_status: string | null
+          created_at: string | null
+          display_name: string | null
+          email: string | null
+          engagement_metrics: Json | null
+          families: Json | null
+          full_name: string | null
+          last_login: string | null
+          last_modified_at: string | null
+          last_modified_by: string | null
+          photo_url: string | null
+          roles: string[] | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       add_purchased_credits: {
@@ -3924,6 +4042,34 @@ export type Database = {
           measurement_date: string
           pragmatic_skills: number
           receptive_language: number
+        }[]
+      }
+      get_comprehensive_user_data: {
+        Args: {
+          p_date_after?: string
+          p_date_before?: string
+          p_limit?: number
+          p_offset?: number
+          p_role_filter?: string[]
+          p_search?: string
+          p_status_filter?: string[]
+          p_user_id?: string
+        }
+        Returns: {
+          account_status: string
+          created_at: string
+          display_name: string
+          email: string
+          engagement_metrics: Json
+          families: Json
+          full_name: string
+          last_login: string
+          last_modified_at: string
+          last_modified_by: string
+          photo_url: string
+          roles: string[]
+          total_count: number
+          user_id: string
         }[]
       }
       get_daily_log_counts: {
