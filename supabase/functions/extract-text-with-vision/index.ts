@@ -92,7 +92,8 @@ serve(async (req) => {
           error: 'FILE_TOO_LARGE',
           message: errorMsg,
           file_size_kb: Number(document.file_size_kb) || 0,
-          max_size_kb: MAX_FILE_SIZE_KB
+          max_size_kb: MAX_FILE_SIZE_KB,
+          document_id: document_id
         }),
         { 
           status: 413,
