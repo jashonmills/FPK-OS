@@ -68,23 +68,22 @@ serve(async (req) => {
         document.extracted_content.length < 100) {
       
       console.error('❌ Document extraction not completed or content too short');
+      console.log('🧹 Cleaning up failed document:', document_id);
       
-      // Update metadata to show analysis blocked
+      // Delete the failed document and all related records
+      // This will cascade delete document_analysis_status, analysis_queue, etc.
       await supabase
         .from('documents')
-        .update({
-          metadata: {
-            ...document.metadata,
-            analysis_status: 'blocked',
-            analysis_error: 'Extraction must complete before analysis can begin'
-          }
-        })
+        .delete()
         .eq('id', document_id);
+      
+      console.log('✅ Cleaned up document with failed extraction');
 
       return new Response(
         JSON.stringify({ 
-          error: 'Critical Error: Text extraction incomplete',
-          message: 'Document text extraction has not completed. Analysis cannot proceed.'
+          error: 'Text extraction incomplete - document removed',
+          message: 'Document text extraction failed and has been removed. Please try uploading again.',
+          cleaned_up: true
         }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
