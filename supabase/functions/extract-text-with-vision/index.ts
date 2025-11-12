@@ -43,21 +43,21 @@ serve(async (req) => {
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const anthropicKey = Deno.env.get('ANTHROPIC_API_KEY');
+    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
 
     console.log('🔑 Environment check:', {
       hasSupabaseUrl: !!supabaseUrl,
       hasServiceKey: !!supabaseServiceKey,
-      hasAnthropicKey: !!anthropicKey
+      hasLovableApiKey: !!lovableApiKey
     });
 
-    if (!anthropicKey) {
-      console.error('❌ ANTHROPIC_API_KEY not configured');
+    if (!lovableApiKey) {
+      console.error('❌ LOVABLE_API_KEY not configured');
       return new Response(
         JSON.stringify({
           success: false,
           error: 'CONFIGURATION_ERROR',
-          message: 'ANTHROPIC_API_KEY not configured. Please contact support.'
+          message: 'LOVABLE_API_KEY not configured. Please contact support.'
         }),
         { 
           status: 500,
