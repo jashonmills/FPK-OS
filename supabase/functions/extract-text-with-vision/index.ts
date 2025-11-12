@@ -1,18 +1,16 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.75.0";
+import { extractWithFallback } from "../_shared/model-fallback.ts";
+import { chunkDocument, combineChunks, needsChunking } from "../_shared/document-chunker.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// PHASE 1 FIX: Reduce file size limit and use faster model
-const MAX_FILE_SIZE_KB = 2048; // 2MB limit for stability
-const EXTRACTION_TIMEOUT_MS = 120000; // 120 second timeout
-
-// PHASE 1 FIX: Use Claude 3.5 Haiku - 10x faster for vision tasks
-const CLAUDE_MODEL = 'claude-3-5-haiku-20241022';
-console.log(`🔧 Using Claude model: ${CLAUDE_MODEL}`);
+// PHASE 3: Increased file size limit with chunking support
+const MAX_FILE_SIZE_KB = 5120; // 5MB limit with chunking
+console.log(`🔧 Phase 3: Background processing with model fallback and chunking enabled`);
 
 // Helper to update extraction progress
 async function updateExtractionProgress(
@@ -71,8 +69,8 @@ serve(async (req) => {
       file_name: document.file_name,
       file_type: document.file_type,
       file_size_kb: Number(document.file_size_kb) || 0,
-      extraction_method: 'claude_vision',
-      model_used: CLAUDE_MODEL,
+      extraction_method: needsChunking(Number(document.file_size_kb) || 0) ? 'chunked_fallback' : 'model_fallback',
+      model_used: null, // Will be set by fallback
       success: false,
       retry_count: 0,
       circuit_breaker_triggered: false,
@@ -181,134 +179,77 @@ serve(async (req) => {
     }
 
     const fileBytes = new Uint8Array(await fileData.arrayBuffer());
-    const base64File = btoa(String.fromCharCode(...fileBytes));
-
     const mediaType = document.file_type.includes('pdf') ? 'application/pdf' : 'image/jpeg';
+    const fileSizeKb = Number(document.file_size_kb) || 0;
 
-    await updateExtractionProgress(
-      supabase,
-      document_id,
-      'extracting',
-      `Calling Claude Vision API (${(Number(document.file_size_kb) / 1024).toFixed(1)}MB)...`
-    );
-
-    // Add timeout using AbortController
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), EXTRACTION_TIMEOUT_MS);
-
-    console.log(`🤖 Calling Claude Vision API with ${EXTRACTION_TIMEOUT_MS}ms timeout...`);
+    // PHASE 3: Check if document needs chunking
+    const chunks = chunkDocument(fileBytes, document.file_type, fileSizeKb);
     
-    let anthropicResponse;
-    try {
-      anthropicResponse = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': anthropicKey,
-          'anthropic-version': '2023-06-01',
-          'anthropic-beta': 'pdfs-2024-09-25',
-        },
-        body: JSON.stringify({
-          model: CLAUDE_MODEL,
-          max_tokens: 16000,
-          messages: [{
-            role: 'user',
-            content: [{
-              type: 'document',
-              source: {
-                type: 'base64',
-                media_type: mediaType,
-                data: base64File,
-              }
-            }, {
-              type: 'text',
-              text: 'Extract all text from this document. Preserve structure, headings, tables, and lists. Return ONLY the extracted text content, nothing else.'
-            }]
-          }]
-        }),
-        signal: controller.signal
-      });
+    if (chunks.length > 1) {
+      console.log(`📦 Document split into ${chunks.length} chunks for processing`);
+      await updateExtractionProgress(
+        supabase,
+        document_id,
+        'extracting',
+        `Processing ${chunks.length} chunks (${(fileSizeKb / 1024).toFixed(1)}MB total)...`
+      );
+    } else {
+      await updateExtractionProgress(
+        supabase,
+        document_id,
+        'extracting',
+        `Extracting text with model fallback (${(fileSizeKb / 1024).toFixed(1)}MB)...`
+      );
+    }
 
-      clearTimeout(timeoutId);
-    } catch (error) {
-      clearTimeout(timeoutId);
-      
-      // PHASE 1 FIX: Handle timeout with OCR fallback
-      if (error.name === 'AbortError') {
-        console.error(`⏰ Claude Vision timeout after ${EXTRACTION_TIMEOUT_MS / 1000}s. Trying OCR fallback...`);
+    // PHASE 3: Process chunks with model fallback
+    let extractedText = '';
+    let totalCost = 0;
+    let modelUsed = '';
+    const chunkResults: Array<{ text: string; index: number }> = [];
+
+    try {
+      for (const chunk of chunks) {
+        const base64Chunk = btoa(String.fromCharCode(...chunk.data));
         
-        telemetryData.error_type = 'timeout';
-        telemetryData.error_message = `Vision API timeout after ${EXTRACTION_TIMEOUT_MS}ms`;
-        telemetryData.extraction_time_ms = Date.now() - startTime;
+        console.log(`🔄 Processing chunk ${chunk.index + 1}/${chunk.totalChunks}...`);
         
-        await supabase.from('extraction_telemetry').insert(telemetryData);
-        await supabase.rpc('update_circuit_breaker', {
-          p_file_type: document.file_type,
-          p_success: false
-        });
-        
-        await updateExtractionProgress(
-          supabase, 
-          document_id, 
-          'extracting', 
-          'Vision API timeout. Trying alternative extraction method...'
+        // Use model fallback for extraction
+        const result = await extractWithFallback(
+          base64Chunk,
+          mediaType,
+          chunk.index,
+          chunk.totalChunks
         );
         
-        // Try OCR fallback (pdfjs for PDFs, basic text extraction)
-        try {
-          let fallbackText = '';
-          
-          if (mediaType === 'application/pdf') {
-            console.log('📄 Attempting pdfjs extraction as fallback...');
-            // Note: pdfjs-dist is not available in Deno, so we'll mark for manual review
-            fallbackText = 'PDF_REQUIRES_MANUAL_REVIEW';
-          }
-          
-          if (!fallbackText || fallbackText === 'PDF_REQUIRES_MANUAL_REVIEW') {
-            const timeoutMsg = `Extraction timeout after ${EXTRACTION_TIMEOUT_MS / 1000}s. File may be too complex (${Number(document.file_size_kb) || 0}KB). Please try splitting the document or use a simpler format.`;
-            
-            await updateExtractionProgress(supabase, document_id, 'failed', timeoutMsg);
-            
-            return new Response(
-              JSON.stringify({
-                success: false,
-                error: 'EXTRACTION_TIMEOUT',
-                message: timeoutMsg,
-                timeout_ms: EXTRACTION_TIMEOUT_MS,
-                file_size_kb: Number(document.file_size_kb) || 0,
-                suggestion: 'Try splitting the document into smaller files (under 1MB each)'
-              }),
-              { 
-                status: 408,
-                headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-              }
-            );
-          }
-        } catch (fallbackError) {
-          console.error('OCR fallback also failed:', fallbackError);
-          throw error;
+        chunkResults.push({
+          text: result.text,
+          index: chunk.index
+        });
+        
+        totalCost += result.cost;
+        modelUsed = result.model;
+        
+        if (chunks.length > 1) {
+          await updateExtractionProgress(
+            supabase,
+            document_id,
+            'extracting',
+            `Processed chunk ${chunk.index + 1}/${chunk.totalChunks} with ${result.model}`
+          );
         }
       }
       
-      throw error;
-    }
-
-    // Handle API errors
-    if (!anthropicResponse.ok) {
-      const errorBody = await anthropicResponse.text();
+      // Combine chunks if multiple
+      extractedText = chunks.length > 1 
+        ? combineChunks(chunkResults)
+        : chunkResults[0].text;
       
-      console.error(`❌ Claude API Error Details:`, {
-        status: anthropicResponse.status,
-        statusText: anthropicResponse.statusText,
-        model: CLAUDE_MODEL,
-        file_size_kb: Number(document.file_size_kb) || 0,
-        media_type: mediaType,
-        response_body: errorBody.substring(0, 500)
-      });
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Unknown extraction error';
+      console.error(`❌ All extraction attempts failed: ${errorMsg}`);
       
-      const errorMsg = `Claude API failed (${anthropicResponse.status}): ${errorBody.substring(0, 200)}`;
-      
-      telemetryData.error_type = 'api_error';
+      telemetryData.error_type = 'extraction_failed';
       telemetryData.error_message = errorMsg;
       telemetryData.extraction_time_ms = Date.now() - startTime;
       
@@ -320,36 +261,25 @@ serve(async (req) => {
       
       await updateExtractionProgress(supabase, document_id, 'failed', errorMsg);
       
-      const errorResponse = {
-        success: false,
-        error: 'CLAUDE_API_ERROR',
-        message: errorMsg,
-        status: anthropicResponse.status,
-        model: CLAUDE_MODEL,
-        file_size_kb: Number(document.file_size_kb) || 0
-      };
-      
       return new Response(
-        JSON.stringify(errorResponse),
+        JSON.stringify({
+          success: false,
+          error: 'EXTRACTION_FAILED',
+          message: errorMsg,
+          file_size_kb: fileSizeKb
+        }),
         { 
-          status: anthropicResponse.status,
+          status: 500,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       );
     }
 
-    const result = await anthropicResponse.json();
-    const extractedText = result.content?.[0]?.text || '';
-
     if (!extractedText || extractedText.length < 50) {
       throw new Error(`Extraction failed: extracted text too short (${extractedText.length} chars)`);
     }
 
-    console.log(`✅ Extracted ${extractedText.length} characters`);
-
-    // PHASE 2: Estimate API cost (Claude 3.5 Haiku: ~$0.25 per million input tokens)
-    const estimatedTokens = extractedText.length / 4; // rough estimate
-    const estimatedCost = (estimatedTokens / 1000000) * 0.25 * 100; // in cents
+    console.log(`✅ Extracted ${extractedText.length} characters using ${modelUsed}`);
 
     // Update document with extracted content
     await supabase
@@ -373,10 +303,11 @@ serve(async (req) => {
       `Extracted ${extractedText.length} characters successfully`
     );
 
-    // PHASE 2: Record successful telemetry
+    // PHASE 3: Record successful telemetry with model info
     telemetryData.success = true;
+    telemetryData.model_used = modelUsed;
     telemetryData.extraction_time_ms = Date.now() - startTime;
-    telemetryData.api_cost_estimate = estimatedCost;
+    telemetryData.api_cost_estimate = totalCost * 100; // cents
     telemetryData.extracted_length = extractedText.length;
     
     await supabase.from('extraction_telemetry').insert(telemetryData);

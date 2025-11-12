@@ -1794,6 +1794,68 @@ export type Database = {
         }
         Relationships: []
       }
+      extraction_queue: {
+        Row: {
+          chunk_index: number | null
+          completed_at: string | null
+          created_at: string | null
+          document_id: string
+          error_message: string | null
+          family_id: string
+          id: string
+          max_retries: number | null
+          metadata: Json | null
+          model_attempted: string | null
+          priority: number | null
+          retry_count: number | null
+          started_at: string | null
+          status: string
+          total_chunks: number | null
+        }
+        Insert: {
+          chunk_index?: number | null
+          completed_at?: string | null
+          created_at?: string | null
+          document_id: string
+          error_message?: string | null
+          family_id: string
+          id?: string
+          max_retries?: number | null
+          metadata?: Json | null
+          model_attempted?: string | null
+          priority?: number | null
+          retry_count?: number | null
+          started_at?: string | null
+          status?: string
+          total_chunks?: number | null
+        }
+        Update: {
+          chunk_index?: number | null
+          completed_at?: string | null
+          created_at?: string | null
+          document_id?: string
+          error_message?: string | null
+          family_id?: string
+          id?: string
+          max_retries?: number | null
+          metadata?: Json | null
+          model_attempted?: string | null
+          priority?: number | null
+          retry_count?: number | null
+          started_at?: string | null
+          status?: string
+          total_chunks?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "extraction_queue_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       extraction_telemetry: {
         Row: {
           api_cost_estimate: number | null
@@ -4374,6 +4436,17 @@ export type Database = {
       }
       get_max_users_for_tier: { Args: { tier: string }; Returns: number }
       get_monthly_credit_allowance: { Args: { tier: string }; Returns: number }
+      get_next_extraction_job: {
+        Args: never
+        Returns: {
+          chunk_index: number
+          document_id: string
+          family_id: string
+          queue_id: string
+          retry_count: number
+          total_chunks: number
+        }[]
+      }
       get_next_queue_items: {
         Args: { p_family_id: string; p_limit?: number }
         Returns: {
