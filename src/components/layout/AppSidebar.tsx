@@ -204,7 +204,7 @@ export const AppSidebar = () => {
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
-                    <NavLink to="/admin/users" className={({ isActive }) => isActive ? 'bg-accent text-accent-foreground font-medium' : ''}>
+                    <NavLink to="/admin/user-management" className={({ isActive }) => isActive ? 'bg-accent text-accent-foreground font-medium' : ''}>
                       <Users className="h-4 w-4" />
                       <span>User Management</span>
                     </NavLink>
@@ -220,25 +220,25 @@ export const AppSidebar = () => {
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
-                    <NavLink to="/admin/testing" className={({ isActive }) => isActive ? 'bg-accent text-accent-foreground font-medium' : ''}>
+                    <NavLink to="/admin/dashboard" className={({ isActive }) => isActive ? 'bg-accent text-accent-foreground font-medium' : ''}>
                       <TestTube className="h-4 w-4" />
-                      <span>Testing Dashboard</span>
+                      <span>Admin Dashboard</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
-                    <NavLink to="/admin/data" className={({ isActive }) => isActive ? 'bg-accent text-accent-foreground font-medium' : ''}>
+                    <NavLink to="/admin/extraction-monitoring" className={({ isActive }) => isActive ? 'bg-accent text-accent-foreground font-medium' : ''}>
                       <Database className="h-4 w-4" />
-                      <span>Data Manager</span>
+                      <span>Extraction Monitor</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
-                    <NavLink to="/admin/feature-flags" className={({ isActive }) => isActive ? 'bg-accent text-accent-foreground font-medium' : ''}>
+                    <NavLink to="/admin/document-status" className={({ isActive }) => isActive ? 'bg-accent text-accent-foreground font-medium' : ''}>
                       <Flag className="h-4 w-4" />
-                      <span>Feature Flags</span>
+                      <span>Document Status</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
