@@ -14,6 +14,7 @@ import { useFamily } from '@/contexts/FamilyContext';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Info } from 'lucide-react';
 import { ClearTestDataButton } from '@/components/admin/ClearTestDataButton';
+import { CleanupFailedExtractionsButton } from '@/components/admin/CleanupFailedExtractionsButton';
 import { ProductTour } from '@/components/onboarding/ProductTour';
 import { activitiesTourSteps } from '@/components/onboarding/tourConfigs';
 import { useTourProgress } from '@/hooks/useTourProgress';
@@ -40,7 +41,12 @@ const ActivityLog = () => {
       <div className="max-w-6xl mx-auto space-y-6">
         <div className="mb-4 flex justify-between items-center">
           <p className="text-muted-foreground">Track incidents, observations, and sleep patterns</p>
-          {familyMembership?.role === 'owner' && <ClearTestDataButton />}
+          {familyMembership?.role === 'owner' && (
+            <div className="flex gap-2">
+              <CleanupFailedExtractionsButton />
+              <ClearTestDataButton />
+            </div>
+          )}
         </div>
 
       <LiveWeatherDisplay />

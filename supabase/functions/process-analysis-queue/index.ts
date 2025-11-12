@@ -165,8 +165,20 @@ serve(async (req) => {
               continue; // Skip to next document
             }
 
-            if (extractResult.error) {
-              throw new Error(`Extraction failed: ${extractResult.error.message}`);
+            // Check if extraction actually completed
+            if (extractResult.error || !extractResult.data?.extracted_content) {
+              const errorMsg = extractResult.error?.message || 'Text extraction incomplete';
+              
+              // Clean up the failed document
+              console.log(`  🧹 Cleaning up failed extraction for: ${item.document_id}`);
+              await Promise.all([
+                supabase.from('analysis_queue').delete().eq('id', item.id),
+                supabase.from('document_analysis_status').delete().eq('document_id', item.document_id),
+                supabase.from('documents').delete().eq('id', item.document_id)
+              ]);
+              
+              batchFailed++;
+              continue;
             }
 
             // Update status to analyzing
