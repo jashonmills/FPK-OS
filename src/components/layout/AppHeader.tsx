@@ -1,21 +1,24 @@
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { FamilyStudentSelector } from '@/components/FamilyStudentSelector';
 import { useLocation } from 'react-router-dom';
-import { HelpCircle } from 'lucide-react';
+import { HelpCircle, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import fpkxLogo from '@/assets/fpk-x-logo.png';
 import { supabase } from '@/integrations/supabase/client';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { NotificationBell } from '@/components/shared/NotificationBell';
+import { useAuth } from '@/hooks/useAuth';
 
 export const AppHeader = () => {
   const location = useLocation();
+  const { signOut } = useAuth();
   const isOverviewPage = location.pathname === '/overview';
 
   const getPageTitle = () => {
@@ -78,6 +81,11 @@ export const AppHeader = () => {
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={handleReplayTour}>
                 Replay Introduction
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={signOut}>
+                <LogOut className="mr-2 h-4 w-4" />
+                Sign Out
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
