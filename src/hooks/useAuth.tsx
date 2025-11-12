@@ -241,9 +241,22 @@ export const useAuth = () => {
   }, [navigate]);
 
   const signOut = async () => {
+    const currentPath = window.location.pathname;
+    const isB2BPath = currentPath.startsWith('/org/');
+    
     await supabase.auth.signOut();
     setUser(null);
     setSession(null);
+    
+    // Clear session storage
+    sessionStorage.clear();
+    
+    // Redirect immediately based on context
+    if (isB2BPath) {
+      navigate('/org/login');
+    } else {
+      navigate('/auth');
+    }
   };
 
   return {
