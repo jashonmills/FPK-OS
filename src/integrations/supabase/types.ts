@@ -262,6 +262,57 @@ export type Database = {
           },
         ]
       }
+      ai_provider_health: {
+        Row: {
+          average_latency_ms: number | null
+          consecutive_failures: number | null
+          cooldown_until: string | null
+          created_at: string | null
+          id: string
+          last_error_message: string | null
+          last_failure_at: string | null
+          last_success_at: string | null
+          provider_name: string
+          status: string
+          total_failures: number | null
+          total_requests: number | null
+          total_successes: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          average_latency_ms?: number | null
+          consecutive_failures?: number | null
+          cooldown_until?: string | null
+          created_at?: string | null
+          id?: string
+          last_error_message?: string | null
+          last_failure_at?: string | null
+          last_success_at?: string | null
+          provider_name: string
+          status?: string
+          total_failures?: number | null
+          total_requests?: number | null
+          total_successes?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          average_latency_ms?: number | null
+          consecutive_failures?: number | null
+          cooldown_until?: string | null
+          created_at?: string | null
+          id?: string
+          last_error_message?: string | null
+          last_failure_at?: string | null
+          last_success_at?: string | null
+          provider_name?: string
+          status?: string
+          total_failures?: number | null
+          total_requests?: number | null
+          total_successes?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       alacarte_purchases: {
         Row: {
           amount: number
@@ -1309,6 +1360,71 @@ export type Database = {
           },
         ]
       }
+      document_processing_queue: {
+        Row: {
+          ai_provider_used: string | null
+          completed_at: string | null
+          created_at: string | null
+          document_id: string
+          family_id: string
+          id: string
+          job_type: string
+          last_error: Json | null
+          max_retries: number | null
+          priority: number | null
+          process_after: string | null
+          processing_time_ms: number | null
+          retry_count: number | null
+          started_at: string | null
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          ai_provider_used?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          document_id: string
+          family_id: string
+          id?: string
+          job_type: string
+          last_error?: Json | null
+          max_retries?: number | null
+          priority?: number | null
+          process_after?: string | null
+          processing_time_ms?: number | null
+          retry_count?: number | null
+          started_at?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          ai_provider_used?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          document_id?: string
+          family_id?: string
+          id?: string
+          job_type?: string
+          last_error?: Json | null
+          max_retries?: number | null
+          priority?: number | null
+          process_after?: string | null
+          processing_time_ms?: number | null
+          retry_count?: number | null
+          started_at?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_processing_queue_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       document_reports: {
         Row: {
           created_at: string
@@ -1796,6 +1912,8 @@ export type Database = {
       }
       extraction_queue: {
         Row: {
+          attempted_models: string[] | null
+          backoff_multiplier: number | null
           chunk_index: number | null
           completed_at: string | null
           created_at: string | null
@@ -1806,6 +1924,7 @@ export type Database = {
           max_retries: number | null
           metadata: Json | null
           model_attempted: string | null
+          next_retry_at: string | null
           priority: number | null
           retry_count: number | null
           started_at: string | null
@@ -1813,6 +1932,8 @@ export type Database = {
           total_chunks: number | null
         }
         Insert: {
+          attempted_models?: string[] | null
+          backoff_multiplier?: number | null
           chunk_index?: number | null
           completed_at?: string | null
           created_at?: string | null
@@ -1823,6 +1944,7 @@ export type Database = {
           max_retries?: number | null
           metadata?: Json | null
           model_attempted?: string | null
+          next_retry_at?: string | null
           priority?: number | null
           retry_count?: number | null
           started_at?: string | null
@@ -1830,6 +1952,8 @@ export type Database = {
           total_chunks?: number | null
         }
         Update: {
+          attempted_models?: string[] | null
+          backoff_multiplier?: number | null
           chunk_index?: number | null
           completed_at?: string | null
           created_at?: string | null
@@ -1840,6 +1964,7 @@ export type Database = {
           max_retries?: number | null
           metadata?: Json | null
           model_attempted?: string | null
+          next_retry_at?: string | null
           priority?: number | null
           retry_count?: number | null
           started_at?: string | null
@@ -4439,12 +4564,12 @@ export type Database = {
       get_next_extraction_job: {
         Args: never
         Returns: {
-          chunk_index: number
+          attempted_models: string[]
           document_id: string
           family_id: string
+          priority: number
           queue_id: string
           retry_count: number
-          total_chunks: number
         }[]
       }
       get_next_queue_items: {
@@ -4473,6 +4598,16 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      get_next_queue_job: {
+        Args: never
+        Returns: {
+          document_id: string
+          family_id: string
+          id: string
+          job_type: string
+          retry_count: number
+        }[]
+      }
       get_peer_interaction_data: {
         Args: { p_days?: number; p_family_id: string; p_student_id: string }
         Returns: {
@@ -4493,6 +4628,7 @@ export type Database = {
           verbal_count: number
         }[]
       }
+      get_queue_statistics: { Args: { p_hours?: number }; Returns: Json }
       get_queue_stats:
         | {
             Args: { p_family_id: string }
@@ -4746,6 +4882,15 @@ export type Database = {
       }
       update_circuit_breaker: {
         Args: { p_file_type: string; p_success: boolean }
+        Returns: undefined
+      }
+      update_provider_health: {
+        Args: {
+          p_error_message?: string
+          p_latency_ms?: number
+          p_provider_name: string
+          p_success: boolean
+        }
         Returns: undefined
       }
       user_can_access_org: {
