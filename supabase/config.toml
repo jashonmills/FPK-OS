@@ -1,5 +1,8 @@
 project_id = "pnxwemmpxldriwaomiey"
 
+[functions.process-queue-job]
+verify_jwt = false
+
 [functions.generate-iep-content]
 verify_jwt = true
 
