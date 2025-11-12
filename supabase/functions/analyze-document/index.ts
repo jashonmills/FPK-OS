@@ -48,7 +48,7 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Fetch the document with retry logic to handle race conditions
-    let document;
+    let document: any;
     const { data: initialDocument, error: fetchError } = await supabase
       .from("documents")
       .select("*")
