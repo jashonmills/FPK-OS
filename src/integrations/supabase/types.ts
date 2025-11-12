@@ -4867,6 +4867,7 @@ export type Database = {
           source_name: string
         }[]
       }
+      process_queue_worker: { Args: never; Returns: undefined }
       reset_monthly_credits: {
         Args: { p_family_id: string }
         Returns: undefined
