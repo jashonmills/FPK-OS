@@ -28,6 +28,7 @@ import PlatformAdmin from "./pages/PlatformAdmin";
 import Pricing from "./pages/Pricing";
 import PricingAuthenticated from "./pages/PricingAuthenticated";
 import ChartLibrary from "./pages/ChartLibrary";
+import { SuperAdminRoute } from "@/components/routes/SuperAdminRoute";
 import LiveDataHub from "./pages/LiveDataHub";
 import GarminDemo from "./pages/GarminDemo";
 import GarminHub from "./pages/GarminHub";
@@ -350,20 +351,22 @@ const App = () => (
             <Route path="/org/login" element={<OrgLogin />} />
             <Route path="/org/signup" element={<OrgSignup />} />
             
-            {/* B2B Organization Portal - Protected Routes (Feature Flag Protected) */}
+            {/* B2B Organization Portal - Protected Routes (Super Admin Only) */}
             <Route
               path="/org/*"
               element={
                 <ProtectedRoute>
-                  <FeatureFlaggedRoute flag="b2b_portal_active">
-                    <Suspense fallback={
-                      <div className="min-h-screen flex items-center justify-center">
-                        <div className="animate-pulse text-muted-foreground">Loading organization portal...</div>
-                      </div>
-                    }>
-                      <B2BRoutes />
-                    </Suspense>
-                  </FeatureFlaggedRoute>
+                  <SuperAdminRoute>
+                    <FeatureFlaggedRoute flag="b2b_portal_active">
+                      <Suspense fallback={
+                        <div className="min-h-screen flex items-center justify-center">
+                          <div className="animate-pulse text-muted-foreground">Loading organization portal...</div>
+                        </div>
+                      }>
+                        <B2BRoutes />
+                      </Suspense>
+                    </FeatureFlaggedRoute>
+                  </SuperAdminRoute>
                 </ProtectedRoute>
               }
             />

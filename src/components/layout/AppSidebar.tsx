@@ -263,8 +263,8 @@ export const AppSidebar = () => {
             </SidebarGroupContent>
           </SidebarGroup>}
 
-        {/* B2B Organization Portal Link (Feature Flag Protected) */}
-        {flags['b2b_portal_active'] && (
+        {/* B2B Organization Portal Link (Super Admin Only) */}
+        {isSuperAdmin && flags['b2b_portal_active'] && (
           <SidebarGroup>
             <SidebarGroupLabel>Organization Portal</SidebarGroupLabel>
             <SidebarGroupContent>
