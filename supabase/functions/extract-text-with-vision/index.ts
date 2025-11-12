@@ -93,7 +93,7 @@ serve(async (req) => {
           message: errorMsg,
           file_size_kb: Number(document.file_size_kb) || 0,
           max_size_kb: MAX_FILE_SIZE_KB,
-          document_id: document_id
+          document_id: String(document_id)
         }),
         { 
           status: 413,
@@ -313,7 +313,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: false,
-        error: errorMessage,
+        error: errorMessage.substring(0, 500),
         error_type: error?.constructor?.name || 'UnknownError'
       }),
       { 
