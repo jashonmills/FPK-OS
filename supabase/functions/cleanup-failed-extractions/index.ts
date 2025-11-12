@@ -13,12 +13,29 @@ Deno.serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    
+    if (!supabaseUrl || !supabaseKey) {
+      console.error('❌ Missing environment variables');
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: 'Server configuration error'
+        }),
+        { 
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+    
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     console.log('🔍 Starting cleanup of failed text extractions');
 
     // Find documents with failed or stuck extraction (older than 10 minutes)
     const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+    
+    console.log('📊 Checking for extractions older than:', tenMinutesAgo);
     
     const { data: stuckExtractions, error: fetchError } = await supabase
       .from('document_analysis_status')
@@ -28,7 +45,17 @@ Deno.serve(async (req) => {
 
     if (fetchError) {
       console.error('❌ Error fetching stuck extractions:', fetchError);
-      throw fetchError;
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: 'Database query failed',
+          details: fetchError.message
+        }),
+        { 
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
     }
 
     console.log(`📊 Found ${stuckExtractions?.length || 0} stuck extraction(s)`);
@@ -45,6 +72,7 @@ Deno.serve(async (req) => {
     }
 
     const documentIds = stuckExtractions.map(item => item.document_id);
+    console.log('🗑️ Document IDs to clean:', documentIds);
 
     // Delete the stuck documents and their related data
     // This will cascade delete related records thanks to foreign keys
@@ -55,7 +83,17 @@ Deno.serve(async (req) => {
 
     if (deleteError) {
       console.error('❌ Error deleting stuck documents:', deleteError);
-      throw deleteError;
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: 'Failed to delete documents',
+          details: deleteError.message
+        }),
+        { 
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
     }
 
     console.log(`✅ Deleted ${documentIds.length} stuck document(s)`);
@@ -94,10 +132,12 @@ Deno.serve(async (req) => {
 
   } catch (error) {
     console.error('❌ Cleanup error:', error);
+    console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack trace');
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
+        type: error instanceof Error ? error.name : 'UnknownError'
       }),
       { 
         status: 500,
