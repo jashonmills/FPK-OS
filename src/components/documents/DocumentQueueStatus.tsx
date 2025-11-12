@@ -15,11 +15,12 @@ interface DocumentQueueStatusProps {
 export function DocumentQueueStatus({ documentId, familyId }: DocumentQueueStatusProps) {
   const queryClient = useQueryClient();
 
-  // Fetch queue status for this document
+  // Fetch queue status for this document with queue position
   const { data: queueJob, isLoading } = useQuery({
     queryKey: ["document-queue", documentId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // Get this document's queue job
+      const { data: job, error } = await supabase
         .from('document_processing_queue')
         .select('*')
         .eq('document_id', documentId)
@@ -28,7 +29,20 @@ export function DocumentQueueStatus({ documentId, familyId }: DocumentQueueStatu
         .maybeSingle();
       
       if (error) throw error;
-      return data;
+      if (!job) return null;
+
+      // Get queue position (count of jobs ahead of this one)
+      const { count } = await supabase
+        .from('document_processing_queue')
+        .select('*', { count: 'exact', head: true })
+        .eq('family_id', familyId)
+        .eq('status', 'queued')
+        .lt('created_at', job.created_at);
+      
+      return {
+        ...job,
+        position: job.status === 'queued' ? (count || 0) + 1 : null
+      };
     },
     refetchInterval: 5000, // Poll every 5 seconds
   });
@@ -131,6 +145,12 @@ export function DocumentQueueStatus({ documentId, familyId }: DocumentQueueStatu
   return (
     <div className="flex items-center gap-2 text-sm">
       {getStatusBadge()}
+      
+      {queueJob.status === 'queued' && queueJob.position && (
+        <span className="text-xs text-muted-foreground">
+          Position: {queueJob.position}
+        </span>
+      )}
       
       {queueJob.status === 'processing' && getEstimatedTime() && (
         <span className="text-muted-foreground">{getEstimatedTime()}</span>

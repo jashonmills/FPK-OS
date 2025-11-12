@@ -19,6 +19,7 @@ import { DocumentViewerModal } from "@/components/documents/DocumentViewerModal"
 import { DocumentGuide } from "@/components/documents/DocumentGuide";
 import { DocumentsEmptyState } from "@/components/documents/DocumentsEmptyState";
 import { DocumentReportModal } from "@/components/documents/DocumentReportModal";
+import { DocumentQueueStatus } from "@/components/documents/DocumentQueueStatus";
 import { FocusAreaSelector, type FocusArea } from "@/components/documents/FocusAreaSelector";
 import { HistoricalReportsAccordion } from "@/components/documents/HistoricalReportsAccordion";
 import { ProjectScribe } from "@/components/documents/ProjectScribe";
@@ -360,6 +361,12 @@ export default function Documents() {
 
       if (error) throw error;
       
+      toast.success('Document queued for processing');
+      // Invalidate queries to show the new queue status immediately
+      queryClient.invalidateQueries({ queryKey: ["document-queue", documentId] });
+
+      if (error) throw error;
+      
       toast.success('Document queued for analysis. Processing will begin shortly.');
       queryClient.invalidateQueries({ queryKey: ["documents"] });
     } catch (error: any) {
@@ -696,6 +703,7 @@ export default function Documents() {
                       />
                     </TableHead>
                     <TableHead>File Name</TableHead>
+                    <TableHead>Status</TableHead>
                     <TableHead>Category</TableHead>
                     <TableHead>Document Date</TableHead>
                     <TableHead>Uploaded By</TableHead>
@@ -714,6 +722,14 @@ export default function Documents() {
                         />
                       </TableCell>
                       <TableCell className="font-medium">{doc.file_name}</TableCell>
+                      <TableCell>
+                        {selectedFamily && (
+                          <DocumentQueueStatus 
+                            documentId={doc.id} 
+                            familyId={selectedFamily.id} 
+                          />
+                        )}
+                      </TableCell>
                       <TableCell>
                         <Badge variant="outline">{doc.category}</Badge>
                       </TableCell>
