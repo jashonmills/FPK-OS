@@ -210,12 +210,9 @@ export const useAuth = () => {
             }
           }, 100);
         } else if (event === 'SIGNED_OUT') {
-          const currentPath = window.location.pathname;
-          // Don't redirect if user is on B2B auth pages
-          if (!currentPath.startsWith('/org/login') && !currentPath.startsWith('/org/signup')) {
-            console.log("User signed out. Redirecting to auth.");
-            navigate('/auth');
-          }
+          // Just log the sign out - don't navigate here
+          // The signOut function handles navigation to prevent race conditions
+          console.log("User signed out event received");
         }
       }
     );
@@ -241,21 +238,35 @@ export const useAuth = () => {
   }, [navigate]);
 
   const signOut = async () => {
-    const currentPath = window.location.pathname;
-    const isB2BPath = currentPath.startsWith('/org/');
+    console.log('🚪 Sign out initiated');
     
-    await supabase.auth.signOut();
-    setUser(null);
-    setSession(null);
-    
-    // Clear session storage
-    sessionStorage.clear();
-    
-    // Redirect immediately based on context
-    if (isB2BPath) {
-      navigate('/org/login');
-    } else {
-      navigate('/auth');
+    try {
+      const currentPath = window.location.pathname;
+      const isB2BPath = currentPath.startsWith('/org/');
+      
+      console.log('📍 Current path:', currentPath, '| B2B path:', isB2BPath);
+      
+      // Sign out from Supabase
+      await supabase.auth.signOut();
+      
+      // Clear all state
+      setUser(null);
+      setSession(null);
+      localStorage.clear();
+      sessionStorage.clear();
+      
+      console.log('✅ Sign out successful, redirecting...');
+      
+      // Use window.location.href for reliable redirect with full page reload
+      if (isB2BPath) {
+        window.location.href = '/org/login';
+      } else {
+        window.location.href = '/auth';
+      }
+    } catch (error) {
+      console.error('❌ Sign out error:', error);
+      // Force redirect even on error
+      window.location.href = '/auth';
     }
   };
 
