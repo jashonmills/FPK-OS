@@ -13,7 +13,9 @@ export function useOrgPermissions() {
   };
 
   const canManageStudents = () => {
-    return canManageOrg();
+    if (isPersonalMode) return false;
+    const educatorRoles = ['owner', 'admin', 'instructor', 'instructor_aide'];
+    return educatorRoles.includes(currentOrg?.role || '');
   };
 
   const canViewOrgAnalytics = () => {
