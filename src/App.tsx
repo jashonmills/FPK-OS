@@ -52,6 +52,7 @@ import AdminContentManager from "./pages/AdminContentManager";
 import AssessmentHub from "./pages/AssessmentHub";
 import WizardRunner from "./pages/WizardRunner";
 import UserManagement from "./pages/admin/UserManagement";
+import PipelineHealth from "./pages/admin/PipelineHealth";
 import { CookieConsent } from "./components/legal/CookieConsent";
 import { useFeatureFlags } from "@/hooks/useFeatureFlags";
 import { lazy, Suspense } from "react";
@@ -256,6 +257,16 @@ const App = () => (
                 <ProtectedRoute>
                   <AppLayout>
                     <AdminKBManager />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/pipeline-health"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <PipelineHealth />
                   </AppLayout>
                 </ProtectedRoute>
               }
