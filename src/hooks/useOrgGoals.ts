@@ -108,8 +108,31 @@ export function useOrgGoals(organizationId?: string) {
       
       return goalResult;
     },
-    onSuccess: () => {
+    onSuccess: async (goalResult) => {
       queryClient.invalidateQueries({ queryKey: ['org-goals'] });
+      
+      // Send notification to instructors
+      if (orgId) {
+        const { notifyInstructorsOfGoalCreation } = await import('@/utils/notificationTriggers');
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('id', user.id)
+            .single();
+          
+          await notifyInstructorsOfGoalCreation(
+            orgId,
+            user.id,
+            profile?.full_name || user.email || 'Student',
+            goalResult.id,
+            goalResult.title
+          );
+        }
+      }
+      
       toast({
         title: "Success",
         description: "Goal created successfully.",

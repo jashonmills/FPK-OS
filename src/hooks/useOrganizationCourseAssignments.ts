@@ -73,10 +73,38 @@ export function useOrganizationCourseAssignments(organizationId?: string) {
         .single();
 
       if (error) throw error;
-      return data;
+      return { data, courseId };
     },
-    onSuccess: () => {
+    onSuccess: async (result) => {
       queryClient.invalidateQueries({ queryKey: ['organization-course-assignments', organizationId] });
+      
+      // Send notifications to all students
+      const { triggerCourseAssignmentNotification } = await import('@/utils/notificationTriggers');
+      
+      // Get course title
+      const { data: courseData } = await supabase
+        .from('courses')
+        .select('title')
+        .eq('id', result.courseId)
+        .single();
+      
+      // Get all students in the organization
+      const { data: members } = await supabase
+        .from('org_members')
+        .select('user_id')
+        .eq('org_id', organizationId)
+        .eq('role', 'student')
+        .eq('status', 'active');
+      
+      if (members && courseData && members.length > 0) {
+        await triggerCourseAssignmentNotification(
+          members.map(m => m.user_id),
+          result.courseId,
+          courseData.title,
+          organizationId!
+        );
+      }
+      
       toast({
         title: "Course Assigned",
         description: "Course has been successfully assigned to your organization.",

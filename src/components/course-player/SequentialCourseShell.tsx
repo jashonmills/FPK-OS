@@ -107,6 +107,41 @@ export const SequentialCourseShell: React.FC<SequentialCourseShellProps> = ({ co
     }
   }, [courseData?.id, enrollInCourse]);
 
+  // Send course start notification to instructors
+  useEffect(() => {
+    const sendCourseStartNotification = async () => {
+      // Check if in org context
+      const urlParams = new URLSearchParams(window.location.search);
+      const orgId = urlParams.get('org');
+      
+      if (orgId && courseData?.id && manifest) {
+        const { notifyInstructorsOfCourseStart } = await import('@/utils/notificationTriggers');
+        const { supabase } = await import('@/integrations/supabase/client');
+        
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('id', user.id)
+            .single();
+          
+          await notifyInstructorsOfCourseStart(
+            orgId,
+            user.id,
+            profile?.full_name || user.email || 'Student',
+            courseData.id,
+            courseData.title
+          );
+        }
+      }
+    };
+    
+    if (courseData?.id && manifest) {
+      sendCourseStartNotification();
+    }
+  }, [courseData?.id, courseData.title, manifest]);
+
   // Load completed lessons from localStorage (backward compatibility)
   useEffect(() => {
     const storageKey = `${courseData.slug}-course-completed-lessons`;
@@ -130,9 +165,40 @@ export const SequentialCourseShell: React.FC<SequentialCourseShellProps> = ({ co
       // Update database progress
       if (manifest) {
         updateCourseProgress(completedLessons.length, manifest.lessons.length);
+        
+        // Check if course is complete and send notification
+        const isComplete = completedLessons.length === manifest.lessons.length;
+        if (isComplete) {
+          const urlParams = new URLSearchParams(window.location.search);
+          const orgId = urlParams.get('org');
+          
+          if (orgId) {
+            (async () => {
+              const { notifyInstructorsOfCourseCompletion } = await import('@/utils/notificationTriggers');
+              const { supabase } = await import('@/integrations/supabase/client');
+              
+              const { data: { user } } = await supabase.auth.getUser();
+              if (user) {
+                const { data: profile } = await supabase
+                  .from('profiles')
+                  .select('full_name')
+                  .eq('id', user.id)
+                  .single();
+                
+                await notifyInstructorsOfCourseCompletion(
+                  orgId,
+                  user.id,
+                  profile?.full_name || user.email || 'Student',
+                  courseData.id,
+                  courseData.title
+                );
+              }
+            })();
+          }
+        }
       }
     }
-  }, [completedLessons, courseData.slug, manifest, updateCourseProgress]);
+  }, [completedLessons, courseData.slug, courseData.id, courseData.title, manifest, updateCourseProgress]);
 
   // Start session when viewing course overview
   useEffect(() => {
@@ -156,9 +222,40 @@ export const SequentialCourseShell: React.FC<SequentialCourseShellProps> = ({ co
     }
   }, [lessonId, manifest]);
 
-  const handleLessonComplete = useCallback((lessonId: number) => {
+  const handleLessonComplete = useCallback(async (lessonId: number) => {
     if (!completedLessons.includes(lessonId)) {
       setCompletedLessons(prev => [...prev, lessonId]);
+      
+      // Send lesson completion notification
+      const urlParams = new URLSearchParams(window.location.search);
+      const orgId = urlParams.get('org');
+      
+      if (orgId && manifest) {
+        const { notifyInstructorsOfLessonCompletion } = await import('@/utils/notificationTriggers');
+        const { supabase } = await import('@/integrations/supabase/client');
+        
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('id', user.id)
+            .single();
+          
+          const lesson = manifest.lessons[lessonId - 1];
+          if (lesson) {
+            await notifyInstructorsOfLessonCompletion(
+              orgId,
+              user.id,
+              profile?.full_name || user.email || 'Student',
+              courseData.id,
+              courseData.title,
+              lessonId.toString(),
+              lesson.title
+            );
+          }
+        }
+      }
       
       // Auto-advance to next lesson if available
       if (manifest && currentLesson !== null && currentLesson < manifest.lessons.length) {
@@ -167,7 +264,7 @@ export const SequentialCourseShell: React.FC<SequentialCourseShellProps> = ({ co
         }, 500);
       }
     }
-  }, [completedLessons, manifest, currentLesson]);
+  }, [completedLessons, manifest, currentLesson, courseData.id, courseData.title]);
 
   const handleNextLesson = useCallback(() => {
     if (manifest && currentLesson !== null && currentLesson < manifest.lessons.length) {

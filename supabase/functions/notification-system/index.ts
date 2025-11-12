@@ -81,6 +81,94 @@ serve(async (req) => {
         };
         break;
 
+      case 'course_assigned':
+        notification = {
+          ...notification,
+          type: 'course_assigned',
+          title: '📚 New Course Assigned',
+          message: `You've been assigned to "${data.courseTitle}". Start learning now!`,
+          action_url: `/courses/player/${data.courseId}`,
+          metadata: data
+        };
+        break;
+
+      case 'group_assigned':
+        notification = {
+          ...notification,
+          type: 'group_assigned',
+          title: '👥 Added to Group',
+          message: `You've been added to the group "${data.groupName}".`,
+          action_url: `/org/groups/${data.groupId}`,
+          metadata: data
+        };
+        break;
+
+      case 'student_course_started':
+        notification = {
+          ...notification,
+          type: 'student_course_started',
+          title: '🎓 Student Started Course',
+          message: `${data.studentName} has started "${data.courseTitle}".`,
+          action_url: `/org/students/${data.studentId}`,
+          metadata: data
+        };
+        break;
+
+      case 'student_course_completed':
+        notification = {
+          ...notification,
+          type: 'student_course_completed',
+          title: '🏆 Student Completed Course',
+          message: `${data.studentName} has completed "${data.courseTitle}"! 🎉`,
+          action_url: `/org/students/${data.studentId}`,
+          metadata: data
+        };
+        break;
+
+      case 'student_lesson_completed':
+        notification = {
+          ...notification,
+          type: 'student_lesson_completed',
+          title: '✅ Lesson Completed',
+          message: `${data.studentName} completed "${data.lessonTitle}" in ${data.courseTitle}.`,
+          action_url: `/org/students/${data.studentId}`,
+          metadata: data
+        };
+        break;
+
+      case 'student_goal_created':
+        notification = {
+          ...notification,
+          type: 'student_goal_created',
+          title: '🎯 New Goal Created',
+          message: `${data.studentName} created a new goal: "${data.goalTitle}".`,
+          action_url: `/org/students/${data.studentId}`,
+          metadata: data
+        };
+        break;
+
+      case 'student_goal_completed':
+        notification = {
+          ...notification,
+          type: 'student_goal_completed',
+          title: '🎉 Goal Completed',
+          message: `${data.studentName} completed their goal: "${data.goalTitle}"!`,
+          action_url: `/org/students/${data.studentId}`,
+          metadata: data
+        };
+        break;
+
+      case 'note_shared':
+        notification = {
+          ...notification,
+          type: 'note_shared',
+          title: '📝 Note Shared With You',
+          message: `${data.sharedBy} shared a note: "${data.noteTitle}".`,
+          action_url: `/org/notes/${data.noteId}`,
+          metadata: data
+        };
+        break;
+
       default:
         throw new Error('Unknown notification type');
     }

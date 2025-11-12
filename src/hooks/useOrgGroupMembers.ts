@@ -230,15 +230,35 @@ export function useOrgGroupMembers(groupId?: string) {
         .select();
 
       if (error) throw error;
-      return data;
+      return { data, userIds };
     },
-    onSuccess: (data) => {
+    onSuccess: async (result) => {
       queryClient.invalidateQueries({ queryKey: ['org-group-members', groupId] });
       queryClient.invalidateQueries({ queryKey: ['org-available-students'] });
       queryClient.invalidateQueries({ queryKey: ['org-groups'] });
+      
+      // Send notifications to added students
+      const { triggerGroupAssignmentNotification } = await import('@/utils/notificationTriggers');
+      
+      // Get group name
+      const { data: groupData } = await supabase
+        .from('org_groups')
+        .select('name')
+        .eq('id', groupId!)
+        .single();
+      
+      if (groupData) {
+        await triggerGroupAssignmentNotification(
+          result.userIds,
+          groupId!,
+          groupData.name,
+          orgId
+        );
+      }
+      
       toast({
         title: "Success",
-        description: `${data.length} member${data.length > 1 ? 's' : ''} added to group successfully.`,
+        description: `${result.data.length} member${result.data.length > 1 ? 's' : ''} added to group successfully.`,
       });
     },
     onError: (error) => {

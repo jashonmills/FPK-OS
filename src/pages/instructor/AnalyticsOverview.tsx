@@ -6,14 +6,14 @@ import { Badge } from '@/components/ui/badge';
 import { BarChart3, TrendingUp, Users, BookOpen, Clock, Target, Loader2 } from 'lucide-react';
 import { useOrgContext } from '@/components/organizations/OrgContext';
 import { useOrgStatistics } from '@/hooks/useOrgStatistics';
-import { useOrgAnalytics } from '@/hooks/useOrgAnalytics';
+import { useRealtimeOrgAnalytics } from '@/hooks/useRealtimeOrgAnalytics';
 
 export default function AnalyticsOverview() {
   const { currentOrg } = useOrgContext();
   
-  // Fetch real analytics data
+  // Fetch real analytics data with real-time updates
   const { data: orgStatistics, isLoading: statsLoading, error: statsError } = useOrgStatistics(currentOrg?.organizations?.id);
-  const { analytics: orgAnalytics, isLoading: analyticsLoading, error: analyticsError } = useOrgAnalytics(currentOrg?.organizations?.id);
+  const { analytics: orgAnalytics, isLoading: analyticsLoading, error: analyticsError } = useRealtimeOrgAnalytics(currentOrg?.organizations?.id);
 
   if (!currentOrg) {
     return (

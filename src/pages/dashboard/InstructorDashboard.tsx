@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Users, BookOpen, Target, FileText, BarChart3, Plus, TrendingUp, Clock } from 'lucide-react';
 import { useOrganizations, useOrganization, useOrgMembers } from '@/hooks/useOrganization';
 import { useOrgStatistics } from '@/hooks/useOrgStatistics';
-import { useOrgAnalytics } from '@/hooks/useOrgAnalytics';
+import { useRealtimeOrgAnalytics } from '@/hooks/useRealtimeOrgAnalytics';
 import { useAuth } from '@/hooks/useAuth';
 import { useSearchParams } from 'react-router-dom';
 import { SUBSCRIPTION_TIERS } from '@/types/organization';
@@ -35,7 +35,7 @@ export default function InstructorDashboard() {
   const { data: organization } = useOrganization(orgId);
   const { data: members } = useOrgMembers(orgId);
   const { data: statistics } = useOrgStatistics(orgId);
-  const { analytics } = useOrgAnalytics(orgId);
+  const { analytics } = useRealtimeOrgAnalytics(orgId);
 
   if (isLoading) {
     return (
