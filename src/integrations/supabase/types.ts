@@ -3926,11 +3926,9 @@ export type Database = {
           account_status: string | null
           created_at: string | null
           display_name: string | null
-          email: string | null
           engagement_metrics: Json | null
           families: Json | null
           full_name: string | null
-          last_login: string | null
           last_modified_at: string | null
           last_modified_by: string | null
           photo_url: string | null

@@ -1,4 +1,4 @@
-import { Home, FileText, BarChart3, Settings, FolderOpen, Database, TrendingUp, Target, ClipboardCheck } from 'lucide-react';
+import { Home, FileText, BarChart3, Settings, FolderOpen, Database, TrendingUp, Target, ClipboardCheck, Users } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useFamily } from '@/contexts/FamilyContext';
 import { useAuth } from '@/hooks/useAuth';
@@ -209,6 +209,16 @@ export const AppSidebar = () => {
                 }) => isActive ? 'bg-accent text-accent-foreground font-medium' : ''}>
                       <Settings className="h-4 w-4" />
                       <span>Feature Flags</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <NavLink to="/admin/user-management" className={({
+                  isActive
+                }) => isActive ? 'bg-accent text-accent-foreground font-medium' : ''}>
+                      <Users className="h-4 w-4" />
+                      <span>User Management</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

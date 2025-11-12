@@ -47,6 +47,7 @@ import AuthorProfile from "./pages/AuthorProfile";
 import AdminContentManager from "./pages/AdminContentManager";
 import AssessmentHub from "./pages/AssessmentHub";
 import WizardRunner from "./pages/WizardRunner";
+import UserManagement from "./pages/admin/UserManagement";
 import { CookieConsent } from "./components/legal/CookieConsent";
 import { useFeatureFlags } from "@/hooks/useFeatureFlags";
 import { lazy, Suspense } from "react";
@@ -334,6 +335,14 @@ const App = () => (
                       <AdminStripe />
                     </AppLayout>
                   </FeatureFlaggedRoute>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/user-management"
+              element={
+                <ProtectedRoute>
+                  <UserManagement />
                 </ProtectedRoute>
               }
             />

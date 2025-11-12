@@ -24,6 +24,15 @@ verify_jwt = true
 [functions.trigger-biometric-alert]
 verify_jwt = true
 
+[functions.admin-update-user-status]
+verify_jwt = true
+
+[functions.admin-manage-roles]
+verify_jwt = true
+
+[functions.admin-reset-password]
+verify_jwt = true
+
 [functions.ingest-academic-sources]
 verify_jwt = false
 
