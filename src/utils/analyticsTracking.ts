@@ -125,3 +125,25 @@ export const trackDailyActivity = async (
     console.error('Error tracking daily activity:', error);
   }
 };
+
+export const trackOrgActivity = async (
+  event: string,
+  userId: string,
+  orgId: string,
+  metadata?: Record<string, any>
+) => {
+  if (!userId || !orgId) return;
+
+  try {
+    await supabase
+      .from('activity_log')
+      .insert({
+        user_id: userId,
+        org_id: orgId,
+        event,
+        metadata: metadata || {}
+      });
+  } catch (error) {
+    console.error('Error tracking org activity:', error);
+  }
+};

@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { assertOrg } from '@/lib/org/context';
+import { trackOrgActivity } from '@/utils/analyticsTracking';
 
 export interface OrgNoteFolder {
   id: string;
@@ -196,6 +197,16 @@ export function useOrgNotes(organizationId?: string, folderId?: string) {
       }
       
       console.log('📝 Note created successfully:', noteResult);
+      
+      // Track activity
+      if (user?.id && orgId) {
+        trackOrgActivity('note_created', user.id, orgId, {
+          note_id: noteResult.id,
+          note_title: noteResult.title,
+          category: noteResult.category
+        });
+      }
+      
       return noteResult;
     },
     onSuccess: () => {
@@ -231,6 +242,16 @@ export function useOrgNotes(organizationId?: string, folderId?: string) {
         .single();
 
       if (error) throw error;
+      
+      // Track activity
+      const currentUser = (await supabase.auth.getUser()).data.user;
+      if (currentUser?.id && orgId) {
+        trackOrgActivity('note_updated', currentUser.id, orgId, {
+          note_id: data.id,
+          changes: Object.keys(updateData)
+        });
+      }
+      
       return data;
     },
     onSuccess: () => {

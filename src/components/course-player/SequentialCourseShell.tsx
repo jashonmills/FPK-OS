@@ -10,6 +10,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useContextAwareNavigation } from '@/hooks/useContextAwareNavigation';
+import { useInteractiveCourseAnalytics } from '@/hooks/useInteractiveCourseAnalytics';
 import { InteractiveCourseWrapper } from '@/components/course/InteractiveCourseWrapper';
 import { InteractiveLessonWrapper } from '@/components/course/InteractiveLessonWrapper';
 import { Button } from '@/components/ui/button';
@@ -51,6 +52,14 @@ export const SequentialCourseShell: React.FC<SequentialCourseShellProps> = ({ co
   const [loading, setLoading] = useState(true);
   const [manifestError, setManifestError] = useState<string | null>(null);
   
+  // Analytics integration
+  const {
+    enrollInCourse,
+    startCourseSession,
+    endCourseSession,
+    updateCourseProgress
+  } = useInteractiveCourseAnalytics(courseData.id, courseData.title);
+  
   // Single source of truth: database background_image field
   const backgroundImage = courseData.background_image || 'https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=1200&h=800&fit=crop';
 
@@ -91,7 +100,14 @@ export const SequentialCourseShell: React.FC<SequentialCourseShellProps> = ({ co
     }
   }, [courseData.slug, courseData.title]);
 
-  // Load completed lessons from localStorage
+  // Enroll in course on initial load
+  useEffect(() => {
+    if (courseData?.id) {
+      enrollInCourse();
+    }
+  }, [courseData?.id, enrollInCourse]);
+
+  // Load completed lessons from localStorage (backward compatibility)
   useEffect(() => {
     const storageKey = `${courseData.slug}-course-completed-lessons`;
     const stored = localStorage.getItem(storageKey);
@@ -105,13 +121,28 @@ export const SequentialCourseShell: React.FC<SequentialCourseShellProps> = ({ co
     }
   }, [courseData.slug]);
 
-  // Save completed lessons to localStorage
+  // Save completed lessons to localStorage and update database
   useEffect(() => {
     if (completedLessons.length > 0) {
       const storageKey = `${courseData.slug}-course-completed-lessons`;
       localStorage.setItem(storageKey, JSON.stringify(completedLessons));
+      
+      // Update database progress
+      if (manifest) {
+        updateCourseProgress(completedLessons.length, manifest.lessons.length);
+      }
     }
-  }, [completedLessons, courseData.slug]);
+  }, [completedLessons, courseData.slug, manifest, updateCourseProgress]);
+
+  // Start session when viewing course overview
+  useEffect(() => {
+    if (currentLesson === null && manifest) {
+      startCourseSession('overview');
+      return () => {
+        endCourseSession();
+      };
+    }
+  }, [currentLesson, manifest, startCourseSession, endCourseSession]);
 
   // Handle lesson ID from URL
   useEffect(() => {
