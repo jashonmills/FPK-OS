@@ -293,9 +293,9 @@ serve(async (req) => {
       console.log('\n🧠 ========== ANALYSIS PHASE - Starting ==========');
       console.log('✅ Extraction completed, triggering Claude Sonnet 4.5 analysis...');
 
-      // Add a 3-second buffer to ensure database is fully committed
-      console.log('⏳ Waiting 3 seconds to ensure database commit...');
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      // Add a 5-second buffer to ensure database is fully committed and replicated
+      console.log('⏳ Waiting 5 seconds to ensure database commit and replication...');
+      await new Promise(resolve => setTimeout(resolve, 5000));
 
       // Double-check that content is actually in the database
       const { data: verifyDoc } = await supabase
@@ -313,11 +313,18 @@ serve(async (req) => {
         
         try {
           console.log('🚀 Invoking analyze-document function...');
+          console.log(`📋 Document ID for analysis: ${documentData.id}`);
+          console.log(`📊 Verified content length: ${verifyDoc.extracted_content.length} chars`);
           const analysisStartTime = Date.now();
 
           const { data: analysisData, error: analyzeError } = await supabase.functions.invoke(
             'analyze-document',
-            { body: { document_id: documentData.id } }
+            { 
+              body: { 
+                document_id: documentData.id,
+                skip_extraction_check: false // Always check extraction status
+              } 
+            }
           );
 
           const analysisEndTime = Date.now();

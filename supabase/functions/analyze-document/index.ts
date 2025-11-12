@@ -47,51 +47,92 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Fetch the document
-    const { data: document, error: fetchError } = await supabase
+    // Fetch the document with retry logic to handle race conditions
+    let document;
+    const { data: initialDocument, error: fetchError } = await supabase
       .from("documents")
       .select("*")
       .eq("id", document_id)
       .single();
 
-    if (fetchError || !document) {
-      console.log('📭 Document not found (likely cleaned up):', document_id);
+    if (fetchError || !initialDocument) {
+      // Don't return 404 immediately - document might be mid-creation
+      console.warn('⚠️ Document not found - checking if it\'s being created...');
+      
+      // Wait a moment and try again (handles race condition during upload)
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      const { data: retryDoc } = await supabase
+        .from('documents')
+        .select('*')
+        .eq('id', document_id)
+        .single();
+      
+      if (!retryDoc) {
+        console.error('💀 Document still not found after retry');
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            error: 'Document not found',
+            message: 'Document not found. It may have been deleted or failed to upload.',
+            document_not_found: true
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 }
+        );
+      }
+      
+      // Found it on retry, continue with this document
+      console.log('✅ Document found on retry, continuing...');
+      document = retryDoc;
+    } else {
+      document = initialDocument;
+    }
+
+    // Verify extraction is complete - DON'T DELETE, just return error
+    if (!document.extracted_content || document.extracted_content.length < 200) {
+      
+      console.error('❌ Document extraction not completed or content too short');
+      console.error(`📊 Content length: ${document.extracted_content?.length || 0} chars`);
+      console.error(`📊 Metadata:`, document.metadata);
+      
+      // Check if extraction is still in progress
+      const extractionStatus = document.metadata?.extraction_status;
+      
+      if (extractionStatus === 'pending' || extractionStatus === 'triggering' || extractionStatus === 'retrying') {
+        console.log('⏳ Extraction still in progress, will retry later');
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: 'Extraction in progress',
+            message: 'Document extraction is still in progress. Please wait.',
+            status: extractionStatus,
+            retry_after: 5
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 202 }
+        );
+      }
+      
+      // If extraction failed, don't delete - let cleanup functions handle it
+      if (extractionStatus === 'failed') {
+        console.error('💀 Extraction failed permanently');
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: 'Extraction failed',
+            message: 'Document extraction failed. Please re-upload the document.',
+            extraction_error: document.metadata?.extraction_final_error
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 422 }
+        );
+      }
+
+      // Unknown state - return error but don't delete
       return new Response(
         JSON.stringify({ 
           success: false,
-          error: 'Document not found',
-          message: 'Document not found. It may have been deleted or failed to upload.',
-          document_not_found: true
-        }),
-        { 
-          status: 404, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      );
-    }
-
-    // Check if extraction completed
-    if (!document.extracted_content || 
-        document.extracted_content.includes('Extraction pending') ||
-        document.extracted_content.length < 100) {
-      
-      console.error('❌ Document extraction not completed or content too short');
-      console.log('🧹 Cleaning up failed document:', document_id);
-      
-      // Delete the failed document and all related records
-      // This will cascade delete document_analysis_status, analysis_queue, etc.
-      await supabase
-        .from('documents')
-        .delete()
-        .eq('id', document_id);
-      
-      console.log('✅ Cleaned up document with failed extraction');
-
-      return new Response(
-        JSON.stringify({ 
-          error: 'Text extraction incomplete - document removed',
-          message: 'Document text extraction failed and has been removed. Please try uploading again.',
-          cleaned_up: true
+          error: 'Text extraction incomplete',
+          message: 'Document text extraction is incomplete. Please wait or try re-uploading.',
+          extraction_status: extractionStatus
         }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
