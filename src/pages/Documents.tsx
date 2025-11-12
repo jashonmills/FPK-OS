@@ -35,6 +35,23 @@ export default function Documents() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { shouldRunTour, markTourAsSeen } = useTourProgress('has_seen_documents_tour');
+
+  // Cleanup failed extractions on page load
+  useEffect(() => {
+    const cleanupFailedExtractions = async () => {
+      if (!selectedFamily?.id) return;
+      
+      try {
+        console.log('🧹 Running background cleanup of failed extractions...');
+        await supabase.functions.invoke('cleanup-failed-extractions');
+      } catch (error) {
+        // Silent fail - this is background cleanup
+        console.log('Background cleanup completed:', error);
+      }
+    };
+    
+    cleanupFailedExtractions();
+  }, [selectedFamily?.id]);
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [viewerModalOpen, setViewerModalOpen] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<any>(null);
@@ -419,6 +436,16 @@ export default function Documents() {
     } catch (error: any) {
       console.error('Document analysis error:', error);
       
+      // If document not found, it was cleaned up - refresh the list
+      if (error.message?.includes('404') || 
+          error.message?.includes('not found') || 
+          error.message?.includes('Document not found')) {
+        toast.info('Document was removed due to upload failure. Please try uploading again.', { id: toastId });
+        queryClient.invalidateQueries({ queryKey: ["documents"] });
+        setAnalyzingDocId(null);
+        return;
+      }
+      
       // Parse error response for monthly limit
       let errorData: any = {};
       try {
@@ -433,14 +460,16 @@ export default function Documents() {
         // Not JSON, continue with regular error handling
       }
       
-      // Better error messages
+      // Specific error messages based on error type
       let errorMsg = "Failed to analyze document";
       
       if (errorData.error?.includes('Monthly document analysis limit reached') || 
           error.message?.includes('Monthly document analysis limit')) {
         errorMsg = `📊 Monthly limit reached (${errorData.used || 20}/${errorData.limit || 20} documents analyzed). Upgrade your subscription or wait until next month.`;
-      } else if (error.message?.includes('timed out')) {
-        errorMsg = "⏱️ Analysis timed out - the document may be too large or the AI is slow. Please try again.";
+      } else if (error.message?.includes('extraction') || error.message?.includes('Text extraction')) {
+        errorMsg = "Text extraction failed. The document has been removed. Please try uploading again.";
+      } else if (error.message?.includes('timed out') || error.message?.includes('timeout')) {
+        errorMsg = "Analysis timed out. This document may be too large or complex. Try splitting it into smaller files.";
       } else if (error.message?.includes('429') || error.message?.includes('Too Many Requests')) {
         errorMsg = "🚦 Too many requests - please wait 30 seconds and try again";
       } else if (error.message?.includes('Rate limit')) {
@@ -450,6 +479,9 @@ export default function Documents() {
       }
       
       toast.error(errorMsg, { id: toastId, duration: 8000 });
+      
+      // Always refresh the document list to clear stale state
+      queryClient.invalidateQueries({ queryKey: ["documents"] });
     } finally {
       setAnalyzingDocId(null);
     }

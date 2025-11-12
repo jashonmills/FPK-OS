@@ -147,13 +147,13 @@ export function DocumentUploadModal({ open, onOpenChange }: DocumentUploadModalP
         } catch (error: any) {
           console.error(`Failed to upload ${file.name}:`, error);
           
-          // Log the error to the database for admin monitoring
+          // Log the error to the database for admin monitoring with enhanced details
           logDocumentUploadFailure(
             file.name,
             file.size,
             file.type,
-            error.message,
-            error.code || 'UPLOAD_ERROR'
+            `Upload failed: ${error.message}${error.stack ? `. Stack: ${error.stack}` : ''}`,
+            error.code || error.name || 'UPLOAD_ERROR'
           );
           
           // Update status: error

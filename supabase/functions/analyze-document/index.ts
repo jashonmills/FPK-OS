@@ -55,10 +55,18 @@ serve(async (req) => {
       .single();
 
     if (fetchError || !document) {
-      console.error("Error fetching document:", fetchError);
+      console.log('📭 Document not found (likely cleaned up):', document_id);
       return new Response(
-        JSON.stringify({ error: "Document not found" }),
-        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ 
+          success: false,
+          error: 'Document not found',
+          message: 'Document not found. It may have been deleted or failed to upload.',
+          document_not_found: true
+        }),
+        { 
+          status: 404, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
       );
     }
 
