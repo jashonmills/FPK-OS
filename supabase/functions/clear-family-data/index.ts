@@ -60,7 +60,16 @@ serve(async (req) => {
       sleep_records_deleted: 0,
       goals_deleted: 0,
       chat_conversations_deleted: 0,
+      chat_messages_deleted: 0,
       family_data_embeddings_deleted: 0,
+      embedding_queue_deleted: 0,
+      team_discussions_deleted: 0,
+      team_discussion_notifications_deleted: 0,
+      wizard_completions_deleted: 0,
+      biometric_alerts_deleted: 0,
+      error_logs_deleted: 0,
+      duplicate_students_deleted: 0,
+      storage_files_deleted: 0,
       errors: [] as string[],
     };
 
@@ -76,12 +85,42 @@ serve(async (req) => {
     
     // Delete chat messages
     if (convoIds.length > 0) {
-      const { error: chatMsgError } = await supabase
+      const { data: deletedChatMessages, error: chatMsgError } = await supabase
         .from('chat_messages')
         .delete()
-        .in('conversation_id', convoIds);
-      if (chatMsgError) results.errors.push(`chat_messages: ${chatMsgError.message}`);
+        .in('conversation_id', convoIds)
+        .select('id');
+      if (!chatMsgError) results.chat_messages_deleted = deletedChatMessages?.length || 0;
+      else results.errors.push(`chat_messages: ${chatMsgError.message}`);
     }
+
+    // 1.5 Get team discussion IDs for notifications
+    const { data: discussions } = await supabase
+      .from('team_discussions')
+      .select('id')
+      .eq('family_id', family_id);
+    
+    const discussionIds = discussions?.map(d => d.id) || [];
+    
+    // Delete team discussion notifications
+    if (discussionIds.length > 0) {
+      const { data: deletedNotifs, error: notifsError } = await supabase
+        .from('team_discussion_notifications')
+        .delete()
+        .in('discussion_id', discussionIds)
+        .select('id');
+      if (!notifsError) results.team_discussion_notifications_deleted = deletedNotifs?.length || 0;
+      else results.errors.push(`team_discussion_notifications: ${notifsError.message}`);
+    }
+
+    // Delete team discussions
+    const { data: deletedDiscussions, error: discussionsError } = await supabase
+      .from('team_discussions')
+      .delete()
+      .eq('family_id', family_id)
+      .select('id');
+    if (!discussionsError) results.team_discussions_deleted = deletedDiscussions?.length || 0;
+    else results.errors.push(`team_discussions: ${discussionsError.message}`);
 
     // 2. Delete chat conversations
     const { data: deletedChats, error: chatError } = await supabase
@@ -92,7 +131,25 @@ serve(async (req) => {
     if (!chatError) results.chat_conversations_deleted = deletedChats?.length || 0;
     else results.errors.push(`chat_conversations: ${chatError.message}`);
 
-    // 3. Delete family data embeddings
+    // 3. Delete wizard completions
+    const { data: deletedWizardCompletions, error: wizardError } = await supabase
+      .from('wizard_completions')
+      .delete()
+      .eq('family_id', family_id)
+      .select('id');
+    if (!wizardError) results.wizard_completions_deleted = deletedWizardCompletions?.length || 0;
+    else results.errors.push(`wizard_completions: ${wizardError.message}`);
+
+    // 3.5 Delete embedding queue
+    const { data: deletedEmbeddingQueue, error: embeddingQueueError } = await supabase
+      .from('embedding_queue')
+      .delete()
+      .eq('family_id', family_id)
+      .select('id');
+    if (!embeddingQueueError) results.embedding_queue_deleted = deletedEmbeddingQueue?.length || 0;
+    else results.errors.push(`embedding_queue: ${embeddingQueueError.message}`);
+
+    // 4. Delete family data embeddings
     const { data: deletedEmbeddings, error: embeddingError } = await supabase
       .from('family_data_embeddings')
       .delete()
@@ -101,7 +158,7 @@ serve(async (req) => {
     if (!embeddingError) results.family_data_embeddings_deleted = deletedEmbeddings?.length || 0;
     else results.errors.push(`family_data_embeddings: ${embeddingError.message}`);
 
-    // 4. Delete document-related data
+    // 5. Delete document-related data
     const { data: deletedChartMapping, error: chartMappingError } = await supabase
       .from('document_chart_mapping')
       .delete()
@@ -150,19 +207,45 @@ serve(async (req) => {
     if (!progressError) results.progress_tracking_deleted = deletedProgress?.length || 0;
     else results.errors.push(`progress_tracking: ${progressError.message}`);
 
-    // 5. Delete storage files and documents
+    // 6. Delete biometric alerts
+    const { data: deletedAlerts, error: alertsError } = await supabase
+      .from('biometric_alerts')
+      .delete()
+      .eq('family_id', family_id)
+      .select('id');
+    if (!alertsError) results.biometric_alerts_deleted = deletedAlerts?.length || 0;
+    else results.errors.push(`biometric_alerts: ${alertsError.message}`);
+
+    // 7. Delete storage files and documents
     const { data: docs, error: docsQueryError } = await supabase
       .from('documents')
       .select('file_path')
       .eq('family_id', family_id);
 
     if (!docsQueryError && docs && docs.length > 0) {
-      // Delete files from storage
-      const filePaths = docs.map(doc => doc.file_path);
-      const { error: storageError } = await supabase.storage
-        .from('family-documents')
-        .remove(filePaths);
-      if (storageError) results.errors.push(`storage: ${storageError.message}`);
+      // Delete files from storage - extract just the path after the bucket name
+      let storageFilesDeleted = 0;
+      for (const doc of docs) {
+        try {
+          // Extract path from full URL or use as-is if already a path
+          let filePath = doc.file_path;
+          if (filePath.includes('/storage/v1/object/public/family-documents/')) {
+            filePath = filePath.split('/storage/v1/object/public/family-documents/')[1];
+          } else if (filePath.includes('family-documents/')) {
+            filePath = filePath.split('family-documents/')[1];
+          }
+          
+          const { error: storageError } = await supabase.storage
+            .from('family-documents')
+            .remove([filePath]);
+          
+          if (!storageError) storageFilesDeleted++;
+          else console.warn(`Failed to delete storage file ${filePath}:`, storageError.message);
+        } catch (e) {
+          console.warn('Storage deletion error:', e);
+        }
+      }
+      results.storage_files_deleted = storageFilesDeleted;
     }
 
     const { data: deletedDocs, error: docsError } = await supabase
@@ -173,7 +256,7 @@ serve(async (req) => {
     if (!docsError) results.documents_deleted = deletedDocs?.length || 0;
     else results.errors.push(`documents: ${docsError.message}`);
 
-    // 6. Delete logs
+    // 8. Delete logs
     const { data: deletedEducator, error: educatorError } = await supabase
       .from('educator_logs')
       .delete()
@@ -206,7 +289,7 @@ serve(async (req) => {
     if (!sleepError) results.sleep_records_deleted = deletedSleep?.length || 0;
     else results.errors.push(`sleep_records: ${sleepError.message}`);
 
-    // 7. Delete goals
+    // 9. Delete goals
     const { data: deletedGoals, error: goalsError } = await supabase
       .from('goals')
       .delete()
@@ -214,6 +297,48 @@ serve(async (req) => {
       .select('id');
     if (!goalsError) results.goals_deleted = deletedGoals?.length || 0;
     else results.errors.push(`goals: ${goalsError.message}`);
+
+    // 10. Delete error logs
+    const { data: deletedErrors, error: errorLogsError } = await supabase
+      .from('system_error_log')
+      .delete()
+      .eq('family_id', family_id)
+      .select('id');
+    if (!errorLogsError) results.error_logs_deleted = deletedErrors?.length || 0;
+    else results.errors.push(`system_error_log: ${errorLogsError.message}`);
+
+    // 11. Reset family analysis status
+    const { error: familyResetError } = await supabase
+      .from('families')
+      .update({
+        initial_doc_analysis_status: null,
+        suggested_charts_config: null,
+        special_chart_trial_ends_at: null,
+      })
+      .eq('id', family_id);
+    if (familyResetError) results.errors.push(`family reset: ${familyResetError.message}`);
+
+    // 12. Handle duplicate students - keep only the first one and delete others
+    const { data: students } = await supabase
+      .from('students')
+      .select('id, student_name')
+      .eq('family_id', family_id)
+      .order('created_at', { ascending: true });
+
+    if (students && students.length > 1) {
+      const keepStudentId = students[0].id;
+      const duplicateIds = students.slice(1).map(s => s.id);
+      
+      if (duplicateIds.length > 0) {
+        const { data: deletedStudents, error: studentDeleteError } = await supabase
+          .from('students')
+          .delete()
+          .in('id', duplicateIds)
+          .select('id');
+        if (!studentDeleteError) results.duplicate_students_deleted = deletedStudents?.length || 0;
+        else results.errors.push(`duplicate students: ${studentDeleteError.message}`);
+      }
+    }
 
     console.log('✅ Family data cleared:', results);
 
