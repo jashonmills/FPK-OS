@@ -8,7 +8,7 @@ const corsHeaders = {
 
 // FIX #5: Hard limit for file size (5MB = 5,120 KB)
 const MAX_FILE_SIZE_KB = 5120;
-const EXTRACTION_TIMEOUT_MS = 45000; // FIX #2: 45 second timeout
+const EXTRACTION_TIMEOUT_MS = 90000; // 90 second timeout (increased from 45s)
 
 // FIX #5: Valid Claude model (CORRECTED to actual working model - Sonnet 4.5)
 const CLAUDE_MODEL = 'claude-sonnet-4-5';
