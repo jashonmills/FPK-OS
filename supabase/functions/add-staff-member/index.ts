@@ -91,6 +91,29 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
+    // Enforce role hierarchy to prevent privilege escalation
+    const adderRole = membership.role;
+
+    // Only owners can add 'owner' role
+    if (role === 'owner' && adderRole !== 'owner') {
+      console.error(`Permission denied: ${adderRole} cannot add 'owner' role`);
+      return new Response(
+        JSON.stringify({ error: "Only organization owners can add new owners" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Only owners can add 'admin' role
+    if (role === 'admin' && adderRole !== 'owner') {
+      console.error(`Permission denied: ${adderRole} cannot add 'admin' role`);
+      return new Response(
+        JSON.stringify({ error: "Only organization owners can add new admins" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    console.log(`Role hierarchy check passed: ${adderRole} adding ${role}`);
+
     // Get organization details
     const { data: org, error: orgError } = await supabase
       .from('organizations')

@@ -121,6 +121,38 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
+    // Enforce role hierarchy to prevent privilege escalation
+    const inviterRole = membership.role;
+    
+    // Only owners can invite 'owner' role
+    if (role === 'owner' && inviterRole !== 'owner') {
+      console.error(`Permission denied: ${inviterRole} cannot invite 'owner' role`);
+      return new Response(
+        JSON.stringify({ error: "Only organization owners can invite new owners" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Only owners and admins can invite 'admin' role
+    if (role === 'admin' && !['owner', 'admin'].includes(inviterRole)) {
+      console.error(`Permission denied: ${inviterRole} cannot invite 'admin' role`);
+      return new Response(
+        JSON.stringify({ error: "Only organization owners and admins can invite new admins" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Instructors can only invite instructor_aide, viewer, and student roles
+    if (inviterRole === 'instructor' && !['instructor_aide', 'viewer', 'student'].includes(role)) {
+      console.error(`Permission denied: instructor cannot invite '${role}' role`);
+      return new Response(
+        JSON.stringify({ error: "Instructors can only invite instructor aides, viewers, and students" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    console.log(`Role hierarchy check passed: ${inviterRole} inviting ${role}`);
+
     // Check rate limiting - max 10 invites per hour per org
     const oneHourAgo = new Date(Date.now() - 3600000).toISOString();
     const { data: recentInvites, error: rateLimitError } = await supabase
