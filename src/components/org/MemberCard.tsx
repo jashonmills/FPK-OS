@@ -98,10 +98,34 @@ export function MemberCard({
               </DropdownMenuSubTrigger>
               <DropdownMenuSubContent>
                 <DropdownMenuItem 
+                  onClick={() => onChangeRole(member.user_id, 'owner')}
+                  disabled={member.role === 'owner'}
+                >
+                  Owner
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => onChangeRole(member.user_id, 'admin')}
+                  disabled={member.role === 'admin'}
+                >
+                  Admin
+                </DropdownMenuItem>
+                <DropdownMenuItem 
                   onClick={() => onChangeRole(member.user_id, 'instructor')}
                   disabled={member.role === 'instructor'}
                 >
                   Instructor
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => onChangeRole(member.user_id, 'instructor_aide')}
+                  disabled={member.role === 'instructor_aide'}
+                >
+                  Instructor Aide
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => onChangeRole(member.user_id, 'viewer')}
+                  disabled={member.role === 'viewer'}
+                >
+                  Viewer
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => onChangeRole(member.user_id, 'student')}
