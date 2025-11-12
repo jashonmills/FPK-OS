@@ -45,13 +45,32 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const anthropicKey = Deno.env.get('ANTHROPIC_API_KEY');
 
+    console.log('🔑 Environment check:', {
+      hasSupabaseUrl: !!supabaseUrl,
+      hasServiceKey: !!supabaseServiceKey,
+      hasAnthropicKey: !!anthropicKey
+    });
+
     if (!anthropicKey) {
-      throw new Error('ANTHROPIC_API_KEY not configured');
+      console.error('❌ ANTHROPIC_API_KEY not configured');
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'CONFIGURATION_ERROR',
+          message: 'ANTHROPIC_API_KEY not configured. Please contact support.'
+        }),
+        { 
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
     }
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    console.log('✅ Supabase client created');
 
     // Fetch document
+    console.log(`📋 Fetching document from database...`);
     const { data: document, error: docError } = await supabase
       .from('documents')
       .select('*')
@@ -59,8 +78,16 @@ serve(async (req) => {
       .single();
 
     if (docError || !document) {
+      console.error('❌ Document fetch failed:', docError);
       throw new Error(`Document not found: ${docError?.message}`);
     }
+
+    console.log(`📄 Document found:`, {
+      id: document.id,
+      fileName: document.file_name,
+      fileType: document.file_type,
+      fileSizeKb: document.file_size_kb
+    });
 
     // Initialize telemetry data
     telemetryData = {
@@ -75,6 +102,8 @@ serve(async (req) => {
       retry_count: 0,
       circuit_breaker_triggered: false,
     };
+
+    console.log(`📊 Telemetry initialized:`, telemetryData);
 
     // PHASE 2: Check circuit breaker
     const { data: isAllowed } = await supabase.rpc('is_extraction_allowed', {
@@ -168,22 +197,35 @@ serve(async (req) => {
     await updateExtractionProgress(supabase, document_id, 'extracting', 'Downloading document...');
 
     // Download file from storage
+    console.log(`📥 Downloading file from storage...`);
     const filePath = document.file_path.split('/family-documents/')[1];
+    console.log(`📂 File path: ${filePath}`);
+    
     const { data: fileData, error: downloadError } = await supabase
       .storage
       .from('family-documents')
       .download(filePath);
 
     if (downloadError || !fileData) {
+      console.error('❌ File download failed:', downloadError);
       throw new Error(`Failed to download file: ${downloadError?.message}`);
     }
 
+    console.log(`✅ File downloaded successfully`);
     const fileBytes = new Uint8Array(await fileData.arrayBuffer());
     const mediaType = document.file_type.includes('pdf') ? 'application/pdf' : 'image/jpeg';
     const fileSizeKb = Number(document.file_size_kb) || 0;
 
+    console.log(`📦 File prepared:`, {
+      bytesLength: fileBytes.length,
+      mediaType,
+      fileSizeKb
+    });
+
     // PHASE 3: Check if document needs chunking
+    console.log(`🔍 Checking if chunking needed (size: ${fileSizeKb}KB)...`);
     const chunks = chunkDocument(fileBytes, document.file_type, fileSizeKb);
+    console.log(`📊 Chunking result: ${chunks.length} chunk(s)`);
     
     if (chunks.length > 1) {
       console.log(`📦 Document split into ${chunks.length} chunks for processing`);
@@ -209,18 +251,27 @@ serve(async (req) => {
     const chunkResults: Array<{ text: string; index: number }> = [];
 
     try {
+      console.log(`🔄 Starting chunk processing (${chunks.length} chunk(s))...`);
+      
       for (const chunk of chunks) {
         const base64Chunk = btoa(String.fromCharCode(...chunk.data));
         
-        console.log(`🔄 Processing chunk ${chunk.index + 1}/${chunk.totalChunks}...`);
+        console.log(`🔄 Processing chunk ${chunk.index + 1}/${chunk.totalChunks} (size: ${chunk.data.length} bytes)...`);
         
         // Use model fallback for extraction
+        console.log(`🤖 Calling extractWithFallback...`);
         const result = await extractWithFallback(
           base64Chunk,
           mediaType,
           chunk.index,
           chunk.totalChunks
         );
+        
+        console.log(`✅ Chunk ${chunk.index + 1} extracted successfully:`, {
+          textLength: result.text.length,
+          model: result.model,
+          cost: result.cost
+        });
         
         chunkResults.push({
           text: result.text,
