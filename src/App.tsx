@@ -25,6 +25,7 @@ import AdminKBManager from "./pages/AdminKBManager";
 import AdminKBDiagnostics from "./pages/AdminKBDiagnostics";
 import AdminStripe from "./pages/AdminStripe";
 import AdminExtractionMonitoring from "./pages/AdminExtractionMonitoring";
+import DocumentStatusMonitor from "./pages/admin/DocumentStatusMonitor";
 import PlatformAdmin from "./pages/PlatformAdmin";
 import Pricing from "./pages/Pricing";
 import PricingAuthenticated from "./pages/PricingAuthenticated";
@@ -360,6 +361,18 @@ const App = () => (
                   <SuperAdminRoute>
                     <AppLayout>
                       <AdminExtractionMonitoring />
+                    </AppLayout>
+                  </SuperAdminRoute>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/document-status"
+              element={
+                <ProtectedRoute>
+                  <SuperAdminRoute>
+                    <AppLayout>
+                      <DocumentStatusMonitor />
                     </AppLayout>
                   </SuperAdminRoute>
                 </ProtectedRoute>

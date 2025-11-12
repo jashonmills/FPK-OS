@@ -234,6 +234,16 @@ export const AppSidebar = () => {
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
+                    <NavLink to="/admin/document-status" className={({
+                  isActive
+                }) => isActive ? 'bg-accent text-accent-foreground font-medium' : ''}>
+                      <FileText className="h-4 w-4" />
+                      <span>Document Status</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
                     <NavLink to="/admin/extraction-monitoring" className={({
                   isActive
                 }) => isActive ? 'bg-accent text-accent-foreground font-medium' : ''}>
