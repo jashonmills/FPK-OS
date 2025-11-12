@@ -39,9 +39,9 @@ Deno.serve(async (req) => {
     
     const { data: stuckExtractions, error: fetchError } = await supabase
       .from('document_analysis_status')
-      .select('document_id, status, updated_at')
+      .select('document_id, status, started_at')
       .in('status', ['extracting', 'failed'])
-      .lt('updated_at', tenMinutesAgo);
+      .lt('started_at', tenMinutesAgo);
 
     if (fetchError) {
       console.error('❌ Error fetching stuck extractions:', fetchError);
