@@ -232,6 +232,16 @@ export const AppSidebar = () => {
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <NavLink to="/admin/extraction-monitoring" className={({
+                  isActive
+                }) => isActive ? 'bg-accent text-accent-foreground font-medium' : ''}>
+                      <Activity className="h-4 w-4" />
+                      <span>Extraction Monitoring</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>}

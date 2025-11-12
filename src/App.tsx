@@ -24,6 +24,7 @@ import Settings from "./pages/Settings";
 import AdminKBManager from "./pages/AdminKBManager";
 import AdminKBDiagnostics from "./pages/AdminKBDiagnostics";
 import AdminStripe from "./pages/AdminStripe";
+import AdminExtractionMonitoring from "./pages/AdminExtractionMonitoring";
 import PlatformAdmin from "./pages/PlatformAdmin";
 import Pricing from "./pages/Pricing";
 import PricingAuthenticated from "./pages/PricingAuthenticated";
@@ -347,6 +348,18 @@ const App = () => (
                   <SuperAdminRoute>
                     <AppLayout>
                       <SuperAdminDashboard />
+                    </AppLayout>
+                  </SuperAdminRoute>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/extraction-monitoring"
+              element={
+                <ProtectedRoute>
+                  <SuperAdminRoute>
+                    <AppLayout>
+                      <AdminExtractionMonitoring />
                     </AppLayout>
                   </SuperAdminRoute>
                 </ProtectedRoute>

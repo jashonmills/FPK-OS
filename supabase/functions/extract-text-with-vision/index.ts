@@ -36,6 +36,9 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const startTime = Date.now();
+  let telemetryData: any = null;
+
   try {
     const { document_id, force_re_extract = false } = await req.json();
     console.log(`📄 Starting extraction for document: ${document_id}`);
@@ -61,12 +64,60 @@ serve(async (req) => {
       throw new Error(`Document not found: ${docError?.message}`);
     }
 
-    // FIX #5: Circuit breaker - reject files that are too large
+    // Initialize telemetry data
+    telemetryData = {
+      document_id: document.id,
+      family_id: document.family_id,
+      file_name: document.file_name,
+      file_type: document.file_type,
+      file_size_kb: Number(document.file_size_kb) || 0,
+      extraction_method: 'claude_vision',
+      model_used: CLAUDE_MODEL,
+      success: false,
+      retry_count: 0,
+      circuit_breaker_triggered: false,
+    };
+
+    // PHASE 2: Check circuit breaker
+    const { data: isAllowed } = await supabase.rpc('is_extraction_allowed', {
+      p_file_type: document.file_type
+    });
+
+    if (isAllowed === false) {
+      telemetryData.circuit_breaker_triggered = true;
+      telemetryData.error_type = 'circuit_breaker';
+      telemetryData.error_message = 'File type temporarily disabled due to repeated failures';
+      
+      await supabase.from('extraction_telemetry').insert(telemetryData);
+      
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'CIRCUIT_BREAKER',
+          message: `Extraction temporarily disabled for ${document.file_type} due to repeated failures. Try again in 30 minutes or use a different file format.`,
+        }),
+        { 
+          status: 503,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
+    // File size check
     if (document.file_size_kb > MAX_FILE_SIZE_KB) {
       const errorMsg = `File too large: ${document.file_size_kb} KB exceeds maximum ${MAX_FILE_SIZE_KB} KB (${(MAX_FILE_SIZE_KB / 1024).toFixed(1)}MB). Please split the document and re-upload.`;
       console.error(`❌ ${errorMsg}`);
       
-      // Update document metadata
+      telemetryData.error_type = 'file_too_large';
+      telemetryData.error_message = errorMsg;
+      telemetryData.extraction_time_ms = Date.now() - startTime;
+      
+      await supabase.from('extraction_telemetry').insert(telemetryData);
+      await supabase.rpc('update_circuit_breaker', {
+        p_file_type: document.file_type,
+        p_success: false
+      });
+
       await supabase
         .from('documents')
         .update({
@@ -102,7 +153,7 @@ serve(async (req) => {
       );
     }
 
-    // Return existing content if available and not forcing re-extract
+    // Return existing content if available
     if (!force_re_extract && document.extracted_content && document.extracted_content.length > 100) {
       console.log('✅ Using existing extracted content');
       return new Response(
@@ -141,7 +192,7 @@ serve(async (req) => {
       `Calling Claude Vision API (${(Number(document.file_size_kb) / 1024).toFixed(1)}MB)...`
     );
 
-    // FIX #2: Add timeout using AbortController
+    // Add timeout using AbortController
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), EXTRACTION_TIMEOUT_MS);
 
@@ -155,10 +206,10 @@ serve(async (req) => {
           'Content-Type': 'application/json',
           'x-api-key': anthropicKey,
           'anthropic-version': '2023-06-01',
-          'anthropic-beta': 'pdfs-2024-09-25', // FIX #2: Enable PDF support
+          'anthropic-beta': 'pdfs-2024-09-25',
         },
         body: JSON.stringify({
-          model: CLAUDE_MODEL, // FIX #1: Use validated model
+          model: CLAUDE_MODEL,
           max_tokens: 16000,
           messages: [{
             role: 'user',
@@ -185,6 +236,16 @@ serve(async (req) => {
       // PHASE 1 FIX: Handle timeout with OCR fallback
       if (error.name === 'AbortError') {
         console.error(`⏰ Claude Vision timeout after ${EXTRACTION_TIMEOUT_MS / 1000}s. Trying OCR fallback...`);
+        
+        telemetryData.error_type = 'timeout';
+        telemetryData.error_message = `Vision API timeout after ${EXTRACTION_TIMEOUT_MS}ms`;
+        telemetryData.extraction_time_ms = Date.now() - startTime;
+        
+        await supabase.from('extraction_telemetry').insert(telemetryData);
+        await supabase.rpc('update_circuit_breaker', {
+          p_file_type: document.file_type,
+          p_success: false
+        });
         
         await updateExtractionProgress(
           supabase, 
@@ -232,25 +293,33 @@ serve(async (req) => {
       throw error;
     }
 
-    // FIX #3 & #4: Detailed error handling with better context
+    // Handle API errors
     if (!anthropicResponse.ok) {
       const errorBody = await anthropicResponse.text();
       
-      // FIX #4: Log full request context (without sensitive data)
       console.error(`❌ Claude API Error Details:`, {
         status: anthropicResponse.status,
         statusText: anthropicResponse.statusText,
         model: CLAUDE_MODEL,
         file_size_kb: Number(document.file_size_kb) || 0,
         media_type: mediaType,
-        response_body: errorBody.substring(0, 500) // First 500 chars
+        response_body: errorBody.substring(0, 500)
       });
       
       const errorMsg = `Claude API failed (${anthropicResponse.status}): ${errorBody.substring(0, 200)}`;
       
+      telemetryData.error_type = 'api_error';
+      telemetryData.error_message = errorMsg;
+      telemetryData.extraction_time_ms = Date.now() - startTime;
+      
+      await supabase.from('extraction_telemetry').insert(telemetryData);
+      await supabase.rpc('update_circuit_breaker', {
+        p_file_type: document.file_type,
+        p_success: false
+      });
+      
       await updateExtractionProgress(supabase, document_id, 'failed', errorMsg);
       
-      // FIX #3: Simplified error response (prevent stack overflow)
       const errorResponse = {
         success: false,
         error: 'CLAUDE_API_ERROR',
@@ -278,6 +347,10 @@ serve(async (req) => {
 
     console.log(`✅ Extracted ${extractedText.length} characters`);
 
+    // PHASE 2: Estimate API cost (Claude 3.5 Haiku: ~$0.25 per million input tokens)
+    const estimatedTokens = extractedText.length / 4; // rough estimate
+    const estimatedCost = (estimatedTokens / 1000000) * 0.25 * 100; // in cents
+
     // Update document with extracted content
     await supabase
       .from('documents')
@@ -300,7 +373,19 @@ serve(async (req) => {
       `Extracted ${extractedText.length} characters successfully`
     );
 
-    // Insert diagnostics
+    // PHASE 2: Record successful telemetry
+    telemetryData.success = true;
+    telemetryData.extraction_time_ms = Date.now() - startTime;
+    telemetryData.api_cost_estimate = estimatedCost;
+    telemetryData.extracted_length = extractedText.length;
+    
+    await supabase.from('extraction_telemetry').insert(telemetryData);
+    await supabase.rpc('update_circuit_breaker', {
+      p_file_type: document.file_type,
+      p_success: true
+    });
+
+    // Insert diagnostics (keeping existing table for backward compatibility)
     await supabase
       .from('document_extraction_diagnostics')
       .insert({
@@ -309,7 +394,7 @@ serve(async (req) => {
         success: true,
         extracted_length: extractedText.length,
         word_count: extractedText.split(/\s+/).length,
-        processing_time_ms: 0,
+        processing_time_ms: Date.now() - startTime,
         quality_score: extractedText.length > 1000 ? 0.9 : 0.7
       });
 
@@ -325,14 +410,33 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    // FIX #4: Enhanced error logging
     console.error('❌ Extraction error:', {
       message: error instanceof Error ? error.message : 'Unknown error',
       type: error?.constructor?.name || 'UnknownError',
       stack: error instanceof Error ? error.stack?.substring(0, 300) : undefined
     });
     
-    // FIX #3: Simplified error response (prevent circular reference issues)
+    // PHASE 2: Record failed telemetry if we have document info
+    if (telemetryData) {
+      telemetryData.success = false;
+      telemetryData.error_type = telemetryData.error_type || 'unknown_error';
+      telemetryData.error_message = error instanceof Error ? error.message : 'Unknown extraction error';
+      telemetryData.extraction_time_ms = Date.now() - startTime;
+      
+      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+      const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+      const supabase = createClient(supabaseUrl, supabaseServiceKey);
+      
+      await supabase.from('extraction_telemetry').insert(telemetryData);
+      
+      if (telemetryData.file_type) {
+        await supabase.rpc('update_circuit_breaker', {
+          p_file_type: telemetryData.file_type,
+          p_success: false
+        });
+      }
+    }
+    
     const errorMessage = error instanceof Error ? error.message : 'Unknown extraction error';
     
     return new Response(
