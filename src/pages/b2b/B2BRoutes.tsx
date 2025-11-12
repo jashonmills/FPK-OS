@@ -4,6 +4,7 @@ import { OrgLayout } from '@/components/layout/OrgLayout';
 import { OrgDashboard } from './OrgDashboard';
 import { OrgStudents } from './OrgStudents';
 import { OrgCreate } from './OrgCreate';
+import OrgResetPassword from './OrgResetPassword';
 import { OrganizationProvider, useOrganization } from '@/contexts/OrganizationContext';
 
 const OnboardingGuard = ({ children }: { children: React.ReactNode }) => {
@@ -36,6 +37,7 @@ export const B2BRoutes = () => {
       <Routes>
         {/* Onboarding route - no layout wrapper */}
         <Route path="/create" element={<OrgCreate />} />
+        <Route path="/reset-password" element={<OrgResetPassword />} />
         
         {/* Protected routes - require organization membership */}
         <Route

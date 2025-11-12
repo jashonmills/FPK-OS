@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { AppLayout } from "@/components/layout/AppLayout";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import ResetPassword from "./pages/ResetPassword";
 import AcceptInvite from "./pages/AcceptInvite";
 import OnboardingWizard from "./pages/OnboardingWizard";
 import ProfileSetup from "./pages/ProfileSetup";
@@ -105,6 +106,7 @@ const App = () => (
             <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/accept-invite" element={<AcceptInvite />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
