@@ -49,12 +49,7 @@ serve(async (req) => {
 
     console.log(`✅ File uploaded to: ${filePath}`);
 
-    // 4. Get public URL for AI vision
-    const { data: { publicUrl } } = supabase.storage
-      .from('bedrock-storage')
-      .getPublicUrl(filePath);
-
-    // 5. Extract text using Lovable AI (google/gemini-2.5-flash vision)
+    // 4. Extract text using Lovable AI (send data directly as base64)
     console.log('🔍 Calling Lovable AI for text extraction...');
     
     const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
@@ -75,7 +70,7 @@ serve(async (req) => {
               },
               {
                 type: 'image_url',
-                image_url: { url: publicUrl }
+                image_url: { url: `data:application/pdf;base64,${file_data_base64}` }
               }
             ]
           }
