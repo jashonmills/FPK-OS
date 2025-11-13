@@ -29,8 +29,32 @@ import { documentsTourSteps } from "@/components/onboarding/tourConfigs";
 import { useTourProgress } from "@/hooks/useTourProgress";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
+import { useFeatureFlag } from "@/hooks/useFeatureFlag";
+import { V3DocumentPage } from "@/components/documents/v3/V3DocumentPage";
 
 export default function Documents() {
+  // Project Bedrock: Check if V3 pipeline is enabled
+  const { isEnabled: isV3Enabled, loading: flagLoading } = useFeatureFlag('v3_document_pipeline');
+  
+  // If V3 is enabled, render the new clean document system
+  if (flagLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-muted-foreground">Loading...</p>
+      </div>
+    );
+  }
+  
+  if (isV3Enabled) {
+    return <V3DocumentPage />;
+  }
+  
+  // Otherwise, render the legacy system below
+  return <LegacyDocumentsPage />;
+}
+
+// Legacy documents page (existing implementation)
+function LegacyDocumentsPage() {
   const { selectedFamily, selectedStudent, currentUserRole } = useFamily();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
