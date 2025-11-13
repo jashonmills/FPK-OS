@@ -6,55 +6,24 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Import specialized prompts
-async function getSpecializedPrompt(category: string): Promise<string | null> {
-  // Map V3 categories to specialized prompts
-  const promptMap: Record<string, string> = {
-    'IEP': 'iep-prompt',
-    'BIP': 'bip-prompt',
-    'FBA': 'fba-prompt',
-    'Progress Report': 'progress-report-prompt',
-    'Psychoeducational Evaluation': 'psych-eval-prompt',
-    'Speech Therapy': 'speech-therapy-eval-prompt',
-    'OT/Sensory': 'ot-sensory-prompt',
-    '504 Plan': '504-plan-prompt',
-    'Medical Records': 'hospital-discharge-prompt',
-    'Other': null
-  };
-
-  const promptFile = promptMap[category];
-  if (!promptFile) return null;
-
-  try {
-    const module = await import(`../_shared/prompts/${promptFile}.ts`);
-    // Get the first exported constant that ends with _PROMPT
-    const promptKey = Object.keys(module).find(key => key.endsWith('_PROMPT'));
-    return promptKey ? module[promptKey] : null;
-  } catch (error) {
-    console.error(`Failed to load prompt for ${category}:`, error);
-    return null;
-  }
-}
-
 // Master analysis function using Lovable AI
 async function analyzeDocumentWithAI(
   content: string,
-  category: string,
-  specializedPrompt: string | null
+  category: string
 ): Promise<any> {
   const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
   if (!lovableApiKey) {
     throw new Error('LOVABLE_API_KEY not configured');
   }
 
-  const systemPrompt = specializedPrompt || `You are an expert special education data analyst. Analyze the following document and extract structured data.
+  const systemPrompt = `You are an expert special education data analyst. Analyze the following ${category} document and extract structured data.
 
 Extract the following:
 1. **metrics**: Quantifiable measurements (scores, percentages, frequencies) with:
    - metric_name: descriptive name
    - metric_value: numerical value
-   - metric_type: category (academic_performance, behavior, communication, etc.)
-   - measurement_date: when measured (if available)
+   - metric_type: category (academic_performance, behavior, communication, social_skills, motor_skills, etc.)
+   - measurement_date: when measured in YYYY-MM-DD format (if available, otherwise use today's date)
    - target_value: goal/target (if mentioned)
    - context: additional context
 
@@ -85,7 +54,6 @@ Return ONLY a valid JSON object with these three arrays: metrics, insights, prog
         { role: 'system', content: systemPrompt },
         { role: 'user', content: `Document Category: ${category}\n\nDocument Content:\n${content.substring(0, 50000)}` }
       ],
-      temperature: 0.3,
     }),
   });
 
@@ -221,19 +189,10 @@ serve(async (req) => {
     console.log(`[v3-analyze-document] Category: ${document.category}`);
     console.log(`[v3-analyze-document] Content length: ${document.extracted_content.length} chars`);
 
-    // Get specialized prompt if available
-    const specializedPrompt = await getSpecializedPrompt(document.category);
-    if (specializedPrompt) {
-      console.log(`[v3-analyze-document] Using specialized prompt for: ${document.category}`);
-    } else {
-      console.log(`[v3-analyze-document] Using generic prompt for: ${document.category}`);
-    }
-
     // Perform AI analysis
     const analysisResult = await analyzeDocumentWithAI(
       document.extracted_content,
-      document.category,
-      specializedPrompt
+      document.category
     );
 
     console.log(`[v3-analyze-document] AI analysis complete`);
