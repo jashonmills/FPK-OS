@@ -68,17 +68,38 @@ export const AddStudentDialog = ({ open, onOpenChange, organizationId }: AddStud
 
     setIsSubmitting(true);
     try {
-      // First, create a family for this student
+      // Check for duplicate family name and generate unique name if needed
+      let familyName = `${data.student_name}'s Team`;
+      const { data: existingFamilies } = await supabase
+        .from('families')
+        .select('family_name')
+        .eq('created_by', user.id)
+        .ilike('family_name', `${familyName}%`);
+
+      if (existingFamilies && existingFamilies.length > 0) {
+        // Add a number suffix to make it unique
+        familyName = `${data.student_name}'s Team (${existingFamilies.length + 1})`;
+      }
+
+      // Create a family for this student
       const { data: familyData, error: familyError } = await supabase
         .from('families')
         .insert({
-          family_name: `${data.student_name}'s Team`,
+          family_name: familyName,
           created_by: user.id,
         })
         .select()
         .single();
 
-      if (familyError) throw familyError;
+      if (familyError) {
+        // Handle unique constraint violation
+        if (familyError.code === '23505') {
+          toast.error('A family with this name already exists. Please try again.');
+          setIsSubmitting(false);
+          return;
+        }
+        throw familyError;
+      }
 
       // Create the student record
       const { error: studentError } = await supabase

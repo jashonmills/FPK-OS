@@ -156,7 +156,25 @@ const OnboardingWizard = () => {
         return;
       }
 
-      // 1. Create family
+      // 1. Check for duplicate family name
+      const { data: existingFamilies, error: checkError } = await supabase
+        .from('families')
+        .select('id, family_name')
+        .eq('created_by', currentSession.user.id)
+        .ilike('family_name', familyName);
+
+      if (checkError) throw new Error(`Failed to check family names: ${checkError.message}`);
+
+      if (existingFamilies && existingFamilies.length > 0) {
+        toast.error(
+          `You already have a family named "${existingFamilies[0].family_name}". Please choose a different name.`,
+          { duration: 5000 }
+        );
+        setStep(1); // Go back to family name step
+        return;
+      }
+
+      // 2. Create family
       const { data: family, error: familyError } = await supabase
         .from('families')
         .insert({ 
@@ -166,7 +184,15 @@ const OnboardingWizard = () => {
         .select()
         .single();
 
-      if (familyError) throw new Error(`Failed to create family: ${familyError.message}`);
+      if (familyError) {
+        // Handle unique constraint violation gracefully
+        if (familyError.code === '23505') {
+          toast.error('A family with this name already exists. Please choose a different name.', { duration: 5000 });
+          setStep(1);
+          return;
+        }
+        throw new Error(`Failed to create family: ${familyError.message}`);
+      }
 
       // 2. Add user as family owner
       const { error: memberError } = await supabase
