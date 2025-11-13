@@ -107,7 +107,8 @@ serve(async (req) => {
         },
         processOptions: {
           ocrConfig: {
-            enableNativePdfParsing: true
+            enableNativePdfParsing: true,
+            enableImageQualityScores: true  // Enables imageless mode for up to 30 pages
           }
         }
       })
