@@ -1,5 +1,11 @@
 project_id = "pnxwemmpxldriwaomiey"
 
+[functions.v3-upload-document]
+verify_jwt = true
+
+[functions.v3-classify-document]
+verify_jwt = true
+
 [functions.process-queue-job]
 verify_jwt = false
 
@@ -221,6 +227,3 @@ verify_jwt = true
 
 [functions.process-analysis-queue]
 verify_jwt = false
-
-[functions.v3-upload-document]
-verify_jwt = true

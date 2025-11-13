@@ -18,7 +18,7 @@ interface V3UploadModalProps {
 
 export function V3UploadModal({ open, onOpenChange, familyId, studentId, onSuccess }: V3UploadModalProps) {
   const [file, setFile] = useState<File | null>(null);
-  const [category, setCategory] = useState('general');
+  const [category, setCategory] = useState('');
   const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
 
@@ -41,30 +41,42 @@ export function V3UploadModal({ open, onOpenChange, familyId, studentId, onSucce
     setUploading(true);
     
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('family_id', familyId);
-      if (studentId) formData.append('student_id', studentId);
-      formData.append('category', category);
+      // Convert file to base64
+      const reader = new FileReader();
+      const base64Promise = new Promise<string>((resolve) => {
+        reader.onloadend = () => {
+          const base64 = reader.result as string;
+          resolve(base64.split(',')[1]);
+        };
+        reader.readAsDataURL(file);
+      });
 
-      const { data, error } = await supabase.functions.invoke('v3-upload-document', {
-        body: formData
+      const base64 = await base64Promise;
+
+      const { error } = await supabase.functions.invoke('v3-upload-document', {
+        body: {
+          file_name: file.name,
+          file_size_kb: Math.round(file.size / 1024),
+          file_type: file.type,
+          category: category || null,
+          family_id: familyId,
+          student_id: studentId,
+          file_data: base64
+        }
       });
 
       if (error) throw error;
 
-      if (!data.success) {
-        throw new Error(data.error || 'Upload failed');
-      }
-
       toast({
         title: 'Upload successful',
-        description: `${file.name} has been uploaded successfully`
+        description: category 
+          ? `${file.name} has been uploaded and classified`
+          : `${file.name} has been uploaded. Please classify it to enable analysis.`
       });
 
       // Reset form
       setFile(null);
-      setCategory('general');
+      setCategory('');
       onOpenChange(false);
       onSuccess?.();
       
@@ -105,19 +117,27 @@ export function V3UploadModal({ open, onOpenChange, familyId, studentId, onSucce
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="category">Category</Label>
+            <Label htmlFor="category">Category (Optional)</Label>
             <Select value={category} onValueChange={setCategory} disabled={uploading}>
               <SelectTrigger id="category">
-                <SelectValue />
+                <SelectValue placeholder="I'll classify later (recommended)" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="general">General</SelectItem>
-                <SelectItem value="iep">IEP</SelectItem>
-                <SelectItem value="medical">Medical</SelectItem>
-                <SelectItem value="assessment">Assessment</SelectItem>
-                <SelectItem value="progress_report">Progress Report</SelectItem>
+                <SelectItem value="">I'll classify later (recommended)</SelectItem>
+                <SelectItem value="IEP">IEP - Individualized Education Program</SelectItem>
+                <SelectItem value="BIP">BIP - Behavior Intervention Plan</SelectItem>
+                <SelectItem value="FBA">FBA - Functional Behavior Assessment</SelectItem>
+                <SelectItem value="Progress_Report">Progress Report</SelectItem>
+                <SelectItem value="Evaluation_Report">Evaluation Report</SelectItem>
+                <SelectItem value="504_Plan">504 Plan</SelectItem>
+                <SelectItem value="Medical_Record">Medical Record</SelectItem>
+                <SelectItem value="Incident_Report">Incident Report</SelectItem>
+                <SelectItem value="General_Document">General Document</SelectItem>
               </SelectContent>
             </Select>
+            <p className="text-xs text-muted-foreground">
+              You can classify the document after upload for better accuracy
+            </p>
           </div>
 
           <Button 

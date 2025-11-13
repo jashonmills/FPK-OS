@@ -4023,7 +4023,9 @@ export type Database = {
       v3_documents: {
         Row: {
           analysis_summary: Json | null
-          category: string | null
+          category: Database["public"]["Enums"]["document_category_enum"] | null
+          classified_at: string | null
+          classified_by: string | null
           created_at: string | null
           error_message: string | null
           extracted_content: string | null
@@ -4032,6 +4034,7 @@ export type Database = {
           file_path: string
           file_size_kb: number | null
           id: string
+          is_classified: boolean
           status: string
           student_id: string | null
           updated_at: string | null
@@ -4039,7 +4042,11 @@ export type Database = {
         }
         Insert: {
           analysis_summary?: Json | null
-          category?: string | null
+          category?:
+            | Database["public"]["Enums"]["document_category_enum"]
+            | null
+          classified_at?: string | null
+          classified_by?: string | null
           created_at?: string | null
           error_message?: string | null
           extracted_content?: string | null
@@ -4048,6 +4055,7 @@ export type Database = {
           file_path: string
           file_size_kb?: number | null
           id?: string
+          is_classified?: boolean
           status?: string
           student_id?: string | null
           updated_at?: string | null
@@ -4055,7 +4063,11 @@ export type Database = {
         }
         Update: {
           analysis_summary?: Json | null
-          category?: string | null
+          category?:
+            | Database["public"]["Enums"]["document_category_enum"]
+            | null
+          classified_at?: string | null
+          classified_by?: string | null
           created_at?: string | null
           error_message?: string | null
           extracted_content?: string | null
@@ -4064,6 +4076,7 @@ export type Database = {
           file_path?: string
           file_size_kb?: number | null
           id?: string
+          is_classified?: boolean
           status?: string
           student_id?: string | null
           updated_at?: string | null
@@ -4906,6 +4919,16 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "member" | "super_admin"
+      document_category_enum:
+        | "IEP"
+        | "BIP"
+        | "FBA"
+        | "Progress_Report"
+        | "Evaluation_Report"
+        | "504_Plan"
+        | "Medical_Record"
+        | "Incident_Report"
+        | "General_Document"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -5034,6 +5057,17 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "member", "super_admin"],
+      document_category_enum: [
+        "IEP",
+        "BIP",
+        "FBA",
+        "Progress_Report",
+        "Evaluation_Report",
+        "504_Plan",
+        "Medical_Record",
+        "Incident_Report",
+        "General_Document",
+      ],
     },
   },
 } as const
