@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Loader2, AlertCircle } from 'lucide-react';
+import { FileText, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { DocumentTypeSelector } from './DocumentTypeSelector';
+import { V3AnalyzeButton } from './V3AnalyzeButton';
 
 interface V3Document {
   id: string;
@@ -16,6 +17,7 @@ interface V3Document {
   is_classified: boolean;
   classified_at: string | null;
   classified_by: string | null;
+  error_message?: string | null;
 }
 
 interface V3DocumentListProps {
@@ -101,16 +103,41 @@ export function V3DocumentList({ familyId, studentId }: V3DocumentListProps) {
   };
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, { variant: any; label: string }> = {
-      uploaded: { variant: 'secondary', label: 'Uploaded' },
-      extracting: { variant: 'default', label: 'Extracting...' },
-      analyzing: { variant: 'default', label: 'Analyzing...' },
-      completed: { variant: 'default', label: 'Completed' },
-      failed: { variant: 'destructive', label: 'Failed' }
+    const statusConfig: Record<string, { variant: "default" | "secondary" | "destructive" | "outline"; label: string; icon?: React.ReactNode }> = {
+      uploaded: { 
+        variant: 'secondary', 
+        label: 'Ready for Analysis',
+      },
+      extracting: { 
+        variant: 'default', 
+        label: 'Extracting Text...',
+        icon: <Loader2 className="h-3 w-3 animate-spin" />
+      },
+      analyzing: { 
+        variant: 'default', 
+        label: 'AI Analysis in Progress...',
+        icon: <Loader2 className="h-3 w-3 animate-spin" />
+      },
+      completed: { 
+        variant: 'secondary', 
+        label: 'Analysis Complete',
+        icon: <CheckCircle2 className="h-3 w-3 text-green-600" />
+      },
+      failed: { 
+        variant: 'destructive', 
+        label: 'Analysis Failed',
+        icon: <AlertCircle className="h-3 w-3" />
+      }
     };
-
-    const config = variants[status] || { variant: 'secondary', label: status };
-    return <Badge variant={config.variant}>{config.label}</Badge>;
+    
+    const config = statusConfig[status] || statusConfig.uploaded;
+    
+    return (
+      <Badge variant={config.variant} className="flex items-center gap-1.5">
+        {config.icon}
+        {config.label}
+      </Badge>
+    );
   };
 
   if (loading) {
@@ -177,6 +204,24 @@ export function V3DocumentList({ familyId, studentId }: V3DocumentListProps) {
                         documentId={doc.id} 
                         onClassified={fetchDocuments}
                       />
+                    </div>
+                  )}
+
+                  {/* Analyze button for classified documents */}
+                  {doc.is_classified && (
+                    <div className="mt-3">
+                      <V3AnalyzeButton 
+                        document={doc} 
+                        onAnalysisStarted={fetchDocuments}
+                      />
+                    </div>
+                  )}
+
+                  {/* Error message for failed analyses */}
+                  {doc.status === 'failed' && doc.error_message && (
+                    <div className="mt-2 p-2 bg-destructive/10 rounded text-xs text-destructive">
+                      <AlertCircle className="h-3 w-3 inline mr-1" />
+                      {doc.error_message}
                     </div>
                   )}
 
