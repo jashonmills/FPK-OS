@@ -1,3 +1,4 @@
+// bedrock-upload v2.1 - Google Document AI integration
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getAccessToken } from "../_shared/google-document-ai-auth.ts";
