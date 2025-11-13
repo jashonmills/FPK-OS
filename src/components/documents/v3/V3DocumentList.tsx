@@ -16,6 +16,7 @@ import { V3DocumentReportModal } from './V3DocumentReportModal';
 interface V3Document {
   id: string;
   file_name: string;
+  file_path: string;
   category: string | null;
   status: string;
   file_size_kb: number;
@@ -24,6 +25,7 @@ interface V3Document {
   classified_at: string | null;
   classified_by: string | null;
   error_message?: string | null;
+  file_type?: string; // Computed from file_name
 }
 
 interface V3DocumentListProps {
@@ -85,7 +87,14 @@ export function V3DocumentList({ familyId, studentId }: V3DocumentListProps) {
       const { data, error } = await query;
 
       if (error) throw error;
-      setDocuments(data || []);
+      
+      // Add file_type based on file_name extension
+      const documentsWithType = (data || []).map(doc => ({
+        ...doc,
+        file_type: doc.file_name.endsWith('.pdf') ? 'application/pdf' : 'application/octet-stream'
+      }));
+      
+      setDocuments(documentsWithType);
     } catch (error) {
       console.error('Error fetching documents:', error);
     } finally {
