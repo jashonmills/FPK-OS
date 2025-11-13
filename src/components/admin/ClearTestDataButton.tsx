@@ -44,7 +44,7 @@ export const ClearTestDataButton = () => {
       console.log('✅ Clear results:', data);
       
       toast.success('All data cleared successfully', {
-        description: `Deleted: ${data.results.documents_deleted} docs, ${data.results.chat_conversations_deleted} chats, ${data.results.ai_insights_deleted} insights, ${data.results.storage_files_deleted} files, ${data.results.duplicate_students_deleted} duplicate students. Profile and 1 student retained.`
+        description: `Deleted: ${data.results.documents_deleted} docs, ${data.results.chat_conversations_deleted} chats, ${data.results.storage_files_deleted} files, ${data.results.duplicate_students_deleted} duplicate students. Profile and 1 student retained.`
       });
 
       // Reload to home to show fresh state

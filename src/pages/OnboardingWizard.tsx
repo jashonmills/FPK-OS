@@ -227,7 +227,7 @@ const OnboardingWizard = () => {
         .from('family_dashboard_config')
         .insert({
           family_id: family.id,
-          visible_sections: ['student_overview', 'educator_logs', 'progress_tracking'],
+          visible_sections: ['student_overview', 'educator_logs'],
         });
 
       if (configError) console.warn('Dashboard config creation failed');
