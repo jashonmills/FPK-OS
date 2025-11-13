@@ -122,7 +122,10 @@ Return ONLY the JSON object, no markdown or explanation.`;
     }
 
     const aiData = await aiResponse.json();
-    const content = aiData.choices?.[0]?.message?.content || '{}';
+    let content = aiData.choices?.[0]?.message?.content || '{}';
+    
+    // Strip markdown code blocks if present
+    content = content.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
     
     // Parse AI response
     const analysisResult = JSON.parse(content);
