@@ -49,7 +49,19 @@ serve(async (req) => {
 
     console.log(`✅ File uploaded to: ${filePath}`);
 
-    // 4. Extract text using Lovable AI (send data directly as base64)
+    // 4. Generate signed URL (1 hour expiration)
+    const { data: signedUrlData, error: signedUrlError } = await supabase.storage
+      .from('bedrock-storage')
+      .createSignedUrl(filePath, 3600);
+    
+    if (signedUrlError || !signedUrlData) {
+      // ROLLBACK: Delete the uploaded file
+      await supabase.storage.from('bedrock-storage').remove([filePath]);
+      console.error('Signed URL creation failed:', signedUrlError);
+      throw new Error('Failed to create file access URL');
+    }
+
+    // 5. Extract text using Lovable AI (vision model with signed URL)
     console.log('🔍 Calling Lovable AI for text extraction...');
     
     const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
@@ -70,7 +82,7 @@ serve(async (req) => {
               },
               {
                 type: 'image_url',
-                image_url: { url: `data:application/pdf;base64,${file_data_base64}` }
+                image_url: { url: signedUrlData.signedUrl }
               }
             ]
           }
