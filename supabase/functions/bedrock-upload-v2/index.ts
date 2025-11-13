@@ -1,12 +1,12 @@
-// bedrock-upload-v2 - Fresh deployment with clean environment
-// VERSION: 2.3.0 - IMAGELESS MODE ENABLED (30 pages max) - FORCED REDEPLOYMENT
-// Deployed: 2025-01-14 00:15:00 UTC
-// Critical fix: Using correct imagelessMode parameter (not skipHumanReview)
+// bedrock-upload-v2 - Enhanced logging for monitoring and performance tracking
+// VERSION: 2.4.0 - ENHANCED LOGGING + IMAGELESS MODE (30 pages max)
+// Deployed: 2025-01-14 01:00:00 UTC
+// New: Detailed timing metrics, page count tracking, processing performance data
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getAccessToken } from "../_shared/google-document-ai-auth.ts";
 
-const VERSION = "2.3.0-IMAGELESS";
+const VERSION = "2.4.0-ENHANCED-LOGGING";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -14,6 +14,14 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  const startTime = Date.now();
+  const timings = {
+    upload: 0,
+    auth: 0,
+    ocr: 0,
+    database: 0,
+  };
+  
   console.log(`🚀 BEDROCK-UPLOAD-V2 VERSION: ${VERSION} - Starting request`);
   
   if (req.method === 'OPTIONS') {
@@ -44,6 +52,14 @@ serve(async (req) => {
     const filePath = `${family_id}/${timestamp}_${file_name}`;
     const fileBuffer = Uint8Array.from(atob(file_data_base64), c => c.charCodeAt(0));
     
+    console.log('📋 Document metadata:', {
+      fileName: file_name,
+      fileSizeKB: Math.round(fileBuffer.length / 1024),
+      familyId: family_id,
+      studentId: student_id || 'none'
+    });
+    
+    const uploadStart = Date.now();
     const { error: uploadError } = await supabase.storage
       .from('bedrock-storage')
       .upload(filePath, fileBuffer, {
@@ -56,7 +72,8 @@ serve(async (req) => {
       throw new Error('File upload failed');
     }
 
-    console.log(`✅ File uploaded to: ${filePath}`);
+    timings.upload = Date.now() - uploadStart;
+    console.log(`✅ File uploaded to: ${filePath} (${timings.upload}ms)`);
 
     // 4. Extract text using Google Document AI
     console.log(`🔍 VERSION ${VERSION}: Calling Google Document AI with IMAGELESS MODE (imagelessMode: true)...`);
@@ -94,13 +111,16 @@ serve(async (req) => {
 
     console.log('🔐 Authenticating with Google Document AI...');
     console.log('📧 Using service account:', credentials.client_email);
+    const authStart = Date.now();
     const accessToken = await getAccessToken(credentials);
-    console.log('✅ Authentication successful');
+    timings.auth = Date.now() - authStart;
+    console.log(`✅ Authentication successful (${timings.auth}ms)`);
 
     // Call Document AI processDocument endpoint
     const apiUrl = `https://documentai.googleapis.com/v1/${processorId}:process`;
-    console.log('📄 Processing document...');
+    console.log('📄 Processing document with Google Document AI...');
     
+    const ocrStart = Date.now();
     const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
@@ -137,6 +157,14 @@ serve(async (req) => {
 
     const result = await response.json();
     const extractedContent = result.document?.text || '';
+    const pageCount = result.document?.pages?.length || 0;
+    
+    timings.ocr = Date.now() - ocrStart;
+    
+    console.log(`📊 Document has ${pageCount} pages (limit: 30)`);
+    if (pageCount > 25) {
+      console.warn(`⚠️ High page count: ${pageCount}/30 pages`);
+    }
     
     if (extractedContent.length < 50) {
       // ROLLBACK: Delete the uploaded file
@@ -144,9 +172,10 @@ serve(async (req) => {
       throw new Error('Extracted text is too short. File may be corrupted or empty.');
     }
 
-    console.log(`✅ Extracted ${extractedContent.length} characters of text`);
+    console.log(`✅ Extracted ${extractedContent.length} characters of text (${timings.ocr}ms, ${Math.round(extractedContent.length / (timings.ocr / 1000))} chars/sec)`);
 
     // 6. Create database record WITH extracted content
+    const dbStart = Date.now();
     const { data: document, error: dbError } = await supabase
       .from('bedrock_documents')
       .insert({
@@ -168,19 +197,55 @@ serve(async (req) => {
       throw new Error('Failed to create document record');
     }
 
-    console.log(`✅ Document record created: ${document.id}`);
+    timings.database = Date.now() - dbStart;
+    console.log(`✅ Document record created: ${document.id} (${timings.database}ms)`);
+
+    // Processing summary
+    const totalTime = Date.now() - startTime;
+    console.log('✅ Processing complete:', {
+      documentId: document.id,
+      fileName: file_name,
+      pageCount: pageCount,
+      fileSizeKB: Math.round(fileBuffer.length / 1024),
+      extractedChars: extractedContent.length,
+      timings: {
+        total: totalTime,
+        upload: timings.upload,
+        auth: timings.auth,
+        ocr: timings.ocr,
+        database: timings.database
+      },
+      ocrSpeed: `${Math.round(extractedContent.length / (timings.ocr / 1000))} chars/sec`
+    });
 
     return new Response(
       JSON.stringify({ 
         success: true, 
         document,
-        extracted_length: extractedContent.length
+        extracted_length: extractedContent.length,
+        page_count: pageCount,
+        processing_time_ms: totalTime
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error: any) {
-    console.error('❌ Upload failed:', error);
+    const totalTime = Date.now() - startTime;
+    
+    // Determine which phase failed
+    let failedPhase = 'initialization';
+    if (timings.upload > 0 && timings.auth === 0) failedPhase = 'authentication';
+    else if (timings.auth > 0 && timings.ocr === 0) failedPhase = 'document_ai_processing';
+    else if (timings.ocr > 0 && timings.database === 0) failedPhase = 'database_insert';
+    else if (timings.upload > 0) failedPhase = 'storage_upload';
+    
+    console.error('❌ Upload failed:', {
+      error: error.message,
+      failedPhase: failedPhase,
+      failedAfter: totalTime,
+      completedTimings: timings
+    });
+    
     return new Response(
       JSON.stringify({ 
         success: false,
