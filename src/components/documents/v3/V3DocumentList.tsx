@@ -9,6 +9,7 @@ import { FileText, Loader2, AlertCircle, CheckCircle2, BarChart3, Search, X } fr
 import { format } from 'date-fns';
 import { DocumentTypeSelector } from './DocumentTypeSelector';
 import { V3AnalyzeButton } from './V3AnalyzeButton';
+import { V3ExtractButton } from './V3ExtractButton';
 import { V3DeleteButton } from './V3DeleteButton';
 import { DocumentViewerModal } from '../DocumentViewerModal';
 import { V3DocumentReportModal } from './V3DocumentReportModal';
@@ -376,8 +377,13 @@ export function V3DocumentList({ familyId, studentId }: V3DocumentListProps) {
                             View PDF
                           </Button>
                           
+                          <V3ExtractButton 
+                            document={doc}
+                            onExtractionStarted={fetchDocuments}
+                          />
+                          
                           <V3AnalyzeButton 
-                            document={doc} 
+                            document={doc}
                             onAnalysisStarted={fetchDocuments}
                           />
                           
