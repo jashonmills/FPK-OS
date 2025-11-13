@@ -1,11 +1,12 @@
 // bedrock-upload-v2 - Fresh deployment with clean environment
-// VERSION: 2.2.0 - IMAGELESS MODE ENABLED (30 pages max) - FIXED PARAMETER NAME
-// Deployed: 2025-01-13 23:45:00 UTC
+// VERSION: 2.3.0 - IMAGELESS MODE ENABLED (30 pages max) - FORCED REDEPLOYMENT
+// Deployed: 2025-01-14 00:15:00 UTC
+// Critical fix: Using correct imagelessMode parameter (not skipHumanReview)
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getAccessToken } from "../_shared/google-document-ai-auth.ts";
 
-const VERSION = "2.2.0-IMAGELESS";
+const VERSION = "2.3.0-IMAGELESS";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
