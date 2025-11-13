@@ -128,12 +128,25 @@ serve(async (req) => {
     // Get document and verify access
     const { data: document, error: docError } = await supabase
       .from('v3_documents')
-      .select('*, families!inner(id, student_id)')
+      .select('*')
       .eq('id', document_id)
       .single();
 
     if (docError || !document) {
+      console.error('[v3-analyze-document] Document fetch error:', docError);
       throw new Error('Document not found');
+    }
+
+    // Get family to get student_id
+    const { data: family, error: familyError } = await supabase
+      .from('families')
+      .select('id, student_id')
+      .eq('id', document.family_id)
+      .single();
+
+    if (familyError || !family) {
+      console.error('[v3-analyze-document] Family fetch error:', familyError);
+      throw new Error('Family not found');
     }
 
     // Verify user is family member
@@ -203,7 +216,7 @@ serve(async (req) => {
       const metricsToInsert = analysisResult.metrics.map((metric: any) => ({
         document_id: document_id,
         family_id: document.family_id,
-        student_id: document.families.student_id,
+        student_id: family.student_id,
         metric_name: metric.metric_name,
         metric_value: metric.metric_value,
         metric_type: metric.metric_type || 'general',
@@ -228,7 +241,7 @@ serve(async (req) => {
       const insightsToInsert = analysisResult.insights.map((insight: any) => ({
         document_id: document_id,
         family_id: document.family_id,
-        student_id: document.families.student_id,
+        student_id: family.student_id,
         insight_text: insight.insight_text,
         insight_type: insight.insight_type || 'observation',
         confidence_score: insight.confidence_score || 5,
@@ -251,7 +264,7 @@ serve(async (req) => {
       const progressToInsert = analysisResult.progress_tracking.map((progress: any) => ({
         document_id: document_id,
         family_id: document.family_id,
-        student_id: document.families.student_id,
+        student_id: family.student_id,
         metric_type: progress.metric_type,
         current_value: progress.current_value,
         target_value: progress.target_value,
