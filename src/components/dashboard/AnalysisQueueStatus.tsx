@@ -1,92 +1,55 @@
-import { useEffect, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useFamily } from '@/contexts/FamilyContext';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Loader2, CheckCircle2, AlertCircle, Clock, FileText, RefreshCw } from 'lucide-react';
+import { Loader2, CheckCircle2, XCircle, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
-import type { JobStatus, QueueStats, AnalysisJobMetadata } from '@/types/analysis';
 
 export const AnalysisQueueStatus = () => {
   const { selectedFamily, selectedStudent } = useFamily();
   const navigate = useNavigate();
-  const [liveStats, setLiveStats] = useState<any>(null);
-  const [isRecovering, setIsRecovering] = useState(false);
+  const queryClient = useQueryClient();
 
-  // Fetch current analysis jobs
-  const { data: activeJobs, refetch: refetchJobs } = useQuery({
-    queryKey: ['active-analysis-jobs', selectedFamily?.id],
+  // Fetch all bedrock documents for this family
+  const { data: documents, isLoading } = useQuery({
+    queryKey: ['bedrock-documents-status', selectedFamily?.id],
     queryFn: async () => {
-      if (!selectedFamily?.id) return null;
+      if (!selectedFamily?.id) return [];
       
       const { data, error } = await supabase
-        .from('analysis_jobs')
-        .select('*')
+        .from('bedrock_documents')
+        .select('id, file_name, status, created_at, analyzed_at')
         .eq('family_id', selectedFamily.id)
-        .in('status', ['pending', 'processing'])
-        .order('created_at', { ascending: false })
-        .limit(1);
+        .order('created_at', { ascending: false});
 
       if (error) throw error;
-      return data?.[0] || null;
+      return data || [];
     },
     enabled: !!selectedFamily?.id,
-    refetchInterval: 5000 // Poll every 5 seconds
+    refetchInterval: 3000, // Poll every 3 seconds for updates
   });
 
-  // Fetch queue stats
-  const { data: queueStats, refetch: refetchStats } = useQuery({
-    queryKey: ['queue-stats', selectedFamily?.id, activeJobs?.id],
-    queryFn: async () => {
-      if (!selectedFamily?.id) return null;
-      
-      const { data, error } = await supabase.rpc('get_queue_stats', {
-        p_family_id: selectedFamily.id,
-        p_job_id: activeJobs?.id || null
-      });
-
-      if (error) throw error;
-      return data?.[0];
-    },
-    enabled: !!selectedFamily?.id,
-    refetchInterval: 3000 // Poll every 3 seconds
-  });
-
-  // Real-time subscription to queue changes
+  // Real-time subscription to bedrock document changes
   useEffect(() => {
     if (!selectedFamily?.id) return;
 
     const channel = supabase
-      .channel('queue-updates')
+      .channel('bedrock-documents-updates')
       .on(
         'postgres_changes',
         {
           event: '*',
           schema: 'public',
-          table: 'analysis_queue',
+          table: 'bedrock_documents',
           filter: `family_id=eq.${selectedFamily.id}`
         },
         (payload) => {
-          console.log('Queue update:', payload);
-          // Trigger refetch of stats
-          setLiveStats((prev: any) => ({ ...prev, timestamp: Date.now() }));
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'analysis_jobs',
-          filter: `family_id=eq.${selectedFamily.id}`
-        },
-        (payload) => {
-          console.log('Job update:', payload);
-          setLiveStats((prev: any) => ({ ...prev, timestamp: Date.now() }));
+          console.log('Bedrock document update:', payload);
+          // Refetch documents when changes occur
+          queryClient.invalidateQueries({ queryKey: ['bedrock-documents-status', selectedFamily.id] });
         }
       )
       .subscribe();
@@ -94,190 +57,117 @@ export const AnalysisQueueStatus = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [selectedFamily?.id]);
+  }, [selectedFamily?.id, queryClient]);
 
   if (!selectedFamily || !selectedStudent) return null;
+  if (isLoading) {
+    return (
+      <Card className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold">AI Analysis Status</h3>
+        </div>
+        <p className="text-sm text-muted-foreground">Loading status...</p>
+      </Card>
+    );
+  }
 
-  // Don't show if no active processing
-  if (!activeJobs && (!queueStats || queueStats.processing_items === 0)) return null;
+  if (!documents || documents.length === 0) return null;
 
-  const progress = activeJobs 
-    ? Math.round((activeJobs.processed_documents / activeJobs.total_documents) * 100)
-    : 0;
-
-  // CRITICAL FIX #4: Type-safe metadata access
-  const metadata = activeJobs?.metadata as AnalysisJobMetadata | undefined;
-  const estimatedMinutesRemaining = metadata?.estimatedMinutes && activeJobs?.started_at
-    ? Math.max(0, metadata.estimatedMinutes - Math.floor((Date.now() - new Date(activeJobs.started_at).getTime()) / 60000))
-    : null;
-
-  // Detect stuck job (processing >5 min with no progress)
-  const isStuck = activeJobs?.status === 'processing' && 
-    activeJobs.started_at && 
-    (Date.now() - new Date(activeJobs.started_at).getTime() > 5 * 60 * 1000) &&
-    activeJobs.processed_documents === 0;
-
-  const handleRecovery = async () => {
-    if (!selectedFamily || !activeJobs) return;
-    
-    setIsRecovering(true);
-    try {
-      const { error } = await supabase.functions.invoke('recover-stuck-queue-items', {
-        body: { 
-          family_id: selectedFamily.id,
-          job_id: activeJobs.id 
-        }
-      });
-
-      if (error) throw error;
-
-      toast.success('Recovery successful! Restarting analysis...');
-      
-      // Trigger re-analysis
-      const { error: reanalyzeError } = await supabase.functions.invoke('re-analyze-all-documents', {
-        body: { 
-          family_id: selectedFamily.id,
-          student_id: selectedStudent?.id 
-        }
-      });
-
-      if (reanalyzeError) throw reanalyzeError;
-
-      // Refetch data
-      await Promise.all([refetchJobs(), refetchStats()]);
-      
-    } catch (error) {
-      console.error('Recovery error:', error);
-      toast.error('Recovery failed. Please try again.');
-    } finally {
-      setIsRecovering(false);
-    }
+  // Calculate statistics
+  const stats = {
+    total: documents.length,
+    uploaded: documents.filter(d => d.status === 'uploaded').length,
+    analyzing: documents.filter(d => d.status === 'analyzing').length,
+    completed: documents.filter(d => d.status === 'completed').length,
+    failed: documents.filter(d => d.status === 'failed').length,
   };
 
-  return (
-    <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-base flex items-center gap-2">
-            <Loader2 className="h-4 w-4 animate-spin text-primary" />
-            AI Analysis in Progress
-          </CardTitle>
-          {activeJobs && (
-            <Badge variant="secondary" className="text-xs">
-              {activeJobs.job_type === 're-analysis' ? 'Re-Analysis' : 'Processing'}
-            </Badge>
-          )}
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {isStuck && (
-          <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
-            <AlertCircle className="h-4 w-4 text-destructive flex-shrink-0" />
-            <div className="flex-1 text-sm">
-              <p className="font-medium text-destructive">Analysis appears stuck</p>
-              <p className="text-muted-foreground text-xs mt-1">
-                No progress detected. Click to recover and retry.
-              </p>
-            </div>
-            <Button
-              size="sm"
-              variant="destructive"
-              onClick={handleRecovery}
-              disabled={isRecovering}
-            >
-              {isRecovering ? (
-                <>
-                  <Loader2 className="mr-2 h-3 w-3 animate-spin" />
-                  Recovering...
-                </>
-              ) : (
-                <>
-                  <RefreshCw className="mr-2 h-3 w-3" />
-                  Recover
-                </>
-              )}
-            </Button>
-          </div>
-        )}
+  // Only show if there are documents being analyzed or waiting
+  if (stats.analyzing === 0 && stats.uploaded === 0) {
+    return null;
+  }
 
-        {activeJobs && (
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Progress</span>
-              <span className="font-medium">
-                {activeJobs.processed_documents} / {activeJobs.total_documents} documents
+  const progressPercentage = stats.total > 0 
+    ? ((stats.completed + stats.failed) / stats.total) * 100 
+    : 0;
+
+  // Estimate time remaining (rough estimate: 2 minutes per analyzing document)
+  const estimatedMinutes = stats.analyzing * 2;
+
+  return (
+    <Card className="p-6 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <Loader2 className="h-5 w-5 text-primary animate-spin" />
+          <h3 className="text-lg font-semibold">AI Analysis Status</h3>
+        </div>
+      </div>
+
+      {stats.analyzing > 0 && (
+        <>
+          <div className="mb-4">
+            <div className="flex justify-between text-sm mb-2">
+              <span className="text-muted-foreground">
+                {stats.completed + stats.failed} / {stats.total} documents
+              </span>
+              <span className="text-primary font-medium">
+                {Math.round(progressPercentage)}%
               </span>
             </div>
-            <Progress value={progress} className="h-2" />
-            {estimatedMinutesRemaining !== null && (
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Clock className="h-3 w-3" />
-                Estimated time remaining: {estimatedMinutesRemaining}m
-              </div>
-            )}
+            <Progress value={progressPercentage} className="h-2" />
           </div>
-        )}
 
-        {queueStats && (
-          <div className="grid grid-cols-2 gap-3 pt-2 border-t">
-            <div className="flex items-center gap-2">
-              <div className="p-2 rounded-lg bg-blue-500/10">
-                <Loader2 className="h-4 w-4 text-blue-500" />
-              </div>
-              <div>
-                <div className="text-xs text-muted-foreground">Processing</div>
-                <div className="font-medium">{queueStats.processing_items || 0}</div>
-              </div>
+          {estimatedMinutes > 0 && (
+            <div className="flex items-center gap-2 mb-4 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span>Estimated time remaining: {estimatedMinutes}m</span>
             </div>
-            
-            <div className="flex items-center gap-2">
-              <div className="p-2 rounded-lg bg-amber-500/10">
-                <Clock className="h-4 w-4 text-amber-500" />
-              </div>
-              <div>
-                <div className="text-xs text-muted-foreground">Pending</div>
-                <div className="font-medium">{queueStats.pending_items || 0}</div>
-              </div>
-            </div>
+          )}
+        </>
+      )}
 
-            {(queueStats.completed_items > 0 || queueStats.failed_items > 0) && (
-              <>
-                <div className="flex items-center gap-2">
-                  <div className="p-2 rounded-lg bg-green-500/10">
-                    <CheckCircle2 className="h-4 w-4 text-green-500" />
-                  </div>
-                  <div>
-                    <div className="text-xs text-muted-foreground">Completed</div>
-                    <div className="font-medium">{queueStats.completed_items || 0}</div>
-                  </div>
-                </div>
-
-                {queueStats.failed_items > 0 && (
-                  <div className="flex items-center gap-2">
-                    <div className="p-2 rounded-lg bg-red-500/10">
-                      <AlertCircle className="h-4 w-4 text-red-500" />
-                    </div>
-                    <div>
-                      <div className="text-xs text-muted-foreground">Failed</div>
-                      <div className="font-medium">{queueStats.failed_items}</div>
-                    </div>
-                  </div>
-                )}
-              </>
-            )}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+        <div className="flex items-center gap-2 p-3 rounded-lg bg-blue-500/10">
+          <Loader2 className="h-4 w-4 text-blue-500 animate-spin" />
+          <div>
+            <div className="text-xs text-muted-foreground">Analyzing</div>
+            <div className="text-lg font-semibold">{stats.analyzing}</div>
           </div>
-        )}
+        </div>
 
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="w-full"
-          onClick={() => navigate('/documents')}
-        >
-          <FileText className="h-4 w-4 mr-2" />
-          View Details
-        </Button>
-      </CardContent>
+        <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-500/10">
+          <FileText className="h-4 w-4 text-amber-500" />
+          <div>
+            <div className="text-xs text-muted-foreground">Uploaded</div>
+            <div className="text-lg font-semibold">{stats.uploaded}</div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 p-3 rounded-lg bg-green-500/10">
+          <CheckCircle2 className="h-4 w-4 text-green-500" />
+          <div>
+            <div className="text-xs text-muted-foreground">Completed</div>
+            <div className="text-lg font-semibold">{stats.completed}</div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 p-3 rounded-lg bg-red-500/10">
+          <XCircle className="h-4 w-4 text-red-500" />
+          <div>
+            <div className="text-xs text-muted-foreground">Failed</div>
+            <div className="text-lg font-semibold">{stats.failed}</div>
+          </div>
+        </div>
+      </div>
+
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => navigate('/documents')}
+        className="w-full"
+      >
+        View Details
+      </Button>
     </Card>
   );
 };
