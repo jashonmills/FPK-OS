@@ -1,83 +1,30 @@
-// bedrock-upload-v2 - Smart Document Chunker for large PDFs
-// VERSION: 2.5.0 - SMART CHUNKER (handles 30+ page PDFs automatically)
-// Deployed: 2025-01-13 23:15:00 UTC
-// New: Automatic chunking for large PDFs, processes in 25-page segments
+/**
+ * VERSION: 3.0.0-ASYNC-BATCH-PROCESSOR
+ * 
+ * Async batch processing for Google Document AI - handles up to 500-page documents
+ */
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getAccessToken } from "../_shared/google-document-ai-auth.ts";
-import { PDFDocument } from "https://esm.sh/pdf-lib@1.17.1";
 
-const VERSION = "2.5.0-SMART-CHUNKER";
+const VERSION = "3.0.0-ASYNC-BATCH-PROCESSOR";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Process a single chunk of a PDF
-async function processDocumentChunk(
-  fileBuffer: Uint8Array,
-  chunkIndex: number,
-  totalChunks: number,
-  credentials: any,
-  processorId: string,
-  accessToken: string
-): Promise<{ text: string; pageCount: number; processingTime: number }> {
-  const chunkStart = Date.now();
-  
-  console.log(`📄 Processing chunk ${chunkIndex + 1}/${totalChunks}...`);
-  
-  // Convert chunk to base64
-  const base64Chunk = btoa(String.fromCharCode(...fileBuffer));
-  
-  // Call Document AI
-  const apiUrl = `https://documentai.googleapis.com/v1/${processorId}:process`;
-  const response = await fetch(apiUrl, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${accessToken}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      rawDocument: {
-        content: base64Chunk,
-        mimeType: 'application/pdf'
-      },
-      imagelessMode: true,
-      processOptions: {
-        ocrConfig: {
-          enableNativePdfParsing: true
-        }
-      }
-    })
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Chunk ${chunkIndex + 1} processing failed: ${response.statusText}`);
-  }
-
-  const result = await response.json();
-  const text = result.document?.text || '';
-  const pageCount = result.document?.pages?.length || 0;
-  const processingTime = Date.now() - chunkStart;
-  
-  console.log(`✅ Chunk ${chunkIndex + 1}/${totalChunks}: ${text.length} chars, ${pageCount} pages (${processingTime}ms)`);
-  
-  return { text, pageCount, processingTime };
-}
+// Intelligent Router: Maps document types to specialized processors
+const PROCESSOR_MAP: Record<string, string> = {
+  'other': 'projects/fpkuniversity/locations/us/processors/9a2c8ed98e2c75bc',
+  'form': 'projects/fpkuniversity/locations/us/processors/67a01c2d52e6af65',
+  'layout': 'projects/fpkuniversity/locations/us/processors/cb205a77bf9a675e',
+  'iep': 'projects/fpkuniversity/locations/us/processors/e0dcf69b05bd5c40'
+};
 
 serve(async (req) => {
-  const startTime = Date.now();
-  const timings = {
-    upload: 0,
-    auth: 0,
-    ocr: 0,
-    database: 0,
-  };
-  
-  console.log(`🚀 BEDROCK-UPLOAD-V2 VERSION: ${VERSION} - Starting request`);
-  
+  console.log(`🚀 [${VERSION}] bedrock-upload-v2 invoked`);
+
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -88,35 +35,43 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     );
 
-    // 1. Authenticate
-    const authHeader = req.headers.get('Authorization')!;
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    // Authenticate user
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) throw new Error('No authorization header');
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser(
+      authHeader.replace('Bearer ', '')
+    );
     if (authError || !user) throw new Error('Unauthorized');
 
-    // 2. Parse request
-    const { family_id, student_id, file_name, file_data_base64 } = await req.json();
+    console.log(`✓ User authenticated: ${user.id}`);
+
+    // Parse request body
+    const { fileData, fileName, fileType, category, familyId, studentId, documentDate } = await req.json();
     
-    if (!family_id || !file_name || !file_data_base64) {
-      throw new Error('Missing required fields');
+    if (!fileData || !fileName || !familyId) {
+      throw new Error('Missing required fields: fileData, fileName, or familyId');
     }
 
-    // 3. Upload file to storage
+    console.log(`📄 Processing: ${fileName}`);
+    console.log(`👥 Family: ${familyId}, Student: ${studentId || 'none'}`);
+
+    // Decode file
+    const fileBytes = Uint8Array.from(atob(fileData), c => c.charCodeAt(0));
+    const fileSizeKb = Math.round(fileBytes.length / 1024);
+    
+    console.log(`📊 File size: ${fileSizeKb} KB (${(fileSizeKb / 1024).toFixed(2)} MB)`);
+
+    // Upload to storage
     const timestamp = Date.now();
-    const filePath = `${family_id}/${timestamp}_${file_name}`;
-    const fileBuffer = Uint8Array.from(atob(file_data_base64), c => c.charCodeAt(0));
-    
-    console.log('📋 Document metadata:', {
-      fileName: file_name,
-      fileSizeKB: Math.round(fileBuffer.length / 1024),
-      familyId: family_id,
-      studentId: student_id || 'none'
-    });
-    
-    const uploadStart = Date.now();
-    const { error: uploadError } = await supabase.storage
+    const sanitizedFileName = fileName.replace(/[^a-zA-Z0-9.-]/g, '_');
+    const storagePath = `${familyId}/${timestamp}_${sanitizedFileName}`;
+
+    console.log(`💾 Uploading to storage: ${storagePath}`);
+
+    const { data: uploadData, error: uploadError } = await supabase.storage
       .from('bedrock-storage')
-      .upload(filePath, fileBuffer, {
+      .upload(storagePath, fileBytes, {
         contentType: 'application/pdf',
         upsert: false
       });
