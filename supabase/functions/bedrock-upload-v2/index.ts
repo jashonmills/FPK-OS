@@ -105,10 +105,10 @@ serve(async (req) => {
           content: file_data_base64,
           mimeType: 'application/pdf'
         },
+        skipHumanReview: true,  // Enables imageless mode for up to 30 pages
         processOptions: {
           ocrConfig: {
-            enableNativePdfParsing: true,
-            enableImageQualityScores: true  // Enables imageless mode for up to 30 pages
+            enableNativePdfParsing: true
           }
         }
       })
