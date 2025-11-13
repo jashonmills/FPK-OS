@@ -62,8 +62,30 @@ serve(async (req) => {
       throw new Error('Google Document AI credentials not configured');
     }
 
-    const credentials = JSON.parse(credsJson);
+    // Validate credentials format BEFORE parsing
+    if (!credsJson.trim().startsWith('{')) {
+      console.error('❌ GOOGLE_DOCUMENT_AI_CREDENTIALS is not JSON format');
+      console.error('Received value starts with:', credsJson.substring(0, 20));
+      await supabase.storage.from('bedrock-storage').remove([filePath]);
+      throw new Error('Invalid credentials format: Expected Google Service Account JSON, got raw string. Please update the GOOGLE_DOCUMENT_AI_CREDENTIALS secret with the full service account JSON file contents.');
+    }
+
+    let credentials;
+    try {
+      credentials = JSON.parse(credsJson);
+      
+      // Validate required fields
+      if (!credentials.private_key || !credentials.client_email || !credentials.project_id) {
+        throw new Error('Service account JSON missing required fields (private_key, client_email, project_id)');
+      }
+    } catch (e) {
+      console.error('❌ Failed to parse Google credentials:', e.message);
+      await supabase.storage.from('bedrock-storage').remove([filePath]);
+      throw new Error(`Invalid Google credentials: ${e.message}`);
+    }
+
     console.log('🔐 Authenticating with Google Document AI...');
+    console.log('📧 Using service account:', credentials.client_email);
     const accessToken = await getAccessToken(credentials);
     console.log('✅ Authentication successful');
 
