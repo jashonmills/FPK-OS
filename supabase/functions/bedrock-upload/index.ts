@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { getAccessToken } from "../_shared/google-document-ai-auth.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -49,45 +50,51 @@ serve(async (req) => {
 
     console.log(`✅ File uploaded to: ${filePath}`);
 
-    // 4. Extract text using a dedicated DOCUMENT PROCESSING model endpoint.
-    console.log('🔍 Calling Lovable AI for DOCUMENT text extraction...');
+    // 4. Extract text using Google Document AI
+    console.log('🔍 Calling Google Document AI for text extraction...');
 
-    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    const credsJson = Deno.env.get('GOOGLE_DOCUMENT_AI_CREDENTIALS');
+    const processorId = Deno.env.get('GOOGLE_DOCUMENT_AI_PROCESSOR_ID');
+
+    if (!credsJson || !processorId) {
+      // ROLLBACK: Delete the uploaded file
+      await supabase.storage.from('bedrock-storage').remove([filePath]);
+      throw new Error('Google Document AI credentials not configured');
+    }
+
+    const credentials = JSON.parse(credsJson);
+    console.log('🔐 Authenticating with Google Document AI...');
+    const accessToken = await getAccessToken(credentials);
+    console.log('✅ Authentication successful');
+
+    // Call Document AI processDocument endpoint
+    const apiUrl = `https://documentai.googleapis.com/v1/${processorId}:process`;
+    console.log('📄 Processing document...');
+    
+    const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${Deno.env.get('LOVABLE_API_KEY')}`,
-        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash', 
-        messages: [
-          {
-            role: 'user',
-            content: 'Extract ALL text from the attached PDF document. Return ONLY the extracted text with no additional commentary or formatting. Ensure all pages are processed.',
-          }
-        ],
-        // THIS IS THE CRITICAL CHANGE: Use the 'files' parameter for document processing.
-        files: [
-          {
-            name: file_name,
-            data: file_data_base64,
-            mime_type: 'application/pdf'
-          }
-        ]
+        rawDocument: {
+          content: file_data_base64,
+          mimeType: 'application/pdf'
+        }
       })
     });
 
-    if (!aiResponse.ok) {
+    if (!response.ok) {
       // ROLLBACK: Delete the uploaded file
       await supabase.storage.from('bedrock-storage').remove([filePath]);
-      
-      const errorText = await aiResponse.text();
-      console.error('AI extraction failed:', aiResponse.status, errorText);
-      throw new Error(`Text extraction failed: ${aiResponse.statusText}`);
+      const errorText = await response.text();
+      console.error('Google Document AI failed:', response.status, errorText);
+      throw new Error(`Document processing failed: ${response.statusText}`);
     }
 
-    const aiData = await aiResponse.json();
-    const extractedContent = aiData.choices?.[0]?.message?.content || '';
+    const result = await response.json();
+    const extractedContent = result.document?.text || '';
     
     if (extractedContent.length < 50) {
       // ROLLBACK: Delete the uploaded file
