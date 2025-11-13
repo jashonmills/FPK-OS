@@ -221,3 +221,6 @@ verify_jwt = true
 
 [functions.process-analysis-queue]
 verify_jwt = false
+
+[functions.v3-upload-document]
+verify_jwt = true
