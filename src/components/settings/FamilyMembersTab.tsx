@@ -3,6 +3,7 @@ import { useFamily } from "@/contexts/FamilyContext";
 import { InviteMemberForm } from "./InviteMemberForm";
 import { CurrentMembersList } from "./CurrentMembersList";
 import { PendingInvitesList } from "./PendingInvitesList";
+import { DangerZoneCard } from "./DangerZoneCard";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Info } from "lucide-react";
 
@@ -50,17 +51,21 @@ export const FamilyMembersTab = () => {
       </Card>
 
       {isOwner && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Pending Invitations</CardTitle>
-            <CardDescription>
-              Invitations waiting to be accepted
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <PendingInvitesList familyId={selectedFamily.id} />
-          </CardContent>
-        </Card>
+        <>
+          <Card>
+            <CardHeader>
+              <CardTitle>Pending Invitations</CardTitle>
+              <CardDescription>
+                Invitations waiting to be accepted
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <PendingInvitesList familyId={selectedFamily.id} />
+            </CardContent>
+          </Card>
+
+          <DangerZoneCard />
+        </>
       )}
     </div>
   );
