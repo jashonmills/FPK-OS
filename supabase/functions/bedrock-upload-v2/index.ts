@@ -1,7 +1,11 @@
 // bedrock-upload-v2 - Fresh deployment with clean environment
+// VERSION: 2.1.0 - IMAGELESS MODE ENABLED (30 pages max)
+// Deployed: 2025-01-13 22:15:00 UTC
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getAccessToken } from "../_shared/google-document-ai-auth.ts";
+
+const VERSION = "2.1.0-IMAGELESS";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -9,6 +13,8 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  console.log(`🚀 BEDROCK-UPLOAD-V2 VERSION: ${VERSION} - Starting request`);
+  
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -52,7 +58,7 @@ serve(async (req) => {
     console.log(`✅ File uploaded to: ${filePath}`);
 
     // 4. Extract text using Google Document AI
-    console.log('🔍 Calling Google Document AI for text extraction...');
+    console.log(`🔍 VERSION ${VERSION}: Calling Google Document AI with IMAGELESS MODE (skipHumanReview: true)...`);
 
     const credsJson = Deno.env.get('GOOGLE_DOC_AI_CREDS');
     const processorId = Deno.env.get('GOOGLE_DOCUMENT_AI_PROCESSOR_ID');
