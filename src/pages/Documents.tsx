@@ -30,13 +30,13 @@ import { useTourProgress } from "@/hooks/useTourProgress";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
 import { useFeatureFlag } from "@/hooks/useFeatureFlag";
-import { V3DocumentPage } from "@/components/documents/v3/V3DocumentPage";
+import { BedrockDocumentPage } from "@/components/documents/bedrock/BedrockDocumentPage";
 
 export default function Documents() {
-  // Project Bedrock: Check if V3 pipeline is enabled
-  const { isEnabled: isV3Enabled, loading: flagLoading } = useFeatureFlag('v3_document_pipeline');
+  // Project Bedrock: Check if new pipeline is enabled
+  const { isEnabled: isBedrockEnabled, loading: flagLoading } = useFeatureFlag('bedrock_pipeline');
   
-  // If V3 is enabled, render the new clean document system
+  // If Bedrock is enabled, render the new atomic document system
   if (flagLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -45,8 +45,8 @@ export default function Documents() {
     );
   }
   
-  if (isV3Enabled) {
-    return <V3DocumentPage />;
+  if (isBedrockEnabled) {
+    return <BedrockDocumentPage />;
   }
   
   // Otherwise, render the legacy system below

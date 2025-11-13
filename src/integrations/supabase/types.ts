@@ -198,70 +198,6 @@ export type Database = {
           },
         ]
       }
-      ai_insights: {
-        Row: {
-          confidence_score: number | null
-          content: string
-          document_id: string | null
-          family_id: string
-          generated_at: string | null
-          id: string
-          insight_type: string
-          is_active: boolean | null
-          priority: string | null
-          student_id: string
-          title: string | null
-        }
-        Insert: {
-          confidence_score?: number | null
-          content: string
-          document_id?: string | null
-          family_id: string
-          generated_at?: string | null
-          id?: string
-          insight_type: string
-          is_active?: boolean | null
-          priority?: string | null
-          student_id: string
-          title?: string | null
-        }
-        Update: {
-          confidence_score?: number | null
-          content?: string
-          document_id?: string | null
-          family_id?: string
-          generated_at?: string | null
-          id?: string
-          insight_type?: string
-          is_active?: boolean | null
-          priority?: string | null
-          student_id?: string
-          title?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "ai_insights_document_id_fkey"
-            columns: ["document_id"]
-            isOneToOne: false
-            referencedRelation: "documents"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "ai_insights_family_id_fkey"
-            columns: ["family_id"]
-            isOneToOne: false
-            referencedRelation: "families"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "ai_insights_student_id_fkey"
-            columns: ["student_id"]
-            isOneToOne: false
-            referencedRelation: "students"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       ai_provider_health: {
         Row: {
           average_latency_ms: number | null
@@ -744,6 +680,69 @@ export type Database = {
             columns: ["related_article_id"]
             isOneToOne: false
             referencedRelation: "public_articles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bedrock_documents: {
+        Row: {
+          analysis_data: Json | null
+          analyzed_at: string | null
+          category: string | null
+          created_at: string | null
+          error_message: string | null
+          extracted_content: string | null
+          family_id: string
+          file_name: string
+          file_path: string
+          file_size_kb: number | null
+          id: string
+          status: string
+          student_id: string | null
+        }
+        Insert: {
+          analysis_data?: Json | null
+          analyzed_at?: string | null
+          category?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          extracted_content?: string | null
+          family_id: string
+          file_name: string
+          file_path: string
+          file_size_kb?: number | null
+          id?: string
+          status?: string
+          student_id?: string | null
+        }
+        Update: {
+          analysis_data?: Json | null
+          analyzed_at?: string | null
+          category?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          extracted_content?: string | null
+          family_id?: string
+          file_name?: string
+          file_path?: string
+          file_size_kb?: number | null
+          id?: string
+          status?: string
+          student_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bedrock_documents_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bedrock_documents_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
             referencedColumns: ["id"]
           },
         ]
@@ -1277,85 +1276,6 @@ export type Database = {
             columns: ["family_id"]
             isOneToOne: false
             referencedRelation: "families"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      document_metrics: {
-        Row: {
-          context: string | null
-          created_at: string | null
-          document_id: string | null
-          duration_minutes: number | null
-          end_time: string | null
-          family_id: string
-          id: string
-          intervention_used: string | null
-          measurement_date: string | null
-          metric_name: string
-          metric_type: string
-          metric_unit: string | null
-          metric_value: number | null
-          start_time: string | null
-          student_id: string
-          target_value: number | null
-        }
-        Insert: {
-          context?: string | null
-          created_at?: string | null
-          document_id?: string | null
-          duration_minutes?: number | null
-          end_time?: string | null
-          family_id: string
-          id?: string
-          intervention_used?: string | null
-          measurement_date?: string | null
-          metric_name: string
-          metric_type: string
-          metric_unit?: string | null
-          metric_value?: number | null
-          start_time?: string | null
-          student_id: string
-          target_value?: number | null
-        }
-        Update: {
-          context?: string | null
-          created_at?: string | null
-          document_id?: string | null
-          duration_minutes?: number | null
-          end_time?: string | null
-          family_id?: string
-          id?: string
-          intervention_used?: string | null
-          measurement_date?: string | null
-          metric_name?: string
-          metric_type?: string
-          metric_unit?: string | null
-          metric_value?: number | null
-          start_time?: string | null
-          student_id?: string
-          target_value?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "document_metrics_document_id_fkey"
-            columns: ["document_id"]
-            isOneToOne: false
-            referencedRelation: "documents"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "document_metrics_family_id_fkey"
-            columns: ["family_id"]
-            isOneToOne: false
-            referencedRelation: "families"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "document_metrics_student_id_fkey"
-            columns: ["student_id"]
-            isOneToOne: false
-            referencedRelation: "students"
             referencedColumns: ["id"]
           },
         ]
@@ -3236,79 +3156,6 @@ export type Database = {
           },
         ]
       }
-      progress_tracking: {
-        Row: {
-          baseline_value: number | null
-          created_at: string | null
-          current_value: number | null
-          document_id: string | null
-          family_id: string
-          id: string
-          metric_type: string
-          notes: string | null
-          period_end: string | null
-          period_start: string | null
-          progress_percentage: number | null
-          student_id: string
-          target_value: number | null
-          trend: string | null
-        }
-        Insert: {
-          baseline_value?: number | null
-          created_at?: string | null
-          current_value?: number | null
-          document_id?: string | null
-          family_id: string
-          id?: string
-          metric_type: string
-          notes?: string | null
-          period_end?: string | null
-          period_start?: string | null
-          progress_percentage?: number | null
-          student_id: string
-          target_value?: number | null
-          trend?: string | null
-        }
-        Update: {
-          baseline_value?: number | null
-          created_at?: string | null
-          current_value?: number | null
-          document_id?: string | null
-          family_id?: string
-          id?: string
-          metric_type?: string
-          notes?: string | null
-          period_end?: string | null
-          period_start?: string | null
-          progress_percentage?: number | null
-          student_id?: string
-          target_value?: number | null
-          trend?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "progress_tracking_document_id_fkey"
-            columns: ["document_id"]
-            isOneToOne: false
-            referencedRelation: "documents"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "progress_tracking_family_id_fkey"
-            columns: ["family_id"]
-            isOneToOne: false
-            referencedRelation: "families"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "progress_tracking_student_id_fkey"
-            columns: ["student_id"]
-            isOneToOne: false
-            referencedRelation: "students"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       public_articles: {
         Row: {
           author_id: string | null
@@ -4020,85 +3867,6 @@ export type Database = {
         }
         Relationships: []
       }
-      v3_documents: {
-        Row: {
-          analysis_summary: Json | null
-          category: Database["public"]["Enums"]["document_category_enum"] | null
-          classified_at: string | null
-          classified_by: string | null
-          created_at: string | null
-          error_message: string | null
-          extracted_content: string | null
-          family_id: string
-          file_name: string
-          file_path: string
-          file_size_kb: number | null
-          id: string
-          is_classified: boolean
-          status: string
-          student_id: string | null
-          updated_at: string | null
-          uploaded_by: string | null
-        }
-        Insert: {
-          analysis_summary?: Json | null
-          category?:
-            | Database["public"]["Enums"]["document_category_enum"]
-            | null
-          classified_at?: string | null
-          classified_by?: string | null
-          created_at?: string | null
-          error_message?: string | null
-          extracted_content?: string | null
-          family_id: string
-          file_name: string
-          file_path: string
-          file_size_kb?: number | null
-          id?: string
-          is_classified?: boolean
-          status?: string
-          student_id?: string | null
-          updated_at?: string | null
-          uploaded_by?: string | null
-        }
-        Update: {
-          analysis_summary?: Json | null
-          category?:
-            | Database["public"]["Enums"]["document_category_enum"]
-            | null
-          classified_at?: string | null
-          classified_by?: string | null
-          created_at?: string | null
-          error_message?: string | null
-          extracted_content?: string | null
-          family_id?: string
-          file_name?: string
-          file_path?: string
-          file_size_kb?: number | null
-          id?: string
-          is_classified?: boolean
-          status?: string
-          student_id?: string | null
-          updated_at?: string | null
-          uploaded_by?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "v3_documents_family_id_fkey"
-            columns: ["family_id"]
-            isOneToOne: false
-            referencedRelation: "families"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "v3_documents_student_id_fkey"
-            columns: ["student_id"]
-            isOneToOne: false
-            referencedRelation: "students"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       wearable_sleep_data: {
         Row: {
           avg_heart_rate: number | null
@@ -4297,19 +4065,6 @@ export type Database = {
       }
     }
     Views: {
-      admin_metrics_quality: {
-        Row: {
-          earliest_date: string | null
-          family_name: string | null
-          latest_date: string | null
-          metric_type: string | null
-          null_dates: number | null
-          null_percentage: number | null
-          student_name: string | null
-          total_metrics: number | null
-        }
-        Relationships: []
-      }
       admin_user_management_view: {
         Row: {
           account_status: string | null
