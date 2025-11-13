@@ -104,6 +104,11 @@ serve(async (req) => {
         rawDocument: {
           content: file_data_base64,
           mimeType: 'application/pdf'
+        },
+        processOptions: {
+          ocrConfig: {
+            useImagelessMode: true
+          }
         }
       })
     });
