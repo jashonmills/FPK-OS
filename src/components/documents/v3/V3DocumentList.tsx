@@ -2,10 +2,13 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { FileText, Loader2, AlertCircle, CheckCircle2, BarChart3 } from 'lucide-react';
 import { format } from 'date-fns';
 import { DocumentTypeSelector } from './DocumentTypeSelector';
 import { V3AnalyzeButton } from './V3AnalyzeButton';
+import { DocumentViewerModal } from '../DocumentViewerModal';
+import { V3DocumentReportModal } from './V3DocumentReportModal';
 
 interface V3Document {
   id: string;
@@ -28,6 +31,9 @@ interface V3DocumentListProps {
 export function V3DocumentList({ familyId, studentId }: V3DocumentListProps) {
   const [documents, setDocuments] = useState<V3Document[]>([]);
   const [loading, setLoading] = useState(true);
+  const [viewerOpen, setViewerOpen] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [selectedDocument, setSelectedDocument] = useState<V3Document | null>(null);
 
   useEffect(() => {
     fetchDocuments();
@@ -140,6 +146,16 @@ export function V3DocumentList({ familyId, studentId }: V3DocumentListProps) {
     );
   };
 
+  const openReport = (doc: V3Document) => {
+    setSelectedDocument(doc);
+    setReportOpen(true);
+  };
+
+  const openViewer = (doc: V3Document) => {
+    setSelectedDocument(doc);
+    setViewerOpen(true);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -207,13 +223,33 @@ export function V3DocumentList({ familyId, studentId }: V3DocumentListProps) {
                     </div>
                   )}
 
-                  {/* Analyze button for classified documents */}
+                  {/* Action buttons for classified documents */}
                   {doc.is_classified && (
-                    <div className="mt-3">
+                    <div className="flex items-center gap-2 mt-3">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => openViewer(doc)}
+                      >
+                        <FileText className="h-4 w-4 mr-2" />
+                        View PDF
+                      </Button>
+                      
                       <V3AnalyzeButton 
                         document={doc} 
                         onAnalysisStarted={fetchDocuments}
                       />
+                      
+                      {doc.status === 'completed' && (
+                        <Button 
+                          variant="default" 
+                          size="sm"
+                          onClick={() => openReport(doc)}
+                        >
+                          <BarChart3 className="h-4 w-4 mr-2" />
+                          View Report
+                        </Button>
+                      )}
                     </div>
                   )}
 
@@ -238,6 +274,30 @@ export function V3DocumentList({ familyId, studentId }: V3DocumentListProps) {
           </CardHeader>
         </Card>
       ))}
+
+      {/* PDF Viewer Modal */}
+      {selectedDocument && (
+        <DocumentViewerModal
+          open={viewerOpen}
+          onOpenChange={setViewerOpen}
+          document={selectedDocument}
+        />
+      )}
+
+      {/* Report Modal */}
+      {selectedDocument && (
+        <V3DocumentReportModal
+          open={reportOpen}
+          onOpenChange={setReportOpen}
+          documentId={selectedDocument.id}
+          familyId={familyId}
+          studentId={studentId}
+          onOpenPdfViewer={() => {
+            setReportOpen(false);
+            setViewerOpen(true);
+          }}
+        />
+      )}
     </div>
   );
 }
