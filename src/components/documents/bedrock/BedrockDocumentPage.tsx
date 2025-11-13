@@ -66,8 +66,8 @@ export function BedrockDocumentPage() {
       reader.readAsDataURL(file);
       const base64 = await base64Promise;
 
-      // Call atomic upload function
-      const { data, error } = await supabase.functions.invoke('bedrock-upload', {
+      // Call atomic upload function (v2 with fresh environment)
+      const { data, error } = await supabase.functions.invoke('bedrock-upload-v2', {
         body: {
           family_id: selectedFamily.id,
           student_id: selectedStudent.id,
