@@ -88,8 +88,17 @@ export function BedrockDocumentPage() {
       queryClient.invalidateQueries({ queryKey: ['bedrock-documents'] });
 
     } catch (error: any) {
-      console.error('Upload error:', error);
-      toast.error(`Upload failed: ${error.message}`, { id: toastId });
+      // Check for page limit error
+      if (error.message?.includes('PAGE_LIMIT_EXCEEDED')) {
+        const userMessage = error.message.replace('PAGE_LIMIT_EXCEEDED: ', '');
+        toast.error(userMessage, { 
+          id: toastId,
+          duration: 8000 // Show longer for important message
+        });
+      } else {
+        console.error('Upload error:', error);
+        toast.error(`Upload failed: ${error.message}`, { id: toastId });
+      }
     } finally {
       setUploading(false);
     }
