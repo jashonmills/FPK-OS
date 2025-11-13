@@ -4020,6 +4020,72 @@ export type Database = {
         }
         Relationships: []
       }
+      v3_documents: {
+        Row: {
+          analysis_summary: Json | null
+          category: string | null
+          created_at: string | null
+          error_message: string | null
+          extracted_content: string | null
+          family_id: string
+          file_name: string
+          file_path: string
+          file_size_kb: number | null
+          id: string
+          status: string
+          student_id: string | null
+          updated_at: string | null
+          uploaded_by: string | null
+        }
+        Insert: {
+          analysis_summary?: Json | null
+          category?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          extracted_content?: string | null
+          family_id: string
+          file_name: string
+          file_path: string
+          file_size_kb?: number | null
+          id?: string
+          status?: string
+          student_id?: string | null
+          updated_at?: string | null
+          uploaded_by?: string | null
+        }
+        Update: {
+          analysis_summary?: Json | null
+          category?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          extracted_content?: string | null
+          family_id?: string
+          file_name?: string
+          file_path?: string
+          file_size_kb?: number | null
+          id?: string
+          status?: string
+          student_id?: string | null
+          updated_at?: string | null
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "v3_documents_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "v3_documents_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       wearable_sleep_data: {
         Row: {
           avg_heart_rate: number | null
