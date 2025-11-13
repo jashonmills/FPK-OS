@@ -242,6 +242,14 @@ export const AppSidebar = () => {
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <NavLink to="/documents" className={({ isActive }) => isActive ? 'bg-accent text-accent-foreground font-medium' : ''}>
+                      <FolderOpen className="h-4 w-4" />
+                      <span>Documents</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>}
