@@ -10,6 +10,8 @@ import { useFamily } from '@/contexts/FamilyContext';
 import { toast } from 'sonner';
 import { Upload, Loader2, Sparkles } from 'lucide-react';
 import { format } from 'date-fns';
+import { LegacyDataMigrationPanel } from '../LegacyDataMigrationPanel';
+import { ReAnalysisButton } from '../ReAnalysisButton';
 
 const DOCUMENT_CATEGORIES = [
   { value: 'iep', label: 'IEP (Individualized Education Program)' },
@@ -180,6 +182,21 @@ export function BedrockDocumentPage() {
           </Button>
         </div>
       </div>
+
+      {/* Legacy Data Migration Panel */}
+      {selectedFamily?.id && (
+        <LegacyDataMigrationPanel familyId={selectedFamily.id} />
+      )}
+
+      {/* Re-Analysis Button */}
+      {selectedFamily?.id && selectedStudent?.id && (
+        <div className="flex justify-end">
+          <ReAnalysisButton 
+            familyId={selectedFamily.id} 
+            studentId={selectedStudent.id}
+          />
+        </div>
+      )}
 
       {/* Document List */}
       <Card>
