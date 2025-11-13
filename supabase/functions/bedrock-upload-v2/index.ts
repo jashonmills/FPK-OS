@@ -107,7 +107,7 @@ serve(async (req) => {
         },
         processOptions: {
           ocrConfig: {
-            useImagelessMode: true
+            enableNativePdfParsing: true
           }
         }
       })
