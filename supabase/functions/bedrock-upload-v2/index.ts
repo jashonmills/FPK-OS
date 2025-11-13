@@ -54,7 +54,7 @@ serve(async (req) => {
     // 4. Extract text using Google Document AI
     console.log('🔍 Calling Google Document AI for text extraction...');
 
-    const credsJson = Deno.env.get('GOOGLE_DOCUMENT_AI_CREDENTIALS');
+    const credsJson = Deno.env.get('GOOGLE_DOC_AI_CREDS');
     const processorId = Deno.env.get('GOOGLE_DOCUMENT_AI_PROCESSOR_ID');
 
     if (!credsJson || !processorId) {
