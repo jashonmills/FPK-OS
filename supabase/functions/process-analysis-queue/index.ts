@@ -168,13 +168,21 @@ serve(async (req) => {
             // Check if extraction actually completed
             if (extractResult.error || !extractResult.data?.extracted_content) {
               const errorMsg = extractResult.error?.message || 'Text extraction incomplete';
+              console.log(`  ❌ Extraction failed for: ${item.document_id} - ${errorMsg}`);
               
-              // Clean up the failed document
-              console.log(`  🧹 Cleaning up failed extraction for: ${item.document_id}`);
+              // Mark as failed - NEVER delete user documents
               await Promise.all([
-                supabase.from('analysis_queue').delete().eq('id', item.id),
-                supabase.from('document_analysis_status').delete().eq('document_id', item.document_id),
-                supabase.from('documents').delete().eq('id', item.document_id)
+                supabase.from('analysis_queue').update({
+                  status: 'failed',
+                  error_message: errorMsg,
+                  completed_at: new Date().toISOString()
+                }).eq('id', item.id),
+                supabase.from('document_analysis_status').upsert({
+                  document_id: item.document_id,
+                  status: 'failed',
+                  error_message: `Extraction error: ${errorMsg}`,
+                  completed_at: new Date().toISOString()
+                })
               ]);
               
               batchFailed++;

@@ -164,8 +164,15 @@ serve(async (req) => {
 
     if (jobError) {
       console.error('❌ Failed to create analysis job:', jobError);
-      await supabase.storage.from('family-documents').remove([filePath]);
-      await supabase.from('documents').delete().eq('id', documentData.id);
+      
+      // Mark document as failed - NEVER delete user documents
+      await supabase.from('documents').update({
+        metadata: {
+          upload_error: jobError.message,
+          upload_status: 'failed'
+        }
+      }).eq('id', documentData.id);
+      
       return new Response(
         JSON.stringify({
           success: false,
@@ -192,9 +199,21 @@ serve(async (req) => {
 
     if (queueError) {
       console.error('❌ Failed to queue document:', queueError);
-      await supabase.from('analysis_jobs').delete().eq('id', analysisJob.id);
-      await supabase.storage.from('family-documents').remove([filePath]);
-      await supabase.from('documents').delete().eq('id', documentData.id);
+      
+      // Mark job and document as failed - NEVER delete user documents
+      await Promise.all([
+        supabase.from('analysis_jobs').update({
+          status: 'failed',
+          error_message: `Queue error: ${queueError.message}`
+        }).eq('id', analysisJob.id),
+        supabase.from('documents').update({
+          metadata: {
+            queue_error: queueError.message,
+            upload_status: 'failed'
+          }
+        }).eq('id', documentData.id)
+      ]);
+      
       return new Response(
         JSON.stringify({
           success: false,
