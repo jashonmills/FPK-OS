@@ -595,6 +595,7 @@ function LegacyDocumentsPage() {
                     
                     <ReAnalysisButton 
                       familyId={selectedFamily.id}
+                      studentId={selectedStudent?.id}
                     />
                   </>
                 )}
