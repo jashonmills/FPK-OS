@@ -119,6 +119,12 @@ serve(async (req) => {
       await supabase.storage.from('bedrock-storage').remove([filePath]);
       const errorText = await response.text();
       console.error('Google Document AI failed:', response.status, errorText);
+      
+      // Check for page limit error
+      if (errorText.includes('Document pages exceed the limit') || errorText.includes('pages in non-imageless mode exceed the limit')) {
+        throw new Error('PAGE_LIMIT_EXCEEDED: This document exceeds the 30-page limit for automatic processing. Please split your document into smaller sections (under 30 pages each) and upload them separately. This ensures faster processing and better accuracy.');
+      }
+      
       throw new Error(`Document processing failed: ${response.statusText}`);
     }
 
