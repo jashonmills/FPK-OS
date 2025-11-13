@@ -308,7 +308,6 @@ function LegacyDocumentsPage() {
       
       if (existingQueue) {
         toast.info('Document is already being analyzed');
-        setActiveJobId(existingQueue.job_id);
         return;
       }
 
@@ -355,9 +354,6 @@ function LegacyDocumentsPage() {
           job_id: analysisJob.id
         }
       });
-
-      // Show Project Scribe
-      setActiveJobId(analysisJob.id);
       
       toast.success('Analysis started! Watch the progress below.', { id: toastId });
       queryClient.invalidateQueries({ queryKey: ["documents"] });
@@ -387,7 +383,6 @@ function LegacyDocumentsPage() {
       if (error) throw error;
 
       if (data?.job_id) {
-        setActiveJobId(data.job_id);
         toast.success(`Processing ${data.total_documents} documents. Watch the live progress below.`, { id: toastId });
       }
     } catch (error: any) {

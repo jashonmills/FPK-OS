@@ -82,12 +82,6 @@ export const ExportDataCard = () => {
         .select("*")
         .eq("family_id", selectedFamily.id);
 
-      // Fetch AI insights
-      const { data: aiInsights } = await supabase
-        .from("ai_insights")
-        .select("*")
-        .eq("family_id", selectedFamily.id);
-
       // Compile all data
       const exportData = {
         exportDate: new Date().toISOString(),
@@ -106,7 +100,6 @@ export const ExportDataCard = () => {
           ...doc,
           note: "File content not included in export. Download files separately from Documents page.",
         })),
-        aiInsights,
       };
 
       // Create and download JSON file
