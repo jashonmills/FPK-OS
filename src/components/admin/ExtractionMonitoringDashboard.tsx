@@ -5,7 +5,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { AlertCircle, CheckCircle2, Clock, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { format } from "date-fns";
-import { CleanupFailedExtractionsButton } from "./CleanupFailedExtractionsButton";
 
 export const ExtractionMonitoringDashboard = () => {
   // Fetch recent extraction telemetry
@@ -69,12 +68,9 @@ export const ExtractionMonitoringDashboard = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">Extraction Monitoring Dashboard</h2>
-          <p className="text-muted-foreground">Real-time document extraction health</p>
-        </div>
-        <CleanupFailedExtractionsButton />
+      <div>
+        <h2 className="text-2xl font-bold">Extraction Monitoring Dashboard</h2>
+        <p className="text-muted-foreground">Real-time document extraction health</p>
       </div>
 
       {/* Summary Cards */}

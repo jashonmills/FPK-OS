@@ -21,7 +21,6 @@ import { DocumentsEmptyState } from "@/components/documents/DocumentsEmptyState"
 import { DocumentReportModal } from "@/components/documents/DocumentReportModal";
 import { FocusAreaSelector, type FocusArea } from "@/components/documents/FocusAreaSelector";
 import { HistoricalReportsAccordion } from "@/components/documents/HistoricalReportsAccordion";
-import { ProjectScribe } from "@/components/documents/ProjectScribe";
 import { ReAnalysisButton } from "@/components/documents/ReAnalysisButton";
 import * as pdfjs from "pdfjs-dist";
 import { ProductTour } from "@/components/onboarding/ProductTour";
@@ -60,27 +59,6 @@ function LegacyDocumentsPage() {
   const navigate = useNavigate();
   const { shouldRunTour, markTourAsSeen } = useTourProgress('has_seen_documents_tour');
 
-  // PHASE 1 FIX: Cleanup failed extractions and refresh documents on page load
-  useEffect(() => {
-    const cleanupAndRefresh = async () => {
-      if (!selectedFamily?.id) return;
-      
-      try {
-        console.log('🧹 Running background cleanup of failed extractions...');
-        const { data } = await supabase.functions.invoke('cleanup-failed-extractions');
-        
-        if (data?.cleaned > 0) {
-          console.log(`✅ Cleaned up ${data.cleaned} stuck extraction(s)`);
-          // Refresh documents list after cleanup
-          queryClient.invalidateQueries({ queryKey: ["documents"] });
-        }
-      } catch (error) {
-        console.log('Background cleanup error (non-fatal):', error);
-      }
-    };
-    
-    cleanupAndRefresh();
-  }, [selectedFamily?.id, queryClient]);
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [viewerModalOpen, setViewerModalOpen] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<any>(null);
@@ -92,44 +70,6 @@ function LegacyDocumentsPage() {
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [selectedDocIds, setSelectedDocIds] = useState<string[]>([]);
   const [isBulkDownloading, setIsBulkDownloading] = useState(false);
-  const [activeJobId, setActiveJobId] = useState<string | null>(null);
-  const [dismissedJobIds, setDismissedJobIds] = useState<string[]>([]);
-
-  // Fetch the most recent analysis job for this family
-  const { data: recentJob } = useQuery({
-    queryKey: ["recent-analysis-job", selectedFamily?.id],
-    queryFn: async () => {
-      if (!selectedFamily?.id) return null;
-      const { data, error } = await supabase
-        .from("analysis_jobs")
-        .select("*")
-        .eq("family_id", selectedFamily.id)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .single();
-      
-      if (error || !data) return null;
-      
-      // Only show jobs from the last 24 hours
-      const jobAge = Date.now() - new Date(data.created_at).getTime();
-      if (jobAge > 24 * 60 * 60 * 1000) return null;
-      
-      return data;
-    },
-    enabled: !!selectedFamily?.id,
-  });
-
-  // Set activeJobId if there's a recent job that's processing or recently completed/failed
-  useEffect(() => {
-    if (recentJob && !activeJobId && !dismissedJobIds.includes(recentJob.id)) {
-      if (recentJob.status === 'processing' || recentJob.status === 'pending') {
-        setActiveJobId(recentJob.id);
-      } else if (recentJob.status === 'failed' || recentJob.status === 'completed' || recentJob.status === 'completed_with_errors') {
-        // Show completed/failed jobs for visibility
-        setActiveJobId(recentJob.id);
-      }
-    }
-  }, [recentJob, activeJobId, dismissedJobIds]);
 
   const { data: documents, isLoading } = useQuery({
     queryKey: ["documents", selectedFamily?.id, selectedStudent?.id],
@@ -600,20 +540,6 @@ function LegacyDocumentsPage() {
       )}
       
       <div className="space-y-6">
-        {/* Project Scribe - Live Analysis Log */}
-        {activeJobId && (
-          <ProjectScribe 
-            jobId={activeJobId}
-            onComplete={() => {
-              if (activeJobId) {
-                setDismissedJobIds(prev => [...prev, activeJobId]);
-              }
-              setActiveJobId(null);
-              queryClient.invalidateQueries({ queryKey: ["documents"] });
-            }}
-          />
-        )}
-
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
           <div>
             <p className="text-muted-foreground text-sm sm:text-base">
@@ -669,10 +595,6 @@ function LegacyDocumentsPage() {
                     
                     <ReAnalysisButton 
                       familyId={selectedFamily.id}
-                      onJobStarted={(jobId) => {
-                        setActiveJobId(jobId);
-                        queryClient.invalidateQueries({ queryKey: ["documents"] });
-                      }}
                     />
                   </>
                 )}
