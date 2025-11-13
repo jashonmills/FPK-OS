@@ -134,8 +134,11 @@ serve(async (req) => {
 
     if (docError || !document) {
       console.error('[v3-analyze-document] Document fetch error:', docError);
-      throw new Error('Document not found');
+      throw new Error('Document not found or you do not have access to it');
     }
+
+    console.log(`[v3-analyze-document] Document found: ${document.file_name}`);
+    console.log(`[v3-analyze-document] Document status: ${document.status}, is_classified: ${document.is_classified}`);
 
     // Get family to get student_id
     const { data: family, error: familyError } = await supabase
@@ -182,8 +185,21 @@ serve(async (req) => {
 
     // Verify extracted content exists
     if (!document.extracted_content || document.extracted_content.trim().length < 50) {
-      throw new Error('Document must have extracted content before analysis');
+      console.error('[v3-analyze-document] No extracted content found. Content length:', document.extracted_content?.length || 0);
+      
+      // Update document with specific error message
+      await supabase
+        .from('v3_documents')
+        .update({ 
+          status: 'failed',
+          error_message: 'Document text extraction required before analysis. Please re-upload the document.'
+        })
+        .eq('id', document_id);
+      
+      throw new Error('Document text must be extracted before analysis. Please re-upload the document.');
     }
+    
+    console.log(`[v3-analyze-document] Extracted content length: ${document.extracted_content.length} characters`);
 
     // Update status to analyzing
     const { error: updateError } = await supabase
