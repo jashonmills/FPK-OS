@@ -1,11 +1,11 @@
 // bedrock-upload-v2 - Fresh deployment with clean environment
-// VERSION: 2.1.0 - IMAGELESS MODE ENABLED (30 pages max)
-// Deployed: 2025-01-13 22:15:00 UTC
+// VERSION: 2.2.0 - IMAGELESS MODE ENABLED (30 pages max) - FIXED PARAMETER NAME
+// Deployed: 2025-01-13 23:45:00 UTC
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getAccessToken } from "../_shared/google-document-ai-auth.ts";
 
-const VERSION = "2.1.0-IMAGELESS";
+const VERSION = "2.2.0-IMAGELESS";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -58,7 +58,7 @@ serve(async (req) => {
     console.log(`✅ File uploaded to: ${filePath}`);
 
     // 4. Extract text using Google Document AI
-    console.log(`🔍 VERSION ${VERSION}: Calling Google Document AI with IMAGELESS MODE (skipHumanReview: true)...`);
+    console.log(`🔍 VERSION ${VERSION}: Calling Google Document AI with IMAGELESS MODE (imagelessMode: true)...`);
 
     const credsJson = Deno.env.get('GOOGLE_DOC_AI_CREDS');
     const processorId = Deno.env.get('GOOGLE_DOCUMENT_AI_PROCESSOR_ID');
@@ -111,7 +111,7 @@ serve(async (req) => {
           content: file_data_base64,
           mimeType: 'application/pdf'
         },
-        skipHumanReview: true,  // Enables imageless mode for up to 30 pages
+        imagelessMode: true,  // Enables imageless mode for up to 30 pages
         processOptions: {
           ocrConfig: {
             enableNativePdfParsing: true
