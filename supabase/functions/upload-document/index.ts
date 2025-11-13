@@ -140,55 +140,103 @@ serve(async (req) => {
     }
 
     console.log(`✅ Document record created: ${documentData.id}`);
-    console.log('🔄 Phase 3: Queueing for extraction...');
+    console.log('🔄 Phase 3: Creating unified analysis job...');
 
-    // Add to processing queue
+    // Create the master analysis job for Project Scribe tracking
+    const { data: analysisJob, error: jobError } = await supabase
+      .from('analysis_jobs')
+      .insert({
+        family_id: familyId,
+        status: 'processing',
+        total_documents: 1,
+        processed_documents: 0,
+        failed_documents: 0,
+        job_type: 'initial',
+        started_at: new Date().toISOString(),
+        metadata: {
+          document_count: 1,
+          processing_mode: 'single_upload',
+          document_id: documentData.id
+        }
+      })
+      .select()
+      .single();
+
+    if (jobError) {
+      console.error('❌ Failed to create analysis job:', jobError);
+      await supabase.storage.from('family-documents').remove([filePath]);
+      await supabase.from('documents').delete().eq('id', documentData.id);
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'JOB_CREATION_ERROR',
+          message: `Failed to create analysis job: ${jobError.message}`
+        }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log(`✅ Analysis job created: ${analysisJob.id}`);
+
+    // Add document to the UNIFIED analysis queue
     const { error: queueError } = await supabase
-      .from('document_processing_queue')
+      .from('analysis_queue')
       .insert({
         document_id: documentData.id,
+        job_id: analysisJob.id,
         family_id: familyId,
-        job_type: 'EXTRACT',
-        status: 'queued',
-        priority: 0,
-        retry_count: 0,
-        max_retries: 5
+        status: 'pending',
+        priority: 1,
+        estimated_tokens: fileSizeKB * 10
       });
 
     if (queueError) {
       console.error('❌ Failed to queue document:', queueError);
-      // Document is uploaded but not queued - can be manually retried
+      await supabase.from('analysis_jobs').delete().eq('id', analysisJob.id);
+      await supabase.storage.from('family-documents').remove([filePath]);
+      await supabase.from('documents').delete().eq('id', documentData.id);
       return new Response(
         JSON.stringify({
-          success: true, // File uploaded successfully
-          warning: 'QUEUE_ERROR',
-          message: 'Document uploaded but failed to queue for processing. Please contact support.',
-          document: {
-            id: documentData.id,
-            file_name: file.name,
-            file_size_kb: fileSizeKB,
-            status: 'uploaded_not_queued'
-          }
+          success: false,
+          error: 'QUEUE_ERROR',
+          message: `Failed to queue document: ${queueError.message}`
         }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log('✅ Document queued for extraction');
-    console.log('🎉 Upload complete! Document will be processed by the queue.');
+    console.log('✅ Document queued in analysis_queue');
+
+    // Immediately trigger the unified processor
+    console.log('🚀 Invoking process-analysis-queue...');
+    const { error: invokeError } = await supabase.functions.invoke(
+      'process-analysis-queue',
+      {
+        body: { 
+          family_id: familyId,
+          job_id: analysisJob.id
+        }
+      }
+    );
+
+    if (invokeError) {
+      console.warn('⚠️ Processor invocation failed (will retry):', invokeError);
+    }
+
+    console.log('🎉 Upload complete! Processing started.');
 
     return new Response(
       JSON.stringify({
         success: true,
-        message: 'Document uploaded and queued for processing',
+        message: 'Document uploaded and processing started',
+        job_id: analysisJob.id,
         document: {
           id: documentData.id,
           file_name: file.name,
           file_path: publicUrl,
           category: category,
           file_size_kb: fileSizeKB,
-          status: 'queued',
-          queue_position: 'Processing will begin shortly'
+          status: 'processing'
         }
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

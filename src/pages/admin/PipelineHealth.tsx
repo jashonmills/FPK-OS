@@ -29,19 +29,19 @@ export default function PipelineHealth() {
     refetchInterval: 10000,
   });
 
-  // Queue stats
+  // Queue stats - Using analysis_queue instead of document_processing_queue
   const { data: queueStats, isLoading: statsLoading, refetch: refetchStats } = useQuery({
     queryKey: ['queue-stats'],
     queryFn: async () => {
       const { data } = await supabase
-        .from('document_processing_queue')
-        .select('status, job_type, processing_time_ms, created_at, started_at')
+        .from('analysis_queue')
+        .select('status, processing_time_ms, created_at, started_at')
         .gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
       
       if (!data) return null;
       
       const total = data.length;
-      const queued = data.filter(j => j.status === 'queued').length;
+      const pending = data.filter(j => j.status === 'pending').length;
       const processing = data.filter(j => j.status === 'processing').length;
       const completed = data.filter(j => j.status === 'completed').length;
       const failed = data.filter(j => j.status === 'failed').length;
@@ -53,7 +53,7 @@ export default function PipelineHealth() {
       
       return {
         total,
-        queued,
+        queued: pending,
         processing,
         completed,
         failed,
@@ -64,19 +64,19 @@ export default function PipelineHealth() {
     refetchInterval: 5000,
   });
 
-  // Live jobs
+  // Live jobs - Using analysis_queue instead of document_processing_queue
   const { data: liveJobs, isLoading: jobsLoading, refetch: refetchJobs } = useQuery({
     queryKey: ['live-jobs'],
     queryFn: async () => {
       const { data } = await supabase
-        .from('document_processing_queue')
+        .from('analysis_queue')
         .select(`
           *,
           documents (
             file_name
           )
         `)
-        .in('status', ['queued', 'processing', 'failed'])
+        .in('status', ['pending', 'processing', 'failed'])
         .order('created_at', { ascending: false })
         .limit(50);
       
@@ -95,8 +95,8 @@ export default function PipelineHealth() {
   const handleRetryJob = async (jobId: string) => {
     try {
       const { error } = await supabase
-        .from('document_processing_queue')
-        .update({ status: 'queued', error_message: null })
+        .from('analysis_queue')
+        .update({ status: 'pending', error_message: null })
         .eq('id', jobId);
       
       if (error) throw error;
@@ -110,7 +110,7 @@ export default function PipelineHealth() {
   const handleCancelJob = async (jobId: string) => {
     try {
       const { error } = await supabase
-        .from('document_processing_queue')
+        .from('analysis_queue')
         .update({ status: 'completed' })
         .eq('id', jobId);
       
@@ -258,7 +258,7 @@ export default function PipelineHealth() {
                     </p>
                     <div className="flex items-center gap-2 mt-1">
                       <Badge variant="outline" className="text-xs">
-                        {job.job_type}
+                        Analysis
                       </Badge>
                       {job.status === 'queued' && (
                         <Badge variant="secondary" className="text-xs gap-1">
@@ -277,11 +277,6 @@ export default function PipelineHealth() {
                           <XCircle className="h-3 w-3" />
                           Failed (Retry {job.retry_count}/3)
                         </Badge>
-                      )}
-                      {job.ai_provider_used && (
-                        <span className="text-xs text-muted-foreground">
-                          via {job.ai_provider_used}
-                        </span>
                       )}
                     </div>
                   </div>

@@ -19,7 +19,6 @@ import { DocumentViewerModal } from "@/components/documents/DocumentViewerModal"
 import { DocumentGuide } from "@/components/documents/DocumentGuide";
 import { DocumentsEmptyState } from "@/components/documents/DocumentsEmptyState";
 import { DocumentReportModal } from "@/components/documents/DocumentReportModal";
-import { DocumentQueueStatus } from "@/components/documents/DocumentQueueStatus";
 import { FocusAreaSelector, type FocusArea } from "@/components/documents/FocusAreaSelector";
 import { HistoricalReportsAccordion } from "@/components/documents/HistoricalReportsAccordion";
 import { ProjectScribe } from "@/components/documents/ProjectScribe";
@@ -335,43 +334,72 @@ export default function Documents() {
 
   const handleQueueForAnalysis = async (documentId: string) => {
     try {
-      // Check if already queued or processing
-      const { data: existingJob } = await supabase
-        .from('document_processing_queue')
-        .select('*')
+      // Check if document already has an active analysis job
+      const { data: existingQueue } = await supabase
+        .from('analysis_queue')
+        .select('job_id, status')
         .eq('document_id', documentId)
-        .in('status', ['queued', 'processing'])
+        .in('status', ['pending', 'processing'])
         .maybeSingle();
       
-      if (existingJob) {
-        toast.info('Document is already queued for processing');
+      if (existingQueue) {
+        toast.info('Document is already being analyzed');
+        setActiveJobId(existingQueue.job_id);
         return;
       }
 
-      // Add to processing queue
-      const { error } = await supabase
-        .from('document_processing_queue')
+      const toastId = toast.loading('Starting analysis...');
+
+      // Create a single-document analysis job
+      const { data: analysisJob, error: jobError } = await supabase
+        .from('analysis_jobs')
+        .insert({
+          family_id: selectedFamily.id,
+          status: 'processing',
+          total_documents: 1,
+          processed_documents: 0,
+          failed_documents: 0,
+          job_type: 'manual',
+          started_at: new Date().toISOString(),
+          metadata: {
+            document_count: 1,
+            processing_mode: 'manual_retry'
+          }
+        })
+        .select()
+        .single();
+
+      if (jobError) throw jobError;
+
+      // Add to unified analysis queue
+      const { error: queueError } = await supabase
+        .from('analysis_queue')
         .insert({
           document_id: documentId,
+          job_id: analysisJob.id,
           family_id: selectedFamily.id,
-          job_type: 'ANALYZE',
-          status: 'queued',
-          priority: 1,
+          status: 'pending',
+          priority: 2
         });
 
-      if (error) throw error;
-      
-      toast.success('Document queued for processing');
-      // Invalidate queries to show the new queue status immediately
-      queryClient.invalidateQueries({ queryKey: ["document-queue", documentId] });
+      if (queueError) throw queueError;
 
-      if (error) throw error;
+      // Immediately trigger processor
+      await supabase.functions.invoke('process-analysis-queue', {
+        body: { 
+          family_id: selectedFamily.id,
+          job_id: analysisJob.id
+        }
+      });
+
+      // Show Project Scribe
+      setActiveJobId(analysisJob.id);
       
-      toast.success('Document queued for analysis. Processing will begin shortly.');
+      toast.success('Analysis started! Watch the progress below.', { id: toastId });
       queryClient.invalidateQueries({ queryKey: ["documents"] });
     } catch (error: any) {
       console.error('Failed to queue document:', error);
-      toast.error('Failed to queue document: ' + error.message);
+      toast.error('Failed to start analysis: ' + error.message);
     }
   };
 
@@ -723,12 +751,9 @@ export default function Documents() {
                       </TableCell>
                       <TableCell className="font-medium">{doc.file_name}</TableCell>
                       <TableCell>
-                        {selectedFamily && (
-                          <DocumentQueueStatus 
-                            documentId={doc.id} 
-                            familyId={selectedFamily.id} 
-                          />
-                        )}
+                        <Badge variant={doc.last_analyzed_at ? "default" : "secondary"}>
+                          {doc.last_analyzed_at ? "Analyzed" : "Pending"}
+                        </Badge>
                       </TableCell>
                       <TableCell>
                         <Badge variant="outline">{doc.category}</Badge>

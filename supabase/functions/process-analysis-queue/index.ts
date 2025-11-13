@@ -256,121 +256,104 @@ serve(async (req) => {
             console.error(`  ❌ Failed: ${item.document_id}`, error.message);
             
             const processingTime = Date.now() - startTime;
-            const retryCount = item.retry_count + 1;
+            const currentRetries = item.retry_count || 0;
+            const maxRetries = 3;
+            const errorMessage = error.message || 'Unknown error';
             
-            // Detect error types
-            const isRateLimit = error.message?.includes('rate limit') || error.message?.includes('429');
-            const isPaymentRequired = error.message?.includes('402') || error.message?.includes('insufficient credits') || error.message?.includes('payment required');
-            const isTimeout = error.message?.includes('timeout');
+            // Smart error categorization
+            const isRetryable = 
+              errorMessage.includes('rate_limit') ||
+              errorMessage.includes('timeout') ||
+              errorMessage.includes('network') ||
+              errorMessage.includes('ECONNRESET') ||
+              errorMessage.includes('503') ||
+              errorMessage.includes('429');
             
-            // Update status record with failure
-            await supabase
-              .from('document_analysis_status')
-              .update({
-                status: 'failed',
-                error_message: isRateLimit 
-                  ? `Rate limited (429). Auto-retry ${retryCount}/${item.max_retries}` 
-                  : isPaymentRequired 
-                  ? 'Insufficient AI credits. Please add credits.'
-                  : error.message,
-                completed_at: new Date().toISOString()
-              })
-              .eq('id', statusRecord.id);
+            const isOversized = 
+              errorMessage.includes('OVERSIZED') ||
+              errorMessage.includes('too large') ||
+              errorMessage.includes('exceeds 100 pages');
             
-            // Handle payment required - stop entire job
-            if (isPaymentRequired) {
-              console.log('💳 Payment required (402) - stopping entire job');
-              await supabase
-                .from('analysis_queue')
-                .update({
+            const isPaymentRequired = 
+              errorMessage.includes('insufficient_credits') ||
+              errorMessage.includes('payment_required') ||
+              errorMessage.includes('PAYMENT_REQUIRED');
+
+            if (isOversized) {
+              // Permanent failure - document is too large
+              await Promise.all([
+                supabase.from('analysis_queue').update({
                   status: 'failed',
-                  error_message: 'Insufficient AI credits. Please add credits to continue.',
+                  error_message: 'Document exceeds size limit (>100 pages). Please split into smaller files and re-upload.',
                   completed_at: new Date().toISOString()
-                })
-                .eq('id', item.id);
-              
-              await supabase
-                .from('analysis_jobs')
-                .update({
+                }).eq('id', item.id),
+                supabase.from('document_analysis_status').update({
                   status: 'failed',
-                  error_message: 'Analysis paused: Insufficient AI credits. Add credits and retry.',
-                  failed_documents: totalFailed + 1
-                })
-                .eq('id', job_id);
-              
+                  error_message: 'Document too large. Split into smaller files and re-upload.',
+                  completed_at: new Date().toISOString()
+                }).eq('document_id', item.document_id)
+              ]);
               batchFailed++;
-              continueProcessing = false; // Stop processing entirely
-              break;
-            }
-            
-            // CRITICAL FIX #5: Handle rate limits with max consecutive limit
-            const MAX_CONSECUTIVE_RATE_LIMITS = 5;
-            
-            if (isRateLimit && retryCount < item.max_retries && consecutiveRateLimits < MAX_CONSECUTIVE_RATE_LIMITS) {
-              const backoffDelay = Math.min(30000 * Math.pow(2, item.retry_count), 120000); // 30s, 60s, 120s max
-              console.log(`⏸️ Rate limit hit. Backing off ${backoffDelay/1000}s before retry ${retryCount}/${item.max_retries}`);
               
-              await supabase
-                .from('analysis_queue')
-                .update({
-                  status: 'pending',
-                  retry_count: retryCount,
-                  error_message: `Rate limited. Will retry in ${backoffDelay/1000}s (attempt ${retryCount}/${item.max_retries})`,
-                  processing_time_ms: processingTime
-                })
-                .eq('id', item.id);
-              
-              // Wait before continuing
-              await new Promise(resolve => setTimeout(resolve, backoffDelay));
-              consecutiveRateLimits++;
-              continue; // Don't count as failed, will retry
-            } else if (consecutiveRateLimits >= MAX_CONSECUTIVE_RATE_LIMITS) {
-              console.log(`❌ Max consecutive rate limits (${MAX_CONSECUTIVE_RATE_LIMITS}) exceeded - stopping job`);
-              await supabase
-                .from('analysis_jobs')
-                .update({
+            } else if (isPaymentRequired) {
+              // Permanent failure - requires user to purchase credits
+              await Promise.all([
+                supabase.from('analysis_queue').update({
                   status: 'failed',
-                  error_message: 'Persistent rate limiting detected. API may be unavailable. Please try again later.',
-                  failed_documents: totalFailed + batchFailed + 1
-                })
-                .eq('id', job_id);
-              continueProcessing = false;
-              break;
+                  error_message: 'Insufficient AI credits. Please purchase more credits to continue processing.',
+                  completed_at: new Date().toISOString()
+                }).eq('id', item.id),
+                supabase.from('document_analysis_status').update({
+                  status: 'failed',
+                  error_message: 'Analysis paused: Insufficient AI credits. Purchase credits to resume.',
+                  completed_at: new Date().toISOString()
+                }).eq('document_id', item.document_id)
+              ]);
+              batchFailed++;
+              
+            } else if (isRetryable && currentRetries < maxRetries) {
+              // Temporary failure - retry with exponential backoff
+              const backoffSeconds = Math.pow(2, currentRetries) * 30; // 30s, 60s, 120s
+              const processAfter = new Date(Date.now() + (backoffSeconds * 1000));
+              
+              console.log(`🔄 Retrying in ${backoffSeconds}s (attempt ${currentRetries + 1}/${maxRetries})`);
+              
+              await supabase.from('analysis_queue').update({
+                status: 'pending',
+                retry_count: currentRetries + 1,
+                error_message: `Temporary error. Auto-retry ${currentRetries + 1}/${maxRetries} scheduled.`,
+                process_after: processAfter.toISOString()
+              }).eq('id', item.id);
+              
+              await supabase.from('document_analysis_status').update({
+                status: 'pending',
+                status_message: `Retry scheduled in ${Math.round(backoffSeconds / 60)}min (attempt ${currentRetries + 1}/${maxRetries})`,
+                error_message: `Temporary error: ${errorMessage}`
+              }).eq('document_id', item.document_id);
+              
+              // Don't count as failed - will auto-retry
+              
+            } else {
+              // Max retries exceeded or non-retryable error
+              await Promise.all([
+                supabase.from('analysis_queue').update({
+                  status: 'failed',
+                  error_message: `Failed after ${currentRetries} retries: ${errorMessage}`,
+                  completed_at: new Date().toISOString()
+                }).eq('id', item.id),
+                supabase.from('document_analysis_status').update({
+                  status: 'failed',
+                  error_message: `Analysis failed: ${errorMessage}. Click "Retry" to try again.`,
+                  completed_at: new Date().toISOString()
+                }).eq('document_id', item.document_id)
+              ]);
+              batchFailed++;
             }
-            
-            // Handle retryable errors (timeouts)
-            if (isTimeout && retryCount < item.max_retries) {
-              console.log(`🔄 Timeout detected. Queueing for retry ${retryCount}/${item.max_retries}`);
-              await supabase
-                .from('analysis_queue')
-                .update({
-                  status: 'pending',
-                  retry_count: retryCount,
-                  error_message: `Timeout. Will retry (attempt ${retryCount}/${item.max_retries})`,
-                  processing_time_ms: processingTime
-                })
-                .eq('id', item.id);
-              continue; // Don't count as failed, will retry
-            }
-            
-            // All other errors or max retries exceeded - mark as permanently failed
-            console.log(`📝 Marking as permanently failed: ${error.message}`);
-            await supabase
-              .from('analysis_queue')
-              .update({
-                status: 'failed',
-                retry_count: retryCount,
-                error_message: retryCount >= item.max_retries 
-                  ? `Max retries (${item.max_retries}) exceeded: ${error.message}`
-                  : error.message,
-                completed_at: new Date().toISOString(),
-                processing_time_ms: processingTime
-              })
-              .eq('id', item.id);
 
-            batchFailed++;
+            // Skip the next batch delay
+            continue;
           }
-
+          
           // Minimal delay between documents - only use longer delays on rate limits
           if (batchToProcess.indexOf(item) < batchToProcess.length - 1) {
             const delay = consecutiveRateLimits > 0 
