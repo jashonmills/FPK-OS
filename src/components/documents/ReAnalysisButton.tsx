@@ -6,30 +6,33 @@ import { RefreshCw } from "lucide-react";
 
 interface ReAnalysisButtonProps {
   familyId: string;
+  studentId?: string;
   onJobStarted?: (jobId: string) => void;
 }
 
-export function ReAnalysisButton({ familyId, onJobStarted }: ReAnalysisButtonProps) {
+export function ReAnalysisButton({ familyId, studentId, onJobStarted }: ReAnalysisButtonProps) {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   const handleReAnalyze = async () => {
     setIsAnalyzing(true);
-    const toastId = toast.loading("🚀 Starting smart batching...");
+    const toastId = toast.loading("🚀 Starting re-analysis...");
     
     try {
-      console.log('🔵 Invoking re-analyze-all-documents for family:', familyId);
-      const { data, error } = await supabase.functions.invoke("re-analyze-all-documents", {
-        body: { family_id: familyId },
+      console.log('🔵 Invoking bedrock-re-analyze-all for family:', familyId);
+      const { data, error } = await supabase.functions.invoke("bedrock-re-analyze-all", {
+        body: { 
+          familyId: familyId,
+          studentId: studentId 
+        },
       });
       console.log('🔵 Response:', { data, error });
 
       if (error) throw error;
 
-      if (data?.success && data?.job_id) {
-        onJobStarted?.(data.job_id);
-        const estimatedTime = data.estimated_time_minutes || 3;
+      if (data?.success) {
+        const estimatedTime = data.estimatedMinutes || 3;
         toast.success(
-          `✅ Processing ${data.total_documents} doc(s) with smart batching (est. ${estimatedTime} min). Auto-retry enabled for rate limits.`, 
+          `✅ Re-analyzing ${data.total} document(s) using Project Bedrock (est. ${estimatedTime} min)`, 
           { id: toastId, duration: 7000 }
         );
       }
