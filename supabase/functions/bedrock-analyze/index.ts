@@ -124,11 +124,20 @@ Return ONLY the JSON object, no markdown or explanation.`;
     const aiData = await aiResponse.json();
     let content = aiData.choices?.[0]?.message?.content || '{}';
     
-    // Strip markdown code blocks if present
-    content = content.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
+    // Extract JSON from markdown code blocks (handles all variations)
+    const jsonMatch = content.match(/```(?:json)?\s*\n?([\s\S]*?)\n?```/);
+    content = jsonMatch ? jsonMatch[1].trim() : content.trim();
     
-    // Parse AI response
-    const analysisResult = JSON.parse(content);
+    // Parse AI response with enhanced error logging
+    let analysisResult;
+    try {
+      analysisResult = JSON.parse(content);
+    } catch (error) {
+      console.error('❌ JSON Parse Error:', error);
+      console.error('📄 Raw AI Response (first 500 chars):', aiData.choices?.[0]?.message?.content?.substring(0, 500));
+      console.error('🔍 Extracted JSON String:', content.substring(0, 500));
+      throw new Error(`Failed to parse AI response: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
 
     console.log(`✅ Analysis complete:`, {
       metrics: analysisResult.metrics?.length || 0,
