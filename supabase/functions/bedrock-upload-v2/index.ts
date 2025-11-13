@@ -1,17 +1,71 @@
-// bedrock-upload-v2 - Enhanced logging for monitoring and performance tracking
-// VERSION: 2.4.0 - ENHANCED LOGGING + IMAGELESS MODE (30 pages max)
-// Deployed: 2025-01-14 01:00:00 UTC
-// New: Detailed timing metrics, page count tracking, processing performance data
+// bedrock-upload-v2 - Smart Document Chunker for large PDFs
+// VERSION: 2.5.0 - SMART CHUNKER (handles 30+ page PDFs automatically)
+// Deployed: 2025-01-13 23:15:00 UTC
+// New: Automatic chunking for large PDFs, processes in 25-page segments
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getAccessToken } from "../_shared/google-document-ai-auth.ts";
+import { PDFDocument } from "https://esm.sh/pdf-lib@1.17.1";
 
-const VERSION = "2.4.0-ENHANCED-LOGGING";
+const VERSION = "2.5.0-SMART-CHUNKER";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Process a single chunk of a PDF
+async function processDocumentChunk(
+  fileBuffer: Uint8Array,
+  chunkIndex: number,
+  totalChunks: number,
+  credentials: any,
+  processorId: string,
+  accessToken: string
+): Promise<{ text: string; pageCount: number; processingTime: number }> {
+  const chunkStart = Date.now();
+  
+  console.log(`📄 Processing chunk ${chunkIndex + 1}/${totalChunks}...`);
+  
+  // Convert chunk to base64
+  const base64Chunk = btoa(String.fromCharCode(...fileBuffer));
+  
+  // Call Document AI
+  const apiUrl = `https://documentai.googleapis.com/v1/${processorId}:process`;
+  const response = await fetch(apiUrl, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      rawDocument: {
+        content: base64Chunk,
+        mimeType: 'application/pdf'
+      },
+      imagelessMode: true,
+      processOptions: {
+        ocrConfig: {
+          enableNativePdfParsing: true
+        }
+      }
+    })
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Chunk ${chunkIndex + 1} processing failed: ${response.statusText}`);
+  }
+
+  const result = await response.json();
+  const text = result.document?.text || '';
+  const pageCount = result.document?.pages?.length || 0;
+  const processingTime = Date.now() - chunkStart;
+  
+  console.log(`✅ Chunk ${chunkIndex + 1}/${totalChunks}: ${text.length} chars, ${pageCount} pages (${processingTime}ms)`);
+  
+  return { text, pageCount, processingTime };
+}
 
 serve(async (req) => {
   const startTime = Date.now();
@@ -116,55 +170,65 @@ serve(async (req) => {
     timings.auth = Date.now() - authStart;
     console.log(`✅ Authentication successful (${timings.auth}ms)`);
 
-    // Call Document AI processDocument endpoint
-    const apiUrl = `https://documentai.googleapis.com/v1/${processorId}:process`;
-    console.log('📄 Processing document with Google Document AI...');
+    // Smart chunking: Check if we need to split the PDF
+    console.log('📄 Loading PDF to check page count...');
+    const pdfDoc = await PDFDocument.load(fileBuffer);
+    const totalPages = pdfDoc.getPageCount();
     
+    console.log(`📊 Document has ${totalPages} pages`);
+    
+    let extractedContent = '';
+    let totalPageCount = 0;
     const ocrStart = Date.now();
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        rawDocument: {
-          content: file_data_base64,
-          mimeType: 'application/pdf'
-        },
-        imagelessMode: true,  // Enables imageless mode for up to 30 pages
-        processOptions: {
-          ocrConfig: {
-            enableNativePdfParsing: true
-          }
-        }
-      })
-    });
-
-    if (!response.ok) {
-      // ROLLBACK: Delete the uploaded file
-      await supabase.storage.from('bedrock-storage').remove([filePath]);
-      const errorText = await response.text();
-      console.error('Google Document AI failed:', response.status, errorText);
+    
+    if (totalPages <= 25) {
+      // Small document: process normally
+      console.log('✅ Document is within single-chunk limit (≤25 pages). Processing as single chunk...');
+      const result = await processDocumentChunk(fileBuffer, 0, 1, credentials, processorId, accessToken);
+      extractedContent = result.text;
+      totalPageCount = result.pageCount;
+    } else {
+      // Large document: split into chunks
+      const CHUNK_SIZE = 25;
+      const totalChunks = Math.ceil(totalPages / CHUNK_SIZE);
       
-      // Check for page limit error
-      if (errorText.includes('Document pages exceed the limit') || errorText.includes('pages in non-imageless mode exceed the limit')) {
-        throw new Error('PAGE_LIMIT_EXCEEDED: This document exceeds the 30-page limit for automatic processing. Please split your document into smaller sections (under 30 pages each) and upload them separately. This ensures faster processing and better accuracy.');
+      console.log(`📚 Large document detected (${totalPages} pages). Splitting into ${totalChunks} chunks of ~${CHUNK_SIZE} pages each...`);
+      
+      const chunkResults: { text: string; index: number }[] = [];
+      
+      for (let i = 0; i < totalChunks; i++) {
+        const startPage = i * CHUNK_SIZE;
+        const endPage = Math.min((i + 1) * CHUNK_SIZE, totalPages);
+        
+        console.log(`🔪 Creating chunk ${i + 1}/${totalChunks}: pages ${startPage + 1}-${endPage}...`);
+        
+        // Create a new PDF with just these pages
+        const chunkDoc = await PDFDocument.create();
+        const copiedPages = await chunkDoc.copyPages(pdfDoc, Array.from({ length: endPage - startPage }, (_, idx) => startPage + idx));
+        copiedPages.forEach(page => chunkDoc.addPage(page));
+        
+        const chunkBytes = await chunkDoc.save();
+        const chunkBuffer = new Uint8Array(chunkBytes);
+        
+        console.log(`📦 Chunk ${i + 1}/${totalChunks} created: ${chunkBuffer.length} bytes, ${endPage - startPage} pages`);
+        
+        // Process this chunk
+        const result = await processDocumentChunk(chunkBuffer, i, totalChunks, credentials, processorId, accessToken);
+        chunkResults.push({ text: result.text, index: i });
+        totalPageCount += result.pageCount;
       }
       
-      throw new Error(`Document processing failed: ${response.statusText}`);
+      // Combine all chunks in order
+      console.log('🔗 Combining all chunks...');
+      chunkResults.sort((a, b) => a.index - b.index);
+      extractedContent = chunkResults.map(r => r.text).join('\n\n--- PAGE BREAK ---\n\n');
+      console.log(`✅ Combined ${chunkResults.length} chunks into ${extractedContent.length} total characters`);
     }
-
-    const result = await response.json();
-    const extractedContent = result.document?.text || '';
-    const pageCount = result.document?.pages?.length || 0;
     
     timings.ocr = Date.now() - ocrStart;
     
-    console.log(`📊 Document has ${pageCount} pages (limit: 30)`);
-    if (pageCount > 25) {
-      console.warn(`⚠️ High page count: ${pageCount}/30 pages`);
-    }
+    console.log(`📊 Total pages processed: ${totalPageCount}`);
+    console.log(`✅ Extracted ${extractedContent.length} characters of text (${timings.ocr}ms, ${Math.round(extractedContent.length / (timings.ocr / 1000))} chars/sec)`);
     
     if (extractedContent.length < 50) {
       // ROLLBACK: Delete the uploaded file
