@@ -283,12 +283,12 @@ export function BedrockDocumentPage() {
 
       const { data, error } = await supabase.functions.invoke('bedrock-analyze', {
         body: { 
-          documentId: doc.id,
+          document_id: doc.id,
           category: newCategory,
-          processorId,
-          familyId: selectedFamily?.id,
-          studentId: selectedStudent?.id,
-          userToken: session.access_token
+          processor_id: processorId,
+          family_id: selectedFamily?.id,
+          student_id: selectedStudent?.id,
+          user_token: session.access_token
         }
       });
 
@@ -348,12 +348,12 @@ export function BedrockDocumentPage() {
         docsToAnalyze.map(doc => 
           supabase.functions.invoke('bedrock-analyze', {
             body: { 
-              documentId: doc.id,
+              document_id: doc.id,
               category: batchCategory,
-              processorId,
-              familyId: selectedFamily?.id,
-              studentId: selectedStudent?.id,
-              userToken: session.access_token
+              processor_id: processorId,
+              family_id: selectedFamily?.id,
+              student_id: selectedStudent?.id,
+              user_token: session.access_token
             }
           })
         )
