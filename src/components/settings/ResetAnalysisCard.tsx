@@ -109,15 +109,18 @@ export const ResetAnalysisCard = () => {
         description: "Processing documents with improved AI prompts...",
       });
 
-      const { data, error } = await supabase.functions.invoke("re-analyze-all-documents", {
-        body: { family_id: selectedFamily.id },
+      const { data, error } = await supabase.functions.invoke("bedrock-re-analyze-all", {
+        body: { 
+          familyId: selectedFamily.id,  // Note: bedrock function uses camelCase
+          studentId: selectedStudent?.id 
+        },
       });
 
       if (error) throw error;
 
       toast({
         title: "Deep Re-Analysis Complete",
-        description: `Successfully re-analyzed ${data.successful} of ${data.total_documents} documents with improved prompts.`,
+        description: `Successfully re-analyzed ${data.total} document(s) with Bedrock AI (est. ${data.estimatedMinutes} min).`,
       });
 
       // Reload to show new data

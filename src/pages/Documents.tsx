@@ -374,16 +374,19 @@ function LegacyDocumentsPage() {
   const handleDeepReAnalysis = async () => {
     if (!selectedFamily?.id) return;
     
-    const toastId = toast.loading("Starting deep re-analysis with Vision AI...");
+    const toastId = toast.loading("Starting deep re-analysis with Bedrock AI...");
     try {
-      const { data, error } = await supabase.functions.invoke("re-analyze-all-documents", {
-        body: { family_id: selectedFamily.id },
+      const { data, error } = await supabase.functions.invoke("bedrock-re-analyze-all", {
+        body: { 
+          familyId: selectedFamily.id,  // Note: bedrock function uses camelCase
+          studentId: selectedStudent?.id 
+        },
       });
 
       if (error) throw error;
 
-      if (data?.job_id) {
-        toast.success(`Processing ${data.total_documents} documents. Watch the live progress below.`, { id: toastId });
+      if (data?.total) {
+        toast.success(`Processing ${data.total} document(s) with Bedrock AI (est. ${data.estimatedMinutes} min). Watch the live progress below.`, { id: toastId });
       }
     } catch (error: any) {
       console.error("Re-analysis error:", error);

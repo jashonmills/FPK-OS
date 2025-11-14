@@ -167,13 +167,23 @@ export default function DocumentStatusMonitor() {
     try {
       toast.loading('Starting analysis...', { id: `analyze-${documentId}` });
       
-      const { error } = await supabase.functions.invoke('analyze-document', {
-        body: { document_id: documentId }
+      // Get current session for auth
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('No active session');
+      }
+      
+      // Call the NEW Bedrock analysis function
+      const { error } = await supabase.functions.invoke('bedrock-analyze', {
+        body: { 
+          document_id: documentId,
+          // Note: This is for legacy documents table - may need migration to bedrock_documents
+        }
       });
 
       if (error) throw error;
       
-      toast.success('Analysis started', { id: `analyze-${documentId}` });
+      toast.success('Analysis started with Bedrock AI', { id: `analyze-${documentId}` });
       refetch();
     } catch (error) {
       console.error('Analysis error:', error);
