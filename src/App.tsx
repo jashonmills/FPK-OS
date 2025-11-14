@@ -376,9 +376,7 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <SuperAdminRoute>
-                    <AppLayout>
-                      <UserManagement />
-                    </AppLayout>
+                    <UserManagement />
                   </SuperAdminRoute>
                 </ProtectedRoute>
               }
