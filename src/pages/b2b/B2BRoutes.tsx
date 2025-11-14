@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-
 import { OrgLayout } from '@/components/layout/OrgLayout';
 import { OrgDashboard } from './OrgDashboard';
 import { OrgStudents } from './OrgStudents';
+import { OrgStaff } from './OrgStaff';
 import { OrgCreate } from './OrgCreate';
 import OrgResetPassword from './OrgResetPassword';
 import { OrganizationProvider, useOrganization } from '@/contexts/OrganizationContext';
@@ -41,18 +42,38 @@ export const B2BRoutes = () => {
         
         {/* Protected routes - require organization membership */}
         <Route
-          path="/*"
+          path="/dashboard"
           element={
             <OnboardingGuard>
               <OrgLayout>
-                <Routes>
-                  <Route path="/dashboard" element={<OrgDashboard />} />
-                  <Route path="/students" element={<OrgStudents />} />
-                  <Route path="/*" element={<Navigate to="/org/dashboard" replace />} />
-                </Routes>
+                <OrgDashboard />
               </OrgLayout>
             </OnboardingGuard>
           }
+        />
+        <Route
+          path="/students"
+          element={
+            <OnboardingGuard>
+              <OrgLayout>
+                <OrgStudents />
+              </OrgLayout>
+            </OnboardingGuard>
+          }
+        />
+        <Route
+          path="/staff"
+          element={
+            <OnboardingGuard>
+              <OrgLayout>
+                <OrgStaff />
+              </OrgLayout>
+            </OnboardingGuard>
+          }
+        />
+        <Route
+          path="/*"
+          element={<Navigate to="/org/dashboard" replace />}
         />
       </Routes>
     </OrganizationProvider>

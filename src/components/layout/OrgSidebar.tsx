@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/sidebar';
 import { useOrganization } from '@/contexts/OrganizationContext';
 import { useAuth } from '@/hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, NavLink } from 'react-router-dom';
 import { 
   Building2, 
   LayoutDashboard, 
@@ -105,10 +105,15 @@ export const OrgSidebar = () => {
           {navItems.map((item) => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild>
-                <a href={item.url}>
+                <NavLink 
+                  to={item.url}
+                  className={({ isActive }) => 
+                    isActive ? 'bg-accent text-accent-foreground font-medium' : ''
+                  }
+                >
                   <item.icon className="h-4 w-4" />
                   <span>{item.title}</span>
-                </a>
+                </NavLink>
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
