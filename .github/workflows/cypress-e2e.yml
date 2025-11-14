@@ -87,6 +87,37 @@ jobs:
           path: cypress/videos
           if-no-files-found: ignore
 
+      - name: 📊 Merge Test Reports
+        if: always()
+        run: |
+          npm run report:merge || echo "No reports to merge"
+
+      - name: 📈 Generate HTML Dashboard
+        if: always()
+        run: |
+          npm run report:generate || echo "Failed to generate dashboard"
+
+      - name: 📊 Upload Mochawesome Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-dashboard-${{ matrix.containers }}
+          path: cypress/reports/mochawesome/index.html
+          if-no-files-found: ignore
+
+      - name: 📊 Upload Performance Metrics
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: performance-metrics-${{ matrix.containers }}
+          path: cypress/reports/performance/metrics.jsonl
+          if-no-files-found: ignore
+
+      - name: 🔍 Analyze Performance
+        if: always()
+        run: |
+          node scripts/analyze-performance.js || echo "Performance analysis completed"
+
       - name: 📝 Generate Test Report
         if: always()
         run: |
@@ -99,6 +130,8 @@ jobs:
           else
             echo "❌ Some tests failed - check artifacts for details" >> $GITHUB_STEP_SUMMARY
           fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📊 [View detailed test dashboard in artifacts](../artifacts)" >> $GITHUB_STEP_SUMMARY
 
   # Aggregate results from parallel runs
   test-results:
