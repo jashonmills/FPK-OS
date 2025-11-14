@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Download, Loader2, RotateCw, ZoomIn, ZoomOut, Maximize2, Image } from "lucide-react";
+import { Download, Loader2, RotateCw, ZoomIn, ZoomOut, Maximize2, Image, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { Document, Page, pdfjs } from "react-pdf";
 import { ThumbnailSidebar } from "./ThumbnailSidebar";
@@ -29,6 +29,7 @@ export function DocumentViewerModal({ open, onOpenChange, document }: DocumentVi
   const [showThumbnails, setShowThumbnails] = useState(true);
   const [pageWidth, setPageWidth] = useState(700);
   const [pageHeight, setPageHeight] = useState(900);
+  const [showAnnotations, setShowAnnotations] = useState(false);
 
   useEffect(() => {
     if (document && open) {
@@ -219,13 +220,15 @@ export function DocumentViewerModal({ open, onOpenChange, document }: DocumentVi
                       />
                     </Document>
                     
-                    <DocumentAnnotations
-                      pageNumber={pageNumber}
-                      scale={scale}
-                      rotation={rotation}
-                      width={pageWidth}
-                      height={pageHeight}
-                    />
+                      <DocumentAnnotations
+                        pageNumber={pageNumber}
+                        scale={scale}
+                        rotation={rotation}
+                        width={pageWidth}
+                        height={pageHeight}
+                        visible={showAnnotations}
+                        onClose={() => setShowAnnotations(false)}
+                      />
                   </div>
                   
                   {numPages > 1 && (

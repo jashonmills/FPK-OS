@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Highlighter, Pen, Eraser, MousePointer } from "lucide-react";
+import { Highlighter, Pen, Eraser, MousePointer, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Annotation {
@@ -16,9 +16,19 @@ interface DocumentAnnotationsProps {
   rotation: number;
   width: number;
   height: number;
+  visible?: boolean;
+  onClose?: () => void;
 }
 
-export function DocumentAnnotations({ pageNumber, scale, rotation, width, height }: DocumentAnnotationsProps) {
+export function DocumentAnnotations({ 
+  pageNumber, 
+  scale, 
+  rotation, 
+  width, 
+  height,
+  visible = true,
+  onClose
+}: DocumentAnnotationsProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [currentPath, setCurrentPath] = useState<{ x: number; y: number }[]>([]);
@@ -67,16 +77,21 @@ export function DocumentAnnotations({ pageNumber, scale, rotation, width, height
     ctx.globalAlpha = 1;
   }, [annotations, pageNumber, scale]);
 
-  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (tool === "select") return;
-
+  const getCanvasCoordinates = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas) return { x: 0, y: 0 };
 
     const rect = canvas.getBoundingClientRect();
     const x = (e.clientX - rect.left) / scale;
     const y = (e.clientY - rect.top) / scale;
+    
+    return { x, y };
+  };
 
+  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (tool === "select") return;
+
+    const { x, y } = getCanvasCoordinates(e);
     setIsDrawing(true);
     setCurrentPath([{ x, y }]);
   };
@@ -87,10 +102,7 @@ export function DocumentAnnotations({ pageNumber, scale, rotation, width, height
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const rect = canvas.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / scale;
-    const y = (e.clientY - rect.top) / scale;
-
+    const { x, y } = getCanvasCoordinates(e);
     setCurrentPath((prev) => [...prev, { x, y }]);
 
     const ctx = canvas.getContext("2d");
@@ -142,8 +154,10 @@ export function DocumentAnnotations({ pageNumber, scale, rotation, width, height
     }));
   };
 
+  if (!visible) return null;
+
   return (
-    <div className="absolute inset-0 pointer-events-none">
+    <div className="absolute inset-0 pointer-events-none z-10">
       <canvas
         ref={canvasRef}
         width={width * scale}
@@ -152,15 +166,30 @@ export function DocumentAnnotations({ pageNumber, scale, rotation, width, height
           "absolute top-0 left-0",
           tool !== "select" && "pointer-events-auto cursor-crosshair"
         )}
+        style={{ width: width * scale, height: height * scale }}
         onMouseDown={startDrawing}
         onMouseMove={draw}
         onMouseUp={stopDrawing}
         onMouseLeave={stopDrawing}
       />
 
-      <div className="absolute top-4 right-4 flex flex-col gap-2 pointer-events-auto">
-        <div className="bg-background/95 backdrop-blur-sm border rounded-lg p-2 shadow-lg">
-          <div className="flex flex-col gap-1">
+      <div className="absolute bottom-4 right-4 pointer-events-auto z-20">
+        <div className="bg-background/95 backdrop-blur-sm border rounded-lg shadow-lg">
+          <div className="flex items-center gap-2 p-2 border-b">
+            <span className="text-sm font-medium text-muted-foreground">Annotations</span>
+            {onClose && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onClose}
+                className="ml-auto h-6 w-6 p-0"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+          
+          <div className="p-2 space-y-1">
             <Button
               variant={tool === "select" ? "default" : "ghost"}
               size="sm"
@@ -200,7 +229,7 @@ export function DocumentAnnotations({ pageNumber, scale, rotation, width, height
           </div>
 
           {tool !== "select" && (
-            <div className="mt-2 pt-2 border-t">
+            <div className="p-2 border-t">
               <div className="text-xs text-muted-foreground mb-1">Color</div>
               <div className="flex gap-1">
                 {["#FFFF00", "#00FF00", "#FF0000", "#0000FF", "#FF00FF"].map((c) => (

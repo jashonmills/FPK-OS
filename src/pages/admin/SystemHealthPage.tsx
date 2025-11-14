@@ -91,24 +91,11 @@ export default function SystemHealthPage() {
     refetchInterval: 5000,
   });
 
-  // Fetch AI provider health
-  const { data: providerHealth, isLoading: loadingProviders, refetch: refetchProviders } = useQuery({
-    queryKey: ["ai-provider-health"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("ai_provider_health")
-        .select("*")
-        .order("last_check_at", { ascending: false });
-
-      if (error) throw error;
-      return data;
-    },
-    refetchInterval: 30000,
-  });
+  // AI provider health removed - legacy feature not used in Bedrock
 
   const handleRefreshAll = async () => {
     toast.loading("Refreshing all data...", { id: "refresh-all" });
-    await Promise.all([refetchStats(), refetchJobs(), refetchProviders()]);
+    await Promise.all([refetchStats(), refetchJobs()]);
     toast.success("Data refreshed", { id: "refresh-all" });
   };
 
@@ -159,7 +146,6 @@ export default function SystemHealthPage() {
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="queue">Queue Monitor</TabsTrigger>
-          <TabsTrigger value="providers">AI Providers</TabsTrigger>
           <TabsTrigger value="jobs">Live Jobs</TabsTrigger>
         </TabsList>
 
@@ -275,69 +261,6 @@ export default function SystemHealthPage() {
           </div>
         </TabsContent>
 
-        <TabsContent value="providers" className="space-y-4">
-          <div className="grid gap-4">
-            {loadingProviders ? (
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-center py-4">
-                    <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
-                  </div>
-                </CardContent>
-              </Card>
-            ) : providerHealth && providerHealth.length > 0 ? (
-              providerHealth.map((provider) => (
-                <Card key={provider.provider_name}>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-lg">{provider.provider_name}</CardTitle>
-                      <Badge variant={provider.status === 'healthy' ? "default" : "destructive"}>
-                        {provider.status === 'healthy' ? "Healthy" : "Degraded"}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                      <div>
-                        <p className="text-muted-foreground">Avg Latency</p>
-                        <p className="font-semibold">{provider.average_latency_ms}ms</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Consecutive Failures</p>
-                        <p className="font-semibold text-red-600">{provider.consecutive_failures}</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Status</p>
-                        <p className="font-semibold">{provider.status}</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Last Success</p>
-                        <p className="font-semibold">
-                          {provider.last_success_at 
-                            ? formatDistanceToNow(new Date(provider.last_success_at), { addSuffix: true })
-                            : "Never"}
-                        </p>
-                      </div>
-                    </div>
-                    {provider.last_error_message && (
-                      <Alert variant="destructive" className="mt-4">
-                        <AlertTriangle className="h-4 w-4" />
-                        <AlertTitle>Last Error</AlertTitle>
-                        <AlertDescription>{provider.last_error_message}</AlertDescription>
-                      </Alert>
-                    )}
-                  </CardContent>
-                </Card>
-              ))
-            ) : (
-              <Card>
-                <CardContent className="pt-6">
-                  <p className="text-center text-muted-foreground">No provider health data available</p>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        </TabsContent>
 
         <TabsContent value="jobs" className="space-y-4">
           <Card>
