@@ -204,7 +204,7 @@ export const AppSidebar = () => {
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
-                    <NavLink to="/admin/user-management" className={({ isActive }) => isActive ? 'bg-accent text-accent-foreground font-medium' : ''}>
+                    <NavLink to="/admin/users" className={({ isActive }) => isActive ? 'bg-accent text-accent-foreground font-medium' : ''}>
                       <Users className="h-4 w-4" />
                       <span>User Management</span>
                     </NavLink>
@@ -212,41 +212,25 @@ export const AppSidebar = () => {
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
-                    <NavLink to="/admin/pipeline-health" className={({ isActive }) => isActive ? 'bg-accent text-accent-foreground font-medium' : ''}>
-                      <Activity className="h-4 w-4" />
-                      <span>Pipeline Health</span>
+                    <NavLink to="/admin/system-health" className={({ isActive }) => isActive ? 'bg-accent text-accent-foreground font-medium' : ''}>
+                      <Heart className="h-4 w-4" />
+                      <span>System Health</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
                     <NavLink to="/admin/dashboard" className={({ isActive }) => isActive ? 'bg-accent text-accent-foreground font-medium' : ''}>
-                      <TestTube className="h-4 w-4" />
+                      <LayoutDashboard className="h-4 w-4" />
                       <span>Admin Dashboard</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
-                    <NavLink to="/admin/extraction-monitoring" className={({ isActive }) => isActive ? 'bg-accent text-accent-foreground font-medium' : ''}>
-                      <Database className="h-4 w-4" />
-                      <span>Extraction Monitor</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <NavLink to="/admin/document-status" className={({ isActive }) => isActive ? 'bg-accent text-accent-foreground font-medium' : ''}>
-                      <Flag className="h-4 w-4" />
-                      <span>Document Status</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <NavLink to="/documents" className={({ isActive }) => isActive ? 'bg-accent text-accent-foreground font-medium' : ''}>
-                      <FolderOpen className="h-4 w-4" />
-                      <span>Documents</span>
+                    <NavLink to="/admin/performance-testing" className={({ isActive }) => isActive ? 'bg-accent text-accent-foreground font-medium' : ''}>
+                      <Zap className="h-4 w-4" />
+                      <span>Performance & Testing</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
