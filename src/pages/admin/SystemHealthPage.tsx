@@ -21,42 +21,37 @@ import { PipelineHealthCheck } from "@/components/admin/PipelineHealthCheck";
 import { formatDistanceToNow } from "date-fns";
 
 export default function SystemHealthPage() {
-  // Fetch queue statistics
+  // Fetch unified queue statistics (legacy + Bedrock)
   const { data: queueStats, isLoading: loadingStats, refetch: refetchStats } = useQuery({
-    queryKey: ["queue-stats"],
+    queryKey: ["unified-queue-stats"],
     queryFn: async () => {
-      const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-      
-      const { data, error } = await supabase
-        .from("analysis_queue")
-        .select("*")
-        .gte("created_at", twentyFourHoursAgo);
-
+      const { data, error } = await supabase.rpc("get_unified_queue_stats");
       if (error) throw error;
-
-      const total = data.length;
-      const queued = data.filter(j => j.status === 'queued').length;
-      const processing = data.filter(j => j.status === 'processing').length;
-      const completed = data.filter(j => j.status === 'completed').length;
-      const failed = data.filter(j => j.status === 'failed').length;
-
-      const completedJobs = data.filter(j => j.status === 'completed' && j.processing_time_ms);
-      const avgProcessingTime = completedJobs.length > 0
-        ? Math.round(completedJobs.reduce((sum, j) => sum + (j.processing_time_ms || 0), 0) / completedJobs.length / 1000)
-        : 0;
-
-      const successRate = total > 0 ? Math.round((completed / total) * 100) : 0;
-
-      return { total, queued, processing, completed, failed, avgProcessingTime, successRate };
+      
+      const stats = data[0];
+      return {
+        total: Number(stats.total_items),
+        queued: Number(stats.queued_items),
+        processing: Number(stats.processing_items),
+        completed: Number(stats.completed_items),
+        failed: Number(stats.failed_items),
+        avgProcessingTime: Number(stats.avg_processing_time_sec || 0),
+        successRate: Number(stats.success_rate || 0),
+        bedrockTotal: Number(stats.bedrock_total),
+        bedrockProcessing: Number(stats.bedrock_processing),
+        legacyTotal: Number(stats.legacy_total),
+        legacyProcessing: Number(stats.legacy_processing)
+      };
     },
     refetchInterval: 10000,
   });
 
-  // Fetch live jobs
+  // Fetch live jobs from both legacy and Bedrock
   const { data: liveJobs, isLoading: loadingJobs, refetch: refetchJobs } = useQuery({
     queryKey: ["live-jobs"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // Fetch legacy jobs
+      const { data: legacyJobs, error: legacyError } = await supabase
         .from("analysis_queue")
         .select(`
           *,
@@ -66,10 +61,33 @@ export default function SystemHealthPage() {
         `)
         .in("status", ["pending", "processing", "failed"])
         .order("created_at", { ascending: false })
-        .limit(10);
+        .limit(5);
 
-      if (error) throw error;
-      return data;
+      if (legacyError) throw legacyError;
+
+      // Fetch Bedrock jobs
+      const { data: bedrockJobs, error: bedrockError } = await supabase
+        .from("bedrock_documents")
+        .select("*")
+        .in("status", ["pending", "processing", "failed"])
+        .order("created_at", { ascending: false })
+        .limit(5);
+
+      if (bedrockError) throw bedrockError;
+
+      // Combine and mark source
+      const combined = [
+        ...(legacyJobs || []).map(j => ({ ...j, source: 'legacy' as const })),
+        ...(bedrockJobs || []).map(j => ({ 
+          ...j, 
+          source: 'bedrock' as const,
+          documents: { file_name: j.file_name }
+        }))
+      ];
+
+      return combined.sort((a, b) => 
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      ).slice(0, 10);
     },
     refetchInterval: 5000,
   });
@@ -332,8 +350,11 @@ export default function SystemHealthPage() {
                         <div className="flex items-center gap-2">
                           <FileText className="h-4 w-4 text-muted-foreground" />
                           <span className="font-medium">
-                            {job.documents?.file_name || `Document ${job.document_id?.slice(0, 8)}`}
+                            {job.documents?.file_name || (job as any).file_name || `Document ${job.id?.slice(0, 8)}`}
                           </span>
+                          <Badge variant="outline" className="text-xs">
+                            {job.source === 'bedrock' ? 'Bedrock' : 'Legacy'}
+                          </Badge>
                           <Badge variant={
                             job.status === 'processing' ? 'default' :
                             job.status === 'pending' ? 'secondary' :

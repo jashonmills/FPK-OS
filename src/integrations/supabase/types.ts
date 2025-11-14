@@ -4215,6 +4215,18 @@ export type Database = {
         }
         Relationships: []
       }
+      bedrock_queue_stats: {
+        Row: {
+          avg_processing_time_ms: number | null
+          completed_items: number | null
+          failed_items: number | null
+          pending_items: number | null
+          processing_items: number | null
+          success_rate: number | null
+          total_items: number | null
+        }
+        Relationships: []
+      }
       extraction_analytics: {
         Row: {
           avg_time_seconds: number | null
@@ -4326,6 +4338,29 @@ export type Database = {
           chart_identifier: string
           document_count: number
           last_updated: string
+        }[]
+      }
+      get_bedrock_performance_metrics: {
+        Args: { p_hours?: number }
+        Returns: {
+          avg_processing_time_sec: number
+          documents_processed: number
+          failure_count: number
+          hour_bucket: string
+          success_count: number
+          success_rate: number
+        }[]
+      }
+      get_bedrock_system_status: {
+        Args: never
+        Returns: {
+          bedrock_enabled_families: number
+          current_failed: number
+          current_processing: number
+          docs_last_24h: number
+          migration_progress_pct: number
+          total_bedrock_docs: number
+          total_families: number
         }[]
       }
       get_behavior_function_data: {
@@ -4688,6 +4723,22 @@ export type Database = {
           successful_transitions: number
           total_transitions: number
           transition_type: string
+        }[]
+      }
+      get_unified_queue_stats: {
+        Args: never
+        Returns: {
+          avg_processing_time_sec: number
+          bedrock_processing: number
+          bedrock_total: number
+          completed_items: number
+          failed_items: number
+          legacy_processing: number
+          legacy_total: number
+          processing_items: number
+          queued_items: number
+          success_rate: number
+          total_items: number
         }[]
       }
       get_user_family_role:

@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
+import { MigrationDashboard } from "@/components/admin/MigrationDashboard";
 import { 
   Users, 
   Building2, 
@@ -68,29 +69,16 @@ export default function SuperAdminDashboard() {
     refetchInterval: 10000, // Refresh every 10 seconds
   });
 
-  // Fetch upload failure statistics
-  const { data: uploadStats } = useQuery({
-    queryKey: ["upload-failure-stats"],
+  // Fetch Bedrock system status
+  const { data: bedrockStatus } = useQuery({
+    queryKey: ["bedrock-system-status"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('system_error_log')
-        .select('error_type, context_data')
-        .eq('error_type', 'document_upload_failure')
-        .gte('created_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString());
-      
+      const { data, error } = await supabase.rpc("get_bedrock_system_status");
       if (error) throw error;
-      
-      // Aggregate by file type
-      const byFileType: Record<string, number> = {};
-      data.forEach(log => {
-        const contextData = log.context_data as Record<string, any> || {};
-        const fileType = contextData.fileType || 'unknown';
-        byFileType[fileType] = (byFileType[fileType] || 0) + 1;
-      });
-      
-      return { total: data.length, byFileType };
+      return data[0];
     },
     enabled: !!adminStatus?.isSuperAdmin,
+    refetchInterval: 30000,
   });
 
   if (isCheckingAdmin) {
@@ -347,118 +335,22 @@ export default function SuperAdminDashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {uploadStats && (
-                <div className="mb-4 p-4 bg-muted rounded-lg">
-                  <div className="font-semibold mb-2">Last 7 Days Summary</div>
-                  <div className="text-2xl font-bold mb-2">{uploadStats.total} failures</div>
-                  <div className="text-sm space-y-1">
-                    <div className="font-medium">By File Type:</div>
-                    {Object.entries(uploadStats.byFileType).map(([type, count]) => (
-                      <div key={type} className="flex justify-between">
-                        <span>{type}</span>
-                        <span className="font-semibold">{count}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-              
               <div className="space-y-3">
-                {errorLogs?.filter((log: any) => log.error_type === 'document_upload_failure').map((log: any) => {
+                {errorLogs?.slice(0, 20).map((log: any) => {
                   const contextData = log.context_data as Record<string, any> || {};
                   return (
-                  <Alert key={log.id} variant="destructive">
-                    <Upload className="h-4 w-4" />
-                    <AlertDescription>
-                      <div className="flex justify-between items-start gap-4">
-                        <div className="flex-1 space-y-1">
-                          <div className="font-semibold">Upload Failed</div>
-                          <div className="text-sm">{log.error_message}</div>
-                          <div className="text-xs font-mono bg-muted p-2 rounded mt-2">
-                            <div>File: {contextData.fileName}</div>
-                            <div>Size: {((contextData.fileSize || 0) / 1024).toFixed(2)} KB</div>
-                            <div>Type: {contextData.fileType}</div>
-                          </div>
-                        </div>
-                        <div className="text-xs text-muted-foreground whitespace-nowrap">
-                          <div>{formatDistanceToNow(new Date(log.created_at), { addSuffix: true })}</div>
-                          <div className="mt-1">
-                            {log.profile?.display_name || log.profile?.full_name || 'Unknown user'}
-                          </div>
-                          {log.error_code && (
-                            <div className="mt-1 font-semibold">Code: {log.error_code}</div>
-                          )}
-                        </div>
-                      </div>
-                    </AlertDescription>
-                  </Alert>
-                );
-                })}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="404" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>404 Not Found Errors</CardTitle>
-              <CardDescription>
-                Pages users tried to access but don't exist
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {errorLogs?.filter((log: any) => log.error_type === 'page_not_found').map((log: any) => {
-                  const contextData = log.context_data as Record<string, any> || {};
-                  return (
-                  <Alert key={log.id}>
+                  <Alert key={log.id} variant={log.severity === 'error' ? 'destructive' : 'default'}>
                     <AlertTriangle className="h-4 w-4" />
                     <AlertDescription>
                       <div className="flex justify-between items-start gap-4">
                         <div className="flex-1 space-y-1">
-                          <div className="font-semibold">Page Not Found</div>
-                          <div className="text-sm">Route: {contextData.route}</div>
-                        </div>
-                        <div className="text-xs text-muted-foreground whitespace-nowrap">
-                          <div>{formatDistanceToNow(new Date(log.created_at), { addSuffix: true })}</div>
-                          <div className="mt-1">
-                            {log.profile?.display_name || log.profile?.full_name || 'Unknown user'}
-                          </div>
-                        </div>
-                      </div>
-                    </AlertDescription>
-                  </Alert>
-                );
-                })}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="api" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>API Errors</CardTitle>
-              <CardDescription>
-                Failed API requests and backend errors
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {errorLogs?.filter((log: any) => log.error_type === 'api_error').map((log: any) => {
-                  const contextData = log.context_data as Record<string, any> || {};
-                  return (
-                  <Alert key={log.id} variant="destructive">
-                    <AlertTriangle className="h-4 w-4" />
-                    <AlertDescription>
-                      <div className="flex justify-between items-start gap-4">
-                        <div className="flex-1 space-y-1">
-                          <div className="font-semibold">API Error</div>
+                          <div className="font-semibold">{log.error_type}</div>
                           <div className="text-sm">{log.error_message}</div>
-                          {contextData.apiEndpoint && (
+                          {contextData && Object.keys(contextData).length > 0 && (
                             <div className="text-xs font-mono bg-muted p-2 rounded mt-2">
-                              Endpoint: {contextData.apiEndpoint}
+                              {contextData.fileName && <div>File: {contextData.fileName}</div>}
+                              {contextData.fileSize && <div>Size: {((contextData.fileSize || 0) / 1024).toFixed(2)} KB</div>}
+                              {contextData.fileType && <div>Type: {contextData.fileType}</div>}
                             </div>
                           )}
                         </div>
