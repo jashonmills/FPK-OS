@@ -147,9 +147,18 @@ serve(async (req) => {
       throw new Error('Failed to download file from storage');
     }
 
-    // Convert blob to base64
+    // Convert blob to base64 (chunked to avoid stack overflow)
     const arrayBuffer = await fileBlob.arrayBuffer();
-    const base64Content = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+    const bytes = new Uint8Array(arrayBuffer);
+    
+    // Process in chunks to avoid "Maximum call stack size exceeded"
+    const chunkSize = 8192;
+    let binaryString = '';
+    for (let i = 0; i < bytes.length; i += chunkSize) {
+      const chunk = bytes.subarray(i, Math.min(i + chunkSize, bytes.length));
+      binaryString += String.fromCharCode(...chunk);
+    }
+    const base64Content = btoa(binaryString);
     
     // Call synchronous processDocument API
     console.log(`🚀 Initiating synchronous document processing`);
