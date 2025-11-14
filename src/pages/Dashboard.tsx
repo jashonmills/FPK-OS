@@ -10,6 +10,7 @@ import { dashboardTourSteps } from '@/components/onboarding/tourConfigs';
 import { useTourProgress } from '@/hooks/useTourProgress';
 import { TeamDiscussion } from '@/components/shared/TeamDiscussion';
 import { AIInsightsDashboard } from '@/components/dashboard/AIInsightsDashboard';
+import { CICDBadge } from '@/components/dashboard/CICDBadge';
 import { BookOpen, MessageSquare } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -57,6 +58,8 @@ const Dashboard = () => {
         </div>
 
         <AnalysisQueueStatus />
+
+        <CICDBadge />
 
         <StudentOverview />
 
