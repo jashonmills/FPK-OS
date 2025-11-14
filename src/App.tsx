@@ -372,6 +372,18 @@ const App = () => (
               }
             />
             <Route
+              path="/admin/users"
+              element={
+                <ProtectedRoute>
+                  <SuperAdminRoute>
+                    <AppLayout>
+                      <UserManagement />
+                    </AppLayout>
+                  </SuperAdminRoute>
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/admin/performance-testing"
               element={
                 <ProtectedRoute>
