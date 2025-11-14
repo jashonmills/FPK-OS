@@ -200,10 +200,10 @@ serve(async (req) => {
         }
 
         // Check if embedding actually succeeded
-        const success = embedResult?.success === true && embedResult?.embeddings_created > 0;
+        const success = embedResult?.success === true;
         
         if (success) {
-          // Mark as completed only if embeddings were created
+          // Mark as completed
           await supabase
             .from("embedding_queue")
             .update({ 
@@ -213,10 +213,14 @@ serve(async (req) => {
             .eq("id", item.id);
 
           processedCount++;
-          console.log(`✅ Successfully processed ${item.source_table}:${item.source_id} - ${embedResult.embeddings_created} embeddings created`);
+          if (embedResult?.embeddings_created > 0) {
+            console.log(`✅ Successfully processed ${item.source_table}:${item.source_id} - ${embedResult.embeddings_created} embeddings created`);
+          } else {
+            console.log(`✅ Skipped ${item.source_table}:${item.source_id} - ${embedResult?.message || "No content to embed"}`);
+          }
         } else {
-          // Mark as failed if no embeddings were created
-          throw new Error(embedResult?.message || "No embeddings created");
+          // Mark as failed
+          throw new Error(embedResult?.message || "Embedding function failed");
         }
         
         // Rate limiting - small delay between API calls
