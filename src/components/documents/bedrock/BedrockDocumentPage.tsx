@@ -18,10 +18,12 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { useFamily } from '@/contexts/FamilyContext';
 import { toast } from 'sonner';
-import { Upload, Loader2, Sparkles, Eye, Download, Trash2, RefreshCw } from 'lucide-react';
+import { Upload, Loader2, Sparkles, Eye, Download, Trash2, RefreshCw, CheckSquare, Square } from 'lucide-react';
 import { format } from 'date-fns';
 import { ReAnalysisButton } from '../ReAnalysisButton';
 import { DocumentViewerModal } from '@/components/documents/DocumentViewerModal';
+import { DocumentStatistics } from './DocumentStatistics';
+import { Checkbox } from '@/components/ui/checkbox';
 
 // Elite Classification System - Full Catalog
 const DOCUMENT_TYPE_CATEGORIES = {
@@ -126,6 +128,9 @@ export function BedrockDocumentPage() {
   const [analyzingDoc, setAnalyzingDoc] = useState<string | null>(null);
   const [deleteConfirmDoc, setDeleteConfirmDoc] = useState<any>(null);
   const [viewerDocument, setViewerDocument] = useState<any>(null);
+  const [selectedDocIds, setSelectedDocIds] = useState<Set<string>>(new Set());
+  const [batchCategory, setBatchCategory] = useState('');
+  const [batchAnalyzing, setBatchAnalyzing] = useState(false);
 
   // Fetch documents
   const { data: documents, isLoading } = useQuery({
@@ -253,21 +258,108 @@ export function BedrockDocumentPage() {
       if (!session) throw new Error('No session');
 
       const newCategory = documentCategories[doc.id] || doc.category;
+      const processorId = getProcessorId(newCategory);
+
+      console.log('🔄 Re-analyzing:', {
+        documentId: doc.id,
+        oldCategory: doc.category,
+        newCategory: newCategory,
+        processorId: processorId
+      });
 
       await supabase.functions.invoke('bedrock-analyze', {
         body: { 
           document_id: doc.id,
-          category: newCategory
+          category: newCategory,
+          processor_id: processorId,
         },
         headers: { Authorization: `Bearer ${session.access_token}` }
       });
 
-      toast.success(`Re-analysis started for "${newCategory}" category`);
+      toast.success(`Re-analyzing as "${newCategory}"`);
       queryClient.invalidateQueries({ queryKey: ['bedrock-documents'] });
     } catch (error: any) {
       toast.error(error.message || 'Re-analysis failed');
     } finally {
       setAnalyzingDoc(null);
+    }
+  };
+
+  const toggleDocSelection = (docId: string) => {
+    setSelectedDocIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(docId)) {
+        newSet.delete(docId);
+      } else {
+        newSet.add(docId);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedDocIds.size === documents?.length) {
+      setSelectedDocIds(new Set());
+    } else {
+      setSelectedDocIds(new Set(documents?.map(d => d.id) || []));
+    }
+  };
+
+  const handleBatchReAnalyze = async () => {
+    if (selectedDocIds.size === 0) {
+      toast.error('Please select documents to re-classify');
+      return;
+    }
+    if (!batchCategory) {
+      toast.error('Please select a category for re-classification');
+      return;
+    }
+
+    setBatchAnalyzing(true);
+    const toastId = toast.loading(`Re-classifying ${selectedDocIds.size} documents...`);
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('No session');
+
+      const processorId = getProcessorId(batchCategory);
+      let successCount = 0;
+      let failCount = 0;
+
+      for (const docId of selectedDocIds) {
+        try {
+          await supabase.functions.invoke('bedrock-analyze', {
+            body: { 
+              document_id: docId,
+              category: batchCategory,
+              processor_id: processorId,
+            },
+            headers: { Authorization: `Bearer ${session.access_token}` }
+          });
+          successCount++;
+        } catch (error) {
+          console.error(`Failed to re-analyze ${docId}:`, error);
+          failCount++;
+        }
+      }
+
+      if (successCount > 0) {
+        toast.success(
+          `Re-classified ${successCount} document${successCount > 1 ? 's' : ''} as "${batchCategory}"`,
+          { id: toastId }
+        );
+      }
+      if (failCount > 0) {
+        toast.error(`${failCount} document${failCount > 1 ? 's' : ''} failed`, { id: toastId });
+      }
+
+      queryClient.invalidateQueries({ queryKey: ['bedrock-documents'] });
+      setSelectedDocIds(new Set());
+      setBatchCategory('');
+    } catch (error: any) {
+      toast.error(error.message || 'Batch re-classification failed', { id: toastId });
+    } finally {
+      setBatchAnalyzing(false);
     }
   };
 
@@ -289,6 +381,11 @@ export function BedrockDocumentPage() {
           Upload and manage educational documents
         </p>
       </div>
+
+      {/* Statistics Dashboard */}
+      {documents && documents.length > 0 && (
+        <DocumentStatistics documents={documents} />
+      )}
 
       {/* Upload Section */}
       <Card>
@@ -345,9 +442,11 @@ export function BedrockDocumentPage() {
       {/* Documents List */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-4">
             <CardTitle>Your Documents</CardTitle>
-            <ReAnalysisButton familyId={selectedFamily.id} />
+            <div className="flex items-center gap-2">
+              <ReAnalysisButton familyId={selectedFamily.id} />
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -357,8 +456,79 @@ export function BedrockDocumentPage() {
             </div>
           ) : documents && documents.length > 0 ? (
             <div className="space-y-3">
+              {/* Batch Actions Bar */}
+              {selectedDocIds.size > 0 && (
+                <div className="flex items-center gap-4 p-4 bg-muted rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary">{selectedDocIds.size} selected</Badge>
+                  </div>
+                  <Select value={batchCategory} onValueChange={setBatchCategory}>
+                    <SelectTrigger className="w-[200px]">
+                      <SelectValue placeholder="Select new category" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-[400px]">
+                      {Object.entries(DOCUMENT_TYPE_CATEGORIES).map(([categoryKey, category]) => (
+                        <div key={categoryKey}>
+                          <div className="px-2 py-1.5 text-sm font-semibold text-muted-foreground">
+                            {category.label}
+                          </div>
+                          {category.types.map((type) => (
+                            <SelectItem key={type.value} value={type.value}>
+                              {type.label}
+                            </SelectItem>
+                          ))}
+                        </div>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button 
+                    onClick={handleBatchReAnalyze}
+                    disabled={batchAnalyzing || !batchCategory}
+                    size="sm"
+                  >
+                    {batchAnalyzing ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Re-classifying...
+                      </>
+                    ) : (
+                      <>
+                        <RefreshCw className="h-4 w-4 mr-2" />
+                        Re-classify Selected
+                      </>
+                    )}
+                  </Button>
+                  <Button 
+                    onClick={() => setSelectedDocIds(new Set())}
+                    variant="ghost"
+                    size="sm"
+                  >
+                    Clear Selection
+                  </Button>
+                </div>
+              )}
+
+              {/* Select All Header */}
+              <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg">
+                <Checkbox
+                  checked={selectedDocIds.size === documents.length && documents.length > 0}
+                  onCheckedChange={toggleSelectAll}
+                  aria-label="Select all documents"
+                />
+                <span className="text-sm font-medium">
+                  {selectedDocIds.size === documents.length && documents.length > 0 
+                    ? 'Deselect All' 
+                    : 'Select All'}
+                </span>
+              </div>
+
               {documents.map((doc: any) => (
-                <div key={doc.id} className="flex items-center justify-between p-4 border rounded-lg gap-4">
+                <div key={doc.id} className="flex items-center gap-4 p-4 border rounded-lg">
+                  <Checkbox
+                    checked={selectedDocIds.has(doc.id)}
+                    onCheckedChange={() => toggleDocSelection(doc.id)}
+                    aria-label={`Select ${doc.file_name}`}
+                  />
                   <div className="flex-1 min-w-0">
                     <p className="font-medium truncate">{doc.file_name}</p>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground flex-wrap">
