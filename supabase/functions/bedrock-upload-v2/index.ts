@@ -47,7 +47,7 @@ serve(async (req) => {
     console.log(`✓ User authenticated: ${user.id}`);
 
     // Parse request body
-    const { fileData, fileName, fileType, category, familyId, studentId, documentDate } = await req.json();
+    const { fileData, fileName, category = 'other', familyId, studentId, documentDate } = await req.json();
     
     if (!fileData || !fileName || !familyId) {
       throw new Error('Missing required fields: fileData, fileName, or familyId');
@@ -55,6 +55,7 @@ serve(async (req) => {
 
     console.log(`📄 Processing: ${fileName}`);
     console.log(`👥 Family: ${familyId}, Student: ${studentId || 'none'}`);
+    console.log(`📋 Category: ${category}`);
 
     // Decode file
     const fileBytes = Uint8Array.from(atob(fileData), c => c.charCodeAt(0));
@@ -69,7 +70,7 @@ serve(async (req) => {
 
     console.log(`💾 Uploading to storage: ${storagePath}`);
 
-    const { data: uploadData, error: uploadError } = await supabase.storage
+    const { error: uploadError } = await supabase.storage
       .from('bedrock-storage')
       .upload(storagePath, fileBytes, {
         contentType: 'application/pdf',
@@ -81,189 +82,132 @@ serve(async (req) => {
       throw new Error('File upload failed');
     }
 
-    timings.upload = Date.now() - uploadStart;
-    console.log(`✅ File uploaded to: ${filePath} (${timings.upload}ms)`);
+    console.log(`✅ File uploaded to storage`);
 
-    // 4. Extract text using Google Document AI
-    console.log(`🔍 VERSION ${VERSION}: Calling Google Document AI with IMAGELESS MODE (imagelessMode: true)...`);
-
+    // Get Google Document AI credentials
     const credsJson = Deno.env.get('GOOGLE_DOC_AI_CREDS');
-    const processorId = Deno.env.get('GOOGLE_DOCUMENT_AI_PROCESSOR_ID');
-
-    if (!credsJson || !processorId) {
-      // ROLLBACK: Delete the uploaded file
-      await supabase.storage.from('bedrock-storage').remove([filePath]);
+    if (!credsJson) {
+      await supabase.storage.from('bedrock-storage').remove([storagePath]);
       throw new Error('Google Document AI credentials not configured');
     }
 
-    // Validate credentials format BEFORE parsing
+    // Validate and parse credentials
     if (!credsJson.trim().startsWith('{')) {
       console.error('❌ GOOGLE_DOCUMENT_AI_CREDENTIALS is not JSON format');
-      console.error('Received value starts with:', credsJson.substring(0, 20));
-      await supabase.storage.from('bedrock-storage').remove([filePath]);
-      throw new Error('Invalid credentials format: Expected Google Service Account JSON, got raw string. Please update the GOOGLE_DOCUMENT_AI_CREDENTIALS secret with the full service account JSON file contents.');
+      await supabase.storage.from('bedrock-storage').remove([storagePath]);
+      throw new Error('Invalid credentials format: Expected Google Service Account JSON');
     }
 
     let credentials;
     try {
       credentials = JSON.parse(credsJson);
       
-      // Validate required fields
       if (!credentials.private_key || !credentials.client_email || !credentials.project_id) {
         throw new Error('Service account JSON missing required fields (private_key, client_email, project_id)');
       }
     } catch (e) {
       console.error('❌ Failed to parse Google credentials:', e.message);
-      await supabase.storage.from('bedrock-storage').remove([filePath]);
+      await supabase.storage.from('bedrock-storage').remove([storagePath]);
       throw new Error(`Invalid Google credentials: ${e.message}`);
     }
 
+    // Select processor based on category (Intelligent Router)
+    const processorId = PROCESSOR_MAP[category] || PROCESSOR_MAP['other'];
+    console.log(`🎯 Selected processor: ${processorId} for category: ${category}`);
+
+    // Get access token
     console.log('🔐 Authenticating with Google Document AI...');
     console.log('📧 Using service account:', credentials.client_email);
-    const authStart = Date.now();
     const accessToken = await getAccessToken(credentials);
-    timings.auth = Date.now() - authStart;
-    console.log(`✅ Authentication successful (${timings.auth}ms)`);
+    console.log('✅ Authentication successful');
 
-    // Smart chunking: Check if we need to split the PDF
-    console.log('📄 Loading PDF to check page count...');
-    const pdfDoc = await PDFDocument.load(fileBuffer);
-    const totalPages = pdfDoc.getPageCount();
+    // Generate job ID
+    const jobId = `${familyId}_${timestamp}`;
     
-    console.log(`📊 Document has ${totalPages} pages`);
+    // Call batchProcess API
+    console.log(`🚀 Initiating async batch processing with job ID: ${jobId}`);
     
-    let extractedContent = '';
-    let totalPageCount = 0;
-    const ocrStart = Date.now();
+    const batchProcessUrl = `https://documentai.googleapis.com/v1/${processorId}:batchProcess`;
     
-    if (totalPages <= 25) {
-      // Small document: process normally
-      console.log('✅ Document is within single-chunk limit (≤25 pages). Processing as single chunk...');
-      const result = await processDocumentChunk(fileBuffer, 0, 1, credentials, processorId, accessToken);
-      extractedContent = result.text;
-      totalPageCount = result.pageCount;
-    } else {
-      // Large document: split into chunks
-      const CHUNK_SIZE = 25;
-      const totalChunks = Math.ceil(totalPages / CHUNK_SIZE);
-      
-      console.log(`📚 Large document detected (${totalPages} pages). Splitting into ${totalChunks} chunks of ~${CHUNK_SIZE} pages each...`);
-      
-      const chunkResults: { text: string; index: number }[] = [];
-      
-      for (let i = 0; i < totalChunks; i++) {
-        const startPage = i * CHUNK_SIZE;
-        const endPage = Math.min((i + 1) * CHUNK_SIZE, totalPages);
-        
-        console.log(`🔪 Creating chunk ${i + 1}/${totalChunks}: pages ${startPage + 1}-${endPage}...`);
-        
-        // Create a new PDF with just these pages
-        const chunkDoc = await PDFDocument.create();
-        const copiedPages = await chunkDoc.copyPages(pdfDoc, Array.from({ length: endPage - startPage }, (_, idx) => startPage + idx));
-        copiedPages.forEach(page => chunkDoc.addPage(page));
-        
-        const chunkBytes = await chunkDoc.save();
-        const chunkBuffer = new Uint8Array(chunkBytes);
-        
-        console.log(`📦 Chunk ${i + 1}/${totalChunks} created: ${chunkBuffer.length} bytes, ${endPage - startPage} pages`);
-        
-        // Process this chunk
-        const result = await processDocumentChunk(chunkBuffer, i, totalChunks, credentials, processorId, accessToken);
-        chunkResults.push({ text: result.text, index: i });
-        totalPageCount += result.pageCount;
+    const requestBody = {
+      inputDocuments: {
+        gcsPrefix: {
+          gcsUriPrefix: `gs://bedrock-storage/${storagePath}`
+        }
+      },
+      documentOutputConfig: {
+        gcsOutputConfig: {
+          gcsUri: `gs://bedrock-storage-output/${jobId}/`
+        }
       }
-      
-      // Combine all chunks in order
-      console.log('🔗 Combining all chunks...');
-      chunkResults.sort((a, b) => a.index - b.index);
-      extractedContent = chunkResults.map(r => r.text).join('\n\n--- PAGE BREAK ---\n\n');
-      console.log(`✅ Combined ${chunkResults.length} chunks into ${extractedContent.length} total characters`);
-    }
-    
-    timings.ocr = Date.now() - ocrStart;
-    
-    console.log(`📊 Total pages processed: ${totalPageCount}`);
-    console.log(`✅ Extracted ${extractedContent.length} characters of text (${timings.ocr}ms, ${Math.round(extractedContent.length / (timings.ocr / 1000))} chars/sec)`);
-    
-    if (extractedContent.length < 50) {
-      // ROLLBACK: Delete the uploaded file
-      await supabase.storage.from('bedrock-storage').remove([filePath]);
-      throw new Error('Extracted text is too short. File may be corrupted or empty.');
+    };
+
+    const batchResponse = await fetch(batchProcessUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    });
+
+    if (!batchResponse.ok) {
+      const errorText = await batchResponse.text();
+      console.error('❌ Batch process API failed:', errorText);
+      await supabase.storage.from('bedrock-storage').remove([storagePath]);
+      throw new Error(`Batch process failed: ${batchResponse.status} ${errorText}`);
     }
 
-    console.log(`✅ Extracted ${extractedContent.length} characters of text (${timings.ocr}ms, ${Math.round(extractedContent.length / (timings.ocr / 1000))} chars/sec)`);
+    const operation = await batchResponse.json();
+    const operationName = operation.name;
+    
+    console.log(`✅ Batch process initiated. Operation: ${operationName}`);
 
-    // 6. Create database record WITH extracted content
-    const dbStart = Date.now();
+    // Create database record with processing status
     const { data: document, error: dbError } = await supabase
       .from('bedrock_documents')
       .insert({
-        family_id,
-        student_id,
-        file_name,
-        file_path: filePath,
-        file_size_kb: Math.round(fileBuffer.length / 1024),
-        extracted_content: extractedContent,
-        status: 'uploaded'  // Ready for user to classify
+        family_id: familyId,
+        student_id: studentId,
+        file_name: fileName,
+        file_path: storagePath,
+        file_size_kb: fileSizeKb,
+        status: 'processing',
+        job_id: operationName,
+        metadata: {
+          category,
+          processor_id: processorId,
+          initiated_at: new Date().toISOString()
+        }
       })
       .select()
       .single();
 
     if (dbError) {
-      // ROLLBACK: Delete the uploaded file
-      await supabase.storage.from('bedrock-storage').remove([filePath]);
       console.error('Database insert failed:', dbError);
+      await supabase.storage.from('bedrock-storage').remove([storagePath]);
       throw new Error('Failed to create document record');
     }
 
-    timings.database = Date.now() - dbStart;
-    console.log(`✅ Document record created: ${document.id} (${timings.database}ms)`);
+    console.log(`✅ Document record created with ID: ${document.id}`);
 
-    // Processing summary
-    const totalTime = Date.now() - startTime;
-    console.log('✅ Processing complete:', {
-      documentId: document.id,
-      fileName: file_name,
-      pageCount: pageCount,
-      fileSizeKB: Math.round(fileBuffer.length / 1024),
-      extractedChars: extractedContent.length,
-      timings: {
-        total: totalTime,
-        upload: timings.upload,
-        auth: timings.auth,
-        ocr: timings.ocr,
-        database: timings.database
-      },
-      ocrSpeed: `${Math.round(extractedContent.length / (timings.ocr / 1000))} chars/sec`
-    });
-
+    // Return 202 Accepted - processing started
     return new Response(
       JSON.stringify({ 
-        success: true, 
-        document,
-        extracted_length: extractedContent.length,
-        page_count: pageCount,
-        processing_time_ms: totalTime
+        success: true,
+        status: 'processing',
+        document_id: document.id,
+        job_id: operationName,
+        message: 'Document processing initiated. You will be notified when complete.'
       }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { 
+        status: 202,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      }
     );
 
   } catch (error: any) {
-    const totalTime = Date.now() - startTime;
-    
-    // Determine which phase failed
-    let failedPhase = 'initialization';
-    if (timings.upload > 0 && timings.auth === 0) failedPhase = 'authentication';
-    else if (timings.auth > 0 && timings.ocr === 0) failedPhase = 'document_ai_processing';
-    else if (timings.ocr > 0 && timings.database === 0) failedPhase = 'database_insert';
-    else if (timings.upload > 0) failedPhase = 'storage_upload';
-    
-    console.error('❌ Upload failed:', {
-      error: error.message,
-      failedPhase: failedPhase,
-      failedAfter: totalTime,
-      completedTimings: timings
-    });
+    console.error('❌ Upload failed:', error.message);
     
     return new Response(
       JSON.stringify({ 
