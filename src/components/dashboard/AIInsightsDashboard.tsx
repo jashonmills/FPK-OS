@@ -35,7 +35,7 @@ export function AIInsightsDashboard({ studentId, familyId, onViewDocument }: AII
   const { data: insights, isLoading } = useQuery({
     queryKey: ['student-insights', studentId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('student_insights')
         .select('*')
         .eq('student_id', studentId)
@@ -54,7 +54,7 @@ export function AIInsightsDashboard({ studentId, familyId, onViewDocument }: AII
   const dismissMutation = useMutation({
     mutationFn: async (insightId: string) => {
       const { data: { user } } = await supabase.auth.getUser();
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('student_insights')
         .update({ 
           is_dismissed: true,
