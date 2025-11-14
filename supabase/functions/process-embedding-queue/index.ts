@@ -16,35 +16,39 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      throw new Error("Missing authorization header");
-    }
+    // Parse request body FIRST to check for system triggers
+    const { family_id, batch_all = false, limit = 10, system_automated_trigger } = await req.json();
 
-    // Verify user is authenticated
-    const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    
-    if (authError || !user) {
-      throw new Error("Unauthorized");
-    }
+    // If this is a system-automated trigger (cron job), skip authentication
+    if (!system_automated_trigger) {
+      const authHeader = req.headers.get("Authorization");
+      if (!authHeader) {
+        throw new Error("Missing authorization header");
+      }
 
-    const { family_id, batch_all = false, limit = 10 } = await req.json();
+      // Verify user is authenticated
+      const token = authHeader.replace("Bearer ", "");
+      const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+      
+      if (authError || !user) {
+        throw new Error("Unauthorized");
+      }
 
-    if (!family_id) {
-      throw new Error("family_id is required");
-    }
+      if (!family_id) {
+        throw new Error("family_id is required");
+      }
 
-    // Verify user is member of the family
-    const { data: membership, error: memberError } = await supabase
-      .from("family_members")
-      .select("role")
-      .eq("family_id", family_id)
-      .eq("user_id", user.id)
-      .single();
+      // Verify user is member of the family
+      const { data: membership, error: memberError } = await supabase
+        .from("family_members")
+        .select("role")
+        .eq("family_id", family_id)
+        .eq("user_id", user.id)
+        .single();
 
-    if (memberError || !membership) {
-      throw new Error("Not authorized for this family");
+      if (memberError || !membership) {
+        throw new Error("Not authorized for this family");
+      }
     }
 
     let processedCount = 0;

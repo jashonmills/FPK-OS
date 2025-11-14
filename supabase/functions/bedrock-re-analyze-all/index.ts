@@ -114,7 +114,7 @@ serve(async (req) => {
             .from('bedrock_documents')
             .update({ 
               status: 'failed', 
-              error_message: error.message || 'Analysis failed' 
+              error_message: error instanceof Error ? error.message : 'Analysis failed' 
             })
             .eq('id', doc.id);
         }
@@ -152,7 +152,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Re-analysis error:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }

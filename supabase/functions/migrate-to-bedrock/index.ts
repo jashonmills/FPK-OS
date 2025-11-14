@@ -121,7 +121,7 @@ serve(async (req) => {
         }
       } catch (error) {
         console.error(`Error processing ${doc.file_name}:`, error);
-        errors.push({ file_name: doc.file_name, error: error.message });
+        errors.push({ file_name: doc.file_name, error: error instanceof Error ? error.message : 'Unknown error' });
         failed++;
       }
     }
@@ -144,7 +144,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Migration error:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
