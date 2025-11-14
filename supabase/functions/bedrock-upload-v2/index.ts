@@ -159,28 +159,33 @@ serve(async (req) => {
     const accessToken = await getAccessToken(credentials);
     console.log('✅ Authentication successful');
 
-    // Generate job ID
-    const jobId = `${familyId}_${timestamp}`;
+    // Download file from Supabase Storage to process with Document AI
+    console.log('📥 Downloading file from storage for processing...');
+    const { data: fileData, error: downloadError } = await supabase.storage
+      .from('bedrock-storage')
+      .download(storagePath);
+
+    if (downloadError || !fileData) {
+      throw new Error('Failed to download file from storage');
+    }
+
+    // Convert blob to base64
+    const arrayBuffer = await fileData.arrayBuffer();
+    const base64Content = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
     
-    // Call batchProcess API
-    console.log(`🚀 Initiating async batch processing with job ID: ${jobId}`);
+    // Call synchronous processDocument API
+    console.log(`🚀 Initiating synchronous document processing`);
     
-    const batchProcessUrl = `https://documentai.googleapis.com/v1/${processorId}:batchProcess`;
+    const processUrl = `https://documentai.googleapis.com/v1/${processorId}:process`;
     
     const requestBody = {
-      inputDocuments: {
-        gcsPrefix: {
-          gcsUriPrefix: `gs://bedrock-storage/${storagePath}`
-        }
-      },
-      documentOutputConfig: {
-        gcsOutputConfig: {
-          gcsUri: `gs://bedrock-storage-output/${jobId}/`
-        }
+      rawDocument: {
+        content: base64Content,
+        mimeType: 'application/pdf'
       }
     };
 
-    const batchResponse = await fetch(batchProcessUrl, {
+    const processResponse = await fetch(processUrl, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${accessToken}`,
@@ -189,19 +194,19 @@ serve(async (req) => {
       body: JSON.stringify(requestBody),
     });
 
-    if (!batchResponse.ok) {
-      const errorText = await batchResponse.text();
-      console.error('❌ Batch process API failed:', errorText);
+    if (!processResponse.ok) {
+      const errorText = await processResponse.text();
+      console.error('❌ Document processing failed:', errorText);
       await supabase.storage.from('bedrock-storage').remove([storagePath]);
-      throw new Error(`Batch process failed: ${batchResponse.status} ${errorText}`);
+      throw new Error(`Processing failed: ${processResponse.status} ${errorText}`);
     }
 
-    const operation = await batchResponse.json();
-    const operationName = operation.name;
+    const result = await processResponse.json();
+    const extractedText = result.document?.text || '';
     
-    console.log(`✅ Batch process initiated. Operation: ${operationName}`);
+    console.log(`✅ Document processed successfully. Extracted ${extractedText.length} characters`);
 
-    // Create database record with processing status
+    // Create database record with extracted content
     const { data: document, error: dbError } = await supabase
       .from('bedrock_documents')
       .insert({
@@ -210,12 +215,13 @@ serve(async (req) => {
         file_name: fileName,
         file_path: storagePath,
         file_size_kb: fileSizeKb,
-        status: 'processing',
-        job_id: operationName,
+        status: 'extracted',
+        extracted_text: extractedText,
         metadata: {
           category,
           processor_id: processorId,
-          initiated_at: new Date().toISOString()
+          processed_at: new Date().toISOString(),
+          character_count: extractedText.length
         }
       })
       .select()
@@ -229,17 +235,17 @@ serve(async (req) => {
 
     console.log(`✅ Document record created with ID: ${document.id}`);
 
-    // Return 202 Accepted - processing started
+    // Return 200 OK - processing complete
     return new Response(
       JSON.stringify({ 
         success: true,
-        status: 'processing',
+        status: 'extracted',
         document_id: document.id,
-        job_id: operationName,
-        message: 'Document processing initiated. You will be notified when complete.'
+        character_count: extractedText.length,
+        message: 'Document processed successfully'
       }),
       { 
-        status: 202,
+        status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       }
     );
