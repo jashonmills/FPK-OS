@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -24,8 +24,16 @@ type OrgFormData = z.infer<typeof orgSchema>;
 
 export const OrgCreate = () => {
   const navigate = useNavigate();
-  const { refreshOrganizations } = useOrganization();
+  const { refreshOrganizations, organizations, isLoading } = useOrganization();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Redirect users who already have an organization
+  useEffect(() => {
+    if (!isLoading && organizations.length > 0) {
+      console.log('User already has organization, redirecting to dashboard');
+      navigate('/org/dashboard', { replace: true });
+    }
+  }, [organizations, isLoading, navigate]);
 
   const {
     register,
