@@ -200,7 +200,7 @@ export function DocumentViewerModal({ open, onOpenChange, document }: DocumentVi
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="preview" className="flex-1 overflow-hidden mt-4 flex">
+          <TabsContent value="preview" className="flex-1 overflow-hidden mt-0 flex">
             {loading ? (
               <div className="flex items-center justify-center h-full w-full">
                 <Loader2 className="h-8 w-8 animate-spin" />
@@ -284,7 +284,7 @@ export function DocumentViewerModal({ open, onOpenChange, document }: DocumentVi
             )}
           </TabsContent>
 
-          <TabsContent value="insights" className="flex-1 overflow-hidden mt-0 h-full">
+          <TabsContent value="insights" className="flex-1 overflow-hidden mt-0 flex flex-col">
             <DocumentInsightsTab
               documentId={document.id}
               analysisData={document.analysis_data}
@@ -292,7 +292,7 @@ export function DocumentViewerModal({ open, onOpenChange, document }: DocumentVi
             />
           </TabsContent>
 
-          <TabsContent value="discussion" className="flex-1 overflow-auto mt-0 h-full">
+          <TabsContent value="discussion" className="flex-1 overflow-auto mt-0 flex flex-col">
             <TeamDiscussion 
               entityType="document"
               entityId={document.id}
