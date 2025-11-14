@@ -1,62 +1,41 @@
-// Centralized embedding helper for all knowledge base ingestion functions
-// CRITICAL: Uses Lovable AI chat completion API to generate semantic embeddings
-// Lovable AI Gateway doesn't have a /v1/embeddings endpoint, so we use chat completions
+// Centralized embedding helper using OpenAI's dedicated embeddings API
+// This is the industry-standard approach for generating vector embeddings
 
-const LOVABLE_AI_API_URL = 'https://ai.gateway.lovable.dev/v1/chat/completions';
-const EMBEDDING_MODEL = "google/gemini-2.5-flash"; // Fast, cost-effective model for embedding generation
+const OPENAI_EMBEDDINGS_API = 'https://api.openai.com/v1/embeddings';
+const EMBEDDING_MODEL = 'text-embedding-3-small'; // 1536 dimensions, $0.00002/1k tokens
 
 interface EmbeddingOptions {
   retries?: number;
   retryDelay?: number;
 }
 
-// Generate a semantic embedding by using the AI model to create a numerical representation
+// Generate a real semantic embedding using OpenAI's dedicated API
 async function generateSemanticEmbedding(text: string, apiKey: string): Promise<number[]> {
-  const response = await fetch(LOVABLE_AI_API_URL, {
+  const response = await fetch(OPENAI_EMBEDDINGS_API, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
+      input: text,
       model: EMBEDDING_MODEL,
-      messages: [
-        {
-          role: 'system',
-          content: 'You are a semantic analysis tool. Analyze the text and return a JSON array of 384 floating point numbers representing the semantic embedding. Each number should be between -1 and 1. Return ONLY the JSON array, no other text.'
-        },
-        {
-          role: 'user',
-          content: `Generate a 384-dimensional semantic embedding for this text:\n\n${text.substring(0, 3000)}`
-        }
-      ],
-      temperature: 0.3,
     }),
   });
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(`Lovable AI API error (${response.status}): ${errorText}`);
+    throw new Error(`OpenAI API error (${response.status}): ${errorText}`);
   }
 
   const data = await response.json();
-  const content = data.choices?.[0]?.message?.content;
+  const embedding = data.data?.[0]?.embedding;
   
-  if (!content) {
-    throw new Error('No content in AI response');
+  if (!embedding || !Array.isArray(embedding)) {
+    throw new Error('Invalid embedding response from OpenAI');
   }
 
-  // Parse the JSON array from the response
-  try {
-    const embedding = JSON.parse(content);
-    if (!Array.isArray(embedding) || embedding.length !== 384) {
-      throw new Error(`Invalid embedding format: expected array of 384 numbers, got ${embedding.length}`);
-    }
-    return embedding;
-  } catch (parseError) {
-    console.error('Failed to parse embedding:', content.substring(0, 200));
-    throw new Error('Failed to parse embedding from AI response');
-  }
+  return embedding;
 }
 
 export async function createEmbedding(
@@ -64,10 +43,10 @@ export async function createEmbedding(
   options: EmbeddingOptions = {}
 ): Promise<number[]> {
   const { retries = 3, retryDelay = 1000 } = options;
-  const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
+  const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
   
-  if (!lovableApiKey) {
-    throw new Error('LOVABLE_API_KEY not configured');
+  if (!openaiApiKey) {
+    throw new Error('OPENAI_API_KEY not configured');
   }
 
   if (!text || text.trim().length === 0) {
@@ -79,13 +58,12 @@ export async function createEmbedding(
   for (let attempt = 0; attempt < retries; attempt++) {
     try {
       if (attempt > 0) {
-        // Exponential backoff: wait longer on each retry
         const delay = retryDelay * Math.pow(2, attempt - 1);
         console.log(`Retry attempt ${attempt + 1}/${retries} after ${delay}ms delay...`);
         await new Promise(resolve => setTimeout(resolve, delay));
       }
 
-      const embedding = await generateSemanticEmbedding(text, lovableApiKey);
+      const embedding = await generateSemanticEmbedding(text, openaiApiKey);
       console.log(`✅ Successfully generated embedding (${embedding.length} dimensions)`);
       return embedding;
 
@@ -93,12 +71,11 @@ export async function createEmbedding(
       lastError = error instanceof Error ? error : new Error(String(error));
       console.error(`Embedding attempt ${attempt + 1} failed:`, lastError.message);
       
-      // Check for specific error types
       if (lastError.message.includes('429')) {
         console.error('❌ Rate limit exceeded - waiting before retry');
-      } else if (lastError.message.includes('402')) {
-        console.error('❌ Payment required - add credits to Lovable AI workspace');
-        throw lastError; // Don't retry payment errors
+      } else if (lastError.message.includes('401')) {
+        console.error('❌ Invalid API key');
+        throw lastError; // Don't retry auth errors
       }
     }
   }
