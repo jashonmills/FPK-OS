@@ -151,14 +151,23 @@ serve(async (req) => {
 
     let embeddingsCreated = 0;
     let failedChunks = 0;
+    const EMBEDDING_TIMEOUT = 25000; // 25 seconds per chunk
 
     for (let i = 0; i < chunks.length; i++) {
       const chunk = chunks[i];
       try {
         console.log(`🔄 Processing chunk ${i + 1}/${chunks.length}...`);
         
-        // Generate embedding using shared helper (uses Lovable AI chat completions)
-        const embedding = await createEmbedding(chunk, { retries: 3, retryDelay: 1000 });
+        // Create a timeout promise
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Embedding API timeout')), EMBEDDING_TIMEOUT)
+        );
+        
+        // Race between embedding generation and timeout
+        const embedding = await Promise.race([
+          createEmbedding(chunk, { retries: 3, retryDelay: 1000 }),
+          timeoutPromise
+        ]);
 
         // Insert embedding
         const { error: insertError } = await supabase
@@ -185,11 +194,18 @@ serve(async (req) => {
         await new Promise((resolve) => setTimeout(resolve, 200));
       } catch (embeddingError) {
         console.error(`❌ Failed to create embedding for chunk ${i + 1}:`, embeddingError);
+        
+        // Log specific timeout errors
+        if (embeddingError instanceof Error && embeddingError.message === 'Embedding API timeout') {
+          console.error(`⏱️ Chunk ${i + 1} timed out after ${EMBEDDING_TIMEOUT}ms`);
+        }
+        
         failedChunks++;
         // Continue processing other chunks even if one fails
       }
     }
 
+    // Return partial success if any chunks succeeded
     const success = embeddingsCreated > 0;
     const statusCode = success ? 200 : 500;
     
@@ -197,7 +213,9 @@ serve(async (req) => {
     
     return new Response(
       JSON.stringify({
-        message: success ? "Family data embedded successfully" : "Failed to create embeddings",
+        message: success 
+          ? `Created ${embeddingsCreated} embeddings (${failedChunks} failed)` 
+          : "All chunks failed to embed",
         chunks: chunks.length,
         embeddings_created: embeddingsCreated,
         failed: failedChunks,
