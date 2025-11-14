@@ -784,20 +784,29 @@ export function BedrockDocumentPage() {
                       )}
                     </Button>
 
-                    {/* Status Badge */}
+                    {/* Status Badge with Optimistic UI */}
                     <Badge 
                       variant={
+                        analyzingDoc === doc.id ? 'secondary' :
                         doc.status === 'completed' ? 'default' :
                         doc.status === 'analyzing' ? 'secondary' :
                         doc.status === 'failed' ? 'destructive' : 'outline'
                       }
-                      className={doc.status === 'analyzing' ? 'animate-pulse' : ''}
+                      className={
+                        (analyzingDoc === doc.id || doc.status === 'analyzing') ? 'animate-pulse' : ''
+                      }
                     >
-                      {doc.status === 'analyzing' && <Loader2 className="h-3 w-3 mr-1 animate-spin inline" />}
-                      {doc.status === 'completed' && '✓ '}
-                      {doc.status === 'failed' && '✗ '}
-                      {doc.status === 'analyzing' ? 'Analyzing...' : 
-                       doc.status.charAt(0).toUpperCase() + doc.status.slice(1)}
+                      {(analyzingDoc === doc.id || doc.status === 'analyzing') && (
+                        <Loader2 className="h-3 w-3 mr-1 animate-spin inline" />
+                      )}
+                      {analyzingDoc === doc.id ? 'Analyzing...' : (
+                        <>
+                          {doc.status === 'completed' && '✓ '}
+                          {doc.status === 'failed' && '✗ '}
+                          {doc.status === 'analyzing' ? 'Analyzing...' : 
+                           doc.status.charAt(0).toUpperCase() + doc.status.slice(1)}
+                        </>
+                      )}
                     </Badge>
                   </div>
                 </div>
