@@ -9,11 +9,14 @@ import { ProductTour } from '@/components/onboarding/ProductTour';
 import { dashboardTourSteps } from '@/components/onboarding/tourConfigs';
 import { useTourProgress } from '@/hooks/useTourProgress';
 import { TeamDiscussion } from '@/components/shared/TeamDiscussion';
+import { AIInsightsDashboard } from '@/components/dashboard/AIInsightsDashboard';
 import { BookOpen, MessageSquare } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
   const { selectedStudent, selectedFamily, isLoading } = useFamily();
   const { shouldRunTour, markTourAsSeen } = useTourProgress('has_seen_dashboard_tour');
+  const navigate = useNavigate();
 
   if (isLoading) {
     return (
@@ -54,6 +57,15 @@ const Dashboard = () => {
         </div>
 
         <AnalysisQueueStatus />
+        
+        <AIInsightsDashboard 
+          studentId={selectedStudent.id}
+          familyId={selectedFamily.id}
+          onViewDocument={(docId) => {
+            navigate(`/documents?doc=${docId}`);
+          }}
+        />
+
         <StudentOverview />
 
         <Tabs defaultValue="logs" className="space-y-4">
