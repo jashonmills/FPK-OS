@@ -28,8 +28,26 @@ serve(async (req) => {
       .eq("id", source_id)
       .maybeSingle();
 
-    if (fetchError || !record) {
-      throw new Error(`Failed to fetch record: ${fetchError?.message}`);
+    // Handle database errors
+    if (fetchError) {
+      throw new Error(`Database error fetching record: ${fetchError.message}`);
+    }
+
+    // Handle orphaned queue items (record was deleted from source table)
+    if (!record) {
+      console.warn(`⚠️ Record not found in ${source_table}:${source_id} - likely deleted. Skipping embedding.`);
+      return new Response(
+        JSON.stringify({ 
+          message: "Record not found - skipping embedding",
+          source_table,
+          source_id,
+          success: true  // Mark as success so queue item gets completed
+        }),
+        { 
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        }
+      );
     }
 
     // Extract relevant text based on table type
