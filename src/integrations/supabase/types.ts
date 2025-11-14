@@ -760,6 +760,89 @@ export type Database = {
           },
         ]
       }
+      bedrock_metrics: {
+        Row: {
+          context: string | null
+          created_at: string | null
+          document_id: string
+          duration_minutes: number | null
+          family_id: string | null
+          id: string
+          intervention_used: string | null
+          measurement_date: string
+          metadata: Json | null
+          metric_name: string
+          metric_type: string
+          metric_value: number | null
+          organization_id: string | null
+          student_id: string
+          target_value: number | null
+        }
+        Insert: {
+          context?: string | null
+          created_at?: string | null
+          document_id: string
+          duration_minutes?: number | null
+          family_id?: string | null
+          id?: string
+          intervention_used?: string | null
+          measurement_date: string
+          metadata?: Json | null
+          metric_name: string
+          metric_type: string
+          metric_value?: number | null
+          organization_id?: string | null
+          student_id: string
+          target_value?: number | null
+        }
+        Update: {
+          context?: string | null
+          created_at?: string | null
+          document_id?: string
+          duration_minutes?: number | null
+          family_id?: string | null
+          id?: string
+          intervention_used?: string | null
+          measurement_date?: string
+          metadata?: Json | null
+          metric_name?: string
+          metric_type?: string
+          metric_value?: number | null
+          organization_id?: string | null
+          student_id?: string
+          target_value?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bedrock_metrics_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "bedrock_documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bedrock_metrics_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bedrock_metrics_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bedrock_metrics_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       biometric_alerts: {
         Row: {
           alert_time: string | null
