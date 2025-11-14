@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useOrganization } from '@/contexts/OrganizationContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, Search, GraduationCap, Calendar, School, Filter, CheckSquare, Square } from 'lucide-react';
+import { Plus, Search, GraduationCap, Calendar, School, Filter, CheckSquare, Square, Upload } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { AddStudentDialog } from '@/components/b2b/AddStudentDialog';
@@ -11,6 +11,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { BulkActionsToolbar } from '@/components/b2b/BulkActionsToolbar';
 import { AssignStaffDialog } from '@/components/b2b/AssignStaffDialog';
+import { DocumentUploadModal } from '@/components/documents/DocumentUploadModal';
 import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -24,6 +25,11 @@ export const OrgStudents = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [selectedUploadStudent, setSelectedUploadStudent] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
 
   if (!selectedOrganization) {
     return (
@@ -299,9 +305,26 @@ export const OrgStudents = () => {
                         +{student.primary_diagnosis.length - 2}
                       </Badge>
                     )}
-                  </div>
-                )}
-              </CardContent>
+                   </div>
+                 )}
+                 <div className="pt-2 border-t">
+                   <Button
+                     variant="outline"
+                     size="sm"
+                     onClick={() => {
+                       setSelectedUploadStudent({
+                         id: student.id,
+                         name: student.student_name
+                       });
+                       setUploadDialogOpen(true);
+                     }}
+                     className="w-full gap-2"
+                   >
+                     <Upload className="h-4 w-4" />
+                     Upload Document
+                   </Button>
+                 </div>
+               </CardContent>
             </Card>
           ))}
         </div>
@@ -323,6 +346,19 @@ export const OrgStudents = () => {
           toast.success('Students assigned successfully');
         }}
       />
+
+      {selectedUploadStudent && (
+        <DocumentUploadModal
+          open={uploadDialogOpen}
+          onOpenChange={setUploadDialogOpen}
+          context={{
+            type: 'organization',
+            organizationId: selectedOrganization.id,
+            studentId: selectedUploadStudent.id,
+            studentName: selectedUploadStudent.name
+          }}
+        />
+      )}
 
       <BulkActionsToolbar
         selectedCount={selectedStudentIds.length}

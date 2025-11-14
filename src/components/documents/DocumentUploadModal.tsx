@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useFamily } from "@/contexts/FamilyContext";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -17,6 +16,13 @@ import { logDocumentUploadFailure } from "@/utils/errorLogger";
 interface DocumentUploadModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  context: {
+    type: 'family' | 'organization';
+    familyId?: string;
+    organizationId?: string;
+    studentId: string;
+    studentName: string;
+  };
 }
 
 interface FileUploadStatus {
@@ -27,8 +33,7 @@ interface FileUploadStatus {
   error?: string;
 }
 
-export function DocumentUploadModal({ open, onOpenChange }: DocumentUploadModalProps) {
-  const { selectedFamily, selectedStudent } = useFamily();
+export function DocumentUploadModal({ open, onOpenChange, context }: DocumentUploadModalProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [files, setFiles] = useState<File[]>([]);
@@ -45,7 +50,8 @@ export function DocumentUploadModal({ open, onOpenChange }: DocumentUploadModalP
 
   const uploadMutation = useMutation({
     mutationFn: async () => {
-      if (files.length === 0 || !selectedFamily?.id || !user?.id || !selectedStudent?.id) {
+      const uploadContextId = context.type === 'family' ? context.familyId : context.organizationId;
+      if (files.length === 0 || !uploadContextId || !user?.id || !context.studentId) {
         throw new Error("Missing required data");
       }
 
@@ -92,8 +98,12 @@ export function DocumentUploadModal({ open, onOpenChange }: DocumentUploadModalP
 
           const formData = new FormData();
           formData.append('file', file);
-          formData.append('family_id', selectedFamily.id);
-          formData.append('student_id', selectedStudent.id);
+          if (context.type === 'family') {
+            formData.append('family_id', context.familyId!);
+          } else {
+            formData.append('organization_id', context.organizationId!);
+          }
+          formData.append('student_id', context.studentId);
           formData.append('category', category);
           formData.append('document_date', documentDate || '');
           formData.append('uploaded_by', user.id);
@@ -173,36 +183,44 @@ export function DocumentUploadModal({ open, onOpenChange }: DocumentUploadModalP
         }
       }
 
-      return { familyId: selectedFamily.id, results };
+      const contextId = context.type === 'family' ? context.familyId : context.organizationId;
+      return { contextId, contextType: context.type, results };
     },
-    onSuccess: async ({ familyId, results }) => {
+    onSuccess: async ({ contextId, contextType, results }) => {
       setUploadProgress(null);
       queryClient.invalidateQueries({ queryKey: ["documents"] });
       
+      const contextLabel = contextType === 'family' ? 'family' : 'organization';
+      
       // Show comprehensive results toast
       if (results.failed === 0) {
-        toast.success(`✅ ${results.success} document${results.success > 1 ? 's' : ''} uploaded successfully. AI extraction continues in background.`);
+        toast.success(
+          `✅ All ${results.success} document${results.success > 1 ? 's' : ''} uploaded successfully for ${context.studentName}`,
+          { description: `Documents are being processed and will appear in your ${contextLabel} shortly.` }
+        );
       } else if (results.success === 0) {
         toast.error(`❌ All ${results.failed} uploads failed.`);
       } else {
         toast.warning(`✅ ${results.success} uploaded, ⚠️ ${results.failed} failed: ${results.failedFiles.join(', ')}`);
       }
       
-      // Check if we now have 3+ documents and should show analysis button
-      const { count } = await supabase
-        .from("documents")
-        .select("*", { count: "exact", head: true })
-        .eq("family_id", familyId);
+      // Check if we now have 3+ documents and should show analysis button (B2C only)
+      if (contextType === 'family') {
+        const { count } = await supabase
+          .from("documents")
+          .select("*", { count: "exact", head: true })
+          .eq("family_id", contextId!);
 
-      if (count && count >= 3) {
-        const { data: familyData } = await supabase
-          .from("families")
-          .select("initial_doc_analysis_status")
-          .eq("id", familyId)
-          .single();
+        if (count && count >= 3) {
+          const { data: familyData } = await supabase
+            .from("families")
+            .select("initial_doc_analysis_status")
+            .eq("id", contextId!)
+            .single();
 
-        if (familyData?.initial_doc_analysis_status === "pending") {
-          toast.info("You now have enough documents for AI analysis! Check the 'Analyze My Documents' button.");
+          if (familyData?.initial_doc_analysis_status === "pending") {
+            toast.info("You now have enough documents for AI analysis! Check the 'Analyze My Documents' button.");
+          }
         }
       }
 
@@ -280,11 +298,9 @@ export function DocumentUploadModal({ open, onOpenChange }: DocumentUploadModalP
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle>Upload Document</DialogTitle>
-          {selectedStudent && (
-            <p className="text-sm text-muted-foreground">
-              Uploading for: <span className="font-semibold text-foreground">{selectedStudent.student_name}</span>
-            </p>
-          )}
+          <p className="text-sm text-muted-foreground">
+            Uploading for: <span className="font-semibold text-foreground">{context.studentName}</span>
+          </p>
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto pr-1">`
@@ -427,7 +443,7 @@ export function DocumentUploadModal({ open, onOpenChange }: DocumentUploadModalP
           </Button>
           <Button
             onClick={() => uploadMutation.mutate()}
-            disabled={files.length === 0 || !selectedStudent || uploadMutation.isPending}
+            disabled={files.length === 0 || !context.studentId || uploadMutation.isPending}
           >
             {uploadMutation.isPending && uploadProgress
               ? `Uploading ${uploadProgress.current} of ${uploadProgress.total}...`

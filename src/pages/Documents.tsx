@@ -512,6 +512,12 @@ function LegacyDocumentsPage() {
         <DocumentUploadModal
           open={uploadModalOpen}
           onOpenChange={setUploadModalOpen}
+          context={{
+            type: 'family',
+            familyId: selectedFamily?.id,
+            studentId: selectedStudent?.id || '',
+            studentName: selectedStudent?.student_name || ''
+          }}
         />
       </>
     );
@@ -831,6 +837,12 @@ function LegacyDocumentsPage() {
       <DocumentUploadModal
         open={uploadModalOpen}
         onOpenChange={setUploadModalOpen}
+        context={{
+          type: 'family',
+          familyId: selectedFamily?.id,
+          studentId: selectedStudent?.id || '',
+          studentName: selectedStudent?.student_name || ''
+        }}
       />
 
       <DocumentViewerModal
