@@ -7,6 +7,77 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Helper function to categorize insights for dashboard
+function categorizeInsight(insight: any, documentCategory: string): string {
+  const typeMapping: Record<string, string> = {
+    'strength': 'Academic',
+    'challenge': 'Behavioral',
+    'recommendation': 'Other',
+    'observation': 'Social',
+    'concern': 'Behavioral'
+  };
+  
+  const categoryMapping: Record<string, string> = {
+    'bip': 'Behavioral',
+    'iep': 'Academic',
+    'behavior_log': 'Behavioral',
+    'progress_report': 'Academic',
+    'assessment': 'Academic',
+    'medical': 'Physical',
+    'communication': 'Communication'
+  };
+  
+  return categoryMapping[documentCategory.toLowerCase()] || 
+         typeMapping[insight.insight_type] || 
+         'Other';
+}
+
+// Save high-priority insights to student_insights table
+async function saveStudentInsights(
+  supabase: any,
+  documentId: string,
+  familyId: string,
+  studentId: string | null,
+  documentCategory: string,
+  analysisResult: any
+) {
+  if (!studentId) {
+    console.log('⚠️ No student_id - skipping insight save to dashboard');
+    return;
+  }
+
+  const insights = analysisResult.insights || [];
+  const highPriorityInsights = insights.filter((insight: any) => 
+    insight.priority === 'high' || 
+    (insight.confidence_score && insight.confidence_score >= 0.8)
+  );
+
+  console.log(`💡 Saving ${highPriorityInsights.length} high-priority insights to dashboard`);
+
+  for (const insight of highPriorityInsights) {
+    const insightType = insight.insight_type || 'observation';
+    const validTypes = ['strength', 'challenge', 'recommendation', 'observation', 'concern'];
+    const finalType = validTypes.includes(insightType) ? insightType : 'observation';
+
+    const { error } = await supabase.from('student_insights').insert({
+      student_id: studentId,
+      family_id: familyId,
+      source_document_id: documentId,
+      insight_text: insight.content || insight.title || '',
+      insight_type: finalType,
+      insight_level: insight.priority === 'high' ? 'HIGH' : 'MEDIUM',
+      insight_category: categorizeInsight(insight, documentCategory),
+      confidence_score: insight.confidence_score || null,
+      source_section: insight.title || null,
+      document_category: documentCategory
+    });
+
+    if (error) {
+      console.error('Failed to save insight:', error);
+    }
+  }
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -173,6 +244,16 @@ Return ONLY the JSON object, no markdown or explanation.`;
       insights: analysisResult.insights?.length || 0,
       progress: analysisResult.progress_tracking?.length || 0
     });
+
+    // 6.5. Save high-priority insights to student_insights table for dashboard
+    await saveStudentInsights(
+      supabase,
+      document_id,
+      doc.family_id,
+      doc.student_id,
+      analysisCategory,
+      analysisResult
+    );
 
     // 7. Store results and mark document and history as completed
     await supabase
