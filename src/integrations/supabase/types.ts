@@ -1783,6 +1783,7 @@ export type Database = {
           error_message: string | null
           family_id: string
           id: string
+          metadata: Json | null
           organization_id: string | null
           processed_at: string | null
           source_id: string
@@ -1795,6 +1796,7 @@ export type Database = {
           error_message?: string | null
           family_id: string
           id?: string
+          metadata?: Json | null
           organization_id?: string | null
           processed_at?: string | null
           source_id: string
@@ -1807,6 +1809,7 @@ export type Database = {
           error_message?: string | null
           family_id?: string
           id?: string
+          metadata?: Json | null
           organization_id?: string | null
           processed_at?: string | null
           source_id?: string

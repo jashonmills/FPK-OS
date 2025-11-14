@@ -64,11 +64,11 @@ export default function SystemHealthPage() {
 
       if (legacyError) throw legacyError;
 
-      // Fetch Bedrock jobs
+      // Fetch Bedrock jobs (including analyzing/extracting statuses)
       const { data: bedrockJobs, error: bedrockError } = await supabase
         .from("bedrock_documents")
         .select("*")
-        .in("status", ["pending", "processing", "failed"])
+        .in("status", ["pending", "processing", "analyzing", "extracting", "failed"])
         .order("created_at", { ascending: false })
         .limit(5);
 
