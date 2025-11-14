@@ -194,7 +194,7 @@ serve(async (req) => {
         file_path: storagePath,
         file_size_kb: fileSizeKb,
         status: 'extracted',
-        extracted_text: extractedText,
+        extracted_content: extractedText,
         metadata: {
           category,
           processor_id: processorId,
