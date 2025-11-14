@@ -26,7 +26,7 @@ serve(async (req) => {
       .from(source_table)
       .select("*")
       .eq("id", source_id)
-      .single();
+      .maybeSingle();
 
     if (fetchError || !record) {
       throw new Error(`Failed to fetch record: ${fetchError?.message}`);
