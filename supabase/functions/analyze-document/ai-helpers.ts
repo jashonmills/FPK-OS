@@ -1,18 +1,39 @@
 // ============================================================================
-// MASTER ANALYSIS PROMPT SYSTEM
-// Single AI call performs: Type ID + Data Extraction + Chart Recommendations
+// FINAL, CORRECTED VERSION - GOOGLE GEMINI IMPLEMENTATION
 // ============================================================================
+import { GoogleAuth } from "google-auth-library";
 
 export async function masterAnalyzeDocument(
   extractedContent: string,
-  anthropicApiKey: string,
   documentType?: string,
   specializedPrompt?: string,
-  progressCallback?: (stage: string) => Promise<void>
+  progressCallback?: (stage: string) => Promise<void>,
 ): Promise<{ result: any; retryCount: number }> {
-  
-  // Use specialized prompt if provided and document type is known
-  const SYSTEM_PROMPT = specializedPrompt || `You are an elite AI data analyst for FPX MyCNS, a special education collaborative care platform. Your mission is to perform a complete analysis of a single clinical or educational document in one pass.
+  // These environment variables ALREADY EXIST in your Supabase project.
+  const projectId = Deno.env.get("GCP_PROJECT_ID");
+  const serviceAccountKeyStr = Deno.env.get("GCP_SERVICE_ACCOUNT_KEY");
+
+  if (!projectId || !serviceAccountKeyStr) {
+    throw new Error(
+      "Critical configuration error: GCP_PROJECT_ID or GCP_SERVICE_ACCOUNT_KEY is missing from environment variables.",
+    );
+  }
+
+  const serviceAccountKey = JSON.parse(serviceAccountKeyStr);
+
+  const auth = new GoogleAuth({
+    credentials: {
+      client_email: serviceAccountKey.client_email,
+      private_key: serviceAccountKey.private_key,
+    },
+    scopes: "https://www.googleapis.com/auth/cloud-platform",
+  });
+
+  const authToken = await auth.getAccessToken();
+
+  const SYSTEM_PROMPT =
+    specializedPrompt ||
+    `You are an elite AI data analyst for FPX MyCNS, a special education collaborative care platform. Your mission is to perform a complete analysis of a single clinical or educational document in one pass.
 
 You MUST follow these three steps in order and return a single, valid JSON object.
 
@@ -38,7 +59,6 @@ Based on the type you identified in Step 1, extract all relevant data.
 - **NO HALLUCINATION:** If a metric, value, or date is not explicitly stated, DO NOT invent it.
 - **QUANTIFY EVERYTHING:** Convert written numbers ("five instances") to numeric values (5).
 - **DATES ARE MANDATORY:** Extract the measurement date for every metric. If not specified, use the document's primary date. Format as YYYY-MM-DD.
-- **PRIORITIZE TIME-BASED DATA:** Extract exact start times, end times, and calculate durations for any behavioral incidents or observations.
 - **EXTRACT EVERY TABLE ROW:** If you see a table with multiple rows of data (daily logs, nightly records), extract EACH ROW as a separate metric. Do NOT summarize.
 
 **Data to Extract (populate all that apply):**
@@ -68,13 +88,7 @@ Your final response MUST be a single JSON object matching this exact schema. Do 
       "metric_type": "academic_fluency",
       "metric_value": 45,
       "metric_unit": "words_per_minute",
-      "measurement_date": "2025-09-15",
-      "start_time": null,
-      "end_time": null,
-      "duration_minutes": null,
-      "context": "Fall assessment",
-      "intervention_used": null,
-      "target_value": 60
+      "measurement_date": "2025-09-15"
     }
   ],
   "insights": [
@@ -85,172 +99,80 @@ Your final response MUST be a single JSON object matching this exact schema. Do 
       "insight_type": "observation"
     }
   ],
-  "progress_tracking": [
-    {
-      "metric_type": "social_skill",
-      "metric_name": "Greeting Peers",
-      "baseline_value": 1,
-      "current_value": 4,
-      "target_value": 5,
-      "trend": "improving",
-      "notes": "Significant improvement noted"
-    }
-  ],
-  "recommended_charts": ["iep_goal_service_tracker", "academic_fluency_trends"]
+  "progress_tracking": [],
+  "recommended_charts": ["academic_fluency_trends"]
 }`;
 
-  const promptInfo = specializedPrompt 
-    ? `using specialized ${documentType} extraction prompt` 
-    : 'using master prompt';
+  const promptInfo = specializedPrompt ? `using specialized ${documentType} extraction prompt` : "using master prompt";
+  console.log(`🔬 Starting Master Analysis (Google Gemini) ${promptInfo}...`);
 
-  console.log(`🔬 Starting Master Analysis ${promptInfo}...`);
-  const startTime = Date.now();
-  
-  const maxRetries = 3; // Increased for better rate limit handling
+  const maxRetries = 2;
   let attempt = 0;
   let lastError = null;
 
   while (attempt < maxRetries) {
     attempt++;
-    console.log(`📊 Master Analysis attempt ${attempt}/${maxRetries}...`);
+    console.log(`📊 Master Analysis attempt ${attempt}/${maxRetries} (Google Gemini)...`);
 
-    // Exponential backoff delay: 0s, 15s, 45s
     if (attempt > 1) {
-      const delay = 15000 * Math.pow(2, attempt - 2);
-      console.log(`⏸️ Waiting ${delay/1000}s before retry (rate limit recovery)...`);
-      await new Promise(resolve => setTimeout(resolve, delay));
+      const delay = 5000 * attempt;
+      console.log(`⏸️ Waiting ${delay / 1000}s before retry...`);
+      await new Promise((resolve) => setTimeout(resolve, delay));
     }
 
     try {
-      const abortController = new AbortController();
-      const timeoutId = setTimeout(() => abortController.abort(), 120000); // 120s timeout for complex documents
+      if (progressCallback) await progressCallback("calling_ai_model");
+      console.log("📡 Calling Google Gemini...");
 
-      if (progressCallback) {
-        await progressCallback('calling_ai_model');
-      }
-      console.log('📡 Calling AI Model (Claude Sonnet 4.5)...');
+      const apiEndpoint = `https://us-central1-aiplatform.googleapis.com/v1/projects/${projectId}/locations/us-central1/publishers/google/models/gemini-1.5-pro-preview-0409:generateContent`;
 
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
+      const response = await fetch(apiEndpoint, {
+        method: "POST",
         headers: {
-          'x-api-key': anthropicApiKey,
-          'anthropic-version': '2023-06-01',
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+          "Content-Type": "application/json",
         },
-        signal: abortController.signal,
         body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 16000,
-          system: SYSTEM_PROMPT,
-          messages: [
-            { role: 'user', content: `Analyze this document:\n\n${extractedContent}` }
-          ],
+          contents: [{ parts: [{ text: `${SYSTEM_PROMPT}\n\nAnalyze this document:\n\n${extractedContent}` }] }],
+          generationConfig: {
+            responseMimeType: "application/json",
+            temperature: 0.1,
+            maxOutputTokens: 8192,
+          },
         }),
       });
 
-      clearTimeout(timeoutId);
-      const elapsed = Date.now() - startTime;
-      console.log(`⏱️ Master Analysis API call completed in ${elapsed}ms`);
-      
-      if (progressCallback) {
-        await progressCallback('processing_response');
-      }
-      console.log('🔄 Processing AI Response...');
+      if (progressCallback) await progressCallback("processing_response");
+      console.log("🔄 Processing Gemini Response...");
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('❌ Master Analysis API error:', {
-          status: response.status,
-          error: errorText,
-        });
-        
-        if (response.status === 402) {
-          throw new Error('Payment required. Please add credits to your Lovable AI workspace.');
-        }
-
-        if (response.status === 429) {
-          const retryAfter = response.headers.get('retry-after');
-          const waitTime = retryAfter ? parseInt(retryAfter) * 1000 : 60000;
-          console.log(`⏱️ Rate limited. Retry after ${waitTime/1000}s (attempt ${attempt}/${maxRetries})`);
-          
-          if (attempt < maxRetries) {
-            lastError = new Error(`Rate limit (429) - will retry after ${waitTime/1000}s`);
-            await new Promise(resolve => setTimeout(resolve, waitTime));
-            continue; // Retry with exponential backoff
-          }
-          
-          throw new Error('Rate limit exceeded after all retries. Please try again later.');
-        }
-
-        throw new Error(`Master Analysis API failed with status ${response.status}`);
+        console.error("❌ Google Gemini API error:", { status: response.status, error: errorText });
+        throw new Error(`Google Gemini API failed with status ${response.status}`);
       }
 
-      console.log('📦 Parsing JSON response...');
       const data = await response.json();
-      const content = data.content?.[0]?.text;
+      const content = data.candidates[0].content.parts[0].text;
 
       if (!content) {
-        console.error('❌ No content in AI response');
-        throw new Error('Master Analysis returned no content');
+        throw new Error("Master Analysis (Gemini) returned no content");
       }
 
-      console.log('📏 Response length:', content.length, 'characters');
-      
-      // Parse JSON response
-      let cleanContent = content.trim()
-        .replace(/^```(?:json)?\s*/g, '')
-        .replace(/\s*```$/g, '');
+      const analysisResult = JSON.parse(content);
 
-      if (!cleanContent.startsWith('{')) {
-        console.error('❌ Response is not valid JSON, starts with:', cleanContent.substring(0, 100));
-        throw new Error('Master Analysis did not return valid JSON');
-      }
-
-      console.log('🔍 Parsing JSON structure...');
-      const analysisResult = JSON.parse(cleanContent);
-      console.log('✅ JSON parsed successfully');
-      
-      if (progressCallback) {
-        await progressCallback('distributing_data');
-      }
-      console.log('💾 Parsing and validating extracted data...');
-
-      // Validate Master JSON structure
-      if (!analysisResult.identified_document_type || 
-          !analysisResult.metrics || 
-          !analysisResult.insights || 
-          !analysisResult.progress_tracking ||
-          !analysisResult.recommended_charts) {
-        throw new Error('Master Analysis JSON missing required fields');
-      }
-
-      const totalItems = (analysisResult.metrics?.length || 0) + 
-                        (analysisResult.insights?.length || 0) + 
-                        (analysisResult.progress_tracking?.length || 0);
-
-      console.log(`✅ Master Analysis complete (attempt ${attempt}): ${analysisResult.identified_document_type} with ${totalItems} total data points`);
-      console.log(`📊 Breakdown: ${analysisResult.metrics?.length || 0} metrics, ${analysisResult.insights?.length || 0} insights, ${analysisResult.progress_tracking?.length || 0} progress, ${analysisResult.recommended_charts?.length || 0} charts`);
+      if (progressCallback) await progressCallback("distributing_data");
+      console.log("✅ Master Analysis complete (Google Gemini)");
 
       return { result: analysisResult, retryCount: attempt - 1 };
-
     } catch (error: any) {
       lastError = error;
       console.error(`Master Analysis attempt ${attempt} failed:`, error);
-
-      if (error.name === 'AbortError') {
-        console.error('⏱️ Master Analysis timed out after 120s');
-        lastError = new Error('Master Analysis timed out after 120 seconds. Document may be too large or complex.');
-      }
-
       if (attempt >= maxRetries) {
-        console.error('❌ Master Analysis failed after all retries');
+        console.error("❌ Master Analysis failed after all retries");
         throw lastError;
       }
-
-      // Exponential backoff handled at top of loop
     }
   }
 
-  // Should never reach here, but TypeScript needs it
-  throw lastError || new Error('Master Analysis failed');
+  throw lastError || new Error("Master Analysis failed");
 }
