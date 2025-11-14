@@ -283,10 +283,10 @@ export const AppSidebar = () => {
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
-                    <a href="/org/dashboard">
+                    <NavLink to="/org/dashboard" className={({ isActive }) => isActive ? 'bg-accent text-accent-foreground font-medium' : ''}>
                       <Database className="h-4 w-4" />
                       <span>Switch to B2B Portal</span>
-                    </a>
+                    </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
