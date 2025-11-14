@@ -5,10 +5,20 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { 
+  AlertDialog, 
+  AlertDialogAction, 
+  AlertDialogCancel, 
+  AlertDialogContent, 
+  AlertDialogDescription, 
+  AlertDialogFooter, 
+  AlertDialogHeader, 
+  AlertDialogTitle 
+} from '@/components/ui/alert-dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useFamily } from '@/contexts/FamilyContext';
 import { toast } from 'sonner';
-import { Upload, Loader2, Sparkles } from 'lucide-react';
+import { Upload, Loader2, Sparkles, Eye, Download, Trash2, RefreshCw } from 'lucide-react';
 import { format } from 'date-fns';
 import { ReAnalysisButton } from '../ReAnalysisButton';
 
@@ -33,7 +43,13 @@ export function BedrockDocumentPage() {
   const { selectedFamily, selectedStudent } = useFamily();
   const queryClient = useQueryClient();
   const [uploading, setUploading] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('other'); // Phase 3: Category selection state
+  const [selectedCategory, setSelectedCategory] = useState('other');
+  const [documentCategories, setDocumentCategories] = useState<Record<string, string>>({});
+  const [viewingDoc, setViewingDoc] = useState<string | null>(null);
+  const [downloadingDoc, setDownloadingDoc] = useState<string | null>(null);
+  const [deletingDoc, setDeletingDoc] = useState<string | null>(null);
+  const [analyzingDoc, setAnalyzingDoc] = useState<string | null>(null);
+  const [deleteConfirmDoc, setDeleteConfirmDoc] = useState<any>(null);
 
   // Fetch documents
   const { data: documents, isLoading } = useQuery({
@@ -82,7 +98,7 @@ export function BedrockDocumentPage() {
           student_id: selectedStudent.id,
           file_name: file.name,
           file_data_base64: base64,
-          category: selectedCategory // Phase 3: Send selected category
+          category: selectedCategory
         }
       });
 
@@ -98,260 +114,319 @@ export function BedrockDocumentPage() {
       queryClient.invalidateQueries({ queryKey: ['bedrock-documents'] });
 
     } catch (error: any) {
-      // Check for page limit error
-      if (error.message?.includes('PAGE_LIMIT_EXCEEDED')) {
-        const userMessage = error.message.replace('PAGE_LIMIT_EXCEEDED: ', '');
-        toast.error(userMessage, { 
-          id: toastId,
-          duration: 8000 // Show longer for important message
-        });
-      } else {
-        console.error('Upload error:', error);
-        toast.error(`Upload failed: ${error.message}`, { id: toastId });
-      }
+      toast.error(error.message || 'Upload failed', { id: toastId });
     } finally {
       setUploading(false);
     }
   };
 
-  const handleClassify = async (documentId: string, category: string) => {
+  const handleViewDocument = async (doc: any) => {
     try {
-      const { error } = await supabase
-        .from('bedrock_documents')
-        .update({ category })
-        .eq('id', documentId);
-
+      setViewingDoc(doc.id);
+      const { data, error } = await supabase.storage
+        .from('bedrock-storage')
+        .createSignedUrl(doc.file_path, 3600);
+      
       if (error) throw error;
-
-      toast.success('Document classified!');
-      queryClient.invalidateQueries({ queryKey: ['bedrock-documents'] });
+      if (data?.signedUrl) {
+        window.open(data.signedUrl, '_blank');
+      }
     } catch (error: any) {
-      toast.error('Classification failed: ' + error.message);
+      toast.error(error.message || 'Could not open document');
+    } finally {
+      setViewingDoc(null);
     }
   };
 
-  const handleAnalyze = async (documentId: string) => {
-    const toastId = toast.loading('Analyzing document...');
-
+  const handleDownloadDocument = async (doc: any) => {
     try {
-      const { data, error } = await supabase.functions.invoke('bedrock-analyze', {
-        body: { document_id: documentId }
+      setDownloadingDoc(doc.id);
+      const { data, error } = await supabase.storage
+        .from('bedrock-storage')
+        .createSignedUrl(doc.file_path, 3600);
+      
+      if (error) throw error;
+      if (data?.signedUrl) {
+        const link = document.createElement('a');
+        link.href = data.signedUrl;
+        link.download = doc.file_name || 'document';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    } catch (error: any) {
+      toast.error(error.message || 'Could not download document');
+    } finally {
+      setDownloadingDoc(null);
+    }
+  };
+
+  const handleDeleteDocument = async (doc: any) => {
+    try {
+      setDeletingDoc(doc.id);
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('No session');
+
+      const { data, error } = await supabase.functions.invoke('bedrock-delete-document', {
+        body: { document_id: doc.id },
+        headers: { Authorization: `Bearer ${session.access_token}` }
       });
 
       if (error) throw error;
-      if (!data?.success) throw new Error(data?.error || 'Analysis failed');
 
-      toast.success('✅ Analysis complete!', { id: toastId });
+      toast.success('Document deleted successfully');
       queryClient.invalidateQueries({ queryKey: ['bedrock-documents'] });
-
+      setDeleteConfirmDoc(null);
     } catch (error: any) {
-      console.error('Analysis error:', error);
-      toast.error(`Analysis failed: ${error.message}`, { id: toastId });
+      toast.error(error.message || 'Could not delete document');
+    } finally {
+      setDeletingDoc(null);
     }
   };
 
-  if (!selectedFamily || !selectedStudent) {
+  const handleReAnalyze = async (doc: any) => {
+    try {
+      setAnalyzingDoc(doc.id);
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('No session');
+
+      const newCategory = documentCategories[doc.id] || doc.category;
+
+      await supabase.functions.invoke('bedrock-analyze', {
+        body: { 
+          document_id: doc.id,
+          category: newCategory
+        },
+        headers: { Authorization: `Bearer ${session.access_token}` }
+      });
+
+      toast.success(`Re-analysis started for "${newCategory}" category`);
+      queryClient.invalidateQueries({ queryKey: ['bedrock-documents'] });
+    } catch (error: any) {
+      toast.error(error.message || 'Re-analysis failed');
+    } finally {
+      setAnalyzingDoc(null);
+    }
+  };
+
+  if (!selectedFamily?.id || !selectedStudent?.id) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <p className="text-muted-foreground">Please select a family and student</p>
+      <div className="p-8 text-center">
+        <p className="text-muted-foreground">
+          Please select a family and student to manage documents.
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Documents</h1>
-          <p className="text-muted-foreground mt-1">
-            Upload, classify, and analyze your documents
-          </p>
-        </div>
-        
-        {/* Phase 3: Category Selection + Upload */}
-        <div className="flex items-center gap-3">
-          {/* Category Selector */}
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-muted-foreground">
-              Document Type
-            </label>
+    <div className="p-6 space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight">Bedrock Documents</h1>
+        <p className="text-muted-foreground mt-2">
+          Upload and manage educational documents
+        </p>
+      </div>
+
+      {/* Upload Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5" />
+            Upload New Document
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <label className="text-sm font-medium mb-2 block">Document Type</label>
             <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger className="w-[280px]">
+              <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {DOCUMENT_CATEGORIES.map((cat) => (
                   <SelectItem key={cat.value} value={cat.value}>
-                    <div className="flex flex-col">
-                      <span className="font-medium">{cat.label}</span>
-                      <span className="text-xs text-muted-foreground">{cat.description}</span>
-                    </div>
+                    {cat.label}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            <p className="text-xs text-muted-foreground mt-1">
+              {DOCUMENT_CATEGORIES.find(c => c.value === selectedCategory)?.description}
+            </p>
           </div>
 
-          {/* Upload Button */}
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-transparent">Upload</label>
-            <div>
-              <Input
-                type="file"
-                accept=".pdf"
-                className="hidden"
-                id="bedrock-upload"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) handleUpload(file);
-                  e.target.value = ''; // Reset input
-                }}
-                disabled={uploading}
-              />
-              <Button
-                onClick={() => document.getElementById('bedrock-upload')?.click()}
-                disabled={uploading}
-              >
-                {uploading ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Uploading...
-                  </>
-                ) : (
-                  <>
-                    <Upload className="h-4 w-4 mr-2" />
-                    Upload Document
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Re-Analysis Button */}
-      {selectedFamily?.id && selectedStudent?.id && (
-        <div className="flex justify-end">
-          <ReAnalysisButton 
-            familyId={selectedFamily.id} 
-            studentId={selectedStudent.id}
+          <Input
+            type="file"
+            accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) handleUpload(file);
+            }}
+            disabled={uploading}
+            className="cursor-pointer"
           />
-        </div>
-      )}
 
-      {/* Document List */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Your Documents</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-            </div>
-          ) : !documents || documents.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <p>No documents yet. Upload your first document above!</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {documents.map((doc) => (
-                <Card key={doc.id} className="p-4">
-                  <div className="flex items-center justify-between">
-                    {/* Document Info */}
-                    <div className="flex-1">
-                      <h3 className="font-medium">{doc.file_name}</h3>
-                      <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
-                        <span>{format(new Date(doc.created_at), 'MMM d, yyyy')}</span>
-                        <span>•</span>
-                        <span>{doc.file_size_kb} KB</span>
-                        {doc.category && (
-                          <>
-                            <span>•</span>
-                            <Badge variant="outline">
-                              {LEGACY_CATEGORIES.find(c => c.value === doc.category)?.label}
-                            </Badge>
-                          </>
-                        )}
-                      </div>
-                      {doc.error_message && (
-                        <p className="text-sm text-destructive mt-1">{doc.error_message}</p>
-                      )}
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex items-center gap-2">
-                      {/* Status Badge */}
-                      {doc.status === 'uploaded' && !doc.category && (
-                        <Badge variant="secondary">Needs Classification</Badge>
-                      )}
-                      {doc.status === 'uploaded' && doc.category && (
-                        <Badge variant="default">Ready for Analysis</Badge>
-                      )}
-                      {doc.status === 'analyzing' && (
-                        <Badge variant="default">
-                          <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                          Analyzing...
-                        </Badge>
-                      )}
-                      {doc.status === 'completed' && (
-                        <Badge variant="default" className="bg-green-500">
-                          ✓ Completed
-                        </Badge>
-                      )}
-                      {doc.status === 'failed' && (
-                        <Badge variant="destructive">Failed</Badge>
-                      )}
-
-                      {/* Classify Selector (only if not classified) */}
-                      {!doc.category && doc.status === 'uploaded' && (
-                        <Select
-                          onValueChange={(value) => handleClassify(doc.id, value)}
-                        >
-                          <SelectTrigger className="w-[200px]">
-                            <SelectValue placeholder="Select category..." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {LEGACY_CATEGORIES.map((cat) => (
-                              <SelectItem key={cat.value} value={cat.value}>
-                                {cat.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      )}
-
-                      {/* Analyze Button (only if classified and not completed) */}
-                      {doc.category && doc.status !== 'analyzing' && doc.status !== 'completed' && (
-                        <Button
-                          size="sm"
-                          onClick={() => handleAnalyze(doc.id)}
-                        >
-                          <Sparkles className="h-4 w-4 mr-2" />
-                          Analyze
-                        </Button>
-                      )}
-
-                      {/* Re-analyze if failed or completed */}
-                      {doc.category && (doc.status === 'failed' || doc.status === 'completed') && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleAnalyze(doc.id)}
-                        >
-                          <Sparkles className="h-4 w-4 mr-2" />
-                          Re-analyze
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                </Card>
-              ))}
+          {uploading && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Processing document...
             </div>
           )}
         </CardContent>
       </Card>
+
+      {/* Documents List */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>Your Documents</CardTitle>
+            <ReAnalysisButton familyId={selectedFamily.id} />
+          </div>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="flex items-center justify-center p-8">
+              <Loader2 className="h-6 w-6 animate-spin" />
+            </div>
+          ) : documents && documents.length > 0 ? (
+            <div className="space-y-3">
+              {documents.map((doc: any) => (
+                <div key={doc.id} className="flex items-center justify-between p-4 border rounded-lg gap-4">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate">{doc.file_name}</p>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground flex-wrap">
+                      <span>{format(new Date(doc.created_at), 'MMM d, yyyy')}</span>
+                      <span>•</span>
+                      <span>{(doc.file_size / 1024).toFixed(1)} KB</span>
+                      {doc.category && (
+                        <>
+                          <span>•</span>
+                          <Badge variant="outline">{doc.category}</Badge>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    {/* Category Selector */}
+                    <Select 
+                      value={documentCategories[doc.id] || doc.category || 'other'}
+                      onValueChange={(value) => setDocumentCategories(prev => ({ ...prev, [doc.id]: value }))}
+                    >
+                      <SelectTrigger className="w-[140px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {DOCUMENT_CATEGORIES.map((cat) => (
+                          <SelectItem key={cat.value} value={cat.value}>
+                            {cat.label.split(' ')[0]}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    {/* View Button */}
+                    <Button 
+                      onClick={() => handleViewDocument(doc)} 
+                      size="sm" 
+                      variant="outline"
+                      disabled={viewingDoc === doc.id}
+                      title="View document"
+                    >
+                      {viewingDoc === doc.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </Button>
+
+                    {/* Download Button */}
+                    <Button 
+                      onClick={() => handleDownloadDocument(doc)} 
+                      size="sm" 
+                      variant="outline"
+                      disabled={downloadingDoc === doc.id}
+                      title="Download document"
+                    >
+                      {downloadingDoc === doc.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Download className="h-4 w-4" />
+                      )}
+                    </Button>
+
+                    {/* Re-analyze Button */}
+                    <Button 
+                      onClick={() => handleReAnalyze(doc)} 
+                      size="sm" 
+                      variant="outline"
+                      disabled={analyzingDoc === doc.id}
+                      title="Re-analyze with selected category"
+                    >
+                      {analyzingDoc === doc.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <RefreshCw className="h-4 w-4" />
+                      )}
+                    </Button>
+
+                    {/* Delete Button */}
+                    <Button 
+                      onClick={() => setDeleteConfirmDoc(doc)} 
+                      size="sm" 
+                      variant="destructive"
+                      disabled={deletingDoc === doc.id}
+                      title="Delete document"
+                    >
+                      {deletingDoc === doc.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-4 w-4" />
+                      )}
+                    </Button>
+
+                    {/* Status Badge */}
+                    <Badge variant={
+                      doc.status === 'completed' ? 'default' :
+                      doc.status === 'analyzing' ? 'secondary' :
+                      doc.status === 'failed' ? 'destructive' : 'outline'
+                    }>
+                      {doc.status}
+                    </Badge>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center p-8 text-muted-foreground">
+              No documents uploaded yet. Upload your first document above.
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deleteConfirmDoc} onOpenChange={(open) => !open && setDeleteConfirmDoc(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Document</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to permanently delete "{deleteConfirmDoc?.file_name}"? This action cannot be undone. 
+              The document will be removed from both the database and storage.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => deleteConfirmDoc && handleDeleteDocument(deleteConfirmDoc)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete Forever
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
