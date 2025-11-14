@@ -53,6 +53,8 @@ import AssessmentHub from "./pages/AssessmentHub";
 import WizardRunner from "./pages/WizardRunner";
 import UserManagement from "./pages/admin/UserManagement";
 import PipelineHealth from "./pages/admin/PipelineHealth";
+import TestingDashboard from "./pages/admin/TestingDashboard";
+import PerformanceMonitor from "./pages/PerformanceMonitor";
 import { CookieConsent } from "./components/legal/CookieConsent";
 import { useFeatureFlags } from "@/hooks/useFeatureFlags";
 import { lazy, Suspense } from "react";
@@ -394,6 +396,28 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <UserManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/testing"
+              element={
+                <ProtectedRoute>
+                  <SuperAdminRoute>
+                    <AppLayout>
+                      <TestingDashboard />
+                    </AppLayout>
+                  </SuperAdminRoute>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/performance-monitor"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <PerformanceMonitor />
+                  </AppLayout>
                 </ProtectedRoute>
               }
             />
