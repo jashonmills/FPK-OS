@@ -181,7 +181,7 @@ export function DocumentViewerModal({ open, onOpenChange, document }: DocumentVi
           </div>
         </DialogHeader>
 
-        <div className="flex-1 overflow-hidden flex flex-col">
+        <div className="flex-1 overflow-hidden flex">
           {loading ? (
             <div className="flex items-center justify-center h-full w-full">
               <Loader2 className="h-8 w-8 animate-spin" />
