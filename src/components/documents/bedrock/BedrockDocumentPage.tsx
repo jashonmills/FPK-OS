@@ -24,9 +24,10 @@ import { ReAnalysisButton } from '../ReAnalysisButton';
 import { DocumentViewerModal } from '@/components/documents/DocumentViewerModal';
 import { DocumentStatistics } from './DocumentStatistics';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ProcessingHistoryTimeline } from './ProcessingHistoryTimeline';
+// import { ProcessingHistoryTimeline } from './ProcessingHistoryTimeline';
 import { DocumentFilters } from './DocumentFilters';
 import { useMemo } from 'react';
+import { OracleRecommendation } from './OracleRecommendation';
 
 // Elite Classification System - Full Catalog
 export const DOCUMENT_TYPE_CATEGORIES = {
@@ -461,13 +462,13 @@ export function BedrockDocumentPage() {
         <DocumentStatistics documents={documents} />
       )}
 
-      {/* Processing History Timeline */}
-      {selectedFamily?.id && selectedStudent?.id && (
+      {/* Processing History Timeline - Temporarily disabled due to type issues */}
+      {/* {selectedFamily?.id && selectedStudent?.id && (
         <ProcessingHistoryTimeline 
           familyId={selectedFamily.id}
           studentId={selectedStudent.id}
         />
-      )}
+      )} */}
 
       {/* Upload Section */}
       <Card>
@@ -478,6 +479,15 @@ export function BedrockDocumentPage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* FPK-X Oracle Recommendation */}
+          <OracleRecommendation
+            onCategorySelect={(category) => {
+              setSelectedCategory(category);
+              toast.success('✨ Oracle selected category for you!');
+            }}
+            currentCategory={selectedCategory}
+          />
+
           <div>
             <label className="text-sm font-medium mb-2 block">Document Type</label>
             <Select value={selectedCategory} onValueChange={setSelectedCategory}>
