@@ -31,7 +31,8 @@ export function BedrockHealthMonitor() {
       const completed = docs?.filter(d => d.status === 'completed').length || 0;
       const failed = docs?.filter(d => d.status === 'failed').length || 0;
       const pending = docs?.filter(d => d.status === 'pending').length || 0;
-      const processing = docs?.filter(d => d.status === 'processing').length || 0;
+      const analyzing = docs?.filter(d => d.status === 'analyzing' || d.status === 'extracting').length || 0;
+      const processing = docs?.filter(d => d.status === 'processing').length || 0 + analyzing;
 
       // Calculate success rate
       const successRate = total > 0 ? Math.round((completed / total) * 100) : 0;
@@ -117,6 +118,7 @@ export function BedrockHealthMonitor() {
           avg_processing_time: avgProcessingTime,
           queue_depth: pending,
           recent_failures: recentFailures,
+          processing: processing,
           success_rate_trend: successRate >= 90 ? 'up' : 'down'
         },
         issues,
@@ -167,6 +169,7 @@ export function BedrockHealthMonitor() {
     avg_processing_time: 0,
     queue_depth: 0,
     recent_failures: 0,
+    processing: 0,
     success_rate_trend: 'down' as 'up' | 'down'
   };
 
@@ -183,6 +186,8 @@ export function BedrockHealthMonitor() {
     }
   };
 
+  const currentlyAnalyzing = metrics.processing || 0;
+
   return (
     <Card className={
       overallHealth === 'critical' ? 'border-red-600' :
@@ -195,6 +200,11 @@ export function BedrockHealthMonitor() {
             <CardTitle className="flex items-center gap-2">
               Bedrock System Health
               {getHealthBadge()}
+              {currentlyAnalyzing > 0 && (
+                <Badge variant="secondary" className="ml-2 animate-pulse">
+                  {currentlyAnalyzing} Processing Now
+                </Badge>
+              )}
             </CardTitle>
             <p className="text-sm text-muted-foreground">
               Real-time monitoring of document processing pipeline
