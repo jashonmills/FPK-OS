@@ -52,12 +52,12 @@ import AdminContentManager from "./pages/AdminContentManager";
 import AssessmentHub from "./pages/AssessmentHub";
 import WizardRunner from "./pages/WizardRunner";
 import UserManagement from "./pages/admin/UserManagement";
-import PipelineHealth from "./pages/admin/PipelineHealth";
-import TestingDashboard from "./pages/admin/TestingDashboard";
-import PerformanceMonitor from "./pages/PerformanceMonitor";
 import { CookieConsent } from "./components/legal/CookieConsent";
 import { useFeatureFlags } from "@/hooks/useFeatureFlags";
 import { lazy, Suspense } from "react";
+
+const SystemHealthPage = lazy(() => import("./pages/admin/SystemHealthPage"));
+const PerformanceTestingPage = lazy(() => import("./pages/admin/PerformanceTestingPage"));
 import OrgLogin from "./pages/b2b/OrgLogin";
 import OrgSignup from "./pages/b2b/OrgSignup";
 
@@ -264,16 +264,6 @@ const App = () => (
               }
             />
             <Route
-              path="/admin/pipeline-health"
-              element={
-                <ProtectedRoute>
-                  <AppLayout>
-                    <PipelineHealth />
-                  </AppLayout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
               path="/admin/kb-diagnostics"
               element={
                 <ProtectedRoute>
@@ -368,59 +358,39 @@ const App = () => (
               }
             />
             <Route
-              path="/admin/extraction-monitoring"
+              path="/admin/system-health"
               element={
                 <ProtectedRoute>
                   <SuperAdminRoute>
                     <AppLayout>
-                      <AdminExtractionMonitoring />
+                      <Suspense fallback={<div className="flex items-center justify-center h-screen"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div></div>}>
+                        <SystemHealthPage />
+                      </Suspense>
                     </AppLayout>
                   </SuperAdminRoute>
                 </ProtectedRoute>
               }
             />
             <Route
-              path="/admin/document-status"
+              path="/admin/performance-testing"
               element={
                 <ProtectedRoute>
                   <SuperAdminRoute>
                     <AppLayout>
-                      <DocumentStatusMonitor />
+                      <Suspense fallback={<div className="flex items-center justify-center h-screen"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div></div>}>
+                        <PerformanceTestingPage />
+                      </Suspense>
                     </AppLayout>
                   </SuperAdminRoute>
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="/admin/user-management"
-              element={
-                <ProtectedRoute>
-                  <UserManagement />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/testing"
-              element={
-                <ProtectedRoute>
-                  <SuperAdminRoute>
-                    <AppLayout>
-                      <TestingDashboard />
-                    </AppLayout>
-                  </SuperAdminRoute>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/performance-monitor"
-              element={
-                <ProtectedRoute>
-                  <AppLayout>
-                    <PerformanceMonitor />
-                  </AppLayout>
-                </ProtectedRoute>
-              }
-            />
+            {/* Legacy redirects */}
+            <Route path="/admin/extraction-monitoring" element={<Navigate to="/admin/system-health" replace />} />
+            <Route path="/admin/pipeline-health" element={<Navigate to="/admin/system-health" replace />} />
+            <Route path="/admin/document-status" element={<Navigate to="/admin/system-health" replace />} />
+            <Route path="/performance-monitor" element={<Navigate to="/admin/performance-testing" replace />} />
+            <Route path="/admin/testing" element={<Navigate to="/admin/performance-testing" replace />} />
             {/* B2B Organization Portal - Public Authentication Routes */}
             <Route path="/org/login" element={<OrgLogin />} />
             <Route path="/org/signup" element={<OrgSignup />} />

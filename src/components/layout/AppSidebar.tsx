@@ -1,4 +1,4 @@
-import { Home, FileText, BarChart3, Settings, FolderOpen, Database, TrendingUp, Target, ClipboardCheck, Users, Activity, TestTube, Flag } from 'lucide-react';
+import { Home, FileText, BarChart3, Settings, FolderOpen, Database, TrendingUp, Target, ClipboardCheck, Users, Activity, TestTube, Flag, Heart, Zap, LayoutDashboard } from 'lucide-react';
 import { NavLink, Link } from 'react-router-dom';
 import { useFamily } from '@/contexts/FamilyContext';
 import { useAuth } from '@/hooks/useAuth';
