@@ -31,7 +31,26 @@ export function MigrationDashboard() {
     queryFn: async () => {
       const { data, error } = await supabase.rpc("get_unified_queue_stats");
       if (error) throw error;
-      return data[0];
+      
+      // Data returns two rows: one for bedrock, one for legacy
+      const bedrockRow = data?.find((row: any) => row.source === 'bedrock');
+      const legacyRow = data?.find((row: any) => row.source === 'legacy');
+      
+      return {
+        bedrock_total: bedrockRow?.total || 0,
+        bedrock_processing: bedrockRow?.processing || 0,
+        bedrock_completed: bedrockRow?.completed || 0,
+        bedrock_failed: bedrockRow?.failed || 0,
+        bedrock_queued: bedrockRow?.queued || 0,
+        legacy_total: legacyRow?.total || 0,
+        legacy_processing: legacyRow?.processing || 0,
+        avg_processing_time_seconds: bedrockRow?.avg_processing_time_seconds || 0,
+        success_rate: bedrockRow && bedrockRow.total > 0 
+          ? Math.round((bedrockRow.completed / bedrockRow.total) * 100) 
+          : 0,
+        queued_items: bedrockRow?.queued || 0,
+        failed_items: bedrockRow?.failed || 0
+      };
     },
     refetchInterval: 10000,
   });
@@ -196,7 +215,7 @@ export function MigrationDashboard() {
                   Avg Processing Time
                 </div>
                 <div className="text-2xl font-bold">
-                  {unifiedStats.avg_processing_time_sec?.toFixed(1) || 0}s
+                  {unifiedStats.avg_processing_time_seconds?.toFixed(1) || 0}s
                 </div>
               </div>
               <div className="space-y-1">

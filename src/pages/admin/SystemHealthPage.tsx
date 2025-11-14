@@ -17,34 +17,33 @@ import {
   XCircle
 } from "lucide-react";
 import { toast } from "sonner";
-import { PipelineHealthCheck } from "@/components/admin/PipelineHealthCheck";
+import { BedrockHealthMonitor } from "@/components/admin/BedrockHealthMonitor";
 import { formatDistanceToNow } from "date-fns";
 
 export default function SystemHealthPage() {
-  // Fetch unified queue statistics (legacy + Bedrock)
+  // Fetch unified queue statistics (Bedrock only now)
   const { data: queueStats, isLoading: loadingStats, refetch: refetchStats } = useQuery({
     queryKey: ["unified-queue-stats"],
     queryFn: async () => {
       const { data, error } = await supabase.rpc("get_unified_queue_stats");
       if (error) throw error;
       
-      const stats = data[0];
-      return {
-        total: Number(stats.total_items),
-        queued: Number(stats.queued_items),
-        processing: Number(stats.processing_items),
-        completed: Number(stats.completed_items),
-        failed: Number(stats.failed_items),
-        avgProcessingTime: Number(stats.avg_processing_time_sec || 0),
-        successRate: Number(stats.success_rate || 0),
-        bedrockTotal: Number(stats.bedrock_total),
-        bedrockProcessing: Number(stats.bedrock_processing),
-        legacyTotal: Number(stats.legacy_total),
-        legacyProcessing: Number(stats.legacy_processing)
+      // Get Bedrock stats only
+      const bedrockRow = data?.find((row: any) => row.source === 'bedrock');
+      
+      return bedrockRow || {
+        total: 0,
+        queued: 0,
+        processing: 0,
+        completed: 0,
+        failed: 0,
+        avg_processing_time_seconds: 0
       };
     },
     refetchInterval: 10000,
   });
+
+  const bedrockStats = queueStats;
 
   // Fetch live jobs from both legacy and Bedrock
   const { data: liveJobs, isLoading: loadingJobs, refetch: refetchJobs } = useQuery({
@@ -165,7 +164,7 @@ export default function SystemHealthPage() {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
-          <PipelineHealthCheck />
+          <BedrockHealthMonitor />
 
           <div className="grid gap-4 md:grid-cols-5">
             <Card>
@@ -204,7 +203,7 @@ export default function SystemHealthPage() {
                 <TrendingUp className="h-4 w-4 text-green-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{loadingStats ? "..." : queueStats?.successRate || 0}%</div>
+                <div className="text-2xl font-bold">{loadingStats ? "..." : bedrockStats && Number(bedrockStats.total) > 0 ? Math.round((Number(bedrockStats.completed) / Number(bedrockStats.total)) * 100) : 0}%</div>
               </CardContent>
             </Card>
 
@@ -214,7 +213,7 @@ export default function SystemHealthPage() {
                 <Clock className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{loadingStats ? "..." : queueStats?.avgProcessingTime || 0}s</div>
+                <div className="text-2xl font-bold">{loadingStats ? "..." : bedrockStats?.avg_processing_time_seconds || 0}s</div>
               </CardContent>
             </Card>
           </div>
