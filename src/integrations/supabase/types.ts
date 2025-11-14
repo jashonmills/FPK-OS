@@ -697,6 +697,7 @@ export type Database = {
           file_path: string
           file_size_kb: number | null
           id: string
+          job_id: string | null
           status: string
           student_id: string | null
         }
@@ -712,6 +713,7 @@ export type Database = {
           file_path: string
           file_size_kb?: number | null
           id?: string
+          job_id?: string | null
           status?: string
           student_id?: string | null
         }
@@ -727,6 +729,7 @@ export type Database = {
           file_path?: string
           file_size_kb?: number | null
           id?: string
+          job_id?: string | null
           status?: string
           student_id?: string | null
         }
@@ -1276,6 +1279,62 @@ export type Database = {
             columns: ["family_id"]
             isOneToOne: false
             referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_processing_history: {
+        Row: {
+          action_type: string
+          created_at: string
+          document_id: string
+          error_message: string | null
+          family_id: string
+          id: string
+          metadata: Json | null
+          new_category: string | null
+          new_processor_id: string | null
+          old_category: string | null
+          old_processor_id: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          action_type: string
+          created_at?: string
+          document_id: string
+          error_message?: string | null
+          family_id: string
+          id?: string
+          metadata?: Json | null
+          new_category?: string | null
+          new_processor_id?: string | null
+          old_category?: string | null
+          old_processor_id?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          document_id?: string
+          error_message?: string | null
+          family_id?: string
+          id?: string
+          metadata?: Json | null
+          new_category?: string | null
+          new_processor_id?: string | null
+          old_category?: string | null
+          old_processor_id?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_processing_history_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "bedrock_documents"
             referencedColumns: ["id"]
           },
         ]
@@ -3426,6 +3485,81 @@ export type Database = {
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_insights: {
+        Row: {
+          confidence_score: number | null
+          created_at: string
+          dismissed_at: string | null
+          dismissed_by: string | null
+          document_category: string | null
+          family_id: string
+          id: string
+          insight_category: string | null
+          insight_level: string
+          insight_text: string
+          insight_type: string
+          is_archived: boolean | null
+          is_dismissed: boolean | null
+          source_document_id: string
+          source_section: string | null
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          confidence_score?: number | null
+          created_at?: string
+          dismissed_at?: string | null
+          dismissed_by?: string | null
+          document_category?: string | null
+          family_id: string
+          id?: string
+          insight_category?: string | null
+          insight_level: string
+          insight_text: string
+          insight_type: string
+          is_archived?: boolean | null
+          is_dismissed?: boolean | null
+          source_document_id: string
+          source_section?: string | null
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          confidence_score?: number | null
+          created_at?: string
+          dismissed_at?: string | null
+          dismissed_by?: string | null
+          document_category?: string | null
+          family_id?: string
+          id?: string
+          insight_category?: string | null
+          insight_level?: string
+          insight_text?: string
+          insight_type?: string
+          is_archived?: boolean | null
+          is_dismissed?: boolean | null
+          source_document_id?: string
+          source_section?: string | null
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_insights_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_insights_source_document_id_fkey"
+            columns: ["source_document_id"]
+            isOneToOne: false
+            referencedRelation: "bedrock_documents"
             referencedColumns: ["id"]
           },
         ]
