@@ -4728,17 +4728,13 @@ export type Database = {
       get_unified_queue_stats: {
         Args: never
         Returns: {
-          avg_processing_time_sec: number
-          bedrock_processing: number
-          bedrock_total: number
-          completed_items: number
-          failed_items: number
-          legacy_processing: number
-          legacy_total: number
-          processing_items: number
-          queued_items: number
-          success_rate: number
-          total_items: number
+          avg_processing_time_seconds: number
+          completed: number
+          failed: number
+          processing: number
+          queued: number
+          source: string
+          total: number
         }[]
       }
       get_user_family_role:
