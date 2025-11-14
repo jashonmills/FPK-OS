@@ -14,13 +14,31 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Intelligent Router: Maps document types to specialized processors
-const PROCESSOR_MAP: Record<string, string> = {
-  'other': 'projects/fpkuniversity/locations/us/processors/9a2c8ed98e2c75bc',
-  'form': 'projects/fpkuniversity/locations/us/processors/67a01c2d52e6af65',
-  'layout': 'projects/fpkuniversity/locations/us/processors/cb205a77bf9a675e',
-  'iep': 'projects/fpkuniversity/locations/us/processors/e0dcf69b05bd5c40'
-};
+// Phase 2: Intelligent Router - Build processor map from environment secrets
+function buildProcessorMap(): Record<string, string> {
+  const map = {
+    'other': Deno.env.get('DOC_AI_PROCESSOR_OCR'),
+    'form': Deno.env.get('DOC_AI_PROCESSOR_FORM'),
+    'layout': Deno.env.get('DOC_AI_PROCESSOR_LAYOUT'),
+    'iep': Deno.env.get('DOC_AI_PROCESSOR_IEP')
+  };
+
+  // Validate all processors are configured
+  const missing = Object.entries(map)
+    .filter(([_, id]) => !id)
+    .map(([type]) => type);
+  
+  if (missing.length > 0) {
+    console.log(`⚠️ Missing processor IDs for: ${missing.join(', ')}`);
+    console.log(`🎯 Falling back to single processor mode (Phase 1)`);
+    return {};
+  }
+
+  console.log(`✅ Processor arsenal loaded: ${Object.keys(map).length} processors`);
+  return map as Record<string, string>;
+}
+
+const PROCESSOR_MAP = buildProcessorMap();
 
 serve(async (req) => {
   console.log(`🚀 [${VERSION}] bedrock-upload-v2 invoked`);
@@ -117,9 +135,23 @@ serve(async (req) => {
       throw new Error(`Invalid Google credentials: ${e.message}`);
     }
 
-    // Select processor based on category (Intelligent Router)
-    const processorId = PROCESSOR_MAP[category] || PROCESSOR_MAP['other'];
-    console.log(`🎯 Selected processor: ${processorId} for category: ${category}`);
+    // Select processor (Phase 1/2 hybrid approach)
+    let processorId: string;
+    
+    // Phase 1: Try single processor first (for backward compatibility)
+    const singleProcessor = Deno.env.get('ACTIVE_DOCUMENT_AI_PROCESSOR_ID');
+    
+    if (singleProcessor) {
+      processorId = singleProcessor;
+      console.log(`🎯 Phase 1 Mode: Using single processor: ${processorId}`);
+    } else if (Object.keys(PROCESSOR_MAP).length > 0) {
+      // Phase 2: Use intelligent routing
+      processorId = PROCESSOR_MAP[category] || PROCESSOR_MAP['other'];
+      console.log(`🎯 Phase 2 Mode: Selected processor for category "${category}": ${processorId}`);
+    } else {
+      await supabase.storage.from('bedrock-storage').remove([storagePath]);
+      throw new Error('No Document AI processors configured. Please set ACTIVE_DOCUMENT_AI_PROCESSOR_ID or configure processor arsenal.');
+    }
 
     // Get access token
     console.log('🔐 Authenticating with Google Document AI...');
