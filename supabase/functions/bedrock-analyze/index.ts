@@ -59,11 +59,28 @@ serve(async (req) => {
       console.log(`🎯 Using processor: ${processor_id}`);
     }
 
+    // Log processing history
+    const oldProcessorId = doc.processor_id || null;
+    await supabase.from('document_processing_history').insert({
+      document_id: document_id,
+      family_id: doc.family_id,
+      user_id: user.id,
+      action_type: category && category !== doc.category ? 're-classify' : 're-analyze',
+      old_category: doc.category,
+      new_category: category || doc.category,
+      old_processor_id: oldProcessorId,
+      new_processor_id: processor_id || oldProcessorId,
+      status: 'pending',
+    });
+
     // 5. Update status to 'analyzing' and category if provided
     const updateData: any = { status: 'analyzing' };
     if (category && category !== doc.category) {
       updateData.category = category;
       console.log(`📝 Updating category: ${doc.category} → ${category}`);
+    }
+    if (processor_id) {
+      updateData.processor_id = processor_id;
     }
     
     await supabase
@@ -157,7 +174,7 @@ Return ONLY the JSON object, no markdown or explanation.`;
       progress: analysisResult.progress_tracking?.length || 0
     });
 
-    // 7. Store results and mark as completed
+    // 7. Store results and mark document and history as completed
     await supabase
       .from('bedrock_documents')
       .update({
@@ -167,6 +184,14 @@ Return ONLY the JSON object, no markdown or explanation.`;
         error_message: null
       })
       .eq('id', document_id);
+
+    await supabase
+      .from('document_processing_history')
+      .update({ status: 'completed' })
+      .eq('document_id', document_id)
+      .eq('status', 'pending')
+      .order('created_at', { ascending: false })
+      .limit(1);
 
     return new Response(
       JSON.stringify({ 
@@ -179,7 +204,7 @@ Return ONLY the JSON object, no markdown or explanation.`;
   } catch (error: any) {
     console.error('❌ Analysis failed:', error);
     
-    // Update document to failed status
+    // Update document and history to failed status
     if (documentId) {
       const supabase = createClient(
         Deno.env.get('SUPABASE_URL')!,
@@ -193,6 +218,17 @@ Return ONLY the JSON object, no markdown or explanation.`;
           error_message: error.message
         })
         .eq('id', documentId);
+
+      await supabase
+        .from('document_processing_history')
+        .update({ 
+          status: 'failed',
+          error_message: error.message
+        })
+        .eq('document_id', documentId)
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false })
+        .limit(1);
     }
 
     return new Response(

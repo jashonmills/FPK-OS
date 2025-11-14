@@ -24,9 +24,12 @@ import { ReAnalysisButton } from '../ReAnalysisButton';
 import { DocumentViewerModal } from '@/components/documents/DocumentViewerModal';
 import { DocumentStatistics } from './DocumentStatistics';
 import { Checkbox } from '@/components/ui/checkbox';
+import { ProcessingHistoryTimeline } from './ProcessingHistoryTimeline';
+import { DocumentFilters } from './DocumentFilters';
+import { useMemo } from 'react';
 
 // Elite Classification System - Full Catalog
-const DOCUMENT_TYPE_CATEGORIES = {
+export const DOCUMENT_TYPE_CATEGORIES = {
   educational_planning: {
     label: "📚 Educational & Planning",
     types: [
@@ -131,6 +134,14 @@ export function BedrockDocumentPage() {
   const [selectedDocIds, setSelectedDocIds] = useState<Set<string>>(new Set());
   const [batchCategory, setBatchCategory] = useState('');
   const [batchAnalyzing, setBatchAnalyzing] = useState(false);
+  
+  // Filters and sorting
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [dateFromFilter, setDateFromFilter] = useState('');
+  const [dateToFilter, setDateToFilter] = useState('');
+  const [sortBy, setSortBy] = useState('created_at');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
   // Fetch documents
   const { data: documents, isLoading } = useQuery({
@@ -363,6 +374,69 @@ export function BedrockDocumentPage() {
     }
   };
 
+  // Apply filters and sorting
+  const filteredAndSortedDocuments = useMemo(() => {
+    if (!documents) return [];
+
+    let filtered = [...documents];
+
+    // Apply status filter
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(doc => doc.status === statusFilter);
+    }
+
+    // Apply category filter
+    if (categoryFilter !== 'all') {
+      filtered = filtered.filter(doc => doc.category === categoryFilter);
+    }
+
+    // Apply date range filter
+    if (dateFromFilter) {
+      filtered = filtered.filter(doc => 
+        new Date(doc.created_at) >= new Date(dateFromFilter)
+      );
+    }
+    if (dateToFilter) {
+      filtered = filtered.filter(doc => 
+        new Date(doc.created_at) <= new Date(dateToFilter)
+      );
+    }
+
+    // Apply sorting
+    filtered.sort((a, b) => {
+      let aVal = a[sortBy];
+      let bVal = b[sortBy];
+
+      // Handle null values
+      if (aVal === null || aVal === undefined) return 1;
+      if (bVal === null || bVal === undefined) return -1;
+
+      // Convert to comparable values
+      if (sortBy === 'created_at') {
+        aVal = new Date(aVal).getTime();
+        bVal = new Date(bVal).getTime();
+      } else if (typeof aVal === 'string') {
+        aVal = aVal.toLowerCase();
+        bVal = bVal.toLowerCase();
+      }
+
+      if (sortOrder === 'asc') {
+        return aVal > bVal ? 1 : -1;
+      } else {
+        return aVal < bVal ? 1 : -1;
+      }
+    });
+
+    return filtered;
+  }, [documents, statusFilter, categoryFilter, dateFromFilter, dateToFilter, sortBy, sortOrder]);
+
+  const clearFilters = () => {
+    setStatusFilter('all');
+    setCategoryFilter('all');
+    setDateFromFilter('');
+    setDateToFilter('');
+  };
+
   if (!selectedFamily?.id || !selectedStudent?.id) {
     return (
       <div className="p-8 text-center">
@@ -385,6 +459,14 @@ export function BedrockDocumentPage() {
       {/* Statistics Dashboard */}
       {documents && documents.length > 0 && (
         <DocumentStatistics documents={documents} />
+      )}
+
+      {/* Processing History Timeline */}
+      {selectedFamily?.id && selectedStudent?.id && (
+        <ProcessingHistoryTimeline 
+          familyId={selectedFamily.id}
+          studentId={selectedStudent.id}
+        />
       )}
 
       {/* Upload Section */}
@@ -450,11 +532,32 @@ export function BedrockDocumentPage() {
           </div>
         </CardHeader>
         <CardContent>
+          {/* Filters */}
+          {documents && documents.length > 0 && (
+            <div className="mb-4">
+              <DocumentFilters
+                statusFilter={statusFilter}
+                categoryFilter={categoryFilter}
+                dateFromFilter={dateFromFilter}
+                dateToFilter={dateToFilter}
+                sortBy={sortBy}
+                sortOrder={sortOrder}
+                onStatusFilterChange={setStatusFilter}
+                onCategoryFilterChange={setCategoryFilter}
+                onDateFromFilterChange={setDateFromFilter}
+                onDateToFilterChange={setDateToFilter}
+                onSortByChange={setSortBy}
+                onSortOrderChange={setSortOrder}
+                onClearFilters={clearFilters}
+              />
+            </div>
+          )}
+
           {isLoading ? (
             <div className="flex items-center justify-center p-8">
               <Loader2 className="h-6 w-6 animate-spin" />
             </div>
-          ) : documents && documents.length > 0 ? (
+          ) : filteredAndSortedDocuments && filteredAndSortedDocuments.length > 0 ? (
             <div className="space-y-3">
               {/* Batch Actions Bar */}
               {selectedDocIds.size > 0 && (
@@ -511,18 +614,18 @@ export function BedrockDocumentPage() {
               {/* Select All Header */}
               <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg">
                 <Checkbox
-                  checked={selectedDocIds.size === documents.length && documents.length > 0}
+                  checked={selectedDocIds.size === filteredAndSortedDocuments.length && filteredAndSortedDocuments.length > 0}
                   onCheckedChange={toggleSelectAll}
                   aria-label="Select all documents"
                 />
                 <span className="text-sm font-medium">
-                  {selectedDocIds.size === documents.length && documents.length > 0 
+                  {selectedDocIds.size === filteredAndSortedDocuments.length && filteredAndSortedDocuments.length > 0 
                     ? 'Deselect All' 
                     : 'Select All'}
                 </span>
               </div>
 
-              {documents.map((doc: any) => (
+              {filteredAndSortedDocuments.map((doc: any) => (
                 <div key={doc.id} className="flex items-center gap-4 p-4 border rounded-lg">
                   <Checkbox
                     checked={selectedDocIds.has(doc.id)}
