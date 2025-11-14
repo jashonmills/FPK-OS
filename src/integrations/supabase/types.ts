@@ -698,6 +698,7 @@ export type Database = {
           file_size_kb: number | null
           id: string
           job_id: string | null
+          organization_id: string | null
           status: string
           student_id: string | null
         }
@@ -714,6 +715,7 @@ export type Database = {
           file_size_kb?: number | null
           id?: string
           job_id?: string | null
+          organization_id?: string | null
           status?: string
           student_id?: string | null
         }
@@ -730,6 +732,7 @@ export type Database = {
           file_size_kb?: number | null
           id?: string
           job_id?: string | null
+          organization_id?: string | null
           status?: string
           student_id?: string | null
         }
@@ -739,6 +742,13 @@ export type Database = {
             columns: ["family_id"]
             isOneToOne: false
             referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bedrock_documents_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
           {
@@ -1690,6 +1700,7 @@ export type Database = {
           error_message: string | null
           family_id: string
           id: string
+          organization_id: string | null
           processed_at: string | null
           source_id: string
           source_table: string
@@ -1701,6 +1712,7 @@ export type Database = {
           error_message?: string | null
           family_id: string
           id?: string
+          organization_id?: string | null
           processed_at?: string | null
           source_id: string
           source_table: string
@@ -1712,6 +1724,7 @@ export type Database = {
           error_message?: string | null
           family_id?: string
           id?: string
+          organization_id?: string | null
           processed_at?: string | null
           source_id?: string
           source_table?: string
@@ -1724,6 +1737,13 @@ export type Database = {
             columns: ["family_id"]
             isOneToOne: false
             referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "embedding_queue_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
           {
@@ -2067,6 +2087,7 @@ export type Database = {
           family_id: string
           id: string
           metadata: Json | null
+          organization_id: string | null
           source_id: string
           source_table: string
           student_id: string | null
@@ -2078,6 +2099,7 @@ export type Database = {
           family_id: string
           id?: string
           metadata?: Json | null
+          organization_id?: string | null
           source_id: string
           source_table: string
           student_id?: string | null
@@ -2089,6 +2111,7 @@ export type Database = {
           family_id?: string
           id?: string
           metadata?: Json | null
+          organization_id?: string | null
           source_id?: string
           source_table?: string
           student_id?: string | null
@@ -2099,6 +2122,13 @@ export type Database = {
             columns: ["family_id"]
             isOneToOne: false
             referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "family_data_embeddings_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
           {
@@ -3504,6 +3534,7 @@ export type Database = {
           insight_type: string
           is_archived: boolean | null
           is_dismissed: boolean | null
+          organization_id: string | null
           source_document_id: string
           source_section: string | null
           student_id: string
@@ -3523,6 +3554,7 @@ export type Database = {
           insight_type: string
           is_archived?: boolean | null
           is_dismissed?: boolean | null
+          organization_id?: string | null
           source_document_id: string
           source_section?: string | null
           student_id: string
@@ -3542,6 +3574,7 @@ export type Database = {
           insight_type?: string
           is_archived?: boolean | null
           is_dismissed?: boolean | null
+          organization_id?: string | null
           source_document_id?: string
           source_section?: string | null
           student_id?: string
@@ -3553,6 +3586,13 @@ export type Database = {
             columns: ["family_id"]
             isOneToOne: false
             referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_insights_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
           {
