@@ -85,10 +85,13 @@ serve(async (req) => {
           console.log(`Invoking bedrock-analyze for ${doc.file_name}`);
           
           const { error: analyzeError } = await supabase.functions.invoke('bedrock-analyze', {
+            headers: {
+              Authorization: authHeader  // Pass user's auth token
+            },
             body: {
-              documentId: doc.id,
-              familyId: familyId,
-              studentId: studentId,
+              document_id: doc.id,     // Use snake_case
+              family_id: familyId,
+              student_id: studentId,
             }
           });
 
