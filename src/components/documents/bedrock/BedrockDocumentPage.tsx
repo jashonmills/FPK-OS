@@ -164,7 +164,46 @@ export function BedrockDocumentPage() {
       return data;
     },
     enabled: !!selectedFamily?.id && !!selectedStudent?.id,
+    refetchInterval: 3000, // Poll every 3 seconds to catch status updates
   });
+
+  // Real-time subscription for document status updates
+  useEffect(() => {
+    if (!selectedFamily?.id) return;
+
+    const channel = supabase
+      .channel('bedrock-documents-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'bedrock_documents',
+          filter: `family_id=eq.${selectedFamily.id}`
+        },
+        (payload) => {
+          console.log('📡 Bedrock document updated:', payload);
+          
+          // Show toast notification for status changes
+          if (payload.eventType === 'UPDATE' && payload.new) {
+            const doc = payload.new as any;
+            if (doc.status === 'completed') {
+              toast.success(`✅ ${doc.file_name} analysis completed!`);
+            } else if (doc.status === 'failed') {
+              toast.error(`❌ ${doc.file_name} analysis failed`);
+            }
+          }
+          
+          // Invalidate and refetch the documents list
+          queryClient.invalidateQueries({ queryKey: ['bedrock-documents'] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [selectedFamily?.id, queryClient]);
 
   const handleUpload = async (file: File) => {
     if (!selectedFamily?.id || !selectedStudent?.id) {
