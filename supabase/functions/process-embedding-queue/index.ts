@@ -55,8 +55,8 @@ serve(async (req) => {
     let failedCount = 0;
     let totalQueued = 0;
 
-    // If batch_all is true, queue all existing data
-    if (batch_all) {
+    // If batch_all is true, queue all existing data (only for manual family-specific triggers)
+    if (batch_all && family_id) {
       console.log(`Batch queuing all data for family ${family_id}`);
       
       // Queue all incident logs
@@ -154,13 +154,21 @@ serve(async (req) => {
     }
 
     // Process pending items from queue
-    const { data: queueItems, error: queueError } = await supabase
+    // Build the base query
+    let query = supabase
       .from("embedding_queue")
       .select("*")
-      .eq("family_id", family_id)
       .eq("status", "pending")
       .order("created_at", { ascending: true })
       .limit(limit);
+
+    // Conditionally apply the family_id filter for manual triggers
+    if (family_id) {
+      query = query.eq("family_id", family_id);
+    }
+
+    // Execute the dynamically built query
+    const { data: queueItems, error: queueError } = await query;
 
     if (queueError) {
       throw queueError;
@@ -231,10 +239,16 @@ serve(async (req) => {
     }
 
     // Get updated queue stats
-    const { data: stats } = await supabase
+    let statsQuery = supabase
       .from("embedding_queue")
-      .select("status")
-      .eq("family_id", family_id);
+      .select("status");
+    
+    // Conditionally filter by family_id for manual triggers
+    if (family_id) {
+      statsQuery = statsQuery.eq("family_id", family_id);
+    }
+    
+    const { data: stats } = await statsQuery;
 
     const queueStats = {
       pending: stats?.filter(s => s.status === "pending").length || 0,
