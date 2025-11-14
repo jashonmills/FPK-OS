@@ -258,10 +258,16 @@ serve(async (req) => {
     };
 
     // Get total embeddings count
-    const { count: embeddingsCount } = await supabase
+    let embeddingsQuery = supabase
       .from("family_data_embeddings")
-      .select("*", { count: "exact", head: true })
-      .eq("family_id", family_id);
+      .select("*", { count: "exact", head: true });
+
+    // Conditionally filter by family_id for manual triggers
+    if (family_id) {
+      embeddingsQuery = embeddingsQuery.eq("family_id", family_id);
+    }
+
+    const { count: embeddingsCount } = await embeddingsQuery;
 
     return new Response(
       JSON.stringify({
