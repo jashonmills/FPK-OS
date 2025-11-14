@@ -1,13 +1,13 @@
 /**
- * VERSION: 3.0.0-ASYNC-BATCH-PROCESSOR
+ * VERSION: 3.0.0-SYNC-PROCESSOR
  * 
- * Async batch processing for Google Document AI - handles up to 500-page documents
+ * Synchronous processing for Google Document AI
  */
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getAccessToken } from "../_shared/google-document-ai-auth.ts";
 
-const VERSION = "3.0.0-ASYNC-BATCH-PROCESSOR";
+const VERSION = "3.0.0-SYNC-PROCESSOR";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -78,8 +78,8 @@ serve(async (req) => {
     }
 
     console.log(`📄 Processing: ${fileName}`);
-    console.log(`👥 Family: ${familyId}, Student: ${studentId || 'none'}`);
     console.log(`📋 Category: ${category}`);
+    console.log(`👥 Family: ${familyId}, Student: ${studentId || 'none'}`);
 
     // Decode file
     const fileBytes = Uint8Array.from(atob(fileData), c => c.charCodeAt(0));
@@ -109,68 +109,46 @@ serve(async (req) => {
     console.log(`✅ File uploaded to storage`);
 
     // Get Google Document AI credentials
-    const credsJson = Deno.env.get('GOOGLE_DOC_AI_CREDS');
-    if (!credsJson) {
-      await supabase.storage.from('bedrock-storage').remove([storagePath]);
-      throw new Error('Google Document AI credentials not configured');
+    console.log('🔐 Authenticating with Google Document AI...');
+    
+    const credentialsJson = Deno.env.get('GOOGLE_DOCUMENT_AI_CREDENTIALS');
+    if (!credentialsJson) {
+      throw new Error('Missing Google Document AI credentials');
     }
 
-    // Validate and parse credentials
-    if (!credsJson.trim().startsWith('{')) {
-      console.error('❌ GOOGLE_DOCUMENT_AI_CREDENTIALS is not JSON format');
-      await supabase.storage.from('bedrock-storage').remove([storagePath]);
-      throw new Error('Invalid credentials format: Expected Google Service Account JSON');
-    }
+    const credentials = JSON.parse(credentialsJson);
+    console.log(`📧 Using service account: ${credentials.client_email}`);
 
-    let credentials;
-    try {
-      credentials = JSON.parse(credsJson);
-      
-      if (!credentials.private_key || !credentials.client_email || !credentials.project_id) {
-        throw new Error('Service account JSON missing required fields (private_key, client_email, project_id)');
-      }
-    } catch (e) {
-      console.error('❌ Failed to parse Google credentials:', e.message);
-      await supabase.storage.from('bedrock-storage').remove([storagePath]);
-      throw new Error(`Invalid Google credentials: ${e.message}`);
-    }
-
-    // Select processor (Phase 1/2 hybrid approach)
+    // Phase 2: Intelligent routing based on category
     let processorId: string;
     
-    // Phase 1: Try single processor first (for backward compatibility)
-    const singleProcessor = Deno.env.get('ACTIVE_DOCUMENT_AI_PROCESSOR_ID');
-    
-    if (singleProcessor) {
-      processorId = singleProcessor;
-      console.log(`🎯 Phase 1 Mode: Using single processor: ${processorId}`);
-    } else if (Object.keys(PROCESSOR_MAP).length > 0) {
-      // Phase 2: Use intelligent routing
-      processorId = PROCESSOR_MAP[category] || PROCESSOR_MAP['other'];
-      console.log(`🎯 Phase 2 Mode: Selected processor for category "${category}": ${processorId}`);
+    if (Object.keys(PROCESSOR_MAP).length > 0 && PROCESSOR_MAP[category]) {
+      processorId = PROCESSOR_MAP[category];
+      console.log(`🎯 Phase 2 Mode: Category '${category}' → Processor: ${processorId}`);
     } else {
-      await supabase.storage.from('bedrock-storage').remove([storagePath]);
-      throw new Error('No Document AI processors configured. Please set ACTIVE_DOCUMENT_AI_PROCESSOR_ID or configure processor arsenal.');
+      processorId = Deno.env.get('ACTIVE_DOCUMENT_AI_PROCESSOR_ID')!;
+      if (!processorId) {
+        throw new Error('No processor ID configured');
+      }
+      console.log(`🎯 Phase 1 Mode: Using single processor: ${processorId}`);
     }
 
-    // Get access token
-    console.log('🔐 Authenticating with Google Document AI...');
-    console.log('📧 Using service account:', credentials.client_email);
+    // Get OAuth access token
     const accessToken = await getAccessToken(credentials);
     console.log('✅ Authentication successful');
 
     // Download file from Supabase Storage to process with Document AI
     console.log('📥 Downloading file from storage for processing...');
-    const { data: fileData, error: downloadError } = await supabase.storage
+    const { data: fileBlob, error: downloadError } = await supabase.storage
       .from('bedrock-storage')
       .download(storagePath);
 
-    if (downloadError || !fileData) {
+    if (downloadError || !fileBlob) {
       throw new Error('Failed to download file from storage');
     }
 
     // Convert blob to base64
-    const arrayBuffer = await fileData.arrayBuffer();
+    const arrayBuffer = await fileBlob.arrayBuffer();
     const base64Content = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
     
     // Call synchronous processDocument API
