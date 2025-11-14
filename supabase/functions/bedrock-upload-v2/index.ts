@@ -195,12 +195,7 @@ serve(async (req) => {
         file_size_kb: fileSizeKb,
         status: 'extracted',
         extracted_content: extractedText,
-        metadata: {
-          category,
-          processor_id: processorId,
-          processed_at: new Date().toISOString(),
-          character_count: extractedText.length
-        }
+        category: category
       })
       .select()
       .single();
