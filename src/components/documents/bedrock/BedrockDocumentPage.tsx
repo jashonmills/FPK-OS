@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -264,6 +264,8 @@ export function BedrockDocumentPage() {
   };
 
   const handleReAnalyze = async (doc: any) => {
+    const toastId = toast.loading('🔄 Starting re-analysis...');
+    
     try {
       setAnalyzingDoc(doc.id);
       const { data: { session } } = await supabase.auth.getSession();
@@ -275,23 +277,27 @@ export function BedrockDocumentPage() {
       console.log('🔄 Re-analyzing:', {
         documentId: doc.id,
         oldCategory: doc.category,
-        newCategory: newCategory,
-        processorId: processorId
+        newCategory,
+        processorId
       });
 
-      await supabase.functions.invoke('bedrock-analyze', {
+      const { data, error } = await supabase.functions.invoke('bedrock-analyze', {
         body: { 
-          document_id: doc.id,
+          documentId: doc.id,
           category: newCategory,
-          processor_id: processorId,
-        },
-        headers: { Authorization: `Bearer ${session.access_token}` }
+          processorId,
+          familyId: selectedFamily?.id,
+          studentId: selectedStudent?.id,
+          userToken: session.access_token
+        }
       });
 
-      toast.success(`Re-analyzing as "${newCategory}"`);
-      queryClient.invalidateQueries({ queryKey: ['bedrock-documents'] });
+      if (error) throw error;
+      
+      toast.success('🚀 Re-analysis started - you\'ll be notified when complete', { id: toastId });
+      // Real-time subscription will handle the completion notification
     } catch (error: any) {
-      toast.error(error.message || 'Re-analysis failed');
+      toast.error(error.message || 'Re-analysis failed', { id: toastId });
     } finally {
       setAnalyzingDoc(null);
     }
@@ -328,48 +334,49 @@ export function BedrockDocumentPage() {
     }
 
     setBatchAnalyzing(true);
-    const toastId = toast.loading(`Re-classifying ${selectedDocIds.size} documents...`);
+    const toastId = toast.loading(`🔄 Re-classifying ${selectedDocIds.size} document(s)...`);
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error('No session');
 
       const processorId = getProcessorId(batchCategory);
-      let successCount = 0;
-      let failCount = 0;
+      const docsToAnalyze = documents?.filter(d => selectedDocIds.has(d.id)) || [];
 
-      for (const docId of selectedDocIds) {
-        try {
-          await supabase.functions.invoke('bedrock-analyze', {
+      // Trigger batch re-analysis
+      const results = await Promise.allSettled(
+        docsToAnalyze.map(doc => 
+          supabase.functions.invoke('bedrock-analyze', {
             body: { 
-              document_id: docId,
+              documentId: doc.id,
               category: batchCategory,
-              processor_id: processorId,
-            },
-            headers: { Authorization: `Bearer ${session.access_token}` }
-          });
-          successCount++;
-        } catch (error) {
-          console.error(`Failed to re-analyze ${docId}:`, error);
-          failCount++;
-        }
-      }
+              processorId,
+              familyId: selectedFamily?.id,
+              studentId: selectedStudent?.id,
+              userToken: session.access_token
+            }
+          })
+        )
+      );
 
-      if (successCount > 0) {
+      const successful = results.filter(r => r.status === 'fulfilled').length;
+      const failed = results.filter(r => r.status === 'rejected').length;
+
+      if (successful > 0) {
         toast.success(
-          `Re-classified ${successCount} document${successCount > 1 ? 's' : ''} as "${batchCategory}"`,
+          `🚀 Started re-analysis for ${successful} document(s) - you'll be notified as each completes`, 
           { id: toastId }
         );
       }
-      if (failCount > 0) {
-        toast.error(`${failCount} document${failCount > 1 ? 's' : ''} failed`, { id: toastId });
+      if (failed > 0) {
+        toast.error(`⚠️ ${failed} document(s) failed to start re-analysis`, { id: toastId });
       }
 
-      queryClient.invalidateQueries({ queryKey: ['bedrock-documents'] });
       setSelectedDocIds(new Set());
       setBatchCategory('');
+      // Real-time subscription will handle completion notifications
     } catch (error: any) {
-      toast.error(error.message || 'Batch re-classification failed', { id: toastId });
+      toast.error('Batch re-classification failed', { id: toastId });
     } finally {
       setBatchAnalyzing(false);
     }
@@ -437,6 +444,41 @@ export function BedrockDocumentPage() {
     setDateFromFilter('');
     setDateToFilter('');
   };
+
+  // Real-time subscription for document status updates
+  useEffect(() => {
+    if (!selectedFamily?.id || !selectedStudent?.id) return;
+
+    const channel = supabase
+      .channel('bedrock-documents-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'bedrock_documents',
+          filter: `family_id=eq.${selectedFamily.id}`
+        },
+        (payload) => {
+          const newDoc = payload.new as any;
+          const oldDoc = payload.old as any;
+          
+          // Detect status transitions
+          if (oldDoc.status === 'analyzing' && newDoc.status === 'completed') {
+            toast.success(`✅ ${newDoc.file_name} analysis complete!`);
+            queryClient.invalidateQueries({ queryKey: ['bedrock-documents'] });
+          } else if (oldDoc.status === 'analyzing' && newDoc.status === 'failed') {
+            toast.error(`❌ ${newDoc.file_name} analysis failed${newDoc.error_message ? ': ' + newDoc.error_message : ''}`);
+            queryClient.invalidateQueries({ queryKey: ['bedrock-documents'] });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [selectedFamily?.id, selectedStudent?.id, queryClient]);
 
   if (!selectedFamily?.id || !selectedStudent?.id) {
     return (
@@ -743,12 +785,19 @@ export function BedrockDocumentPage() {
                     </Button>
 
                     {/* Status Badge */}
-                    <Badge variant={
-                      doc.status === 'completed' ? 'default' :
-                      doc.status === 'analyzing' ? 'secondary' :
-                      doc.status === 'failed' ? 'destructive' : 'outline'
-                    }>
-                      {doc.status}
+                    <Badge 
+                      variant={
+                        doc.status === 'completed' ? 'default' :
+                        doc.status === 'analyzing' ? 'secondary' :
+                        doc.status === 'failed' ? 'destructive' : 'outline'
+                      }
+                      className={doc.status === 'analyzing' ? 'animate-pulse' : ''}
+                    >
+                      {doc.status === 'analyzing' && <Loader2 className="h-3 w-3 mr-1 animate-spin inline" />}
+                      {doc.status === 'completed' && '✓ '}
+                      {doc.status === 'failed' && '✗ '}
+                      {doc.status === 'analyzing' ? 'Analyzing...' : 
+                       doc.status.charAt(0).toUpperCase() + doc.status.slice(1)}
                     </Badge>
                   </div>
                 </div>
