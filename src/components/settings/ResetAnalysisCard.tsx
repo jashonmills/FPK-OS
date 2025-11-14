@@ -22,7 +22,7 @@ export const ResetAnalysisCard = () => {
   const [isResetting, setIsResetting] = useState(false);
   const [isReanalyzing, setIsReanalyzing] = useState(false);
   const { toast } = useToast();
-  const { selectedFamily } = useFamily();
+  const { selectedFamily, selectedStudent } = useFamily();
 
   const handleReset = async () => {
     if (!selectedFamily?.id) return;
