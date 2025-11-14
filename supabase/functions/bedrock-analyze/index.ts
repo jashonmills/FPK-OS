@@ -274,6 +274,33 @@ Return ONLY the JSON object, no markdown or explanation.`;
       .order('created_at', { ascending: false })
       .limit(1);
 
+    // 8. Queue document for embedding into AI memory
+    try {
+      const { error: queueError } = await supabase
+        .from('embedding_queue')
+        .insert({
+          source_table: 'bedrock_documents',
+          source_id: document_id,
+          family_id: doc.family_id,
+          student_id: doc.student_id,
+          status: 'pending',
+          metadata: {
+            source: 'bedrock-analyze-function',
+            document_name: doc.file_name,
+            category: doc.category
+          }
+        });
+
+      if (queueError) {
+        // Log but don't throw - analysis succeeded even if queuing failed
+        console.error(`⚠️ Failed to queue document ${document_id} for embedding:`, queueError.message);
+      } else {
+        console.log(`✅ Document ${document_id} queued for embedding (${doc.file_name})`);
+      }
+    } catch (queueError) {
+      console.error('⚠️ Embedding queue insertion error:', queueError);
+    }
+
     return new Response(
       JSON.stringify({ 
         success: true,

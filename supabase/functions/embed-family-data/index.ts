@@ -27,7 +27,133 @@ serve(async (req) => {
 
     console.log(`🔍 Embedding data from ${source_table} with ID: ${source_id}`);
 
-    // Fetch the source record
+    // Special handling for bedrock_documents (uses different data structure)
+    if (source_table === "bedrock_documents") {
+      const { data: bedrockDoc, error: bedrockError } = await supabase
+        .from('bedrock_documents')
+        .select('analysis_data, file_name, category, student_id, family_id')
+        .eq('id', source_id)
+        .maybeSingle();
+
+      if (bedrockError) {
+        throw new Error(`Database error fetching bedrock document: ${bedrockError.message}`);
+      }
+
+      if (!bedrockDoc) {
+        console.warn(`⚠️ Bedrock document not found: ${source_id} - likely deleted. Skipping embedding.`);
+        return new Response(
+          JSON.stringify({ 
+            message: "Document not found - skipping embedding",
+            source_table,
+            source_id,
+            success: true
+          }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      if (!bedrockDoc.analysis_data) {
+        console.warn(`⚠️ No analysis data for bedrock document ${source_id}`);
+        return new Response(
+          JSON.stringify({ message: "No analysis data to embed", success: true }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Process bedrock document
+      const analysisData = bedrockDoc.analysis_data as any;
+      const textContent = `
+Document Analysis - ${bedrockDoc.file_name}
+Category: ${bedrockDoc.category}
+
+${analysisData.insights?.map((insight: any) => 
+  `${insight.type}: ${insight.content}`
+).join('\n\n') || ''}
+
+${analysisData.metrics?.map((metric: any) =>
+  `${metric.name}: ${metric.value}${metric.unit || ''}`
+).join('\n') || ''}
+
+${analysisData.progress_tracking?.map((progress: any) =>
+  `Progress - ${progress.metric}: ${progress.current_value}/${progress.target_value} (${progress.progress_percentage}%)`
+).join('\n') || ''}
+
+${analysisData.bip_data ? 
+  `BIP Data:
+Behavior Hypothesis: ${analysisData.bip_data.behavior_hypothesis || 'N/A'}
+Target Behavior: ${analysisData.bip_data.target_behavior_description || 'N/A'}
+Replacement Behavior: ${analysisData.bip_data.replacement_behavior || 'N/A'}` 
+  : ''}
+      `.trim();
+
+      const metadata = {
+        document_name: bedrockDoc.file_name,
+        document_category: bedrockDoc.category,
+        analysis_insights_count: analysisData.insights?.length || 0,
+        log_type: source_table,
+      };
+
+      // Chunk and embed
+      const chunks = sharedChunkText(textContent, 8000);
+      console.log(`📦 Created ${chunks.length} chunks for bedrock_documents:${source_id}`);
+
+      let embeddingsCreated = 0;
+      let failedChunks = 0;
+      const EMBEDDING_TIMEOUT = 25000;
+
+      for (let i = 0; i < chunks.length; i++) {
+        const chunk = chunks[i];
+        try {
+          console.log(`🔄 Processing chunk ${i + 1}/${chunks.length}...`);
+          
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Embedding API timeout')), EMBEDDING_TIMEOUT)
+          );
+          
+          const embedding = await Promise.race([
+            createEmbedding(chunk, { retries: 3, retryDelay: 1000 }),
+            timeoutPromise
+          ]);
+
+          const { error: insertError } = await supabase
+            .from("family_data_embeddings")
+            .insert({
+              family_id: bedrockDoc.family_id,
+              student_id: bedrockDoc.student_id,
+              source_table,
+              source_id,
+              chunk_text: chunk,
+              embedding: JSON.stringify(embedding),
+              metadata,
+            });
+
+          if (insertError) {
+            console.error(`❌ Error inserting embedding for chunk ${i + 1}:`, insertError);
+            failedChunks++;
+          } else {
+            embeddingsCreated++;
+            console.log(`✅ Created embedding ${i + 1}/${chunks.length} for ${source_table}:${source_id}`);
+          }
+        } catch (error) {
+          console.error(`❌ Failed to create embedding for chunk ${i + 1}:`, error);
+          failedChunks++;
+        }
+      }
+
+      console.log(`✅ Embedding completed: ${embeddingsCreated}/${chunks.length} chunks successful, ${failedChunks} failed`);
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          embeddingsCreated,
+          totalChunks: chunks.length,
+          failedChunks,
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Standard processing for other tables
     const { data: record, error: fetchError } = await supabase
       .from(source_table)
       .select("*")
