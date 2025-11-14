@@ -1,5 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +22,8 @@ import { BedrockHealthMonitor } from "@/components/admin/BedrockHealthMonitor";
 import { formatDistanceToNow } from "date-fns";
 
 export default function SystemHealthPage() {
+  const queryClient = useQueryClient();
+
   // Fetch unified queue statistics (Bedrock only now)
   const { data: queueStats, isLoading: loadingStats, refetch: refetchStats } = useQuery({
     queryKey: ["unified-queue-stats"],
@@ -40,7 +43,6 @@ export default function SystemHealthPage() {
         avg_processing_time_seconds: 0
       };
     },
-    refetchInterval: 10000,
   });
 
   const bedrockStats = queueStats;
@@ -88,8 +90,53 @@ export default function SystemHealthPage() {
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       ).slice(0, 10);
     },
-    refetchInterval: 5000,
   });
+
+  // Realtime subscription for bedrock_documents
+  useEffect(() => {
+    const bedrockChannel = supabase
+      .channel('bedrock-documents-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'bedrock_documents'
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['bedrock-health'] });
+          queryClient.invalidateQueries({ queryKey: ['live-jobs'] });
+          queryClient.invalidateQueries({ queryKey: ['unified-queue-stats'] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(bedrockChannel);
+    };
+  }, [queryClient]);
+
+  // Realtime subscription for embedding_queue
+  useEffect(() => {
+    const queueChannel = supabase
+      .channel('embedding-queue-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'embedding_queue'
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['unified-queue-stats'] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(queueChannel);
+    };
+  }, [queryClient]);
 
   // AI provider health removed - legacy feature not used in Bedrock
 
