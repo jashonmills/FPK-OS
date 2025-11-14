@@ -72,6 +72,7 @@ serve(async (req) => {
     const studentId = body.student_id || body.studentId;
     const documentDate = body.document_date || body.documentDate;
     const category = body.category || 'other';
+    const processorId = body.processor_id;
     
     if (!fileData || !fileName || !familyId) {
       throw new Error('Missing required fields: file_data_base64/fileData, file_name/fileName, or family_id/familyId');
@@ -79,6 +80,7 @@ serve(async (req) => {
 
     console.log(`📄 Processing: ${fileName}`);
     console.log(`📋 Category: ${category}`);
+    console.log(`🎯 Processor ID: ${processorId || 'using fallback'}`);
     console.log(`👥 Family: ${familyId}, Student: ${studentId || 'none'}`);
 
     // Decode file
@@ -119,18 +121,25 @@ serve(async (req) => {
     const credentials = JSON.parse(credentialsJson);
     console.log(`📧 Using service account: ${credentials.client_email}`);
 
-    // Phase 2: Intelligent routing based on category
-    let processorId: string;
+    // Phase 2: Intelligent Router - Select processor based on category or explicit ID
+    let selectedProcessor: string;
     
-    if (Object.keys(PROCESSOR_MAP).length > 0 && PROCESSOR_MAP[category]) {
-      processorId = PROCESSOR_MAP[category];
-      console.log(`🎯 Phase 2 Mode: Category '${category}' → Processor: ${processorId}`);
+    if (processorId) {
+      console.log(`🎯 Using explicitly provided processor: ${processorId}`);
+      selectedProcessor = processorId;
+    } else if (PROCESSOR_MAP[category]) {
+      selectedProcessor = PROCESSOR_MAP[category];
+      console.log(`✅ Using specialized processor for "${category}": ${selectedProcessor}`);
     } else {
-      processorId = Deno.env.get('ACTIVE_DOCUMENT_AI_PROCESSOR_ID')!;
-      if (!processorId) {
-        throw new Error('No processor ID configured');
+      const fallbackProcessor = Deno.env.get('DOC_AI_PROCESSOR_OCR') || 
+                               Deno.env.get('DOC_AI_PROCESSOR_ID');
+      
+      if (!fallbackProcessor) {
+        throw new Error('No processor configured for this document type');
       }
-      console.log(`🎯 Phase 1 Mode: Using single processor: ${processorId}`);
+      
+      selectedProcessor = fallbackProcessor;
+      console.log(`⚠️ No specialized processor for "${category}", using fallback: ${selectedProcessor}`);
     }
 
     // Get OAuth access token
@@ -163,7 +172,7 @@ serve(async (req) => {
     // Call synchronous processDocument API
     console.log(`🚀 Initiating synchronous document processing`);
     
-    const processUrl = `https://documentai.googleapis.com/v1/${processorId}:process`;
+    const processUrl = `https://documentai.googleapis.com/v1/${selectedProcessor}:process`;
     
     const requestBody = {
       rawDocument: {

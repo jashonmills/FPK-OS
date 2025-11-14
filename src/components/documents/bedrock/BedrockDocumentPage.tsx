@@ -23,22 +23,96 @@ import { format } from 'date-fns';
 import { ReAnalysisButton } from '../ReAnalysisButton';
 import { DocumentViewerModal } from '@/components/documents/DocumentViewerModal';
 
-// Phase 3: Document categories for intelligent routing
-const DOCUMENT_CATEGORIES = [
-  { value: 'other', label: 'General Document (OCR)', description: 'Standard text extraction for most documents' },
-  { value: 'form', label: 'Form or Table', description: 'Optimized for forms, tables, and structured data' },
-  { value: 'layout', label: 'Layout Analysis', description: 'Preserves complex layouts and formatting' },
-  { value: 'iep', label: 'IEP (Specialized)', description: 'Specialized processor for IEP documents' },
-];
+// Elite Classification System - Full Catalog
+const DOCUMENT_TYPE_CATEGORIES = {
+  educational_planning: {
+    label: "📚 Educational & Planning",
+    types: [
+      { value: 'iep', label: 'IEP (Individualized Education Program)', processorKey: 'IEP' },
+      { value: 'iep_amendment', label: 'IEP Amendment', processorKey: 'IEP' },
+      { value: 'iep_annual_review', label: 'IEP Annual Review', processorKey: 'IEP' },
+      { value: '504_plan', label: '504 Plan', processorKey: 'General' },
+      { value: 'transition_plan', label: 'Transition Plan', processorKey: 'General' },
+      { value: 'rti', label: 'RTI/MTSS Document', processorKey: 'General' },
+    ]
+  },
+  behavioral: {
+    label: "🧠 Behavioral",
+    types: [
+      { value: 'bip', label: 'Behavior Intervention Plan (BIP)', processorKey: 'BIP' },
+      { value: 'fba', label: 'Functional Behavior Assessment (FBA)', processorKey: 'FBA' },
+      { value: 'incident_log', label: 'Incident/Behavior Log', processorKey: 'General' },
+    ]
+  },
+  assessments: {
+    label: "📊 Assessments & Evaluations",
+    types: [
+      { value: 'psych_eval', label: 'Psychoeducational Evaluation', processorKey: 'Evaluation_Report' },
+      { value: 'triennial_eval', label: 'Triennial Evaluation', processorKey: 'Evaluation_Report' },
+      { value: 'speech_eval', label: 'Speech-Language Evaluation', processorKey: 'General' },
+      { value: 'ot_eval', label: 'Occupational Therapy Evaluation', processorKey: 'General' },
+      { value: 'pt_eval', label: 'Physical Therapy Evaluation', processorKey: 'General' },
+      { value: 'vision_eval', label: 'Vision Therapy Assessment', processorKey: 'General' },
+      { value: 'audiology', label: 'Audiology Report', processorKey: 'General' },
+      { value: 'assistive_tech', label: 'Assistive Technology Evaluation', processorKey: 'General' },
+    ]
+  },
+  medical_insurance: {
+    label: "🏥 Medical & Insurance",
+    types: [
+      { value: 'eob', label: 'Explanation of Benefits (EOB)', processorKey: 'EOB' },
+      { value: 'medical_justification', label: 'Letter of Medical Necessity', processorKey: 'Medical_Justification' },
+      { value: 'hospital_discharge', label: 'Hospital Discharge Summary', processorKey: 'General' },
+      { value: 'medication_log', label: 'Medication Log', processorKey: 'General' },
+    ]
+  },
+  progress_tracking: {
+    label: "📈 Progress & Reports",
+    types: [
+      { value: 'progress_report', label: 'Progress Report', processorKey: 'General' },
+      { value: 'report_card', label: 'Report Card', processorKey: 'General' },
+      { value: 'standardized_test', label: 'Standardized Test Results', processorKey: 'General' },
+      { value: 'classroom_observation', label: 'Classroom Observation', processorKey: 'General' },
+    ]
+  },
+  general: {
+    label: "📄 General & Forms",
+    types: [
+      { value: 'other', label: 'General Document (OCR)', processorKey: 'General' },
+      { value: 'form', label: 'Form or Table', processorKey: 'Form/Table' },
+      { value: 'layout', label: 'Complex Layout Document', processorKey: 'Layout' },
+    ]
+  }
+};
 
-// Legacy categories for document classification (post-upload)
-const LEGACY_CATEGORIES = [
-  { value: 'iep', label: 'IEP (Individualized Education Program)' },
-  { value: 'progress_report', label: 'Progress Report' },
-  { value: 'medical', label: 'Medical Record' },
-  { value: 'assessment', label: 'Assessment' },
-  { value: 'other', label: 'Other' },
-];
+// Google Cloud Document AI Processor Mapping
+const PROCESSOR_MAPPING: Record<string, string> = {
+  // --- General & Foundational Processors ---
+  'General': 'projects/729195776641/locations/us/processors/9a2c8ed98e2c75bc', // bedrock-ocr-v2
+  'Form/Table': 'projects/729195776641/locations/us/processors/67a01c2d52e6af65', // bedrock-form-parser
+  'Layout': 'projects/729195776641/locations/us/processors/cb205a77bf9a675e', // bedrock-layouts-parser
+
+  // --- Elite Specialist Processors ---
+  'IEP': 'projects/729195776641/locations/us/processors/e0dcf69b05bd5c40', // bedrock-iep-extractor
+  'BIP': 'projects/729195776641/locations/us/processors/3246c7dc6daa6b21', // BIP-Extractor
+  'FBA': 'projects/729195776641/locations/us/processors/d9afe8adcd9cc5a1', // FBA-Extractor
+  'Evaluation_Report': 'projects/729195776641/locations/us/processors/e1dda0d5caba1c9c', // Evaluation-Report-Extractor
+  'EOB': 'projects/729195776641/locations/us/processors/32106d0a847a365e', // EOB-Extractor
+
+  // --- Fireteam (Shared) Processors ---
+  'Medical_Justification': 'projects/729195776641/locations/us/processors/4e3b8ad1ca4959c5', // Medical-Justification-Parser
+};
+
+// Helper function to resolve processor ID from document type
+function getProcessorId(docType: string): string | undefined {
+  for (const category of Object.values(DOCUMENT_TYPE_CATEGORIES)) {
+    const typeConfig = category.types.find(t => t.value === docType);
+    if (typeConfig?.processorKey) {
+      return PROCESSOR_MAPPING[typeConfig.processorKey];
+    }
+  }
+  return PROCESSOR_MAPPING['General'];
+}
 
 export function BedrockDocumentPage() {
   const { selectedFamily, selectedStudent } = useFamily();
@@ -229,19 +303,23 @@ export function BedrockDocumentPage() {
             <label className="text-sm font-medium mb-2 block">Document Type</label>
             <Select value={selectedCategory} onValueChange={setSelectedCategory}>
               <SelectTrigger>
-                <SelectValue />
+                <SelectValue placeholder="Select document type" />
               </SelectTrigger>
-              <SelectContent>
-                {DOCUMENT_CATEGORIES.map((cat) => (
-                  <SelectItem key={cat.value} value={cat.value}>
-                    {cat.label}
-                  </SelectItem>
+              <SelectContent className="max-h-[400px]">
+                {Object.entries(DOCUMENT_TYPE_CATEGORIES).map(([categoryKey, category]) => (
+                  <div key={categoryKey}>
+                    <div className="px-2 py-1.5 text-sm font-semibold text-muted-foreground">
+                      {category.label}
+                    </div>
+                    {category.types.map((type) => (
+                      <SelectItem key={type.value} value={type.value}>
+                        {type.label}
+                      </SelectItem>
+                    ))}
+                  </div>
                 ))}
               </SelectContent>
             </Select>
-            <p className="text-xs text-muted-foreground mt-1">
-              {DOCUMENT_CATEGORIES.find(c => c.value === selectedCategory)?.description}
-            </p>
           </div>
 
           <Input
@@ -305,11 +383,18 @@ export function BedrockDocumentPage() {
                       <SelectTrigger className="w-[140px]">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
-                        {DOCUMENT_CATEGORIES.map((cat) => (
-                          <SelectItem key={cat.value} value={cat.value}>
-                            {cat.label.split(' ')[0]}
-                          </SelectItem>
+                      <SelectContent className="max-h-[400px]">
+                        {Object.entries(DOCUMENT_TYPE_CATEGORIES).map(([categoryKey, category]) => (
+                          <div key={categoryKey}>
+                            <div className="px-2 py-1.5 text-sm font-semibold text-muted-foreground">
+                              {category.label}
+                            </div>
+                            {category.types.map((type) => (
+                              <SelectItem key={type.value} value={type.value}>
+                                {type.label}
+                              </SelectItem>
+                            ))}
+                          </div>
                         ))}
                       </SelectContent>
                     </Select>
