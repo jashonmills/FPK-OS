@@ -1,5 +1,8 @@
 project_id = "pnxwemmpxldriwaomiey"
 
+[functions.check-pipeline-health]
+verify_jwt = false
+
 [functions.bedrock-upload]
 verify_jwt = true
 
