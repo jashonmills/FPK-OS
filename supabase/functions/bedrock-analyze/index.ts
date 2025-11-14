@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { getSpecializedPrompt } from "../_shared/prompts/index.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -25,8 +26,8 @@ serve(async (req) => {
     const { data: { user }, error: authError } = await supabase.auth.getUser(token);
     if (authError || !user) throw new Error('Unauthorized');
 
-    // 2. Get document ID
-    const { document_id } = await req.json();
+    // 2. Get document ID and processor info
+    const { document_id, category, processor_id } = await req.json();
     documentId = document_id;
     
     if (!document_id) throw new Error('document_id is required');
@@ -52,16 +53,27 @@ serve(async (req) => {
       throw new Error('Document content is missing or too short');
     }
 
-    console.log(`📄 Analyzing: ${doc.file_name} (${doc.category})`);
+    const analysisCategory = category || doc.category;
+    console.log(`📄 Analyzing: ${doc.file_name} (${analysisCategory})`);
+    if (processor_id) {
+      console.log(`🎯 Using processor: ${processor_id}`);
+    }
 
-    // 5. Update status to 'analyzing'
+    // 5. Update status to 'analyzing' and category if provided
+    const updateData: any = { status: 'analyzing' };
+    if (category && category !== doc.category) {
+      updateData.category = category;
+      console.log(`📝 Updating category: ${doc.category} → ${category}`);
+    }
+    
     await supabase
       .from('bedrock_documents')
-      .update({ status: 'analyzing' })
+      .update(updateData)
       .eq('id', document_id);
 
-    // 6. Call Lovable AI for analysis
-    const systemPrompt = `You are analyzing a ${doc.category} document for a student.
+    // 6. Get specialized prompt based on document type
+    const specializedPrompt = getSpecializedPrompt(analysisCategory);
+    const systemPrompt = specializedPrompt || `You are analyzing a ${analysisCategory} document for a student.
 
 Extract the following data and return ONLY valid JSON:
 
