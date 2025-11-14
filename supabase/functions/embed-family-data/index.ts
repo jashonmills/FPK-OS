@@ -31,7 +31,7 @@ serve(async (req) => {
     if (source_table === "bedrock_documents") {
       const { data: bedrockDoc, error: bedrockError } = await supabase
         .from('bedrock_documents')
-        .select('analysis_data, file_name, category, student_id, family_id')
+        .select('analysis_data, file_name, category, student_id, family_id, organization_id')
         .eq('id', source_id)
         .maybeSingle();
 
@@ -95,7 +95,9 @@ Replacement Behavior: ${analysisData.bip_data.replacement_behavior || 'N/A'}`
 
       // Chunk and embed
       const chunks = sharedChunkText(textContent, 8000);
-      console.log(`📦 Created ${chunks.length} chunks for bedrock_documents:${source_id}`);
+      const contextType = bedrockDoc.organization_id ? 'B2B Organization' : 'B2C Family';
+      const contextId = bedrockDoc.organization_id || bedrockDoc.family_id;
+      console.log(`📦 Created ${chunks.length} chunks for ${contextType} ${contextId} - bedrock_documents:${source_id}`);
 
       let embeddingsCreated = 0;
       let failedChunks = 0;
@@ -118,7 +120,8 @@ Replacement Behavior: ${analysisData.bip_data.replacement_behavior || 'N/A'}`
           const { error: insertError } = await supabase
             .from("family_data_embeddings")
             .insert({
-              family_id: bedrockDoc.family_id,
+              family_id: bedrockDoc.family_id || null,
+              organization_id: bedrockDoc.organization_id || null,
               student_id: bedrockDoc.student_id,
               source_table,
               source_id,

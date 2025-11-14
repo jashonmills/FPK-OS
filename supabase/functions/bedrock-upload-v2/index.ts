@@ -69,19 +69,62 @@ serve(async (req) => {
     const fileData = body.file_data_base64 || body.fileData;
     const fileName = body.file_name || body.fileName;
     const familyId = body.family_id || body.familyId;
+    const organizationId = body.organization_id || body.organizationId;
     const studentId = body.student_id || body.studentId;
     const documentDate = body.document_date || body.documentDate;
     const category = body.category || 'other';
     const processorId = body.processor_id;
     
-    if (!fileData || !fileName || !familyId) {
-      throw new Error('Missing required fields: file_data_base64/fileData, file_name/fileName, or family_id/familyId');
+    // Validate: Must have EITHER family_id OR organization_id, but not both
+    if (!fileData || !fileName) {
+      throw new Error('Missing required fields: file_data_base64 and file_name');
+    }
+    if (!familyId && !organizationId) {
+      throw new Error('Must provide either family_id or organization_id');
+    }
+    if (familyId && organizationId) {
+      throw new Error('Cannot specify both family_id and organization_id');
     }
 
     console.log(`📄 Processing: ${fileName}`);
     console.log(`📋 Category: ${category}`);
     console.log(`🎯 Processor ID: ${processorId || 'using fallback'}`);
-    console.log(`👥 Family: ${familyId}, Student: ${studentId || 'none'}`);
+    if (familyId) {
+      console.log(`👨‍👩‍👧 B2C Upload - Family: ${familyId}, Student: ${studentId || 'none'}`);
+    } else {
+      console.log(`🏢 B2B Upload - Org: ${organizationId}, Student: ${studentId || 'none'}`);
+    }
+
+    // If organization context, verify user membership and permissions
+    if (organizationId) {
+      console.log(`🔐 Validating B2B permissions...`);
+      
+      // Verify user is a member of this organization
+      const { data: membership, error: memberError } = await supabase.rpc(
+        'is_organization_member',
+        { _user_id: user.id, _org_id: organizationId }
+      );
+      
+      if (memberError || !membership) {
+        throw new Error('You do not have permission to upload documents for this organization');
+      }
+      
+      // If student specified, verify they belong to this organization
+      if (studentId) {
+        const { data: student, error: studentError } = await supabase
+          .from('students')
+          .select('id')
+          .eq('id', studentId)
+          .eq('organization_id', organizationId)
+          .maybeSingle();
+        
+        if (studentError || !student) {
+          throw new Error('Student not found or does not belong to this organization');
+        }
+      }
+      
+      console.log(`✅ B2B permissions validated`);
+    }
 
     // Decode file
     const fileBytes = Uint8Array.from(atob(fileData), c => c.charCodeAt(0));
@@ -92,7 +135,8 @@ serve(async (req) => {
     // Upload to storage
     const timestamp = Date.now();
     const sanitizedFileName = fileName.replace(/[^a-zA-Z0-9.-]/g, '_');
-    const storagePath = `${familyId}/${timestamp}_${sanitizedFileName}`;
+    const contextId = familyId || organizationId;
+    const storagePath = `${contextId}/${timestamp}_${sanitizedFileName}`;
 
     console.log(`💾 Uploading to storage: ${storagePath}`);
 
@@ -206,7 +250,8 @@ serve(async (req) => {
     const { data: document, error: dbError } = await supabase
       .from('bedrock_documents')
       .insert({
-        family_id: familyId,
+        family_id: familyId || null,
+        organization_id: organizationId || null,
         student_id: studentId,
         file_name: fileName,
         file_path: storagePath,
