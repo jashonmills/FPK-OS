@@ -4,6 +4,7 @@
 // ***********************************************************
 
 import './commands';
+import 'cypress-axe';
 
 // Hide fetch/XHR logs to reduce noise in the command log
 const app = window.top;
@@ -21,3 +22,24 @@ Cypress.on('uncaught:exception', (err) => {
   console.log('Uncaught exception:', err.message);
   return false;
 });
+
+// Performance metrics collection
+let performanceMetrics: Record<string, number[]> = {};
+
+Cypress.on('test:before:run', () => {
+  // Reset metrics for each test
+  performanceMetrics = {};
+});
+
+Cypress.on('test:after:run', (test) => {
+  // Log performance metrics after each test
+  if (Object.keys(performanceMetrics).length > 0) {
+    cy.task('logPerformanceMetrics', {
+      testTitle: test.title,
+      metrics: performanceMetrics
+    }, { log: false });
+  }
+});
+
+// Make performance metrics available globally
+(window as any).performanceMetrics = performanceMetrics;

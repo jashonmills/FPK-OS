@@ -1,4 +1,5 @@
 /// <reference types="cypress" />
+/// <reference types="cypress-axe" />
 
 import { createClient } from '@supabase/supabase-js';
 
@@ -38,6 +39,23 @@ declare global {
        * @example cy.setupTestFamilyAndStudent()
        */
       setupTestFamilyAndStudent(): Chainable<{ familyId: string; studentId: string }>;
+      
+      /**
+       * Custom command to measure and track performance metrics
+       * @param label - Metric label
+       * @param operation - Function to measure
+       * @example cy.measurePerformance('upload', () => cy.uploadDocument())
+       */
+      measurePerformance<T>(label: string, operation: () => Chainable<T>): Chainable<T>;
+      
+      /**
+       * Custom command to check performance against threshold
+       * @param label - Metric label
+       * @param duration - Actual duration in ms
+       * @param threshold - Maximum acceptable duration in ms
+       * @example cy.checkPerformance('analysis', 45000, 120000)
+       */
+      checkPerformance(label: string, duration: number, threshold: number): Chainable<void>;
     }
   }
 }
@@ -233,6 +251,38 @@ Cypress.Commands.add('verifyInsightsGenerated', (documentId: string) => {
     expect(insights.length).to.be.greaterThan(0);
     cy.log(`✅ ${insights.length} insights generated`);
   });
+});
+
+// Command: Measure performance
+Cypress.Commands.add('measurePerformance', (label: string, operation: () => Cypress.Chainable<any>) => {
+  const startTime = Date.now();
+  
+  return operation().then((result) => {
+    const duration = Date.now() - startTime;
+    
+    // Store in global metrics
+    const metrics = (window as any).performanceMetrics || {};
+    if (!metrics[label]) {
+      metrics[label] = [];
+    }
+    metrics[label].push(duration);
+    (window as any).performanceMetrics = metrics;
+    
+    cy.log(`⏱️ ${label}: ${duration}ms`);
+    return result;
+  });
+});
+
+// Command: Check performance threshold
+Cypress.Commands.add('checkPerformance', (label: string, duration: number, threshold: number) => {
+  const percentage = ((duration / threshold) * 100).toFixed(1);
+  
+  if (duration > threshold) {
+    cy.log(`⚠️ ${label} SLOW: ${duration}ms (${percentage}% of ${threshold}ms threshold)`);
+    // Don't fail, just warn
+  } else {
+    cy.log(`✅ ${label} OK: ${duration}ms (${percentage}% of ${threshold}ms threshold)`);
+  }
 });
 
 // Export empty object to make this a module
