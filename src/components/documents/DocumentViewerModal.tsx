@@ -169,12 +169,20 @@ export function DocumentViewerModal({ open, onOpenChange, document }: DocumentVi
                   <Button variant="outline" size="sm" onClick={handleResetZoom}>
                     <Maximize2 className="h-4 w-4" />
                   </Button>
-                  <Button variant="outline" size="sm" onClick={handleRotate}>
+                  <Button variant="outline" size="sm" onClick={handleRotate} title="Rotate page">
                     <RotateCw className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    variant={showAnnotations ? "default" : "outline"} 
+                    size="sm" 
+                    onClick={() => setShowAnnotations(!showAnnotations)}
+                    title="Toggle Annotations"
+                  >
+                    <Pencil className="h-4 w-4" />
                   </Button>
                 </>
               )}
-              <Button variant="outline" size="sm" onClick={handleDownload}>
+              <Button variant="outline" size="sm" onClick={handleDownload} title="Download">
                 <Download className="mr-2 h-4 w-4" />
                 Download
               </Button>
@@ -199,13 +207,7 @@ export function DocumentViewerModal({ open, onOpenChange, document }: DocumentVi
                 />
               )}
               <div className="flex-1 overflow-auto">
-                <div 
-                  className="flex flex-col items-center py-4"
-                  style={{
-                    transform: `rotate(${rotation}deg)`,
-                    transition: 'transform 0.3s ease',
-                  }}
-                >
+                <div className="flex flex-col items-center py-4">
                   <div className="relative">
                     <Document
                       file={signedUrl}
