@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -18,7 +19,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { useFamily } from '@/contexts/FamilyContext';
 import { toast } from 'sonner';
-import { Upload, Loader2, Sparkles, Eye, Download, Trash2, RefreshCw, CheckSquare, Square } from 'lucide-react';
+import { Upload, Loader2, Sparkles, Eye, Download, Trash2, RefreshCw, CheckSquare, Square, MessageSquare } from 'lucide-react';
 import { format } from 'date-fns';
 import { ReAnalysisButton } from '../ReAnalysisButton';
 import { DocumentViewerModal } from '@/components/documents/DocumentViewerModal';
@@ -28,6 +29,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { DocumentFilters } from './DocumentFilters';
 import { useMemo } from 'react';
 import { OracleRecommendation } from './OracleRecommendation';
+import { AIInsightsDashboard } from '@/components/dashboard/AIInsightsDashboard';
+import { TeamDiscussion } from '@/components/shared/TeamDiscussion';
 
 // Elite Classification System - Full Catalog
 export const DOCUMENT_TYPE_CATEGORIES = {
@@ -819,6 +822,56 @@ export function BedrockDocumentPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Intelligence Hub - AI Insights & Team Discussion */}
+      {selectedStudent && selectedFamily && (
+        <Card className="mt-6">
+          <Tabs defaultValue="insights" className="w-full">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-primary" />
+                  Intelligence Hub
+                </CardTitle>
+                <TabsList className="grid w-auto grid-cols-2">
+                  <TabsTrigger value="insights">
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    AI Insights
+                  </TabsTrigger>
+                  <TabsTrigger value="discussion">
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    Team Discussion
+                  </TabsTrigger>
+                </TabsList>
+              </div>
+            </CardHeader>
+
+            <CardContent className="pt-0">
+              {/* AI Insights Tab */}
+              <TabsContent value="insights" className="mt-0">
+                <AIInsightsDashboard 
+                  studentId={selectedStudent.id} 
+                  familyId={selectedFamily.id}
+                  onViewDocument={(docId) => {
+                    const doc = documents?.find(d => d.id === docId);
+                    if (doc) setViewerDocument(doc);
+                  }}
+                />
+              </TabsContent>
+
+              {/* Team Discussion Tab */}
+              <TabsContent value="discussion" className="mt-0">
+                <TeamDiscussion
+                  entityType="student"
+                  entityId={selectedStudent.id}
+                  familyId={selectedFamily.id}
+                  placeholder="Discuss documents, share insights, or ask questions about your student's records..."
+                />
+              </TabsContent>
+            </CardContent>
+          </Tabs>
+        </Card>
+      )}
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={!!deleteConfirmDoc} onOpenChange={(open) => !open && setDeleteConfirmDoc(null)}>
