@@ -67,7 +67,7 @@ Document Analysis - ${bedrockDoc.file_name}
 Category: ${bedrockDoc.category}
 
 ${analysisData.insights?.map((insight: any) => 
-  `${insight.type}: ${insight.content}`
+  `${insight.insight_type || insight.title || 'Insight'}: ${insight.content}`
 ).join('\n\n') || ''}
 
 ${analysisData.metrics?.map((metric: any) =>
