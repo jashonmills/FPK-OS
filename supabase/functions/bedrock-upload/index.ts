@@ -80,9 +80,10 @@ serve(async (req) => {
         throw new Error('Service account JSON missing required fields (private_key, client_email, project_id)');
       }
     } catch (e) {
-      console.error('❌ Failed to parse Google credentials:', e.message);
+      const error = e as Error;
+      console.error('❌ Failed to parse Google credentials:', error.message);
       await supabase.storage.from('bedrock-storage').remove([filePath]);
-      throw new Error(`Invalid Google credentials: ${e.message}`);
+      throw new Error(`Invalid Google credentials: ${error.message}`);
     }
 
     console.log('🔐 Authenticating with Google Document AI...');

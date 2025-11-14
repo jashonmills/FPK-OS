@@ -40,8 +40,14 @@ serve(async (req) => {
         break;
       }
 
+      const jobData = job as {
+        queue_id: string;
+        document_id: string;
+        retry_count: number;
+      };
+
       processedCount++;
-      console.log(`📄 Processing job ${job.queue_id} for document ${job.document_id} (attempt ${job.retry_count + 1})`);
+      console.log(`📄 Processing job ${jobData.queue_id} for document ${jobData.document_id} (attempt ${jobData.retry_count + 1})`);
 
       try {
         // Call extract-text-with-vision
@@ -49,8 +55,8 @@ serve(async (req) => {
           'extract-text-with-vision',
           {
             body: {
-              document_id: job.document_id,
-              force_re_extract: job.retry_count > 0
+              document_id: jobData.document_id,
+              force_re_extract: jobData.retry_count > 0
             }
           }
         );
@@ -70,18 +76,18 @@ serve(async (req) => {
               model_used: extractionResult.model_used
             }
           })
-          .eq('id', job.queue_id);
+          .eq('id', jobData.queue_id);
 
         successCount++;
-        console.log(`✅ Successfully processed document ${job.document_id}`);
+        console.log(`✅ Successfully processed document ${jobData.document_id}`);
 
       } catch (error) {
         failedCount++;
         const errorMsg = error instanceof Error ? error.message : 'Unknown error';
-        console.error(`❌ Failed to process document ${job.document_id}: ${errorMsg}`);
+        console.error(`❌ Failed to process document ${jobData.document_id}: ${errorMsg}`);
 
         // Check if should retry
-        const shouldRetry = job.retry_count < 3;
+        const shouldRetry = jobData.retry_count < 3;
 
         if (shouldRetry) {
           // Mark for retry
@@ -89,13 +95,13 @@ serve(async (req) => {
             .from('extraction_queue')
             .update({
               status: 'pending',
-              retry_count: job.retry_count + 1,
+              retry_count: jobData.retry_count + 1,
               error_message: errorMsg,
               started_at: null
             })
-            .eq('id', job.queue_id);
+            .eq('id', jobData.queue_id);
           
-          console.log(`🔄 Queued for retry (attempt ${job.retry_count + 2}/3)`);
+          console.log(`🔄 Queued for retry (attempt ${jobData.retry_count + 2}/3)`);
         } else {
           // Mark as failed
           await supabase
@@ -105,7 +111,7 @@ serve(async (req) => {
               completed_at: new Date().toISOString(),
               error_message: `Max retries exceeded: ${errorMsg}`
             })
-            .eq('id', job.queue_id);
+            .eq('id', jobData.queue_id);
           
           console.log(`❌ Max retries exceeded, marked as failed`);
         }

@@ -817,7 +817,7 @@ serve(async (req) => {
           .update({
             status: 'pending',
             started_at: null,
-            error_message: `Fatal error: ${error.message}. Reset for retry.`,
+            error_message: `Fatal error: ${error instanceof Error ? error.message : 'Unknown error'}. Reset for retry.`,
             updated_at: new Date().toISOString()
           })
           .eq('job_id', currentJobId)
@@ -828,7 +828,7 @@ serve(async (req) => {
           .from('analysis_jobs')
           .update({
             status: 'failed',
-            error_message: `Fatal error: ${error.message}`,
+            error_message: `Fatal error: ${error instanceof Error ? error.message : 'Unknown error'}`,
             completed_at: new Date().toISOString()
           })
           .eq('id', currentJobId);

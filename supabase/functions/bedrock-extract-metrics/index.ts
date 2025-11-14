@@ -29,14 +29,15 @@ serve(async (req) => {
       .from("bedrock_documents")
       .select("*")
       .eq("id", document_id)
+      .in("status", ["complete", "completed"])
       .single();
 
     if (fetchError || !document) {
       throw new Error(`Failed to fetch document: ${fetchError?.message}`);
     }
 
-    if (document.status !== "complete" || !document.analysis_data) {
-      throw new Error("Document analysis not complete or no analysis data available");
+    if (!document.analysis_data) {
+      throw new Error("No analysis data available");
     }
 
     // Parse the analysis_data JSONB
