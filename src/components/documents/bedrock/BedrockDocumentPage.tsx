@@ -21,6 +21,7 @@ import { toast } from 'sonner';
 import { Upload, Loader2, Sparkles, Eye, Download, Trash2, RefreshCw } from 'lucide-react';
 import { format } from 'date-fns';
 import { ReAnalysisButton } from '../ReAnalysisButton';
+import { DocumentViewerModal } from '@/components/documents/DocumentViewerModal';
 
 // Phase 3: Document categories for intelligent routing
 const DOCUMENT_CATEGORIES = [
@@ -50,6 +51,7 @@ export function BedrockDocumentPage() {
   const [deletingDoc, setDeletingDoc] = useState<string | null>(null);
   const [analyzingDoc, setAnalyzingDoc] = useState<string | null>(null);
   const [deleteConfirmDoc, setDeleteConfirmDoc] = useState<any>(null);
+  const [viewerDocument, setViewerDocument] = useState<any>(null);
 
   // Fetch documents
   const { data: documents, isLoading } = useQuery({
@@ -120,22 +122,8 @@ export function BedrockDocumentPage() {
     }
   };
 
-  const handleViewDocument = async (doc: any) => {
-    try {
-      setViewingDoc(doc.id);
-      const { data, error } = await supabase.storage
-        .from('bedrock-storage')
-        .createSignedUrl(doc.file_path, 3600);
-      
-      if (error) throw error;
-      if (data?.signedUrl) {
-        window.open(data.signedUrl, '_blank');
-      }
-    } catch (error: any) {
-      toast.error(error.message || 'Could not open document');
-    } finally {
-      setViewingDoc(null);
-    }
+  const handleViewDocument = (doc: any) => {
+    setViewerDocument(doc);
   };
 
   const handleDownloadDocument = async (doc: any) => {
@@ -427,6 +415,12 @@ export function BedrockDocumentPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <DocumentViewerModal
+        open={!!viewerDocument}
+        onOpenChange={(open) => !open && setViewerDocument(null)}
+        document={viewerDocument}
+      />
     </div>
   );
 }

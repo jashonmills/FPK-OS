@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Download, Loader2, RotateCw, MessageSquare, FileText } from "lucide-react";
+import { Download, Loader2, RotateCw, MessageSquare, FileText, ZoomIn, ZoomOut, Maximize2 } from "lucide-react";
 import { toast } from "sonner";
 import { Document, Page, pdfjs } from "react-pdf";
 import { TeamDiscussion } from "@/components/shared/TeamDiscussion";
@@ -25,6 +25,7 @@ export function DocumentViewerModal({ open, onOpenChange, document }: DocumentVi
   const [pageNumber, setPageNumber] = useState<number>(1);
   const [loading, setLoading] = useState(true);
   const [rotation, setRotation] = useState<number>(0);
+  const [scale, setScale] = useState<number>(1.0);
 
   useEffect(() => {
     if (document && open) {
@@ -40,22 +41,22 @@ export function DocumentViewerModal({ open, onOpenChange, document }: DocumentVi
     try {
       // Extract the storage path from file_path
       // file_path can be either:
-      // 1. Full URL: https://...supabase.co/storage/v1/object/public/family-documents/path/to/file.pdf
+      // 1. Full URL: https://...supabase.co/storage/v1/object/public/bedrock-storage/path/to/file.pdf
       // 2. Storage path: e5c4f130-ffcb-4a0c-8dbc-d8089eb6f976/file-id-file.pdf
       let storagePath = document.file_path;
       
       // If it's a full URL, extract just the path portion
-      if (storagePath.includes('/storage/v1/object/public/family-documents/')) {
-        storagePath = storagePath.split('/storage/v1/object/public/family-documents/')[1];
-      } else if (storagePath.includes('/storage/v1/object/family-documents/')) {
+      if (storagePath.includes('/storage/v1/object/public/bedrock-storage/')) {
+        storagePath = storagePath.split('/storage/v1/object/public/bedrock-storage/')[1];
+      } else if (storagePath.includes('/storage/v1/object/bedrock-storage/')) {
         // Handle private URLs without 'public'
-        storagePath = storagePath.split('/storage/v1/object/family-documents/')[1];
+        storagePath = storagePath.split('/storage/v1/object/bedrock-storage/')[1];
       }
 
       console.log('Fetching signed URL for storage path:', storagePath);
 
       const { data, error } = await supabase.storage
-        .from("family-documents")
+        .from("bedrock-storage")
         .createSignedUrl(storagePath, 3600); // 1 hour
 
       if (error) {
@@ -84,9 +85,45 @@ export function DocumentViewerModal({ open, onOpenChange, document }: DocumentVi
     setRotation((prev) => (prev + 90) % 360);
   };
 
+  const handleZoomIn = () => {
+    setScale((prev) => Math.min(prev + 0.25, 3.0));
+  };
+
+  const handleZoomOut = () => {
+    setScale((prev) => Math.max(prev - 0.25, 0.5));
+  };
+
+  const handleResetZoom = () => {
+    setScale(1.0);
+  };
+
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
   };
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    if (!open) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft' && pageNumber > 1) {
+        setPageNumber((prev) => prev - 1);
+      } else if (e.key === 'ArrowRight' && pageNumber < numPages) {
+        setPageNumber((prev) => prev + 1);
+      } else if (e.key === '+' || e.key === '=') {
+        handleZoomIn();
+      } else if (e.key === '-') {
+        handleZoomOut();
+      } else if (e.key === 'r' || e.key === 'R') {
+        handleRotate();
+      } else if (e.key === 'Escape') {
+        onOpenChange(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [open, pageNumber, numPages, onOpenChange]);
 
   if (!document) return null;
 
@@ -100,9 +137,23 @@ export function DocumentViewerModal({ open, onOpenChange, document }: DocumentVi
             <DialogTitle>{document.file_name}</DialogTitle>
             <div className="flex items-center gap-2">
               {isPDF && (
-                <Button variant="outline" size="sm" onClick={handleRotate}>
-                  <RotateCw className="h-4 w-4" />
-                </Button>
+                <>
+                  <Button variant="outline" size="sm" onClick={handleZoomOut} disabled={scale <= 0.5}>
+                    <ZoomOut className="h-4 w-4" />
+                  </Button>
+                  <span className="text-sm text-muted-foreground min-w-[4rem] text-center">
+                    {Math.round(scale * 100)}%
+                  </span>
+                  <Button variant="outline" size="sm" onClick={handleZoomIn} disabled={scale >= 3.0}>
+                    <ZoomIn className="h-4 w-4" />
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={handleResetZoom}>
+                    <Maximize2 className="h-4 w-4" />
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={handleRotate}>
+                    <RotateCw className="h-4 w-4" />
+                  </Button>
+                </>
               )}
               <Button variant="outline" size="sm" onClick={handleDownload}>
                 <Download className="mr-2 h-4 w-4" />
@@ -142,7 +193,7 @@ export function DocumentViewerModal({ open, onOpenChange, document }: DocumentVi
                   onLoadSuccess={onDocumentLoadSuccess}
                   loading={<Loader2 className="h-8 w-8 animate-spin" />}
                 >
-                  <Page pageNumber={pageNumber} width={700} />
+                  <Page pageNumber={pageNumber} scale={scale} rotate={rotation} />
                 </Document>
                 
                 {numPages > 1 && (
