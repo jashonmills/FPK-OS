@@ -1,0 +1,123 @@
+name: OPERATION SENTINEL - E2E Tests
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+  # Allow manual trigger
+  workflow_dispatch:
+
+jobs:
+  cypress-run:
+    name: Run Cypress E2E Tests
+    runs-on: ubuntu-22.04
+    
+    strategy:
+      # Run tests even if one fails
+      fail-fast: false
+      matrix:
+        # Run tests in parallel across multiple containers
+        containers: [1, 2]
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci
+
+      - name: 🔨 Build Application
+        run: npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+
+      - name: 🎯 Create Cypress Environment Config
+        run: |
+          echo '{
+            "SUPABASE_URL": "${{ secrets.VITE_SUPABASE_URL }}",
+            "SUPABASE_ANON_KEY": "${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}",
+            "TEST_USER_EMAIL": "${{ secrets.CYPRESS_TEST_USER_EMAIL }}",
+            "TEST_USER_PASSWORD": "${{ secrets.CYPRESS_TEST_USER_PASSWORD }}"
+          }' > cypress.env.json
+
+      - name: 🚀 Run Cypress Tests
+        uses: cypress-io/github-action@v6
+        with:
+          # Start dev server for testing
+          start: npm run dev
+          wait-on: 'http://localhost:8080'
+          wait-on-timeout: 120
+          # Run tests in parallel
+          record: true
+          parallel: true
+          # Browser selection
+          browser: chrome
+          # Spec pattern
+          spec: cypress/e2e/**/*.cy.ts
+        env:
+          # Cypress Cloud (optional - for recording)
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          # GitHub Actions metadata
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Supabase credentials
+          CYPRESS_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          CYPRESS_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+
+      - name: 📊 Upload Test Screenshots (on failure)
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: cypress-screenshots-${{ matrix.containers }}
+          path: cypress/screenshots
+          if-no-files-found: ignore
+
+      - name: 📹 Upload Test Videos
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cypress-videos-${{ matrix.containers }}
+          path: cypress/videos
+          if-no-files-found: ignore
+
+      - name: 📝 Generate Test Report
+        if: always()
+        run: |
+          echo "## 🎯 Operation Sentinel - Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Container ${{ matrix.containers }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ ${{ job.status }} == 'success' ]; then
+            echo "✅ All tests passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Some tests failed - check artifacts for details" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # Aggregate results from parallel runs
+  test-results:
+    name: Aggregate Test Results
+    needs: cypress-run
+    runs-on: ubuntu-22.04
+    if: always()
+    
+    steps:
+      - name: 📊 Check Test Results
+        run: |
+          echo "## 🎯 Operation Sentinel - Final Status" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ needs.cypress-run.result }}" == "success" ]; then
+            echo "✅ **ALL TESTS PASSED** - Pipeline integrity verified" >> $GITHUB_STEP_SUMMARY
+            exit 0
+          else
+            echo "❌ **TESTS FAILED** - Pipeline breach detected" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Review the test artifacts and logs above for details." >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
