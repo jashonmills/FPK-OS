@@ -46,11 +46,17 @@ serve(async (req) => {
 
     console.log(`✓ User authenticated: ${user.id}`);
 
-    // Parse request body
-    const { fileData, fileName, category = 'other', familyId, studentId, documentDate } = await req.json();
+    // Parse request body - accept both snake_case (frontend) and camelCase formats
+    const body = await req.json();
+    const fileData = body.file_data_base64 || body.fileData;
+    const fileName = body.file_name || body.fileName;
+    const familyId = body.family_id || body.familyId;
+    const studentId = body.student_id || body.studentId;
+    const documentDate = body.document_date || body.documentDate;
+    const category = body.category || 'other';
     
     if (!fileData || !fileName || !familyId) {
-      throw new Error('Missing required fields: fileData, fileName, or familyId');
+      throw new Error('Missing required fields: file_data_base64/fileData, file_name/fileName, or family_id/familyId');
     }
 
     console.log(`📄 Processing: ${fileName}`);
