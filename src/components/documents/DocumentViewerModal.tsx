@@ -284,8 +284,8 @@ export function DocumentViewerModal({ open, onOpenChange, document }: DocumentVi
             )}
           </TabsContent>
 
-          <TabsContent value="insights" className="flex-1 overflow-hidden mt-0">
-            <div className="max-w-4xl mx-auto h-full">
+          <TabsContent value="insights" className="flex-1 overflow-hidden mt-0 flex flex-col items-start">
+            <div className="w-full max-w-4xl mx-auto">
               <DocumentInsightsTab
                 documentId={document.id}
                 analysisData={document.analysis_data}
@@ -294,8 +294,8 @@ export function DocumentViewerModal({ open, onOpenChange, document }: DocumentVi
             </div>
           </TabsContent>
 
-          <TabsContent value="discussion" className="flex-1 overflow-auto mt-0">
-            <div className="max-w-4xl mx-auto py-6 px-4">
+          <TabsContent value="discussion" className="flex-1 overflow-auto mt-0 flex flex-col items-start">
+            <div className="w-full max-w-4xl mx-auto py-6 px-4">
               <TeamDiscussion 
                 entityType="document"
                 entityId={document.id}
