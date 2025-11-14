@@ -3,12 +3,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Download, Loader2, RotateCw, MessageSquare, FileText, ZoomIn, ZoomOut, Maximize2, Image } from "lucide-react";
+import { Download, Loader2, RotateCw, MessageSquare, FileText, ZoomIn, ZoomOut, Maximize2, Image, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { Document, Page, pdfjs } from "react-pdf";
 import { TeamDiscussion } from "@/components/shared/TeamDiscussion";
 import { ThumbnailSidebar } from "./ThumbnailSidebar";
 import { DocumentAnnotations } from "./DocumentAnnotations";
+import { DocumentInsightsTab } from "./bedrock/DocumentInsightsTab";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "react-pdf/dist/esm/Page/TextLayer.css";
 
@@ -184,10 +185,14 @@ export function DocumentViewerModal({ open, onOpenChange, document }: DocumentVi
         </DialogHeader>
 
         <Tabs defaultValue="preview" className="flex-1 flex flex-col overflow-hidden">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="preview">
               <FileText className="mr-2 h-4 w-4" />
               Preview
+            </TabsTrigger>
+            <TabsTrigger value="insights">
+              <Sparkles className="mr-2 h-4 w-4" />
+              Insights
             </TabsTrigger>
             <TabsTrigger value="discussion">
               <MessageSquare className="mr-2 h-4 w-4" />
@@ -277,6 +282,14 @@ export function DocumentViewerModal({ open, onOpenChange, document }: DocumentVi
                 </Button>
               </div>
             )}
+          </TabsContent>
+
+          <TabsContent value="insights" className="flex-1 overflow-hidden mt-4">
+            <DocumentInsightsTab
+              documentId={document.id}
+              analysisData={document.analysis_data}
+              category={document.category}
+            />
           </TabsContent>
 
           <TabsContent value="discussion" className="flex-1 overflow-auto mt-4">
