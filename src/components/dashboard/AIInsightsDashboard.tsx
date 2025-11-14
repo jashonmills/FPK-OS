@@ -1,8 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Sparkles, AlertTriangle, Info, X, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import { useState } from 'react';
@@ -100,110 +100,118 @@ export function AIInsightsDashboard({ studentId, familyId, onViewDocument }: AII
 
   if (isLoading) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5" />
-            Key AI Insights
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-20 bg-muted animate-pulse rounded-lg" />
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      <Accordion type="single" collapsible defaultValue={undefined} className="w-full">
+        <AccordionItem value="insights" className="border rounded-lg">
+          <AccordionTrigger className="px-6 py-4 hover:no-underline">
+            <div className="flex items-center gap-2 w-full">
+              <Sparkles className="h-5 w-5 text-primary" />
+              <span className="font-semibold text-lg">Key AI Insights</span>
+            </div>
+          </AccordionTrigger>
+          <AccordionContent className="px-6 pb-4">
+            <div className="space-y-3 pt-2">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-20 bg-muted animate-pulse rounded-lg" />
+              ))}
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     );
   }
 
   if (!insights || insights.length === 0) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5" />
-            Key AI Insights
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">
-            No high-priority insights yet. Upload and analyze documents to see key findings here.
-          </p>
-        </CardContent>
-      </Card>
+      <Accordion type="single" collapsible defaultValue={undefined} className="w-full">
+        <AccordionItem value="insights" className="border rounded-lg">
+          <AccordionTrigger className="px-6 py-4 hover:no-underline">
+            <div className="flex items-center gap-2 w-full">
+              <Sparkles className="h-5 w-5 text-primary" />
+              <span className="font-semibold text-lg">Key AI Insights</span>
+            </div>
+          </AccordionTrigger>
+          <AccordionContent className="px-6 pb-4">
+            <p className="text-sm text-muted-foreground pt-2">
+              No high-priority insights yet. Upload and analyze documents to see key findings here.
+            </p>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     );
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-primary" />
-          Key AI Insights
-          <Badge variant="secondary" className="ml-auto">
-            {insights.length} active
-          </Badge>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        {insights.map((insight) => (
-          <div
-            key={insight.id}
-            className="flex items-start gap-3 p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
-          >
-            <div className={`mt-0.5 ${insight.insight_level === 'HIGH' ? 'text-destructive' : 'text-muted-foreground'}`}>
-              {getLevelIcon(insight.insight_level)}
-            </div>
-            
-            <div className="flex-1 space-y-1.5">
-              <div className="flex items-start justify-between gap-2">
-                <p className="text-sm leading-relaxed">{insight.insight_text}</p>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6 shrink-0"
-                  onClick={() => handleDismiss(insight.id)}
-                  disabled={dismissingId === insight.id}
-                >
-                  <X className="h-3.5 w-3.5" />
-                </Button>
-              </div>
-
-              <div className="flex items-center gap-2 flex-wrap">
-                <Badge variant={getLevelColor(insight.insight_level)} className="text-xs">
-                  {insight.insight_level}
-                </Badge>
-                
-                {insight.insight_category && (
-                  <Badge variant="outline" className="text-xs">
-                    {insight.insight_category}
-                  </Badge>
-                )}
-
-                {insight.confidence_score && (
-                  <span className="text-xs text-muted-foreground">
-                    {Math.round(insight.confidence_score * 100)}% confidence
-                  </span>
-                )}
-
-                {onViewDocument && (
-                  <Button
-                    variant="link"
-                    size="sm"
-                    className="h-auto p-0 text-xs ml-auto"
-                    onClick={() => onViewDocument(insight.source_document_id)}
-                  >
-                    <FileText className="h-3 w-3 mr-1" />
-                    View Source
-                  </Button>
-                )}
-              </div>
-            </div>
+    <Accordion type="single" collapsible defaultValue={undefined} className="w-full">
+      <AccordionItem value="insights" className="border rounded-lg">
+        <AccordionTrigger className="px-6 py-4 hover:no-underline">
+          <div className="flex items-center gap-2 w-full">
+            <Sparkles className="h-5 w-5 text-primary" />
+            <span className="font-semibold text-lg">Key AI Insights</span>
+            <Badge variant="secondary" className="ml-auto mr-8">
+              {insights.length} active
+            </Badge>
           </div>
-        ))}
-      </CardContent>
-    </Card>
+        </AccordionTrigger>
+        <AccordionContent className="px-6 pb-4">
+          <div className="space-y-3 pt-2">
+            {insights.map((insight) => (
+              <div
+                key={insight.id}
+                className="flex items-start gap-3 p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
+              >
+                <div className={`mt-0.5 ${insight.insight_level === 'HIGH' ? 'text-destructive' : 'text-muted-foreground'}`}>
+                  {getLevelIcon(insight.insight_level)}
+                </div>
+                
+                <div className="flex-1 space-y-1.5">
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="text-sm leading-relaxed">{insight.insight_text}</p>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 shrink-0"
+                      onClick={() => handleDismiss(insight.id)}
+                      disabled={dismissingId === insight.id}
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Badge variant={getLevelColor(insight.insight_level)} className="text-xs">
+                      {insight.insight_level}
+                    </Badge>
+                    
+                    {insight.insight_category && (
+                      <Badge variant="outline" className="text-xs">
+                        {insight.insight_category}
+                      </Badge>
+                    )}
+
+                    {insight.confidence_score && (
+                      <span className="text-xs text-muted-foreground">
+                        {Math.round(insight.confidence_score * 100)}% confidence
+                      </span>
+                    )}
+
+                    {onViewDocument && (
+                      <Button
+                        variant="link"
+                        size="sm"
+                        className="h-auto p-0 text-xs ml-auto"
+                        onClick={() => onViewDocument(insight.source_document_id)}
+                      >
+                        <FileText className="h-3 w-3 mr-1" />
+                        View Source
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
   );
 }

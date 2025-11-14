@@ -57,14 +57,6 @@ const Dashboard = () => {
         </div>
 
         <AnalysisQueueStatus />
-        
-        <AIInsightsDashboard 
-          studentId={selectedStudent.id}
-          familyId={selectedFamily.id}
-          onViewDocument={(docId) => {
-            navigate(`/documents?doc=${docId}`);
-          }}
-        />
 
         <StudentOverview />
 
@@ -82,6 +74,14 @@ const Dashboard = () => {
 
           <TabsContent value="logs" className="space-y-4">
             <EducatorLogsSection />
+            
+            <AIInsightsDashboard 
+              studentId={selectedStudent.id}
+              familyId={selectedFamily.id}
+              onViewDocument={(docId) => {
+                navigate(`/documents?doc=${docId}`);
+              }}
+            />
           </TabsContent>
 
           <TabsContent value="discussion" className="space-y-4">
