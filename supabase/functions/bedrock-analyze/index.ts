@@ -276,18 +276,23 @@ Return ONLY the JSON object, no markdown or explanation.`;
 
     // 8. Queue document for embedding into AI memory
     try {
+      const contextType = doc.organization_id ? 'B2B Org' : 'B2C Family';
+      const contextId = doc.organization_id || doc.family_id;
+      
       const { error: queueError } = await supabase
         .from('embedding_queue')
         .insert({
           source_table: 'bedrock_documents',
           source_id: document_id,
-          family_id: doc.family_id,
+          family_id: doc.family_id || null,
+          organization_id: doc.organization_id || null,
           student_id: doc.student_id,
           status: 'pending',
           metadata: {
             source: 'bedrock-analyze-function',
             document_name: doc.file_name,
-            category: doc.category
+            category: doc.category,
+            context_type: doc.organization_id ? 'organization' : 'family'
           }
         });
 
@@ -295,7 +300,7 @@ Return ONLY the JSON object, no markdown or explanation.`;
         // Log but don't throw - analysis succeeded even if queuing failed
         console.error(`⚠️ Failed to queue document ${document_id} for embedding:`, queueError.message);
       } else {
-        console.log(`✅ Document ${document_id} queued for embedding (${doc.file_name})`);
+        console.log(`✅ Document ${document_id} queued for embedding (${contextType}: ${contextId})`);
       }
     } catch (queueError) {
       console.error('⚠️ Embedding queue insertion error:', queueError);
