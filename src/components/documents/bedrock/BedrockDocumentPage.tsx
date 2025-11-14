@@ -13,7 +13,16 @@ import { format } from 'date-fns';
 import { LegacyDataMigrationPanel } from '../LegacyDataMigrationPanel';
 import { ReAnalysisButton } from '../ReAnalysisButton';
 
+// Phase 3: Document categories for intelligent routing
 const DOCUMENT_CATEGORIES = [
+  { value: 'other', label: 'General Document (OCR)', description: 'Standard text extraction for most documents' },
+  { value: 'form', label: 'Form or Table', description: 'Optimized for forms, tables, and structured data' },
+  { value: 'layout', label: 'Layout Analysis', description: 'Preserves complex layouts and formatting' },
+  { value: 'iep', label: 'IEP (Specialized)', description: 'Specialized processor for IEP documents' },
+];
+
+// Legacy categories for document classification (post-upload)
+const LEGACY_CATEGORIES = [
   { value: 'iep', label: 'IEP (Individualized Education Program)' },
   { value: 'progress_report', label: 'Progress Report' },
   { value: 'medical', label: 'Medical Record' },
@@ -25,6 +34,7 @@ export function BedrockDocumentPage() {
   const { selectedFamily, selectedStudent } = useFamily();
   const queryClient = useQueryClient();
   const [uploading, setUploading] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('other'); // Phase 3: Category selection state
 
   // Fetch documents
   const { data: documents, isLoading } = useQuery({
@@ -66,13 +76,14 @@ export function BedrockDocumentPage() {
       reader.readAsDataURL(file);
       const base64 = await base64Promise;
 
-      // Call atomic upload function (v2 with fresh environment)
+      // Call atomic upload function (v2 with intelligent routing)
       const { data, error } = await supabase.functions.invoke('bedrock-upload-v2', {
         body: {
           family_id: selectedFamily.id,
           student_id: selectedStudent.id,
           file_name: file.name,
-          file_data_base64: base64
+          file_data_base64: base64,
+          category: selectedCategory // Phase 3: Send selected category
         }
       });
 
@@ -159,36 +170,64 @@ export function BedrockDocumentPage() {
           </p>
         </div>
         
-        {/* Upload Button */}
-        <div>
-          <Input
-            type="file"
-            accept=".pdf"
-            className="hidden"
-            id="bedrock-upload"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) handleUpload(file);
-              e.target.value = ''; // Reset input
-            }}
-            disabled={uploading}
-          />
-          <Button
-            onClick={() => document.getElementById('bedrock-upload')?.click()}
-            disabled={uploading}
-          >
-            {uploading ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Uploading...
-              </>
-            ) : (
-              <>
-                <Upload className="h-4 w-4 mr-2" />
-                Upload Document
-              </>
-            )}
-          </Button>
+        {/* Phase 3: Category Selection + Upload */}
+        <div className="flex items-center gap-3">
+          {/* Category Selector */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-muted-foreground">
+              Document Type
+            </label>
+            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <SelectTrigger className="w-[280px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {DOCUMENT_CATEGORIES.map((cat) => (
+                  <SelectItem key={cat.value} value={cat.value}>
+                    <div className="flex flex-col">
+                      <span className="font-medium">{cat.label}</span>
+                      <span className="text-xs text-muted-foreground">{cat.description}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Upload Button */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-transparent">Upload</label>
+            <div>
+              <Input
+                type="file"
+                accept=".pdf"
+                className="hidden"
+                id="bedrock-upload"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleUpload(file);
+                  e.target.value = ''; // Reset input
+                }}
+                disabled={uploading}
+              />
+              <Button
+                onClick={() => document.getElementById('bedrock-upload')?.click()}
+                disabled={uploading}
+              >
+                {uploading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Uploading...
+                  </>
+                ) : (
+                  <>
+                    <Upload className="h-4 w-4 mr-2" />
+                    Upload Document
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -237,7 +276,7 @@ export function BedrockDocumentPage() {
                           <>
                             <span>•</span>
                             <Badge variant="outline">
-                              {DOCUMENT_CATEGORIES.find(c => c.value === doc.category)?.label}
+                              {LEGACY_CATEGORIES.find(c => c.value === doc.category)?.label}
                             </Badge>
                           </>
                         )}
@@ -280,7 +319,7 @@ export function BedrockDocumentPage() {
                             <SelectValue placeholder="Select category..." />
                           </SelectTrigger>
                           <SelectContent>
-                            {DOCUMENT_CATEGORIES.map((cat) => (
+                            {LEGACY_CATEGORIES.map((cat) => (
                               <SelectItem key={cat.value} value={cat.value}>
                                 {cat.label}
                               </SelectItem>
