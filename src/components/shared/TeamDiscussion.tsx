@@ -19,6 +19,7 @@ interface TeamDiscussionProps {
   title?: string;
   placeholder?: string;
   compact?: boolean;
+  noPadding?: boolean;
 }
 
 interface Discussion {
@@ -42,7 +43,8 @@ export function TeamDiscussion({
   familyId,
   title = "Team Discussion",
   placeholder = "Share an update, ask a question, or discuss...",
-  compact = false
+  compact = false,
+  noPadding = false
 }: TeamDiscussionProps) {
   const [newComment, setNewComment] = useState('');
   const [mentionedUsers, setMentionedUsers] = useState<string[]>([]);
@@ -207,7 +209,7 @@ export function TeamDiscussion({
 
   return (
     <Card className={compact ? 'shadow-sm' : ''}>
-      <CardHeader className={compact ? 'pb-3' : ''}>
+      <CardHeader className={noPadding ? 'pt-0' : compact ? 'pb-3' : ''}>
         <CardTitle className={compact ? 'text-base' : 'flex items-center gap-2'}>
           {!compact && <MessageSquare className="h-5 w-5" />}
           {title}
