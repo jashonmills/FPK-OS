@@ -10,7 +10,6 @@ import { useFamily } from '@/contexts/FamilyContext';
 import { toast } from 'sonner';
 import { Upload, Loader2, Sparkles } from 'lucide-react';
 import { format } from 'date-fns';
-import { LegacyDataMigrationPanel } from '../LegacyDataMigrationPanel';
 import { ReAnalysisButton } from '../ReAnalysisButton';
 
 // Phase 3: Document categories for intelligent routing
@@ -230,11 +229,6 @@ export function BedrockDocumentPage() {
           </div>
         </div>
       </div>
-
-      {/* Legacy Data Migration Panel */}
-      {selectedFamily?.id && (
-        <LegacyDataMigrationPanel familyId={selectedFamily.id} />
-      )}
 
       {/* Re-Analysis Button */}
       {selectedFamily?.id && selectedStudent?.id && (
