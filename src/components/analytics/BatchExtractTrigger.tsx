@@ -27,7 +27,10 @@ export const BatchExtractTrigger = ({ clientId, onComplete }: BatchExtractTrigge
 
     try {
       const { data, error } = await supabase.functions.invoke('batch-extract-metrics', {
-        body: { client_id: clientId }
+        body: { 
+          client_id: clientId,
+          force_reextract: true // Always force re-extraction to handle previously failed attempts
+        }
       });
 
       if (error) throw error;
