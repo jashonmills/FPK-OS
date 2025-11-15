@@ -689,6 +689,7 @@ export type Database = {
           analysis_data: Json | null
           analyzed_at: string | null
           category: string | null
+          client_id: string | null
           created_at: string | null
           error_message: string | null
           extracted_content: string | null
@@ -706,6 +707,7 @@ export type Database = {
           analysis_data?: Json | null
           analyzed_at?: string | null
           category?: string | null
+          client_id?: string | null
           created_at?: string | null
           error_message?: string | null
           extracted_content?: string | null
@@ -723,6 +725,7 @@ export type Database = {
           analysis_data?: Json | null
           analyzed_at?: string | null
           category?: string | null
+          client_id?: string | null
           created_at?: string | null
           error_message?: string | null
           extracted_content?: string | null
@@ -737,6 +740,13 @@ export type Database = {
           student_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "bedrock_documents_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "bedrock_documents_family_id_fkey"
             columns: ["family_id"]
@@ -762,6 +772,7 @@ export type Database = {
       }
       bedrock_metrics: {
         Row: {
+          client_id: string | null
           context: string | null
           created_at: string | null
           document_id: string
@@ -779,6 +790,7 @@ export type Database = {
           target_value: number | null
         }
         Insert: {
+          client_id?: string | null
           context?: string | null
           created_at?: string | null
           document_id: string
@@ -796,6 +808,7 @@ export type Database = {
           target_value?: number | null
         }
         Update: {
+          client_id?: string | null
           context?: string | null
           created_at?: string | null
           document_id?: string
@@ -813,6 +826,13 @@ export type Database = {
           target_value?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "bedrock_metrics_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "bedrock_metrics_document_id_fkey"
             columns: ["document_id"]
@@ -1102,6 +1122,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      client_migration_audit: {
+        Row: {
+          completed_at: string | null
+          id: string
+          metadata: Json | null
+          migration_phase: string
+          records_migrated: number
+          started_at: string
+          status: string
+        }
+        Insert: {
+          completed_at?: string | null
+          id?: string
+          metadata?: Json | null
+          migration_phase: string
+          records_migrated: number
+          started_at?: string
+          status?: string
+        }
+        Update: {
+          completed_at?: string | null
+          id?: string
+          metadata?: Json | null
+          migration_phase?: string
+          records_migrated?: number
+          started_at?: string
+          status?: string
+        }
+        Relationships: []
       }
       clients: {
         Row: {
@@ -1610,6 +1660,7 @@ export type Database = {
       documents: {
         Row: {
           category: string | null
+          client_id: string | null
           created_at: string | null
           document_date: string | null
           extracted_content: string | null
@@ -1627,6 +1678,7 @@ export type Database = {
         }
         Insert: {
           category?: string | null
+          client_id?: string | null
           created_at?: string | null
           document_date?: string | null
           extracted_content?: string | null
@@ -1644,6 +1696,7 @@ export type Database = {
         }
         Update: {
           category?: string | null
+          client_id?: string | null
           created_at?: string | null
           document_date?: string | null
           extracted_content?: string | null
@@ -1660,6 +1713,13 @@ export type Database = {
           uploaded_by?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "documents_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "documents_family_id_fkey"
             columns: ["family_id"]
@@ -1688,6 +1748,7 @@ export type Database = {
           attachments: Json | null
           behavioral_observations: string | null
           challenges: string | null
+          client_id: string | null
           co: number | null
           correct_responses: number | null
           created_at: string | null
@@ -1752,6 +1813,7 @@ export type Database = {
           attachments?: Json | null
           behavioral_observations?: string | null
           challenges?: string | null
+          client_id?: string | null
           co?: number | null
           correct_responses?: number | null
           created_at?: string | null
@@ -1816,6 +1878,7 @@ export type Database = {
           attachments?: Json | null
           behavioral_observations?: string | null
           challenges?: string | null
+          client_id?: string | null
           co?: number | null
           correct_responses?: number | null
           created_at?: string | null
@@ -1871,6 +1934,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "educator_logs_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "educator_logs_family_id_fkey"
             columns: ["family_id"]
             isOneToOne: false
@@ -1888,6 +1958,7 @@ export type Database = {
       }
       embedding_queue: {
         Row: {
+          client_id: string | null
           created_at: string | null
           error_message: string | null
           family_id: string
@@ -1901,6 +1972,7 @@ export type Database = {
           student_id: string | null
         }
         Insert: {
+          client_id?: string | null
           created_at?: string | null
           error_message?: string | null
           family_id: string
@@ -1914,6 +1986,7 @@ export type Database = {
           student_id?: string | null
         }
         Update: {
+          client_id?: string | null
           created_at?: string | null
           error_message?: string | null
           family_id?: string
@@ -1927,6 +2000,13 @@ export type Database = {
           student_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "embedding_queue_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "embedding_queue_family_id_fkey"
             columns: ["family_id"]
@@ -2277,6 +2357,7 @@ export type Database = {
       family_data_embeddings: {
         Row: {
           chunk_text: string
+          client_id: string | null
           created_at: string | null
           embedding: string
           family_id: string
@@ -2289,6 +2370,7 @@ export type Database = {
         }
         Insert: {
           chunk_text: string
+          client_id?: string | null
           created_at?: string | null
           embedding: string
           family_id: string
@@ -2301,6 +2383,7 @@ export type Database = {
         }
         Update: {
           chunk_text?: string
+          client_id?: string | null
           created_at?: string | null
           embedding?: string
           family_id?: string
@@ -2312,6 +2395,13 @@ export type Database = {
           student_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "family_data_embeddings_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "family_data_embeddings_family_id_fkey"
             columns: ["family_id"]
@@ -2431,6 +2521,7 @@ export type Database = {
       }
       goals: {
         Row: {
+          client_id: string | null
           created_at: string | null
           current_value: number | null
           family_id: string
@@ -2447,6 +2538,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          client_id?: string | null
           created_at?: string | null
           current_value?: number | null
           family_id: string
@@ -2463,6 +2555,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          client_id?: string | null
           created_at?: string | null
           current_value?: number | null
           family_id?: string
@@ -2479,6 +2572,13 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "goals_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "goals_family_id_fkey"
             columns: ["family_id"]
@@ -2503,6 +2603,7 @@ export type Database = {
           aqi_us: number | null
           attachments: Json | null
           behavior_description: string
+          client_id: string | null
           co: number | null
           consequence: string | null
           created_at: string | null
@@ -2556,6 +2657,7 @@ export type Database = {
           aqi_us?: number | null
           attachments?: Json | null
           behavior_description: string
+          client_id?: string | null
           co?: number | null
           consequence?: string | null
           created_at?: string | null
@@ -2609,6 +2711,7 @@ export type Database = {
           aqi_us?: number | null
           attachments?: Json | null
           behavior_description?: string
+          client_id?: string | null
           co?: number | null
           consequence?: string | null
           created_at?: string | null
@@ -2656,6 +2759,13 @@ export type Database = {
           witnesses?: string[] | null
         }
         Relationships: [
+          {
+            foreignKeyName: "incident_logs_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "incident_logs_family_id_fkey"
             columns: ["family_id"]
@@ -3183,6 +3293,7 @@ export type Database = {
           aqi_us: number | null
           attachments: Json | null
           challenges: string | null
+          client_id: string | null
           co: number | null
           communication_attempts: string | null
           created_at: string | null
@@ -3229,6 +3340,7 @@ export type Database = {
           aqi_us?: number | null
           attachments?: Json | null
           challenges?: string | null
+          client_id?: string | null
           co?: number | null
           communication_attempts?: string | null
           created_at?: string | null
@@ -3275,6 +3387,7 @@ export type Database = {
           aqi_us?: number | null
           attachments?: Json | null
           challenges?: string | null
+          client_id?: string | null
           co?: number | null
           communication_attempts?: string | null
           created_at?: string | null
@@ -3315,6 +3428,13 @@ export type Database = {
           weather_wind_speed?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "parent_logs_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "parent_logs_family_id_fkey"
             columns: ["family_id"]
@@ -3538,6 +3658,7 @@ export type Database = {
           aqi_us: number | null
           asleep_location: string | null
           bedtime: string
+          client_id: string | null
           co: number | null
           created_at: string | null
           created_by: string
@@ -3593,6 +3714,7 @@ export type Database = {
           aqi_us?: number | null
           asleep_location?: string | null
           bedtime: string
+          client_id?: string | null
           co?: number | null
           created_at?: string | null
           created_by: string
@@ -3648,6 +3770,7 @@ export type Database = {
           aqi_us?: number | null
           asleep_location?: string | null
           bedtime?: string
+          client_id?: string | null
           co?: number | null
           created_at?: string | null
           created_by?: string
@@ -3698,6 +3821,13 @@ export type Database = {
           weather_wind_speed?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "sleep_records_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "sleep_records_family_id_fkey"
             columns: ["family_id"]
@@ -4242,6 +4372,7 @@ export type Database = {
           avg_respiration_rate: number | null
           avg_spo2: number | null
           awake_seconds: number | null
+          client_id: string | null
           created_at: string | null
           deep_sleep_seconds: number | null
           family_id: string
@@ -4261,6 +4392,7 @@ export type Database = {
           avg_respiration_rate?: number | null
           avg_spo2?: number | null
           awake_seconds?: number | null
+          client_id?: string | null
           created_at?: string | null
           deep_sleep_seconds?: number | null
           family_id: string
@@ -4280,6 +4412,7 @@ export type Database = {
           avg_respiration_rate?: number | null
           avg_spo2?: number | null
           awake_seconds?: number | null
+          client_id?: string | null
           created_at?: string | null
           deep_sleep_seconds?: number | null
           family_id?: string
@@ -4295,6 +4428,13 @@ export type Database = {
           student_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "wearable_sleep_data_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "wearable_sleep_data_family_id_fkey"
             columns: ["family_id"]
