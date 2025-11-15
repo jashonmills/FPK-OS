@@ -189,7 +189,7 @@ export const FamilyProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     try {
       // Check if family uses new model
-      const useNewModel = selectedFamily.metadata?.use_new_client_model === true;
+      const useNewModel = selectedFamily.metadata?.feature_flags?.use_new_client_model === true;
       setIsNewModel(useNewModel);
 
       if (!useNewModel) {
