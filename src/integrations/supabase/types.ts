@@ -2523,15 +2523,17 @@ export type Database = {
         Row: {
           client_id: string | null
           created_at: string | null
+          created_by: string | null
           current_value: number | null
-          family_id: string
+          family_id: string | null
           goal_description: string | null
           goal_title: string
           goal_type: string
           id: string
           is_active: boolean | null
+          organization_id: string | null
           start_date: string | null
-          student_id: string
+          student_id: string | null
           target_date: string | null
           target_value: number | null
           unit: string | null
@@ -2540,15 +2542,17 @@ export type Database = {
         Insert: {
           client_id?: string | null
           created_at?: string | null
+          created_by?: string | null
           current_value?: number | null
-          family_id: string
+          family_id?: string | null
           goal_description?: string | null
           goal_title: string
           goal_type: string
           id?: string
           is_active?: boolean | null
+          organization_id?: string | null
           start_date?: string | null
-          student_id: string
+          student_id?: string | null
           target_date?: string | null
           target_value?: number | null
           unit?: string | null
@@ -2557,15 +2561,17 @@ export type Database = {
         Update: {
           client_id?: string | null
           created_at?: string | null
+          created_by?: string | null
           current_value?: number | null
-          family_id?: string
+          family_id?: string | null
           goal_description?: string | null
           goal_title?: string
           goal_type?: string
           id?: string
           is_active?: boolean | null
+          organization_id?: string | null
           start_date?: string | null
-          student_id?: string
+          student_id?: string | null
           target_date?: string | null
           target_value?: number | null
           unit?: string | null
@@ -2584,6 +2590,13 @@ export type Database = {
             columns: ["family_id"]
             isOneToOne: false
             referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "goals_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
           {
