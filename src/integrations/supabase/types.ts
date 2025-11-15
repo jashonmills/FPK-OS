@@ -4762,7 +4762,7 @@ export type Database = {
           p_start_date?: string
         }
         Returns: {
-          log_count: number
+          count: number
           log_date: string
           log_type: string
         }[]
