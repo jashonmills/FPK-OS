@@ -132,7 +132,7 @@ export const BatchExtractTrigger = ({ clientId, onComplete }: BatchExtractTrigge
               </div>
             </div>
 
-            {results.errors.length > 0 && (
+            {results.errors && results.errors.length > 0 && (
               <Alert variant="destructive">
                 <XCircle className="h-4 w-4" />
                 <AlertDescription>
