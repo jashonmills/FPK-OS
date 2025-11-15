@@ -1033,6 +1033,115 @@ export type Database = {
           },
         ]
       }
+      client_access: {
+        Row: {
+          access_level: string
+          client_id: string
+          created_at: string
+          family_id: string | null
+          granted_at: string
+          granted_by: string | null
+          id: string
+          metadata: Json | null
+          organization_id: string | null
+          revoked_at: string | null
+          revoked_by: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          access_level: string
+          client_id: string
+          created_at?: string
+          family_id?: string | null
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          metadata?: Json | null
+          organization_id?: string | null
+          revoked_at?: string | null
+          revoked_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          access_level?: string
+          client_id?: string
+          created_at?: string
+          family_id?: string | null
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          metadata?: Json | null
+          organization_id?: string | null
+          revoked_at?: string | null
+          revoked_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_access_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_access_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_access_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clients: {
+        Row: {
+          avatar_url: string | null
+          client_name: string
+          created_at: string
+          date_of_birth: string
+          grade_level: string | null
+          id: string
+          metadata: Json | null
+          primary_diagnosis: string[] | null
+          school_name: string | null
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          client_name: string
+          created_at?: string
+          date_of_birth: string
+          grade_level?: string | null
+          id?: string
+          metadata?: Json | null
+          primary_diagnosis?: string[] | null
+          school_name?: string | null
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          client_name?: string
+          created_at?: string
+          date_of_birth?: string
+          grade_level?: string | null
+          id?: string
+          metadata?: Json | null
+          primary_diagnosis?: string[] | null
+          school_name?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       discussion_read_status: {
         Row: {
           discussion_id: string
@@ -4863,6 +4972,12 @@ export type Database = {
           total: number
         }[]
       }
+      get_user_accessible_client_ids: {
+        Args: { p_user_id: string }
+        Returns: {
+          client_id: string
+        }[]
+      }
       get_user_family_role:
         | { Args: { p_family_id: string }; Returns: string }
         | { Args: { _family_id: string; _user_id: string }; Returns: string }
@@ -4969,6 +5084,10 @@ export type Database = {
           p_success: boolean
         }
         Returns: undefined
+      }
+      user_can_access_client: {
+        Args: { p_client_id: string; p_user_id: string }
+        Returns: boolean
       }
       user_can_access_org: {
         Args: { _org_id: string; _user_id: string }
