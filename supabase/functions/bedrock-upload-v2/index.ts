@@ -1,13 +1,20 @@
 /**
- * VERSION: 3.0.0-SYNC-PROCESSOR
+ * VERSION: 4.0.0-PHASE1D-BILINGUAL
  * 
- * Synchronous processing for Google Document AI
+ * PHASE 1D: Bilingual Document Upload
+ * Supports both legacy student_id and new client_id models via feature flag
  */
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getAccessToken } from "../_shared/google-document-ai-auth.ts";
+import { 
+  isFlagEnabled, 
+  isFlagEnabledForOrg,
+  userCanAccessClient,
+  getClientContext 
+} from "../_shared/feature-flags.ts";
 
-const VERSION = "3.0.0-SYNC-PROCESSOR";
+const VERSION = "4.0.0-PHASE1D-BILINGUAL";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -70,7 +77,11 @@ serve(async (req) => {
     const fileName = body.file_name || body.fileName;
     const familyId = body.family_id || body.familyId;
     const organizationId = body.organization_id || body.organizationId;
+    
+    // PHASE 1D: Support both student_id (OLD) and client_id (NEW)
     const studentId = body.student_id || body.studentId;
+    const clientId = body.client_id || body.clientId;
+    
     const documentDate = body.document_date || body.documentDate;
     const category = body.category || 'other';
     const processorId = body.processor_id;
@@ -90,9 +101,59 @@ serve(async (req) => {
     console.log(`📋 Category: ${category}`);
     console.log(`🎯 Processor ID: ${processorId || 'using fallback'}`);
     if (familyId) {
-      console.log(`👨‍👩‍👧 B2C Upload - Family: ${familyId}, Student: ${studentId || 'none'}`);
+      console.log(`👨‍👩‍👧 B2C Upload - Family: ${familyId}`);
+      console.log(`📊 Data Model - Student: ${studentId || 'none'}, Client: ${clientId || 'none'}`);
     } else {
-      console.log(`🏢 B2B Upload - Org: ${organizationId}, Student: ${studentId || 'none'}`);
+      console.log(`🏢 B2B Upload - Org: ${organizationId}`);
+      console.log(`📊 Data Model - Student: ${studentId || 'none'}, Client: ${clientId || 'none'}`);
+    }
+    
+    // ========================================
+    // PHASE 1D: FEATURE FLAG FORK
+    // ========================================
+    const useNewModel = familyId 
+      ? await isFlagEnabled(supabase, familyId, 'use_new_client_model')
+      : await isFlagEnabledForOrg(supabase, organizationId!, 'use_new_client_model');
+    
+    console.log(`🚩 PHASE 1D: Using ${useNewModel ? 'NEW client_id' : 'OLD student_id'} model`);
+    
+    // Determine final IDs based on feature flag
+    let finalClientId: string | null = null;
+    let finalStudentId: string | null = null;
+    let finalFamilyId: string | null = familyId || null;
+    let finalOrgId: string | null = organizationId || null;
+    
+    if (useNewModel) {
+      // ========================================
+      // NEW WORLD: client_id model
+      // ========================================
+      if (!clientId) {
+        throw new Error('client_id is required when using new data model');
+      }
+      
+      // Verify user has access to this client
+      const hasAccess = await userCanAccessClient(supabase, user.id, clientId);
+      if (!hasAccess) {
+        throw new Error('Unauthorized: You do not have access to this client');
+      }
+      
+      // Get client context to determine family or org
+      const context = await getClientContext(supabase, clientId);
+      if (!context) {
+        throw new Error('Could not determine client context');
+      }
+      
+      finalClientId = clientId;
+      finalFamilyId = context.family_id;
+      finalOrgId = context.organization_id;
+      
+      console.log(`✅ NEW MODEL: client_id=${clientId}, context=${finalFamilyId ? 'family' : 'org'}`);
+    } else {
+      // ========================================
+      // OLD WORLD: student_id model (existing logic)
+      // ========================================
+      finalStudentId = studentId;
+      console.log(`✅ OLD MODEL: student_id=${studentId || 'none'}`);
     }
 
     // If organization context, verify user membership and permissions
@@ -247,12 +308,14 @@ serve(async (req) => {
     console.log(`✅ Document processed successfully. Extracted ${extractedText.length} characters`);
 
     // Create database record with extracted content
+    // PHASE 1D: Use appropriate IDs based on feature flag
     const { data: document, error: dbError } = await supabase
       .from('bedrock_documents')
       .insert({
-        family_id: familyId || null,
-        organization_id: organizationId || null,
-        student_id: studentId,
+        family_id: finalFamilyId,
+        organization_id: finalOrgId,
+        student_id: finalStudentId,  // NULL in new model
+        client_id: finalClientId,     // NULL in old model
         file_name: fileName,
         file_path: storagePath,
         file_size_kb: fileSizeKb,
