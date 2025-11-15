@@ -2519,6 +2519,44 @@ export type Database = {
         }
         Relationships: []
       }
+      goal_progress_history: {
+        Row: {
+          changed_at: string
+          changed_by: string | null
+          goal_id: string
+          id: string
+          new_value: number
+          notes: string | null
+          previous_value: number | null
+        }
+        Insert: {
+          changed_at?: string
+          changed_by?: string | null
+          goal_id: string
+          id?: string
+          new_value: number
+          notes?: string | null
+          previous_value?: number | null
+        }
+        Update: {
+          changed_at?: string
+          changed_by?: string | null
+          goal_id?: string
+          id?: string
+          new_value?: number
+          notes?: string | null
+          previous_value?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goal_progress_history_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "goals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       goals: {
         Row: {
           client_id: string | null
@@ -4669,6 +4707,10 @@ export type Database = {
         }
         Returns: Json
       }
+      create_goal: {
+        Args: { p_client_id: string; p_goal_data: Json }
+        Returns: string
+      }
       delete_user_account: {
         Args: { user_id_to_delete: string }
         Returns: undefined
@@ -4713,6 +4755,18 @@ export type Database = {
               reading_target: number
             }[]
           }
+      get_activity_frequency: {
+        Args: {
+          p_client_id: string
+          p_end_date?: string
+          p_start_date?: string
+        }
+        Returns: {
+          log_count: number
+          log_date: string
+          log_type: string
+        }[]
+      }
       get_attention_span_data: {
         Args: { p_days?: number; p_family_id: string; p_student_id: string }
         Returns: {
@@ -4764,6 +4818,21 @@ export type Database = {
       get_chart_layout: {
         Args: { p_family_id: string; p_student_id: string; p_tab_id: string }
         Returns: Json
+      }
+      get_client_goals: {
+        Args: { p_active_only?: boolean; p_client_id: string }
+        Returns: {
+          created_at: string
+          current_value: number
+          goal_description: string
+          goal_title: string
+          goal_type: string
+          id: string
+          is_active: boolean
+          progress_percentage: number
+          target_date: string
+          target_value: number
+        }[]
       }
       get_communication_progress_data: {
         Args: { p_days?: number; p_family_id: string; p_student_id: string }
@@ -4849,6 +4918,14 @@ export type Database = {
           measurement_date: string
           skill_name: string
           target_level: number
+        }[]
+      }
+      get_goal_progress_timeline: {
+        Args: { p_days?: number; p_goal_id: string }
+        Returns: {
+          changed_at: string
+          notes: string
+          value: number
         }[]
       }
       get_gross_motor_data: {
@@ -4984,6 +5061,18 @@ export type Database = {
           error_type: string
           frequency: number
           percentage: number
+        }[]
+      }
+      get_recent_activity: {
+        Args: { p_client_id: string; p_limit?: number }
+        Returns: {
+          activity_date: string
+          activity_id: string
+          activity_time: string
+          activity_type: string
+          created_at: string
+          description: string
+          title: string
         }[]
       }
       get_self_regulation_data: {
@@ -5178,6 +5267,22 @@ export type Database = {
         Args: { _org_id: string; _user_id: string }
         Returns: boolean
       }
+      log_educator_note: {
+        Args: { p_client_id: string; p_log_data: Json }
+        Returns: string
+      }
+      log_incident: {
+        Args: { p_client_id: string; p_incident_data: Json }
+        Returns: string
+      }
+      log_parent_observation: {
+        Args: { p_client_id: string; p_log_data: Json }
+        Returns: string
+      }
+      log_sleep_record: {
+        Args: { p_client_id: string; p_sleep_data: Json }
+        Returns: string
+      }
       mark_expired_invites: { Args: never; Returns: undefined }
       match_family_data: {
         Args: {
@@ -5225,8 +5330,23 @@ export type Database = {
         }
         Returns: undefined
       }
+      suggest_goals_from_insights: {
+        Args: { p_client_id: string }
+        Returns: {
+          confidence: number
+          insight_content: string
+          insight_id: string
+          source_document_name: string
+          suggested_goal_title: string
+          suggested_goal_type: string
+        }[]
+      }
       update_circuit_breaker: {
         Args: { p_file_type: string; p_success: boolean }
+        Returns: undefined
+      }
+      update_goal_progress: {
+        Args: { p_goal_id: string; p_new_value: number; p_notes?: string }
         Returns: undefined
       }
       update_provider_health: {
