@@ -229,14 +229,15 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({
-        success: metricsInserted > 0,
+        success: true,
         document_id,
         metrics_inserted: metricsInserted,
         metrics_skipped: metricsToInsert.length - metricsInserted,
         errors: errors.length > 0 ? errors : undefined,
+        message: metricsInserted === 0 ? "No extractable metrics found in document" : undefined,
       }),
       {
-        status: metricsInserted > 0 ? 200 : 500,
+        status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       }
     );
