@@ -12,7 +12,7 @@ interface GoalProgressChartProps {
 }
 
 export const GoalProgressChart = ({ clientId }: GoalProgressChartProps) => {
-  const [selectedGoalId, setSelectedGoalId] = useState<string>('');
+  const [selectedGoalId, setSelectedGoalId] = useState<string | undefined>(undefined);
 
   // Fetch manual goals
   const { data: manualGoals, isLoading: manualGoalsLoading } = useQuery({
@@ -103,7 +103,7 @@ export const GoalProgressChart = ({ clientId }: GoalProgressChartProps) => {
         <CardDescription>Track progress toward your goals</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <Select value={selectedGoalId} onValueChange={setSelectedGoalId}>
+        <Select value={selectedGoalId || ''} onValueChange={setSelectedGoalId}>
           <SelectTrigger>
             <SelectValue placeholder="Select a goal to view progress" />
           </SelectTrigger>
