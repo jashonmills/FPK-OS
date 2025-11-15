@@ -4871,11 +4871,14 @@ export type Database = {
         | {
             Args: { p_client_id: string }
             Returns: {
+              created_at: string
               current_value: number
+              goal_description: string
               goal_title: string
               goal_type: string
               id: string
               is_active: boolean
+              progress_percentage: number
               target_date: string
               target_value: number
             }[]
