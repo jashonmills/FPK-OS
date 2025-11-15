@@ -32,6 +32,21 @@ export const BatchExtractTrigger = ({ clientId, onComplete }: BatchExtractTrigge
 
       if (error) throw error;
 
+      // Handle the case where no documents need extraction
+      if (data.processed === 0 || data.total === 0) {
+        toast({
+          title: "No Documents to Process",
+          description: "All documents have already been extracted, or no documents are available.",
+        });
+        setResults({
+          total: 0,
+          successful: 0,
+          failed: 0,
+          errors: []
+        });
+        return;
+      }
+
       setResults(data);
 
       if (data.successful > 0) {
@@ -44,13 +59,7 @@ export const BatchExtractTrigger = ({ clientId, onComplete }: BatchExtractTrigge
         if (onComplete) {
           setTimeout(onComplete, 1000);
         }
-      } else if (data.total === 0) {
-        toast({
-          title: "No Documents Found",
-          description: "No documents available for metric extraction.",
-          variant: "destructive",
-        });
-      } else {
+      } else if (data.failed > 0) {
         toast({
           title: "Extraction Failed",
           description: "All documents failed to extract. Check the error details below.",
