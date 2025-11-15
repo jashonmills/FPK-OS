@@ -4790,12 +4790,11 @@ export type Database = {
         Args: { p_client_id: string }
         Returns: {
           current_value: number
+          extracted_at: string
           goal_id: string
           goal_title: string
           goal_type: string
-          measurement_date: string
           progress_percentage: number
-          source: string
           source_document: string
           target_value: number
         }[]
@@ -4852,37 +4851,19 @@ export type Database = {
         Args: { p_family_id: string; p_student_id: string; p_tab_id: string }
         Returns: Json
       }
-      get_client_goals:
-        | {
-            Args: { p_active_only?: boolean; p_client_id: string }
-            Returns: {
-              created_at: string
-              current_value: number
-              goal_description: string
-              goal_title: string
-              goal_type: string
-              id: string
-              is_active: boolean
-              progress_percentage: number
-              target_date: string
-              target_value: number
-            }[]
-          }
-        | {
-            Args: { p_client_id: string }
-            Returns: {
-              created_at: string
-              current_value: number
-              goal_description: string
-              goal_title: string
-              goal_type: string
-              id: string
-              is_active: boolean
-              progress_percentage: number
-              target_date: string
-              target_value: number
-            }[]
-          }
+      get_client_goals: {
+        Args: { p_active_only?: boolean; p_client_id: string }
+        Returns: {
+          created_at: string
+          current_value: number
+          goal_id: string
+          goal_title: string
+          goal_type: string
+          is_active: boolean
+          progress_percentage: number
+          target_value: number
+        }[]
+      }
       get_communication_progress_data: {
         Args: { p_days?: number; p_family_id: string; p_student_id: string }
         Returns: {
