@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { VideoBackground } from "@/components/analytics/VideoBackground";
 import { ActivityFrequencyChart } from "@/components/analytics/ActivityFrequencyChart";
 import { GoalProgressChart } from "@/components/analytics/GoalProgressChart";
+import { ExtractedMetricsViewer } from "@/components/analytics/ExtractedMetricsViewer";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Analytics = () => {
   const navigate = useNavigate();
@@ -84,10 +86,23 @@ const Analytics = () => {
             </p>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2">
-            <ActivityFrequencyChart clientId={selectedClient.id} />
-            <GoalProgressChart clientId={selectedClient.id} />
-          </div>
+          <Tabs defaultValue="charts" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-6">
+              <TabsTrigger value="charts">Charts</TabsTrigger>
+              <TabsTrigger value="ai-data">AI-Extracted Data</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="charts">
+              <div className="grid gap-6 md:grid-cols-2">
+                <ActivityFrequencyChart clientId={selectedClient.id} />
+                <GoalProgressChart clientId={selectedClient.id} />
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="ai-data">
+              <ExtractedMetricsViewer clientId={selectedClient.id} />
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </div>

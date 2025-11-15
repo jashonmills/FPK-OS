@@ -693,12 +693,14 @@ export type Database = {
           created_at: string | null
           error_message: string | null
           extracted_content: string | null
+          extraction_attempted_at: string | null
           family_id: string
           file_name: string
           file_path: string
           file_size_kb: number | null
           id: string
           job_id: string | null
+          metrics_extracted: boolean | null
           organization_id: string | null
           status: string
           student_id: string | null
@@ -711,12 +713,14 @@ export type Database = {
           created_at?: string | null
           error_message?: string | null
           extracted_content?: string | null
+          extraction_attempted_at?: string | null
           family_id: string
           file_name: string
           file_path: string
           file_size_kb?: number | null
           id?: string
           job_id?: string | null
+          metrics_extracted?: boolean | null
           organization_id?: string | null
           status?: string
           student_id?: string | null
@@ -729,12 +733,14 @@ export type Database = {
           created_at?: string | null
           error_message?: string | null
           extracted_content?: string | null
+          extraction_attempted_at?: string | null
           family_id?: string
           file_name?: string
           file_path?: string
           file_size_kb?: number | null
           id?: string
           job_id?: string | null
+          metrics_extracted?: boolean | null
           organization_id?: string | null
           status?: string
           student_id?: string | null
@@ -4767,6 +4773,33 @@ export type Database = {
           log_type: string
         }[]
       }
+      get_ai_activity_frequency: {
+        Args: {
+          p_client_id: string
+          p_end_date?: string
+          p_start_date?: string
+        }
+        Returns: {
+          count: number
+          log_date: string
+          log_type: string
+          source: string
+        }[]
+      }
+      get_ai_extracted_goals: {
+        Args: { p_client_id: string }
+        Returns: {
+          current_value: number
+          goal_id: string
+          goal_title: string
+          goal_type: string
+          measurement_date: string
+          progress_percentage: number
+          source: string
+          source_document: string
+          target_value: number
+        }[]
+      }
       get_attention_span_data: {
         Args: { p_days?: number; p_family_id: string; p_student_id: string }
         Returns: {
@@ -4909,6 +4942,28 @@ export type Database = {
           data_points: number
           skill_area: string
           trend: string
+        }[]
+      }
+      get_extracted_metrics: {
+        Args: {
+          p_client_id: string
+          p_end_date?: string
+          p_metric_type?: string
+          p_start_date?: string
+        }
+        Returns: {
+          context: string
+          document_category: string
+          duration_minutes: number
+          id: string
+          intervention_used: string
+          measurement_date: string
+          metadata: Json
+          metric_name: string
+          metric_type: string
+          metric_value: number
+          source_document_name: string
+          target_value: number
         }[]
       }
       get_fine_motor_data: {
