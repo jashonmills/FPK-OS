@@ -14,7 +14,8 @@ interface GoalProgressChartProps {
 export const GoalProgressChart = ({ clientId }: GoalProgressChartProps) => {
   const [selectedGoalId, setSelectedGoalId] = useState<string>('');
 
-  const { data: goals, isLoading: goalsLoading } = useQuery({
+  // Fetch manual goals
+  const { data: manualGoals, isLoading: manualGoalsLoading } = useQuery({
     queryKey: ['client-goals', clientId],
     queryFn: async () => {
       const { data, error } = await supabase.rpc('get_client_goals', {
@@ -25,6 +26,38 @@ export const GoalProgressChart = ({ clientId }: GoalProgressChartProps) => {
     },
     enabled: !!clientId,
   });
+
+  // Fetch AI-extracted goals
+  const { data: aiGoals, isLoading: aiGoalsLoading } = useQuery({
+    queryKey: ['ai-extracted-goals', clientId],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('get_ai_extracted_goals', {
+        p_client_id: clientId
+      });
+      if (error) {
+        console.error('AI goals fetch error:', error);
+        return [];
+      }
+      return data || [];
+    },
+    enabled: !!clientId,
+  });
+
+  // Merge goals from both sources
+  const goals = [
+    ...(manualGoals || []).map((g: any) => ({
+      id: g.id,
+      goal_title: g.goal_title,
+      source: 'Manual',
+    })),
+    ...(aiGoals || []).map((g: any) => ({
+      id: g.goal_id,
+      goal_title: `${g.goal_title} (${g.source})`,
+      source: g.source,
+    })),
+  ];
+  
+  const goalsLoading = manualGoalsLoading || aiGoalsLoading;
 
   const { data: progressData, isLoading: progressLoading } = useQuery({
     queryKey: ['goal-progress', selectedGoalId],
