@@ -3,11 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useFamily } from '@/contexts/FamilyContext';
+import { useClient } from '@/hooks/useClient';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Target, Plus, TrendingUp, Calendar } from 'lucide-react';
+import { Target, Plus, TrendingUp, Calendar, Sparkles } from 'lucide-react';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { format } from 'date-fns';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -15,18 +16,22 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Slider } from '@/components/ui/slider';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 import { ProductTour } from '@/components/onboarding/ProductTour';
 import { goalsTourSteps } from '@/components/onboarding/tourConfigs';
 import { useTourProgress } from '@/hooks/useTourProgress';
+import { AIGoalSuggestions } from '@/components/goals/AIGoalSuggestions';
 
 const Goals = () => {
   const navigate = useNavigate();
   const { selectedFamily, selectedStudent } = useFamily();
+  const { selectedClient, isNewModel } = useClient();
   const queryClient = useQueryClient();
   const { shouldRunTour, markTourAsSeen } = useTourProgress('has_seen_goals_tour');
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [aiSuggestionsOpen, setAiSuggestionsOpen] = useState(false);
   const [goalTitle, setGoalTitle] = useState('');
   const [goalDescription, setGoalDescription] = useState('');
   const [goalType, setGoalType] = useState('');
@@ -34,28 +39,37 @@ const Goals = () => {
   const [targetDate, setTargetDate] = useState('');
   const [isCreating, setIsCreating] = useState(false);
 
-  const { data: goals, isLoading } = useQuery({
-    queryKey: ['goals', selectedFamily?.id, selectedStudent?.id],
-    queryFn: async () => {
-      if (!selectedFamily?.id || !selectedStudent?.id) return [];
-      
-      const { data, error } = await supabase
-        .from('goals')
-        .select('*')
-        .eq('family_id', selectedFamily.id)
-        .eq('student_id', selectedStudent.id)
-        .eq('is_active', true)
-        .order('created_at', { ascending: false });
+  const targetId = isNewModel && selectedClient ? selectedClient.id : selectedStudent?.id;
 
-      if (error) throw error;
-      return data;
+  const { data: goals, isLoading } = useQuery({
+    queryKey: ['goals', selectedFamily?.id, targetId, isNewModel],
+    queryFn: async () => {
+      if (!selectedFamily?.id || !targetId) return [];
+      
+      if (isNewModel && selectedClient) {
+        const { data, error } = await supabase.rpc('get_client_goals', {
+          p_client_id: selectedClient.id
+        });
+        if (error) throw error;
+        return data || [];
+      } else {
+        const { data, error } = await supabase
+          .from('goals')
+          .select('*')
+          .eq('family_id', selectedFamily.id)
+          .eq('student_id', targetId)
+          .eq('is_active', true)
+          .order('created_at', { ascending: false });
+        if (error) throw error;
+        return data;
+      }
     },
-    enabled: !!selectedFamily?.id && !!selectedStudent?.id,
+    enabled: !!selectedFamily?.id && !!targetId,
   });
 
   const handleCreateGoal = async () => {
-    if (!selectedFamily?.id || !selectedStudent?.id) {
-      toast.error('Please select a family and student');
+    if (!selectedFamily?.id || !targetId) {
+      toast.error('Please select a family and student/client');
       return;
     }
 
@@ -66,17 +80,30 @@ const Goals = () => {
 
     setIsCreating(true);
     try {
-      const { error } = await supabase.from('goals').insert({
-        family_id: selectedFamily.id,
-        student_id: selectedStudent.id,
-        goal_title: goalTitle,
-        goal_description: goalDescription || null,
-        goal_type: goalType || 'general',
-        target_value: targetValue ? parseFloat(targetValue) : null,
-        target_date: targetDate || null,
-      });
-
-      if (error) throw error;
+      if (isNewModel && selectedClient) {
+        const { error } = await supabase.rpc('create_goal', {
+          p_client_id: selectedClient.id,
+          p_goal_data: {
+            goal_title: goalTitle,
+            goal_description: goalDescription || null,
+            goal_type: goalType || 'general',
+            target_value: targetValue ? parseFloat(targetValue) : 100,
+            target_date: targetDate || null
+          }
+        });
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from('goals').insert({
+          family_id: selectedFamily.id,
+          student_id: targetId,
+          goal_title: goalTitle,
+          goal_description: goalDescription || null,
+          goal_type: goalType || 'general',
+          target_value: targetValue ? parseFloat(targetValue) : null,
+          target_date: targetDate || null,
+        });
+        if (error) throw error;
+      }
 
       toast.success('Goal created successfully!');
       setCreateModalOpen(false);
@@ -94,14 +121,37 @@ const Goals = () => {
     }
   };
 
-  if (!selectedStudent) {
+  const handleUpdateProgress = async (goalId: string, newValue: number) => {
+    try {
+      if (isNewModel && selectedClient) {
+        const { error } = await supabase.rpc('update_goal_progress', {
+          p_goal_id: goalId,
+          p_new_value: newValue
+        });
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('goals')
+          .update({ current_value: newValue })
+          .eq('id', goalId);
+        if (error) throw error;
+      }
+      toast.success('Progress updated!');
+      queryClient.invalidateQueries({ queryKey: ['goals'] });
+    } catch (error: any) {
+      console.error('Error updating progress:', error);
+      toast.error('Failed to update progress');
+    }
+  };
+
+  if (!targetId) {
     return (
       <div className="container mx-auto p-6">
         <Card>
           <CardHeader>
-            <CardTitle>No Student Selected</CardTitle>
+            <CardTitle>No {isNewModel ? 'Client' : 'Student'} Selected</CardTitle>
             <CardDescription>
-              Please select a student to view and manage goals
+              Please select a {isNewModel ? 'client' : 'student'} to view and manage goals
             </CardDescription>
           </CardHeader>
         </Card>
@@ -234,17 +284,28 @@ const Goals = () => {
       
       <div className="container mx-auto p-3 sm:p-4 md:p-6 space-y-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold">Goals</h1>
-          <p className="text-muted-foreground text-sm sm:text-base">
-            Track progress for {selectedStudent.student_name}
-          </p>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2">
+              <Target className="h-6 w-6 sm:h-8 sm:w-8" />
+              Goals & Progress
+            </h1>
+            <p className="text-muted-foreground text-sm sm:text-base mt-2">
+              Track academic and developmental milestones
+            </p>
+          </div>
+          <div className="flex gap-2">
+            {isNewModel && selectedClient && (
+              <Button variant="outline" onClick={() => setAiSuggestionsOpen(true)} size="sm" className="text-xs sm:text-sm">
+                <Sparkles className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                Discover Goals from AI
+              </Button>
+            )}
+            <Button onClick={() => setCreateModalOpen(true)} size="sm" className="text-xs sm:text-sm">
+              <Plus className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+              Create Goal
+            </Button>
+          </div>
         </div>
-        <Button onClick={() => setCreateModalOpen(true)} size="sm" className="text-xs sm:text-sm">
-          <Plus className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-          Create Goal
-        </Button>
-      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {goals.map((goal) => {
@@ -387,6 +448,18 @@ const Goals = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {isNewModel && selectedClient && (
+        <AIGoalSuggestions
+          open={aiSuggestionsOpen}
+          onOpenChange={setAiSuggestionsOpen}
+          clientId={selectedClient.id}
+          onGoalAdded={() => {
+            queryClient.invalidateQueries({ queryKey: ['goals'] });
+            setAiSuggestionsOpen(false);
+          }}
+        />
+      )}
       </div>
     </>
   );
