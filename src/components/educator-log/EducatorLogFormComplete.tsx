@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useFamily } from '@/contexts/FamilyContext';
+import { useClient } from '@/hooks/useClient';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -29,6 +30,7 @@ const LOG_TYPES = [
 
 export const EducatorLogFormComplete = ({ onSuccess }: EducatorLogFormProps) => {
   const { selectedFamily, selectedStudent } = useFamily();
+  const { selectedClient, isNewModel } = useClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
