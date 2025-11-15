@@ -4,6 +4,7 @@ import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useFamily } from '@/contexts/FamilyContext';
+import { useClient } from '@/hooks/useClient';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -20,6 +21,7 @@ interface SleepLogFormProps {
 
 export const SleepLogForm = ({ onSuccess }: SleepLogFormProps) => {
   const { selectedFamily, selectedStudent } = useFamily();
+  const { selectedClient, isNewModel } = useClient();
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
 

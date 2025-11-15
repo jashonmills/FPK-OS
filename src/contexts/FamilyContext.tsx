@@ -14,10 +14,21 @@ interface Student {
   personal_notes: string | null;
 }
 
+interface Client {
+  id: string;
+  client_name: string;
+  date_of_birth: string;
+  school_name: string | null;
+  grade_level: string | null;
+  primary_diagnosis: string[] | null;
+  avatar_url: string | null;
+}
+
 interface Family {
   id: string;
   family_name: string;
   subscription_tier: string;
+  metadata?: any;
 }
 
 interface FamilyMember {
@@ -29,14 +40,19 @@ interface FamilyMember {
 interface FamilyContextType {
   selectedFamily: Family | null;
   selectedStudent: Student | null;
+  selectedClient: Client | null;
   families: Family[];
   students: Student[];
+  clients: Client[];
   familyMembership: FamilyMember | null;
   currentUserRole: 'owner' | 'contributor' | 'viewer' | null;
+  isNewModel: boolean;
   setSelectedFamily: (family: Family) => void;
   setSelectedStudent: (student: Student) => void;
+  setSelectedClient: (client: Client) => void;
   refreshFamilies: () => Promise<void>;
   refreshStudents: () => Promise<void>;
+  refreshClients: () => Promise<void>;
   isLoading: boolean;
 }
 
@@ -45,11 +61,14 @@ const FamilyContext = createContext<FamilyContextType | undefined>(undefined);
 export const FamilyProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [selectedFamily, setSelectedFamilyState] = useState<Family | null>(null);
   const [selectedStudent, setSelectedStudentState] = useState<Student | null>(null);
+  const [selectedClient, setSelectedClientState] = useState<Client | null>(null);
   const [families, setFamilies] = useState<Family[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
+  const [clients, setClients] = useState<Client[]>([]);
   const [familyMembership, setFamilyMembership] = useState<FamilyMember | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
+  const [isNewModel, setIsNewModel] = useState(false);
 
   // Get current user
   useEffect(() => {
@@ -164,8 +183,63 @@ export const FamilyProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   };
 
+  // Load clients when family changes
+  const refreshClients = async () => {
+    if (!selectedFamily) return;
+
+    try {
+      // Check if family uses new model
+      const useNewModel = selectedFamily.metadata?.use_new_client_model === true;
+      setIsNewModel(useNewModel);
+
+      if (!useNewModel) {
+        setClients([]);
+        setSelectedClientState(null);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('client_access')
+        .select(`
+          client_id,
+          clients (
+            id,
+            client_name,
+            date_of_birth,
+            school_name,
+            grade_level,
+            primary_diagnosis,
+            avatar_url
+          )
+        `)
+        .eq('family_id', selectedFamily.id)
+        .eq('status', 'active');
+
+      if (error) throw error;
+
+      if (data && data.length > 0) {
+        const clientList = data
+          .map(ca => ca.clients as any)
+          .filter((c): c is Client => c !== null && c !== undefined);
+        
+        setClients(clientList);
+
+        // Auto-select client
+        const storedClientId = localStorage.getItem(`selected_client_${selectedFamily.id}`);
+        const defaultClient = clientList.find(c => c.id === storedClientId) || clientList[0];
+        setSelectedClientState(defaultClient);
+      } else {
+        setClients([]);
+        setSelectedClientState(null);
+      }
+    } catch (error) {
+      console.error('Error loading clients:', error);
+    }
+  };
+
   useEffect(() => {
     refreshStudents();
+    refreshClients();
     if (selectedFamily) {
       localStorage.setItem('selected_family_id', selectedFamily.id);
     }
@@ -184,19 +258,31 @@ export const FamilyProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   };
 
+  const setSelectedClient = (client: Client) => {
+    setSelectedClientState(client);
+    if (selectedFamily) {
+      localStorage.setItem(`selected_client_${selectedFamily.id}`, client.id);
+    }
+  };
+
   return (
     <FamilyContext.Provider
       value={{
         selectedFamily,
         selectedStudent,
+        selectedClient,
         families,
         students,
+        clients,
         familyMembership,
         currentUserRole: familyMembership?.role as 'owner' | 'contributor' | 'viewer' | null,
+        isNewModel,
         setSelectedFamily,
         setSelectedStudent,
+        setSelectedClient,
         refreshFamilies,
         refreshStudents,
+        refreshClients,
         isLoading,
       }}
     >
