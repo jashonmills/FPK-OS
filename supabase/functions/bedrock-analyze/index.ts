@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getSpecializedPrompt } from "../_shared/prompts/index.ts";
+import { isFlagEnabled, getClientContext } from "../_shared/feature-flags.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -113,6 +114,32 @@ serve(async (req) => {
     if (fetchError || !doc) {
       console.error('Document not found:', fetchError);
       throw new Error('Document not found or access denied');
+    }
+
+    // PHASE 1D: Determine which data model to use
+    const useFlagEnabled = await isFlagEnabled(supabase, doc.family_id, 'use_new_client_model');
+    console.log(`🚩 use_new_client_model flag: ${useFlagEnabled ? 'ON' : 'OFF'} for family ${doc.family_id}`);
+    
+    let finalClientId: string | null = null;
+    let finalFamilyId: string | null = null;
+    let finalOrgId: string | null = null;
+    let finalStudentId: string | null = null;
+
+    if (useFlagEnabled && doc.client_id) {
+      // NEW WORLD: Use client_id and get context
+      finalClientId = doc.client_id;
+      const clientContext = await getClientContext(supabase, doc.client_id);
+      if (clientContext) {
+        finalFamilyId = clientContext.family_id;
+        finalOrgId = clientContext.organization_id;
+      }
+      console.log(`🌍 NEW WORLD: Using client_id=${finalClientId}, family_id=${finalFamilyId}, org_id=${finalOrgId}`);
+    } else {
+      // OLD WORLD: Use student_id
+      finalStudentId = doc.student_id;
+      finalFamilyId = doc.family_id;
+      finalOrgId = doc.organization_id;
+      console.log(`🌍 OLD WORLD: Using student_id=${finalStudentId}, family_id=${finalFamilyId}`);
     }
 
     // 4. Validate document is ready for analysis
@@ -249,8 +276,8 @@ Return ONLY the JSON object, no markdown or explanation.`;
     await saveStudentInsights(
       supabase,
       document_id,
-      doc.family_id,
-      doc.student_id,
+      finalFamilyId!,
+      finalStudentId,
       analysisCategory,
       analysisResult
     );
@@ -276,23 +303,24 @@ Return ONLY the JSON object, no markdown or explanation.`;
 
     // 8. Queue document for embedding into AI memory
     try {
-      const contextType = doc.organization_id ? 'B2B Org' : 'B2C Family';
-      const contextId = doc.organization_id || doc.family_id;
+      const contextType = finalOrgId ? 'B2B Org' : 'B2C Family';
+      const contextId = finalOrgId || finalFamilyId;
       
       const { error: queueError } = await supabase
         .from('embedding_queue')
         .insert({
           source_table: 'bedrock_documents',
           source_id: document_id,
-          family_id: doc.family_id || null,
-          organization_id: doc.organization_id || null,
-          student_id: doc.student_id,
+          family_id: finalFamilyId || null,
+          organization_id: finalOrgId || null,
+          student_id: finalStudentId,
+          client_id: finalClientId,
           status: 'pending',
           metadata: {
             source: 'bedrock-analyze-function',
             document_name: doc.file_name,
             category: doc.category,
-            context_type: doc.organization_id ? 'organization' : 'family'
+            context_type: finalOrgId ? 'organization' : 'family'
           }
         });
 

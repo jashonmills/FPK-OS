@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.75.0';
+import { isFlagEnabled, getClientContext } from '../_shared/feature-flags.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -37,6 +38,7 @@ Deno.serve(async (req) => {
         family_id,
         organization_id,
         student_id,
+        client_id,
         analyzed_at
       `)
       .eq('status', 'complete')
@@ -70,22 +72,51 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Prepare embedding queue jobs for all ghost documents
-    const embeddingJobs = ghostDocuments.map(doc => ({
-      source_table: 'bedrock_documents',
-      source_id: doc.id,
-      family_id: doc.family_id,
-      organization_id: doc.organization_id,
-      student_id: doc.student_id,
-      status: 'pending',
-      metadata: {
-        auto_recovered: true,
-        recovered_by: 'sentinel-failsafe',
-        recovered_at: new Date().toISOString(),
-        document_name: doc.file_name,
-        original_analysis_date: doc.analyzed_at
-      }
-    }));
+    // PHASE 1D: Prepare embedding queue jobs with bilingual support
+    const embeddingJobs = await Promise.all(
+      ghostDocuments.map(async (doc) => {
+        // Determine which data model to use
+        const useFlagEnabled = await isFlagEnabled(supabaseAdmin, doc.family_id, 'use_new_client_model');
+        console.log(`[SENTINEL FAILSAFE] Ghost ${doc.id}: use_new_client_model=${useFlagEnabled ? 'ON' : 'OFF'}`);
+        
+        let finalClientId: string | null = null;
+        let finalFamilyId: string | null = null;
+        let finalOrgId: string | null = null;
+        let finalStudentId: string | null = null;
+
+        if (useFlagEnabled && doc.client_id) {
+          // NEW WORLD: Use client_id and get context
+          finalClientId = doc.client_id;
+          const clientContext = await getClientContext(supabaseAdmin, doc.client_id);
+          if (clientContext) {
+            finalFamilyId = clientContext.family_id;
+            finalOrgId = clientContext.organization_id;
+          }
+        } else {
+          // OLD WORLD: Use student_id
+          finalStudentId = doc.student_id;
+          finalFamilyId = doc.family_id;
+          finalOrgId = doc.organization_id;
+        }
+
+        return {
+          source_table: 'bedrock_documents',
+          source_id: doc.id,
+          family_id: finalFamilyId,
+          organization_id: finalOrgId,
+          student_id: finalStudentId,
+          client_id: finalClientId,
+          status: 'pending',
+          metadata: {
+            auto_recovered: true,
+            recovered_by: 'sentinel-failsafe',
+            recovered_at: new Date().toISOString(),
+            document_name: doc.file_name,
+            original_analysis_date: doc.analyzed_at
+          }
+        };
+      })
+    );
 
     console.log('[SENTINEL FAILSAFE] Inserting ghost documents into embedding queue...');
     

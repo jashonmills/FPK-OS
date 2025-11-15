@@ -43,7 +43,7 @@ serve(async (req) => {
     };
 
     // ============================================
-    // QUERY A: Detect Stalled Jobs
+    // QUERY A: Detect Stalled Jobs (Both Old and New World)
     // ============================================
     console.log('🔍 Checking for stalled jobs (>1 hour old)...');
     
@@ -51,7 +51,7 @@ serve(async (req) => {
     
     const { data: stalledJobs, error: stalledError } = await supabaseAdmin
       .from('embedding_queue')
-      .select('id, status, created_at, source_id, source_table')
+      .select('id, status, created_at, source_id, source_table, student_id, client_id')
       .in('status', ['pending', 'processing'])
       .lt('created_at', oneHourAgo);
 
@@ -63,11 +63,21 @@ serve(async (req) => {
     if (stalledJobs && stalledJobs.length > 0) {
       result.stalledJobs = stalledJobs.length;
       result.stalledJobIds = stalledJobs.map(job => job.id);
+      
+      // Log details including both old and new world identifiers
+      const stalledDetails = stalledJobs.map(job => ({
+        id: job.id,
+        source: `${job.source_table}:${job.source_id}`,
+        student_id: job.student_id || 'N/A',
+        client_id: job.client_id || 'N/A',
+        status: job.status
+      }));
+      
       result.issues.push(
-        `🚨 STALLED JOBS DETECTED: ${stalledJobs.length} items stuck in queue for over 1 hour`
+        `🚨 STALLED JOBS DETECTED: ${stalledJobs.length} items stuck in queue for over 1 hour. Details: ${JSON.stringify(stalledDetails)}`
       );
       
-      console.log(`⚠️ Found ${stalledJobs.length} stalled jobs:`, stalledJobs);
+      console.log(`⚠️ Found ${stalledJobs.length} stalled jobs:`, stalledDetails);
     } else {
       console.log('✅ No stalled jobs found');
     }
