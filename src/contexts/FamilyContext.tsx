@@ -100,7 +100,8 @@ export const FamilyProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           families (
             id,
             family_name,
-            subscription_tier
+            subscription_tier,
+            metadata
           )
         `)
         .eq('user_id', userId);
