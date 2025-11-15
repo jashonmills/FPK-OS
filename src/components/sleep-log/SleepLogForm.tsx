@@ -123,7 +123,8 @@ export const SleepLogForm = ({ onSuccess }: SleepLogFormProps) => {
             family_id: selectedFamily.id,
             student_id: selectedStudent.id,
             created_by: user.id,
-            ...sleepData
+            ...sleepData,
+            weather_temp_c: weatherData.weather_temp_c ? Number(weatherData.weather_temp_c) : null,
           }]);
         error = insertError;
       }
