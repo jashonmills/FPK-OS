@@ -85,55 +85,48 @@ export const SleepLogForm = ({ onSuccess }: SleepLogFormProps) => {
       const totalSleepHours = calculateSleepHours(fellAsleep, data.wake_time);
       const napDuration = data.nap_taken ? calculateNapDuration() : null;
 
-      const { error } = await supabase
-        .from('sleep_records')
-        .insert({
-          family_id: selectedFamily.id,
-          student_id: selectedStudent.id,
-          created_by: user.id,
-          sleep_date: data.sleep_date,
-          bedtime: data.bedtime,
-          fell_asleep_time: data.fell_asleep_time || null,
-          wake_time: data.wake_time,
-          total_sleep_hours: totalSleepHours,
-          sleep_quality_rating: data.sleep_quality_rating,
-          nighttime_awakenings: Number(data.nighttime_awakenings),
-          disturbances: data.disturbances.length > 0 ? data.disturbances : null,
-          pre_bed_activities: data.pre_bed_activities.length > 0 ? data.pre_bed_activities : null,
-          daytime_fatigue_level: data.daytime_fatigue_level,
-          nap_taken: data.nap_taken,
-          nap_start_time: data.nap_start_time || null,
-          nap_end_time: data.nap_end_time || null,
-          nap_duration_minutes: napDuration,
-          fell_asleep_in_school: data.fell_asleep_in_school,
-          asleep_location: data.asleep_location || null,
-          daytime_medication_taken: data.daytime_medication_taken,
-          daytime_medication_details: data.daytime_medication_details || null,
-          daytime_notes: data.daytime_notes || null,
-          notes: data.notes || null,
-          weather_condition: weatherData.weather_condition,
-          weather_temp_f: weatherData.weather_temp_f,
-          weather_temp_c: weatherData.weather_temp_c ? parseFloat(weatherData.weather_temp_c) : null,
-          weather_humidity: weatherData.weather_humidity,
-          weather_pressure_mb: weatherData.weather_pressure_mb,
-          weather_wind_speed: weatherData.weather_wind_speed,
-          weather_fetched_at: weatherData.weather_fetched_at,
-          aqi_us: weatherData.aqi_us,
-          aqi_european: weatherData.aqi_european,
-          pm25: weatherData.pm25,
-          pm10: weatherData.pm10,
-          o3: weatherData.o3,
-          no2: weatherData.no2,
-          so2: weatherData.so2,
-          co: weatherData.co,
-          pollen_alder: weatherData.pollen_alder,
-          pollen_birch: weatherData.pollen_birch,
-          pollen_grass: weatherData.pollen_grass,
-          pollen_mugwort: weatherData.pollen_mugwort,
-          pollen_olive: weatherData.pollen_olive,
-          pollen_ragweed: weatherData.pollen_ragweed,
-          air_quality_fetched_at: weatherData.air_quality_fetched_at,
+      const sleepData = {
+        sleep_date: data.sleep_date,
+        bedtime: data.bedtime,
+        fell_asleep_time: data.fell_asleep_time || null,
+        wake_time: data.wake_time,
+        total_sleep_hours: totalSleepHours,
+        sleep_quality_rating: data.sleep_quality_rating,
+        nighttime_awakenings: Number(data.nighttime_awakenings),
+        disturbances: data.disturbances.length > 0 ? data.disturbances : null,
+        pre_bed_activities: data.pre_bed_activities.length > 0 ? data.pre_bed_activities : null,
+        daytime_fatigue_level: data.daytime_fatigue_level,
+        nap_taken: data.nap_taken,
+        nap_start_time: data.nap_taken ? data.nap_start_time : null,
+        nap_end_time: data.nap_taken ? data.nap_end_time : null,
+        nap_duration_minutes: napDuration,
+        fell_asleep_in_school: data.fell_asleep_in_school,
+        asleep_location: data.fell_asleep_in_school ? data.asleep_location : null,
+        daytime_medication_taken: data.daytime_medication_taken,
+        daytime_medication_details: data.daytime_medication_details || null,
+        daytime_notes: data.daytime_notes || null,
+        notes: data.notes || null,
+        ...weatherData,
+      };
+
+      let error;
+      if (isNewModel && selectedClient) {
+        const { error: rpcError } = await supabase.rpc('log_sleep_record', {
+          p_client_id: selectedClient.id,
+          p_sleep_data: sleepData
         });
+        error = rpcError;
+      } else {
+        const { error: insertError } = await supabase
+          .from('sleep_records')
+          .insert([{
+            family_id: selectedFamily.id,
+            student_id: selectedStudent.id,
+            created_by: user.id,
+            ...sleepData
+          }]);
+        error = insertError;
+      }
 
       if (error) throw error;
 
