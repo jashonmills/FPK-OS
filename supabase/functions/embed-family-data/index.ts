@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { createEmbedding, chunkText as sharedChunkText } from "../_shared/embedding-helper.ts";
+import { isFlagEnabled, getClientContext } from "../_shared/feature-flags.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -31,7 +32,7 @@ serve(async (req) => {
     if (source_table === "bedrock_documents") {
       const { data: bedrockDoc, error: bedrockError } = await supabase
         .from('bedrock_documents')
-        .select('analysis_data, file_name, category, student_id, family_id, organization_id')
+        .select('analysis_data, file_name, category, student_id, family_id, organization_id, client_id')
         .eq('id', source_id)
         .maybeSingle();
 
@@ -93,10 +94,36 @@ Replacement Behavior: ${analysisData.bip_data.replacement_behavior || 'N/A'}`
         log_type: source_table,
       };
 
+      // PHASE 1D: Determine which data model to use
+      const useFlagEnabled = await isFlagEnabled(supabase, bedrockDoc.family_id, 'use_new_client_model');
+      console.log(`🚩 use_new_client_model flag: ${useFlagEnabled ? 'ON' : 'OFF'} for family ${bedrockDoc.family_id}`);
+      
+      let finalClientId: string | null = null;
+      let finalFamilyId: string | null = null;
+      let finalOrgId: string | null = null;
+      let finalStudentId: string | null = null;
+
+      if (useFlagEnabled && bedrockDoc.client_id) {
+        // NEW WORLD: Use client_id and get context
+        finalClientId = bedrockDoc.client_id;
+        const clientContext = await getClientContext(supabase, bedrockDoc.client_id);
+        if (clientContext) {
+          finalFamilyId = clientContext.family_id;
+          finalOrgId = clientContext.organization_id;
+        }
+        console.log(`🌍 NEW WORLD: Using client_id=${finalClientId}, family_id=${finalFamilyId}, org_id=${finalOrgId}`);
+      } else {
+        // OLD WORLD: Use student_id
+        finalStudentId = bedrockDoc.student_id;
+        finalFamilyId = bedrockDoc.family_id;
+        finalOrgId = bedrockDoc.organization_id;
+        console.log(`🌍 OLD WORLD: Using student_id=${finalStudentId}, family_id=${finalFamilyId}`);
+      }
+
       // Chunk and embed
       const chunks = sharedChunkText(textContent, 8000);
-      const contextType = bedrockDoc.organization_id ? 'B2B Organization' : 'B2C Family';
-      const contextId = bedrockDoc.organization_id || bedrockDoc.family_id;
+      const contextType = finalOrgId ? 'B2B Organization' : 'B2C Family';
+      const contextId = finalOrgId || finalFamilyId;
       console.log(`📦 Created ${chunks.length} chunks for ${contextType} ${contextId} - bedrock_documents:${source_id}`);
 
       let embeddingsCreated = 0;
@@ -120,9 +147,10 @@ Replacement Behavior: ${analysisData.bip_data.replacement_behavior || 'N/A'}`
           const { error: insertError } = await supabase
             .from("family_data_embeddings")
             .insert({
-              family_id: bedrockDoc.family_id || null,
-              organization_id: bedrockDoc.organization_id || null,
-              student_id: bedrockDoc.student_id,
+              family_id: finalFamilyId || null,
+              organization_id: finalOrgId || null,
+              student_id: finalStudentId,
+              client_id: finalClientId,
               source_table,
               source_id,
               chunk_text: chunk,
