@@ -9,12 +9,15 @@ import { VideoBackground } from "@/components/analytics/VideoBackground";
 import { ActivityFrequencyChart } from "@/components/analytics/ActivityFrequencyChart";
 import { GoalProgressChart } from "@/components/analytics/GoalProgressChart";
 import { ExtractedMetricsViewer } from "@/components/analytics/ExtractedMetricsViewer";
+import { BatchExtractTrigger } from "@/components/analytics/BatchExtractTrigger";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useQueryClient } from "@tanstack/react-query";
 
 const Analytics = () => {
   const navigate = useNavigate();
   const { selectedStudent } = useFamily();
   const { selectedClient, isNewModel } = useClient();
+  const queryClient = useQueryClient();
 
   const handleExit = () => {
     navigate("/dashboard");
@@ -100,7 +103,15 @@ const Analytics = () => {
             </TabsContent>
             
             <TabsContent value="ai-data">
-              <ExtractedMetricsViewer clientId={selectedClient.id} />
+              <div className="space-y-6">
+                <BatchExtractTrigger 
+                  clientId={selectedClient.id}
+                  onComplete={() => {
+                    queryClient.invalidateQueries({ queryKey: ['extracted-metrics'] });
+                  }}
+                />
+                <ExtractedMetricsViewer clientId={selectedClient.id} />
+              </div>
             </TabsContent>
           </Tabs>
         </div>
