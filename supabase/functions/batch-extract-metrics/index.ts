@@ -23,7 +23,7 @@ Deno.serve(async (req) => {
     const query = supabase
       .from('bedrock_documents')
       .select('id, file_name, status, metrics_extracted')
-      .eq('status', 'complete');
+      .eq('status', 'completed');
 
     if (client_id) {
       query.eq('client_id', client_id);
