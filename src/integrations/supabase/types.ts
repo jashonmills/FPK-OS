@@ -4852,21 +4852,34 @@ export type Database = {
         Args: { p_family_id: string; p_student_id: string; p_tab_id: string }
         Returns: Json
       }
-      get_client_goals: {
-        Args: { p_active_only?: boolean; p_client_id: string }
-        Returns: {
-          created_at: string
-          current_value: number
-          goal_description: string
-          goal_title: string
-          goal_type: string
-          id: string
-          is_active: boolean
-          progress_percentage: number
-          target_date: string
-          target_value: number
-        }[]
-      }
+      get_client_goals:
+        | {
+            Args: { p_active_only?: boolean; p_client_id: string }
+            Returns: {
+              created_at: string
+              current_value: number
+              goal_description: string
+              goal_title: string
+              goal_type: string
+              id: string
+              is_active: boolean
+              progress_percentage: number
+              target_date: string
+              target_value: number
+            }[]
+          }
+        | {
+            Args: { p_client_id: string }
+            Returns: {
+              current_value: number
+              goal_title: string
+              goal_type: string
+              id: string
+              is_active: boolean
+              target_date: string
+              target_value: number
+            }[]
+          }
       get_communication_progress_data: {
         Args: { p_days?: number; p_family_id: string; p_student_id: string }
         Returns: {
@@ -4975,14 +4988,26 @@ export type Database = {
           target_level: number
         }[]
       }
-      get_goal_progress_timeline: {
-        Args: { p_days?: number; p_goal_id: string }
-        Returns: {
-          changed_at: string
-          notes: string
-          value: number
-        }[]
-      }
+      get_goal_progress_timeline:
+        | {
+            Args: { p_days?: number; p_goal_id: string }
+            Returns: {
+              changed_at: string
+              notes: string
+              value: number
+            }[]
+          }
+        | {
+            Args: {
+              p_end_date: string
+              p_goal_id: string
+              p_start_date: string
+            }
+            Returns: {
+              progress_value: number
+              recorded_date: string
+            }[]
+          }
       get_gross_motor_data: {
         Args: { p_days?: number; p_family_id: string; p_student_id: string }
         Returns: {
