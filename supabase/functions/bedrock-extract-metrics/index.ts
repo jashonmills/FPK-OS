@@ -167,7 +167,7 @@ serve(async (req) => {
       }
     }
 
-    // 6. Generic metrics array (fallback)
+    // 6. Generic metrics array (fallback) - HANDLES MOST DOCUMENT TYPES
     if (analysisData.metrics && Array.isArray(analysisData.metrics)) {
       for (const metric of analysisData.metrics) {
         metricsToInsert.push({
@@ -176,15 +176,24 @@ serve(async (req) => {
           organization_id: document.organization_id,
           client_id: document.client_id,
           student_id: document.student_id,
-          metric_type: metric.type || "general",
-          metric_name: metric.name || metric.metric_name || "Metric",
-          metric_value: metric.value || metric.score,
-          target_value: metric.target,
-          measurement_date: metric.date || document.document_date || document.created_at.split('T')[0],
+          // Support both formats: {metric_type: "x"} and {type: "x"}
+          metric_type: metric.metric_type || metric.type || "general",
+          // Support both formats: {metric_name: "x"} and {name: "x"}
+          metric_name: metric.metric_name || metric.name || "Metric",
+          // Support both formats: {metric_value: 123} and {value: 123}
+          metric_value: metric.metric_value !== undefined ? metric.metric_value : (metric.value !== undefined ? metric.value : metric.score),
+          // Support both formats: {target_value: 100} and {target: 100}
+          target_value: metric.target_value !== undefined ? metric.target_value : metric.target,
+          // Support multiple date field names
+          measurement_date: metric.measurement_date || metric.date || document.document_date || document.created_at.split('T')[0],
           context: metric.context || metric.notes,
-          intervention_used: metric.intervention,
+          // Support both formats: {metric_unit: "wpm"} and {unit: "wpm"}
+          intervention_used: metric.intervention_used || metric.intervention,
           duration_minutes: metric.duration_minutes,
-          metadata: { raw: metric },
+          metadata: { 
+            raw: metric,
+            unit: metric.metric_unit || metric.unit // Preserve unit info in metadata
+          },
         });
       }
     }
@@ -195,9 +204,17 @@ serve(async (req) => {
     if (metricsToInsert.length > 0) {
       for (const metric of metricsToInsert) {
         try {
-          // Skip if missing required fields
-          if (!metric.metric_type || !metric.metric_name || !metric.measurement_date) {
-            console.warn(`⚠️ Skipping metric with missing fields:`, metric);
+          // Only skip if COMPLETELY missing core identity (type + name)
+          // Allow null metric_value for qualitative observations
+          // Allow missing measurement_date (will use document date)
+          if (!metric.metric_type || !metric.metric_name) {
+            console.warn(`⚠️ Skipping metric missing type or name:`, { type: metric.metric_type, name: metric.metric_name });
+            continue;
+          }
+          
+          // Ensure measurement_date exists (critical for time-series analysis)
+          if (!metric.measurement_date) {
+            console.warn(`⚠️ Metric missing measurement_date, cannot track over time: ${metric.metric_name}`);
             continue;
           }
 
