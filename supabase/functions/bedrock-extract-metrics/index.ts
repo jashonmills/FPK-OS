@@ -50,7 +50,38 @@ serve(async (req) => {
     // Extract metrics from various sections of the analysis
     const metricsToInsert: any[] = [];
 
-    // 1. Extract Academic Metrics
+    // PRIORITY 1: Generic metrics array (MOST COMMON - check this FIRST!)
+    if (analysisData.metrics && Array.isArray(analysisData.metrics)) {
+      console.log(`📊 Found ${analysisData.metrics.length} metrics in generic array`);
+      for (const metric of analysisData.metrics) {
+        metricsToInsert.push({
+          document_id,
+          family_id: document.family_id,
+          organization_id: document.organization_id,
+          client_id: document.client_id,
+          student_id: document.student_id,
+          // Support both formats: {metric_type: "x"} and {type: "x"}
+          metric_type: metric.metric_type || metric.type || "general",
+          // Support both formats: {metric_name: "x"} and {name: "x"}
+          metric_name: metric.metric_name || metric.name || "Metric",
+          // Support both formats: {metric_value: 123} and {value: 123}
+          metric_value: metric.metric_value !== undefined ? metric.metric_value : (metric.value !== undefined ? metric.value : metric.score),
+          // Support both formats: {target_value: 100} and {target: 100}
+          target_value: metric.target_value !== undefined ? metric.target_value : metric.target,
+          // Support multiple date field names
+          measurement_date: metric.measurement_date || metric.date || document.document_date || document.created_at.split('T')[0],
+          context: metric.context || metric.notes,
+          intervention_used: metric.intervention_used || metric.intervention,
+          duration_minutes: metric.duration_minutes,
+          metadata: { 
+            raw: metric,
+            unit: metric.metric_unit || metric.unit // Preserve unit info in metadata
+          },
+        });
+      }
+    }
+
+    // PRIORITY 2: Extract Academic Metrics (specialized format)
     if (analysisData.academic_metrics || analysisData.academicMetrics) {
       const academics = analysisData.academic_metrics || analysisData.academicMetrics;
       if (Array.isArray(academics)) {
@@ -167,36 +198,6 @@ serve(async (req) => {
       }
     }
 
-    // 6. Generic metrics array (fallback) - HANDLES MOST DOCUMENT TYPES
-    if (analysisData.metrics && Array.isArray(analysisData.metrics)) {
-      for (const metric of analysisData.metrics) {
-        metricsToInsert.push({
-          document_id,
-          family_id: document.family_id,
-          organization_id: document.organization_id,
-          client_id: document.client_id,
-          student_id: document.student_id,
-          // Support both formats: {metric_type: "x"} and {type: "x"}
-          metric_type: metric.metric_type || metric.type || "general",
-          // Support both formats: {metric_name: "x"} and {name: "x"}
-          metric_name: metric.metric_name || metric.name || "Metric",
-          // Support both formats: {metric_value: 123} and {value: 123}
-          metric_value: metric.metric_value !== undefined ? metric.metric_value : (metric.value !== undefined ? metric.value : metric.score),
-          // Support both formats: {target_value: 100} and {target: 100}
-          target_value: metric.target_value !== undefined ? metric.target_value : metric.target,
-          // Support multiple date field names
-          measurement_date: metric.measurement_date || metric.date || document.document_date || document.created_at.split('T')[0],
-          context: metric.context || metric.notes,
-          // Support both formats: {metric_unit: "wpm"} and {unit: "wpm"}
-          intervention_used: metric.intervention_used || metric.intervention,
-          duration_minutes: metric.duration_minutes,
-          metadata: { 
-            raw: metric,
-            unit: metric.metric_unit || metric.unit // Preserve unit info in metadata
-          },
-        });
-      }
-    }
 
     console.log(`📦 Prepared ${metricsToInsert.length} metrics for insertion`);
 
