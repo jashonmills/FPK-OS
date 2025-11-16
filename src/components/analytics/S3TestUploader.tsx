@@ -11,8 +11,8 @@ import { Loader2, CheckCircle, AlertTriangle } from "lucide-react";
 const HARDCODED_CONFIG = {
   REGION: "us-east-2",
   BUCKET_NAME: "fpkx-datalake-raw",
-  ACCESS_KEY_ID: "YOUR_ACCESS_KEY_ID_HERE",
-  SECRET_ACCESS_KEY: "YOUR_SECRET_ACCESS_KEY_HERE",
+  ACCESS_KEY_ID: "AKIASNIMZLSBZDKQLPLV",
+  SECRET_ACCESS_KEY: "bO0EywpxJJYWcjcrDC4kYQGlLoW3IQrEt2iA+tu7",
 };
 // --- !! END OF HARDCODED CONFIGURATION !! ---
 
