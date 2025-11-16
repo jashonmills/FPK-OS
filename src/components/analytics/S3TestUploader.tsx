@@ -1,67 +1,69 @@
-import React, { useState } from 'react';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { Button } from '@/components/ui/button';
-import { Loader2, CheckCircle, AlertTriangle } from 'lucide-react';
+// src/components/analytics/S3TestUploader.tsx
 
-// Summary of change:
-// - Removed top-level env reads and client creation.
-// - Read VITE_* env vars inside the handler, validate them, create S3Client lazily,
-//   and render a friendly error message when configuration is missing.
+import React, { useState } from "react";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { Button } from "@/components/ui/button";
+import { Loader2, CheckCircle, AlertTriangle } from "lucide-react";
+
+// --- !! OPERATION: HARDCODE TO VICTORY !! ---
+// Bypassing the broken environment variable system on the Lovable platform.
+// CRITICAL: Replace these placeholder values with your actual keys.
+const HARDCODED_CONFIG = {
+  REGION: "us-east-2",
+  BUCKET_NAME: "fpkx-datalake-raw",
+  ACCESS_KEY_ID: "YOUR_ACCESS_KEY_ID_HERE",
+  SECRET_ACCESS_KEY: "YOUR_SECRET_ACCESS_KEY_HERE",
+};
+// --- !! END OF HARDCODED CONFIGURATION !! ---
 
 export const S3TestUploader = () => {
-  const [uploadStatus, setUploadStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [uploadStatus, setUploadStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleUpload = async () => {
-    setUploadStatus('loading');
-    setErrorMessage('');
+    setUploadStatus("loading");
+    setErrorMessage("");
 
-    // Read env values at time of action (safer than at module load)
-    const REGION = import.meta.env.VITE_AWS_REGION;
-    const BUCKET_NAME = import.meta.env.VITE_S3_BUCKET_NAME;
-    const ACCESS_KEY_ID = import.meta.env.VITE_AWS_ACCESS_KEY_ID;
-    const SECRET_ACCESS_KEY = import.meta.env.VITE_AWS_SECRET_ACCESS_KEY;
-
-    if (!REGION || !BUCKET_NAME || !ACCESS_KEY_ID || !SECRET_ACCESS_KEY) {
-      setUploadStatus('error');
-      setErrorMessage('Missing AWS configuration. Ensure VITE_AWS_* vars are set in .env.local.');
-      console.error("AWS Configuration missing:", {
-        REGION,
-        BUCKET_NAME,
-        ACCESS_KEY_ID: !!ACCESS_KEY_ID,
-        SECRET_ACCESS_KEY: !!SECRET_ACCESS_KEY,
-      });
+    // 1. Validate the hardcoded configuration
+    if (
+      !HARDCODED_CONFIG.REGION ||
+      !HARDCODED_CONFIG.BUCKET_NAME ||
+      !HARDCODED_CONFIG.ACCESS_KEY_ID ||
+      !HARDCODED_CONFIG.SECRET_ACCESS_KEY
+    ) {
+      setUploadStatus("error");
+      setErrorMessage("Hardcoded configuration is incomplete. Please check the S3TestUploader.tsx file.");
+      console.error("Hardcoded configuration is incomplete.", HARDCODED_CONFIG);
       return;
     }
 
-    // create S3 client lazily after validating config
-    const s3Client = new S3Client({
-      region: REGION,
-      credentials: {
-        accessKeyId: ACCESS_KEY_ID,
-        secretAccessKey: SECRET_ACCESS_KEY,
-      },
-    });
-
-    // Create a dummy file content
-    const fileContent = `This is a test file uploaded from the FPK-X application on ${new Date().toISOString()}`;
-    const fileName = `test-upload-${Date.now()}.txt`;
-
-    const params = {
-      Bucket: BUCKET_NAME,
-      Key: fileName,
-      Body: fileContent,
-      ContentType: 'text/plain',
-    };
-
     try {
+      // 2. Create the S3 client LAZILY with the hardcoded config
+      const s3Client = new S3Client({
+        region: HARDCODED_CONFIG.REGION,
+        credentials: {
+          accessKeyId: HARDCODED_CONFIG.ACCESS_KEY_ID,
+          secretAccessKey: HARDCODED_CONFIG.SECRET_ACCESS_KEY,
+        },
+      });
+
+      // 3. Prepare and send the command
+      const fileContent = `This is a test file uploaded from the FPK-X application on ${new Date().toISOString()}`;
+      const fileName = `test-upload-${Date.now()}.txt`;
+      const params = {
+        Bucket: HARDCODED_CONFIG.BUCKET_NAME,
+        Key: fileName,
+        Body: fileContent,
+        ContentType: "text/plain",
+      };
+
       const command = new PutObjectCommand(params);
       await s3Client.send(command);
-      setUploadStatus('success');
-      console.log(`Successfully uploaded ${fileName} to ${BUCKET_NAME}`);
+      setUploadStatus("success");
+      console.log(`Successfully uploaded ${fileName} to ${HARDCODED_CONFIG.BUCKET_NAME}`);
     } catch (err: any) {
-      setUploadStatus('error');
-      setErrorMessage(err?.message || 'An unknown error occurred.');
+      setUploadStatus("error");
+      setErrorMessage(err.message || "An unknown error occurred.");
       console.error("S3 Upload Error:", err);
     }
   };
@@ -73,14 +75,14 @@ export const S3TestUploader = () => {
         Click the button to attempt to upload a test file named "test-upload-[timestamp].txt" to your S3 bucket.
       </p>
       <div className="flex items-center gap-4">
-        <Button onClick={handleUpload} disabled={uploadStatus === 'loading'}>
-          {uploadStatus === 'loading' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+        <Button onClick={handleUpload} disabled={uploadStatus === "loading"}>
+          {uploadStatus === "loading" && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           Test S3 Upload
         </Button>
-        {uploadStatus === 'success' && <CheckCircle className="h-6 w-6 text-green-500" />}
-        {uploadStatus === 'error' && <AlertTriangle className="h-6 w-6 text-red-500" />}
+        {uploadStatus === "success" && <CheckCircle className="h-6 w-6 text-green-500" />}
+        {uploadStatus === "error" && <AlertTriangle className="h-6 w-6 text-red-500" />}
       </div>
-      {uploadStatus === 'error' && (
+      {uploadStatus === "error" && (
         <p className="text-sm text-red-500 mt-2">
           <strong>Error:</strong> {errorMessage}
         </p>
