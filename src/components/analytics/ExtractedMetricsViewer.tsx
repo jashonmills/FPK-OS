@@ -34,7 +34,7 @@ export const ExtractedMetricsViewer = ({ clientId }: ExtractedMetricsViewerProps
 
   const fetchExtractedMetrics = async (clientId: string) => {
     const { data, error } = await supabase
-      .from<Metric>('extracted_metrics')
+      .from('bedrock_metrics')
       .select('*')
       .eq('client_id', clientId);
     if (error) throw error;
