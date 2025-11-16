@@ -6,7 +6,7 @@ import { Loader2, CheckCircle, AlertTriangle } from "lucide-react";
 
 // --- The Secure API Endpoint ---
 // This is the public "phone number" for our secure Lambda function.
-const SECURE_UPLOAD_URL = "https://43amvrzncl.execute-api.us-east-2.amazonaws.com/default/fpkx-secure-s3-uploader";
+const SECURE_UPLOAD_URL = "https://43amvrzncl.execute-api.us-east-2.amazonaws.com/prod/fpkx-secure-s3-uploader";
 
 export const S3TestUploader = () => {
   const [uploadStatus, setUploadStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
