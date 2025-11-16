@@ -24,7 +24,7 @@ export const AppHeader = () => {
   const getPageTitle = () => {
     switch (location.pathname) {
       case '/overview':
-        return 'Platform Overview';
+        return "Commander's Dashboard";
       case '/dashboard':
         return 'Progress Dashboard';
       case '/activity-log':

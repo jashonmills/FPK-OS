@@ -51,6 +51,17 @@ const Dashboard = () => {
       />
       
       <div className="max-w-7xl mx-auto space-y-6">
+        {/* === MODIFICATION START === */}
+        <div className="flex items-center justify-between space-y-2 mb-6">
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight">Commander's Dashboard</h2>
+            <p className="text-muted-foreground">
+              Welcome, Maestro. Your command center is fully operational.
+            </p>
+          </div>
+        </div>
+        {/* === MODIFICATION END === */}
+
         <div className="mb-4">
           <p className="text-muted-foreground">
             Tracking progress for {selectedStudent.student_name}

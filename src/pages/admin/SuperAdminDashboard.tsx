@@ -86,7 +86,7 @@ export default function SuperAdminDashboard() {
 
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="overview">Platform Overview</TabsTrigger>
+          <TabsTrigger value="overview">Commander's Dashboard</TabsTrigger>
           <TabsTrigger value="migration">Migration Status</TabsTrigger>
           <TabsTrigger value="health">System Health</TabsTrigger>
         </TabsList>

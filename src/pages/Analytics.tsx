@@ -1,3 +1,6 @@
+// src/pages/Analytics.tsx
+
+import { S3TestUploader } from "@/components/analytics/S3TestUploader";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useFamily } from "@/contexts/FamilyContext";
@@ -6,12 +9,12 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { VideoBackground } from "@/components/analytics/VideoBackground";
-import { ActivityFrequencyChart } from "@/components/analytics/ActivityFrequencyChart";
-import { GoalProgressChart } from "@/components/analytics/GoalProgressChart";
 import { ExtractedMetricsViewer } from "@/components/analytics/ExtractedMetricsViewer";
 import { BatchExtractTrigger } from "@/components/analytics/BatchExtractTrigger";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useQueryClient } from "@tanstack/react-query";
+// +++ Importing our newly FORGED Athena component +++
+import { IntelligentChartGrid } from "@/components/analytics/IntelligentChartGrid";
 
 const Analytics = () => {
   const navigate = useNavigate();
@@ -23,7 +26,7 @@ const Analytics = () => {
     navigate("/dashboard");
   };
 
-  // ESC key to exit
+  // ... (rest of the component logic is unchanged) ...
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -36,7 +39,6 @@ const Analytics = () => {
 
   const targetId = isNewModel && selectedClient ? selectedClient.id : selectedStudent?.id;
 
-  // Early return if no target selected
   if (!targetId) {
     return (
       <div className="container mx-auto p-6">
@@ -50,7 +52,6 @@ const Analytics = () => {
     );
   }
 
-  // Show analytics only for new model users with client selected
   if (!isNewModel || !selectedClient) {
     return (
       <div className="container mx-auto p-6">
@@ -67,8 +68,12 @@ const Analytics = () => {
   return (
     <div className="relative min-h-screen">
       <VideoBackground />
+
+      {/* +++ RELOCATED TEST COMPONENT FOR GUARANTEED VISIBILITY +++ */}
+      <div className="relative z-20 p-4">
+        <S3TestUploader />
+      </div>
       
-      {/* Floating Exit Button */}
       <div className="fixed top-4 right-4 z-50">
         <Button
           onClick={handleExit}
@@ -91,15 +96,13 @@ const Analytics = () => {
 
           <Tabs defaultValue="charts" className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="charts">Charts</TabsTrigger>
+              <TabsTrigger value="charts">Intelligent Charts</TabsTrigger>
               <TabsTrigger value="ai-data">AI-Extracted Data</TabsTrigger>
             </TabsList>
             
             <TabsContent value="charts">
-              <div className="grid gap-6 md:grid-cols-2">
-                <ActivityFrequencyChart clientId={selectedClient.id} />
-                <GoalProgressChart clientId={selectedClient.id} />
-              </div>
+              {/* === The Forged Athena Grid is now in command === */}
+              <IntelligentChartGrid clientId={selectedClient.id} />
             </TabsContent>
             
             <TabsContent value="ai-data">

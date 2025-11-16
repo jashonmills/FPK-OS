@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
@@ -15,25 +15,37 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+type Metric = {
+  id: string;
+  client_id: string;
+  key?: string;
+  value?: string | number | null;
+  created_at?: string;
+  // ...other fields as needed...
+};
+
 interface ExtractedMetricsViewerProps {
-  clientId: string;
+  clientId?: string | null;
 }
 
 export const ExtractedMetricsViewer = ({ clientId }: ExtractedMetricsViewerProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedMetricType, setSelectedMetricType] = useState<string>("all");
 
-  const { data: metrics, isLoading, error } = useQuery({
-    queryKey: ['extracted-metrics', clientId, selectedMetricType],
-    queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_extracted_metrics', {
-        p_client_id: clientId,
-        p_metric_type: selectedMetricType === 'all' ? null : selectedMetricType,
-      });
-      
-      if (error) throw error;
-      return data;
-    },
+  const fetchExtractedMetrics = async (clientId: string) => {
+    const { data, error } = await supabase
+      .from<Metric>('extracted_metrics')
+      .select('*')
+      .eq('client_id', clientId);
+    if (error) throw error;
+    return data ?? [];
+  };
+
+  const { data: metrics, isLoading, isError, error } = useQuery({
+    queryKey: ['extractedMetrics', clientId],
+    queryFn: () => fetchExtractedMetrics(clientId as string),
+    enabled: !!clientId,
+    staleTime: 1000 * 60, // 1 minute cache, adjust as needed
   });
 
   // Get unique metric types for filter
@@ -73,12 +85,12 @@ export const ExtractedMetricsViewer = ({ clientId }: ExtractedMetricsViewerProps
     );
   }
 
-  if (error) {
+  if (isError) {
     return (
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
-          Failed to load extracted metrics: {error.message}
+          Error loading extracted metrics: {(error as Error)?.message ?? 'Unknown error'}
         </AlertDescription>
       </Alert>
     );

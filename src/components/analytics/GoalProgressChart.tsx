@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,90 +11,87 @@ interface GoalProgressChartProps {
   clientId: string;
 }
 
+// Define the structure of our metrics from the database
+interface Metric {
+  id: string;
+  metric_name: string;
+  metric_value: number;
+  measurement_date: string;
+  target_value?: number;
+  // Add any other relevant fields from your bedrock_metrics table
+}
+
 export const GoalProgressChart = ({ clientId }: GoalProgressChartProps) => {
   const [selectedGoalId, setSelectedGoalId] = useState<string | undefined>(undefined);
 
-  // Fetch manual goals
+  // This part for manual goals can be kept or removed if not needed
   const { data: manualGoals, isLoading: manualGoalsLoading } = useQuery({
     queryKey: ['client-goals', clientId],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_client_goals', {
-        p_client_id: clientId
-      });
+      const { data, error } = await supabase.rpc('get_client_goals', { p_client_id: clientId });
       if (error) throw error;
       return data || [];
     },
     enabled: !!clientId,
   });
 
-  // Fetch AI-extracted goals
-  const { data: aiGoals, isLoading: aiGoalsLoading } = useQuery({
+  // === MODIFICATION START ===
+  // Fetch AI-extracted goals (bedrock_metrics)
+  const { data: aiGoals, isLoading: aiGoalsLoading } = useQuery<Metric[]>({
     queryKey: ['ai-extracted-goals', clientId],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_ai_extracted_goals', {
-        p_client_id: clientId
-      });
+      if (!clientId) return [];
+      const { data, error } = await supabase
+        .from('bedrock_metrics')
+        .select('*')
+        .eq('client_id', clientId)
+        .order('measurement_date', { ascending: true });
+
       if (error) {
-        console.error('AI goals fetch error:', error);
-        return [];
+        console.error('Error fetching AI goals:', error);
+        throw error;
       }
       return data || [];
     },
     enabled: !!clientId,
   });
+  // === MODIFICATION END ===
 
-  // Merge goals from both sources
-  const goals = [
-    ...(manualGoals || []).map((g: any) => ({
-      id: g.id,
-      goal_title: g.goal_title,
-      source: 'Manual',
-    })),
-    ...(aiGoals || []).map((g: any) => ({
-      id: g.goal_id,
-      goal_title: `${g.goal_title} (${g.source})`,
-      source: g.source,
-    })),
-  ];
-  
-  const goalsLoading = manualGoalsLoading || aiGoalsLoading;
 
-  const { data: progressData, isLoading: progressLoading } = useQuery({
-    queryKey: ['goal-progress', selectedGoalId],
-    queryFn: async () => {
-      if (!selectedGoalId) return [];
-      
-      const startDate = format(subDays(new Date(), 30), 'yyyy-MM-dd');
-      const endDate = format(new Date(), 'yyyy-MM-dd');
-
-      const { data, error } = await supabase.rpc('get_goal_progress_timeline', {
-        p_goal_id: selectedGoalId,
-        p_start_date: startDate,
-        p_end_date: endDate
+  // Combine manual and AI goals for the dropdown
+  const allGoals = useMemo(() => {
+    const goalsMap = new Map<string, { id: string; name: string }>();
+    
+    // Add AI goals first
+    if (aiGoals) {
+      aiGoals.forEach(goal => {
+        if (!goalsMap.has(goal.metric_name)) {
+          goalsMap.set(goal.metric_name, { id: goal.metric_name, name: goal.metric_name });
+        }
       });
+    }
 
-      if (error) throw error;
-      return (data || []).map((item: any) => ({
-        date: format(new Date(item.recorded_date), 'MMM dd'),
-        value: item.progress_value
+    // You can add manual goals here if you need to merge them
+    // if (manualGoals) { ... }
+
+    return Array.from(goalsMap.values());
+  }, [aiGoals, manualGoals]);
+
+
+  // Filter data for the selected goal
+  const chartData = useMemo(() => {
+    if (!selectedGoalId || !aiGoals) return [];
+    
+    return aiGoals
+      .filter(d => d.metric_name === selectedGoalId)
+      .map(d => ({
+        date: format(new Date(d.measurement_date), 'MMM d'),
+        value: d.metric_value,
+        target: d.target_value,
       }));
-    },
-    enabled: !!selectedGoalId,
-  });
+  }, [selectedGoalId, aiGoals]);
 
-  if (goalsLoading) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Goal Progress Over Time</CardTitle>
-          <CardDescription>Track progress toward your goals</CardDescription>
-        </CardHeader>
-        <CardContent className="h-[300px] flex items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        </CardContent>
-      </Card>
-    );
-  }
+  const isLoading = manualGoalsLoading || aiGoalsLoading;
 
   return (
     <Card>
@@ -103,48 +100,45 @@ export const GoalProgressChart = ({ clientId }: GoalProgressChartProps) => {
         <CardDescription>Track progress toward your goals</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <Select value={selectedGoalId || ''} onValueChange={setSelectedGoalId}>
+        <Select onValueChange={setSelectedGoalId} value={selectedGoalId}>
           <SelectTrigger>
             <SelectValue placeholder="Select a goal to view progress" />
           </SelectTrigger>
           <SelectContent>
-            {goals?.map((goal: any) => (
-              <SelectItem key={goal.id} value={goal.id}>
-                {goal.goal_title}
-              </SelectItem>
-            ))}
+            {isLoading ? (
+              <SelectItem value="loading" disabled>Loading goals...</SelectItem>
+            ) : (
+              allGoals.map(goal => (
+                <SelectItem key={goal.id} value={goal.id}>
+                  {goal.name}
+                </SelectItem>
+              ))
+            )}
           </SelectContent>
         </Select>
 
-        {selectedGoalId && (
-          <div className="h-[250px]">
-            {progressLoading ? (
-              <div className="h-full flex items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-              </div>
-            ) : progressData && progressData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={progressData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line 
-                    type="monotone" 
-                    dataKey="value" 
-                    stroke="hsl(var(--primary))" 
-                    strokeWidth={2}
-                    name="Progress"
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="h-full flex items-center justify-center">
-                <p className="text-sm text-muted-foreground">No progress data available for this goal</p>
-              </div>
-            )}
-          </div>
-        )}
+        <div className="h-[300px] w-full">
+          {isLoading && <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin" /></div>}
+          {!isLoading && chartData.length > 0 && (
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis />
+                <Tooltip />
+                <Line type="monotone" dataKey="value" stroke="#8884d8" strokeWidth={2} name="Progress" />
+                {chartData.some(d => d.target != null) && (
+                  <Line type="monotone" dataKey="target" stroke="#82ca9d" strokeDasharray="5 5" name="Target" />
+                )}
+              </LineChart>
+            </ResponsiveContainer>
+          )}
+          {!isLoading && chartData.length === 0 && (
+            <div className="flex items-center justify-center h-full text-muted-foreground">
+              {selectedGoalId ? 'No data available for this goal.' : 'Select a goal to see its progress.'}
+            </div>
+          )}
+        </div>
       </CardContent>
     </Card>
   );
