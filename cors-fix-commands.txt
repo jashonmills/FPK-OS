@@ -1,0 +1,19 @@
+AWS CLI Commands to Fix CORS (Run in PowerShell as Administrator):
+
+# 1. Get your API Gateway resource ID
+aws apigateway get-resources --rest-api-id 57y3bjg772 --region us-east-2
+
+# 2. Enable OPTIONS method (replace YOUR_RESOURCE_ID with actual ID from step 1)
+aws apigateway put-method --rest-api-id 57y3bjg772 --resource-id YOUR_RESOURCE_ID --http-method OPTIONS --authorization-type NONE --region us-east-2
+
+# 3. Add OPTIONS response
+aws apigateway put-method-response --rest-api-id 57y3bjg772 --resource-id YOUR_RESOURCE_ID --http-method OPTIONS --status-code 200 --response-parameters method.response.header.Access-Control-Allow-Headers=false,method.response.header.Access-Control-Allow-Methods=false,method.response.header.Access-Control-Allow-Origin=false --region us-east-2
+
+# 4. Add OPTIONS integration
+aws apigateway put-integration --rest-api-id 57y3bjg772 --resource-id YOUR_RESOURCE_ID --http-method OPTIONS --type MOCK --request-templates application/json="{\"statusCode\":200}" --region us-east-2
+
+# 5. Add integration response with CORS headers
+aws apigateway put-integration-response --rest-api-id 57y3bjg772 --resource-id YOUR_RESOURCE_ID --http-method OPTIONS --status-code 200 --response-parameters method.response.header.Access-Control-Allow-Headers="'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",method.response.header.Access-Control-Allow-Methods="'POST,OPTIONS'",method.response.header.Access-Control-Allow-Origin="'*'" --region us-east-2
+
+# 6. Deploy API
+aws apigateway create-deployment --rest-api-id 57y3bjg772 --stage-name prod --region us-east-2

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Coach End-to-End Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            text-align: center;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 15px 30px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        #status {
+            margin-top: 20px;
+            font-size: 16px;
+        }
+        audio {
+            margin-top: 20px;
+            width: 100%;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>AI Coach End-to-End Test</h1>
+    <button id="generateButton">Generate Audio</button>
+    <div id="status"></div>
+    <audio id="audioPlayer" controls></audio>
+
+    <script>
+        const generateButton = document.getElementById('generateButton');
+        const statusDiv = document.getElementById('status');
+        const audioPlayer = document.getElementById('audioPlayer');
+
+        // Use local proxy server
+        const API_ENDPOINT = 'http://localhost:3000/';
+
+        generateButton.addEventListener('click', async () => {
+            try {
+                generateButton.disabled = true;
+                statusDiv.textContent = 'Requesting from Lambda... This may take a moment.';
+                audioPlayer.style.display = 'none';
+
+                const response = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ userPrompt: "This is a test from the live frontend." })
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`API Error: ${response.status}. ${errorText}`);
+                }
+
+                const data = await response.json();
+
+                if (data.audio_url) {
+                    statusDiv.textContent = 'Success! Audio is ready.';
+                    audioPlayer.src = data.audio_url;
+                    audioPlayer.style.display = 'block';
+                    audioPlayer.play();
+                } else {
+                    throw new Error('No audio URL in response');
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                statusDiv.textContent = `Error: ${error.message}`;
+            } finally {
+                generateButton.disabled = false;
+            }
+        });
+    </script>
+</body>
+
+</html>
