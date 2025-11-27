@@ -1,0 +1,776 @@
+{
+  "courseId": "spanish-101",
+  "courseSlug": "spanish-101",
+  "contentVersion": "v2",
+  "framework": "sequential",
+  "courseTitle": "Spanish 101",
+  "description": "A beginner's course in the Spanish language and culture. Students will learn foundational vocabulary, grammar, and conversational skills for everyday situations through interactive practice.",
+  "backgroundImage": "/course-images/spanish-101-bg.jpg",
+  "estimatedHours": 9,
+  "difficultyLevel": "introductory",
+  "category": "Language",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Greetings & Basic Politeness",
+      "description": "Learn how to say hello, goodbye, and essential polite phrases",
+      "contentType": "text",
+      "estimatedMinutes": 45,
+      "unit": "Unit 1: The Absolute Basics",
+      "unitColor": "bg-red-100 text-red-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn how to say hello and goodbye in Spanish.",
+            "Master essential polite phrases like 'please' and 'thank you'.",
+            "Understand the difference between formal ('usted') and informal ('tú') address."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "'Hola' is the universal 'hello' in Spanish. For goodbyes, 'adiós' is common, or 'hasta luego' for 'see you later'. Politeness is very important; 'por favor' (please) and 'gracias' (thank you) will be your most used words!"
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "To a shopkeeper, you say: 'Hola, buenos días.' When leaving, you say: 'Gracias, adiós.' To a friend, you can simply say: 'Hola, ¿qué tal?'"
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is the most common way to say 'hello' in Spanish?",
+          "options": ["Adiós", "Gracias", "Hola"],
+          "correctAnswer": "Hola"
+        },
+        {
+          "type": "quiz",
+          "question": "How do you say 'thank you' in Spanish?",
+          "options": ["Por favor", "Gracias", "Lo siento"],
+          "correctAnswer": "Gracias"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "¡Buen trabajo! (Good work!) You've learned the most important phrases for any Spanish conversation. Practice saying 'hola' and 'gracias' throughout your day."
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Introducing Yourself",
+      "description": "Learn to state your name and ask others for theirs",
+      "contentType": "text",
+      "estimatedMinutes": 45,
+      "unit": "Unit 1: The Absolute Basics",
+      "unitColor": "bg-red-100 text-red-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn how to state your name using 'Me llamo...'.",
+            "Learn how to ask for someone else's name.",
+            "Practice a short introductory conversation."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "To introduce yourself, you say 'Me llamo...' which means 'My name is...'. To ask a friend their name, you say '¿Cómo te llamas?'. To ask formally, you would say '¿Cómo se llama usted?'"
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You: 'Hola, me llamo Alex.' (Hello, my name is Alex.)\nThem: 'Mucho gusto. Me llamo Sofía.' (Nice to meet you. My name is Sofía.)"
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "How do you say 'My name is...' in Spanish?",
+          "options": ["Yo soy...", "Yo tengo...", "Me llamo..."],
+          "correctAnswer": "Me llamo..."
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "¡Excelente! You can now introduce yourself in Spanish. This is a key step to starting new friendships. Try introducing yourself to someone in Spanish today!"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "The Alphabet & Pronunciation",
+      "description": "Master Spanish pronunciation and the alphabet",
+      "contentType": "text",
+      "estimatedMinutes": 45,
+      "unit": "Unit 1: The Absolute Basics",
+      "unitColor": "bg-red-100 text-red-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn the pronunciation of the Spanish alphabet, including letters like 'ñ'.",
+            "Identify the five simple vowel sounds (a, e, i, o, u).",
+            "Practice spelling your name out loud."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Spanish pronunciation is very consistent, especially the vowels. Each vowel has one primary sound, which makes reading much easier than in English. 'A' is always 'ah', 'E' is 'eh', 'I' is 'ee', 'O' is 'oh', and 'U' is 'oo'."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "To spell 'Hola': 'Hache' (H), 'O' (O), 'Ele' (L), 'A' (A). Notice the 'H' is silent in Spanish!"
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "In the word 'taco', how is the 'a' pronounced?",
+          "options": ["Like in 'cat'", "Like in 'father'", "Like in 'late'"],
+          "correctAnswer": "Like in 'father'"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "¡Fantástico! You've learned the sounds of Spanish. This consistent pronunciation will help you read and speak with confidence. Practice spelling out different words to get used to the letter names."
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Numbers (1-20), Days, and Months",
+      "description": "Essential numbers and calendar vocabulary",
+      "contentType": "text",
+      "estimatedMinutes": 45,
+      "unit": "Unit 2: Building Your World",
+      "unitColor": "bg-blue-100 text-blue-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn to count from 1 to 20.",
+            "Memorize the seven days of the week.",
+            "Recognize the twelve months of the year."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Numbers and calendar words are essential for everyday life. In Spanish, the week starts on Monday ('lunes'). Like in French, the days and months are not capitalized."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "One, two, three is 'uno, dos, tres'. Monday is 'lunes'. January is 'enero'."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "How do you say 'Monday' in Spanish?",
+          "options": ["Martes", "Miércoles", "Lunes"],
+          "correctAnswer": "Lunes"
+        },
+        {
+          "type": "quiz",
+          "question": "What is the Spanish word for 'three'?",
+          "options": ["Dos", "Tres", "Uno"],
+          "correctAnswer": "Tres"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "¡Muy bien! You can now handle numbers and dates. This is crucial for making plans and appointments. What is today's date? Try to say it in Spanish: 'Hoy es el [number] de [month].'"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Common Objects & Gender",
+      "description": "Learn noun gender and common object vocabulary",
+      "contentType": "text",
+      "estimatedMinutes": 45,
+      "unit": "Unit 2: Building Your World",
+      "unitColor": "bg-blue-100 text-blue-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn the names of 10 common objects.",
+            "Understand that all Spanish nouns have a gender (masculine/feminine).",
+            "Use the correct articles 'un/una' (a/an) and 'el/la' (the)."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Like French, every Spanish noun is either masculine or feminine. Nouns ending in '-o' are usually masculine ('el libro' - the book), and nouns ending in '-a' are usually feminine ('la mesa' - the table). This is a general rule with some exceptions!"
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A masculine object: 'el libro' (the book). A feminine object: 'la silla' (the chair)."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "'Libro' (book) is a masculine noun. How do you say 'a book'?",
+          "options": ["Una libro", "Un libro", "La libro"],
+          "correctAnswer": "Un libro"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You've tackled one of the trickiest parts of Spanish! Understanding gender is key to speaking correctly. Look around the room and try to guess the gender of the objects you see."
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Colors & Basic Adjectives",
+      "description": "Describe objects with colors and adjective agreement",
+      "contentType": "text",
+      "estimatedMinutes": 45,
+      "unit": "Unit 2: Building Your World",
+      "unitColor": "bg-blue-100 text-blue-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn the names of primary colors (rojo, azul, amarillo).",
+            "Understand that adjectives must agree in gender with the nouns they describe.",
+            "Describe a simple object using a color."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "In Spanish, adjectives usually come *after* the noun and must match its gender. So, 'the red book' is 'el libro rojo', but 'the red table' is 'la mesa roja'. Notice the '-o' and '-a' endings."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "'El coche azul' (The blue car). 'La casa blanca' (The white house)."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "If 'coche' (car) is masculine and 'rojo' is red, how do you say 'the red car'?",
+          "options": ["La coche roja", "El coche rojo", "El rojo coche"],
+          "correctAnswer": "El coche rojo"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "¡Magnífico! You can now describe the world in color. This makes your Spanish much more vivid and expressive. Try describing the colors of the clothes you are wearing right now."
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Asking Simple Questions",
+      "description": "Master question words and question formation",
+      "contentType": "text",
+      "estimatedMinutes": 45,
+      "unit": "Unit 3: Starting to Communicate",
+      "unitColor": "bg-green-100 text-green-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn key question words: Dónde (Where), Cuándo (When), Cómo (How), Por qué (Why).",
+            "Form simple questions using these words.",
+            "Understand how to turn a statement into a question by changing intonation."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "One of the easiest ways to ask a question in Spanish is to simply make a statement and raise the pitch of your voice at the end. 'Usted habla inglés.' (You speak English.) becomes '¿Usted habla inglés?' (Do you speak English?). The upside-down question mark (¿) gives you a clue!"
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "'¿Dónde está el baño?' (Where is the bathroom?). '¿Cuándo llega el tren?' (When does the train arrive?)."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which question word means 'Where'?",
+          "options": ["Cuándo", "Dónde", "Cómo"],
+          "correctAnswer": "Dónde"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You can now ask for the information you need! This is a critical skill for navigating a new place and having real conversations. Practice asking simple questions about the world around you."
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "The Verbs 'Ser' and 'Estar'",
+      "description": "Understand and use both verbs meaning 'to be'",
+      "contentType": "text",
+      "estimatedMinutes": 45,
+      "unit": "Unit 3: Starting to Communicate",
+      "unitColor": "bg-green-100 text-green-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand the difference between 'ser' and 'estar' (both mean 'to be').",
+            "Learn when to use 'ser' (for permanent characteristics).",
+            "Learn when to use 'estar' (for temporary states and locations)."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "This is a famous challenge in Spanish! Use 'Ser' for things that are permanent or inherent: descriptions, professions, origin, time. (Soy alto - I am tall). Use 'Estar' for temporary conditions and location. (Estoy cansado - I am tired; Estoy en casa - I am at home)."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "'Yo soy de Irlanda.' (I am from Ireland - permanent origin). 'Yo estoy en Irlanda.' (I am in Ireland - temporary location)."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "To say 'I am a doctor' (a profession), which verb would you use?",
+          "options": ["Ser", "Estar"],
+          "correctAnswer": "Ser"
+        },
+        {
+          "type": "quiz",
+          "question": "To say 'The coffee is cold' (a temporary condition), which verb would you use?",
+          "options": ["Ser", "Estar"],
+          "correctAnswer": "Estar"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You've conquered the great challenge of 'ser' vs 'estar'! This is a major milestone for any Spanish learner. Understanding this difference will make your Spanish sound much more natural."
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Family & Descriptions",
+      "description": "Family vocabulary and possessive adjectives",
+      "contentType": "text",
+      "estimatedMinutes": 45,
+      "unit": "Unit 3: Starting to Communicate",
+      "unitColor": "bg-green-100 text-green-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn vocabulary for immediate family (madre, padre, hermana, hermano).",
+            "Use possessive adjectives (mi, tu, su).",
+            "Combine family vocabulary with 'ser' to describe your family."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Talking about family is universal. The possessive adjective for 'my' is 'mi' for a single noun and 'mis' for plural nouns. For example, 'mi padre' (my father), but 'mis padres' (my parents)."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "'Esta es mi familia. Mi padre es alto y mi madre es inteligente. Tengo dos hermanos.' (This is my family. My father is tall and my mother is intelligent. I have two brothers.)"
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "How do you say 'my sister'?",
+          "options": ["Mi hermana", "Me hermana", "Mis hermana"],
+          "correctAnswer": "Mi hermana"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "¡Estupendo! You can now introduce and describe your family. This is a great way to practice adjectives and the verb 'ser'. Try to write a short paragraph about your family."
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Ordering Food & Drinks",
+      "description": "Restaurant vocabulary and polite ordering phrases",
+      "contentType": "text",
+      "estimatedMinutes": 45,
+      "unit": "Unit 4: Everyday Life",
+      "unitColor": "bg-purple-100 text-purple-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn essential vocabulary for a café (café, agua, taco, tortilla).",
+            "Master the phrase 'Quisiera...' (I would like...).",
+            "Practice a short dialogue for ordering and asking for the bill."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Ordering food is a fun and rewarding experience. The most polite way to order is to say 'Quisiera...', which means 'I would like...'. To ask for the bill, you can say 'La cuenta, por favor.'"
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You: 'Buenos días. Quisiera un café y dos tacos, por favor.' (Good morning. I would like a coffee and two tacos, please.)\nWaiter: 'Claro, en un momento.' (Of course, in a moment.)"
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is a polite way to say 'I want a water'?",
+          "options": ["Quiero un agua", "Dame un agua", "Quisiera un agua"],
+          "correctAnswer": "Quisiera un agua"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "¡Delicioso! You are ready to order a meal in Spanish. This is a practical skill you can use right away. What's the first thing you would order at a Spanish café?"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "title": "Telling Time & Making Plans",
+      "description": "Learn to tell time and schedule meetings",
+      "contentType": "text",
+      "estimatedMinutes": 45,
+      "unit": "Unit 4: Everyday Life",
+      "unitColor": "bg-purple-100 text-purple-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn how to ask for the time ('¿Qué hora es?').",
+            "Learn how to state the time using 'Es la...' and 'Son las...'.",
+            "Practice setting a simple meeting time."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "To ask the time, you say '¿Qué hora es?'. To answer, you use 'Es la una' for one o'clock, and 'Son las...' for all other hours. For example, 'Son las dos' (It's 2 o'clock), 'Son las cinco' (It's 5 o'clock)."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "'¿Qué hora es?' 'Son las tres y media.' (It's 3:30). 'Nos vemos a las ocho.' (See you at 8 o'clock.)"
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "How would you say 'It is 4 o'clock'?",
+          "options": ["Es la cuatro", "Son las cuatro", "Tengo cuatro horas"],
+          "correctAnswer": "Son las cuatro"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You'll never be late again! You can now tell time and make plans in Spanish. This is essential for socializing and being punctual. What time is it now? Say it in Spanish!"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "title": "Hobbies & The Weather",
+      "description": "Discuss interests and describe weather conditions",
+      "contentType": "text",
+      "estimatedMinutes": 45,
+      "unit": "Unit 4: Everyday Life",
+      "unitColor": "bg-purple-100 text-purple-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn vocabulary for common hobbies (leer, cine, deportes).",
+            "Learn basic phrases to describe the weather ('Hace calor', 'Está lloviendo').",
+            "Practice talking about what you like to do using 'Me gusta...'."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Small talk is the glue of conversation. To say you like something, you use the phrase 'Me gusta...'. For weather, you often use 'Hace...' for general conditions ('Hace calor' - It's hot) and 'Está...' for ongoing actions ('Está lloviendo' - It's raining)."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "'Me gusta leer y escuchar música.' (I like to read and listen to music.) 'Hoy hace mucho sol.' (Today it's very sunny.)"
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "How do you say 'I like...' in Spanish?",
+          "options": ["Yo quiero...", "Yo tengo...", "Me gusta..."],
+          "correctAnswer": "Me gusta..."
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "¡Felicidades! You have completed the course! You now have a fantastic foundation to build upon. You can greet people, introduce yourself, describe your world, and make small talk. The key is to keep practicing. ¡Sigue así! (Keep it up!)"
+        }
+      ]
+    }
+  ]
+}

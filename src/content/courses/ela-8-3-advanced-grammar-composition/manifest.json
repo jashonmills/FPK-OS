@@ -1,0 +1,493 @@
+{
+  "courseId": "ela-8-3-advanced-grammar-composition",
+  "courseSlug": "ela-8-3-advanced-grammar-composition",
+  "contentVersion": "v2",
+  "title": "ELA 8.3: Advanced Grammar & Composition",
+  "description": "Move beyond the basics to master the sophisticated grammar and stylistic techniques that create clear, powerful, and elegant writing.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Lesson 1: Clauses and Sentence Types",
+      "description": "Differentiate between clause types and identify the four sentence structures.",
+      "contentType": "text",
+      "unit": "Unit 1: Mastering Sentence Structure",
+      "unitColor": "blue",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Differentiate between an independent clause and a dependent (subordinate) clause.",
+            "Identify the four sentence structures: simple, compound, complex, and compound-complex.",
+            "Analyze how varying sentence structure improves writing style."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - The Building Blocks of Sentences",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "To write with sophistication, you must understand the building blocks of sentences. A clause is a group of words with a subject and a verb. An independent clause can stand alone as a complete sentence. A dependent clause cannot stand alone; it needs to be attached to an independent clause to make sense. Mastering how to combine these clauses is the key to advanced writing."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: The Four Sentence Structures",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Simple:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "One independent clause. (e.g., 'The dog barked.')"
+        },
+        {
+          "type": "heading",
+          "content": "Compound:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Two or more independent clauses, joined by a coordinating conjunction (for, and, nor, but, or, yet, so). (e.g., 'The dog barked, and the cat ran away.')"
+        },
+        {
+          "type": "heading",
+          "content": "Complex:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "One independent clause and at least one dependent clause. (e.g., 'When the dog barked, the cat ran away.')"
+        },
+        {
+          "type": "heading",
+          "content": "Compound-Complex:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Two or more independent clauses and at least one dependent clause. (e.g., 'When the dog barked, the cat ran away, and I dropped my plate.')"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What type of sentence is this: 'Because it was raining, we decided to stay inside'?",
+          "options": ["Simple", "Compound", "Complex"],
+          "correctAnswer": "Complex",
+          "explanation": "Good start. This sentence has a dependent clause ('Because it was raining') and an independent clause ('we decided to stay inside'), which makes it complex."
+        }
+      ],
+      "estimatedMinutes": 15
+    },
+    {
+      "id": 2,
+      "title": "Lesson 2: Common Sentence Errors",
+      "description": "Identify and correct sentence fragments and run-on sentences.",
+      "contentType": "text",
+      "unit": "Unit 1: Mastering Sentence Structure",
+      "unitColor": "blue",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Identify and correct sentence fragments.",
+            "Identify and correct run-on sentences, including comma splices.",
+            "Understand how to use semicolons and conjunctions to fix these errors."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - Creating Complete Thoughts",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Two of the most common errors in writing are fragments and run-ons. A sentence fragment is an incomplete thought punctuated as if it were a complete sentence. A run-on sentence incorrectly joins two or more independent clauses without proper punctuation or conjunctions. Learning to spot and fix these errors is essential for clear writing."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Fixing the Errors",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Fragment:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "'Because I was tired.' (This is a dependent clause, not a full sentence.)"
+        },
+        {
+          "type": "heading",
+          "content": "Correction:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "'I went to bed early because I was tired.'"
+        },
+        {
+          "type": "heading",
+          "content": "Run-on (Comma Splice):",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "'The game was exciting, we stayed until the end.' (A comma is not strong enough to join two independent clauses.)"
+        },
+        {
+          "type": "heading",
+          "content": "Corrections:",
+          "level": 3
+        },
+        {
+          "type": "list",
+          "items": [
+            "Use a period: 'The game was exciting. We stayed until the end.'",
+            "Use a semicolon: 'The game was exciting; we stayed until the end.'",
+            "Use a conjunction: 'The game was exciting, so we stayed until the end.'"
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which of the following is a run-on sentence?",
+          "options": ["I like pizza, but she likes pasta.", "I like pizza she likes pasta.", "Although I like pizza, she likes pasta."],
+          "correctAnswer": "I like pizza she likes pasta.",
+          "explanation": "Not quite. 'I like pizza she likes pasta' is a run-on because it fuses two complete sentences together with no punctuation."
+        }
+      ],
+      "estimatedMinutes": 15
+    },
+    {
+      "id": 3,
+      "title": "Lesson 3: Mastering the Semicolon and Colon",
+      "description": "Understand the proper uses of semicolons and colons in writing.",
+      "contentType": "text",
+      "unit": "Unit 2: Advanced Punctuation and Style",
+      "unitColor": "green",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand the primary use of a semicolon to connect two closely related independent clauses.",
+            "Learn how to use a colon to introduce a list, a quotation, or an explanation.",
+            "Differentiate between the proper uses of semicolons and colons."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - The Power Punctuation",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Semicolons and colons are powerful punctuation marks that can add sophistication and clarity to your writing. A semicolon (;) is like a 'super-comma' used to show a close relationship between two complete sentences. A colon (:) is a mark of introduction, signaling to the reader 'here comes something important,' like a list or a key idea."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Proper Usage",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Semicolon:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Use it to join two independent clauses that are closely related in thought. (e.g., 'The storm was raging; we decided to stay indoors.')"
+        },
+        {
+          "type": "heading",
+          "content": "Colon:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Use it after an independent clause to introduce a list, an explanation, or a quotation. (e.g., 'I need three things from the store: milk, bread, and eggs.' OR 'He had one goal in life: to become a great writer.')"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which punctuation mark should be used to introduce a list after a complete sentence?",
+          "options": ["Comma", "Semicolon", "Colon"],
+          "correctAnswer": "Colon",
+          "explanation": "Good try. Remember, a colon is the mark of introduction."
+        }
+      ],
+      "estimatedMinutes": 15
+    },
+    {
+      "id": 4,
+      "title": "Lesson 4: Parallel Structure",
+      "description": "Define parallel structure and learn to create balance in writing.",
+      "contentType": "text",
+      "unit": "Unit 2: Advanced Punctuation and Style",
+      "unitColor": "green",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define parallel structure (parallelism) as using the same pattern of words to show that two or more ideas have the same level of importance.",
+            "Identify faulty parallelism in sentences.",
+            "Revise sentences to create parallel structure."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - Creating Rhythm and Balance",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Parallel structure is about balance and rhythm in your writing. It means that when you have a list or a series of items, each item should be in the same grammatical form. This makes your writing smoother, more elegant, and easier for the reader to understand."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Examples",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Faulty Parallelism:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "'She likes running, to swim, and biking.' (The items are not in the same form: -ing, infinitive, -ing)."
+        },
+        {
+          "type": "heading",
+          "content": "Corrected (Parallel):",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "'She likes running, swimming, and biking.' (All items are in the -ing form)."
+        },
+        {
+          "type": "heading",
+          "content": "Another Correction:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "'She likes to run, to swim, and to bike.' (All items are in the infinitive form)."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which sentence uses correct parallel structure?",
+          "options": ["The manager was asked to write his report quickly, accurately, and in a detailed manner.", "The manager was asked to write his report quickly, accurately, and thoroughly."],
+          "correctAnswer": "The manager was asked to write his report quickly, accurately, and thoroughly.",
+          "explanation": "Not quite. The second option is correct because 'quickly,' 'accurately,' and 'thoroughly' are all adverbs, creating a parallel list."
+        }
+      ],
+      "estimatedMinutes": 15
+    },
+    {
+      "id": 5,
+      "title": "Lesson 5: Writing with Clarity and Conciseness",
+      "description": "Learn to eliminate wordiness and write with precision.",
+      "contentType": "text",
+      "unit": "Unit 3: Crafting the Composition",
+      "unitColor": "purple",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand the importance of writing with clarity and conciseness.",
+            "Learn to eliminate wordiness and redundant phrases.",
+            "Practice using strong verbs and avoiding the passive voice."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - Say More with Less",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Strong writing is clear and concise. It gets its point across without wasting the reader's time. Conciseness means using the fewest words possible to convey an idea effectively. Clarity means making sure your message is easy to understand. Often, these two goals go hand-in-hand."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Techniques for Conciseness",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Eliminate Redundancy:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Don't say the same thing twice. Instead of 'twelve noon,' just say 'noon.' Instead of 'basic fundamentals,' just say 'fundamentals.'"
+        },
+        {
+          "type": "heading",
+          "content": "Use Strong Verbs:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Active verbs make your writing more direct. Instead of 'The ball was hit by the boy' (passive voice), write 'The boy hit the ball' (active voice)."
+        },
+        {
+          "type": "heading",
+          "content": "Reduce Wordy Phrases:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Replace long phrases with single words. Instead of 'due to the fact that,' use 'because.' Instead of 'at this point in time,' use 'now.'"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which sentence is the most concise?",
+          "options": ["It is my personal opinion that we should leave.", "In my opinion, we should leave.", "We should leave."],
+          "correctAnswer": "We should leave.",
+          "explanation": "Good try. The shortest sentence is the most direct and concise. The phrase 'In my opinion' is often unnecessary."
+        }
+      ],
+      "estimatedMinutes": 15
+    },
+    {
+      "id": 6,
+      "title": "Lesson 6: Transitions and Flow",
+      "description": "Understand transitions and improve logical flow between ideas.",
+      "contentType": "text",
+      "unit": "Unit 3: Crafting the Composition",
+      "unitColor": "purple",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand the role of transitions in guiding the reader.",
+            "Identify and use different types of transitional words and phrases (e.g., for addition, contrast, example).",
+            "Analyze how transitions improve the logical flow between sentences and paragraphs."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - Building Bridges for the Reader",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Good writing flows smoothly from one idea to the next. Transitions are the words and phrases that act like bridges, connecting your ideas and showing the relationship between them. Without transitions, a piece of writing can feel choppy and disconnected, forcing the reader to guess how your ideas are related."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Types of Transitions",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "To Add an Idea:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Furthermore, moreover, in addition, also"
+        },
+        {
+          "type": "heading",
+          "content": "To Show Contrast:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "However, on the other hand, in contrast, nevertheless"
+        },
+        {
+          "type": "heading",
+          "content": "To Give an Example:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "For example, for instance, specifically"
+        },
+        {
+          "type": "heading",
+          "content": "To Show a Result:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Therefore, as a result, consequently, thus"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which transitional word would best fit in the blank? 'I enjoy playing soccer. ______, my brother prefers basketball.'",
+          "options": ["Therefore", "However", "For example"],
+          "correctAnswer": "However",
+          "explanation": "Not quite. The sentence is showing a contrast between your preference and your brother's, so 'However' is the best choice."
+        }
+      ],
+      "estimatedMinutes": 15
+    }
+  ]
+}

@@ -1,0 +1,318 @@
+{
+  "courseId": "empowering-learning-reading",
+  "courseSlug": "empowering-learning-reading",
+  "contentVersion": "v2",
+  "title": "Empowering Learning: Reading",
+  "description": "Discover a new perspective on reading that empowers learners through optimal learning states, proper positioning, and creative engagement. Build confidence and a lifelong love for reading.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Introduction",
+      "description": "A new perspective on learning to read",
+      "contentType": "video+text",
+      "video": {
+        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/reading/Module%201%20-%20Introduction.mp4",
+        "title": "Module 1 - Introduction"
+      },
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Welcome to Empowering Learning: Reading",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Reading is more than decoding words on a page—it's about unlocking worlds of imagination, knowledge, and possibility. This course will show you how to make reading a joyful, empowering experience."
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "The key to confident reading isn't just practice—it's learning in the right state, with the right positioning, and with creative engagement that makes stories come alive."
+        }
+      ],
+      "unit": "Welcome to the Programme",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 2,
+      "title": "The Optimal Learning State",
+      "description": "Calm your nervous system for effective reading",
+      "contentType": "video+text",
+      "video": {
+        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/reading/Module%202%20-%20Optimal%20Learning%20State.mp4",
+        "title": "Module 2 - The Optimal Learning State"
+      },
+      "sections": [
+        {
+          "type": "heading",
+          "content": "The Optimal Learning State for Reading",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Before opening a book, we need to prepare our minds and bodies. The optimal learning state is a calm, focused state where reading flows naturally and comprehension deepens."
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "Key Preparation Techniques:",
+          "items": [
+            "Deep breathing to calm the nervous system",
+            "Body relaxation to reduce tension",
+            "Creating a comfortable, distraction-free reading environment",
+            "Setting positive intentions for the reading session"
+          ]
+        }
+      ],
+      "unit": "The Learning Process",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 3,
+      "title": "The Reading Technique",
+      "description": "Proper positioning and emotional state for reading",
+      "contentType": "video+text",
+      "video": {
+        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/reading/Module%203%20-%20Reading%20Technique.mp4",
+        "title": "Module 3 - The Reading Technique"
+      },
+      "sections": [
+        {
+          "type": "heading",
+          "content": "The Reading Technique: Position and Engagement",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "How you position yourself while reading matters more than you might think. Reading with your head looking up or level (not down) keeps you in a positive emotional state and improves focus and retention."
+        },
+        {
+          "type": "paragraph",
+          "content": "Beyond positioning, engage creatively with the story. Visualize characters, settings, and events. Act out scenes. Draw pictures. Make the story come alive in your mind and body."
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "The Three Elements of Powerful Reading:",
+          "items": [
+            "Proper positioning (head level or up, not looking down)",
+            "Visualization (creating mental images of the story)",
+            "Active engagement (acting, drawing, discussing the story)"
+          ]
+        }
+      ],
+      "unit": "The Learning Process",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 4,
+      "title": "Conclusion",
+      "description": "Celebrating your reading journey and next steps",
+      "contentType": "video+text",
+      "video": {
+        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/course-files/el-courses/reading/Module%204%20-%20Conclusion.mp4",
+        "title": "Module 4 - Conclusion"
+      },
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Your Reading Journey Continues",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Congratulations on completing Empowering Learning: Reading! You now have powerful tools to make reading a joyful, engaging experience. Remember, reading is not just a skill—it's a gateway to limitless learning and imagination."
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "Next Steps:",
+          "items": [
+            "Practice the reading technique daily with books you love",
+            "Experiment with different creative engagement methods",
+            "Share stories and reading experiences with others",
+            "Explore the Deep Dive lessons for advanced insights"
+          ]
+        }
+      ],
+      "unit": "Final Tips for Success",
+      "unitColor": "bg-yellow-100 text-yellow-700"
+    },
+    {
+      "id": 5,
+      "title": "The Power of Intentionality",
+      "description": "Understanding the neuroscience behind focused practice",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Deep Dive: The Power of Intentionality",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Intentional reading means approaching each book with awareness and purpose. It's not about speed—it's about depth. When you read with intention, you create richer mental models and deeper understanding."
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "Think of reading like savoring a meal. You could rush through it, barely tasting anything, or you could slow down, notice each flavor, and truly enjoy the experience. Intentional reading is like savoring—it's about quality, not quantity."
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "The key takeaway: Focused, intentional reading builds stronger neural connections and creates lasting memories. Ten minutes of engaged reading beats an hour of mindless page-turning."
+        }
+      ],
+      "unit": "Deep Dive: Extended Learning",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 6,
+      "title": "The Science of Reading",
+      "description": "How nervous system states affect learning",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Deep Dive: The Science of Reading",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Reading is a complex neurological process. Your brain decodes symbols (letters), constructs meaning (words), builds mental models (comprehension), and integrates new information with existing knowledge—all simultaneously."
+        },
+        {
+          "type": "paragraph",
+          "content": "Your nervous system state dramatically affects this process. Stress reduces comprehension and retention. Calm focus enhances both. This is why the optimal learning state is so crucial for reading success."
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "When calm and focused, your prefrontal cortex (reasoning) and hippocampus (memory) work in harmony, creating the ideal conditions for learning and retention."
+        }
+      ],
+      "unit": "Deep Dive: Extended Learning",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 7,
+      "title": "The Power of Storytelling",
+      "description": "Cognitive scaffolding and creative engagement",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Deep Dive: The Power of Storytelling",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Stories are humanity's oldest learning technology. Our brains are wired to remember information when it's embedded in narrative. Characters, conflict, resolution—these create emotional hooks that make information stick."
+        },
+        {
+          "type": "paragraph",
+          "content": "This is why creative engagement with stories is so powerful. When you visualize, act out, or discuss a story, you're not just consuming content—you're building rich mental scaffolding that supports deep learning."
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "Historical perspective: Before writing existed, cultures passed knowledge through stories. The epic poems of Homer, the parables of ancient teachers—these weren't just entertainment. They were sophisticated memory systems designed to encode and transmit essential information across generations."
+        }
+      ],
+      "unit": "Deep Dive: Extended Learning",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 8,
+      "title": "Beyond Reading",
+      "description": "Building lifelong habits and mindfulness",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Deep Dive: Beyond Reading",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The principles you've learned for reading extend far beyond books. Intentionality, state management, creative engagement—these are universal tools for learning and living well."
+        },
+        {
+          "type": "paragraph",
+          "content": "As you move forward, apply these principles everywhere. Before any important task, get into the optimal state. Engage creatively with challenges. Position yourself (literally and metaphorically) for success."
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "You've not just learned to read better—you've learned a framework for approaching any learning challenge with confidence and skill."
+        }
+      ],
+      "unit": "Deep Dive: Extended Learning",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 9,
+      "title": "Mini Quiz Questions",
+      "description": "Test your understanding with focused questions",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Mini Quiz: Test Your Understanding",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Complete these questions to reinforce your learning and identify areas for further exploration."
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "Quiz Topics:",
+          "items": [
+            "The optimal learning state for reading",
+            "Proper positioning and its emotional impact",
+            "Creative engagement techniques",
+            "The neuroscience of reading",
+            "Storytelling as a learning technology"
+          ]
+        }
+      ],
+      "unit": "Study Guide & Review",
+      "unitColor": "bg-gray-100 text-gray-700"
+    },
+    {
+      "id": 10,
+      "title": "Final Knowledge Test",
+      "description": "Comprehensive assessment of core principles",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Final Knowledge Test",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "This comprehensive assessment covers all core concepts from the course. Demonstrate your mastery of empowered reading principles."
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "Assessment Areas:",
+          "items": [
+            "Optimal learning state preparation",
+            "Positioning techniques and emotional states",
+            "Creative engagement strategies",
+            "Neuroscience of reading and comprehension",
+            "Storytelling and memory",
+            "Application of reading principles to lifelong learning"
+          ]
+        }
+      ],
+      "unit": "Study Guide & Review",
+      "unitColor": "bg-gray-100 text-gray-700"
+    }
+  ]
+}

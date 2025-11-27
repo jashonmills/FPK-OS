@@ -1,0 +1,505 @@
+{
+  "courseId": "cybersecurity-fundamentals",
+  "courseSlug": "cybersecurity-fundamentals",
+  "contentVersion": "v2",
+  "title": "Cybersecurity Fundamentals",
+  "description": "Learn how to protect yourself and others in the digital world. This course covers common threats like phishing and malware and teaches the essential principles of online safety.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "What is Cybersecurity?",
+      "description": "Define cybersecurity and understand the CIA Triad: Confidentiality, Integrity, and Availability.",
+      "contentType": "text",
+      "estimatedMinutes": 25,
+      "unit": "Unit 1: The Threat Landscape",
+      "unitColor": "red",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define cybersecurity as the practice of protecting digital systems and data.",
+            "Understand the CIA Triad: Confidentiality, Integrity, and Availability.",
+            "Recognize that cybersecurity is everyone's responsibility."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Cybersecurity is about protecting our digital lives from theft, damage, or unauthorized access. The core goals are defined by the CIA Triad: Confidentiality (keeping data secret), Integrity (ensuring data is not altered), and Availability (ensuring systems are accessible when needed)."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Confidentiality is like locking your diary. Integrity is ensuring nobody changes the words in your diary. Availability is making sure you can always find your diary when you need it."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which part of the CIA Triad ensures that data is not tampered with or altered?",
+          "options": ["Confidentiality", "Integrity", "Availability"],
+          "correctAnswer": "Integrity"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Excellent! You now understand the fundamental goals of cybersecurity. This framework will help you understand the 'why' behind the security measures we'll discuss. Next, we'll look at the most common threats you'll face."
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Malware - Viruses, Worms, and Ransomware",
+      "description": "Learn about different types of malicious software and how they spread.",
+      "contentType": "text",
+      "estimatedMinutes": 30,
+      "unit": "Unit 1: The Threat Landscape",
+      "unitColor": "red",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define malware as malicious software.",
+            "Differentiate between viruses, worms, and ransomware.",
+            "Understand how malware spreads."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Malware is any software designed to cause harm. A virus attaches itself to a clean file and needs a human to spread it. A worm can self-replicate and spread across networks without human help. Ransomware encrypts your files and demands a payment (a ransom) to unlock them."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You receive an email with a strange attachment. If you open it, a virus might infect your computer. A worm could infect your computer just by being connected to an insecure network. Ransomware might lock all your photos and documents until you pay."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which type of malware can spread by itself without any human action?",
+          "options": ["Virus", "Worm", "Ransomware"],
+          "correctAnswer": "Worm"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You can now identify the enemy. Knowing the different types of malware helps you understand the risks of downloading strange files or connecting to untrusted networks. Next, we'll learn about a threat that targets you directly: phishing."
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Phishing and Social Engineering",
+      "description": "Learn to identify and avoid phishing attacks and social engineering tactics.",
+      "contentType": "text",
+      "estimatedMinutes": 30,
+      "unit": "Unit 1: The Threat Landscape",
+      "unitColor": "red",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define social engineering as the art of manipulating people.",
+            "Identify phishing as the most common form of social engineering.",
+            "Learn to spot the red flags of a phishing email."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Social engineering attacks the weakest link in any security system: the human. Phishing is when an attacker sends a fraudulent email disguised as a legitimate one to trick you into revealing sensitive information, like passwords or credit card numbers."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You get an email that looks like it's from your bank, saying your account is locked. It has a link to 'verify your identity'. Red flags: a sense of urgency, a generic greeting ('Dear Customer'), a strange sender email address, and spelling mistakes. The link goes to a fake website designed to steal your login details."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is a common red flag in a phishing email?",
+          "options": ["A personalized greeting with your name", "A sense of urgency or a threat", "An email from your company's IT department"],
+          "correctAnswer": "A sense of urgency or a threat"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You've learned to be skeptical, which is a cybersecurity superpower. Always think before you click. By spotting the signs of phishing, you can defeat the most common type of cyberattack. Next, we'll build our defenses."
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Creating Strong Passwords",
+      "description": "Learn the principles of creating strong passwords and using password managers.",
+      "contentType": "text",
+      "estimatedMinutes": 30,
+      "unit": "Unit 2: Your Personal Defense",
+      "unitColor": "blue",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand why common passwords are weak.",
+            "Learn the principles of creating a strong, memorable passphrase.",
+            "Discover the importance of using a password manager."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A strong password is long, complex, and unique. The best practice today is to use a 'passphrase'—a sequence of random words—which is much easier to remember than a complex string of characters. Most importantly, never reuse passwords across different websites. A password manager is a secure app that creates and stores unique, strong passwords for all your accounts."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Weak password: 'Password123'. Strong but hard to remember: 'Tr0ub4dor&3'. Strong and easy to remember passphrase: 'Correct-Horse-Battery-Staple'. A password manager would generate something like 'q8#Z$k&vP@L!n' and remember it for you."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is the most important rule for passwords?",
+          "options": ["Make them short and easy to type", "Use the same strong password everywhere", "Use a unique password for every account"],
+          "correctAnswer": "Use a unique password for every account"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You've just built your first line of defense. Strong, unique passwords are the locks on your digital doors. Using a password manager makes this easy and secure. Next, we'll add another layer of security."
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Multi-Factor Authentication (MFA)",
+      "description": "Understand MFA and learn how to enable it on your important accounts.",
+      "contentType": "text",
+      "estimatedMinutes": 30,
+      "unit": "Unit 2: Your Personal Defense",
+      "unitColor": "blue",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define Multi-Factor Authentication (MFA) or Two-Factor Authentication (2FA).",
+            "Understand the three factors of authentication: something you know, something you have, and something you are.",
+            "Learn how to enable MFA on a major online account."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "MFA is a second layer of security that protects your accounts even if your password is stolen. It requires you to provide two or more pieces of evidence to prove your identity. The factors are: 1. Something you KNOW (your password). 2. Something you HAVE (your phone, which receives a code). 3. Something you ARE (your fingerprint or face)."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "When you log into your bank, you enter your password (something you know). Then, the bank sends a one-time code to your phone via SMS (something you have). You must enter this code to log in. An attacker with just your password cannot get in."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Using a password and a fingerprint to log in is an example of what?",
+          "options": ["Single-Factor Authentication", "Multi-Factor Authentication", "Password Management"],
+          "correctAnswer": "Multi-Factor Authentication"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "This is the single most effective step you can take to secure your online accounts. You should enable MFA on every account that offers it, especially email, banking, and social media. Next, we'll talk about securing your devices."
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Securing Your Devices and Network",
+      "description": "Learn how to protect your devices and stay safe on networks.",
+      "contentType": "text",
+      "estimatedMinutes": 30,
+      "unit": "Unit 2: Your Personal Defense",
+      "unitColor": "blue",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand the importance of keeping software and operating systems updated.",
+            "Learn the risks of using public Wi-Fi.",
+            "Recognize the need for antivirus software and a firewall."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Your devices are the gateways to your digital life. Keeping your software updated is critical because updates often contain patches for security vulnerabilities. Public Wi-Fi is not secure; attackers can potentially 'eavesdrop' on your connection. A firewall acts as a barrier between your device and the internet, blocking malicious traffic."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "When your phone or computer prompts you to install an update, don't ignore it. That update could be fixing a major security flaw. Avoid doing online banking or entering passwords while connected to the Wi-Fi at a coffee shop unless you are using a VPN (Virtual Private Network)."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Why is it important to install software updates promptly?",
+          "options": ["To get new features", "Because they often contain critical security patches", "To free up storage space"],
+          "correctAnswer": "Because they often contain critical security patches"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You've learned how to fortify your digital castle. By keeping your devices updated and being cautious on public networks, you significantly reduce your risk of attack. This completes your personal defense training!"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Your Digital Footprint",
+      "description": "Understand the trail of data you leave online and how to manage it.",
+      "contentType": "text",
+      "estimatedMinutes": 25,
+      "unit": "Unit 3: Privacy in the Digital Age",
+      "unitColor": "green",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define 'digital footprint' as the trail of data you leave online.",
+            "Differentiate between active and passive digital footprints.",
+            "Learn how to search for your own name to see what's publicly available."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Every time you go online, you leave a trail of data. Your active footprint is what you intentionally share (social media posts, blog comments). Your passive footprint is data collected without your direct action (your IP address, browsing history via cookies). It's important to be aware of this footprint and manage it."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Posting a photo on Instagram is part of your active footprint. A website using cookies to track which pages you visit is part of your passive footprint. Searching your own name in quotes (e.g., \"Jane Doe\") can reveal what information is easily accessible to others."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Your browsing history collected by website cookies is part of your...?",
+          "options": ["Active digital footprint", "Passive digital footprint", "Neither"],
+          "correctAnswer": "Passive digital footprint"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You are now aware of the tracks you leave online. Managing your digital footprint is a key aspect of modern privacy. In the final lesson, we'll learn how to protect that privacy."
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Protecting Your Privacy",
+      "description": "Learn practical steps to protect your privacy in the digital world.",
+      "contentType": "text",
+      "estimatedMinutes": 30,
+      "unit": "Unit 3: Privacy in the Digital Age",
+      "unitColor": "green",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn to review and manage privacy settings on social media.",
+            "Understand the importance of being cautious about what you share online.",
+            "Recognize the value of using privacy-focused tools."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Protecting your privacy is an active process. Regularly review the privacy settings on your social media accounts to control who sees your information. Think twice before posting sensitive personal data like your home address or phone number. Consider using privacy-focused browsers or search engines that don't track you."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "On Facebook or Instagram, change your profile from 'Public' to 'Friends Only'. Avoid participating in viral quizzes that ask for personal information like your mother's maiden name or the street you grew up on—these are common security questions."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is a good first step to protecting your privacy on social media?",
+          "options": ["Posting more frequently", "Adding more friends", "Reviewing and adjusting your privacy settings"],
+          "correctAnswer": "Reviewing and adjusting your privacy settings"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Congratulations! You have completed the course and are now a much safer and more informed digital citizen. You know the threats, how to build your defenses, and how to protect your privacy. Stay vigilant, stay updated, and share your knowledge with others."
+        }
+      ]
+    }
+  ]
+}

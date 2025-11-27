@@ -1,0 +1,274 @@
+
+{
+  "common": {
+    "learnerPortal": "शिक्षार्थी पोर्टल",
+    "userMenu": "उपयोगकर्ता मेनू",
+    "loading": "लोड हो रहा है...",
+    "error": "त्रुटि",
+    "success": "सफलता",
+    "cancel": "रद्द करें",
+    "save": "सहेजें",
+    "delete": "हटाएं",
+    "edit": "संपादित करें",
+    "search": "खोजें",
+    "learningDashboard": "शिक्षण डैशबोर्ड",
+    "support": "सहायता",
+    "signOut": "लॉगआउट",
+    "beta": "बीटा",
+    "back": "वापस"
+  },
+  "dashboard": {
+    "myCourses": {
+      "title": "मेरे कोर्स",
+      "description": "व्यक्तिगत कोर्स के साथ अपनी सीखने की यात्रा को प्रबंधित और जारी रखें"
+    },
+    "navigation": {
+      "home": "होम",
+      "courses": "मेरे कोर्स",
+      "analytics": "शिक्षण विश्लेषण",
+      "goals": "लक्ष्य",
+      "notes": "नोट्स",
+      "study": "अध्ययन",
+      "aiCoach": "AI अध्ययन कोच",
+      "liveHub": "लाइव लर्निंग हब",
+      "settings": "सेटिंग्स"
+    },
+    "stats": {
+      "activeCourses": "सक्रिय कोर्स",
+      "currentStreak": "वर्तमान स्ट्रीक",
+      "activeGoals": "सक्रिय लक्ष्य",
+      "goalProgress": "लक्ष्य प्रगति",
+      "completedCourses": "पूर्ण कोर्स",
+      "totalXP": "कुल XP",
+      "studyTime": "अध्ययन समय",
+      "achievements": "उपलब्धियां"
+    },
+    "charts": {
+      "courseProgress": "कोर्स प्रगति",
+      "weeklyTime": "साप्ताहिक अध्ययन समय",
+      "noCourseProgress": "कोई कोर्स प्रगति डेटा उपलब्ध नहीं",
+      "noWeeklyTime": "कोई अध्ययन समय डेटा उपलब्ध नहीं",
+      "noStudyTime": "कोई अध्ययन समय डेटा नहीं",
+      "noStudyTimeDesc": "अपनी प्रगति यहाँ देखने के लिए अध्ययन सत्र पूरे करना शुरू करें",
+      "noCourseProgressDesc": "अपनी प्रगति ट्रैकिंग देखने के लिए कोर्स में नामांकन करें",
+      "hours": "घंटे",
+      "minutes": "मिनट",
+      "week": "सप्ताह"
+    },
+    "insights": {
+      "personalGoals": "व्यक्तिगत लक्ष्य",
+      "communityActivity": "समुदायिक गतिविधि",
+      "aiInsights": "AI अंतर्दृष्टि",
+      "studyPattern": "अध्ययन पैटर्न",
+      "joinCommunity": "समुदाय में शामिल हों",
+      "joinCommunityDesc": "अन्य शिक्षार्थियों से जुड़ें और अपनी प्रगति साझा करें",
+      "exploreCommunity": "समुदाय का अन्वेषण करें"
+    },
+    "welcomeModal": {
+      "title": "अपनी सीखने की यात्रा में आपका स्वागत है",
+      "quickSetup": "त्वरित सेटअप",
+      "quickSetupDesc": "व्यक्तिगत सिफारिशें प्राप्त करने के लिए अपनी प्रोफ़ाइल और प्राथमिकताएं सेट करें",
+      "skipForNow": "अभी के लिए छोड़ें",
+      "getStarted": "शुरू करें",
+      "completeProfile": "प्रोफ़ाइल पूरी करें",
+      "remindLater": "बाद में याद दिलाएं"
+    },
+    "badges": {
+      "learner": "शिक्षार्थी",
+      "level1": "स्तर 1",
+      "newbie": "नया",
+      "beginner": "शुरुआती"
+    }
+  },
+  "courses": {
+    "learningState": {
+      "title": "लर्निंग स्टेट कोर्स",
+      "description": "लर्निंग स्टेट्स और कॉग्निटिव प्रोसेसेस की बुनियादी बातों में महारत हासिल करें",
+      "playerTitle": "लर्निंग स्टेट कोर्स प्लेयर",
+      "outline": {
+        "intro": "लर्निंग स्टेट्स का परिचय",
+        "cognitiveLoad": "कॉग्निटिव लोड को समझना",
+        "attention": "ध्यान और फोकस प्रबंधन",
+        "memory": "स्मृति गठन और बनाए रखना",
+        "metacognition": "मेटाकॉग्निटिव रणनीतियां"
+      }
+    },
+    "courseOutline": "कोर्स रूपरेखा",
+    "backToCourses": "कोर्स पर वापस जाएं"
+  },
+  "goals": {
+    "myGoals": "मेरे लक्ष्य",
+    "createNew": "लक्ष्य बनाएं",
+    "createFirst": "अपना पहला लक्ष्य बनाएं",
+    "tabs": {
+      "all": "सभी",
+      "active": "सक्रिय",
+      "completed": "पूर्ण",
+      "paused": "रोका गया"
+    },
+    "stats": {
+      "totalGoals": "कुल लक्ष्य",
+      "activeGoals": "सक्रिय लक्ष्य",
+      "completedGoals": "पूर्ण",
+      "completionRate": "पूर्णता दर"
+    },
+    "empty": {
+      "allTitle": "कोई लक्ष्य नहीं मिला",
+      "allDescription": "अपनी सीखने की प्रगति को ट्रैक करने के लिए अपना पहला लक्ष्य बनाकर शुरू करें",
+      "activeTitle": "कोई सक्रिय लक्ष्य नहीं",
+      "activeDescription": "अपनी प्रगति को ट्रैक करना शुरू करने के लिए एक नया लक्ष्य बनाएं",
+      "completedTitle": "अभी तक कोई पूर्ण लक्ष्य नहीं",
+      "completedDescription": "उन्हें यहां देखने के लिए कुछ लक्ष्य पूरे करें",
+      "pausedTitle": "कोई रोका गया लक्ष्य नहीं",
+      "pausedDescription": "जो लक्ष्य आप रोकते हैं वे यहां दिखाई देंगे"
+    }
+  },
+  "nav": {
+    "home": "होम",
+    "courses": "मेरे कोर्स",
+    "analytics": "शिक्षण विश्लेषण",
+    "goals": "लक्ष्य",
+    "notes": "नोट्स",
+    "settings": "सेटिंग्स",
+    "liveHub": "लाइव लर्निंग हब",
+    "dashboard": "डैशबोर्ड"
+  },
+  "liveHub": {
+    "title": "लाइव लर्निंग हब",
+    "subtitle": "वास्तविक समय में शिक्षकों और साथियों के साथ सीखने के सत्र में जुड़ें",
+    "liveSessions": "लाइव सत्र",
+    "upcomingEvents": "आगामी कार्यक्रम",
+    "noSessions": "कोई सक्रिय सत्र नहीं",
+    "noSessionsDesc": "वर्तमान में कोई लाइव सत्र उपलब्ध नहीं है। शुरू करने के लिए एक शेड्यूल करें!",
+    "noEvents": "कोई आगामी कार्यक्रम नहीं",
+    "noEventsDesc": "इस समय कोई कार्यक्रम निर्धारित नहीं है।",
+    "scheduleSession": "सत्र शेड्यूल करें"
+  },
+  "auth": {
+    "title": "शिक्षा में आपका स्वागत है",
+    "subtitle": "आपकी व्यक्तिगत शिक्षा यात्रा यहाँ से शुरू होती है",
+    "portalTitle": "शिक्षा पोर्टल",
+    "signIn": "साइन इन",
+    "signUp": "साइन अप",
+    "email": "ईमेल",
+    "password": "पासवर्ड",
+    "displayName": "प्रदर्शन नाम",
+    "confirmPassword": "पासवर्ड की पुष्टि करें",
+    "emailPlaceholder": "अपना ईमेल दर्ज करें",
+    "passwordPlaceholder": "अपना पासवर्ड दर्ज करें",
+    "fullNamePlaceholder": "अपना पूरा नाम दर्ज करें",
+    "createPassword": "एक पासवर्ड बनाएं",
+    "confirmPasswordPlaceholder": "अपने पासवर्ड की पुष्टि करें",
+    "signInButton": "साइन इन",
+    "signUpButton": "खाता बनाएं",
+    "signingIn": "साइन इन हो रहा है...",
+    "creatingAccount": "खाता बनाया जा रहा है...",
+    "welcomeBack": "वापस स्वागत है!",
+    "signInSuccess": "आप सफलतापूर्वक साइन इन हो गए हैं।",
+    "accountCreated": "खाता बनाया गया!",
+    "checkEmail": "कृपया अपने खाते को सत्यापित करने के लिए अपना ईमेल जांचें।",
+    "betaVersion": "बीटा संस्करण - आपकी प्रतिक्रिया हमें बेहतर बनाने में मदद करती है",
+    "login": "लॉगिन",
+    "logout": "लॉगआउट",
+    "register": "पंजीकरण"
+  },
+  "settings": {
+    "title": "सेटिंग्स",
+    "subtitle": "अपने खाते की प्राथमिकताओं और सीखने के अनुभव को प्रबंधित करें",
+    "saving": "सहेजा जा रहा है...",
+    "autoSavePending": "स्वचालित सहेजना लंबित...",
+    "allChangesSaved": "सभी परिवर्तन सहेजे गए",
+    "restoreDefaults": "डिफ़ॉल्ट पुनर्स्थापित करें",
+    "settingsRestored": "सेटिंग्स पुनर्स्थापित",
+    "defaultsMessage": "सभी सेटिंग्स को उनकी डिफ़ॉल्ट मानों पर पुनर्स्थापित कर दिया गया है",
+    "tabs": {
+      "profile": "प्रोफाइल",
+      "language": "भाषा",
+      "accessibility": "पहुंच",
+      "notifications": "सूचनाएं",
+      "security": "सुरक्षा",
+      "integrations": "एकीकरण"
+    },
+    "profile": {
+      "title": "प्रोफाइल जानकारी",
+      "fullName": "पूरा नाम",
+      "fullNamePlaceholder": "अपना पूरा नाम दर्ज करें",
+      "displayName": "प्रदर्शन नाम",
+      "displayNamePlaceholder": "अपना प्रदर्शन नाम दर्ज करें",
+      "email": "ईमेल",
+      "bio": "बायो",
+      "bioPlaceholder": "अपने बारे में कुछ बताएं..."
+    },
+    "language": {
+      "primaryLanguage": "मुख्य भाषा",
+      "dualLanguageMode": "द्विभाषी मोड",
+      "dualLanguageDescription": "अपनी भाषा के साथ अंग्रेजी दिखाएं",
+      "timeFormat": "समय प्रारूप",
+      "dateFormat": "दिनांक प्रारूप",
+      "timezone": "समय क्षेत्र"
+    },
+    "accessibility": {
+      "title": "पहुंच और प्रदर्शन",
+      "fontFamily": "फ़ॉन्ट परिवार",
+      "fontHelp": "एक फ़ॉन्ट चुनें जो आपके लिए पढ़ने में आरामदायक हो",
+      "systemFont": "सिस्टम डिफ़ॉल्ट",
+      "colorContrast": "रंग कंट्रास्ट",
+      "standard": "मानक",
+      "highContrast": "उच्च कंट्रास्ट",
+      "comfortMode": "आराम मोड",
+      "comfortHelp": "इष्टतम सीखने के आराम के लिए इंटरफेस को समायोजित करें",
+      "normal": "सामान्य",
+      "lowStimulus": "कम उत्तेजना",
+      "focusMode": "फोकस मोड",
+      "textSize": "टेक्स्ट का आकार",
+      "small": "छोटा",
+      "medium": "मध्यम",
+      "large": "बड़ा",
+      "lineSpacing": "लाइन स्पेसिंग",
+      "compact": "कॉम्पैक्ट",
+      "comfortable": "आरामदायक",
+      "airy": "हवादार",
+      "speechToText": "भाषण से टेक्स्ट",
+      "speechToTextDesc": "बेहतर पहुंच के लिए वॉयस इनपुट सक्षम करें"
+    },
+    "notifications": {
+      "emailTitle": "ईमेल सूचनाएं",
+      "appTitle": "ऐप सूचनाएं",
+      "newCourses": "नए कोर्स",
+      "newCoursesDesc": "जब नए कोर्स उपलब्ध हों तो सूचना पाएं",
+      "weeklySum": "साप्ताहिक सारांश",
+      "weeklySumDesc": "साप्ताहिक प्रगति सारांश प्राप्त करें",
+      "aiPrompts": "AI सीखने के सुझाव",
+      "aiPromptsDesc": "व्यक्तिगत सीखने के सुझाव प्राप्त करें",
+      "pushNotifications": "पुश सूचनाएं",
+      "pushNotificationsDesc": "अपने डिवाइस पर सूचनाएं प्राप्त करें",
+      "studyStreak": "अध्ययन स्ट्रीक रिमाइंडर",
+      "studyStreakDesc": "अपनी सीखने की स्ट्रीक बनाए रखने के लिए रिमाइंडर पाएं",
+      "moduleNudges": "मॉड्यूल पूर्णता रिमाइंडर",
+      "moduleNudgesDesc": "चल रहे मॉड्यूल को पूरा करने के लिए सुंदर रिमाइंडर"
+    },
+    "security": {
+      "title": "सुरक्षा सेटिंग्स",
+      "twoFactor": "दो-कारक प्रमाणीकरण",
+      "twoFactorDesc": "अपने खाते में सुरक्षा की एक अतिरिक्त परत जोड़ें"
+    },
+    "integrations": {
+      "title": "बाहरी एकीकरण",
+      "googleCalendar": "Google कैलेंडर",
+      "googleDesc": "अपने अध्ययन कार्यक्रम को Google कैलेंडर के साथ सिंक करें",
+      "outlookCalendar": "Outlook कैलेंडर",
+      "outlookDesc": "अपने अध्ययन कार्यक्रम को Outlook कैलेंडर के साथ सिंक करें"
+    }
+  },
+  "preview": {
+    "title": "लाइव पूर्वावलोकन",
+    "description": "देखें कि आपकी पहुंच सेटिंग्स डिस्प्ले को कैसे प्रभावित करती हैं",
+    "fontLabel": "फ़ॉन्ट",
+    "sizeLabel": "आकार",
+    "spacingLabel": "स्पेसिंग",
+    "contrastLabel": "कंट्रास्ट",
+    "comfortLabel": "आराम मोड",
+    "sampleTitle": "नमूना सीखने की सामग्री",
+    "sampleText": "आपकी वर्तमान सेटिंग्स के साथ आपकी सीखने की सामग्री इस तरह दिखाई देगी। आप अपने लिए सबसे आरामदायक पढ़ने का अनुभव बनाने के लिए फ़ॉन्ट, आकार, स्पेसिंग और अन्य प्राथमिकताओं को समायोजित कर सकते हैं।"
+  }
+}

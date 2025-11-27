@@ -1,0 +1,86 @@
+{
+  "courseId": "chemistry-central-science",
+  "courseSlug": "chemistry-central-science",
+  "contentVersion": "v2",
+  "framework": "micro-learning",
+  "courseTitle": "Chemistry: The Central Science",
+  "description": "Explore the world of atoms, molecules, and reactions. This foundational course covers the essential principles of chemistry, the science that connects everything.",
+  "backgroundImage": "https://images.unsplash.com/photo-1554475901-4538ddfbccc2?q=80&w=2070&auto=format&fit=crop",
+  "estimatedHours": 12,
+  "difficultyLevel": "intermediate",
+  "category": "Science",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Matter and Measurement",
+      "description": "Properties of matter, physical vs chemical changes, and measurement",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 35,
+      "unit": "Unit 1: Basics",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 2,
+      "title": "Atoms and Elements",
+      "description": "Atomic theory, structure of atoms, and the periodic table",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 40,
+      "unit": "Unit 2: Atomic Structure",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 3,
+      "title": "Bonding and Compounds",
+      "description": "Ionic and covalent bonds, Lewis structures, and molecular shapes",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 45,
+      "unit": "Unit 3: Bonding",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 4,
+      "title": "Chemical Reactions",
+      "description": "Types of reactions, balancing equations, and reaction rates",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 40,
+      "unit": "Unit 4: Reactions",
+      "unitColor": "bg-orange-100 text-orange-700"
+    },
+    {
+      "id": 5,
+      "title": "Stoichiometry: The Mole",
+      "description": "The mole concept, molar mass, and quantitative calculations",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 45,
+      "unit": "Unit 5: Stoichiometry",
+      "unitColor": "bg-pink-100 text-pink-700"
+    },
+    {
+      "id": 6,
+      "title": "Gases and Solutions",
+      "description": "Gas laws, solution concentration, and colligative properties",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 45,
+      "unit": "Unit 6: States of Matter",
+      "unitColor": "bg-teal-100 text-teal-700"
+    }
+  ]
+}

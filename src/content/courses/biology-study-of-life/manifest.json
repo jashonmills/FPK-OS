@@ -1,0 +1,86 @@
+{
+  "courseId": "biology-study-of-life",
+  "courseSlug": "biology-study-of-life",
+  "contentVersion": "v2",
+  "framework": "micro-learning",
+  "courseTitle": "Biology: The Study of Life",
+  "description": "From the smallest cells to the largest ecosystems, explore the science of living things. This course covers the core concepts of modern biology in an engaging, interactive format.",
+  "backgroundImage": "https://images.unsplash.com/photo-1576086213369-97a306d36557?q=80&w=2070&auto=format&fit=crop",
+  "estimatedHours": 12,
+  "difficultyLevel": "intermediate",
+  "category": "Science",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Foundations of Life",
+      "description": "Biology basics, properties of water, and the four macromolecules",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 35,
+      "unit": "Unit 1: Basics",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 2,
+      "title": "The Cell",
+      "description": "Cell theory, prokaryotic vs eukaryotic cells, and organelles",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 40,
+      "unit": "Unit 2: Cellular",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 3,
+      "title": "Genetics and Heredity",
+      "description": "DNA structure, Mendelian genetics, and inheritance patterns",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 45,
+      "unit": "Unit 3: Genetics",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 4,
+      "title": "Evolution",
+      "description": "Natural selection, evidence for evolution, and speciation",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 40,
+      "unit": "Unit 4: Evolution",
+      "unitColor": "bg-orange-100 text-orange-700"
+    },
+    {
+      "id": 5,
+      "title": "Organisms and Ecology",
+      "description": "Ecosystems, food webs, biomes, and environmental interactions",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 45,
+      "unit": "Unit 5: Ecology",
+      "unitColor": "bg-teal-100 text-teal-700"
+    },
+    {
+      "id": 6,
+      "title": "Human Body Systems",
+      "description": "Major organ systems and how they maintain homeostasis",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 45,
+      "unit": "Unit 6: Human Biology",
+      "unitColor": "bg-pink-100 text-pink-700"
+    }
+  ]
+}

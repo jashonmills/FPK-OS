@@ -1,0 +1,370 @@
+{
+  "courseId": "biology-the-study-of-life",
+  "courseSlug": "biology-the-study-of-life",
+  "contentVersion": "v2",
+  "title": "Biology: The Study of Life",
+  "description": "An interactive exploration of the fundamental principles of life, from the inner workings of cells and DNA to the dynamics of entire ecosystems.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "The Characteristics of Life",
+      "description": "Explore the seven fundamental characteristics that define all living organisms and distinguish them from non-living matter.",
+      "contentType": "text",
+      "unit": "Unit 1: The Chemical and Cellular Basis of Life",
+      "unitColor": "blue",
+      "estimatedMinutes": 30,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define biology as the scientific study of life.",
+            "Identify the seven key characteristics shared by all living organisms.",
+            "Differentiate between living, dormant, and non-living things."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Biology is the science that explores the vast diversity of living organisms. But what does it mean to be 'alive'? While a rock and a rabbit are clearly different, the line can sometimes be blurry. To create a clear definition, biologists have identified seven key characteristics that are shared by nearly all forms of life. These are not just a checklist, but interconnected properties that define the dynamic nature of living systems. Understanding these characteristics is the first step to understanding all other biological concepts."
+        },
+        {
+          "type": "heading",
+          "content": "The Seven Characteristics",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "**1. Organization:** All life is highly organized in a structured way. This organization starts at the smallest level with atoms, which form molecules. These molecules build organelles, which are the functional components of cells. Cells are the basic unit of life. In many organisms, cells form tissues, tissues form organs, and organs work together in organ systems.\n\n**2. Metabolism:** Living things must use energy and consume nutrients to carry out their life processes. Metabolism is the sum of all chemical reactions that occur within an organism, including converting food into energy (like in cellular respiration) and using that energy to build or repair cells.\n\n**3. Homeostasis:** This is the ability to maintain a stable internal environment despite changes in the external environment. For example, your body maintains a constant temperature of around 37°C (98.6°F) whether it's hot or cold outside, through mechanisms like sweating or shivering.\n\n**4. Growth and Development:** Living organisms grow and develop according to a genetic program. This isn't just about getting bigger; it involves cell division and differentiation, where cells become specialized to perform different functions.\n\n**5. Response to Stimuli:** All life reacts to changes in its environment. A plant turning towards the sun, a bacterium moving away from a toxic chemical, or you pulling your hand away from a hot stove are all examples of responding to stimuli.\n\n**6. Reproduction:** Living things can produce new individuals, passing their genetic material (DNA) to their offspring. This can be asexual (one parent) or sexual (two parents).\n\n**7. Adaptation and Evolution:** Over generations, populations of organisms evolve and become better adapted to their environment. This process of natural selection is the driving force behind the incredible diversity of life on Earth.",
+          "style": "teaching"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "The ability of an organism to maintain a stable internal temperature is an example of...?",
+          "options": ["Metabolism", "Homeostasis", "Organization"],
+          "correctAnswer": "Homeostasis",
+          "explanation": "Homeostasis is the ability to maintain a stable internal environment despite external changes."
+        },
+        {
+          "type": "quiz",
+          "question": "What is considered the basic unit of life?",
+          "options": ["The Atom", "The Molecule", "The Cell"],
+          "correctAnswer": "The Cell",
+          "explanation": "The cell is the basic unit of structure and organization in all living organisms."
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "The Cell - The Basic Unit of Life",
+      "description": "Discover the fundamental building blocks of all living organisms and learn about prokaryotic and eukaryotic cells.",
+      "contentType": "text",
+      "unit": "Unit 1: The Chemical and Cellular Basis of Life",
+      "unitColor": "blue",
+      "estimatedMinutes": 35,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand the Cell Theory.",
+            "Differentiate between prokaryotic and eukaryotic cells.",
+            "Identify the key organelles and their functions (nucleus, mitochondria, cell membrane)."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept - The Cell Theory",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The Cell Theory is one of the most important unifying principles in all of biology. It has three main parts: 1) All living organisms are composed of one or more cells. 2) The cell is the basic unit of structure and organization in organisms. 3) All cells come from pre-existing cells. This theory fundamentally shifted our understanding of life, establishing that no matter how different a bacterium and an elephant appear, they are both built from the same fundamental units."
+        },
+        {
+          "type": "heading",
+          "content": "Two Types of Cells",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "**Prokaryotic Cells:** These are the simplest and most ancient type of cells. They are small and lack a true nucleus and other membrane-bound organelles. Their genetic material (DNA) floats freely within the cell's cytoplasm. Bacteria and Archaea are prokaryotes.\n\n**Eukaryotic Cells:** These cells are larger and much more complex. They have a true nucleus, which contains the cell's DNA, as well as many other specialized, membrane-bound compartments called organelles. Plants, animals, fungi, and protists are all made of eukaryotic cells.",
+          "style": "info"
+        },
+        {
+          "type": "heading",
+          "content": "Key Organelles",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "**Cell Membrane:** The outer boundary of the cell. It is selectively permeable, meaning it controls what enters and leaves the cell.\n\n**Nucleus:** The 'control center' of the eukaryotic cell. It contains the cell's genetic blueprint (DNA) and directs all cellular activities.\n\n**Mitochondria:** Known as the 'powerhouses' of the cell. This is where cellular respiration occurs, the process of converting food (glucose) into usable energy (ATP).",
+          "style": "teaching"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which type of cell lacks a true nucleus?",
+          "options": ["Eukaryotic", "Prokaryotic", "Both have a nucleus"],
+          "correctAnswer": "Prokaryotic",
+          "explanation": "Prokaryotic cells lack a true nucleus; their DNA floats freely in the cytoplasm."
+        },
+        {
+          "type": "quiz",
+          "question": "Which organelle is known as the 'powerhouse' of the cell?",
+          "options": ["Nucleus", "Cell Membrane", "Mitochondria"],
+          "correctAnswer": "Mitochondria",
+          "explanation": "Mitochondria produce ATP through cellular respiration, providing energy for the cell."
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "DNA - The Blueprint of Life",
+      "description": "Understand the structure and function of DNA and how genetic information flows from DNA to proteins.",
+      "contentType": "text",
+      "unit": "Unit 2: Genetics and Evolution",
+      "unitColor": "purple",
+      "estimatedMinutes": 30,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Describe the double helix structure of DNA.",
+            "Understand that DNA is a code made of four bases (A, T, C, G).",
+            "Explain the central dogma of biology: DNA -> RNA -> Protein."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept - The Double Helix",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Deoxyribonucleic acid, or DNA, is the molecule that carries the genetic instructions for the development, functioning, growth, and reproduction of all known organisms. Its structure, discovered by Watson and Crick, is a double helix, resembling a twisted ladder. The 'rungs' of the ladder are made of pairs of four chemical bases: Adenine (A), Thymine (T), Cytosine (C), and Guanine (G). A always pairs with T, and C always pairs with G. The sequence of these bases along the ladder forms a code that tells the cell what to do."
+        },
+        {
+          "type": "heading",
+          "content": "The Central Dogma",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "The information in DNA is used to build proteins, which are the molecules that do most of the work in our cells. This process, known as the central dogma of molecular biology, occurs in two main steps. First, in a process called transcription, the DNA code is copied into a messenger molecule called RNA. Second, in a process called translation, the cell's machinery (ribosomes) reads the RNA message and uses it to assemble a specific protein.",
+          "style": "teaching"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "In the DNA double helix, which base always pairs with Adenine (A)?",
+          "options": ["Guanine (G)", "Cytosine (C)", "Thymine (T)"],
+          "correctAnswer": "Thymine (T)",
+          "explanation": "In DNA, Adenine always pairs with Thymine, and Cytosine always pairs with Guanine."
+        },
+        {
+          "type": "quiz",
+          "question": "What is the process of copying DNA into RNA called?",
+          "options": ["Translation", "Transcription", "Replication"],
+          "correctAnswer": "Transcription",
+          "explanation": "Transcription is the process where DNA is copied into messenger RNA (mRNA)."
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Evolution by Natural Selection",
+      "description": "Learn how Charles Darwin's theory of natural selection explains the diversity and adaptation of life on Earth.",
+      "contentType": "text",
+      "unit": "Unit 2: Genetics and Evolution",
+      "unitColor": "purple",
+      "estimatedMinutes": 30,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define evolution as the change in heritable characteristics of biological populations over successive generations.",
+            "Explain the mechanism of natural selection as proposed by Charles Darwin.",
+            "Understand the role of variation and adaptation in evolution."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept - Darwin's Theory",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Evolution is the cornerstone of modern biology. Charles Darwin's theory of natural selection provides the primary mechanism for how it occurs. The theory is based on a few key observations: 1) There is variation within any population (individuals are not identical). 2) More offspring are produced than can possibly survive. 3) There is a struggle for existence (competition for resources). 4) Individuals with traits that give them a slight advantage are more likely to survive and reproduce. 5) Over time, these advantageous traits become more common in the population."
+        },
+        {
+          "type": "heading",
+          "content": "Example - The Peppered Moth",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "A classic example is the peppered moth in England. Before the Industrial Revolution, most moths were light-colored, camouflaging them against light-colored trees. As pollution darkened the trees with soot, the rare dark-colored moths were better camouflaged and survived to reproduce more often. Over generations, the population evolved to be predominantly dark-colored. This is natural selection in action.",
+          "style": "teaching"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is the primary mechanism for evolution proposed by Charles Darwin?",
+          "options": ["Genetic Drift", "Natural Selection", "Gene Flow"],
+          "correctAnswer": "Natural Selection",
+          "explanation": "Natural selection is the process where organisms with favorable traits are more likely to survive and reproduce."
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Ecosystems and Food Webs",
+      "description": "Explore how energy flows through ecosystems and understand the roles of producers, consumers, and decomposers.",
+      "contentType": "text",
+      "unit": "Unit 3: The Diversity of Life and Ecology",
+      "unitColor": "green",
+      "estimatedMinutes": 25,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define an ecosystem as a community of living organisms interacting with their physical environment.",
+            "Differentiate between producers, consumers, and decomposers.",
+            "Understand how energy flows through a food web."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept - The Flow of Energy",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Ecology is the study of how organisms interact with each other and their environment. An ecosystem includes all the living (biotic) things, like plants and animals, and the non-living (abiotic) things, like sunlight, water, and soil. Energy flows through an ecosystem in one direction. It starts with producers (usually plants) that capture energy from the sun. Consumers get their energy by eating other organisms. Decomposers (like bacteria and fungi) break down dead organic matter, returning nutrients to the soil."
+        },
+        {
+          "type": "heading",
+          "content": "Example - A Forest Food Web",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "In a forest, a plant (producer) is eaten by a rabbit (a primary consumer). The rabbit is then eaten by a fox (a secondary consumer). When the fox dies, decomposers break down its body. This is a simple food chain. A food web shows all the interconnected food chains in an ecosystem, demonstrating the complex flow of energy.",
+          "style": "teaching"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "In a food web, which organisms capture energy from the sun?",
+          "options": ["Consumers", "Decomposers", "Producers"],
+          "correctAnswer": "Producers",
+          "explanation": "Producers, typically plants, use photosynthesis to capture energy from the sun."
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "The Major Kingdoms of Life",
+      "description": "Discover how biologists classify the incredible diversity of life on Earth into major kingdoms.",
+      "contentType": "text",
+      "unit": "Unit 3: The Diversity of Life and Ecology",
+      "unitColor": "green",
+      "estimatedMinutes": 25,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Identify the major kingdoms used to classify life (e.g., Animals, Plants, Fungi).",
+            "Understand the basic characteristics of each kingdom.",
+            "Appreciate the vast diversity of life on Earth."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept - Classifying Life",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "To make sense of the millions of species on Earth, biologists classify them into broad groups called kingdoms based on fundamental characteristics like cell type and how they obtain nutrition. While the system is complex and evolving, a common model includes five or six major kingdoms."
+        },
+        {
+          "type": "heading",
+          "content": "The Kingdoms",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "**Animalia (Animals):** Multicellular, eukaryotic organisms that are heterotrophic (they ingest other organisms for energy). They are typically mobile.\n\n**Plantae (Plants):** Multicellular, eukaryotic organisms that are autotrophic (they produce their own food through photosynthesis). They are generally non-mobile.\n\n**Fungi (Fungi):** Multicellular (like mushrooms) or unicellular (like yeast) eukaryotes. They are heterotrophic, but they absorb nutrients from their surroundings, often by decomposing dead organic matter.\n\n**Protista (Protists):** A diverse 'catch-all' kingdom of eukaryotes that are not animals, plants, or fungi. Includes amoebas and algae.\n\n**Monera (Bacteria/Archaea):** Unicellular prokaryotic organisms. The simplest forms of life.",
+          "style": "teaching"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Mushrooms and yeast belong to which kingdom?",
+          "options": ["Plantae", "Fungi", "Animalia"],
+          "correctAnswer": "Fungi",
+          "explanation": "Fungi are organisms that absorb nutrients from their environment, including mushrooms and yeast."
+        }
+      ]
+    }
+  ]
+}

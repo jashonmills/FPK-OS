@@ -1,0 +1,339 @@
+{
+  "courseId": "writing-and-composition-the-complete-essay",
+  "courseSlug": "writing-and-composition-the-complete-essay",
+  "contentVersion": "v2",
+  "title": "Writing & Composition: The Complete Essay",
+  "description": "A comprehensive guide to mastering academic writing, from building a powerful argument to mastering style and revision.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "The Thesis Statement",
+      "description": "Learn to craft clear, arguable thesis statements that serve as the foundation of your essay.",
+      "contentType": "text",
+      "unit": "Unit 1: The Anatomy of an Argument",
+      "unitColor": "blue",
+      "estimatedMinutes": 20,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define a thesis statement as the central argument of an essay.",
+            "Understand that a strong thesis must be arguable, not a statement of fact.",
+            "Learn to draft a basic thesis statement."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The thesis statement is the most important sentence in your entire essay. It is a clear, concise, and arguable claim that you will spend the rest of your essay proving. It's not a fact (e.g., 'The sky is blue') but an interpretation or position that someone could reasonably disagree with. It acts as a roadmap for your reader, telling them what you are going to argue and how."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "Weak Thesis (Fact): 'The internet was invented in the 20th century.'\n\nStrong Thesis (Arguable): 'While the internet has connected the world, its negative impact on deep thinking and focus outweighs its benefits for society.'",
+          "style": "teaching"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "A strong thesis statement must be...",
+          "options": ["A proven fact", "Arguable", "At least 50 words long"],
+          "correctAnswer": "Arguable",
+          "explanation": "A thesis isn't a fact; it's an arguable claim you have to prove throughout your essay."
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Gathering and Evaluating Evidence",
+      "description": "Master the art of finding and using credible sources to support your arguments.",
+      "contentType": "text",
+      "unit": "Unit 1: The Anatomy of an Argument",
+      "unitColor": "blue",
+      "estimatedMinutes": 25,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand that every claim must be supported by evidence.",
+            "Learn to find credible sources (academic journals, reputable news, primary sources).",
+            "Differentiate between strong and weak evidence."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Your thesis is just an opinion until you support it with evidence. Strong evidence comes from credible sources and directly supports your claim. This can include statistics, quotes from experts, historical documents, or results from scientific studies. It's crucial to evaluate your sources for bias, accuracy, and authority."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "If your thesis is about the internet's negative impact, strong evidence would be a study from a university psychology department showing decreased attention spans. Weak evidence would be an anonymous blog post complaining about social media.",
+          "style": "teaching"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which of the following would be considered the most credible source for a history paper?",
+          "options": ["A Wikipedia article", "A Hollywood movie", "A letter written by a historical figure (a primary source)"],
+          "correctAnswer": "A letter written by a historical figure (a primary source)",
+          "explanation": "Primary sources provide the most direct and reliable information for historical research."
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "The Introduction Paragraph",
+      "description": "Learn to craft powerful introductions with hooks, context, and clear thesis statements.",
+      "contentType": "text",
+      "unit": "Unit 2: Structuring the Essay",
+      "unitColor": "purple",
+      "estimatedMinutes": 25,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn the three parts of an effective introduction: the hook, the context, and the thesis.",
+            "Understand how to write a 'hook' to grab the reader's attention.",
+            "Practice structuring an introduction."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The introduction is your first impression. It should start with a 'hook'—an interesting question, a surprising statistic, or a compelling anecdote—to engage your reader. Then, provide a sentence or two of context to narrow the topic. Finally, end the paragraph with your clear, arguable thesis statement."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "(Hook) What if the tool designed to connect us is actually driving us apart? (Context) In the last two decades, the internet has reshaped society. (Thesis) While the internet has connected the world, its negative impact on deep thinking and focus outweighs its benefits for society.",
+          "style": "teaching"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is the final sentence of an introduction paragraph?",
+          "options": ["The Hook", "The Context", "The Thesis Statement"],
+          "correctAnswer": "The Thesis Statement",
+          "explanation": "The thesis is the roadmap for your essay, so it comes at the end of the introduction to guide the reader."
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Body Paragraphs and Topic Sentences",
+      "description": "Build strong body paragraphs using the Claim-Evidence-Analysis structure.",
+      "contentType": "text",
+      "unit": "Unit 2: Structuring the Essay",
+      "unitColor": "purple",
+      "estimatedMinutes": 30,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand that each body paragraph should focus on one single idea.",
+            "Learn to write a clear topic sentence for each paragraph.",
+            "Practice structuring a body paragraph (Claim, Evidence, Analysis)."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The body paragraphs are where you prove your thesis. Each paragraph should begin with a 'topic sentence' that makes a specific claim supporting your overall thesis. The rest of the paragraph then provides the evidence for that claim and analyzes how that evidence proves the point. A good structure to follow is: Claim (topic sentence), Evidence (quote, statistic), Analysis (explain how the evidence proves the claim)."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "(Claim) One of the most significant negative impacts of the internet is its erosion of sustained attention. (Evidence) A 2019 study by the University of California found that the average office worker's attention is interrupted every three minutes. (Analysis) This constant switching of focus prevents the deep, uninterrupted thought necessary for complex problem-solving and creativity.",
+          "style": "teaching"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is the first sentence of a body paragraph called?",
+          "options": ["The Thesis Statement", "The Topic Sentence", "The Hook"],
+          "correctAnswer": "The Topic Sentence",
+          "explanation": "Each body paragraph needs its own mini-argument, which is stated in the topic sentence."
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "The Conclusion",
+      "description": "Master the art of writing conclusions that synthesize your argument and explain its broader significance.",
+      "contentType": "text",
+      "unit": "Unit 2: Structuring the Essay",
+      "unitColor": "purple",
+      "estimatedMinutes": 25,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand the purpose of a conclusion is to synthesize, not just summarize.",
+            "Learn to restate the thesis in a new way.",
+            "Explore how to end with a 'So what?'—a statement about the broader implications of your argument."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The conclusion is your final chance to make an impact. Do not simply repeat what you've already said. Start by restating your thesis in fresh language. Then, briefly synthesize your main points. Finally, end with the 'So what?'—answer the question of why your argument matters. What are the broader implications? What should the reader think or do now?"
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "(Restate Thesis) In conclusion, the evidence clearly shows that the internet's constant distractions are fundamentally reshaping our cognitive habits for the worse. (Synthesize) By fracturing our attention and promoting shallow engagement, it undermines the very skills of deep thought that have driven human progress. (So What?) As we move further into the digital age, it is imperative that we consciously cultivate practices of 'deep work' and digital minimalism to preserve our capacity for genuine intellectual achievement.",
+          "style": "teaching"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is the final part of a strong conclusion that explains why the argument matters?",
+          "options": ["The Hook", "The Thesis", "The 'So what?'"],
+          "correctAnswer": "The 'So what?'",
+          "explanation": "The conclusion needs to answer the question 'Why does this matter?' to give your argument lasting significance."
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Revision and Proofreading",
+      "description": "Learn effective strategies for revising your work and polishing it to perfection.",
+      "contentType": "text",
+      "unit": "Unit 3: Polishing and Style",
+      "unitColor": "green",
+      "estimatedMinutes": 25,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Differentiate between revision (big picture) and proofreading (small details).",
+            "Learn strategies for effective revision, such as reading your essay aloud.",
+            "Create a checklist for final proofreading."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The writing process isn't over when you finish the first draft. Revision focuses on the big picture: Is your thesis clear? Is your argument logical? Are your paragraphs well-supported? Proofreading is the final step, where you hunt for small errors: spelling mistakes, grammar issues, and typos. It's crucial to do these as separate steps."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "A great revision technique is to create a 'reverse outline'—read your essay and write down the main point of each paragraph. If the outline doesn't flow logically, you know you need to restructure. For proofreading, try reading your essay backwards, sentence by sentence. This forces you to focus on each sentence individually and helps you catch errors.",
+          "style": "teaching"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Checking your essay for logical flow and argument strength is part of which process?",
+          "options": ["Proofreading", "Revision", "Brainstorming"],
+          "correctAnswer": "Revision",
+          "explanation": "Revision is for the big ideas and overall structure, while proofreading is for catching small mistakes."
+        }
+      ]
+    }
+  ]
+}

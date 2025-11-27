@@ -1,0 +1,407 @@
+{
+  "courseId": "math-7-3-probability-statistics",
+  "courseSlug": "math-7-3-probability-statistics",
+  "contentVersion": "v2",
+  "title": "Math 7.3: Probability & Statistics",
+  "description": "Learn to analyze data, understand the likelihood of events, and make predictions about the world using the tools of probability and statistics.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Lesson 1: Introduction to Probability",
+      "description": "Define probability and calculate theoretical probability of simple events.",
+      "contentType": "text",
+      "unit": "Unit 1: Probability",
+      "unitColor": "purple",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define probability as a measure of the likelihood of an event.",
+            "Understand that probability is a number between 0 and 1.",
+            "Calculate the theoretical probability of a simple event."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - The Chance of Something Happening",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Probability is the branch of mathematics that deals with chance. It helps us quantify how likely an event is to occur. A probability of 0 means the event is impossible. A probability of 1 means the event is certain. All other probabilities fall somewhere in between. For example, the probability of flipping a coin and getting heads is 1/2 or 0.5, because there are two equally likely outcomes."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Calculating Theoretical Probability",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The formula for the theoretical probability of an event is:"
+        },
+        {
+          "type": "code",
+          "content": "P(event) = (Number of favorable outcomes) / (Total number of possible outcomes)",
+          "language": "plaintext"
+        },
+        {
+          "type": "heading",
+          "content": "Example:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "What is the probability of rolling a 4 on a standard six-sided die? There is only one 'favorable' outcome (rolling a 4). There are six 'total' possible outcomes (1, 2, 3, 4, 5, 6). So, the probability is 1/6."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "A bag contains 3 red marbles and 7 blue marbles. What is the probability of randomly picking a red marble?",
+          "options": ["3/7", "7/10", "3/10"],
+          "correctAnswer": "3/10",
+          "explanation": "Remember to use the total number of marbles (3 + 7 = 10) as the denominator."
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Lesson 2: Experimental Probability",
+      "description": "Differentiate between theoretical and experimental probability.",
+      "contentType": "text",
+      "unit": "Unit 1: Probability",
+      "unitColor": "purple",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Differentiate between theoretical and experimental probability.",
+            "Calculate the experimental probability of an event based on data from an experiment.",
+            "Understand the Law of Large Numbers."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - What Actually Happens",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Theoretical probability is what we expect to happen in theory. Experimental probability is what actually happens when we conduct an experiment. For example, the theoretical probability of a coin landing on heads is 1/2. But if you flip a coin 10 times, you might get 6 heads and 4 tails. Your experimental probability of getting heads would be 6/10."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: The Law of Large Numbers",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The Law of Large Numbers is a key concept that connects these two ideas. It states that as you repeat an experiment a large number of times, the experimental probability will get closer and closer to the theoretical probability. If you flip a coin 10 times, you might get 7 heads. But if you flip it 10,000 times, the number of heads will be very close to 5,000."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "You roll a die 20 times and get a '5' four times. What is the experimental probability of rolling a 5?",
+          "options": ["1/6", "4/20", "5/20"],
+          "correctAnswer": "4/20",
+          "explanation": "Experimental probability is the number of times the event happened (4) divided by the total number of trials (20)."
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Lesson 3: Compound Events",
+      "description": "Use tree diagrams to find outcomes of compound events.",
+      "contentType": "text",
+      "unit": "Unit 1: Probability",
+      "unitColor": "purple",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define a compound event as an event made up of two or more simple events.",
+            "Use tree diagrams and organized lists to find all possible outcomes of a compound event.",
+            "Calculate the probability of a compound event."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - More Than One Thing Happening",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "So far, we've looked at simple events, like rolling one die. A compound event involves more than one outcome. For example, flipping a coin AND rolling a die is a compound event. To find the probability of a compound event, we first need to figure out the total number of possible outcomes."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Using a Tree Diagram",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A tree diagram is a great way to visualize all the outcomes. Let's say you flip a coin and then roll a die. The first 'branch' of the tree has two options: Heads or Tails. From each of those branches, six new branches sprout for the die roll (1, 2, 3, 4, 5, 6). By counting the final branches, you can see there are 2 x 6 = 12 total possible outcomes (H1, H2, H3... T4, T5, T6)."
+        },
+        {
+          "type": "heading",
+          "content": "Example:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "What is the probability of getting Heads and an even number? The favorable outcomes are H2, H4, and H6. That's 3 favorable outcomes out of 12 total outcomes. So, the probability is 3/12, which simplifies to 1/4."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "You have a choice of a white or black shirt, and blue or khaki pants. How many different outfits can you make?",
+          "options": ["2", "3", "4"],
+          "correctAnswer": "4",
+          "explanation": "You can list them out: White shirt/Blue pants, White shirt/Khaki pants, Black shirt/Blue pants, Black shirt/Khaki pants. That's 4 total outfits (2 shirts x 2 pants)."
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Lesson 4: Measures of Center",
+      "description": "Define and calculate mean, median, and mode.",
+      "contentType": "text",
+      "unit": "Unit 2: Statistics",
+      "unitColor": "green",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define and calculate the mean, median, and mode of a data set.",
+            "Understand what each measure of center tells you about the data.",
+            "Determine which measure of center is most appropriate for a given data set."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - Describing the 'Typical' Value",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Statistics is the science of collecting, organizing, and analyzing data. When we have a set of data, we often want to describe a 'typical' value, or the center of the data. The three most common ways to do this are the mean, median, and mode."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Mean, Median, and Mode",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Mean (Average):",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Add up all the values and divide by the number of values. The mean is sensitive to outliers (very high or low numbers)."
+        },
+        {
+          "type": "heading",
+          "content": "Median:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "The middle value when the data is arranged in order from least to greatest. If there are two middle numbers, find their average. The median is not affected by outliers."
+        },
+        {
+          "type": "heading",
+          "content": "Mode:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "The value that appears most often in the data set. A data set can have one mode, more than one mode, or no mode."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is the median of the following data set: 2, 8, 3, 9, 3?",
+          "options": ["3", "5", "8"],
+          "correctAnswer": "3",
+          "explanation": "First, you must put the numbers in order: 2, 3, 3, 8, 9. The middle number is 3."
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Lesson 5: Measures of Spread",
+      "description": "Calculate range and understand interquartile range (IQR).",
+      "contentType": "text",
+      "unit": "Unit 2: Statistics",
+      "unitColor": "green",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define and calculate the range of a data set.",
+            "Understand the concept of quartiles and the interquartile range (IQR).",
+            "Interpret what the spread of data tells you about its consistency."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - How Spread Out is the Data?",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "While measures of center tell us about the 'typical' value, measures of spread (or variability) tell us how consistent or spread out the data is. Two data sets can have the same mean but be very different. For example, the data set {10, 20, 90} and {39, 40, 41} both have a mean of 40, but the first set is much more spread out."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Range and Interquartile Range (IQR)",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Range:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "The simplest measure of spread. It is the difference between the highest value and the lowest value in the data set."
+        },
+        {
+          "type": "heading",
+          "content": "Interquartile Range (IQR):",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "A more robust measure of spread. It is the range of the middle 50% of the data. To find it, you find the median of the lower half of the data (Q1) and the median of the upper half (Q3), and then subtract: IQR = Q3 - Q1. The IQR is not affected by outliers."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is the range of the data set: 15, 2, 9, 25, 11?",
+          "options": ["23", "25", "16"],
+          "correctAnswer": "23",
+          "explanation": "The range is the highest value (25) minus the lowest value (2), which is 23."
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Lesson 6: Reading and Interpreting Data Displays",
+      "description": "Read and interpret box plots and histograms.",
+      "contentType": "text",
+      "unit": "Unit 2: Statistics",
+      "unitColor": "green",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Read and interpret data from box plots (box-and-whisker plots).",
+            "Read and interpret data from histograms.",
+            "Compare two populations based on their data displays."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - Visualizing Data",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Graphs and plots are powerful tools that allow us to see the shape and distribution of data at a glance. They can reveal patterns, clusters, and outliers that might be hard to see in a simple list of numbers. Two common displays for numerical data are box plots and histograms."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Box Plots and Histograms",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Box Plot:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "A graph that displays the five-number summary of a data set: minimum, first quartile (Q1), median, third quartile (Q3), and maximum. It's excellent for seeing the spread and median of the data."
+        },
+        {
+          "type": "heading",
+          "content": "Histogram:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "A type of bar graph that shows the frequency of data within equal intervals or 'bins'. It's great for seeing the overall shape and distribution of the data."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which data display uses the five-number summary (min, Q1, median, Q3, max) to show the spread of data?",
+          "options": ["Histogram", "Pie Chart", "Box Plot"],
+          "correctAnswer": "Box Plot",
+          "explanation": "The 'box' in a box plot represents the middle 50% of the data, from Q1 to Q3."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "courseId": "introduction-video-production",
+  "courseSlug": "introduction-video-production",
+  "contentVersion": "v2",
+  "courseTitle": "Meditation with David Scullion",
+  "description": "Experience a guided meditation session with David Scullion to achieve optimal learning states.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Guided Meditation Session",
+      "description": "A complete meditation session to prepare your mind for effective learning",
+      "unit": "Main Course",
+      "unitColor": "bg-blue-100 text-blue-700",
+      "contentType": "video",
+      "videoUrl": "https://player.vimeo.com/video/798011937",
+      "estimatedMinutes": 15
+    }
+  ]
+}

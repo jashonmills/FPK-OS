@@ -1,0 +1,274 @@
+
+{
+  "common": {
+    "learnerPortal": "学习者门户",
+    "userMenu": "用户菜单",
+    "loading": "加载中...",
+    "error": "错误",
+    "success": "成功",
+    "cancel": "取消",
+    "save": "保存",
+    "delete": "删除",
+    "edit": "编辑",
+    "search": "搜索",
+    "learningDashboard": "学习仪表板",
+    "support": "支持",
+    "signOut": "登出",
+    "beta": "测试版",
+    "back": "返回"
+  },
+  "dashboard": {
+    "myCourses": {
+      "title": "我的课程",
+      "description": "管理并继续您的个性化课程学习之旅"
+    },
+    "navigation": {
+      "home": "首页",
+      "courses": "我的课程",
+      "analytics": "学习分析",
+      "goals": "目标",
+      "notes": "笔记",
+      "study": "学习",
+      "aiCoach": "AI学习教练",
+      "liveHub": "实时学习中心",
+      "settings": "设置"
+    },
+    "stats": {
+      "activeCourses": "活跃课程",
+      "currentStreak": "当前连击",
+      "activeGoals": "活跃目标",
+      "goalProgress": "目标进度",
+      "completedCourses": "已完成课程",
+      "totalXP": "总经验值",
+      "studyTime": "学习时间",
+      "achievements": "成就"
+    },
+    "charts": {
+      "courseProgress": "课程进度",
+      "weeklyTime": "每周学习时间",
+      "noCourseProgress": "无课程进度数据",
+      "noWeeklyTime": "无学习时间数据",
+      "noStudyTime": "无学习时间数据",
+      "noStudyTimeDesc": "开始完成学习会话以在此查看您的进度",
+      "noCourseProgressDesc": "注册课程以查看您的进度跟踪",
+      "hours": "小时",
+      "minutes": "分钟",
+      "week": "周"
+    },
+    "insights": {
+      "personalGoals": "个人目标",
+      "communityActivity": "社区活动",
+      "aiInsights": "AI洞察",
+      "studyPattern": "学习模式",
+      "joinCommunity": "加入社区",
+      "joinCommunityDesc": "与其他学习者联系并分享您的进度",
+      "exploreCommunity": "探索社区"
+    },
+    "welcomeModal": {
+      "title": "欢迎开始您的学习之旅",
+      "quickSetup": "快速设置",
+      "quickSetupDesc": "设置您的个人资料和偏好以获得个性化推荐",
+      "skipForNow": "暂时跳过",
+      "getStarted": "开始",
+      "completeProfile": "完善资料",
+      "remindLater": "稍后提醒"
+    },
+    "badges": {
+      "learner": "学习者",
+      "level1": "1级",
+      "newbie": "新手",
+      "beginner": "初学者"
+    }
+  },
+  "courses": {
+    "learningState": {
+      "title": "学习状态课程",
+      "description": "掌握学习状态和认知过程的基础知识",
+      "playerTitle": "学习状态课程播放器",
+      "outline": {
+        "intro": "学习状态介绍",
+        "cognitiveLoad": "理解认知负荷",
+        "attention": "注意力和专注力管理",
+        "memory": "记忆形成和保持",
+        "metacognition": "元认知策略"
+      }
+    },
+    "courseOutline": "课程大纲",
+    "backToCourses": "返回课程"
+  },
+  "goals": {
+    "myGoals": "我的目标",
+    "createNew": "创建目标",
+    "createFirst": "创建您的第一个目标",
+    "tabs": {
+      "all": "全部",
+      "active": "活跃",
+      "completed": "已完成",
+      "paused": "已暂停"
+    },
+    "stats": {
+      "totalGoals": "总目标",
+      "activeGoals": "活跃目标",
+      "completedGoals": "已完成",
+      "completionRate": "完成率"
+    },
+    "empty": {
+      "allTitle": "未找到目标",
+      "allDescription": "创建您的第一个目标来跟踪学习进度",
+      "activeTitle": "无活跃目标",
+      "activeDescription": "创建新目标开始跟踪进度",
+      "completedTitle": "尚无已完成目标",
+      "completedDescription": "完成一些目标后将在此显示",
+      "pausedTitle": "无已暂停目标",
+      "pausedDescription": "暂停的目标将在此显示"
+    }
+  },
+  "nav": {
+    "home": "首页",
+    "courses": "我的课程",
+    "analytics": "学习分析",
+    "goals": "目标",
+    "notes": "笔记",
+    "settings": "设置",
+    "liveHub": "实时学习中心",
+    "dashboard": "仪表板"
+  },
+  "liveHub": {
+    "title": "实时学习中心",
+    "subtitle": "与讲师和同学实时连接进行学习会话",
+    "liveSessions": "实时会话",
+    "upcomingEvents": "即将到来的活动",
+    "noSessions": "暂无活动会话",
+    "noSessionsDesc": "目前没有可用的实时会话。安排一个会话开始吧！",
+    "noEvents": "暂无即将到来的活动",
+    "noEventsDesc": "目前没有安排活动。",
+    "scheduleSession": "安排会话"
+  },
+  "auth": {
+    "title": "欢迎来到学习平台",
+    "subtitle": "您的个性化学习之旅从这里开始",
+    "portalTitle": "学习门户",
+    "signIn": "登录",
+    "signUp": "注册",
+    "email": "邮箱",
+    "password": "密码",
+    "displayName": "显示名称",
+    "confirmPassword": "确认密码",
+    "emailPlaceholder": "请输入您的邮箱",
+    "passwordPlaceholder": "请输入您的密码",
+    "fullNamePlaceholder": "请输入您的全名",
+    "createPassword": "创建密码",
+    "confirmPasswordPlaceholder": "确认您的密码",
+    "signInButton": "登录",
+    "signUpButton": "创建账户",
+    "signingIn": "登录中...",
+    "creatingAccount": "创建账户中...",
+    "welcomeBack": "欢迎回来！",
+    "signInSuccess": "您已成功登录。",
+    "accountCreated": "账户已创建！",
+    "checkEmail": "请检查您的邮箱以验证您的账户。",
+    "betaVersion": "测试版本 - 您的反馈帮助我们改进",
+    "login": "登录",
+    "logout": "登出",
+    "register": "注册"
+  },
+  "settings": {
+    "title": "设置",
+    "subtitle": "管理您的账户偏好和学习体验",
+    "saving": "保存中...",
+    "autoSavePending": "自动保存待处理...",
+    "allChangesSaved": "所有更改已保存",
+    "restoreDefaults": "恢复默认设置",
+    "settingsRestored": "设置已恢复",
+    "defaultsMessage": "所有设置已恢复为默认值",
+    "tabs": {
+      "profile": "个人资料",
+      "language": "语言",
+      "accessibility": "无障碍",
+      "notifications": "通知",
+      "security": "安全",
+      "integrations": "集成"
+    },
+    "profile": {
+      "title": "个人资料信息",
+      "fullName": "全名",
+      "fullNamePlaceholder": "请输入您的全名",
+      "displayName": "显示名称",
+      "displayNamePlaceholder": "请输入您的显示名称",
+      "email": "邮箱",
+      "bio": "个人简介",
+      "bioPlaceholder": "告诉我们一些关于您的信息..."
+    },
+    "language": {
+      "primaryLanguage": "主要语言",
+      "dualLanguageMode": "双语模式",
+      "dualLanguageDescription": "在您的语言旁显示英语",
+      "timeFormat": "时间格式",
+      "dateFormat": "日期格式",
+      "timezone": "时区"
+    },
+    "accessibility": {
+      "title": "无障碍和显示",
+      "fontFamily": "字体系列",
+      "fontHelp": "选择您阅读舒适的字体",
+      "systemFont": "系统默认",
+      "colorContrast": "颜色对比度",
+      "standard": "标准",
+      "highContrast": "高对比度",
+      "comfortMode": "舒适模式",
+      "comfortHelp": "调整界面以获得最佳学习舒适度",
+      "normal": "正常",
+      "lowStimulus": "低刺激",
+      "focusMode": "专注模式",
+      "textSize": "文字大小",
+      "small": "小",
+      "medium": "中",
+      "large": "大",
+      "lineSpacing": "行间距",
+      "compact": "紧凑",
+      "comfortable": "舒适",
+      "airy": "宽松",
+      "speechToText": "语音转文字",
+      "speechToTextDesc": "启用语音输入以提高无障碍性"
+    },
+    "notifications": {
+      "emailTitle": "邮件通知",
+      "appTitle": "应用通知",
+      "newCourses": "新课程",
+      "newCoursesDesc": "当有新课程可用时获得通知",
+      "weeklySum": "每周摘要",
+      "weeklySumDesc": "接收每周进度摘要",
+      "aiPrompts": "AI学习提示",
+      "aiPromptsDesc": "获得个性化学习建议",
+      "pushNotifications": "推送通知",
+      "pushNotificationsDesc": "在您的设备上接收通知",
+      "studyStreak": "学习连击提醒",
+      "studyStreakDesc": "获得保持学习连击的提醒",
+      "moduleNudges": "模块完成提醒",
+      "moduleNudgesDesc": "温和提醒完成进行中的模块"
+    },
+    "security": {
+      "title": "安全设置",
+      "twoFactor": "双因素认证",
+      "twoFactorDesc": "为您的账户添加额外的安全层"
+    },
+    "integrations": {
+      "title": "外部集成",
+      "googleCalendar": "Google日历",
+      "googleDesc": "将您的学习计划与Google日历同步",
+      "outlookCalendar": "Outlook日历",
+      "outlookDesc": "将您的学习计划与Outlook日历同步"
+    }
+  },
+  "preview": {
+    "title": "实时预览",
+    "description": "查看您的无障碍设置如何影响显示",
+    "fontLabel": "字体",
+    "sizeLabel": "大小",
+    "spacingLabel": "间距",
+    "contrastLabel": "对比度",
+    "comfortLabel": "舒适模式",
+    "sampleTitle": "示例学习内容",
+    "sampleText": "这是您当前设置下学习内容的显示方式。您可以调整字体、大小、间距和其他偏好设置，以创造最舒适的阅读体验。"
+  }
+}

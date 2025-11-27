@@ -1,0 +1,360 @@
+{
+  "courseId": "science-8-2-chemistry-chemical-reactions-periodic-table",
+  "courseSlug": "science-8-2-chemistry-chemical-reactions-periodic-table",
+  "contentVersion": "v2",
+  "title": "Science 8.2: Chemistry - Chemical Reactions & Periodic Table",
+  "description": "Dive deeper into chemistry by exploring the organization of the periodic table and learning how to balance and classify chemical reactions.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Organizing the Elements",
+      "description": "Understand how Mendeleev organized the first periodic table and learn about periods and groups.",
+      "contentType": "text",
+      "unit": "Unit 1: The Periodic Table",
+      "unitColor": "blue",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Describe how Dmitri Mendeleev organized the first periodic table.",
+            "Understand that the modern periodic table is organized by increasing atomic number.",
+            "Identify the periods (rows) and groups (columns) of the periodic table."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "A Map of the Elements",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The periodic table is one of the most important tools in chemistry. It organizes all the known elements in a way that reveals patterns and relationships between them. The first widely recognized periodic table was created by Dmitri Mendeleev, who arranged the elements by increasing atomic mass and noticed that elements with similar properties appeared at regular intervals. The modern table is arranged by atomic number (the number of protons), which is a more fundamental property."
+        },
+        {
+          "type": "heading",
+          "content": "Navigating the Table",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Periods (Rows)",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "The horizontal rows of the periodic table are called periods. Elements in the same period have the same number of electron shells."
+        },
+        {
+          "type": "heading",
+          "content": "Groups (Columns)",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "The vertical columns are called groups or families. Elements in the same group have the same number of valence electrons (electrons in the outermost shell) and therefore have very similar chemical properties."
+        },
+        {
+          "type": "callout",
+          "content": "**Knowledge Check:** Elements in the same vertical column (group) of the periodic table have similar...? Answer: Chemical properties (Groups are families - elements in the same group share similar traits because they have the same number of valence electrons).",
+          "style": "info"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Metals, Nonmetals, and Metalloids",
+      "description": "Locate and identify the properties of metals, nonmetals, and metalloids on the periodic table.",
+      "contentType": "text",
+      "unit": "Unit 1: The Periodic Table",
+      "unitColor": "blue",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Locate metals, nonmetals, and metalloids on the periodic table.",
+            "List the common properties of metals (e.g., shiny, conductive, malleable).",
+            "List the common properties of nonmetals (e.g., dull, brittle, insulators)."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Three Main Classes",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The periodic table can be broadly divided into three main classes of elements. The vast majority are metals, located on the left and center of the table. Nonmetals are found on the upper right side. A small group of elements called metalloids are located along the 'stair-step' line that separates the metals and nonmetals."
+        },
+        {
+          "type": "heading",
+          "content": "Properties",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Metals",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Generally shiny (lustrous), good conductors of heat and electricity, malleable (can be hammered into sheets), and ductile (can be drawn into wires)."
+        },
+        {
+          "type": "heading",
+          "content": "Nonmetals",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Generally dull, poor conductors (insulators), and brittle (they break or shatter easily)."
+        },
+        {
+          "type": "heading",
+          "content": "Metalloids",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Have properties that are intermediate between metals and nonmetals. They are often 'semiconductors,' which is why they are crucial for electronics."
+        },
+        {
+          "type": "callout",
+          "content": "**Knowledge Check:** An element is shiny and an excellent conductor of electricity. It is most likely a...? Answer: Metal (Shininess and conductivity are classic properties of metals).",
+          "style": "info"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Introduction to Chemical Equations",
+      "description": "Learn to identify reactants and products in a chemical equation.",
+      "contentType": "text",
+      "unit": "Unit 2: Chemical Reactions",
+      "unitColor": "green",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define a chemical reaction as a process that leads to the chemical transformation of one set of chemical substances to another.",
+            "Identify the reactants and products in a chemical equation.",
+            "Understand that a chemical equation is a symbolic representation of a chemical reaction."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Language of Reactions",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A chemical equation is like a recipe for a chemical reaction. It tells us what ingredients we start with and what we end up with. The starting materials are called reactants, and the substances that are formed are called products. An arrow is used to separate the reactants from the products, indicating the direction of the reaction."
+        },
+        {
+          "type": "heading",
+          "content": "Reading an Equation",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Consider the reaction of hydrogen gas with oxygen gas to form water:"
+        },
+        {
+          "type": "code",
+          "content": "2H₂ + O₂ → 2H₂O",
+          "language": "plaintext"
+        },
+        {
+          "type": "heading",
+          "content": "Reactants",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "The substances on the left side of the arrow (2H₂ and O₂)."
+        },
+        {
+          "type": "heading",
+          "content": "Products",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "The substance on the right side of the arrow (2H₂O)."
+        },
+        {
+          "type": "callout",
+          "content": "**Knowledge Check:** In the equation CH₄ + 2O₂ → CO₂ + 2H₂O, what is CO₂? Answer: A product (Since CO₂ is on the right side of the arrow, it is a product of the reaction).",
+          "style": "info"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Balancing Chemical Equations",
+      "description": "Learn to use coefficients to balance chemical equations following the Law of Conservation of Mass.",
+      "contentType": "text",
+      "unit": "Unit 2: Chemical Reactions",
+      "unitColor": "green",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "State the Law of Conservation of Mass.",
+            "Understand that balancing an equation ensures that the same number of atoms of each element are on both sides of the equation.",
+            "Learn to use coefficients to balance simple chemical equations."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Mass is Conserved",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The Law of Conservation of Mass states that matter cannot be created or destroyed in a chemical reaction. This means that we must have the same number and type of atoms at the end of a reaction as we had at the beginning. Balancing an equation is essentially a process of accounting to make sure this law is obeyed. We do this by placing numbers called coefficients in front of the chemical formulas."
+        },
+        {
+          "type": "heading",
+          "content": "How to Balance",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Let's balance H₂ + O₂ → H₂O."
+        },
+        {
+          "type": "list",
+          "items": [
+            "Count the atoms on each side. Reactants: 2 H, 2 O. Products: 2 H, 1 O.",
+            "The oxygen atoms are not balanced. To fix this, place a coefficient of 2 in front of H₂O: H₂ + O₂ → 2H₂O.",
+            "Recount the atoms. Reactants: 2 H, 2 O. Products: 4 H, 2 O.",
+            "Now the oxygen is balanced, but the hydrogen is not. To fix this, place a coefficient of 2 in front of H₂: 2H₂ + O₂ → 2H₂O.",
+            "Recount one last time. Reactants: 4 H, 2 O. Products: 4 H, 2 O. The equation is now balanced."
+          ]
+        },
+        {
+          "type": "callout",
+          "content": "**Knowledge Check:** Why must chemical equations be balanced? Answer: To obey the Law of Conservation of Mass (Balancing is a form of chemical accounting to ensure that no atoms are created or destroyed).",
+          "style": "info"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Types of Chemical Reactions",
+      "description": "Identify and classify the five main types of chemical reactions.",
+      "contentType": "text",
+      "unit": "Unit 2: Chemical Reactions",
+      "unitColor": "green",
+      "estimatedMinutes": 90,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Identify the five main types of chemical reactions: synthesis, decomposition, single replacement, double replacement, and combustion.",
+            "Recognize the general pattern for each reaction type.",
+            "Classify a given chemical reaction into one of the five types."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Classifying Reactions",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "While there are millions of possible chemical reactions, most of them can be classified into one of five basic categories. Learning to recognize these patterns helps us predict the products of a reaction."
+        },
+        {
+          "type": "heading",
+          "content": "The Five Types",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Synthesis (A + B → AB)",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Two or more simple substances combine to form a more complex product."
+        },
+        {
+          "type": "heading",
+          "content": "Decomposition (AB → A + B)",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "A complex substance breaks down into two or more simpler substances."
+        },
+        {
+          "type": "heading",
+          "content": "Single Replacement (A + BC → AC + B)",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "One element trades places with another element in a compound."
+        },
+        {
+          "type": "heading",
+          "content": "Double Replacement (AB + CD → AD + CB)",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "The positive and negative ions of two ionic compounds switch places."
+        },
+        {
+          "type": "heading",
+          "content": "Combustion",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "A substance reacts rapidly with oxygen, often producing heat and light. If the substance is a hydrocarbon, the products are always CO₂ and H₂O."
+        },
+        {
+          "type": "callout",
+          "content": "**Knowledge Check:** The reaction 2Na + Cl₂ → 2NaCl is an example of which type of reaction? Answer: Synthesis (Two simpler substances (Na and Cl₂) are combining to form a more complex one (NaCl)).",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "🎉 **Course Complete!** You've mastered the periodic table and chemical reactions, building a strong foundation for advanced chemistry topics.",
+          "style": "success"
+        }
+      ]
+    }
+  ]
+}

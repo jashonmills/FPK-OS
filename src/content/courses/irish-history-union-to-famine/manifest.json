@@ -1,0 +1,356 @@
+{
+  "courseId": "irish-history-union-to-famine",
+  "courseSlug": "irish-history-union-to-famine",
+  "contentVersion": "v2",
+  "title": "Irish History: From the Union to the Great Famine",
+  "description": "Discover a pivotal century in Irish history, from the loss of its parliament and the rise of Daniel O'Connell to the catastrophic Great Famine that changed Ireland forever.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "The 1798 Rebellion and the Act of Union",
+      "description": "Explore the United Irishmen's goals and understand how the Act of Union abolished the Irish Parliament.",
+      "contentType": "text",
+      "unit": "Unit 1: The Age of Union",
+      "unitColor": "from-green-600 to-emerald-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Learning Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand the goals of the United Irishmen in the 1798 Rebellion.",
+            "Define the Act of Union of 1801.",
+            "Analyze why the rebellion failed and led directly to the Act of Union."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The United Irishmen and the 1798 Rebellion",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Inspired by the American and French Revolutions, the Society of United Irishmen, led by figures like Wolfe Tone, sought to overthrow British rule and create an independent Irish republic for Catholics, Protestants, and Dissenters alike."
+        },
+        {
+          "type": "paragraph",
+          "content": "The 1798 Rebellion was widespread but poorly coordinated and brutally suppressed. In response, the British government, fearing further rebellion and French invasion, passed the Act of Union. This act abolished the independent Irish Parliament in Dublin and formally made Ireland part of the United Kingdom of Great Britain and Ireland."
+        },
+        {
+          "type": "heading",
+          "content": "The Impact of the Act of Union",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "**Before 1801:** Ireland had its own parliament that governed domestic affairs, though it was still under the British Crown.\n\n**After the Act of Union:** All major decisions about Ireland were made in the British Parliament in London, where Irish representatives were a small minority.",
+          "style": "info"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What was the primary goal of the United Irishmen's 1798 Rebellion?",
+          "options": ["To achieve Catholic Emancipation", "To establish an independent Irish republic", "To lower taxes"],
+          "correctAnswer": "To establish an independent Irish republic"
+        },
+        {
+          "type": "quiz",
+          "question": "What did the Act of Union of 1801 do?",
+          "options": ["Gave Catholics the right to vote", "Abolished the Irish Parliament", "Started the Great Famine"],
+          "correctAnswer": "Abolished the Irish Parliament"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Daniel O'Connell and Catholic Emancipation",
+      "description": "Learn about 'The Liberator' and his non-violent campaign that won Catholics the right to sit in Parliament.",
+      "contentType": "text",
+      "unit": "Unit 1: The Age of Union",
+      "unitColor": "from-green-600 to-emerald-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Learning Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Identify Daniel O'Connell, 'The Liberator', as a key figure in 19th-century Ireland.",
+            "Define Catholic Emancipation.",
+            "Understand O'Connell's method of non-violent mass mobilization."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Daniel O'Connell: The Liberator",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Following the Act of Union, Catholics in Ireland could vote but were barred from holding seats in Parliament due to discriminatory laws. Daniel O'Connell, a brilliant lawyer and politician, organized a massive, non-violent political movement to fight for their rights."
+        },
+        {
+          "type": "paragraph",
+          "content": "His organization, the Catholic Association, used a 'Catholic Rent' of one penny a month to create a huge grassroots campaign. This movement culminated in Catholic Emancipation in 1829, which allowed Catholics to sit in the British Parliament."
+        },
+        {
+          "type": "heading",
+          "content": "The Political Crisis of 1828",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "In 1828, O'Connell won a seat in County Clare, but as a Catholic, he was legally unable to take it. This created a political crisis for the British government, forcing them to pass the Catholic Relief Act of 1829 (Catholic Emancipation) to avoid widespread civil unrest in Ireland.",
+          "style": "info"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What was the main goal of Catholic Emancipation?",
+          "options": ["To repeal the Act of Union", "To allow Catholics to sit in Parliament", "To establish a Catholic monarchy"],
+          "correctAnswer": "To allow Catholics to sit in Parliament"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "The Campaign to Repeal the Union",
+      "description": "Discover O'Connell's Monster Meetings and understand why the Repeal movement ultimately failed.",
+      "contentType": "text",
+      "unit": "Unit 1: The Age of Union",
+      "unitColor": "from-green-600 to-emerald-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Learning Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand O'Connell's campaign to repeal the Act of Union.",
+            "Define the term 'Monster Meetings'.",
+            "Analyze why the campaign for Repeal ultimately failed."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The 'Monster Meetings'",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "After winning Catholic Emancipation, Daniel O'Connell turned to his next great goal: repealing the Act of Union and restoring an Irish Parliament. To build support, he organized enormous public rallies known as 'Monster Meetings', which attracted hundreds of thousands of people across Ireland in the early 1840s."
+        },
+        {
+          "type": "heading",
+          "content": "The Crisis at Clontarf",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The British government, alarmed by the scale of the movement, banned a planned Monster Meeting at Clontarf in 1843. O'Connell, committed to non-violence, obeyed and called it off. This was seen as a major blow to the Repeal movement."
+        },
+        {
+          "type": "paragraph",
+          "content": "From this point on, the momentum of the Repeal campaign declined. Soon after, the Great Famine would devastate Ireland, shifting the focus of Irish politics entirely."
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What were O'Connell's huge public rallies in the 1840s called?",
+          "options": ["The People's Assemblies", "Monster Meetings", "Union Protests"],
+          "correctAnswer": "Monster Meetings"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Pre-Famine Ireland and the Potato",
+      "description": "Understand the dangerous dependence of rural Ireland on a single crop.",
+      "contentType": "text",
+      "unit": "Unit 2: The Great Famine (An Gorta Mór)",
+      "unitColor": "from-gray-700 to-slate-800",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Learning Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand the population and social conditions of Ireland before the Famine.",
+            "Identify the potato as the staple food of the rural poor.",
+            "Analyze the dangers of dependence on a single crop."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Pre-Famine Ireland",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "By the 1840s, Ireland's population had grown to over 8 million people, making it one of the most densely populated countries in Europe. The majority lived in extreme poverty, especially in rural areas, with tiny plots of land barely sufficient to survive."
+        },
+        {
+          "type": "heading",
+          "content": "The Critical Role of the Potato",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The potato was the staple food of the Irish poor because it could be grown in abundance on small plots. A family could survive almost entirely on potatoes, supplemented with buttermilk. This meant that the population was dangerously dependent on this single crop."
+        },
+        {
+          "type": "callout",
+          "content": "**A Dangerous Dependence:** If the potato crop failed, millions of people would have nothing to eat. This is exactly what happened starting in 1845.",
+          "style": "warning"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What was the primary food of the rural poor in pre-Famine Ireland?",
+          "options": ["Wheat", "The potato", "Rice"],
+          "correctAnswer": "The potato"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "The Blight and Government Response",
+      "description": "Analyze how the potato blight struck and how government ideology shaped the tragic response.",
+      "contentType": "text",
+      "unit": "Unit 2: The Great Famine (An Gorta Mór)",
+      "unitColor": "from-gray-700 to-slate-800",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Learning Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Identify the potato blight ('Phytophthora infestans') as the cause of the Famine.",
+            "Analyze the initial response of Robert Peel's government.",
+            "Critique the later response of Lord John Russell's government and the ideology of 'laissez-faire'."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Blight Arrives",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "In 1845, a fungal disease called potato blight arrived in Ireland, destroying up to half the crop. The British Prime Minister, Robert Peel, responded by importing Indian corn from America and setting up public works schemes."
+        },
+        {
+          "type": "paragraph",
+          "content": "However, he was replaced in 1846 by Lord John Russell, whose government was a strong believer in 'laissez-faire'—the idea that the government should not interfere with the economy. They shut down food depots and made relief efforts much harsher, believing that the free market would solve the problem."
+        },
+        {
+          "type": "heading",
+          "content": "The Cruel Paradox",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "A key failure of the laissez-faire policy was that while millions starved, large quantities of other food products like grain, cattle, and butter were being exported from Ireland to England because it was more profitable. The government refused to stop these exports.",
+          "style": "warning"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What was the economic ideology that guided Lord John Russell's government's response to the Famine?",
+          "options": ["Socialism", "Mercantilism", "Laissez-faire"],
+          "correctAnswer": "Laissez-faire"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Eviction, Emigration, and Aftermath",
+      "description": "Explore the devastating consequences of the Famine on Irish society and the diaspora it created.",
+      "contentType": "text",
+      "unit": "Unit 2: The Great Famine (An Gorta Mór)",
+      "unitColor": "from-gray-700 to-slate-800",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Learning Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand the devastation of the Famine: mass death, eviction, and emigration.",
+            "Learn about the 'coffin ships' that carried emigrants to North America.",
+            "Analyze the long-term consequences of the Famine on Irish society and politics."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Scale of the Catastrophe",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The Great Famine (1845-1852) was a catastrophe. An estimated one million people died from starvation and disease. Another million were forced to emigrate, often on overcrowded and disease-ridden vessels known as 'coffin ships'."
+        },
+        {
+          "type": "paragraph",
+          "content": "Many landlords used the Famine as an opportunity to evict their starving tenants and clear their land for cattle grazing. The Famine left a deep and lasting scar on Ireland, fueling resentment against British rule and creating a large, politically active Irish diaspora in the United States."
+        },
+        {
+          "type": "heading",
+          "content": "The Lasting Legacy",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "Ireland's population fell from over 8 million before the Famine to about 6.5 million by 1851. It continued to decline for decades afterward.\n\nThe memory of the Famine became a powerful rallying cry for Irish nationalists seeking independence in the decades that followed.",
+          "style": "info"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Approximately how many people died as a result of the Great Famine?",
+          "options": ["100,000", "500,000", "1,000,000"],
+          "correctAnswer": "1,000,000"
+        }
+      ]
+    }
+  ]
+}

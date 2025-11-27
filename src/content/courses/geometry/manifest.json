@@ -1,0 +1,225 @@
+{
+  "courseId": "geometry",
+  "courseSlug": "geometry",
+  "contentVersion": "v2",
+  "framework": "sequential",
+  "courseTitle": "Interactive Geometry Fundamentals",
+  "description": "Master essential geometry concepts through interactive lessons covering shapes, angles, theorems, and spatial reasoning.",
+  "backgroundImage": "",
+  "estimatedHours": 10,
+  "difficultyLevel": "beginner",
+  "category": "Mathematics",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Introduction to Geometry",
+      "description": "Understanding points, lines, planes, and basic geometric concepts",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Welcome to Geometry",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Geometry is the study of shapes, sizes, positions, and properties of space. It's all around us in architecture, art, nature, and technology."
+        },
+        {
+          "type": "list",
+          "items": [
+            "Points, lines, and planes",
+            "Angles and their measurements",
+            "Polygons and their properties",
+            "Circles and their components",
+            "3D shapes and solids",
+            "Geometric proofs and reasoning"
+          ]
+        }
+      ],
+      "estimatedMinutes": 35,
+      "unit": "Unit 1: Foundations",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 2,
+      "title": "Angles and Their Properties",
+      "description": "Understanding angle types, measurements, and relationships",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Exploring Angles",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Angles are formed when two rays meet at a common point. Understanding angles is fundamental to geometry and helps us analyze shapes and spaces."
+        }
+      ],
+      "estimatedMinutes": 40,
+      "unit": "Unit 1: Foundations",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 3,
+      "title": "Triangles and Their Properties",
+      "description": "Types of triangles, angle sum theorem, and triangle congruence",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "The Power of Triangles",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Triangles are the most fundamental polygon in geometry. They're rigid structures used in engineering and have special properties that make them essential to study."
+        }
+      ],
+      "estimatedMinutes": 45,
+      "unit": "Unit 2: Polygons",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 4,
+      "title": "Quadrilaterals and Polygons",
+      "description": "Squares, rectangles, parallelograms, and other polygons",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Four-Sided Figures and Beyond",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Quadrilaterals are four-sided polygons with diverse properties. From squares to trapezoids, each shape has unique characteristics and applications."
+        }
+      ],
+      "estimatedMinutes": 40,
+      "unit": "Unit 2: Polygons",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 5,
+      "title": "Circles and Their Components",
+      "description": "Radius, diameter, circumference, and circle theorems",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "The Perfect Shape",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Circles are perfectly symmetrical shapes with unique properties. Understanding circles is essential for advanced geometry and real-world applications."
+        }
+      ],
+      "estimatedMinutes": 40,
+      "unit": "Unit 3: Circles",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 6,
+      "title": "Area and Perimeter",
+      "description": "Calculating area and perimeter of various shapes",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Measuring Space",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Area measures the space inside a shape, while perimeter measures the distance around it. These fundamental measurements apply to countless real-world situations."
+        }
+      ],
+      "estimatedMinutes": 45,
+      "unit": "Unit 4: Measurement",
+      "unitColor": "bg-orange-100 text-orange-700"
+    },
+    {
+      "id": 7,
+      "title": "Volume and Surface Area",
+      "description": "Understanding 3D measurements and solid geometry",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Three-Dimensional Geometry",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Moving beyond flat shapes, we explore three-dimensional objects and learn to calculate their volume and surface area."
+        }
+      ],
+      "estimatedMinutes": 45,
+      "unit": "Unit 4: Measurement",
+      "unitColor": "bg-orange-100 text-orange-700"
+    },
+    {
+      "id": 8,
+      "title": "The Pythagorean Theorem",
+      "description": "Understanding and applying this fundamental theorem",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "A² + B² = C²",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "The Pythagorean Theorem is one of the most famous and useful theorems in mathematics, relating the sides of right triangles."
+        }
+      ],
+      "estimatedMinutes": 40,
+      "unit": "Unit 5: Theorems",
+      "unitColor": "bg-red-100 text-red-700"
+    },
+    {
+      "id": 9,
+      "title": "Similarity and Congruence",
+      "description": "Understanding when shapes are the same or proportional",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Comparing Shapes",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Shapes can be congruent (identical) or similar (same shape, different size). These relationships are crucial for geometric reasoning and proofs."
+        }
+      ],
+      "estimatedMinutes": 40,
+      "unit": "Unit 5: Theorems",
+      "unitColor": "bg-red-100 text-red-700"
+    },
+    {
+      "id": 10,
+      "title": "Transformations and Symmetry",
+      "description": "Translations, rotations, reflections, and symmetrical properties",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Moving and Transforming Shapes",
+          "level": 1
+        },
+        {
+          "type": "paragraph",
+          "content": "Geometric transformations allow us to move and change shapes while preserving certain properties. Symmetry reveals the beauty and balance in geometric forms."
+        }
+      ],
+      "estimatedMinutes": 45,
+      "unit": "Unit 6: Advanced Concepts",
+      "unitColor": "bg-pink-100 text-pink-700"
+    }
+  ]
+}

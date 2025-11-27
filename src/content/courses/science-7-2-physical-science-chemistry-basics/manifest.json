@@ -1,0 +1,457 @@
+{
+  "courseId": "science-7-2-physical-science-chemistry-basics",
+  "courseSlug": "science-7-2-physical-science-chemistry-basics",
+  "contentVersion": "v2",
+  "title": "Science 7.2: Physical Science - Chemistry Basics",
+  "description": "Explore the building blocks of everything around you, from the atoms that make up matter to the chemical reactions that transform it.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Lesson 1: Atoms and Elements",
+      "description": "Define an atom and identify the three main subatomic particles.",
+      "contentType": "text",
+      "unit": "Unit 1: The Nature of Matter",
+      "unitColor": "blue",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define an atom as the basic unit of a chemical element.",
+            "Identify the three main subatomic particles: protons, neutrons, and electrons.",
+            "Understand that the number of protons determines the element."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - The Building Blocks of Everything",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Everything in the universe, from the air you breathe to the chair you're sitting on, is made of matter. And all matter is made up of tiny particles called atoms. An atom is the smallest unit of an element that maintains the properties of that element. An element is a pure substance consisting of only one type of atom, distinguished by its atomic number, which is the number of protons in its nucleus."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Inside the Atom",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Protons:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Positively charged particles found in the atom's central core, the nucleus. The number of protons defines the element (e.g., every carbon atom has 6 protons)."
+        },
+        {
+          "type": "heading",
+          "content": "Neutrons:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Neutral (no charge) particles also located in the nucleus. They add mass to the atom."
+        },
+        {
+          "type": "heading",
+          "content": "Electrons:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Negatively charged particles that orbit the nucleus in a 'cloud'. They are involved in chemical bonding."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which subatomic particle has a positive charge?",
+          "options": ["Electron", "Neutron", "Proton"],
+          "correctAnswer": "Proton",
+          "explanation": "Good start. Remember, Protons are Positive. Neutrons are Neutral. Electrons are the other one (negative)."
+        }
+      ],
+      "estimatedMinutes": 15
+    },
+    {
+      "id": 2,
+      "title": "Lesson 2: The Periodic Table",
+      "description": "Describe the organization of the periodic table and use it to find element information.",
+      "contentType": "text",
+      "unit": "Unit 1: The Nature of Matter",
+      "unitColor": "blue",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Describe the organization of the periodic table.",
+            "Use the periodic table to find an element's atomic number and symbol.",
+            "Understand that elements in the same group (column) have similar chemical properties."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - The Chemist's Roadmap",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The periodic table is a chart that organizes all the known elements in order of increasing atomic number. It is one of the most important tools in chemistry because its organization reveals patterns and helps predict the properties of elements. Elements are arranged in rows (called periods) and columns (called groups)."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Reading the Table",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Atomic Number:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "The number at the top of the box, which equals the number of protons."
+        },
+        {
+          "type": "heading",
+          "content": "Element Symbol:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "The one or two-letter abbreviation for the element (e.g., 'H' for Hydrogen, 'Fe' for Iron)."
+        },
+        {
+          "type": "heading",
+          "content": "Groups (Columns):",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Elements in the same vertical column have similar chemical properties because they have the same number of valence electrons (electrons in the outermost shell)."
+        },
+        {
+          "type": "heading",
+          "content": "Periods (Rows):",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Elements in the same horizontal row have the same number of electron shells."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Elements in the same vertical column of the periodic table are called a...?",
+          "options": ["Period", "Group", "Series"],
+          "correctAnswer": "Group",
+          "explanation": "Not quite. Remember, vertical columns are 'groups' and horizontal rows are 'periods'."
+        }
+      ],
+      "estimatedMinutes": 15
+    },
+    {
+      "id": 3,
+      "title": "Lesson 3: Chemical Bonds",
+      "description": "Define chemical bonds and differentiate between ionic and covalent bonds.",
+      "contentType": "text",
+      "unit": "Unit 2: How Matter Changes",
+      "unitColor": "green",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define a chemical bond as a force of attraction between atoms.",
+            "Differentiate between ionic and covalent bonds.",
+            "Understand that compounds are formed when two or more different elements bond together."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - Holding Atoms Together",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Atoms rarely exist alone in nature. They tend to link up with other atoms to form more stable structures. A chemical bond is the force that holds these atoms together. The way atoms bond determines the properties of the resulting substance, called a compound. For example, hydrogen and oxygen are both gases, but when they bond, they form water (H₂O), a liquid."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Types of Bonds",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Ionic Bond:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Forms when one atom transfers one or more electrons to another atom. This creates charged particles (ions) that are attracted to each other. (e.g., table salt, NaCl)."
+        },
+        {
+          "type": "heading",
+          "content": "Covalent Bond:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Forms when two atoms share one or more pairs of electrons. This is common between nonmetal elements. (e.g., water, H₂O)."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What type of bond is formed when electrons are shared between atoms?",
+          "options": ["Ionic Bond", "Covalent Bond", "Metallic Bond"],
+          "correctAnswer": "Covalent Bond",
+          "explanation": "Good try. Remember, 'co-' means together, like co-worker. Covalent bonds involve working together by sharing electrons."
+        }
+      ],
+      "estimatedMinutes": 15
+    },
+    {
+      "id": 4,
+      "title": "Lesson 4: Chemical Reactions",
+      "description": "Define chemical reactions and understand the Law of Conservation of Mass.",
+      "contentType": "text",
+      "unit": "Unit 2: How Matter Changes",
+      "unitColor": "green",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define a chemical reaction as a process that leads to the chemical transformation of one set of chemical substances to another.",
+            "Identify the reactants and products in a chemical equation.",
+            "Understand the Law of Conservation of Mass."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - Making and Breaking Bonds",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A chemical reaction is a process where atoms are rearranged to form new substances. This involves breaking existing chemical bonds and forming new ones. The starting materials in a reaction are called reactants, and the new substances that are formed are called products. We represent chemical reactions using chemical equations."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: The Law of Conservation of Mass",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "This fundamental law states that matter cannot be created or destroyed in a chemical reaction. This means that the total mass of the reactants must equal the total mass of the products. The atoms are just rearranged, not lost. This is why we 'balance' chemical equations, to make sure we have the same number of each type of atom on both sides of the arrow."
+        },
+        {
+          "type": "heading",
+          "content": "Example:",
+          "level": 3
+        },
+        {
+          "type": "code",
+          "content": "2H₂ + O₂ → 2H₂O",
+          "language": "plaintext"
+        },
+        {
+          "type": "paragraph",
+          "content": "In this equation, the reactants are hydrogen (H₂) and oxygen (O₂). The product is water (H₂O). There are 4 hydrogen atoms and 2 oxygen atoms on both sides of the equation."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "In the reaction C + O₂ → CO₂, what are the reactants?",
+          "options": ["CO₂", "C and O₂", "C and CO₂"],
+          "correctAnswer": "C and O₂",
+          "explanation": "Not quite. The reactants are the substances you start with, on the left side of the arrow."
+        }
+      ],
+      "estimatedMinutes": 15
+    },
+    {
+      "id": 5,
+      "title": "Lesson 5: Acids and Bases",
+      "description": "Define acids and bases and understand the pH scale.",
+      "contentType": "text",
+      "unit": "Unit 3: Common Compounds",
+      "unitColor": "purple",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define the properties of acids and bases.",
+            "Understand the pH scale as a measure of acidity or alkalinity.",
+            "Describe a neutralization reaction."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - Two Special Classes of Compounds",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Acids and bases are two common and important types of chemical compounds with opposite properties. Acids often taste sour (like lemon juice) and can react with metals. Bases often feel slippery (like soap) and taste bitter. Chemists use the pH scale to measure how acidic or basic a substance is."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: The pH Scale",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The pH scale ranges from 0 to 14."
+        },
+        {
+          "type": "heading",
+          "content": "pH < 7:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "The substance is acidic (e.g., stomach acid, vinegar)."
+        },
+        {
+          "type": "heading",
+          "content": "pH = 7:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "The substance is neutral (e.g., pure water)."
+        },
+        {
+          "type": "heading",
+          "content": "pH > 7:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "The substance is basic or alkaline (e.g., baking soda, bleach)."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "A substance with a pH of 3 is considered...?",
+          "options": ["Acidic", "Neutral", "Basic"],
+          "correctAnswer": "Acidic",
+          "explanation": "Good try. Remember, any pH value less than 7 is acidic."
+        }
+      ],
+      "estimatedMinutes": 15
+    },
+    {
+      "id": 6,
+      "title": "Lesson 6: Solutions and Mixtures",
+      "description": "Differentiate between pure substances and mixtures, and identify solutes and solvents.",
+      "contentType": "text",
+      "unit": "Unit 3: Common Compounds",
+      "unitColor": "purple",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Differentiate between a pure substance and a mixture.",
+            "Define a solution as a type of homogeneous mixture.",
+            "Identify the solute and solvent in a solution."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - Combining Substances",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "In chemistry, we often deal with substances that are combined. A mixture consists of two or more substances that are physically mixed but not chemically bonded. A solution is a special type of mixture where one substance dissolves completely into another, creating a uniform mixture called a homogeneous mixture. For example, when you stir salt into water, you create a salt water solution."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Solute and Solvent",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Solvent:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "The substance that does the dissolving. It is present in the larger amount. In salt water, water is the solvent."
+        },
+        {
+          "type": "heading",
+          "content": "Solute:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "The substance that gets dissolved. It is present in the smaller amount. In salt water, salt is the solute."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "When you make a cup of hot chocolate by mixing cocoa powder into hot milk, what is the solvent?",
+          "options": ["The cocoa powder", "The hot milk", "The cup"],
+          "correctAnswer": "The hot milk",
+          "explanation": "Not quite. The solvent is the substance that does the dissolving, which is usually the liquid and the substance in the larger amount."
+        }
+      ],
+      "estimatedMinutes": 15
+    }
+  ]
+}

@@ -1,0 +1,98 @@
+{
+  "courseId": "mandarin-chinese-101",
+  "courseSlug": "mandarin-chinese-101",
+  "contentVersion": "v2",
+  "framework": "sequential",
+  "courseTitle": "Mandarin Chinese 101",
+  "description": "Start learning Mandarin with Pinyin, characters, tones, and basic conversational phrases.",
+  "backgroundImage": "/lovable-uploads/mandarin-chinese-101-bg.jpg",
+  "estimatedHours": 5,
+  "difficultyLevel": "introductory",
+  "category": "World Languages",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Introduction to Mandarin",
+      "description": "Learn about the Chinese language and Pinyin system",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 1: Fundamentals",
+      "unitColor": "bg-red-100 text-red-700"
+    },
+    {
+      "id": 2,
+      "title": "Tones and Pronunciation",
+      "description": "Master the four tones and correct pronunciation",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 35,
+      "unit": "Unit 1: Fundamentals",
+      "unitColor": "bg-red-100 text-red-700"
+    },
+    {
+      "id": 3,
+      "title": "Basic Greetings",
+      "description": "Learn essential greeting phrases and responses",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 2: Communication",
+      "unitColor": "bg-yellow-100 text-yellow-700"
+    },
+    {
+      "id": 4,
+      "title": "Numbers and Counting",
+      "description": "Count in Mandarin and use numbers in context",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 2: Communication",
+      "unitColor": "bg-yellow-100 text-yellow-700"
+    },
+    {
+      "id": 5,
+      "title": "Introduction to Characters",
+      "description": "Learn basic Chinese characters and stroke order",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 40,
+      "unit": "Unit 3: Writing",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 6,
+      "title": "Common Phrases",
+      "description": "Master everyday expressions and questions",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 35,
+      "unit": "Unit 4: Conversation",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 7,
+      "title": "Family and Friends",
+      "description": "Learn vocabulary for relationships and people",
+      "contentType": "mixed",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 30,
+      "unit": "Unit 4: Conversation",
+      "unitColor": "bg-blue-100 text-blue-700"
+    }
+  ]
+}

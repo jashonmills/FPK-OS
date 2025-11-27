@@ -1,93 +1,58 @@
-<!DOCTYPE html>
+
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Coach End-to-End Test</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 50px auto;
-            padding: 20px;
-            text-align: center;
-        }
-        button {
-            background-color: #007bff;
-            color: white;
-            padding: 15px 30px;
-            font-size: 18px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        button:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-        #status {
-            margin-top: 20px;
-            font-size: 16px;
-        }
-        audio {
-            margin-top: 20px;
-            width: 100%;
-            display: none;
-        }
-    </style>
-</head>
-<body>
-    <h1>AI Coach End-to-End Test</h1>
-    <button id="generateButton">Generate Audio</button>
-    <div id="status"></div>
-    <audio id="audioPlayer" controls></audio>
-
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/x-icon" href="https://storage.googleapis.com/gpt-engineer-file-uploads/rjMQAKU3KkYgTNtMvoEjXcTsE7h2/uploads/1762121142667-Untitled design (64).png">
+    <link rel="apple-touch-icon" href="/lovable-uploads/983f0b00-23d8-4a42-84da-f8c1159fd292.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="canonical" href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="FPK University Learner Portal – personalized courses, analytics, live hub, and study tools.">
+    <meta name="theme-color" content="#3b82f6" />
+    <meta property="og:type" content="website" />
+    
+    
+    <meta property="og:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/rjMQAKU3KkYgTNtMvoEjXcTsE7h2/social-images/social-1757826528286-ChatGPT Image Aug 25, 2025, 11_25_19 AM.png">
+    <meta name="twitter:card" content="summary_large_image" />
+    
+    
+    <meta name="twitter:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/rjMQAKU3KkYgTNtMvoEjXcTsE7h2/social-images/social-1757826528286-ChatGPT Image Aug 25, 2025, 11_25_19 AM.png">
+    <title>FPK University</title>
+    
+    <!-- Google Fonts for Accessibility -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Note: OpenDyslexic has been removed due to CDN issues. Using Atkinson Hyperlegible as primary accessible font with proper fallbacks in tailwind.config.ts -->
+    
+    <!-- Load Dancing Script for cursive option -->
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Additional accessibility fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    
+    <!-- Elegant serif font for headings -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RFMWCWD8CV"></script>
     <script>
-        const generateButton = document.getElementById('generateButton');
-        const statusDiv = document.getElementById('status');
-        const audioPlayer = document.getElementById('audioPlayer');
-
-        // Use local proxy server
-        const API_ENDPOINT = 'http://localhost:3000/';
-
-        generateButton.addEventListener('click', async () => {
-            try {
-                generateButton.disabled = true;
-                statusDiv.textContent = 'Requesting from Lambda... This may take a moment.';
-                audioPlayer.style.display = 'none';
-
-                const response = await fetch(API_ENDPOINT, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ userPrompt: "This is a test from the live frontend." })
-                });
-
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`API Error: ${response.status}. ${errorText}`);
-                }
-
-                const data = await response.json();
-
-                if (data.audio_url) {
-                    statusDiv.textContent = 'Success! Audio is ready.';
-                    audioPlayer.src = data.audio_url;
-                    audioPlayer.style.display = 'block';
-                    audioPlayer.play();
-                } else {
-                    throw new Error('No audio URL in response');
-                }
-
-            } catch (error) {
-                console.error('Error:', error);
-                statusDiv.textContent = `Error: ${error.message}`;
-            } finally {
-                generateButton.disabled = false;
-            }
-        });
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-RFMWCWD8CV', {
+        'anonymize_ip': true,
+        'respect_dnt': true
+      });
     </script>
-</body>
-
+    <meta property="og:title" content="FPK University">
+  <meta name="twitter:title" content="FPK University">
+  <meta property="og:description" content="FPK University Learner Portal – personalized courses, analytics, live hub, and study tools.">
+  <meta name="twitter:description" content="FPK University Learner Portal – personalized courses, analytics, live hub, and study tools.">
+</head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>

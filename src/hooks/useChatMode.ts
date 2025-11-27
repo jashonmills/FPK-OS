@@ -1,0 +1,103 @@
+
+import { useState, useEffect } from 'react';
+import { safeLocalStorage } from '@/utils/safeStorage';
+
+export type ChatMode = 'personal' | 'general' | 'org_admin';
+
+export interface ChatModeAnalytics {
+  mode: ChatMode;
+  timestamp: string;
+  sessionDuration?: number;
+  switchReason?: string;
+}
+
+interface ChatModeHistoryItem {
+  timestamp: string;
+  from: ChatMode | null;
+  to: ChatMode;
+  sessionId?: string;
+}
+
+export const useChatMode = () => {
+  const [chatMode, setChatMode] = useState<ChatMode>('general'); // Changed default to 'general'
+
+  // Load persisted mode from localStorage (safe)
+  useEffect(() => {
+    const savedMode = safeLocalStorage.getItem<ChatMode>('ai-coach-chat-mode', {
+      fallbackValue: 'general',
+      logErrors: false
+    });
+    
+    if (savedMode === 'personal' || savedMode === 'general') {
+      setChatMode(savedMode);
+    }
+  }, []);
+
+  // Track mode changes for analytics
+  const changeChatMode = (newMode: ChatMode) => {
+    const previousMode = chatMode;
+    console.log('🔄 useChatMode: Changing mode from', previousMode, 'to', newMode);
+    
+    // Update state
+    setChatMode(newMode);
+    
+    // Persist to localStorage (safe)
+    safeLocalStorage.setItem('ai-coach-chat-mode', newMode);
+    
+    // Fire analytics event
+    const analyticsEvent: ChatModeHistoryItem = {
+      timestamp: new Date().toISOString(),
+      from: previousMode,
+      to: newMode,
+      sessionId: window.crypto?.randomUUID?.() || `session-${Date.now()}`
+    };
+    
+    console.log('🔄 Chat mode changed:', analyticsEvent);
+    
+    // Store in localStorage for potential later upload (safe)
+    const modeHistory = safeLocalStorage.getItem<ChatModeHistoryItem[]>('chat-mode-history', {
+      fallbackValue: [],
+      logErrors: false
+    });
+    
+    modeHistory.push(analyticsEvent);
+    
+    // Keep only last 50 mode changes
+    if (modeHistory.length > 50) {
+      modeHistory.splice(0, modeHistory.length - 50);
+    }
+    
+    safeLocalStorage.setItem('chat-mode-history', modeHistory);
+  };
+
+  // Get usage statistics (safe)
+  const getModeStats = () => {
+    const history = safeLocalStorage.getItem<ChatModeHistoryItem[]>('chat-mode-history', {
+      fallbackValue: [],
+      logErrors: false
+    });
+    
+    const personalCount = history.filter(h => h.to === 'personal').length;
+    const generalCount = history.filter(h => h.to === 'general').length;
+    const total = personalCount + generalCount;
+    
+    return {
+      personal: {
+        count: personalCount,
+        percentage: total > 0 ? Math.round((personalCount / total) * 100) : 0
+      },
+      general: {
+        count: generalCount,
+        percentage: total > 0 ? Math.round((generalCount / total) * 100) : 0
+      },
+      total,
+      lastChanged: history.length > 0 ? history[history.length - 1].timestamp : null
+    };
+  };
+
+  return {
+    chatMode,
+    changeChatMode,
+    getModeStats
+  };
+};

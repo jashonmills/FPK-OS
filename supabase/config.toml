@@ -1,1 +1,210 @@
 project_id = "zgcegkmqfgznbpdplscz"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[auth]
+enabled = true
+site_url = "https://fpkuniversity.com"
+additional_redirect_urls = [
+  "https://zgcegkmqfgznbpdplscz.supabase.co", 
+  "https://zgcegkmqfgznbpdplscz.supabase.co/functions/v1/auth-redirect",
+  "https://learner.fpkadapt.com",
+  "https://fpkuniversity.com",
+  "https://fpkuniversity.com/auth/confirm",
+  "https://fpkuniversity.com/reset-password",
+  "https://courses.fpkuniversity.com",
+  "https://fpk-learner-v1.lovable.app",
+  "http://localhost:3000"
+]
+jwt_expiry = 3600
+enable_signup = true
+
+[auth.email]
+enable_signup = true
+
+[functions.get-credit-balance]
+verify_jwt = false
+
+[functions.refresh-monthly-credits]
+verify_jwt = false
+
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.send-invitation-email]
+verify_jwt = false
+
+[functions.voice-to-text]
+verify_jwt = false
+
+[functions.simple-ai-chat]
+verify_jwt = false
+
+[functions.ai-study-chat]
+verify_jwt = false
+
+[functions.generate-study-insights]
+verify_jwt = false
+
+[functions.process-user-content]
+verify_jwt = false
+
+[functions.retrieve-knowledge]
+verify_jwt = false
+
+[functions.google-calendar-sync]
+verify_jwt = false
+
+[functions.scorm-parser]
+verify_jwt = false
+
+[functions.scorm-runtime-api]
+verify_jwt = false
+
+[functions.scorm-extract-package]
+verify_jwt = false
+
+[functions.scorm-content-proxy]
+verify_jwt = false
+
+[functions.scorm-content-server]
+verify_jwt = false
+
+[functions.scorm-generate-content]
+verify_jwt = false
+
+[functions.scorm-verify-package]
+verify_jwt = false
+
+[functions.native-content-proxy]
+verify_jwt = false
+
+[functions.scorm-native-converter]
+verify_jwt = false
+
+[functions.fetch-linear-equations-content]
+verify_jwt = false
+
+[functions.generate-course-visuals]
+verify_jwt = false
+
+[functions.extract-linear-equations-zip]
+verify_jwt = false
+
+[functions.test-function]
+verify_jwt = false
+
+[functions.google-text-to-speech]
+verify_jwt = false
+
+[functions.generate-org-invite]
+verify_jwt = true
+
+[functions.add-staff-member]
+verify_jwt = true
+
+[functions.generate-org-invite-code]
+verify_jwt = true
+
+[functions.validate-org-invite]
+verify_jwt = false
+
+[functions.accept-org-invite]
+verify_jwt = true
+
+[functions.student-pin-login]
+verify_jwt = false
+
+[functions.generate-student-activation]
+verify_jwt = true
+
+[functions.activate-student-account]
+verify_jwt = false
+
+[functions.auth-redirect]
+verify_jwt = false
+
+[functions.create-educator-invite]
+verify_jwt = true
+
+[functions.activate-educator-account]
+verify_jwt = false
+
+[functions.educator-pin-login]
+verify_jwt = false
+
+[functions.handle-user-deletion]
+verify_jwt = true
+
+[functions.generate-course-backgrounds]
+verify_jwt = false
+
+[functions.regenerate-course-images]
+verify_jwt = false
+
+[functions.ai-coach-orchestrator]
+verify_jwt = true
+
+[functions.create-coach-session]
+verify_jwt = true
+
+[functions.text-to-voice]
+verify_jwt = false
+
+[functions.generate-welcome-audio]
+verify_jwt = false
+
+[functions.backfill-phoenix-data]
+verify_jwt = true
+
+[functions.podcast-generator]
+verify_jwt = true
+
+[functions.generate-rss-feed]
+verify_jwt = false
+
+[functions.scrape-and-cache-source]
+verify_jwt = true
+
+[functions.generate-ai-blog-post]
+verify_jwt = true
+
+[functions.ingest-academic-papers]
+verify_jwt = true
+
+[functions.scrape-clinical-resources]
+verify_jwt = true
+
+[functions.semantic-blog-generation]
+verify_jwt = true
+
+[functions.fix-published-posts]
+verify_jwt = true
+
+[functions.regenerate-kb-embeddings]
+verify_jwt = true
+
+[functions.generate-seo-metadata]
+verify_jwt = false
+
+[functions.get-youtube-live-videos]
+verify_jwt = false
+
+[functions.fetch-open-source-intelligence]
+verify_jwt = false
+
+[functions.epub-ingestion]
+verify_jwt = true
+
+[functions.xp-system]
+verify_jwt = true
+
+[functions.bulk-invite]
+verify_jwt = true
+
+

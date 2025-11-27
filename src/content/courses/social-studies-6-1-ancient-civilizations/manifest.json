@@ -1,0 +1,333 @@
+{
+  "courseId": "social-studies-6-1-ancient-civilizations",
+  "courseSlug": "social-studies-6-1-ancient-civilizations",
+  "contentVersion": "v2",
+  "title": "Social Studies 6.1: Ancient Civilizations (Mesopotamia, Egypt, Greece)",
+  "description": "Journey back in time to explore the foundational civilizations of the ancient world and their lasting impact on our own.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "The Agricultural Revolution",
+      "description": "Explore the transition from hunter-gatherer societies to settled agriculture and its profound impact on human civilization.",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Describe the lifestyle of early hunter-gatherer societies.",
+            "Define the Neolithic (Agricultural) Revolution.",
+            "Analyze the profound impact of farming on the development of human civilization."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "From Foraging to Farming",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "For most of human history, our ancestors lived as nomadic hunter-gatherers, constantly moving in search of food. Around 10,000 BCE, a monumental shift occurred: the Neolithic Revolution. Humans began to domesticate plants and animals, transitioning from a nomadic lifestyle to settled agriculture. This was arguably the single most important event in human history, as it allowed for permanent settlements, food surpluses, and population growth, which in turn paved the way for everything that followed: cities, governments, writing, and complex societies."
+        },
+        {
+          "type": "heading",
+          "content": "Consequences of the Revolution",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "**Permanent Settlements:** Farming required people to stay in one place, leading to the first villages and towns.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "**Food Surplus & Specialization:** For the first time, societies could produce more food than they needed. This allowed some people to specialize in other jobs, such as artisans, priests, and soldiers.",
+          "style": "success"
+        },
+        {
+          "type": "callout",
+          "content": "**Social Hierarchy:** The accumulation of land and resources led to the development of social classes and hierarchies, a departure from the more egalitarian hunter-gatherer bands.",
+          "style": "warning"
+        }
+      ],
+      "estimatedMinutes": 15,
+      "unit": "Unit 1: The Dawn of Civilization",
+      "unitColor": "bg-amber-600"
+    },
+    {
+      "id": 2,
+      "title": "What Makes a Civilization?",
+      "description": "Identify the key characteristics shared by most early civilizations.",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Identify the key characteristics shared by most early civilizations.",
+            "Understand the importance of rivers to the development of early civilizations.",
+            "Define 'specialization of labor' and explain why it was important."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Blueprint of Society",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "After the Agricultural Revolution, some settlements grew into large, complex societies that we call civilizations. While each was unique, historians have identified several key characteristics that most early civilizations shared. These traits provided the organization and stability needed for large populations to live together."
+        },
+        {
+          "type": "heading",
+          "content": "Key Characteristics",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "**Large Cities:** Served as centers of population, trade, and government.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "**Organized Government:** Leaders emerged to manage resources, build large projects, and provide defense.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "**Complex Religion:** Shared beliefs and values that helped unify the people.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "**Job Specialization:** People developed specific skills as artisans, merchants, soldiers, etc., because not everyone had to farm.",
+          "style": "success"
+        },
+        {
+          "type": "callout",
+          "content": "**System of Writing:** Developed to keep records of laws, trade, and history.",
+          "style": "info"
+        }
+      ],
+      "estimatedMinutes": 15,
+      "unit": "Unit 1: The Dawn of Civilization",
+      "unitColor": "bg-amber-600"
+    },
+    {
+      "id": 3,
+      "title": "Mesopotamia - The Land Between the Rivers",
+      "description": "Explore the Cradle of Civilization and key Mesopotamian innovations.",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Locate Mesopotamia and the Fertile Crescent on a map.",
+            "Describe the importance of the Tigris and Euphrates rivers.",
+            "Identify key Mesopotamian innovations, such as cuneiform and Hammurabi's Code."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Cradle of Civilization",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Mesopotamia, located in modern-day Iraq, is often called the 'Cradle of Civilization' because it was here that the first cities and empires arose. This was possible because of the fertile land between the Tigris and Euphrates rivers. The Sumerians, one of the first groups to settle here, developed complex irrigation systems to control the rivers' unpredictable floods, allowing them to grow a surplus of food."
+        },
+        {
+          "type": "heading",
+          "content": "Key Innovations",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "**Cuneiform:** The world's first known system of writing, using wedge-shaped marks on clay tablets.",
+          "style": "success"
+        },
+        {
+          "type": "callout",
+          "content": "**The Wheel:** Revolutionized transportation and pottery-making.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "**Hammurabi's Code:** One of the earliest and most complete written legal codes, created by the Babylonian king Hammurabi. It famously operated on the principle of 'an eye for an eye'.",
+          "style": "warning"
+        }
+      ],
+      "estimatedMinutes": 15,
+      "unit": "Unit 2: Mesopotamia and Ancient Egypt",
+      "unitColor": "bg-yellow-600"
+    },
+    {
+      "id": 4,
+      "title": "Ancient Egypt - The Gift of the Nile",
+      "description": "Discover how the Nile River shaped ancient Egyptian civilization.",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Explain why Egypt was called 'the gift of the Nile'.",
+            "Describe the role of the pharaoh in Egyptian society.",
+            "Identify key aspects of Egyptian religion, including the belief in an afterlife."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Life on the Nile",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Ancient Egyptian civilization developed along the Nile River. Unlike the unpredictable rivers of Mesopotamia, the Nile flooded regularly and predictably each year, depositing rich, fertile silt that was perfect for farming. This reliable environment gave the Egyptians a stable food supply and a more optimistic outlook on life."
+        },
+        {
+          "type": "heading",
+          "content": "Pharaohs, Pyramids, and the Afterlife",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "**The Pharaoh:** The ruler of Egypt was known as the pharaoh and was considered a living god on Earth. The pharaoh had absolute power over the government and religion.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "**Religion and Afterlife:** The Egyptians were polytheistic and had a strong belief in a detailed afterlife. They practiced mummification to preserve the body for this journey and built massive pyramids as tombs for their pharaohs.",
+          "style": "success"
+        }
+      ],
+      "estimatedMinutes": 15,
+      "unit": "Unit 2: Mesopotamia and Ancient Egypt",
+      "unitColor": "bg-yellow-600"
+    },
+    {
+      "id": 5,
+      "title": "The Greek City-States - Athens and Sparta",
+      "description": "Compare the government and values of Athens with those of Sparta.",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Define a 'polis' or city-state.",
+            "Compare the government and values of Athens with those of Sparta.",
+            "Understand the geography of Greece and how it influenced the development of city-states."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "A Mountainous Land",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The geography of Greece, with its many mountains and islands, made it difficult to unite under a single government. Instead, ancient Greece was organized into independent city-states, called a 'polis'. Each polis had its own government, laws, and army. The two most famous and powerful city-states were Athens and Sparta, which had very different societies."
+        },
+        {
+          "type": "heading",
+          "content": "Athens vs. Sparta",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "**Athens:** Valued art, culture, and philosophy. It is famous for developing the world's first democracy, where citizens could vote on laws. However, only free adult men were considered citizens.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "**Sparta:** A militaristic society that valued strength, discipline, and duty to the state above all else. Life for Spartan boys was centered on rigorous military training from a young age.",
+          "style": "warning"
+        }
+      ],
+      "estimatedMinutes": 15,
+      "unit": "Unit 3: Ancient Greece",
+      "unitColor": "bg-blue-600"
+    },
+    {
+      "id": 6,
+      "title": "Greek Philosophy, Arts, and Legacy",
+      "description": "Analyze the lasting legacy of ancient Greece on the modern world.",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Identify Socrates, Plato, and Aristotle as key Greek philosophers.",
+            "Describe the main forms of Greek art and architecture.",
+            "Analyze the lasting legacy of ancient Greece on the modern world."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Power of Reason",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The ancient Greeks made monumental contributions to Western civilization, particularly in their use of logic and reason to understand the world. This approach, known as philosophy ('love of wisdom'), moved away from purely mythological explanations for natural phenomena. Thinkers like Socrates, Plato, and Aristotle laid the groundwork for Western science and philosophy."
+        },
+        {
+          "type": "heading",
+          "content": "A Lasting Legacy",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "**Philosophy & Science:** The Socratic method of questioning and the logical systems of Plato and Aristotle are still studied today.",
+          "style": "success"
+        },
+        {
+          "type": "callout",
+          "content": "**Architecture:** The use of columns (Doric, Ionic, Corinthian) and classical proportions, seen in buildings like the Parthenon, has influenced architecture for centuries.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "**Drama & Literature:** The Greeks invented theater, creating the genres of tragedy and comedy. Epic poems like The Iliad and The Odyssey are foundational works of literature.",
+          "style": "info"
+        }
+      ],
+      "estimatedMinutes": 15,
+      "unit": "Unit 3: Ancient Greece",
+      "unitColor": "bg-blue-600"
+    }
+  ]
+}

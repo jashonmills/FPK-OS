@@ -1,0 +1,110 @@
+{
+  "courseId": "calculus-ab",
+  "courseSlug": "calculus-ab",
+  "contentVersion": "v2",
+  "framework": "micro-learning",
+  "courseTitle": "Calculus AB",
+  "description": "Master differential and integral calculus with limits, derivatives, and integrals for advanced problem-solving.",
+  "backgroundImage": "/lovable-uploads/calculus-ab-bg.jpg",
+  "estimatedHours": 5,
+  "difficultyLevel": "advanced",
+  "category": "Mathematics",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Limits and Continuity",
+      "description": "Explore the foundation of calculus",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 35,
+      "unit": "Unit 1: Limits",
+      "unitColor": "bg-indigo-100 text-indigo-700"
+    },
+    {
+      "id": 2,
+      "title": "Introduction to Derivatives",
+      "description": "Learn about rates of change",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 35,
+      "unit": "Unit 2: Derivatives",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 3,
+      "title": "Differentiation Rules",
+      "description": "Master product, quotient, and chain rules",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 40,
+      "unit": "Unit 2: Derivatives",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 4,
+      "title": "Applications of Derivatives",
+      "description": "Apply derivatives to optimization and motion",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 40,
+      "unit": "Unit 3: Applications",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 5,
+      "title": "Introduction to Integration",
+      "description": "Understand antiderivatives and area under curves",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 35,
+      "unit": "Unit 4: Integration",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 6,
+      "title": "Integration Techniques",
+      "description": "Learn substitution and integration by parts",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 40,
+      "unit": "Unit 4: Integration",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 7,
+      "title": "Applications of Integration",
+      "description": "Apply integrals to area, volume, and physics problems",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 40,
+      "unit": "Unit 5: Advanced Applications",
+      "unitColor": "bg-teal-100 text-teal-700"
+    },
+    {
+      "id": 8,
+      "title": "Differential Equations",
+      "description": "Explore solutions to basic differential equations",
+      "contentType": "interactive",
+      "videoUrl": "",
+      "audioUrl": "",
+      "textContent": "",
+      "estimatedMinutes": 35,
+      "unit": "Unit 5: Advanced Applications",
+      "unitColor": "bg-teal-100 text-teal-700"
+    }
+  ]
+}

@@ -1,0 +1,821 @@
+{
+  "courseId": "music-theory-fundamentals",
+  "courseSlug": "music-theory-fundamentals",
+  "contentVersion": "v2",
+  "framework": "sequential",
+  "courseTitle": "Music Theory Fundamentals",
+  "description": "Learn the language of music. This course covers the essential building blocks of music, including reading sheet music, understanding scales, chords, and rhythm.",
+  "backgroundImage": "/course-images/music-theory-fundamentals-bg.jpg",
+  "estimatedHours": 8,
+  "difficultyLevel": "introductory",
+  "category": "Arts",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "The Staff, Clefs, and Notes",
+      "description": "Learn to read the musical staff and identify notes",
+      "contentType": "text",
+      "estimatedMinutes": 40,
+      "unit": "Unit 1: The Building Blocks of Music",
+      "unitColor": "bg-blue-100 text-blue-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Identify the 5 lines and 4 spaces of the musical staff.",
+            "Recognize the Treble Clef (G-Clef) and the Bass Clef (F-Clef).",
+            "Learn the names of the notes on the lines and spaces of the Treble Clef."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Music is written on a staff, which has five lines and four spaces. A clef at the beginning of the staff tells you which notes correspond to those lines and spaces. The **Treble Clef** is for higher-pitched instruments (like a flute or violin), while the **Bass Clef** is for lower-pitched ones (like a cello or bass guitar)."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "In the Treble Clef, the lines are E, G, B, D, F (Every Good Boy Does Fine). The spaces are F, A, C, E. This is a fundamental mnemonic for reading music."
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "Think of the staff as a ladder. Each line and space represents a different note, just like each rung represents a step up or down."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "In the Treble Clef, what note is on the bottom line of the staff?",
+          "options": ["F", "E", "G"],
+          "correctAnswer": "E"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Excellent work! You've learned to read the map of music. Knowing the staff and clefs is the first and most important step to reading and writing music. Next, we'll learn what the different shapes of notes mean."
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Note Duration & Rhythm",
+      "description": "Understand rhythm and how long to hold notes",
+      "contentType": "text",
+      "estimatedMinutes": 40,
+      "unit": "Unit 1: The Building Blocks of Music",
+      "unitColor": "bg-blue-100 text-blue-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand the concept of note duration.",
+            "Identify whole notes, half notes, and quarter notes.",
+            "Recognize the corresponding rests for each note value."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Rhythm is the timing of music. The shape of a note tells you how long to hold it. A **whole note** is held for four beats. A **half note** is held for two beats. A **quarter note** is held for one beat. Rests are symbols for silence, and they have corresponding durations."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Imagine a pie. A whole note is the whole pie. A half note is half the pie. A quarter note is one-quarter of the pie. This makes it easy to remember how notes relate to each other!"
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "One whole note = Two half notes = Four quarter notes. They all take up the same total amount of time!"
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "In a song with 4 beats per measure, how many beats does a half note get?",
+          "options": ["1", "2", "4"],
+          "correctAnswer": "2"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Great! You now understand the fundamentals of rhythm. This is what gives music its pulse and energy. Try clapping a simple rhythm using quarter notes and half notes. Next, we'll learn how to organize these beats."
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Measures, Time Signatures, and Meter",
+      "description": "Learn how music is organized into measures and time",
+      "contentType": "text",
+      "estimatedMinutes": 40,
+      "unit": "Unit 1: The Building Blocks of Music",
+      "unitColor": "bg-blue-100 text-blue-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand that music is divided into measures (or bars).",
+            "Learn to read a time signature like 4/4 or 3/4.",
+            "Feel the difference between different meters."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A **time signature** is a fraction at the beginning of a piece of music. The top number tells you how many beats are in each measure. The bottom number tells you what kind of note gets one beat. So, `4/4` means four beats per measure, and a quarter note gets one beat. This is also called 'common time'."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A waltz is in `3/4` time. You can feel the 'ONE-two-three, ONE-two-three' pulse. Most pop and rock songs are in `4/4` time, with a 'ONE-two-three-four' feel."
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "Try counting along with your favorite songs! Can you feel whether they're in 3/4 or 4/4 time?"
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "In 3/4 time, how many beats are in each measure?",
+          "options": ["4", "3", "2"],
+          "correctAnswer": "3"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You've got the beat! Understanding meter and time signatures is key to playing with other musicians and feeling the structure of a song. Listen to your favorite song and try to count along to see if it's in 4/4 or 3/4 time."
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "The Major Scale",
+      "description": "Learn the foundation of Western music",
+      "contentType": "text",
+      "estimatedMinutes": 40,
+      "unit": "Unit 2: Melody and Harmony",
+      "unitColor": "bg-green-100 text-green-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand the concept of whole steps and half steps.",
+            "Learn the major scale pattern: Whole-Whole-Half-Whole-Whole-Whole-Half (W-W-H-W-W-W-H).",
+            "Be able to construct a C Major scale."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A scale is a series of notes played in order. The **major scale** is the foundation of most Western music and has a characteristically 'happy' sound. It's built from a specific pattern of whole steps (two keys on a piano) and half steps (one key on a piano)."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The C Major scale is the easiest to see on a piano because it uses only the white keys: C, D, E, F, G, A, B, C. This perfectly follows the W-W-H-W-W-W-H pattern."
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "On a piano, a whole step is two keys (including black keys), and a half step is just one key to the next."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is the pattern of whole (W) and half (H) steps for a major scale?",
+          "options": ["W-H-W-W-H-W-W", "W-W-H-W-W-W-H", "W-W-W-H-W-W-H"],
+          "correctAnswer": "W-W-H-W-W-W-H"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You've learned the secret formula for melody! The major scale is a fundamental concept that will unlock your understanding of countless songs. Try playing or singing a C Major scale up and down."
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "The Minor Scale",
+      "description": "Explore the emotional depth of minor scales",
+      "contentType": "text",
+      "estimatedMinutes": 40,
+      "unit": "Unit 2: Melody and Harmony",
+      "unitColor": "bg-green-100 text-green-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand the 'sad' or 'serious' sound of the minor scale.",
+            "Learn the pattern for the natural minor scale: W-H-W-W-H-W-W.",
+            "Be able to construct an A natural minor scale."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The minor scale provides a different emotional color than the major scale. Every major scale has a 'relative minor' scale that uses the exact same notes but starts in a different place. The natural minor scale has its own unique pattern of whole and half steps."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The A natural minor scale is the relative minor of C Major. It uses the same notes (all the white keys on a piano) but starts and ends on A: A, B, C, D, E, F, G, A."
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "Play both C Major and A minor. Notice how they use the same notes but feel completely different!"
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which major scale shares the same notes as A minor?",
+          "options": ["G Major", "F Major", "C Major"],
+          "correctAnswer": "C Major"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Wonderful! You've added a whole new emotional palette to your musical knowledge. The interplay between major and minor is what makes music so compelling. Next, we'll look at the distance between notes."
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Intervals",
+      "description": "Understand the distance between musical notes",
+      "contentType": "text",
+      "estimatedMinutes": 40,
+      "unit": "Unit 2: Melody and Harmony",
+      "unitColor": "bg-green-100 text-green-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define an interval as the distance between two notes.",
+            "Learn to identify basic intervals like a 2nd, 3rd, 4th, 5th, and an octave.",
+            "Understand the difference between a major 3rd and a minor 3rd."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Intervals are the building blocks of both melody (notes played in sequence) and harmony (notes played together). We measure them by counting the number of letter names between the notes. The 'quality' of an interval (major, minor) gives it a distinct sound."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "From C to D is a 2nd. From C to E is a 3rd. From C to G is a 5th. The interval from C to the next C is an octave (8th). A major 3rd (like C to E) sounds 'happy', while a minor 3rd (like C to E♭) sounds 'sad'."
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "Think of intervals as the alphabet of music. Just like letters combine to make words, intervals combine to make melodies and chords."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is the interval from C to G?",
+          "options": ["3rd", "4th", "5th"],
+          "correctAnswer": "5th"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You're developing your musical ear! Recognizing intervals is a key skill for understanding melodies and building chords, which is exactly what we're going to do next."
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Introduction to Harmony",
+      "description": "Discover the vertical dimension of music",
+      "contentType": "text",
+      "estimatedMinutes": 40,
+      "unit": "Unit 3: Building Chords",
+      "unitColor": "bg-purple-100 text-purple-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define harmony as two or more notes played at the same time.",
+            "Understand that a chord is the basic unit of harmony.",
+            "Define a triad as a specific three-note chord."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "If melody is the horizontal aspect of music, harmony is the vertical aspect. It adds depth, texture, and emotional context to a melody. The most common form of harmony is a chord, and the most basic chord is a triad."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Playing the notes C, E, and G at the same time creates a C Major chord. This is a triad. It sounds stable and complete."
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "Try playing any three notes together on a piano. Some combinations sound pleasant (consonant), while others sound tense (dissonant). Triads are designed to be consonant."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "How many notes are in a basic triad?",
+          "options": ["2", "3", "4"],
+          "correctAnswer": "3"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You've entered the world of harmony! Understanding chords is essential for playing instruments like piano or guitar and for analyzing how songs are constructed. Next, we'll learn how to build the most common types of triads."
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Major and Minor Triads",
+      "description": "Build the two most important chord types",
+      "contentType": "text",
+      "estimatedMinutes": 40,
+      "unit": "Unit 3: Building Chords",
+      "unitColor": "bg-purple-100 text-purple-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn to build a major triad using a root, a major 3rd, and a perfect 5th.",
+            "Learn to build a minor triad using a root, a minor 3rd, and a perfect 5th.",
+            "Hear the difference between a major chord and a minor chord."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Triads are built by 'stacking thirds'. A major triad is a major 3rd interval plus a minor 3rd interval. A minor triad is a minor 3rd interval plus a major 3rd interval. The only difference is the middle note, but it completely changes the chord's emotional quality."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "C Major triad: C (root), E (a major 3rd above C), G (a minor 3rd above E). Sounds happy.\n\nC minor triad: C (root), E♭ (a minor 3rd above C), G (a major 3rd above E♭). Sounds sad."
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "The middle note is the key! That one note difference between E and E♭ changes the entire emotional character of the chord."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which interval determines whether a triad is major or minor?",
+          "options": ["The 5th", "The 3rd", "The root"],
+          "correctAnswer": "The 3rd"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You can now build the two most important chords in all of music! This knowledge is the key to understanding and playing millions of songs. Practice building major and minor triads starting on different notes."
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Chord Inversions",
+      "description": "Learn to rearrange chord notes for smoother progressions",
+      "contentType": "text",
+      "estimatedMinutes": 40,
+      "unit": "Unit 3: Building Chords",
+      "unitColor": "bg-purple-100 text-purple-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define a chord inversion as rearranging the notes of a chord.",
+            "Identify root position, first inversion, and second inversion triads.",
+            "Understand that inversions change the 'flavor' of a chord without changing its name."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You don't always have to play the root of the chord as the lowest note. An inversion is when you move the bottom note up an octave. This creates a smoother sound when moving from one chord to another, a technique called 'voice leading'."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "C Major triad:\n- Root Position (C-E-G)\n- First Inversion (E-G-C) - the C is moved up\n- Second Inversion (G-C-E) - the E is also moved up\n\nIt's the same chord, just with a different note in the bass."
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "Inversions make chord progressions sound more fluid and professional. Instead of jumping around, your hands move smoothly from one chord to the next."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "In a C Major triad, which note is in the bass in first inversion?",
+          "options": ["C", "E", "G"],
+          "correctAnswer": "E"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "This is a more advanced concept, and you've nailed it! Understanding inversions will make your playing and composing sound much more professional. Now, let's put all this knowledge into the context of a key."
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Key Signatures",
+      "description": "Master the shorthand of sheet music",
+      "contentType": "text",
+      "estimatedMinutes": 40,
+      "unit": "Unit 4: Putting It All Together",
+      "unitColor": "bg-orange-100 text-orange-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand that a key signature tells you which notes to play as sharps or flats throughout a piece.",
+            "Learn to identify the key of C Major (no sharps or flats).",
+            "Be introduced to the Circle of Fifths as a tool for understanding keys."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A key signature is a shorthand written at the beginning of the staff. Instead of writing a sharp or flat symbol next to every single F note in the key of G Major, we just put one F♯ in the key signature. This tells the musician to sharpen every F they see."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "C Major has no sharps or flats. G Major has one sharp (F♯). F Major has one flat (B♭). The Circle of Fifths shows all 12 major keys and their key signatures arranged in a circular pattern."
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "The Circle of Fifths is one of the most important tools in music theory. It shows the relationship between all keys and helps you understand key signatures, chord progressions, and modulation."
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "How many sharps are in the key signature of C Major?",
+          "options": ["1", "2", "0"],
+          "correctAnswer": "0"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You're reading music like a pro! Key signatures are a huge time-saver and essential for playing in different keys. The Circle of Fifths is your ultimate guide to the relationship between all 12 major and minor keys."
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "title": "Basic Chord Progressions",
+      "description": "Unlock the secrets of songwriting",
+      "contentType": "text",
+      "estimatedMinutes": 40,
+      "unit": "Unit 4: Putting It All Together",
+      "unitColor": "bg-orange-100 text-orange-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand that a chord progression is a series of chords.",
+            "Learn to identify chords using Roman numerals (I, ii, iii, IV, V, vi, vii°).",
+            "Play and recognize the most common progression in music: I-IV-V."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Songs are built on chord progressions. We use Roman numerals to analyze them. Uppercase numerals (I, IV, V) represent major chords, and lowercase (ii, iii, vi) represent minor chords. The I, IV, and V chords are the most important chords in any key."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "In the key of C Major:\n- I chord = C Major\n- IV chord = F Major\n- V chord = G Major\n\nThe progression C-F-G is the foundation of thousands of blues, rock, and pop songs."
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "Famous songs using I-IV-V: 'Wild Thing', 'Twist and Shout', 'La Bamba', and countless 12-bar blues songs!"
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "In the key of C Major, what chord is the 'V' (five) chord?",
+          "options": ["C Major", "F Major", "G Major"],
+          "correctAnswer": "G Major"
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You've cracked the code of songwriting! Understanding the I-IV-V progression allows you to play and understand a huge amount of popular music. Listen for this progression in your favorite songs."
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "title": "Analyzing a Simple Piece of Music",
+      "description": "Apply your knowledge to real music",
+      "contentType": "text",
+      "estimatedMinutes": 40,
+      "unit": "Unit 4: Putting It All Together",
+      "unitColor": "bg-orange-100 text-orange-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Apply all learned concepts to a real piece of music.",
+            "Identify the key signature, time signature, and basic chord progression of a simple song.",
+            "Feel confident in your ability to analyze and understand basic sheet music."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "This is where it all comes together. We will look at a simple, familiar tune like 'Twinkle, Twinkle, Little Star' and use our knowledge to deconstruct it. We will identify its key, its meter, its melody, and its underlying harmony."
+        },
+        {
+          "type": "heading",
+          "content": "Analysis Steps",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Step 1: Identify the key signature (C Major - no sharps or flats)",
+            "Step 2: Identify the time signature (4/4 - four beats per measure)",
+            "Step 3: Identify the melody notes on the staff",
+            "Step 4: Identify the underlying chord progression (I-I-IV-I-V-I)"
+          ]
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "'Twinkle, Twinkle, Little Star' uses only the I, IV, and V chords - the three most important chords you've learned!"
+        },
+        {
+          "type": "heading",
+          "content": "Practice",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Look at any simple sheet music you have. Can you identify the key signature? The time signature? Can you spot where the chords change? Try analyzing a few simple songs on your own."
+        },
+        {
+          "type": "heading",
+          "content": "Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "CONGRATULATIONS! You have successfully completed this course and are no longer just a listener of music—you are a reader and an analyst. You have the foundational tools to continue your journey, whether it's learning an instrument, writing your own songs, or simply appreciating music on a much deeper level. The world of music is now open to you."
+        }
+      ]
+    }
+  ]
+}

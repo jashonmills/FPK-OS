@@ -1,0 +1,274 @@
+
+{
+  "common": {
+    "learnerPortal": "Lerner Portal",
+    "userMenu": "Benutzermenü",
+    "loading": "Lädt...",
+    "error": "Fehler",
+    "success": "Erfolg",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "search": "Suchen",
+    "learningDashboard": "Lern-Dashboard",
+    "support": "Support",
+    "signOut": "Abmelden",
+    "beta": "Beta",
+    "back": "Zurück"
+  },
+  "dashboard": {
+    "myCourses": {
+      "title": "Meine Kurse",
+      "description": "Verwalten und setzen Sie Ihre Lernreise mit personalisierten Kursen fort"
+    },
+    "navigation": {
+      "home": "Startseite",
+      "courses": "Meine Kurse",
+      "analytics": "Lernanalyse",
+      "goals": "Ziele",
+      "notes": "Notizen",
+      "study": "Lernen",
+      "aiCoach": "KI-Lerncoach",
+      "liveHub": "Live-Lern-Hub",
+      "settings": "Einstellungen"
+    },
+    "stats": {
+      "activeCourses": "Aktive Kurse",
+      "currentStreak": "Aktuelle Serie",
+      "activeGoals": "Aktive Ziele",
+      "goalProgress": "Zielfortschritt",
+      "completedCourses": "Abgeschlossene Kurse",
+      "totalXP": "Gesamt-XP",
+      "studyTime": "Lernzeit",
+      "achievements": "Erfolge"
+    },
+    "charts": {
+      "courseProgress": "Kursfortschritt",
+      "weeklyTime": "Wöchentliche Lernzeit",
+      "noCourseProgress": "Keine Kursfortschrittsdaten verfügbar",
+      "noWeeklyTime": "Keine Lernzeitdaten verfügbar",
+      "noStudyTime": "Keine Lernzeitdaten",
+      "noStudyTimeDesc": "Beginnen Sie mit Lernsitzungen, um Ihren Fortschritt hier zu sehen",
+      "noCourseProgressDesc": "Melden Sie sich für Kurse an, um Ihre Fortschrittsverfolgung zu sehen",
+      "hours": "Stunden",
+      "minutes": "Minuten",
+      "week": "Woche"
+    },
+    "insights": {
+      "personalGoals": "Persönliche Ziele",
+      "communityActivity": "Community-Aktivität",
+      "aiInsights": "KI-Erkenntnisse",
+      "studyPattern": "Lernmuster",
+      "joinCommunity": "Der Community beitreten",
+      "joinCommunityDesc": "Verbinden Sie sich mit anderen Lernenden und teilen Sie Ihren Fortschritt",
+      "exploreCommunity": "Community erkunden"
+    },
+    "welcomeModal": {
+      "title": "Willkommen zu Ihrer Lernreise",
+      "quickSetup": "Schnelle Einrichtung",
+      "quickSetupDesc": "Richten Sie Ihr Profil und Ihre Präferenzen ein, um personalisierte Empfehlungen zu erhalten",
+      "skipForNow": "Vorerst überspringen",
+      "getStarted": "Loslegen",
+      "completeProfile": "Profil vervollständigen",
+      "remindLater": "Später erinnern"
+    },
+    "badges": {
+      "learner": "Lerner",
+      "level1": "Level 1",
+      "newbie": "Neuling",
+      "beginner": "Anfänger"
+    }
+  },
+  "courses": {
+    "learningState": {
+      "title": "Lernzustand-Kurs",
+      "description": "Meistern Sie die Grundlagen der Lernzustände und kognitiven Prozesse",
+      "playerTitle": "Lernzustand-Kurs-Player",
+      "outline": {
+        "intro": "Einführung in Lernzustände",
+        "cognitiveLoad": "Verstehen der kognitiven Belastung",
+        "attention": "Aufmerksamkeits- und Fokusmanagement",
+        "memory": "Gedächtnisbildung und -erhaltung",
+        "metacognition": "Metakognitive Strategien"
+      }
+    },
+    "courseOutline": "Kursübersicht",
+    "backToCourses": "Zurück zu den Kursen"
+  },
+  "goals": {
+    "myGoals": "Meine Ziele",
+    "createNew": "Ziel erstellen",
+    "createFirst": "Erstellen Sie Ihr erstes Ziel",
+    "tabs": {
+      "all": "Alle",
+      "active": "Aktiv",
+      "completed": "Abgeschlossen",
+      "paused": "Pausiert"
+    },
+    "stats": {
+      "totalGoals": "Gesamtziele",
+      "activeGoals": "Aktive Ziele",
+      "completedGoals": "Abgeschlossen",
+      "completionRate": "Abschlussrate"
+    },
+    "empty": {
+      "allTitle": "Keine Ziele gefunden",
+      "allDescription": "Erstellen Sie Ihr erstes Ziel, um Ihren Lernfortschritt zu verfolgen",
+      "activeTitle": "Keine aktiven Ziele",
+      "activeDescription": "Erstellen Sie ein neues Ziel, um Ihren Fortschritt zu verfolgen",
+      "completedTitle": "Noch keine abgeschlossenen Ziele",
+      "completedDescription": "Schließen Sie einige Ziele ab, um sie hier zu sehen",
+      "pausedTitle": "Keine pausierten Ziele",
+      "pausedDescription": "Pausierte Ziele erscheinen hier"
+    }
+  },
+  "nav": {
+    "home": "Startseite",
+    "courses": "Meine Kurse",
+    "analytics": "Lernanalyse",
+    "goals": "Ziele",
+    "notes": "Notizen",
+    "settings": "Einstellungen",
+    "liveHub": "Live-Lern-Hub",
+    "dashboard": "Dashboard"
+  },
+  "liveHub": {
+    "title": "Live-Lern-Hub",
+    "subtitle": "Verbinden Sie sich in Echtzeit mit Lehrern und Mitschülern in Lernsitzungen",
+    "liveSessions": "Live-Sitzungen",
+    "upcomingEvents": "Bevorstehende Veranstaltungen",
+    "noSessions": "Keine aktiven Sitzungen",
+    "noSessionsDesc": "Es sind derzeit keine Live-Sitzungen verfügbar. Planen Sie eine, um loszulegen!",
+    "noEvents": "Keine bevorstehenden Veranstaltungen",
+    "noEventsDesc": "Derzeit sind keine Veranstaltungen geplant.",
+    "scheduleSession": "Sitzung planen"
+  },
+  "auth": {
+    "title": "Willkommen zum Lernen",
+    "subtitle": "Ihre personalisierte Lernreise beginnt hier",
+    "portalTitle": "Lernportal",
+    "signIn": "Anmelden",
+    "signUp": "Registrieren",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "displayName": "Anzeigename",
+    "confirmPassword": "Passwort bestätigen",
+    "emailPlaceholder": "Geben Sie Ihre E-Mail ein",
+    "passwordPlaceholder": "Geben Sie Ihr Passwort ein",
+    "fullNamePlaceholder": "Geben Sie Ihren vollständigen Namen ein",
+    "createPassword": "Erstellen Sie ein Passwort",
+    "confirmPasswordPlaceholder": "Bestätigen Sie Ihr Passwort",
+    "signInButton": "Anmelden",
+    "signUpButton": "Konto erstellen",
+    "signingIn": "Anmelden...",
+    "creatingAccount": "Konto wird erstellt...",
+    "welcomeBack": "Willkommen zurück!",
+    "signInSuccess": "Sie wurden erfolgreich angemeldet.",
+    "accountCreated": "Konto erstellt!",
+    "checkEmail": "Bitte überprüfen Sie Ihre E-Mail, um Ihr Konto zu verifizieren.",
+    "betaVersion": "Beta-Version - Ihr Feedback hilft uns bei der Verbesserung",
+    "login": "Anmelden",
+    "logout": "Abmelden",
+    "register": "Registrieren"
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "subtitle": "Verwalten Sie Ihre Kontopräferenzen und Lernerfahrung",
+    "saving": "Speichern...",
+    "autoSavePending": "Automatisches Speichern ausstehend...",
+    "allChangesSaved": "Alle Änderungen gespeichert",
+    "restoreDefaults": "Standardwerte wiederherstellen",
+    "settingsRestored": "Einstellungen wiederhergestellt",
+    "defaultsMessage": "Alle Einstellungen wurden auf ihre Standardwerte zurückgesetzt",
+    "tabs": {
+      "profile": "Profil",
+      "language": "Sprache",
+      "accessibility": "Barrierefreiheit",
+      "notifications": "Benachrichtigungen",
+      "security": "Sicherheit",
+      "integrations": "Integrationen"
+    },
+    "profile": {
+      "title": "Profilinformationen",
+      "fullName": "Vollständiger Name",
+      "fullNamePlaceholder": "Geben Sie Ihren vollständigen Namen ein",
+      "displayName": "Anzeigename",
+      "displayNamePlaceholder": "Geben Sie Ihren Anzeigenamen ein",
+      "email": "E-Mail",
+      "bio": "Bio",
+      "bioPlaceholder": "Erzählen Sie uns etwas über sich..."
+    },
+    "language": {
+      "primaryLanguage": "Hauptsprache",
+      "dualLanguageMode": "Zweisprachiger Modus",
+      "dualLanguageDescription": "Englisch neben Ihrer Sprache anzeigen",
+      "timeFormat": "Zeitformat",
+      "dateFormat": "Datumsformat",
+      "timezone": "Zeitzone"
+    },
+    "accessibility": {
+      "title": "Barrierefreiheit & Anzeige",
+      "fontFamily": "Schriftfamilie",
+      "fontHelp": "Wählen Sie eine Schrift, die für Sie angenehm zu lesen ist",
+      "systemFont": "Systemstandard",
+      "colorContrast": "Farbkontrast",
+      "standard": "Standard",
+      "highContrast": "Hoher Kontrast",
+      "comfortMode": "Komfortmodus",
+      "comfortHelp": "Passen Sie die Benutzeroberfläche für optimalen Lernkomfort an",
+      "normal": "Normal",
+      "lowStimulus": "Geringe Stimulation",
+      "focusMode": "Fokusmodus",
+      "textSize": "Textgröße",
+      "small": "Klein",
+      "medium": "Mittel",
+      "large": "Groß",
+      "lineSpacing": "Zeilenabstand",
+      "compact": "Kompakt",
+      "comfortable": "Komfortabel",
+      "airy": "Luftig",
+      "speechToText": "Sprache zu Text",
+      "speechToTextDesc": "Spracheingabe für bessere Barrierefreiheit aktivieren"
+    },
+    "notifications": {
+      "emailTitle": "E-Mail-Benachrichtigungen",
+      "appTitle": "App-Benachrichtigungen",
+      "newCourses": "Neue Kurse",
+      "newCoursesDesc": "Benachrichtigt werden, wenn neue Kurse verfügbar sind",
+      "weeklySum": "Wöchentliche Zusammenfassung",
+      "weeklySumDesc": "Eine wöchentliche Fortschrittszusammenfassung erhalten",
+      "aiPrompts": "KI-Lernhinweise",
+      "aiPromptsDesc": "Personalisierte Lernvorschläge erhalten",
+      "pushNotifications": "Push-Benachrichtigungen",
+      "pushNotificationsDesc": "Benachrichtigungen auf Ihrem Gerät erhalten",
+      "studyStreak": "Lernserien-Erinnerungen",
+      "studyStreakDesc": "Erinnerungen erhalten, um Ihre Lernserie aufrechtzuerhalten",
+      "moduleNudges": "Modul-Abschluss-Erinnerungen",
+      "moduleNudgesDesc": "Sanfte Erinnerungen zum Abschluss laufender Module"
+    },
+    "security": {
+      "title": "Sicherheitseinstellungen",
+      "twoFactor": "Zwei-Faktor-Authentifizierung",
+      "twoFactorDesc": "Zusätzliche Sicherheitsschicht für Ihr Konto hinzufügen"
+    },
+    "integrations": {
+      "title": "Externe Integrationen",
+      "googleCalendar": "Google Kalender",
+      "googleDesc": "Ihren Lernplan mit Google Kalender synchronisieren",
+      "outlookCalendar": "Outlook Kalender",
+      "outlookDesc": "Ihren Lernplan mit Outlook Kalender synchronisieren"
+    }
+  },
+  "preview": {
+    "title": "Live-Vorschau",
+    "description": "Sehen Sie, wie sich Ihre Barrierefreiheitseinstellungen auf die Anzeige auswirken",
+    "fontLabel": "Schrift",
+    "sizeLabel": "Größe",
+    "spacingLabel": "Abstand",
+    "contrastLabel": "Kontrast",
+    "comfortLabel": "Komfortmodus",
+    "sampleTitle": "Beispiel-Lerninhalt",
+    "sampleText": "So wird Ihr Lerninhalt mit Ihren aktuellen Einstellungen angezeigt. Sie können Schrift, Größe, Abstand und andere Präferenzen anpassen, um die angenehmste Leseerfahrung für Sie zu schaffen."
+  }
+}

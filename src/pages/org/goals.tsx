@@ -1,0 +1,743 @@
+import React, { useState } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import { useOrgContext } from '@/components/organizations/OrgContext';
+import { useOrgGoals, type OrgGoal } from '@/hooks/useOrgGoals';
+import { useOrgStudents } from '@/hooks/useOrgStudents';
+import { OrgCard, OrgCardContent, OrgCardDescription, OrgCardHeader, OrgCardTitle } from '@/components/organizations/OrgCard';
+import { OrgButton as Button } from '@/components/org/OrgButton';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Progress } from '@/components/ui/progress';
+import { TransparentTile } from '@/components/ui/transparent-tile';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogDescription, 
+  DialogHeader, 
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu';
+import { 
+  Target, 
+  Plus, 
+  Search, 
+  MoreHorizontal, 
+  Eye,
+  Edit,
+  Trash2,
+  Users,
+  TrendingUp,
+  Clock,
+  CheckCircle2,
+  Loader2
+} from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import OrgGoalDetailsModal from '@/components/organizations/OrgGoalDetailsModal';
+import StudentGoalDetailsModal from '@/components/goals/StudentGoalDetailsModal';
+
+const goalSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  description: z.string().optional(),
+  category: z.string().min(1, 'Category is required'),
+  priority: z.enum(['low', 'medium', 'high']),
+  student_id: z.string().optional(), // Optional for students creating their own goals
+});
+
+type GoalFormData = z.infer<typeof goalSchema>;
+
+const categories = [
+  'Technical Skills',
+  'Soft Skills',
+  'Professional Development',
+  'Academic Performance',
+  'Personal Growth',
+];
+
+export default function GoalsPage() {
+  const { user, loading: authLoading } = useAuth();
+  const { currentOrg, getUserRole } = useOrgContext();
+  const { toast } = useToast();
+  const userRole = getUserRole();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [selectedGoal, setSelectedGoal] = useState<OrgGoal | null>(null);
+  const [selectedStudentGoal, setSelectedStudentGoal] = useState<any | null>(null);
+  const [editingGoal, setEditingGoal] = useState<OrgGoal | null>(null);
+  const [filterStatus, setFilterStatus] = useState<string>('all');
+
+  // Use the real goals hook
+  const { 
+    goals, 
+    isLoading, 
+    error, 
+    createGoal, 
+    updateGoal, 
+    isCreating, 
+    isUpdating 
+  } = useOrgGoals(currentOrg?.organization_id);
+
+  // Fetch actual students
+  const { students } = useOrgStudents(currentOrg?.organization_id || '');
+
+  // Find current user's student record (for filtering student view)
+  const currentUserStudentRecord = students.find(s => s.linked_user_id === user?.id);
+
+  // Authentication check first
+  if (authLoading) {
+    return (
+      <div className="w-full max-w-6xl mx-auto px-6 py-6">
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin" />
+          <span className="ml-2">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="w-full max-w-6xl mx-auto px-6 py-6">
+        <div className="text-center py-12">
+          <Target className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-lg font-semibold mb-2">Authentication Required</h3>
+          <p className="text-muted-foreground mb-4">
+            Please log in to access organizational goals.
+          </p>
+          <Button onClick={() => window.location.href = '/auth'}>
+            Log In
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  const form = useForm<GoalFormData>({
+    resolver: zodResolver(goalSchema),
+    defaultValues: {
+      title: '',
+      description: '',
+      category: '',
+      priority: 'medium',
+      student_id: '',
+    },
+  });
+
+  if (!currentOrg) {
+    return (
+      <div className="w-full max-w-6xl mx-auto px-6 py-6">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">No Organization Selected</h1>
+          <p className="text-muted-foreground">Please select an organization to view goals.</p>
+        </div>
+      </div>
+    );
+  }
+
+  const canManageGoals = userRole === 'owner' || userRole === 'instructor';
+  const isStudent = userRole === 'student';
+  
+  console.log('🎯 Goals Page Debug:', {
+    userRole,
+    isStudent,
+    currentUserStudentRecord,
+    totalGoals: goals.length,
+    goalsData: goals.map(g => ({
+      id: g.id,
+      title: g.title,
+      student_id: g.student_id,
+      status: g.status
+    }))
+  });
+  
+  const filteredGoals = goals.filter(goal => {
+    // Filter by student if user is a student
+    const matchesStudent = !isStudent || 
+                          (currentUserStudentRecord && goal.student_id === currentUserStudentRecord.id);
+    
+    const matchesSearch = goal.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         goal.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         goal.category.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesStatus = filterStatus === 'all' || goal.status === filterStatus;
+    
+    console.log('🔍 Filtering goal:', {
+      goalTitle: goal.title,
+      goalStudentId: goal.student_id,
+      matchesStudent,
+      matchesSearch,
+      matchesStatus,
+      willShow: matchesStudent && matchesSearch && matchesStatus
+    });
+    
+    return matchesStudent && matchesSearch && matchesStatus;
+  });
+
+  const handleCreateGoal = async (data: GoalFormData) => {
+    if (!currentOrg?.organization_id) {
+      toast({
+        title: "Error",
+        description: "No organization selected. Please select an organization first.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    try {
+      // For students, use their own student_id. For instructors, use selected student
+      let targetStudentId = data.student_id;
+      
+      if (isStudent && currentUserStudentRecord) {
+        targetStudentId = currentUserStudentRecord.id;
+      } else {
+        const selectedStudent = students.find(s => s.id === data.student_id);
+        if (!selectedStudent) {
+          toast({
+            title: "Error",
+            description: "Selected student not found.",
+            variant: "destructive",
+          });
+          return;
+        }
+        targetStudentId = selectedStudent.id;
+      }
+
+      await createGoal({
+        title: data.title || '',
+        description: data.description || '',
+        category: data.category || '',
+        student_id: targetStudentId,
+        priority: data.priority || 'medium',
+      });
+      
+      toast({
+        title: "Success",
+        description: "Goal created successfully.",
+      });
+      form.reset();
+      setShowCreateDialog(false);
+    } catch (error) {
+      console.error('Error creating goal:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create goal. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEditGoal = (goal: OrgGoal) => {
+    setEditingGoal(goal);
+    form.reset({
+      title: goal.title,
+      description: goal.description || '',
+      category: goal.category,
+      priority: goal.priority as 'low' | 'medium' | 'high',
+      student_id: goal.student_id,
+    });
+  };
+
+  const handleUpdateGoal = async (data: GoalFormData) => {
+    if (!editingGoal) return;
+    
+    try {
+      await updateGoal({
+        id: editingGoal.id,
+        ...data,
+      });
+      form.reset();
+      setEditingGoal(null);
+    } catch (error) {
+      console.error('Error updating goal:', error);
+    }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high':
+        return 'text-red-500 bg-red-50 border-red-200';
+      case 'medium':
+        return 'text-yellow-500 bg-yellow-50 border-yellow-200';
+      default:
+        return 'text-green-500 bg-green-50 border-green-200';
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return 'text-green-500 bg-green-50 border-green-200';
+      case 'paused':
+        return 'text-gray-500 bg-gray-50 border-gray-200';
+      default:
+        return 'text-blue-500 bg-blue-50 border-blue-200';
+    }
+  };
+
+  const activeGoals = goals.filter(g => g.status === 'active');
+  const completedGoals = goals.filter(g => g.status === 'completed');
+  const totalProgress = goals.length > 0 
+    ? goals.reduce((sum, goal) => sum + (goal.progress_percentage || 0), 0) / goals.length 
+    : 0;
+
+  // Get unique students from goals
+  const uniqueStudentIds = new Set(goals.map(g => g.student_id));
+  const studentsWithGoals = uniqueStudentIds.size;
+
+  if (isLoading) {
+    return (
+      <div className="w-full max-w-6xl mx-auto px-6 py-6">
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin" />
+          <span className="ml-2">Loading goals...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="w-full max-w-6xl mx-auto px-6 py-6">
+        <div className="text-center py-12">
+          <div className="text-red-500 mb-2">Failed to load goals</div>
+          <Button onClick={() => window.location.reload()}>Retry</Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full max-w-6xl mx-auto px-6 py-6 space-y-6">
+
+      {/* Header */}
+      <TransparentTile className="bg-orange-500/10 border-orange-400/30">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Target className="h-8 w-8" />
+            <div>
+              <h1 className="text-3xl font-bold">Goals</h1>
+              <p className="text-muted-foreground">
+                Set and track student learning objectives
+              </p>
+            </div>
+          </div>
+          
+          {(canManageGoals || isStudent) && (
+            <Button 
+              onClick={() => setShowCreateDialog(true)} 
+              className="flex items-center gap-2"
+              disabled={isCreating}
+            >
+              {isCreating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+              {isStudent ? 'Create My Goal' : 'Create Goal'}
+            </Button>
+          )}
+        </div>
+      </TransparentTile>
+
+      {/* Stats Cards */}
+      <div className="grid md:grid-cols-4 gap-4">
+        <OrgCard className="bg-orange-500/65 border-orange-400/50">
+          <OrgCardHeader className="pb-2">
+            <OrgCardTitle className="text-sm font-medium text-white">Active Goals</OrgCardTitle>
+          </OrgCardHeader>
+          <OrgCardContent>
+            <div className="text-2xl font-bold text-white">{activeGoals.length}</div>
+            <p className="text-xs text-white/80">In progress</p>
+          </OrgCardContent>
+        </OrgCard>
+        
+        <OrgCard className="bg-orange-500/65 border-orange-400/50">
+          <OrgCardHeader className="pb-2">
+            <OrgCardTitle className="text-sm font-medium text-white">Completed</OrgCardTitle>
+          </OrgCardHeader>
+          <OrgCardContent>
+            <div className="text-2xl font-bold text-white">{completedGoals.length}</div>
+            <p className="text-xs text-white/80">Successfully achieved</p>
+          </OrgCardContent>
+        </OrgCard>
+        
+        <OrgCard className="bg-orange-500/65 border-orange-400/50">
+          <OrgCardHeader className="pb-2">
+            <OrgCardTitle className="text-sm font-medium text-white">Average Progress</OrgCardTitle>
+          </OrgCardHeader>
+          <OrgCardContent>
+            <div className="text-2xl font-bold text-white">{Math.round(totalProgress)}%</div>
+            <p className="text-xs text-white/80">Across all goals</p>
+          </OrgCardContent>
+        </OrgCard>
+        
+        <OrgCard className="bg-orange-500/65 border-orange-400/50">
+          <OrgCardHeader className="pb-2">
+            <OrgCardTitle className="text-sm font-medium text-white">Total Students</OrgCardTitle>
+          </OrgCardHeader>
+          <OrgCardContent>
+            <div className="text-2xl font-bold text-white">{studentsWithGoals}</div>
+            <p className="text-xs text-white/80">With assigned goals</p>
+          </OrgCardContent>
+        </OrgCard>
+      </div>
+
+      {/* Search and Filters */}
+      <TransparentTile className="bg-orange-500/10 border-orange-400/30">
+        <div className="flex items-center gap-4">
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search goals..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <Select value={filterStatus} onValueChange={setFilterStatus}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Goals</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="completed">Completed</SelectItem>
+              <SelectItem value="paused">Paused</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </TransparentTile>
+
+      {/* Goals Grid */}
+      <div className="space-y-4">
+        {filteredGoals.length === 0 ? (
+          <TransparentTile className="bg-orange-500/10 border-orange-400/30">
+            <div className="text-center py-8">
+              <Target className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2">No Goals Found</h3>
+              <p className="text-muted-foreground mb-4">
+                {searchQuery ? 'No goals match your search.' : 'Start by creating learning goals for your students.'}
+              </p>
+              {canManageGoals && !searchQuery && (
+                <Button onClick={() => setShowCreateDialog(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Goal
+                </Button>
+              )}
+            </div>
+          </TransparentTile>
+        ) : (
+          <div className="grid md:grid-cols-2 gap-6">
+            {filteredGoals.map((goal) => {
+              // Match student by ID or linked_user_id
+              const student = students.find(s => s.id === goal.student_id || s.linked_user_id === goal.student_id);
+              return (
+              <OrgCard 
+                key={goal.id} 
+                className="bg-orange-500/65 border-orange-400/50 hover:shadow-md transition-shadow cursor-pointer"
+                onClick={() => {
+                  if (isStudent) {
+                    // Transform goal data to match StudentGoalDetailsModal format
+                    const studentGoal = {
+                      id: goal.id,
+                      title: goal.title,
+                      description: goal.description || '',
+                      category: goal.category,
+                      priority: goal.priority,
+                      status: goal.status,
+                      target_date: goal.target_date,
+                      progress: goal.progress_percentage || 0,
+                      target_status: goal.status,
+                      created_at: goal.created_at
+                    };
+                    setSelectedStudentGoal(studentGoal);
+                  }
+                }}
+              >
+                <OrgCardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <OrgCardTitle className="text-lg line-clamp-1 text-white">{goal.title}</OrgCardTitle>
+                        <Badge 
+                          variant="outline" 
+                          className={`text-xs ${getPriorityColor(goal.priority)}`}
+                        >
+                          {goal.priority}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge variant="secondary" className="text-xs">
+                          {goal.category}
+                        </Badge>
+                        <Badge 
+                          variant="outline"
+                          className={`text-xs ${getStatusColor(goal.status)}`}
+                        >
+                          {goal.status}
+                        </Badge>
+                      </div>
+                        <OrgCardDescription className="line-clamp-2 text-white/80">
+                          {goal.description || 'No description provided'}
+                        </OrgCardDescription>
+                    </div>
+                    {canManageGoals && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                          <DropdownMenuItem onClick={() => setSelectedGoal(goal)}>
+                            <Eye className="h-4 w-4 mr-2" />
+                            View Details
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleEditGoal(goal)}>
+                            <Edit className="h-4 w-4 mr-2" />
+                            Edit Goal
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="text-destructive">
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete Goal
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
+                  </div>
+                </OrgCardHeader>
+                <OrgCardContent>
+                    <div className="space-y-4">
+                      <div>
+                        <div className="flex items-center justify-between text-sm mb-2">
+                          <span className="text-white/70">Progress</span>
+                          <span className="text-white">{goal.progress_percentage || 0}%</span>
+                        </div>
+                        <Progress value={goal.progress_percentage || 0} className="h-2" />
+                      </div>
+                      
+                      <div className="flex items-center justify-between text-sm text-white/70">
+                        <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-1">
+                            <Users className="h-3 w-3" />
+                            <span>{student?.full_name || 'Unknown Student'}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <CheckCircle2 className="h-3 w-3" />
+                            <span>{goal.status}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          <span>{new Date(goal.created_at).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                    </div>
+                </OrgCardContent>
+              </OrgCard>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Create/Edit Goal Dialog */}
+      <Dialog 
+        open={showCreateDialog || !!editingGoal} 
+        onOpenChange={(open) => {
+          if (!open) {
+            setShowCreateDialog(false);
+            setEditingGoal(null);
+            form.reset();
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>
+              {editingGoal ? 'Edit Goal' : isStudent ? 'Create My Learning Goal' : 'Create New Goal'}
+            </DialogTitle>
+            <DialogDescription>
+              {editingGoal ? 'Update goal information.' : isStudent ? 'Set a personal learning objective to track your progress.' : 'Create a new learning goal for students.'}
+            </DialogDescription>
+          </DialogHeader>
+
+          <Form {...form}>
+            <form 
+              onSubmit={form.handleSubmit(editingGoal ? handleUpdateGoal : handleCreateGoal)} 
+              className="space-y-4"
+            >
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Goal Title</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Enter goal title" disabled={isCreating || isUpdating} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        {...field} 
+                        placeholder="Describe the goal and success criteria..."
+                        rows={3}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {!isStudent && (
+                <FormField
+                  control={form.control}
+                  name="student_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Assign to Student</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value} disabled={isCreating || isUpdating}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select student" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {students.length === 0 ? (
+                            <SelectItem value="" disabled>No students available</SelectItem>
+                          ) : (
+                            students.map((student) => (
+                              <SelectItem 
+                                key={student.id} 
+                                value={student.id}
+                              >
+                                {student.full_name}
+                              </SelectItem>
+                            ))
+                          )}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Category</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value} disabled={isCreating || isUpdating}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select category" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {categories.map((category) => (
+                          <SelectItem key={category} value={category}>
+                            {category}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="priority"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Priority</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value} disabled={isCreating || isUpdating}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select priority" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="low">Low</SelectItem>
+                        <SelectItem value="medium">Medium</SelectItem>
+                        <SelectItem value="high">High</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex justify-end space-x-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setShowCreateDialog(false);
+                    setEditingGoal(null);
+                    form.reset();
+                  }}
+                  disabled={isCreating || isUpdating}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isCreating || isUpdating}>
+                  {isCreating || isUpdating ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      {editingGoal ? 'Updating...' : 'Creating...'}
+                    </>
+                  ) : (
+                    editingGoal ? 'Update Goal' : 'Create Goal'
+                  )}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Goal Details Modal - Instructor/Owner View */}
+      {selectedGoal && (
+        <OrgGoalDetailsModal
+          goal={selectedGoal}
+          studentName={students.find(s => s.id === selectedGoal.student_id || s.linked_user_id === selectedGoal.student_id)?.full_name || 'Unknown Student'}
+          isOpen={!!selectedGoal}
+          onClose={() => setSelectedGoal(null)}
+        />
+      )}
+
+      {/* Goal Details Modal - Student View */}
+      {selectedStudentGoal && (
+        <StudentGoalDetailsModal
+          goal={selectedStudentGoal}
+          isOpen={!!selectedStudentGoal}
+          onClose={() => setSelectedStudentGoal(null)}
+          onUpdate={() => {
+            setSelectedStudentGoal(null);
+            window.location.reload();
+          }}
+        />
+      )}
+    </div>
+  );
+}

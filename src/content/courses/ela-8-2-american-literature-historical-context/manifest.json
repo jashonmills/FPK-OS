@@ -1,0 +1,375 @@
+{
+  "courseId": "ela-8-2-american-literature-historical-context",
+  "courseSlug": "ela-8-2-american-literature-historical-context",
+  "contentVersion": "v2",
+  "title": "ELA 8.2: American Literature & Historical Context",
+  "description": "Explore key works of American literature and understand how they were shaped by the historical events, social movements, and cultural values of their time.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Lesson 1: Puritan Voices and Early Colonial Writing",
+      "description": "Understand Puritan beliefs and their influence on early American writing.",
+      "contentType": "text",
+      "unit": "Unit 1: The Colonial and Revolutionary Period",
+      "unitColor": "blue",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand the core beliefs of the Puritans and how they influenced their writing.",
+            "Analyze the style and themes of early colonial texts, such as sermons and poetry.",
+            "Define historical context and explain its importance in understanding literature."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - Writing with a Divine Purpose",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Early American literature was dominated by the Puritans, a group of English Protestants who sought to 'purify' the Church of England. Their lives and writing were deeply intertwined with their religious beliefs. For them, writing was not for entertainment; it was a tool for religious instruction, self-examination, and understanding God's will. Their literature often focused on themes of sin, redemption, and the struggle between good and evil in daily life."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Historical Context is Key",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "To understand Puritan writing, we must understand their world. They lived in a harsh, unfamiliar environment, which they often saw as a spiritual wilderness. They believed God was an active presence in their daily lives, sending them signs and tests. Without this historical context, a sermon by Jonathan Edwards like 'Sinners in the Hands of an Angry God' might just seem angry. With context, we see it as a desperate plea to his community to return to a path of righteousness in a world they saw as full of spiritual danger."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What was the primary purpose of writing for most Puritans?",
+          "options": ["Entertainment and storytelling", "Scientific discovery", "Religious instruction and self-examination"],
+          "correctAnswer": "Religious instruction and self-examination",
+          "explanation": "Good start. Remember, for the Puritans, nearly every aspect of life, including writing, was connected to their religious beliefs."
+        }
+      ],
+      "estimatedMinutes": 15
+    },
+    {
+      "id": 2,
+      "title": "Lesson 2: The Age of Reason and Revolutionary Voices",
+      "description": "Describe the shift to the Age of Reason and analyze revolutionary rhetoric.",
+      "contentType": "text",
+      "unit": "Unit 1: The Colonial and Revolutionary Period",
+      "unitColor": "blue",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Describe the shift from Puritanism to the Age of Reason (The Enlightenment).",
+            "Analyze the use of rhetoric (ethos, pathos, logos) in revolutionary texts.",
+            "Understand how documents like the Declaration of Independence use persuasive language to build an argument."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - From Faith to Reason",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The 18th century saw a major shift in thinking known as the Enlightenment, or the Age of Reason. Thinkers like John Locke and Isaac Newton emphasized logic, reason, and scientific observation over religious faith. This new way of thinking had a profound impact on American writers and political leaders. They began to believe that humans could use their intellect to solve problems and create a better society. Literature moved from sermons to political pamphlets, essays, and speeches."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: The Rhetoric of Revolution",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Writers like Thomas Paine ('Common Sense') and Thomas Jefferson (The Declaration of Independence) were masters of rhetoric. They used logic (logos) to lay out the colonists' grievances against the king. They used emotion (pathos) to stir up feelings of patriotism and injustice. And they used their own credibility (ethos) as respected leaders to build trust. These documents were not just statements; they were carefully crafted arguments designed to persuade a nation to go to war for its freedom."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "The Age of Reason emphasized which of the following?",
+          "options": ["Religious faith and tradition", "Logic, reason, and science", "Emotional expression above all else"],
+          "correctAnswer": "Logic, reason, and science",
+          "explanation": "Not quite. The Age of Reason was a shift *away* from relying solely on faith and toward using human intellect and observation."
+        }
+      ],
+      "estimatedMinutes": 15
+    },
+    {
+      "id": 3,
+      "title": "Lesson 3: Romanticism and Transcendentalism",
+      "description": "Define American Romanticism and understand Transcendentalism.",
+      "contentType": "text",
+      "unit": "Unit 2: The 19th Century - A Nation Finds Its Voice",
+      "unitColor": "green",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define the key characteristics of American Romanticism, including a focus on emotion, nature, and the individual.",
+            "Understand Transcendentalism as a uniquely American philosophical movement.",
+            "Analyze the themes of individualism and nonconformity in the works of Emerson and Thoreau."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - The Power of the Individual and Nature",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "In the early 19th century, American writers sought to create a literature that was uniquely American, not just an imitation of European styles. This led to Romanticism, a movement that valued intuition and emotion over reason, and saw nature as a source of spiritual truth and inspiration. A key offshoot of this was Transcendentalism, which held that every individual has a direct connection to God and the universe, and that one's own intuition is the highest source of knowledge."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Key Transcendentalist Ideas",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Individualism:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Ralph Waldo Emerson, in his essay 'Self-Reliance,' urged people to trust their own instincts and avoid conforming to society's expectations. 'Whoso would be a man, must be a nonconformist.'"
+        },
+        {
+          "type": "heading",
+          "content": "Nature:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Henry David Thoreau put these ideas into practice by living alone at Walden Pond. He believed that by simplifying one's life and living in close contact with nature, one could discover essential truths."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which movement emphasized self-reliance and a spiritual connection to nature?",
+          "options": ["Puritanism", "The Age of Reason", "Transcendentalism"],
+          "correctAnswer": "Transcendentalism",
+          "explanation": "Good try. Remember, Transcendentalism is the movement most associated with Emerson, Thoreau, and the importance of the individual spirit."
+        }
+      ],
+      "estimatedMinutes": 15
+    },
+    {
+      "id": 4,
+      "title": "Lesson 4: The American Renaissance and the Issue of Slavery",
+      "description": "Define the American Renaissance and understand abolitionist literature.",
+      "contentType": "text",
+      "unit": "Unit 2: The 19th Century - A Nation Finds Its Voice",
+      "unitColor": "green",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define the American Renaissance as a flowering of literary genius in the mid-19th century.",
+            "Understand the role of abolitionist literature in the debate over slavery.",
+            "Analyze how authors like Frederick Douglass and Harriet Beecher Stowe used literature as a tool for social change."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - Literature as a Force for Change",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The mid-19th century was a time of incredible literary achievement, with authors like Hawthorne, Melville, and Whitman producing classic works. However, this period was also dominated by the nation's greatest moral crisis: slavery. A powerful body of literature emerged from the abolitionist movement, which sought to end slavery. These writers used stories, poems, and autobiographies to expose the brutal reality of slavery and appeal to the conscience of the nation."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Key Abolitionist Texts",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "'Narrative of the Life of Frederick Douglass, an American Slave' (1845):",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Douglass's powerful autobiography was a firsthand account of the horrors of slavery. His eloquent prose and powerful story proved that African Americans possessed a profound humanity and intellect, directly challenging the racist justifications for slavery."
+        },
+        {
+          "type": "heading",
+          "content": "'Uncle Tom's Cabin' by Harriet Beecher Stowe (1852):",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "This novel was a massive bestseller that depicted the cruelty of slavery in emotional, human terms. It had a huge impact on public opinion in the North and is often cited as a major factor leading to the Civil War."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which of these was a powerful anti-slavery novel that had a major impact on public opinion before the Civil War?",
+          "options": ["'The Scarlet Letter'", "'Moby-Dick'", "'Uncle Tom's Cabin'"],
+          "correctAnswer": "'Uncle Tom's Cabin'",
+          "explanation": "Not quite. While the other books are classics, 'Uncle Tom's Cabin' was the one that directly addressed the issue of slavery and became a tool for the abolitionist movement."
+        }
+      ],
+      "estimatedMinutes": 15
+    },
+    {
+      "id": 5,
+      "title": "Lesson 5: Realism and Naturalism",
+      "description": "Describe Realism and Naturalism as reactions to Romanticism.",
+      "contentType": "text",
+      "unit": "Unit 3: The Modern Age",
+      "unitColor": "purple",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Describe Realism as a reaction against Romanticism.",
+            "Define Naturalism and its focus on forces beyond human control (heredity, environment).",
+            "Analyze how authors like Mark Twain and Jack London depicted ordinary life and struggles."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - A Turn Toward Reality",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "After the trauma of the Civil War, American literature turned away from the idealism of the Romantics. The new movement, Realism, sought to portray life as it really was, with all its complexities and hardships. Realist writers focused on ordinary people in everyday situations. Naturalism was an even more extreme form of Realism. Naturalist writers believed that human beings were often helpless victims of forces they couldn't control, such as their environment, their social conditions, and their own heredity."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Examples",
+          "level": 2
+        },
+        {
+          "type": "heading",
+          "content": "Realism:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Mark Twain's 'The Adventures of Huckleberry Finn' is a great example. It uses realistic dialect and depicts the complex social realities of life on the Mississippi River."
+        },
+        {
+          "type": "heading",
+          "content": "Naturalism:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Jack London's 'To Build a Fire' is a classic naturalist story. The protagonist is not a hero, but an ordinary man who is ultimately defeated by the overwhelming, indifferent force of nature (the extreme cold)."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which literary movement focused on portraying life as it really was, often focusing on ordinary people?",
+          "options": ["Romanticism", "Realism", "Modernism"],
+          "correctAnswer": "Realism",
+          "explanation": "Good try. Remember, Realism was a move *away* from the idealized worlds of Romanticism and toward 'real' life."
+        }
+      ],
+      "estimatedMinutes": 15
+    },
+    {
+      "id": 6,
+      "title": "Lesson 6: Modernism and the Harlem Renaissance",
+      "description": "Identify Modernism characteristics and define the Harlem Renaissance.",
+      "contentType": "text",
+      "unit": "Unit 3: The Modern Age",
+      "unitColor": "purple",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Identify the key characteristics of Modernism, including experimentation and a sense of disillusionment.",
+            "Define the Harlem Renaissance as a major cultural movement for African Americans in the 1920s.",
+            "Analyze the themes of identity and heritage in the poetry of Langston Hughes."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept - A New World, A New Art",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The early 20th century was a time of rapid change and upheaval, including World War I. This led to a literary movement called Modernism, where writers felt that old ways of writing were no longer adequate to describe the modern world. They experimented with new forms and often wrote with a sense of fragmentation and disillusionment. At the same time, a vibrant cultural explosion was happening in New York City: the Harlem Renaissance. For the first time, African American writers, artists, and musicians were at the center of American culture, creating powerful works that explored their unique experiences."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: The Harlem Renaissance",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The Harlem Renaissance was a celebration of African American culture and identity. Writers like Langston Hughes, Zora Neale Hurston, and Claude McKay created literature that was infused with the rhythms of jazz and blues. They wrote about the struggles of racism, but also about the beauty, strength, and resilience of the Black community. Langston Hughes's poetry, for example, often asks what it means to be Black in America, exploring themes of dreams, heritage, and identity."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "The major cultural movement of African American artists and writers in the 1920s was called the...?",
+          "options": ["The Beat Generation", "The Harlem Renaissance", "The Lost Generation"],
+          "correctAnswer": "The Harlem Renaissance",
+          "explanation": "Not quite. Remember, this cultural explosion was centered in the neighborhood of Harlem in New York City."
+        }
+      ],
+      "estimatedMinutes": 15
+    }
+  ]
+}

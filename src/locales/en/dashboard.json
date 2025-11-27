@@ -1,0 +1,70 @@
+
+{
+  "goodMorning": "Good Morning",
+  "goodAfternoon": "Good Afternoon", 
+  "goodEvening": "Good Evening",
+  "greeting": "{greeting}, {name}!",
+  "welcomeMessage": "Ready to continue your learning journey today?",
+  "learner": "Learner",
+  "myCourses": {
+    "title": "My Courses",
+    "description": "Manage and continue your learning journey with personalized courses"
+  },
+  "navigation": {
+    "home": "Home",
+    "courses": "My Courses",
+    "analytics": "Learning Analytics",
+    "goals": "Goals",
+    "notes": "Notes",
+    "study": "Study",
+    "aiCoach": "AI Study Coach",
+    "liveHub": "Live Learning Hub",
+    "settings": "Settings"
+  },
+  "stats": {
+    "activeCourses": "Active Courses",
+    "currentStreak": "Current Streak",
+    "activeGoals": "Active Goals",
+    "goalProgress": "Goal Progress",
+    "completedCourses": "Completed Courses",
+    "totalXP": "Total XP",
+    "studyTime": "Study Time",
+    "achievements": "Achievements"
+  },
+  "charts": {
+    "courseProgress": "Course Progress",
+    "weeklyTime": "Weekly Study Time",
+    "noCourseProgress": "No course progress data available",
+    "noWeeklyTime": "No study time data available",
+    "noStudyTime": "No study time data",
+    "noStudyTimeDesc": "Start completing study sessions to see your progress here",
+    "noCourseProgressDesc": "Enroll in courses to see your progress tracking",
+    "hours": "hours",
+    "minutes": "minutes",
+    "week": "Week"
+  },
+  "insights": {
+    "personalGoals": "Personal Goals",
+    "communityActivity": "Community Activity",
+    "aiInsights": "AI Insights",
+    "studyPattern": "Study Pattern",
+    "joinCommunity": "Join the Community",
+    "joinCommunityDesc": "Connect with fellow learners and share your progress",
+    "exploreCommunity": "Explore Community"
+  },
+  "welcomeModal": {
+    "title": "Welcome to Your Learning Journey",
+    "quickSetup": "Quick Setup",
+    "quickSetupDesc": "Set up your profile and preferences to get personalized recommendations",
+    "skipForNow": "Skip for Now",
+    "getStarted": "Get Started",
+    "completeProfile": "Complete Profile",
+    "remindLater": "Remind Me Later"
+  },
+  "badges": {
+    "learner": "Learner",
+    "level1": "Level 1",
+    "newbie": "Newbie",
+    "beginner": "Beginner"
+  }
+}

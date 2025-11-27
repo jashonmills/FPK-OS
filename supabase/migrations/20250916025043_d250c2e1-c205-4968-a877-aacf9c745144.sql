@@ -1,0 +1,31 @@
+INSERT INTO courses (
+  id, 
+  title, 
+  description, 
+  slug, 
+  status, 
+  instructor_name, 
+  duration_minutes, 
+  difficulty_level, 
+  is_free, 
+  price, 
+  featured, 
+  course_visibility,
+  created_at,
+  updated_at
+) VALUES (
+  'money-management-teens',
+  'Money Management for Teens',
+  'Learn essential financial skills including budgeting, saving, investing, and credit management. Build a strong foundation for financial success.',
+  'money-management-teens',
+  'published',
+  'FPK University',
+  360,
+  'beginner',
+  true,
+  0.00,
+  true,
+  'global',
+  now(),
+  now()
+) ON CONFLICT (id) DO NOTHING;

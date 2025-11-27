@@ -1,0 +1,287 @@
+{
+  "courseId": "science-6-2-life-science-cells-ecosystems-classification",
+  "courseSlug": "science-6-2-life-science-cells-ecosystems-classification",
+  "contentVersion": "v2",
+  "title": "Science 6.2: Life Science - Cells, Ecosystems & Classification",
+  "description": "Dive into the world of living things, from the smallest building blocks of life to the complex interactions within ecosystems.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Characteristics of Living Things",
+      "description": "Identify the key characteristics that all living organisms share and understand that cells are the basic unit of life.",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Identify the key characteristics that all living organisms share.",
+            "Differentiate between living, non-living, and dead things.",
+            "Understand that cells are the basic unit of life."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "What Does It Mean to Be Alive?",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Biology is the study of life, but what exactly is life? Scientists have identified several key characteristics that most living things have in common. These include being made of cells, obtaining and using energy, growing and developing, responding to their environment, and reproducing. A rock is non-living because it does none of these. A fallen leaf is dead because it once did these things but no longer does."
+        },
+        {
+          "type": "heading",
+          "content": "The Characteristics of Life",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "**Organization:** All living things are made of one or more cells.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "**Metabolism:** They obtain and use energy to carry out life processes.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "**Growth:** They grow and develop over their lifespan.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "**Response:** They respond to stimuli in their environment.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "**Reproduction:** They produce offspring, passing on their genetic information.",
+          "style": "success"
+        }
+      ],
+      "estimatedMinutes": 15,
+      "unit": "Unit 1: The Building Blocks of Life",
+      "unitColor": "bg-green-500"
+    },
+    {
+      "id": 2,
+      "title": "The Cell - The Basic Unit of Life",
+      "description": "Explore the Cell Theory and differentiate between plant and animal cells.",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "State the Cell Theory.",
+            "Identify the main parts of a cell: cell membrane, cytoplasm, and nucleus.",
+            "Differentiate between plant and animal cells."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Cell Theory",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The cell is the smallest unit that can be said to be alive. The Cell Theory is a cornerstone of biology and has three main parts: 1) All living organisms are composed of one or more cells. 2) The cell is the basic unit of structure and organization in organisms. 3) All cells come from pre-existing cells."
+        },
+        {
+          "type": "heading",
+          "content": "Plant vs. Animal Cells",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "While plant and animal cells share many common organelles, there are a few key differences:"
+        },
+        {
+          "type": "callout",
+          "content": "**Cell Wall:** Plant cells have a rigid cell wall outside the cell membrane that provides structural support. Animal cells do not.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "**Chloroplasts:** Plant cells have chloroplasts, the site of photosynthesis. Animal cells do not, as they get energy by eating other organisms.",
+          "style": "success"
+        },
+        {
+          "type": "callout",
+          "content": "**Vacuole:** Plant cells typically have one large central vacuole for storing water. Animal cells may have several small vacuoles.",
+          "style": "info"
+        }
+      ],
+      "estimatedMinutes": 15,
+      "unit": "Unit 1: The Building Blocks of Life",
+      "unitColor": "bg-green-500"
+    },
+    {
+      "id": 3,
+      "title": "Introduction to Ecosystems",
+      "description": "Define ecosystems and differentiate between biotic and abiotic factors.",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Define an ecosystem as a community of living organisms interacting with their non-living environment.",
+            "Differentiate between biotic (living) and abiotic (non-living) factors.",
+            "Identify examples of biotic and abiotic factors in a given ecosystem."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "A Web of Connections",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "An ecosystem includes all the living things (plants, animals, fungi, bacteria) in a given area, interacting with each other, and also with their non-living environments (weather, earth, sun, soil, climate, atmosphere). Ecology is the study of these interactions. Everything is connected."
+        },
+        {
+          "type": "heading",
+          "content": "Biotic vs. Abiotic",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "**Biotic Factors:** The living or once-living components of an ecosystem. Examples: trees, fish, insects, bacteria, a fallen log.",
+          "style": "success"
+        },
+        {
+          "type": "callout",
+          "content": "**Abiotic Factors:** The non-living physical and chemical components of an ecosystem. Examples: sunlight, temperature, water, soil composition, air.",
+          "style": "info"
+        }
+      ],
+      "estimatedMinutes": 15,
+      "unit": "Unit 2: Ecosystems and Interactions",
+      "unitColor": "bg-emerald-500"
+    },
+    {
+      "id": 4,
+      "title": "Food Chains and Food Webs",
+      "description": "Trace the flow of energy through ecosystems and understand food webs.",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Define producers, consumers, and decomposers.",
+            "Trace the flow of energy through a simple food chain.",
+            "Understand that a food web is a more realistic model of energy flow than a food chain."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Flow of Energy",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Energy flows through an ecosystem in one direction. It starts with producers (usually plants) that capture energy from the sun. Consumers get their energy by eating other organisms. Decomposers (like bacteria and fungi) get energy by breaking down dead organic matter, returning nutrients to the soil. A food chain shows a single path of this energy flow."
+        },
+        {
+          "type": "heading",
+          "content": "Food Webs - A More Complex Reality",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "In reality, most animals eat more than one type of food. A food web consists of many overlapping food chains in an ecosystem. It provides a more accurate picture of the complex feeding relationships and energy flow. For example, a hawk might eat a snake, a mouse, and a rabbit, connecting multiple food chains."
+        }
+      ],
+      "estimatedMinutes": 15,
+      "unit": "Unit 2: Ecosystems and Interactions",
+      "unitColor": "bg-emerald-500"
+    },
+    {
+      "id": 5,
+      "title": "The Six Kingdoms of Life",
+      "description": "Learn about the classification system and the six major kingdoms of life.",
+      "contentType": "text",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Understand why scientists classify organisms.",
+            "Name the six major kingdoms of life.",
+            "Identify the key characteristics of each kingdom."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Science of Taxonomy",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Taxonomy is the science of naming, defining, and classifying groups of biological organisms based on shared characteristics. To make sense of the vast diversity of life on Earth, scientists organize living things into a hierarchy of groups. The broadest category is the kingdom."
+        },
+        {
+          "type": "heading",
+          "content": "The Six Kingdoms",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "**Archaebacteria & Eubacteria:** Single-celled prokaryotes (no nucleus). They are the oldest forms of life.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "**Protista:** A diverse group of mostly single-celled eukaryotes. Includes amoebas and algae.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "**Fungi:** Multicellular eukaryotes that are decomposers. Includes mushrooms and molds.",
+          "style": "warning"
+        },
+        {
+          "type": "callout",
+          "content": "**Plantae:** Multicellular eukaryotes that are producers (photosynthesis). Includes trees, flowers, and mosses.",
+          "style": "success"
+        },
+        {
+          "type": "callout",
+          "content": "**Animalia:** Multicellular eukaryotes that are consumers. Includes insects, fish, birds, and mammals.",
+          "style": "info"
+        }
+      ],
+      "estimatedMinutes": 15,
+      "unit": "Unit 3: Classification of Life",
+      "unitColor": "bg-teal-500"
+    }
+  ]
+}

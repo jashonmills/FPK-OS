@@ -1,0 +1,86 @@
+
+{
+  "title": "Settings",
+  "subtitle": "Customize your learning experience and preferences",
+  "saving": "Saving...",
+  "autoSavePending": "Auto-save pending...",
+  "allChangesSaved": "All changes saved",
+  "restoreDefaults": "Restore Defaults",
+  "settingsRestored": "Settings Restored",
+  "defaultsMessage": "All settings have been restored to their default values.",
+  "profile": {
+    "title": "Profile Information",
+    "fullName": "Full Name",
+    "fullNamePlaceholder": "Enter your full name",
+    "displayName": "Display Name",
+    "displayNamePlaceholder": "How you'd like to be called",
+    "email": "Email Address",
+    "bio": "Bio",
+    "bioPlaceholder": "Tell us a bit about yourself..."
+  },
+  "accessibility": {
+    "title": "Accessibility & Display",
+    "fontFamily": "Font Family",
+    "fontHelp": "Choose a font that's comfortable for reading. OpenDyslexic is designed for dyslexia.",
+    "systemFont": "System Default",
+    "colorContrast": "Color Contrast",
+    "standard": "Standard",
+    "highContrast": "High Contrast",
+    "comfortMode": "Comfort Mode",
+    "comfortHelp": "Adjust the interface to reduce distractions and improve focus.",
+    "normal": "Normal",
+    "lowStimulus": "Low-Stimulus",
+    "focusMode": "Focus Mode",
+    "textSize": "Text Size",
+    "extraSmall": "Extra Small",
+    "small": "Small",
+    "medium": "Medium",
+    "large": "Large",
+    "extraLarge": "Extra Large",
+    "lineSpacing": "Line Spacing",
+    "compact": "Compact",
+    "tight": "Tight",
+    "relaxed": "Relaxed",
+    "loose": "Loose",
+    "speechToText": "Speech to Text",
+    "speechToTextDesc": "Enable voice input for accessibility"
+  },
+  "notifications": {
+    "emailTitle": "Email Notifications",
+    "newCourses": "New Course Announcements",
+    "newCoursesDesc": "Get notified when new courses are available",
+    "weeklySum": "Weekly Learning Summary",
+    "weeklySumDesc": "Receive a summary of your progress each week",
+    "aiPrompts": "AI Study Prompts",
+    "aiPromptsDesc": "Get personalized study suggestions from AI",
+    "appTitle": "App Notifications",
+    "pushNotifications": "Push Notifications",
+    "pushNotificationsDesc": "Allow the app to send you notifications",
+    "studyStreak": "Study Streak Reminders",
+    "studyStreakDesc": "Get reminded to maintain your learning streak",
+    "moduleNudges": "Module Completion Nudges",
+    "moduleNudgesDesc": "Gentle reminders to complete started modules"
+  },
+  "security": {
+    "title": "Security & Privacy",
+    "twoFactor": "Two-Factor Authentication",
+    "twoFactorDesc": "Add an extra layer of security to your account"
+  },
+  "integrations": {
+    "title": "External Integrations",
+    "googleCalendar": "Google Calendar",
+    "googleDesc": "Sync your study schedule with Google Calendar",
+    "outlookCalendar": "Outlook Calendar",
+    "outlookDesc": "Sync your study schedule with Outlook Calendar"
+  },
+  "preview": {
+    "title": "Live Preview",
+    "description": "This preview shows how your accessibility settings affect the actual interface. Changes apply globally across the entire application.",
+    "fontLabel": "Font Family",
+    "sizeLabel": "Text Size",
+    "spacingLabel": "Line Spacing",
+    "contrastLabel": "Color Contrast",
+    "comfortLabel": "Comfort Mode",
+    "tip": "Pro Tip: These settings apply to the entire application immediately. Navigate to other pages to see the global effect!"
+  }
+}

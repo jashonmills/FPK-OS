@@ -1,0 +1,12 @@
+
+{
+  "title": "Live Preview",
+  "description": "See how your accessibility settings affect the display",
+  "fontLabel": "Font",
+  "sizeLabel": "Size",
+  "spacingLabel": "Spacing",
+  "contrastLabel": "Contrast",
+  "comfortLabel": "Comfort Mode",
+  "sampleTitle": "Sample Learning Content",
+  "sampleText": "This is how your learning content will appear with your current settings. You can adjust the font, size, spacing, and other preferences to create the most comfortable reading experience for you."
+}

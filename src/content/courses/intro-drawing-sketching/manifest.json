@@ -1,0 +1,622 @@
+{
+  "courseId": "intro-drawing-sketching",
+  "courseSlug": "intro-drawing-sketching",
+  "contentVersion": "v2",
+  "framework": "sequential",
+  "courseTitle": "Introduction to Drawing & Sketching",
+  "description": "The first formal visual arts course teaching foundational techniques like line, shading, perspective, and composition in a series of project-based lessons.",
+  "backgroundImage": "/course-images/drawing-sketching-bg.jpg",
+  "estimatedHours": 8,
+  "difficultyLevel": "introductory",
+  "category": "Visual Arts",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Your Artist's Toolkit",
+      "description": "Learn about essential drawing tools and materials for sketching",
+      "contentType": "text",
+      "estimatedMinutes": 48,
+      "unit": "Unit 1: The Absolute Fundamentals",
+      "unitColor": "bg-purple-100 text-purple-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Identify the different grades of graphite pencils (H, B, HB).",
+            "Understand the difference between sketch paper and drawing paper.",
+            "Learn the functions of a kneaded eraser versus a vinyl eraser."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Your tools are your partners in art. 'H' pencils are hard and create light lines, perfect for initial sketches. 'B' pencils are soft and create dark, rich lines, ideal for shading. A kneaded eraser can be molded to lift graphite gently, while a vinyl eraser removes it completely."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Look at the difference: A line made with a 6H pencil is very light. A line made with a 6B pencil is very dark and smudgy. The HB pencil is the perfect middle ground, just like a standard #2 pencil."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Practice",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**Question**: Which type of pencil is best for creating dark shadows?\n\nA) H-grade pencil\nB) B-grade pencil ✓\nC) HB pencil\n\n*Correct Answer: B-grade pencil*"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 5: Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Great job! You now understand the basic tools of the trade. Having the right pencil and paper can make a huge difference in your work. For our next lesson, make sure you have a simple sketchbook and an HB pencil ready."
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "The Power of the Line",
+      "description": "Master line weight and contour drawing techniques",
+      "contentType": "text",
+      "estimatedMinutes": 48,
+      "unit": "Unit 1: The Absolute Fundamentals",
+      "unitColor": "bg-purple-100 text-purple-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Practice drawing straight lines and smooth curves without a ruler.",
+            "Understand 'line weight' and how it creates emphasis.",
+            "Learn the technique of 'contour drawing' to define edges."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Drawing is all about lines. Line weight—how thick or thin, dark or light a line is—can suggest weight, light, and importance. Contour drawing is the practice of drawing the outline of a subject, forcing you to truly see its edges."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Imagine drawing a coffee cup. The contour line defines its shape. A thicker, darker line at the bottom suggests it's sitting on a surface, while a lighter line at the lip suggests where light is hitting it."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Practice",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**Question**: What is the term for drawing the outline of an object?\n\nA) Shading\nB) Contour Drawing ✓\nC) Perspective\n\n*Correct Answer: Contour Drawing*"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 5: Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Excellent work. You've learned that a simple line can be incredibly expressive. Fill a page in your sketchbook with contour drawings of objects around you, like your hand, a key, or a piece of fruit."
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Seeing in Shapes",
+      "description": "Learn to deconstruct complex objects into simple geometric forms",
+      "contentType": "text",
+      "estimatedMinutes": 48,
+      "unit": "Unit 1: The Absolute Fundamentals",
+      "unitColor": "bg-purple-100 text-purple-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn to deconstruct complex objects into simple geometric shapes.",
+            "Practice 'gestural drawing' to capture the basic form and energy of a subject.",
+            "Use shapes as the foundation for a more detailed drawing."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Everything can be broken down into simple shapes. A lamp might be a circle on top of a cylinder on top of a square. A human body is made of ovals and cylinders. By sketching these basic shapes first, you create a solid 'scaffolding' for your drawing."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "To draw a bicycle, you don't start with the spokes. You start with two large circles for the wheels and a triangle and a few lines for the frame. Once that structure is correct, you can add details."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Practice",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**Question**: A human head is best simplified as which basic shape?\n\nA) A square\nB) An oval ✓\nC) A triangle\n\n*Correct Answer: An oval*"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 5: Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You've learned a secret of the pros: see the world in shapes! This simplifies everything and makes drawing complex subjects far less intimidating. Look at a car or a tree and try to see the simple shapes that form its structure."
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Introduction to Shading",
+      "description": "Understand value and learn basic shading techniques",
+      "contentType": "text",
+      "estimatedMinutes": 48,
+      "unit": "Unit 2: Creating Dimension and Form",
+      "unitColor": "bg-blue-100 text-blue-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand the concept of 'value' in art.",
+            "Create a 5-step value scale from white to black.",
+            "Learn basic shading techniques like hatching and cross-hatching."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Shading is what makes a drawing look three-dimensional. It's all about 'value'—the lightness or darkness of a color. By controlling your pencil pressure and using techniques like hatching (parallel lines) and cross-hatching (overlapping lines), you can create a range of values."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Draw a rectangle and divide it into five boxes. Leave the first white. In the last, press as hard as you can to make it black. Fill the boxes in between with gradually darker shades of grey. This is a value scale."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Practice",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**Question**: What is the artistic term for the lightness or darkness of a color?\n\nA) Hue\nB) Saturation\nC) Value ✓\n\n*Correct Answer: Value*"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 5: Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Fantastic! You've taken your first step into creating the illusion of light. Shading is a skill that takes practice, but you now have the fundamental knowledge. Try shading a simple shape, like a square, to make it look like a cube."
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "From Flat Shapes to 3D Forms",
+      "description": "Apply shading to transform 2D shapes into 3D forms",
+      "contentType": "text",
+      "estimatedMinutes": 48,
+      "unit": "Unit 2: Creating Dimension and Form",
+      "unitColor": "bg-blue-100 text-blue-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Identify the parts of a shadow: core shadow, cast shadow, and highlight.",
+            "Apply shading to a circle to make it look like a sphere.",
+            "Apply shading to a square to make it look like a cube."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "To make a shape look 3D, you must understand how light works. The highlight is where the light hits directly. The core shadow is the darkest part of the object itself. The cast shadow is the shadow the object throws onto a surface."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Imagine a light source coming from the top left. On a sphere, the highlight will be at the top left. The core shadow will be a crescent on the bottom right. The cast shadow will be an oval on the ground to the right of the sphere."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Practice",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**Question**: What is the shadow that an object throws onto a surface called?\n\nA) Core Shadow\nB) Highlight\nC) Cast Shadow ✓\n\n*Correct Answer: Cast Shadow*"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 5: Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You've just performed magic! You turned a flat circle into a solid sphere with just a pencil. This is the core skill of realistic drawing. Practice shading basic forms like cones and cylinders."
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "The Illusion of Depth",
+      "description": "Master one-point perspective to create depth in drawings",
+      "contentType": "text",
+      "estimatedMinutes": 48,
+      "unit": "Unit 2: Creating Dimension and Form",
+      "unitColor": "bg-blue-100 text-blue-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand the concept of a horizon line and a vanishing point.",
+            "Learn to draw a simple road or railway tracks disappearing into the distance.",
+            "Use one-point perspective to draw a series of cubes that appear to be at different depths."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Perspective is a system for creating the illusion of depth on a flat surface. In one-point perspective, all parallel lines that move away from the viewer converge at a single 'vanishing point' on the 'horizon line' (your eye level)."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Draw a horizontal line across your page (the horizon). Pick a point on it (the vanishing point). Now draw two lines starting wide at the bottom of the page and meeting at the vanishing point. You've just drawn a road disappearing into the distance!"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Practice",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**Question**: In one-point perspective, where do all parallel lines converge?\n\nA) The Horizon Line\nB) The Vanishing Point ✓\nC) The Corner\n\n*Correct Answer: The Vanishing Point*"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 5: Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Incredible! You now know how to create the illusion of a three-dimensional world. This is a powerful tool for drawing landscapes, rooms, and cities. Try drawing a simple room in one-point perspective."
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Still Life Sketching",
+      "description": "Combine all skills to create a composed still life drawing",
+      "contentType": "text",
+      "estimatedMinutes": 48,
+      "unit": "Unit 3: Sketching from Life",
+      "unitColor": "bg-green-100 text-green-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn the basics of composition (Rule of Thirds).",
+            "Set up a simple still life using 2-3 objects.",
+            "Practice combining all your skills: line, shape, shading, and perspective."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A still life is an arrangement of inanimate objects. It's the perfect way to practice drawing from observation. Good composition is key. The 'Rule of Thirds' suggests placing key objects off-center to create a more interesting and balanced image."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Place an apple, a book, and a cup on a table. Don't put them all in a straight line. Let the apple sit in front of the book, and the cup off to the side. Think about how the objects relate to each other."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Practice",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**Question**: What is a simple rule for creating a balanced composition?\n\nA) The 50/50 Rule\nB) The Rule of Thirds ✓\nC) The Center Rule\n\n*Correct Answer: The Rule of Thirds*"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 5: Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You're drawing like an artist! By setting up and drawing a still life, you are putting all the foundational skills together. This is a huge accomplishment. Try another still life with different objects."
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Texture and Detail",
+      "description": "Learn techniques to create realistic textures in your drawings",
+      "contentType": "text",
+      "estimatedMinutes": 48,
+      "unit": "Unit 3: Sketching from Life",
+      "unitColor": "bg-green-100 text-green-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Learn techniques to create the illusion of different textures.",
+            "Practice drawing the texture of wood grain.",
+            "Practice drawing the texture of folded fabric."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Texture is how an object feels, and you can create that illusion with your pencil. Wood grain can be drawn with long, flowing, irregular lines. Fabric folds are created with soft, blended shading. A metallic shine is made with sharp contrasts between very dark shadows and bright white highlights."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "To draw a wooden table, you don't just draw a brown rectangle. You add long, wavy lines of different darkness to simulate the grain. To draw a chrome ball, you draw the distorted reflections of the room around it with very high contrast."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Practice",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "**Question**: What is key to drawing a shiny, metallic texture?\n\nA) Soft, blended shading\nB) High contrast between light and dark ✓\nC) Even, grey tones\n\n*Correct Answer: High contrast between light and dark*"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 5: Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Amazing! Your drawings are now not just seen, but 'felt'. Adding texture brings a new level of realism and interest to your work. Find a piece of clothing with interesting folds and try to sketch it."
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Project 1 - A Detailed Still Life",
+      "description": "Create a complete finished drawing combining all learned skills",
+      "contentType": "text",
+      "estimatedMinutes": 48,
+      "unit": "Unit 4: Final Projects",
+      "unitColor": "bg-orange-100 text-orange-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Combine all learned skills into a single, finished drawing.",
+            "Choose and arrange your own still life of 3-5 objects.",
+            "Spend dedicated time to create your most detailed drawing yet."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "This is your first masterpiece. The goal is to bring everything together: accurate contour lines, solid underlying shapes, realistic shading and value, and convincing textures. Take your time. Art is not a race."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "A great still life could be: a glass of water (challenging transparency!), a piece of fruit with texture (like an orange), and a book (strong geometric form). This combination allows you to show off all your new skills."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Practice",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "This entire lesson is the practice. Set up your still life. Start with a light sketch to get the composition right. Build up your shapes. Slowly add your shading and details. Don't be afraid to use your eraser. Sign your work when you're done!"
+        },
+        {
+          "type": "heading",
+          "content": "Screen 5: Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Congratulations! You have created a finished piece of art from start to finish. You should be incredibly proud. You have proven that you have the skills and patience to be an artist. Frame it or put it on your fridge!"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Developing Your Style",
+      "description": "Set up your artistic practice and continue your creative journey",
+      "contentType": "text",
+      "estimatedMinutes": 48,
+      "unit": "Unit 4: Final Projects",
+      "unitColor": "bg-orange-100 text-orange-700",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Screen 1: Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Understand the importance of keeping a regular sketchbook.",
+            "Learn how to find inspiration from other artists and the world around you.",
+            "Set a personal goal for your continued artistic journey."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Screen 2: Concept",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The skills you've learned are just the beginning. Your unique artistic 'style' will develop over time through consistent practice. A sketchbook is not for finished drawings; it's a private playground to experiment, make mistakes, and explore ideas without pressure."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 3: Example",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Famous artists like Leonardo da Vinci filled thousands of sketchbook pages with observations, ideas, and practice drawings. This is how they honed their craft and developed their unique vision."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 4: Practice",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Your practice is to buy a sketchbook that you love and commit to drawing in it for just 10 minutes every day for a week. Draw anything: your coffee cup, your shoe, a tree outside your window. The goal is not to make a masterpiece, but to make a habit."
+        },
+        {
+          "type": "heading",
+          "content": "Screen 5: Summary",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "You have completed this course, but your journey as an artist has just begun. You have a solid foundation of technical skills. Now, the adventure is to combine them with your unique perspective. Keep drawing, stay curious, and have fun. The world is your canvas."
+        }
+      ]
+    }
+  ]
+}

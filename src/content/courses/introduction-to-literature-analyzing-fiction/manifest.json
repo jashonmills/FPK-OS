@@ -1,0 +1,339 @@
+{
+  "courseId": "introduction-to-literature-analyzing-fiction",
+  "courseSlug": "introduction-to-literature-analyzing-fiction",
+  "contentVersion": "v2",
+  "title": "Introduction to Literature: Analyzing Fiction",
+  "description": "This course moves beyond basic literacy to teach critical analysis. Students will learn about literary devices, themes, and symbolism by studying classic and modern short stories and novels.",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Plot and Structure",
+      "description": "Master the fundamental elements of narrative structure and understand how authors arrange events to create emotional impact.",
+      "contentType": "text",
+      "unit": "Unit 1: The Core Elements of Fiction",
+      "unitColor": "blue",
+      "estimatedMinutes": 25,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define plot as the sequence of events in a story and distinguish it from 'story' itself.",
+            "Identify the five stages of a classic plot structure (Freytag's Pyramid).",
+            "Analyze how plot structure creates tension and emotional response in the reader."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept - More Than 'What Happens Next'",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Plot is more than just a summary of events. It is the author's deliberate arrangement of those events to create a specific emotional and intellectual effect. The 'story' might be 'The king died and then the queen died.' The 'plot' is 'The king died, and then the queen died of grief.' The second version establishes causality, which is the heart of plot. We analyze plot to understand how an author builds suspense, creates surprise, and guides our journey through the narrative."
+        },
+        {
+          "type": "heading",
+          "content": "Freytag's Pyramid",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "**1. Exposition:** The beginning of the story where the characters, setting, and basic conflict are introduced.\n\n**2. Rising Action:** A series of events and conflicts that build suspense and lead to the climax.\n\n**3. Climax:** The turning point of the story, where the main conflict comes to a head. It is the moment of highest tension.\n\n**4. Falling Action:** The events that occur after the climax, where the tension decreases and the story moves toward its resolution.\n\n**5. Dénouement/Resolution:** The end of the story, where the conflicts are resolved and a new normal is established for the characters.",
+          "style": "teaching"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "What is the turning point of a story, the moment of highest tension?",
+          "options": ["Exposition", "Climax", "Resolution"],
+          "correctAnswer": "Climax",
+          "explanation": "The climax is the turning point where the main conflict reaches its peak tension."
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Character - The Heart of the Story",
+      "description": "Learn how authors create memorable characters through direct and indirect characterization techniques.",
+      "contentType": "text",
+      "unit": "Unit 1: The Core Elements of Fiction",
+      "unitColor": "blue",
+      "estimatedMinutes": 25,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Differentiate between protagonist and antagonist.",
+            "Analyze characterization through direct and indirect methods.",
+            "Understand the concept of a character arc."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept - Direct vs. Indirect Characterization",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Characters are the agents of the plot; their desires and decisions drive the story forward. Authors reveal characters in two main ways. Direct characterization is when the author explicitly tells the reader what a character is like (e.g., 'He was a cruel man'). Indirect characterization is more subtle and powerful; the author shows the character's personality through their actions, speech, thoughts, and interactions with others. Skilled readers learn to analyze these indirect clues to form a deep understanding of a character."
+        },
+        {
+          "type": "heading",
+          "content": "The Character Arc",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "A character arc is the internal journey a character takes over the course of a story. A 'flat' character remains unchanged, while a 'round' or 'dynamic' character undergoes a significant internal transformation as a result of the story's events. For example, a selfish character might learn empathy, or a timid character might find courage. Analyzing this arc is often key to understanding the story's central theme.",
+          "style": "teaching"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "When an author shows a character's personality through their actions, this is called...?",
+          "options": ["Direct Characterization", "Indirect Characterization", "The Character Arc"],
+          "correctAnswer": "Indirect Characterization",
+          "explanation": "Indirect characterization reveals personality through actions, speech, and interactions rather than explicit statements."
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Point of View and Narrator",
+      "description": "Understand how narrative perspective shapes our experience and interpretation of a story.",
+      "contentType": "text",
+      "unit": "Unit 2: The Language of Fiction",
+      "unitColor": "purple",
+      "estimatedMinutes": 25,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Identify the major narrative points of view: first-person, second-person, and third-person.",
+            "Differentiate between third-person limited and third-person omniscient.",
+            "Analyze how the choice of narrator affects the story."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept - Who is Telling the Story?",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The point of view is the lens through which the reader experiences the story. The author's choice of narrator fundamentally shapes our understanding of the events and characters. A first-person narrator ('I') provides an intimate but inherently biased perspective. A third-person narrator ('he/she/they') can offer a more objective view. It's crucial to ask: Who is speaking? How much do they know? And can we trust them?"
+        },
+        {
+          "type": "heading",
+          "content": "Types of Narration",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "**First-Person:** The narrator is a character in the story ('I went to the store'). This creates intimacy but limits the reader to that one character's knowledge and biases.\n\n**Third-Person Limited:** The narrator is outside the story but focuses closely on the thoughts and feelings of one specific character ('He felt a sense of dread').\n\n**Third-Person Omniscient:** The narrator is 'all-knowing' and can reveal the thoughts and feelings of any character at any time.",
+          "style": "info"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "A narrator who knows the thoughts of all characters is called...?",
+          "options": ["First-Person", "Third-Person Limited", "Third-Person Omniscient"],
+          "correctAnswer": "Third-Person Omniscient",
+          "explanation": "An omniscient narrator has unlimited knowledge of all characters' thoughts and feelings."
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Figurative Language and Imagery",
+      "description": "Explore the literary devices that transform simple description into vivid, sensory experiences.",
+      "contentType": "text",
+      "unit": "Unit 2: The Language of Fiction",
+      "unitColor": "purple",
+      "estimatedMinutes": 25,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define and identify key types of figurative language: simile, metaphor, and personification.",
+            "Understand imagery as language that appeals to the five senses.",
+            "Analyze how these devices create mood and deeper meaning."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept - Painting with Words",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Great writers don't just tell us what's happening; they make us experience it. They do this through figurative language and imagery. Figurative language uses non-literal comparisons to create a powerful effect. Imagery is the use of vivid, descriptive language that appeals to our senses of sight, sound, smell, taste, and touch. Together, these tools move beyond simple description to create a specific mood and evoke emotion in the reader."
+        },
+        {
+          "type": "heading",
+          "content": "Key Devices",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "**Simile:** A comparison using 'like' or 'as' (e.g., 'The street was as quiet as a graveyard').\n\n**Metaphor:** A direct comparison stating one thing IS another (e.g., 'Her voice was music to his ears').\n\n**Personification:** Giving human qualities to inanimate objects or abstract ideas (e.g., 'The wind whispered through the trees').",
+          "style": "teaching"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "The phrase 'The angry sea crashed against the shore' is an example of...?",
+          "options": ["Simile", "Metaphor", "Personification"],
+          "correctAnswer": "Personification",
+          "explanation": "This gives the sea a human quality (anger), which is the essence of personification."
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Symbolism and Motif",
+      "description": "Learn to identify deeper layers of meaning through symbols and recurring patterns in literature.",
+      "contentType": "text",
+      "unit": "Unit 3: Interpretation and Analysis",
+      "unitColor": "green",
+      "estimatedMinutes": 25,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define a symbol as an object or action that represents a larger idea.",
+            "Define a motif as a recurring element that has symbolic significance.",
+            "Analyze how symbols and motifs contribute to a story's theme."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept - Reading Between the Lines",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Literary analysis often involves looking for deeper layers of meaning. A symbol is something tangible—an object, person, or place—that stands for something intangible, like an idea or emotion. A motif is a recurring symbol, image, or idea that runs throughout a story. By tracking motifs, we can often uncover the story's central themes and messages."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "In 'The Great Gatsby,' the green light at the end of Daisy's dock is a powerful symbol. It represents Gatsby's unattainable dream and his longing for the past. The recurring motif of parties and extravagance throughout the book symbolizes the hollow emptiness of the Jazz Age.",
+          "style": "teaching"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "A recurring image or idea that helps develop a theme is called a...?",
+          "options": ["Symbol", "Motif", "Metaphor"],
+          "correctAnswer": "Motif",
+          "explanation": "A motif is specifically a recurring element that contributes to the overall theme."
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Theme - The Central Idea",
+      "description": "Discover how to identify and articulate the universal messages that great literature conveys.",
+      "contentType": "text",
+      "unit": "Unit 3: Interpretation and Analysis",
+      "unitColor": "green",
+      "estimatedMinutes": 25,
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "items": [
+            "Define theme as the central, underlying message or 'big idea' of a story.",
+            "Differentiate theme from plot and subject.",
+            "Learn to formulate a theme statement."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Concept - What is the Story Really About?",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The theme is the universal message about life, society, or human nature that the author communicates through the story. It is not the subject (e.g., 'war') but a statement about the subject (e.g., 'War reduces human beings to their most primal instincts'). The theme is rarely stated directly; instead, the reader must infer it by analyzing the plot, characters, conflicts, and symbols."
+        },
+        {
+          "type": "heading",
+          "content": "Example",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "The subject of 'Romeo and Juliet' is a feud between two families. The plot is about two young lovers who die tragically. A central theme, however, is that 'Unchecked hatred and passion can lead to devastating consequences.' This is a universal message that applies far beyond the specific characters and events of the play.",
+          "style": "teaching"
+        },
+        {
+          "type": "heading",
+          "content": "Knowledge Check",
+          "level": 2
+        },
+        {
+          "type": "quiz",
+          "question": "Which of the following is the best example of a theme?",
+          "options": ["The story is about a robot.", "Love is a powerful and often destructive force.", "The climax happens in the third act."],
+          "correctAnswer": "Love is a powerful and often destructive force.",
+          "explanation": "A theme is a complete statement about a universal concept, not just a subject or plot element."
+        }
+      ]
+    }
+  ]
+}

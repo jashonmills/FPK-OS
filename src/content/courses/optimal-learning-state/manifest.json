@@ -1,0 +1,547 @@
+{
+  "courseId": "optimal-learning-state",
+  "courseSlug": "optimal-learning-state",
+  "contentVersion": "v2",
+  "title": "Empowering Learning: Optimal Learning State",
+  "description": "Master techniques to achieve the most effective learning state for success",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Introduction",
+      "description": "Getting Into The Most Effective Learning State",
+      "contentType": "video+text",
+      "video": {
+        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/learning-state-course/Module%201%20(a)%20-%20Learning%20State%20Introduction.mp4",
+        "title": "Getting Into The Most Effective Learning State - Introduction"
+      },
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Getting Into The Most Effective Learning State",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Firstly, let's get one thing straight from the beginning: every child can learn. Every child is born with creativity, imagination and a desire to gain knowledge. Most students will experience an educational system based on a 250-year-old model that rewards children who can sit down, be quiet and regurgitate the information they hear, on demand for an exam or test. This does not reflect real life in any way, shape or form."
+        },
+        {
+          "type": "paragraph",
+          "content": "By undertaking these programmes, we hope that you and your child will develop the skills to calm your nervous system, reduce overload and develop a life-long love of learning, while never doubting your ability to do so. The following content is designed to help you create the most effective learning state for your child to give the best chance of being successful in their educational journey."
+        },
+        {
+          "type": "paragraph",
+          "content": "By arming them with these simple techniques, they will be empowered to take control of their mental, emotional and visual systems, creating calmness within. It is almost impossible to learn when stressed, so this calmness is essential to our ability to grasp new concepts and knowledge."
+        },
+        {
+          "type": "paragraph",
+          "content": "Some of these approaches will be really effective for your child, others may be less so, hence why we offer a range of tools which allow each learner to find what works best for them individually. This can present challenges for us as parents, as we may learn in a completely different way and it can be hard to grasp the fact that our children gain knowledge through, sometimes, completely opposing paths than us. So, one piece of advice, follow your child's lead, and be curious as to how they learn; they have innate skills that they understand better than anyone else on this planet!"
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "Every child can learn. The key is finding the right approach that works for them individually and creating a calm, stress-free learning environment."
+        }
+      ],
+      "unit": "Foundation",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 2,
+      "title": "Learning Techniques",
+      "description": "Overview of techniques for optimal learning",
+      "contentType": "video+text",
+      "video": {
+        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/learning-state-course/Module%201%20(b)%20-%20Learning%20Techniques.mp4",
+        "title": "Learning Techniques Overview"
+      },
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Techniques",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Below, we will outline a range of techniques useful for achieving our most effective learning state. Take your time, see what works, and be flexible. This might be different on any given day. All of the techniques are just as appropriate for parents, teachers, and children. Note that children who are stressed and have difficulty self-regulating easily pick up the stress of others."
+        },
+        {
+          "type": "heading",
+          "content": "The Why, When, What and How:",
+          "level": 3
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "Why? People can only learn or think clearly when they are calm and relaxed. It is almost impossible to learn when stressed."
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "When? When you wake up, spend a few minutes getting into an effective learning state. Repeat it whenever you are about to concentrate or are feeling confused, and when trying to get to sleep."
+        },
+        {
+          "type": "callout",
+          "style": "warning",
+          "content": "What? Just think back to when you learned a new skill easily. You could probably choose what it was and what motivated you to learn and practice. So give your child as much choice as possible."
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "How? There are several ways to enter an effective learning state. Give each one some time and allow yourself to find what works best for you and your child."
+        }
+      ],
+      "unit": "Foundation",
+      "unitColor": "bg-blue-100 text-blue-700"
+    },
+    {
+      "id": 3,
+      "title": "Big Strong Tree",
+      "description": "Planting and grounding technique",
+      "contentType": "video+text",
+      "video": {
+        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/learning-state-course/Module-2-Learning%20State/Module%202%20-%20Planting%20(Grounding).mp4",
+        "title": "Big Strong Tree - Planting (Grounding)"
+      },
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Planting (Grounding): Big Strong Tree",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Stand up (sitting also works if you cannot stand) and follow the instructions below."
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "Big Strong Tree Steps:",
+          "items": [
+            "You will know if you are feeling grounded or not. If you are not grounded, you will likely be very wobbly or slightly unsteady on your feet.",
+            "Breathing in and out through your nose, close your eyes and slow your breathing down.",
+            "Picture yourself as a big strong tree, the biggest, strongest tree in the forest.",
+            "You're so strong, nothing can knock you over.",
+            "Now picture the roots of the tree coming out of your feet and going into the ground, spreading really far and wide, connecting you even more to the ground.",
+            "Picture all the stress and worry in your body leaving through the roots and disappearing into the ground.",
+            "Now picture all the strength and positive energy you need coming in through the roots and filling your body with power.",
+            "Now notice your breath and see how much more solid you are."
+          ]
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "The Big Strong Tree technique helps you feel grounded and stable. Practice this technique whenever you feel wobbly, anxious, or need to center yourself before learning or any challenging activity."
+        }
+      ],
+      "unit": "Grounding Techniques",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 4,
+      "title": "Your Energy Bear",
+      "description": "Using your energy bear for grounding",
+      "contentType": "video+text",
+      "video": {
+        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/learning-state-course/Module-3-Learning%20State/Module%203%20-%20The%20Energy%20Bear.mp4",
+        "title": "Your Energy Bear"
+      },
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Your Energy Bear",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The Energy Bear is a great little activity that Anne Smith, an Empowering Learning Practitioner, created. For any child, having an Energy Bear allows them to get grounded and regulate their own energy. If you or your child have a cuddly bear, why not make it your very own Energy Bear."
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "Find a cuddly bear (or imagine one) and make it your Energy Bear. Whenever you feel worried or overwhelmed, give all your troubles to your Energy Bear and let them help you feel grounded and calm. Bears are very grounded because bears are very rounded, and they like lots of laughs! Let the bears take your cares, sink them deep in the ground, then they become clear for the next time around."
+        }
+      ],
+      "unit": "Grounding Techniques",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 5,
+      "title": "5, 4, 3, 2, 1 Technique",
+      "description": "Sensory grounding method",
+      "contentType": "video+text",
+      "video": {
+        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/learning-state-course/Module-4-Learning%20State/Module%204%20-%205,%204,%203,%202,%201%20Grounding.mp4",
+        "title": "5, 4, 3, 2, 1 Grounding Technique"
+      },
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Grounding: The 5, 4, 3, 2, 1 Technique",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The 5, 4, 3, 2, 1 technique is a simple way of getting yourself grounded and ready to learn. Follow the steps below to help you focus and get present."
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "The Five Steps:",
+          "items": [
+            "Say 5 things that you can see",
+            "Say 4 things you can touch",
+            "Say 3 things you can hear",
+            "Say 2 things you can smell",
+            "Say 1 thing you can taste"
+          ]
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "This grounding technique uses your five senses to bring you into the present moment. It's particularly helpful when you feel anxious, overwhelmed, or need to focus before learning or working."
+        }
+      ],
+      "unit": "Grounding Techniques",
+      "unitColor": "bg-green-100 text-green-700"
+    },
+    {
+      "id": 6,
+      "title": "Labyrinths",
+      "description": "Using labyrinths for focus and brain integration",
+      "contentType": "video+text",
+      "video": {
+        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/learning-state-course/Module-5-Learning%20State/Module%205%20-%20Labyrinth.mp4",
+        "title": "Labyrinths for Learning Focus"
+      },
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Labyrinths",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Before we start working, doing labyrinths can help to get us focused. Grab a pencil or colour (or just use your finger to trace around the labyrinth) until you arrive at the centre point. Then trace the route back again. After you have done this, then you can start your work. Labyrinths help with lots of right/left brain integration."
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "Benefits of Labyrinth Practice:",
+          "items": [
+            "Brain Integration: Helps connect left and right brain hemispheres",
+            "Focus Enhancement: Calms the mind and improves concentration",
+            "Stress Reduction: Meditative tracing reduces anxiety",
+            "Preparation: Gets you ready for learning and work"
+          ]
+        }
+      ],
+      "unit": "Focus Techniques",
+      "unitColor": "bg-purple-100 text-purple-700"
+    },
+    {
+      "id": 7,
+      "title": "Box Breathing",
+      "description": "Breathing technique for calm and control",
+      "contentType": "video+text",
+      "video": {
+        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/learning-state-course/Module-6-Learning%20State/Module%206%20-%20Box%20Breathing.mp4",
+        "title": "Box Breathing Technique"
+      },
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Breathing: Box Breathing",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Box breathing is a tool we use constantly, both for ourselves and the people we work with. This technique allows you to regulate your breathing and control your nervous system. Plus, it is so simple."
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "Box Breathing Steps:",
+          "items": [
+            "Begin by closing your eyes or keeping them open and commit to focusing on your breathing",
+            "Breathe in for four seconds through your nose. Deep into your belly, filling your whole lungs without raising your shoulders",
+            "Hold your breath for four seconds",
+            "Breathe out, through your nose, for four seconds or a little longer. Breathe out nice and slowly, controlling your breath",
+            "Hold your breath for four seconds",
+            "Continue this process until you feel yourself calming down"
+          ]
+        },
+        {
+          "type": "callout",
+          "style": "warning",
+          "content": "Breathing in and out through your nose has many benefits, especially in sending calming messages to your nervous system. Mouth breathing is more excitable and stressful, increasing overload. This is the best way to breathe 24x7."
+        }
+      ],
+      "unit": "Breathing Techniques",
+      "unitColor": "bg-indigo-100 text-indigo-700"
+    },
+    {
+      "id": 8,
+      "title": "Phoenix Flames Breath",
+      "description": "Empowering breath technique",
+      "contentType": "video+text",
+      "video": {
+        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/learning-state-course/Module-7-%20Learning%20State/Module%207%20-%20Dragon%20Fire%20Breath.mp4",
+        "title": "Phoenix Flames Breath"
+      },
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Phoenix Flames Breath",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Breathe like a magical firebird and rise into your power"
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "Phoenix Breath Steps:",
+          "items": [
+            "Imagine You Are a Phoenix: Close your eyes and picture yourself as a Phoenix – a magical bird made of fire and light",
+            "Wings Up – Big Breathe In: Hold your arms by your sides like wings. Take a big deep breath in through your nose while you slowly lift your arms up above your head",
+            "Fire Breath Out: Breathe out with a strong 'HAAAH!' sound through your mouth, as if you're breathing out fire. Sweep your arms back down slowly, like powerful wings",
+            "Rest in the Ashes: Pause for a moment after you breathe out. Feel still and calm",
+            "Repeat the Phoenix Breath: Do this breath five times (or more if you like). With each breath, imagine you're getting braver, stronger, and calmer",
+            "Phoenix Power Pose: Place your hands gently on your chest and say: 'I am strong. I am calm. I can rise like a Phoenix.'"
+          ]
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "The Phoenix Breath is perfect for releasing stress, anger, or nervous energy. Use it when you need to feel empowered and ready to tackle challenges with confidence and calm strength."
+        }
+      ],
+      "unit": "Breathing Techniques",
+      "unitColor": "bg-indigo-100 text-indigo-700"
+    },
+    {
+      "id": 9,
+      "title": "Sand Timer",
+      "description": "Using timers for regulation and focus",
+      "contentType": "video+text",
+      "video": {
+        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/learning-state-course/Module-8-Learning%20State/Module%208%20-%20The%20Sand%20Timer.mp4",
+        "title": "Sand Timer Technique"
+      },
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Sand Timer",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The Sand Timer can really help us still our minds when we feel we are becoming or have become dysregulated, and it can help us get ready to learn. You can use different time lengths for various activities."
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "How to Use the Sand Timer:",
+          "items": [
+            "Sit on a chair with a sand timer in front of you",
+            "Watch all the grains of sand fall to the bottom. Your only job whilst they are falling is to relax, breathe gently and get grounded",
+            "Now you are ready to start learning!"
+          ]
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "It is a handy tool to empower your child by turning over a sand timer when they are getting overwhelmed, before a full meltdown. Once the child turns over the sand timer, don't communicate with them until the stress has passed, avoiding sensory overload."
+        }
+      ],
+      "unit": "Regulation Tools",
+      "unitColor": "bg-orange-100 text-orange-700"
+    },
+    {
+      "id": 10,
+      "title": "Raising Book/Screen",
+      "description": "Optimal positioning for learning materials",
+      "contentType": "video+text",
+      "video": {
+        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/learning-state-course/Module-9-Learning%20State/Module%209%20-%20Raising%20Up%20Book_Screen.mp4",
+        "title": "Raising Up Book/Screen Technique"
+      },
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Techniques for Enhancing Your Child's Learning",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Once you have practised and found which techniques work best for your child, here are some simple, but highly important elements to remember and incorporate into working on increasing your child's knowledge in any given subject."
+        },
+        {
+          "type": "heading",
+          "content": "Raising up of book/screen:",
+          "level": 3
+        },
+        {
+          "type": "paragraph",
+          "content": "Traditionally, when we are doing work/homework, we sit with the book/tablet lying on a table and we look down at it. When we look down, this takes us into our emotions and internal dialogue and if we have a negative emotion attached to learning or our ability to do work, this negative emotion will likely come to the surface."
+        },
+        {
+          "type": "paragraph",
+          "content": "By simply propping up the book or tablet can help us lift our heads, that way we are looking straight ahead, or even better looking up, and not going into our emotions which can help build our confidence to do the work in front of us."
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "Optimal Position Benefits:",
+          "items": [
+            "Book/tablet propped up or elevated",
+            "Looking straight ahead or slightly up",
+            "Avoids emotional triggers",
+            "Builds confidence",
+            "Improves learning readiness"
+          ]
+        }
+      ],
+      "unit": "Learning Environment",
+      "unitColor": "bg-yellow-100 text-yellow-700"
+    },
+    {
+      "id": 11,
+      "title": "Looking Up",
+      "description": "Visual positioning techniques",
+      "contentType": "video+text",
+      "video": {
+        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/learning-state-course/Module-10-Learning%20State/Module%2010%20-%20Looking%20Up.mp4",
+        "title": "Looking Up Technique"
+      },
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Looking Up",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Following on from the above, we need to look up when we are trying to learn anything. Get a whiteboard or stick post-it notes on the wall for things you have to learn to help your visual learning. You can even write an essay while writing on paper on the wall—anything to reduce the emotional charge. This also helps if you need to move around to help you learn."
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "Why Look Up? Looking up while learning helps you:",
+          "items": [
+            "Access visual memory more effectively",
+            "Reduce emotional charge associated with learning",
+            "Stay out of negative internal dialogue",
+            "Maintain a more confident learning state",
+            "Support natural movement during learning"
+          ]
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "Practical Applications:",
+          "items": [
+            "Use a Whiteboard: Mount a whiteboard on the wall at eye level or slightly above",
+            "Post-it Notes on Walls: Stick post-it notes with key information around your learning space",
+            "Wall Writing: Try writing essays or taking notes on paper attached to the wall"
+          ]
+        }
+      ],
+      "unit": "Learning Environment",
+      "unitColor": "bg-yellow-100 text-yellow-700"
+    },
+    {
+      "id": 12,
+      "title": "Working Time Limits",
+      "description": "Managing focus and concentration periods",
+      "contentType": "video+text",
+      "video": {
+        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/learning-state-course/Module-11-Learning%20State/Module%2011%20-%20Working%20Time%20Limits.mp4",
+        "title": "Working Time Limits"
+      },
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Working Time Limits",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "If you struggle to concentrate for long, set Working Time Limits for yourself. We are all different so we need to play around to find what amount of time works best for us. Pick a time to work for, set it on your phone and when your time is up, then you can take a break, but use the timers for your break also."
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "How to Set Up Time Limits:",
+          "items": [
+            "Choose your work duration: Start with what feels manageable (5, 10, 15, or 25 minutes)",
+            "Set your timer: Use your phone, watch, or any timer device",
+            "Work with focus: Commit to working until the timer goes off",
+            "Take a timed break: Set another timer for your break period",
+            "Adjust as needed: If you struggled, try a shorter time block next"
+          ]
+        },
+        {
+          "type": "callout",
+          "style": "success",
+          "content": "Key Principles:",
+          "items": [
+            "Flexibility: Adjust times based on your attention span",
+            "Commitment: Once you set a timer, stick to it",
+            "Progressive: Gradually increase work times as focus improves",
+            "Choice: Having control over your time increases motivation",
+            "Breaks matter: Timed breaks prevent burnout"
+          ]
+        }
+      ],
+      "unit": "Learning Environment",
+      "unitColor": "bg-yellow-100 text-yellow-700"
+    },
+    {
+      "id": 13,
+      "title": "Use Their Imagination",
+      "description": "Developing visualization and creative thinking",
+      "contentType": "video+text",
+      "video": {
+        "url": "https://zgcegkmqfgznbpdplscz.supabase.co/storage/v1/object/public/learning-state-course/Module-12-Learning%20State/Module%2012%20-%20Use%20Their%20Imagination.mp4",
+        "title": "Use Their Imagination"
+      },
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Use Their Imagination",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "It is so important for us to keep using our imagination as this is where wonderful ideas come from. Here is a really simple way of using our imaginations to help us learn:"
+        },
+        {
+          "type": "callout",
+          "style": "info",
+          "content": "Imagination Exercise:",
+          "items": [
+            "Picture your favourite animal",
+            "How many of your favourite animals are there in your head right now?",
+            "What colours are they?",
+            "Can you pick one out to focus on?",
+            "What does this one look like? What is it doing?",
+            "Can it talk? If so, what is it saying?",
+            "Is it moving around?",
+            "Can you get it to freeze? Imagine you have a remote control and press pause",
+            "What is happening in your body right now?",
+            "Remember there are no right answers for your imagination, it is yours"
+          ]
+        },
+        {
+          "type": "callout",
+          "style": "teaching",
+          "content": "Allow children to explore their imagination freely without correction or judgment. This builds confidence in their creative abilities and helps them develop the skill of mental imagery, which is valuable for learning and problem-solving."
+        }
+      ],
+      "unit": "Creativity Tools",
+      "unitColor": "bg-pink-100 text-pink-700"
+    }
+  ]
+}

@@ -1,0 +1,342 @@
+{
+  "courseId": "world-history-ancient-to-modern",
+  "courseSlug": "world-history-ancient-to-modern",
+  "contentVersion": "v2",
+  "title": "World History: Ancient Civilizations to the Modern Era",
+  "description": "A sweeping survey of human history, tracing the development of societies, cultures, and empires from the ancient world to the interconnected global stage of today.",
+  "backgroundImage": "/course-images/world-history-ancient-to-modern-bg.jpg",
+  "estimatedHours": 10,
+  "difficultyLevel": "intermediate",
+  "category": "History & Social Studies",
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Early Humans and the Agricultural Revolution",
+      "description": "Describe the lifestyle of early hunter-gatherer societies and the profound impact of farming on civilization.",
+      "contentType": "text",
+      "estimatedMinutes": 30,
+      "unit": "The Ancient World",
+      "unitColor": "amber",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Describe the lifestyle of early hunter-gatherer societies.",
+            "Define the Neolithic (Agricultural) Revolution.",
+            "Analyze the profound impact of farming on the development of human civilization."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "From Foraging to Farming",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "For most of human history, our ancestors lived as nomadic hunter-gatherers, constantly moving in search of food. Around 10,000 BCE, a monumental shift occurred: the Neolithic Revolution. Humans began to domesticate plants and animals, transitioning from a nomadic lifestyle to settled agriculture. This was arguably the single most important event in human history, as it allowed for permanent settlements, food surpluses, and population growth, which in turn paved the way for everything that followed: cities, governments, writing, and complex societies."
+        },
+        {
+          "type": "heading",
+          "content": "Consequences of the Revolution",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "Permanent Settlements: Farming required people to stay in one place, leading to the first villages and towns.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "Food Surplus & Specialization: For the first time, societies could produce more food than they needed. This allowed some people to specialize in other jobs, such as artisans, priests, and soldiers.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "Social Hierarchy: The accumulation of land and resources led to the development of social classes and hierarchies, a departure from the more egalitarian hunter-gatherer bands.",
+          "style": "warning"
+        },
+        {
+          "type": "quiz",
+          "question": "What was the most significant change brought about by the Agricultural Revolution?",
+          "options": ["The invention of writing", "The transition from a nomadic to a settled lifestyle", "The creation of the first empires"],
+          "correctAnswer": "The transition from a nomadic to a settled lifestyle",
+          "explanation": "Remember, the ability to farm is what allowed humans to stop moving and build settlements."
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "The First Civilizations - Mesopotamia and Egypt",
+      "description": "Explore the key characteristics of civilization and compare Mesopotamia and Egypt.",
+      "contentType": "text",
+      "estimatedMinutes": 35,
+      "unit": "The Ancient World",
+      "unitColor": "amber",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Locate Mesopotamia and Egypt on a map and identify their key rivers.",
+            "Describe the key characteristics of a civilization (cities, government, religion, writing).",
+            "Compare the political and religious structures of Mesopotamia and Egypt."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Cradles of Civilization",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The world's first civilizations emerged in fertile river valleys. In Mesopotamia, the 'land between the rivers' Tigris and Euphrates, city-states like Sumer developed. In Egypt, civilization arose along the banks of the Nile River. Both societies developed the key features we associate with civilization: large cities, centralized governments led by kings or pharaohs, complex polytheistic religions, social hierarchies, and, crucially, systems of writing (cuneiform in Mesopotamia, hieroglyphics in Egypt)."
+        },
+        {
+          "type": "heading",
+          "content": "Comparison",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "Mesopotamia: Politically fragmented into warring city-states. Had a pessimistic worldview, reflected in their unpredictable rivers and harsh gods. Developed Hammurabi's Code, one of the first written law codes.",
+          "style": "info"
+        },
+        {
+          "type": "callout",
+          "content": "Egypt: Politically unified under a single, divine pharaoh. Had an optimistic worldview, based on the predictable, life-giving flood of the Nile. Focused heavily on the afterlife, leading to the construction of pyramids and mummification.",
+          "style": "info"
+        },
+        {
+          "type": "quiz",
+          "question": "The first system of writing, cuneiform, was developed in which civilization?",
+          "options": ["Egypt", "Mesopotamia", "Indus Valley"],
+          "correctAnswer": "Mesopotamia",
+          "explanation": "Remember, cuneiform is associated with Sumer in Mesopotamia."
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Classical Civilizations - Greece and Rome",
+      "description": "Identify the contributions of ancient Greece and Rome and analyze their lasting legacy.",
+      "contentType": "text",
+      "estimatedMinutes": 35,
+      "unit": "The Ancient World",
+      "unitColor": "amber",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Identify the contributions of ancient Greece in philosophy, democracy, and drama.",
+            "Describe the transition of Rome from a Republic to an Empire.",
+            "Analyze the lasting legacy of Greco-Roman civilization on Western culture."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Foundations of the West",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The classical civilizations of Greece and Rome laid the cultural, political, and intellectual foundations for what would become Western civilization. The Greeks, organized in city-states like Athens and Sparta, gave us democracy, rational philosophy (Socrates, Plato, Aristotle), epic poetry, and theater. The Romans, initially a Republic and later a vast Empire, were master engineers, lawyers, and administrators who absorbed Greek culture and spread it across the Mediterranean world."
+        },
+        {
+          "type": "heading",
+          "content": "Key Legacies",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "Greek Legacy: Democracy (rule by the people), Philosophy (the use of reason to understand the world), and the foundations of scientific thought.",
+          "style": "teaching"
+        },
+        {
+          "type": "callout",
+          "content": "Roman Legacy: The Latin language (root of many modern languages), principles of law and justice, massive engineering projects (aqueducts, roads), and the structure of a republic.",
+          "style": "teaching"
+        },
+        {
+          "type": "quiz",
+          "question": "The concept of democracy originated in which ancient Greek city-state?",
+          "options": ["Sparta", "Corinth", "Athens"],
+          "correctAnswer": "Athens",
+          "explanation": "Remember, Athens is the birthplace of democracy."
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "The Rise of Major Religions and Trade Networks",
+      "description": "Describe the rise and spread of Christianity and Islam and the importance of major trade routes.",
+      "contentType": "text",
+      "estimatedMinutes": 30,
+      "unit": "The Post-Classical Era",
+      "unitColor": "green",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Describe the rise and spread of Christianity and Islam.",
+            "Identify the importance of major trade routes like the Silk Road.",
+            "Analyze how trade and religion facilitated cultural diffusion."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "Connecting the World",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "After the fall of the classical empires, new forces began to connect the world in different ways. The spread of major universalizing religions, particularly Christianity in the West and Islam across the Middle East, North Africa, and Asia, created vast new cultural zones. At the same time, extensive trade networks, most famously the Silk Road, linked China with the Mediterranean, allowing not just goods, but also ideas, technologies, and diseases to spread across continents."
+        },
+        {
+          "type": "heading",
+          "content": "Cultural Diffusion",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Cultural diffusion is the spread of cultural beliefs and social activities from one group of people to another. The Silk Road is a prime example. Chinese inventions like paper and gunpowder traveled west, while religions like Buddhism traveled east. This interconnectedness, driven by both faith and profit, was a defining feature of the post-classical era."
+        },
+        {
+          "type": "quiz",
+          "question": "The famous overland trade route that connected China to the Mediterranean was known as the...?",
+          "options": ["Spice Route", "Silk Road", "Trans-Saharan Route"],
+          "correctAnswer": "Silk Road",
+          "explanation": "Remember, the Silk Road was the primary land route for luxury goods from China."
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "The Age of Exploration and the Columbian Exchange",
+      "description": "Identify the motivations for European exploration and analyze the impact of the Columbian Exchange.",
+      "contentType": "text",
+      "estimatedMinutes": 35,
+      "unit": "Early Modern & Modern Eras",
+      "unitColor": "blue",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Identify the motivations for European maritime exploration.",
+            "Define the Columbian Exchange.",
+            "Analyze the massive global impact of the linking of the Eastern and Western Hemispheres."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "A New World",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "Beginning in the late 15th century, European nations like Portugal and Spain embarked on ambitious voyages of exploration, seeking new trade routes to Asia. Christopher Columbus's voyage in 1492, however, unexpectedly connected Europe with the Americas, two continents that had been isolated from each other for millennia. This event triggered the Columbian Exchange: the widespread transfer of plants, animals, culture, human populations, technology, diseases, and ideas between the Americas, West Africa, and the Old World."
+        },
+        {
+          "type": "heading",
+          "content": "The Exchange",
+          "level": 2
+        },
+        {
+          "type": "callout",
+          "content": "From the Americas to Europe: Corn, potatoes, tomatoes, tobacco, and cacao. These new crops revolutionized European agriculture and diets.",
+          "style": "success"
+        },
+        {
+          "type": "callout",
+          "content": "From Europe to the Americas: Horses, cattle, pigs, wheat, and sugar cane. But also devastating diseases like smallpox, which wiped out up to 90% of the indigenous population.",
+          "style": "warning"
+        },
+        {
+          "type": "quiz",
+          "question": "Which of these was a consequence of the Columbian Exchange?",
+          "options": ["The introduction of potatoes to Europe", "The fall of the Roman Empire", "The invention of the printing press"],
+          "correctAnswer": "The introduction of potatoes to Europe",
+          "explanation": "Think about the transfer of plants and animals between the two hemispheres."
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "The Modern World - Revolutions and Globalization",
+      "description": "Understand the key revolutions that shaped the modern world and the concept of globalization.",
+      "contentType": "text",
+      "estimatedMinutes": 35,
+      "unit": "Early Modern & Modern Eras",
+      "unitColor": "blue",
+      "sections": [
+        {
+          "type": "heading",
+          "content": "Objectives",
+          "level": 2
+        },
+        {
+          "type": "list",
+          "content": "Learning objectives for this lesson",
+          "items": [
+            "Identify the key ideas of the Scientific Revolution and the Enlightenment.",
+            "Define the Industrial Revolution and its impact on society.",
+            "Understand globalization as the increasing interconnectedness of the modern world."
+          ]
+        },
+        {
+          "type": "heading",
+          "content": "The Age of Revolutions",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "The modern era was forged by a series of profound revolutions. The Scientific Revolution established a new way of understanding the natural world through observation and reason. The Enlightenment applied these ideas to human society, promoting concepts like liberty, rights, and democracy, which fueled political revolutions in America and France. The Industrial Revolution, beginning in Britain, fundamentally changed how goods were produced and how people lived, leading to urbanization and a new global economy."
+        },
+        {
+          "type": "heading",
+          "content": "Globalization",
+          "level": 2
+        },
+        {
+          "type": "paragraph",
+          "content": "In the 20th and 21st centuries, these trends have accelerated into what we call globalization. Driven by new technologies in communication (internet) and transportation (air travel), the world has become more interconnected than ever before. This has led to massive economic growth and cultural exchange, but also presents new challenges like climate change, economic inequality, and the rapid spread of information and disease."
+        },
+        {
+          "type": "quiz",
+          "question": "The 18th-century intellectual movement that promoted reason, liberty, and the rights of man was called the...?",
+          "options": ["Renaissance", "Reformation", "Enlightenment"],
+          "correctAnswer": "Enlightenment",
+          "explanation": "Remember, the Enlightenment provided the philosophical fuel for the American and French Revolutions."
+        }
+      ]
+    }
+  ]
+}

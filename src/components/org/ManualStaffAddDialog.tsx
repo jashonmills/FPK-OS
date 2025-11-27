@@ -1,0 +1,324 @@
+import React, { useState } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { UserPlus, Loader2, Copy, Check } from 'lucide-react';
+
+interface ManualStaffAddDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  organizationId: string;
+  onSuccess?: () => void;
+}
+
+export function ManualStaffAddDialog({
+  open,
+  onOpenChange,
+  organizationId,
+  onSuccess,
+}: ManualStaffAddDialogProps) {
+  const { toast } = useToast();
+  const [email, setEmail] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [role, setRole] = useState<'admin' | 'instructor' | 'instructor-aide' | 'viewer'>('instructor');
+  const [isLoading, setIsLoading] = useState(false);
+  const [magicLink, setMagicLink] = useState<string | null>(null);
+  const [memberEmail, setMemberEmail] = useState<string>('');
+  const [copied, setCopied] = useState(false);
+
+  const handleAdd = async () => {
+    if (!email.trim() || !firstName.trim() || !lastName.trim()) {
+      toast({
+        title: 'Missing information',
+        description: 'Please fill in all required fields.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Validate email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast({
+        title: 'Invalid email',
+        description: 'Please enter a valid email address.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      // Call edge function to manually add staff member
+      const { data, error } = await supabase.functions.invoke('add-staff-member', {
+        body: {
+          orgId: organizationId,
+          email: email.trim(),
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
+          role,
+        },
+      });
+
+      if (error) {
+        console.error('Function invocation error:', error);
+        throw error;
+      }
+
+      if (!data?.success) {
+        const errorMessage = data?.code === 'ALREADY_MEMBER' 
+          ? 'This user is already a member of the organization'
+          : data?.error || 'Failed to add staff member';
+        throw new Error(errorMessage);
+      }
+
+      // Set magic link if available
+      if (data.magicLink) {
+        setMagicLink(data.magicLink);
+        setMemberEmail(data.email);
+      }
+
+      toast({
+        title: 'Staff member added',
+        description: `${firstName} ${lastName} has been added as ${
+          role === 'admin' ? 'an Admin' :
+          role === 'instructor-aide' ? 'an Instructor Aide' : 
+          role === 'instructor' ? 'an Instructor' : 
+          'a Viewer'
+        }.`,
+      });
+
+      // Track analytics
+      await supabase.from('activity_log').insert({
+        user_id: (await supabase.auth.getUser()).data.user?.id,
+        org_id: organizationId,
+        event: 'staff_added_manually',
+        metadata: {
+          role,
+          email: email.trim(),
+          method: 'manual',
+        },
+      });
+
+      // Only close if no magic link to show
+      if (!data.magicLink) {
+        setEmail('');
+        setFirstName('');
+        setLastName('');
+        setRole('instructor');
+        onOpenChange(false);
+      }
+      
+      onSuccess?.();
+    } catch (error: any) {
+      console.error('Error adding staff member:', error);
+      toast({
+        title: 'Failed to add staff member',
+        description: error.message || 'There was an error adding the staff member.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleClose = () => {
+    if (!isLoading) {
+      setEmail('');
+      setFirstName('');
+      setLastName('');
+      setRole('instructor');
+      setMagicLink(null);
+      setMemberEmail('');
+      setCopied(false);
+      onOpenChange(false);
+    }
+  };
+
+  const copyToClipboard = async () => {
+    if (!magicLink) return;
+    
+    try {
+      await navigator.clipboard.writeText(magicLink);
+      setCopied(true);
+      toast({
+        title: 'Copied!',
+        description: 'Login link copied to clipboard',
+      });
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to copy link',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent className="sm:max-w-[600px]">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <UserPlus className="h-5 w-5" />
+            {magicLink ? 'Member Added Successfully' : 'Add Staff Member Manually'}
+          </DialogTitle>
+          <DialogDescription>
+            {magicLink 
+              ? 'Copy the login link below and send it to the new member'
+              : 'Directly add a staff member to your organization. They will receive a welcome email with access instructions.'
+            }
+          </DialogDescription>
+        </DialogHeader>
+
+        {magicLink ? (
+          <div className="space-y-4 py-4">
+            <Alert>
+              <AlertDescription>
+                Share this one-time login link with <strong>{memberEmail}</strong>. 
+                They can use it to log in and set their own password.
+              </AlertDescription>
+            </Alert>
+
+            <div className="space-y-2">
+              <Label>Login Link</Label>
+              <div className="flex gap-2">
+                <Input
+                  value={magicLink}
+                  readOnly
+                  className="font-mono text-sm"
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={copyToClipboard}
+                  title="Copy to clipboard"
+                >
+                  {copied ? (
+                    <Check className="h-4 w-4 text-green-600" />
+                  ) : (
+                    <Copy className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            <Alert>
+              <AlertDescription className="text-sm">
+                💡 This link expires in 1 hour. The user will be able to set their own password after logging in. A welcome email has also been sent.
+              </AlertDescription>
+            </Alert>
+          </div>
+        ) : (
+          <div className="space-y-4 py-4">
+          <div className="space-y-2">
+            <Label htmlFor="firstName">First Name</Label>
+            <Input
+              id="firstName"
+              placeholder="John"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              disabled={isLoading}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="lastName">Last Name</Label>
+            <Input
+              id="lastName"
+              placeholder="Doe"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              disabled={isLoading}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="email">Email Address</Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="john.doe@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={isLoading}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="role">Role</Label>
+            <Select
+              value={role}
+              onValueChange={(value) => setRole(value as 'admin' | 'instructor' | 'instructor-aide' | 'viewer')}
+              disabled={isLoading}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select role" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="admin">Admin</SelectItem>
+                <SelectItem value="instructor">Instructor</SelectItem>
+                <SelectItem value="instructor-aide">Instructor Aide</SelectItem>
+                <SelectItem value="viewer">Viewer</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              {role === 'admin' && 'Full organization management except subscription changes'}
+              {role === 'instructor' && 'Can create/assign courses and view analytics for their students'}
+              {role === 'instructor-aide' && 'Can assist instructors but cannot modify organization settings'}
+              {role === 'viewer' && 'Read-only access to analytics and rosters'}
+            </p>
+          </div>
+        </div>
+        )}
+
+        <DialogFooter>
+          {magicLink ? (
+            <Button onClick={handleClose}>
+              Done
+            </Button>
+          ) : (
+            <>
+              <Button variant="outline" onClick={handleClose} disabled={isLoading}>
+                Cancel
+              </Button>
+              <Button onClick={handleAdd} disabled={isLoading}>
+                {isLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Adding...
+                  </>
+                ) : (
+                  <>
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    Add Staff Member
+                  </>
+                )}
+              </Button>
+            </>
+          )}
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
