@@ -40,6 +40,8 @@ export default function OrgPortalHome() {
   // Role-based statistics loading - use effective role for impersonation support
   const effectiveRole = getEffectiveRole();
   const isStudent = effectiveRole === 'student';
+  const isInstructor = effectiveRole === 'instructor' || effectiveRole === 'instructor_aide';
+  const isAdminOrOwner = effectiveRole === 'admin' || effectiveRole === 'owner';
   const { analytics, isLoading: analyticsLoading, error: analyticsError } = useComprehensiveOrgAnalytics(
     isStudent ? undefined : currentOrg?.organization_id
   );
@@ -263,33 +265,160 @@ export default function OrgPortalHome() {
     );
   }
 
-  // Role-based statistics cards
-  const stats = isStudent ? [
-    { 
-      label: 'My Enrollments', 
-      value: (studentStats?.myEnrollments || 0).toString(), 
-      icon: BookOpen, 
-      color: 'text-blue-600' 
-    },
-    { 
-      label: 'My Progress', 
-      value: `${studentStats?.myProgress || 0}%`, 
-      icon: TrendingUp, 
-      color: 'text-green-600' 
-    },
-    { 
-      label: 'My Goals', 
-      value: (studentStats?.myGoals || 0).toString(), 
-      icon: Target, 
-      color: 'text-purple-600' 
-    },
-    { 
-      label: 'Completed Courses', 
-      value: (studentStats?.completedCourses || 0).toString(), 
-      icon: Award, 
-      color: 'text-orange-600' 
-    },
-  ] : [
+  // Instructor Dashboard View - teaching-focused
+  if (isInstructor) {
+    return (
+      <div className="space-y-6">
+        <PageHeaderWithHelp
+          title="Instructor Dashboard"
+          description="Manage your students, course assignments, and learning goals"
+          section="dashboard"
+        />
+
+        {/* Instructor Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Card className="bg-orange-500/65 border-orange-400/50">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-white/80">My Students</CardTitle>
+              <Users className="h-4 w-4 text-white/70" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">{analytics?.totalStudents || 0}</div>
+              <button
+                onClick={() => navigate(`/org/${currentOrg?.organization_id}/students`)}
+                className="text-xs text-white/80 hover:text-white hover:underline mt-2 transition-all"
+              >
+                View Students
+              </button>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-orange-500/65 border-orange-400/50">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-white/80">Course Assignments</CardTitle>
+              <BookOpen className="h-4 w-4 text-white/70" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">{analytics?.courseAssignments || 0}</div>
+              <button
+                onClick={() => navigate(`/org/${currentOrg?.organization_id}/courses`)}
+                className="text-xs text-white/80 hover:text-white hover:underline mt-2 transition-all"
+              >
+                Manage Courses
+              </button>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-orange-500/65 border-orange-400/50">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-white/80">Active Goals</CardTitle>
+              <Target className="h-4 w-4 text-white/70" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">{analytics?.activeGoals || 0}</div>
+              <button
+                onClick={() => navigate(`/org/${currentOrg?.organization_id}/goals-notes`)}
+                className="text-xs text-white/80 hover:text-white hover:underline mt-2 transition-all"
+              >
+                Manage Goals
+              </button>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-orange-500/65 border-orange-400/50">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-white/80">Student Progress</CardTitle>
+              <TrendingUp className="h-4 w-4 text-white/70" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">{analytics?.completionRate || 0}%</div>
+              <p className="text-xs text-white/80">Average completion</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Quick Actions for Instructor */}
+        <Card className="bg-orange-500/65 border-orange-400/50">
+          <CardHeader>
+            <CardTitle className="text-white">Quick Actions</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-4">
+              <Button 
+                className="flex items-center space-x-2 bg-white/20 hover:bg-white/30 text-white border-white/30"
+                onClick={() => navigate(`/org/${currentOrg?.organization_id}/students`)}
+              >
+                <Users className="h-4 w-4" />
+                <span>View Students</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                className="flex items-center space-x-2 border-white/30 text-white hover:bg-white/20"
+                onClick={() => navigate(`/org/${currentOrg?.organization_id}/courses`)}
+              >
+                <BookOpen className="h-4 w-4" />
+                <span>Assign Courses</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                className="flex items-center space-x-2 border-white/30 text-white hover:bg-white/20"
+                onClick={() => navigate(`/org/${currentOrg?.organization_id}/goals-notes`)}
+              >
+                <Target className="h-4 w-4" />
+                <span>Create Goals</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                className="flex items-center space-x-2 border-white/30 text-white hover:bg-white/20"
+                onClick={() => navigate(`/org/${currentOrg?.organization_id}/groups`)}
+              >
+                <Users className="h-4 w-4" />
+                <span>Manage Groups</span>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Recent Activity for Instructor */}
+        <Card className="bg-orange-500/65 border-orange-400/50">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center space-x-2">
+              <Calendar className="h-5 w-5 text-white/70" />
+              <span>Recent Student Activity</span>
+            </CardTitle>
+            <CardDescription className="text-white/80">
+              Latest activity from your students
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {analytics?.recentActivity && analytics.recentActivity.length > 0 ? (
+              <div className="space-y-4">
+                {analytics.recentActivity.slice(0, 5).map((activity, index) => (
+                  <div key={index} className="flex items-start space-x-4 p-3 bg-white/10 rounded-lg">
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-white">{activity.event}</p>
+                      <p className="text-xs text-white/70">
+                        {new Date(activity.created_at).toLocaleDateString()} at{' '}
+                        {new Date(activity.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <Calendar className="h-8 w-8 mx-auto text-white/70 mb-2" />
+                <p className="text-sm text-white/80">No recent activity from students</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Admin/Owner Dashboard - statistics cards (no longer need student stats here)
+  const stats = [
     { 
       label: 'Total Students', 
       value: (analytics?.totalStudents || 0).toString(), 
@@ -316,14 +445,14 @@ export default function OrgPortalHome() {
     },
   ];
 
-  const recentActivity = isStudent ? (studentStats?.recentActivity || []) : (analytics?.recentActivity || []);
+  const recentActivity = analytics?.recentActivity || [];
 
   return (
     <div className="space-y-6">
       {/* Page Header with Help Button */}
       <PageHeaderWithHelp
-        title={isStudent ? "My Dashboard" : "Organization Dashboard"}
-        description={isStudent ? "Track your learning progress and achievements" : "Monitor student progress, course assignments, and organizational metrics"}
+        title="Organization Dashboard"
+        description="Monitor student progress, course assignments, and organizational metrics"
         section="dashboard"
       />
 
@@ -332,7 +461,7 @@ export default function OrgPortalHome() {
         {stats.map((stat, index) => {
           const isZero = stat.value === '0' || stat.value === '0%';
           const getCTALink = () => {
-            if (!isZero || isStudent) return null;
+            if (!isZero) return null;
             
             if (stat.label === 'Course Assignments') {
               return {
@@ -382,78 +511,48 @@ export default function OrgPortalHome() {
                 <CardTitle className="flex items-center justify-between text-white">
                   <div className="flex items-center space-x-2">
                     <TrendingUp className="h-5 w-5 text-white/70" />
-                    <span>{isStudent ? 'My Progress' : 'Progress Overview'}</span>
+                    <span>Progress Overview</span>
                   </div>
                   <ChevronDown className="h-5 w-5 text-white/70 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                 </CardTitle>
                 <CardDescription className="text-white/80 text-left">
-                  {isStudent 
-                    ? 'Your personal learning progress in this organization'
-                    : 'Current completion rates across all courses'
-                  }
+                  Current completion rates across all courses
                 </CardDescription>
               </CardHeader>
             </CollapsibleTrigger>
             <CollapsibleContent>
               <CardContent className="space-y-4">
-                {isStudent ? (
-                  studentStats?.myProgress ? (
-                    <div className="space-y-3">
-                      <div className="flex justify-between text-sm text-white/80">
-                        <span>Overall Progress</span>
-                        <span>{studentStats.myProgress}%</span>
+                {analytics && (analytics.completionRate > 0 || analytics.averageProgress > 0) ? (
+                  <div className="space-y-3">
+                    <div className="flex justify-between text-sm text-white/80">
+                      <span>Completion Rate</span>
+                      <span>{analytics.completionRate}%</span>
+                    </div>
+                    <Progress value={analytics.completionRate} className="h-2" />
+                    <div className="grid grid-cols-2 gap-4 text-center mt-4">
+                      <div>
+                        <div className="text-2xl font-bold text-white">{analytics.averageProgress}%</div>
+                        <div className="text-xs text-white/80">Average Progress</div>
                       </div>
-                      <Progress value={studentStats.myProgress} className="h-2" />
-                      <div className="grid grid-cols-2 gap-4 text-center">
-                        <div>
-                          <div className="text-2xl font-bold text-white">{studentStats.myEnrollments}</div>
-                          <div className="text-xs text-white/80">Enrolled</div>
-                        </div>
-                        <div>
-                          <div className="text-2xl font-bold text-white">{studentStats.completedCourses}</div>
-                          <div className="text-xs text-white/80">Completed</div>
-                        </div>
+                      <div>
+                        <div className="text-2xl font-bold text-white">{analytics.totalLearningHours}h</div>
+                        <div className="text-xs text-white/80">Learning Hours</div>
                       </div>
                     </div>
-                  ) : (
-                    <div className="text-center py-8">
-                      <TrendingUp className="h-8 w-8 mx-auto text-white/70 mb-2" />
-                      <p className="text-sm text-white/80">No courses enrolled yet</p>
-                    </div>
-                  )
+                  </div>
                 ) : (
-                  analytics && (analytics.completionRate > 0 || analytics.averageProgress > 0) ? (
-                    <div className="space-y-3">
-                      <div className="flex justify-between text-sm text-white/80">
-                        <span>Completion Rate</span>
-                        <span>{analytics.completionRate}%</span>
-                      </div>
-                      <Progress value={analytics.completionRate} className="h-2" />
-                      <div className="grid grid-cols-2 gap-4 text-center mt-4">
-                        <div>
-                          <div className="text-2xl font-bold text-white">{analytics.averageProgress}%</div>
-                          <div className="text-xs text-white/80">Average Progress</div>
-                        </div>
-                        <div>
-                          <div className="text-2xl font-bold text-white">{analytics.totalLearningHours}h</div>
-                          <div className="text-xs text-white/80">Learning Hours</div>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="text-center py-8">
-                      <TrendingUp className="h-8 w-8 mx-auto text-white/70 mb-2" />
-                      <p className="text-sm text-white/80 mb-3">No progress data available yet</p>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        className="text-white border-white/30 hover:bg-white/20"
-                        onClick={() => navigate(`/org/${currentOrg?.organization_id}/courses`)}
-                      >
-                        Assign First Course
-                      </Button>
-                    </div>
-                  )
+                  <div className="text-center py-8">
+                    <TrendingUp className="h-8 w-8 mx-auto text-white/70 mb-2" />
+                    <p className="text-sm text-white/80 mb-3">No progress data available yet</p>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="text-white border-white/30 hover:bg-white/20"
+                      onClick={() => navigate(`/org/${currentOrg?.organization_id}/courses`)}
+                    >
+                      Assign First Course
+                    </Button>
+                  </div>
                 )}
               </CardContent>
             </CollapsibleContent>
@@ -473,10 +572,7 @@ export default function OrgPortalHome() {
                   <ChevronDown className="h-5 w-5 text-white/70 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                 </CardTitle>
                 <CardDescription className="text-white/80 text-left">
-                  {isStudent 
-                    ? 'Your recent learning activity'
-                    : 'Latest updates from your organization'
-                  }
+                  Latest updates from your organization
                 </CardDescription>
               </CardHeader>
             </CollapsibleTrigger>
@@ -500,9 +596,7 @@ export default function OrgPortalHome() {
                   ) : (
                     <div className="text-center py-8">
                       <Calendar className="h-8 w-8 mx-auto text-white/70 mb-2" />
-                      <p className="text-sm text-white/80">
-                        {isStudent ? 'No recent activity' : 'No recent activity'}
-                      </p>
+                      <p className="text-sm text-white/80">No recent activity</p>
                     </div>
                   )}
                 </div>
@@ -512,9 +606,8 @@ export default function OrgPortalHome() {
         </Collapsible>
       </div>
 
-      {/* Analytics Section - Only show for admin/instructors */}
-      {!isStudent && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Analytics Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Progress Trend */}
           <Card className="bg-orange-500/65 border-orange-400/50">
             <CardHeader>
@@ -616,209 +709,52 @@ export default function OrgPortalHome() {
             </CardContent>
           </Card>
         </div>
-      )}
 
       {/* Quick Actions */}
       <Card className="bg-orange-500/65 border-orange-400/50">
         <CardHeader>
           <CardTitle className="text-white">Quick Actions</CardTitle>
           <CardDescription className="text-white/80">
-            {isStudent 
-              ? 'Common tasks for your learning'
-              : 'Common tasks for organization management'
-            }
+            Common tasks for organization management
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-4">
-            {isStudent ? (
-              <>
-                <Button 
-                  className="flex items-center space-x-2 bg-white/20 hover:bg-white/30 text-white border-white/30"
-                  onClick={() => navigate(`/org/${currentOrg?.organization_id}/courses`)}
-                >
-                  <BookOpen className="h-4 w-4" />
-                  <span>View My Courses</span>
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="flex items-center space-x-2 border-border text-foreground hover:bg-accent"
-                  onClick={() => navigate(`/org/${currentOrg?.organization_id}/goals-notes`)}
-                >
-                  <Target className="h-4 w-4" />
-                  <span>My Goals</span>
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="flex items-center space-x-2 border-border text-foreground hover:bg-accent"
-                  onClick={() => setShowProgressModal(true)}
-                >
-                  <TrendingUp className="h-4 w-4" />
-                  <span>My Progress</span>
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button 
-                  variant="outline" 
-                  className="flex items-center space-x-2 border-border text-foreground hover:bg-accent"
-                  onClick={() => navigate(`/org/${currentOrg?.organization_id}/courses`)}
-                >
-                  <BookOpen className="h-4 w-4" />
-                  <span>Assign Course</span>
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="flex items-center space-x-2 border-border text-foreground hover:bg-accent"
-                  onClick={() => navigate(`/org/${currentOrg?.organization_id}/goals-notes`)}
-                >
-                  <Target className="h-4 w-4" />
-                  <span>Create Goal</span>
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="flex items-center space-x-2 border-border text-foreground hover:bg-accent"
-                  onClick={() => navigate(`/org/${currentOrg?.organization_id}/students`)}
-                >
-                  <Users className="h-4 w-4" />
-                  <span>Invite New Member</span>
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="flex items-center space-x-2 border-border text-foreground hover:bg-accent"
-                  onClick={() => navigate(`/org/${currentOrg?.organization_id}/groups`)}
-                >
-                  <Users className="h-4 w-4" />
-                  <span>Create a New Group</span>
-                </Button>
-              </>
-            )}
+            <Button 
+              variant="outline" 
+              className="flex items-center space-x-2 border-border text-foreground hover:bg-accent"
+              onClick={() => navigate(`/org/${currentOrg?.organization_id}/courses`)}
+            >
+              <BookOpen className="h-4 w-4" />
+              <span>Assign Course</span>
+            </Button>
+            <Button 
+              variant="outline" 
+              className="flex items-center space-x-2 border-border text-foreground hover:bg-accent"
+              onClick={() => navigate(`/org/${currentOrg?.organization_id}/goals-notes`)}
+            >
+              <Target className="h-4 w-4" />
+              <span>Create Goal</span>
+            </Button>
+            <Button 
+              variant="outline" 
+              className="flex items-center space-x-2 border-border text-foreground hover:bg-accent"
+              onClick={() => navigate(`/org/${currentOrg?.organization_id}/students`)}
+            >
+              <Users className="h-4 w-4" />
+              <span>Invite New Member</span>
+            </Button>
+            <Button
+              variant="outline" 
+              className="flex items-center space-x-2 border-border text-foreground hover:bg-accent"
+              onClick={() => navigate(`/org/${currentOrg?.organization_id}/groups`)}
+            >
+              <Users className="h-4 w-4" />
+              <span>Create a New Group</span>
+            </Button>
           </div>
         </CardContent>
       </Card>
-
-      {/* My Progress Modal */}
-      <Dialog open={showProgressModal} onOpenChange={setShowProgressModal}>
-        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5" />
-              My Learning Progress
-            </DialogTitle>
-            <DialogDescription>
-              Your personal learning progress in this organization
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-6 mt-4">
-            {/* Overview Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="p-4 rounded-lg bg-muted">
-                <div className="text-2xl font-bold">{studentStats?.myEnrollments || 0}</div>
-                <div className="text-sm text-muted-foreground">Enrollments</div>
-              </div>
-              <div className="p-4 rounded-lg bg-muted">
-                <div className="text-2xl font-bold">{studentStats?.completedCourses || 0}</div>
-                <div className="text-sm text-muted-foreground">Completed</div>
-              </div>
-              <div className="p-4 rounded-lg bg-muted">
-                <div className="text-2xl font-bold">{studentStats?.myGoals || 0}</div>
-                <div className="text-sm text-muted-foreground">Active Goals</div>
-              </div>
-              <div className="p-4 rounded-lg bg-muted">
-                <div className="text-2xl font-bold">{Math.round(studentStats?.myProgress || 0)}%</div>
-                <div className="text-sm text-muted-foreground">Avg Progress</div>
-              </div>
-            </div>
-
-            {/* Overall Progress */}
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="font-medium">Overall Progress</span>
-                <span className="text-muted-foreground">{Math.round(studentStats?.myProgress || 0)}%</span>
-              </div>
-              <Progress value={studentStats?.myProgress || 0} className="h-2" />
-            </div>
-
-            {/* Course Progress Details */}
-            {studentStats?.myEnrollments > 0 ? (
-              <div className="space-y-3">
-                <h3 className="font-semibold text-sm">Course Details</h3>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between py-2 border-b">
-                    <span className="text-muted-foreground">Total Courses</span>
-                    <span className="font-medium">{studentStats.myEnrollments}</span>
-                  </div>
-                  <div className="flex justify-between py-2 border-b">
-                    <span className="text-muted-foreground">In Progress</span>
-                    <span className="font-medium">
-                      {(studentStats.myEnrollments || 0) - (studentStats.completedCourses || 0)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between py-2 border-b">
-                    <span className="text-muted-foreground">Completed</span>
-                    <span className="font-medium">{studentStats.completedCourses}</span>
-                  </div>
-                  <div className="flex justify-between py-2">
-                    <span className="text-muted-foreground">Active Goals</span>
-                    <span className="font-medium">{studentStats.myGoals}</span>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="text-center py-8 text-muted-foreground">
-                <BookOpen className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                <p>No courses enrolled yet</p>
-                <p className="text-sm mt-2">Start by viewing available courses</p>
-                <Button 
-                  className="mt-4"
-                  onClick={() => {
-                    setShowProgressModal(false);
-                    navigate(`/org/${currentOrg?.organization_id}/courses`);
-                  }}
-                >
-                  View Courses
-                </Button>
-              </div>
-            )}
-
-            {/* Quick Actions */}
-            <div className="flex gap-2 pt-4 border-t">
-              <Button 
-                variant="outline" 
-                className="flex-1"
-                onClick={() => {
-                  setShowProgressModal(false);
-                  navigate(`/org/${currentOrg?.organization_id}/courses`);
-                }}
-              >
-                <BookOpen className="h-4 w-4 mr-2" />
-                My Courses
-              </Button>
-              <Button 
-                variant="outline" 
-                className="flex-1"
-                onClick={() => {
-                  setShowProgressModal(false);
-                  setShowDetailedAnalytics(true);
-                }}
-              >
-                <TrendingUp className="h-4 w-4 mr-2" />
-                Detailed Analytics
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Detailed Analytics Modal */}
-      {isStudent && currentOrg?.organization_id && (
-        <DetailedAnalyticsModal 
-          open={showDetailedAnalytics}
-          onOpenChange={setShowDetailedAnalytics}
-          organizationId={currentOrg.organization_id}
-        />
-      )}
     </div>
   );
 }
