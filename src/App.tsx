@@ -79,6 +79,7 @@ const AnalyticsDebug = lazy(() => import("./pages/dashboard/AnalyticsDebug"));
 const AIStudyCoach = lazy(() => import("./pages/dashboard/AIStudyCoach"));
 const FlashcardManagerPage = lazy(() => import("./pages/dashboard/FlashcardManagerPage"));
 const LiveLearningHub = lazy(() => import("./pages/dashboard/LiveLearningHub"));
+const StudyMaterialsPage = lazy(() => import("./pages/student/StudyMaterialsPage"));
 const DynamicCourse = lazy(() => import("./pages/dashboard/DynamicCourse"));
 const LearningStateCourse = lazy(() => import("./pages/dashboard/LearningStateCourse"));
 const LearningStateEmbed = lazy(() => import("./pages/dashboard/LearningStateEmbed"));
@@ -447,7 +448,7 @@ const App: React.FC = () => {
               <Route path="learner/ai-coach" element={<LazyRoute><AIStudyCoach /></LazyRoute>} />
             )}
             <Route path="learner/ai-command-center" element={<LazyRoute><AICoachPage /></LazyRoute>} />
-            <Route path="learner/study-materials" element={<LazyRoute><AICoachPage defaultTab="materials" /></LazyRoute>} />
+            <Route path="learner/study-materials" element={<LazyRoute><StudyMaterialsPage /></LazyRoute>} />
             <Route path="learner/flashcards" element={<LazyRoute><FlashcardManagerPage /></LazyRoute>} />
             <Route path="learner/live-hub" element={
               <LazyRoute>
