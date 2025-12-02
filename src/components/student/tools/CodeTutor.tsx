@@ -37,10 +37,14 @@ console.log(calculateFactorial(5));`);
     try {
       const logs: string[] = [];
       const originalLog = console.log;
-      console.log = (...args: unknown[]) => logs.push(args.join(' '));
+      const logFn = (...args: unknown[]) => logs.push(args.join(' '));
+      console.log = logFn;
       
+      // Create a safe execution context with print() alias for console.log
+      // This prevents window.print() from being called when users type print()
       // eslint-disable-next-line no-new-func
-      new Function(code)();
+      const execFn = new Function('print', 'console', code);
+      execFn(logFn, { ...console, log: logFn });
       
       console.log = originalLog;
       
