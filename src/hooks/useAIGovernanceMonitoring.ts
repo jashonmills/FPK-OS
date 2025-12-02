@@ -22,11 +22,17 @@ export function useAIGovernanceMonitoring(orgId?: string | null) {
   const monitoringQuery = useQuery({
     queryKey: ['ai-governance-monitoring', orgId],
     queryFn: async () => {
-      const { data: sessions, error } = await supabase
+      let sessionsQuery = supabase
         .from('ai_tool_sessions')
         .select('id, user_id, tool_id, started_at, ended_at, message_count, credits_used, metadata')
         .order('started_at', { ascending: false })
         .limit(100);
+
+      if (orgId) {
+        sessionsQuery = sessionsQuery.eq('org_id', orgId);
+      }
+
+      const { data: sessions, error } = await sessionsQuery;
 
       if (error) throw error;
 
@@ -60,7 +66,7 @@ export function useAIGovernanceMonitoring(orgId?: string | null) {
           table: 'ai_tool_sessions',
         },
         () => {
-          queryClient.invalidateQueries({ queryKey: ['ai-governance-monitoring'] });
+          queryClient.invalidateQueries({ queryKey: ['ai-governance-monitoring', orgId] });
         }
       )
       .subscribe();
@@ -68,7 +74,7 @@ export function useAIGovernanceMonitoring(orgId?: string | null) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [queryClient]);
+  }, [queryClient, orgId]);
 
   return {
     sessions: monitoringQuery.data ?? [],
