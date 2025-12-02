@@ -13,9 +13,9 @@ const AILearningCoachV2: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background pt-16">
       {/* Sticky Header */}
-      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
+      <div className="sticky top-16 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
         <div className="px-6 py-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
@@ -50,7 +50,7 @@ const AILearningCoachV2: React.FC = () => {
       </div>
 
       {/* Content Area */}
-      <div className="p-6">
+      <div className="p-6 min-h-[calc(100vh-12rem)]">
         <StudentPanel activeTab={activeTab} />
       </div>
     </div>
