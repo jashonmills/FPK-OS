@@ -14,9 +14,9 @@ interface GatewayRequest {
   message: string;
   systemPromptOverride?: string;
   messageHistory?: Array<{ role: 'user' | 'assistant'; content: string }>;
-  additionalContext?: string; // Extra context to append to system prompt
+  additionalContext?: string;
   temperature?: number;
-  temperatureOverride?: number; // Takes precedence over all other temperature settings
+  temperatureOverride?: number;
   maxTokens?: number;
   tools?: any[];
   toolChoice?: string;
@@ -38,6 +38,9 @@ interface GovernanceRule {
   allowed: boolean;
 }
 
+// Tools that benefit from knowledge base context
+const KB_ENABLED_TOOLS = ['lesson-planner', 'quiz-generator', 'research-assistant', 'course-builder', 'ai-personal-tutor'];
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -53,6 +56,12 @@ serve(async (req) => {
     if (!LOVABLE_API_KEY) {
       throw new Error('LOVABLE_API_KEY not configured');
     }
+
+    // Create service client early for BYOK and KB lookups
+    const serviceClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
 
     // Authenticate user
     const authHeader = req.headers.get('Authorization');
@@ -114,7 +123,6 @@ serve(async (req) => {
     // STEP 2: Fetch model assignment (org-specific or global default)
     let modelConfig: ModelConfig | null = null;
     
-    // Try org-specific assignment first
     if (orgId) {
       const { data: orgAssignment } = await supabaseClient
         .from('ai_tool_model_assignments')
@@ -137,7 +145,6 @@ serve(async (req) => {
       }
     }
 
-    // Fall back to global default
     if (!modelConfig) {
       const { data: globalAssignment } = await supabaseClient
         .from('ai_tool_model_assignments')
@@ -160,7 +167,6 @@ serve(async (req) => {
       }
     }
 
-    // Ultimate fallback to tool's configured model
     const finalModel = modelConfig?.model_id || toolConfig.model || 'google/gemini-2.5-flash';
     console.log('[UNIFIED-GATEWAY] 🤖 Final model:', finalModel);
 
@@ -172,7 +178,7 @@ serve(async (req) => {
         .from('ai_governance_rules')
         .select('name, description, category, allowed')
         .or(`org_id.eq.${orgId},org_id.is.null`)
-        .eq('allowed', false); // Only fetch blocking rules
+        .eq('allowed', false);
 
       if (rules && rules.length > 0) {
         governanceRules = rules;
@@ -180,9 +186,51 @@ serve(async (req) => {
       }
     }
 
-    // STEP 4: Build system prompt with governance injection
+    // STEP 4: Fetch knowledge base context for relevant tools
+    let knowledgeBaseContext = '';
+    
+    if (orgId && KB_ENABLED_TOOLS.includes(toolId)) {
+      const { data: kbDocs } = await serviceClient
+        .from('org_knowledge_base')
+        .select('title, content_chunks')
+        .eq('org_id', orgId)
+        .eq('is_active', true)
+        .limit(5);
+
+      if (kbDocs && kbDocs.length > 0) {
+        // Simple retrieval: take first few chunks from each doc (in production, use embeddings)
+        const contextChunks: string[] = [];
+        for (const doc of kbDocs) {
+          const chunks = doc.content_chunks as string[];
+          if (chunks && chunks.length > 0) {
+            // Take first 2 chunks from each doc
+            contextChunks.push(`### ${doc.title}\n${chunks.slice(0, 2).join('\n\n')}`);
+          }
+        }
+        
+        if (contextChunks.length > 0) {
+          knowledgeBaseContext = `## ORGANIZATION KNOWLEDGE BASE
+The following documents are from this organization's knowledge base. Use this information to provide context-aware responses:
+
+${contextChunks.join('\n\n---\n\n')}
+
+---
+
+`;
+          console.log('[UNIFIED-GATEWAY] 📚 Loaded KB context from', kbDocs.length, 'documents');
+        }
+      }
+    }
+
+    // STEP 5: Build system prompt with governance + KB injection
     let systemPrompt = systemPromptOverride || toolConfig.system_prompt;
     
+    // Prepend knowledge base context
+    if (knowledgeBaseContext) {
+      systemPrompt = knowledgeBaseContext + systemPrompt;
+    }
+    
+    // Prepend governance rules
     if (governanceRules.length > 0) {
       const rulesBlock = governanceRules
         .map(r => `- ${r.name}: ${r.description || 'Not allowed'}`)
@@ -199,20 +247,19 @@ If a user request violates these policies, politely decline and explain that thi
 ${systemPrompt}`;
     }
 
-    // Append additional context if provided (e.g., code context for code-companion)
+    // Append additional context if provided
     if (additionalContext) {
       systemPrompt += '\n\n' + additionalContext;
     }
 
-    // STEP 5: Build messages array
+    // STEP 6: Build messages array
     const llmMessages = [
       { role: 'system', content: systemPrompt },
       ...messageHistory.slice(-10),
       { role: 'user', content: message }
     ];
 
-    // STEP 6: Prepare AI request
-    // Temperature precedence: temperatureOverride > temperature > modelConfig > toolConfig > default
+    // STEP 7: Prepare AI request
     const finalTemperature = temperatureOverride ?? temperature ?? modelConfig?.config?.temperature ?? toolConfig.temperature ?? 0.7;
     
     const aiRequestBody: any = {
@@ -222,19 +269,17 @@ ${systemPrompt}`;
       temperature: finalTemperature,
     };
 
-    // Add tool calling if specified
     if (tools && tools.length > 0) {
       aiRequestBody.tools = tools;
       aiRequestBody.tool_choice = toolChoice || "auto";
     }
 
-    // STEP 7: Check for BYOK (Bring Your Own Key)
+    // STEP 8: Check for BYOK (Bring Your Own Key)
     let apiKey = LOVABLE_API_KEY;
     let apiEndpoint = 'https://ai.gateway.lovable.dev/v1/chat/completions';
     let usingBYOK = false;
     
     if (orgId) {
-      // Determine provider from model
       let provider: string | null = null;
       if (finalModel.startsWith('openai/') || finalModel.startsWith('gpt-')) {
         provider = 'openai';
@@ -254,21 +299,17 @@ ${systemPrompt}`;
           .single();
 
         if (byokKey?.encrypted_key) {
-          // Decode the key (simple base64 for now)
           try {
             apiKey = atob(byokKey.encrypted_key);
             usingBYOK = true;
             
-            // Set appropriate endpoint based on provider
             if (provider === 'openai') {
               apiEndpoint = 'https://api.openai.com/v1/chat/completions';
-              // Adjust model name for direct OpenAI API
               aiRequestBody.model = finalModel.replace('openai/', '');
             } else if (provider === 'anthropic') {
               apiEndpoint = 'https://api.anthropic.com/v1/messages';
               aiRequestBody.model = finalModel.replace('anthropic/', '');
             }
-            // For Google, we still use Lovable gateway as it handles the translation
             
             console.log('[UNIFIED-GATEWAY] 🔑 Using BYOK for provider:', provider);
           } catch (e) {
@@ -278,8 +319,8 @@ ${systemPrompt}`;
       }
     }
 
-    // STEP 8: Call AI provider
-    console.log('[UNIFIED-GATEWAY] 📤 Calling AI Gateway with model:', finalModel, '| BYOK:', usingBYOK);
+    // STEP 9: Call AI provider
+    console.log('[UNIFIED-GATEWAY] 📤 Calling AI with model:', finalModel, '| BYOK:', usingBYOK, '| KB:', !!knowledgeBaseContext);
     
     const aiResponse = await fetch(apiEndpoint, {
       method: 'POST',
@@ -319,12 +360,7 @@ ${systemPrompt}`;
     const latency = Date.now() - startTime;
     console.log('[UNIFIED-GATEWAY] ✅ Response received in', latency, 'ms | Length:', responseContent.length);
 
-    // STEP 8: Log to audit table
-    const serviceClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
-
+    // STEP 10: Log to audit table
     await serviceClient.from('audit_logs').insert({
       user_id: user.id,
       organization_id: orgId || null,
@@ -337,6 +373,8 @@ ${systemPrompt}`;
         response_length: responseContent.length,
         latency_ms: latency,
         governance_rules_applied: governanceRules.length,
+        knowledge_base_used: !!knowledgeBaseContext,
+        using_byok: usingBYOK,
         tool_calls_count: toolCalls.length
       }
     }).then(() => {
@@ -345,14 +383,15 @@ ${systemPrompt}`;
       console.warn('[UNIFIED-GATEWAY] ⚠️ Audit log failed:', err.message);
     });
 
-    // STEP 9: Return response
+    // STEP 11: Return response
     return new Response(
       JSON.stringify({
         response: responseContent,
         toolCalls,
         model: finalModel,
         latencyMs: latency,
-        governanceRulesApplied: governanceRules.length
+        governanceRulesApplied: governanceRules.length,
+        knowledgeBaseUsed: !!knowledgeBaseContext
       }),
       { 
         status: 200, 

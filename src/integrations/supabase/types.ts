@@ -6813,6 +6813,62 @@ export type Database = {
           },
         ]
       }
+      org_knowledge_base: {
+        Row: {
+          content: string
+          content_chunks: Json | null
+          created_at: string
+          created_by: string | null
+          file_name: string
+          file_type: string
+          file_url: string | null
+          id: string
+          is_active: boolean
+          metadata: Json | null
+          org_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          content_chunks?: Json | null
+          created_at?: string
+          created_by?: string | null
+          file_name: string
+          file_type: string
+          file_url?: string | null
+          id?: string
+          is_active?: boolean
+          metadata?: Json | null
+          org_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          content_chunks?: Json | null
+          created_at?: string
+          created_by?: string | null
+          file_name?: string
+          file_type?: string
+          file_url?: string | null
+          id?: string
+          is_active?: boolean
+          metadata?: Json | null
+          org_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_knowledge_base_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       org_members: {
         Row: {
           access_revoked_at: string | null
