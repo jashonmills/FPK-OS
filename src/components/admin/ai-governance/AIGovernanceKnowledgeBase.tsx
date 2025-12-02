@@ -8,18 +8,35 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { BookOpen, Upload, Trash2, FileText, File, Plus, AlertCircle, Download } from 'lucide-react';
+import { BookOpen, Upload, Trash2, FileText, File, Plus, AlertCircle, Download, Eye } from 'lucide-react';
 import { useOrgKnowledgeBase } from '@/hooks/useOrgKnowledgeBase';
 import { useDropzone } from 'react-dropzone';
 import { toast } from 'sonner';
 import { PlatformAdminOrgSelector } from './PlatformAdminOrgSelector';
 
+interface KBDocument {
+  id: string;
+  title: string;
+  content: string;
+  file_name: string;
+  file_type: string;
+  is_active: boolean;
+  content_chunks: string[];
+}
+
 const AIGovernanceKnowledgeBase: React.FC = () => {
   const [selectedOrgId, setSelectedOrgId] = useState<string | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [viewingDoc, setViewingDoc] = useState<KBDocument | null>(null);
   const [newDoc, setNewDoc] = useState({ title: '', content: '', fileName: '' });
 
   const { documents, isLoading, addDocument, deleteDocument, toggleDocument } = useOrgKnowledgeBase(selectedOrgId);
+
+  const handleViewDocument = (doc: KBDocument) => {
+    setViewingDoc(doc);
+    setViewDialogOpen(true);
+  };
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
@@ -263,6 +280,14 @@ const AIGovernanceKnowledgeBase: React.FC = () => {
                       <Button
                         variant="ghost"
                         size="icon"
+                        onClick={() => handleViewDocument(doc)}
+                        title="View document"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         onClick={() => handleDownloadDocument(doc)}
                         title="Download document"
                       >
@@ -284,6 +309,37 @@ const AIGovernanceKnowledgeBase: React.FC = () => {
           </CardContent>
         </Card>
       )}
+
+      {/* View Document Dialog */}
+      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              {viewingDoc?.title}
+            </DialogTitle>
+            <DialogDescription>
+              {viewingDoc?.file_name} • {viewingDoc?.content.length.toLocaleString()} characters
+            </DialogDescription>
+          </DialogHeader>
+          <ScrollArea className="flex-1 max-h-[60vh]">
+            <pre className="whitespace-pre-wrap text-sm font-mono bg-muted p-4 rounded-lg">
+              {viewingDoc?.content}
+            </pre>
+          </ScrollArea>
+          <DialogFooter className="pt-4 border-t">
+            <Button variant="outline" onClick={() => setViewDialogOpen(false)}>
+              Close
+            </Button>
+            {viewingDoc && (
+              <Button onClick={() => handleDownloadDocument(viewingDoc)}>
+                <Download className="h-4 w-4 mr-2" />
+                Download
+              </Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
