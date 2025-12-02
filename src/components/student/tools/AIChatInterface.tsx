@@ -19,6 +19,7 @@ interface Message {
 interface CodeContext {
   code: string;
   output: string;
+  language?: string;
 }
 
 interface AIChatInterfaceProps {
