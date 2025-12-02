@@ -108,22 +108,11 @@ export function useComprehensiveOrgAnalytics(organizationId?: string) {
         // Convert minutes to hours
         const totalLearningHours = Math.round((totalLearningMinutes / 60) * 10) / 10;
 
-        // Calculate active students: users who have actually engaged with courses
-        const memberUserIds = new Set(orgMembers?.map(m => m.user_id) || []);
+        // SINGLE SOURCE OF TRUTH: org_students is the canonical student roster
+        const totalStudents = orgStudents?.length || 0;
         
-        // Get linked user IDs from org_students to avoid double counting
-        const linkedUserIds = new Set(
-          orgStudents?.filter(s => s.linked_user_id).map(s => s.linked_user_id) || []
-        );
-        
-        // Count enrolled users who aren't already in org_members or linked from org_students
-        const additionalEnrolledUsers = Array.from(uniqueActiveUsers).filter(
-          userId => !memberUserIds.has(userId) && !linkedUserIds.has(userId)
-        ).length;
-        
-        // Update totals: org_members + profile-only students (no linked account) + additional enrolled users
-        const totalStudents = (orgMembers?.length || 0) + profileOnlyStudentCount + additionalEnrolledUsers;
-        const activeStudents = uniqueActiveUsers.size; // Users who have actually engaged with courses
+        // Active students: users who have actually engaged with courses
+        const activeStudents = uniqueActiveUsers.size;
 
         // Get IEP count - iep_documents doesn't have org_id, skip for now
         const iepCount = 0;
