@@ -20,7 +20,8 @@ import {
   ChevronRight,
   Gamepad2,
   HelpCircle,
-  Shield
+  Shield,
+  MessageSquare
 } from 'lucide-react';
 import { useOrgContext } from './OrgContext';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -112,6 +113,11 @@ export function OrgNavigation({ isMobileMenuOpen: externalMobileMenuOpen, onMobi
       label: effectiveRole === 'student' ? 'AI Learning Coach' : 'AI Org Assistant',
       icon: Brain,
     }]),
+    {
+      href: `/org/${currentOrg.organization_id}/messages`,
+      label: 'Messages',
+      icon: MessageSquare,
+    },
     {
       href: `/org/${currentOrg.organization_id}/games`,
       label: 'Games',
