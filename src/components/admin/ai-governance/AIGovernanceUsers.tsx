@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Shield, BookOpen, GraduationCap, MoreVertical, Loader2, Crown, Eye, Users, Ban, History, UserCog, CheckCircle } from 'lucide-react';
+import { Search, Shield, BookOpen, GraduationCap, MoreVertical, Loader2, Crown, Eye, Users, Ban, History, UserCog, CheckCircle, UserPlus, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { useAIGovernanceUsers, AIGovernanceUser } from '@/hooks/useAIGovernanceUsers';
 import PlatformAdminOrgSelector from './PlatformAdminOrgSelector';
@@ -34,6 +35,14 @@ interface AIGovernanceUsersProps {
   orgId?: string;
 }
 
+const INVITE_ROLES = [
+  { value: 'admin', label: 'Admin', description: 'Full access to manage organization' },
+  { value: 'instructor', label: 'Instructor', description: 'Can manage courses and students' },
+  { value: 'instructor_aide', label: 'Instructor Aide', description: 'Can assist with teaching' },
+  { value: 'viewer', label: 'Viewer', description: 'Read-only access' },
+  { value: 'student', label: 'Student', description: 'Learner access' },
+];
+
 const AIGovernanceUsers: React.FC<AIGovernanceUsersProps> = ({ orgId: propOrgId }) => {
   const [selectedOrgId, setSelectedOrgId] = useState<string | null>(propOrgId || null);
   const effectiveOrgId = propOrgId || selectedOrgId;
@@ -48,6 +57,12 @@ const AIGovernanceUsers: React.FC<AIGovernanceUsersProps> = ({ orgId: propOrgId 
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [newRole, setNewRole] = useState<string>('');
   const [isUpdating, setIsUpdating] = useState(false);
+
+  // Invite dialog states
+  const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteRole, setInviteRole] = useState<string>('student');
+  const [isInviting, setIsInviting] = useState(false);
 
   const handleEditRole = (user: AIGovernanceUser) => {
     setSelectedUser(user);
@@ -66,14 +81,14 @@ const AIGovernanceUsers: React.FC<AIGovernanceUsersProps> = ({ orgId: propOrgId 
   };
 
   const saveRoleChange = async () => {
-    if (!selectedUser || !selectedOrgId || !newRole) return;
+    if (!selectedUser || !effectiveOrgId || !newRole) return;
     
     setIsUpdating(true);
     try {
       const { error } = await supabase
         .from('org_members')
         .update({ role: newRole as 'owner' | 'admin' | 'instructor' | 'instructor_aide' | 'viewer' | 'student' })
-        .eq('org_id', selectedOrgId)
+        .eq('org_id', effectiveOrgId)
         .eq('user_id', selectedUser.id);
 
       if (error) throw error;
@@ -90,14 +105,14 @@ const AIGovernanceUsers: React.FC<AIGovernanceUsersProps> = ({ orgId: propOrgId 
   };
 
   const confirmRevokeAccess = async () => {
-    if (!selectedUser || !selectedOrgId) return;
+    if (!selectedUser || !effectiveOrgId) return;
     
     setIsUpdating(true);
     try {
       const { error } = await supabase
         .from('org_members')
         .delete()
-        .eq('org_id', selectedOrgId)
+        .eq('org_id', effectiveOrgId)
         .eq('user_id', selectedUser.id);
 
       if (error) throw error;
@@ -110,6 +125,64 @@ const AIGovernanceUsers: React.FC<AIGovernanceUsersProps> = ({ orgId: propOrgId 
       toast.error('Failed to remove user');
     } finally {
       setIsUpdating(false);
+    }
+  };
+
+  const handleInviteUser = async () => {
+    if (!inviteEmail || !effectiveOrgId || !inviteRole) {
+      toast.error('Please fill in all fields');
+      return;
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(inviteEmail)) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+
+    setIsInviting(true);
+    try {
+      // Generate invite code
+      const { data: inviteData, error: inviteError } = await supabase.functions.invoke('generate-org-invite', {
+        body: { orgId: effectiveOrgId, role: inviteRole }
+      });
+
+      if (inviteError) throw inviteError;
+
+      // Get organization name
+      const { data: orgData } = await supabase
+        .from('organizations')
+        .select('name')
+        .eq('id', effectiveOrgId)
+        .single();
+
+      // Send email invitation
+      const { error: emailError } = await supabase.functions.invoke('send-invitation-email', {
+        body: { 
+          email: inviteEmail, 
+          inviteCode: inviteData.code,
+          orgName: orgData?.name || 'the organization'
+        }
+      });
+
+      if (emailError) {
+        console.warn('Email sending failed, but invite was created:', emailError);
+        toast.success(`Invitation created! Code: ${inviteData.code}`, {
+          description: 'Email sending failed. Please share the code manually.'
+        });
+      } else {
+        toast.success(`Invitation sent to ${inviteEmail}`);
+      }
+
+      setInviteDialogOpen(false);
+      setInviteEmail('');
+      setInviteRole('student');
+    } catch (error: any) {
+      console.error('Error inviting user:', error);
+      toast.error(error.message || 'Failed to send invitation');
+    } finally {
+      setIsInviting(false);
     }
   };
 
@@ -155,12 +228,22 @@ const AIGovernanceUsers: React.FC<AIGovernanceUsersProps> = ({ orgId: propOrgId 
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-cy="governance-tab-users">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-foreground">User Management</h2>
           <p className="text-muted-foreground mt-1">Manage users and their AI access permissions</p>
         </div>
+        {effectiveOrgId && (
+          <Button
+            data-cy="add-user-button"
+            onClick={() => setInviteDialogOpen(true)}
+            className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700"
+          >
+            <UserPlus className="h-4 w-4 mr-2" />
+            Invite User
+          </Button>
+        )}
       </div>
 
       {!propOrgId && (
@@ -185,28 +268,29 @@ const AIGovernanceUsers: React.FC<AIGovernanceUsersProps> = ({ orgId: propOrgId 
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <input
+              <Input
                 type="text"
                 placeholder="Search users..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                className="pl-10"
               />
             </div>
             
-            <select
-              value={filterRole}
-              onChange={(e) => setFilterRole(e.target.value)}
-              className="px-4 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-            >
-              <option value="all">All Roles</option>
-              <option value="owner">Owners</option>
-              <option value="admin">Admins</option>
-              <option value="instructor">Instructors</option>
-              <option value="instructor_aide">Instructor Aides</option>
-              <option value="viewer">Viewers</option>
-              <option value="student">Students</option>
-            </select>
+            <Select value={filterRole} onValueChange={setFilterRole}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Filter by role" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Roles</SelectItem>
+                <SelectItem value="owner">Owners</SelectItem>
+                <SelectItem value="admin">Admins</SelectItem>
+                <SelectItem value="instructor">Instructors</SelectItem>
+                <SelectItem value="instructor_aide">Instructor Aides</SelectItem>
+                <SelectItem value="viewer">Viewers</SelectItem>
+                <SelectItem value="student">Students</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="overflow-x-auto">
@@ -227,6 +311,7 @@ const AIGovernanceUsers: React.FC<AIGovernanceUsersProps> = ({ orgId: propOrgId 
                   return (
                     <motion.tr
                       key={user.id}
+                      data-cy={`user-row-${user.email}`}
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ delay: index * 0.05 }}
@@ -276,12 +361,13 @@ const AIGovernanceUsers: React.FC<AIGovernanceUsersProps> = ({ orgId: propOrgId 
                               <History className="h-4 w-4 mr-2" />
                               View Details
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleEditRole(user)}>
+                            <DropdownMenuItem data-cy="edit-user-button" onClick={() => handleEditRole(user)}>
                               <UserCog className="h-4 w-4 mr-2" />
                               Edit Role
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem 
+                              data-cy="delete-user-button"
                               onClick={() => handleRevokeAccess(user)}
                               className="text-destructive focus:text-destructive"
                             >
@@ -306,9 +392,69 @@ const AIGovernanceUsers: React.FC<AIGovernanceUsersProps> = ({ orgId: propOrgId 
         </div>
       )}
 
+      {/* Invite User Dialog */}
+      <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
+        <DialogContent data-cy="invite-dialog">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Mail className="h-5 w-5" />
+              Invite User
+            </DialogTitle>
+            <DialogDescription>
+              Send an invitation email to add a new user to your organization.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="invite-email">Email Address</Label>
+              <Input
+                id="invite-email"
+                data-cy="invite-email-input"
+                type="email"
+                placeholder="user@example.com"
+                value={inviteEmail}
+                onChange={(e) => setInviteEmail(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="invite-role">Role</Label>
+              <Select value={inviteRole} onValueChange={setInviteRole}>
+                <SelectTrigger data-cy="invite-role-select">
+                  <SelectValue placeholder="Select a role" />
+                </SelectTrigger>
+                <SelectContent>
+                  {INVITE_ROLES.map(role => (
+                    <SelectItem key={role.value} value={role.value}>
+                      <div className="flex flex-col">
+                        <span>{role.label}</span>
+                        <span className="text-xs text-muted-foreground">{role.description}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setInviteDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button 
+              data-cy="send-invite-button"
+              onClick={handleInviteUser} 
+              disabled={isInviting || !inviteEmail}
+              className="bg-gradient-to-r from-indigo-500 to-purple-600"
+            >
+              {isInviting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Mail className="h-4 w-4 mr-2" />}
+              Send Invitation
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Edit Role Dialog */}
       <Dialog open={editRoleDialogOpen} onOpenChange={setEditRoleDialogOpen}>
-        <DialogContent>
+        <DialogContent data-cy="edit-role-dialog">
           <DialogHeader>
             <DialogTitle>Edit User Role</DialogTitle>
             <DialogDescription>
@@ -318,7 +464,7 @@ const AIGovernanceUsers: React.FC<AIGovernanceUsersProps> = ({ orgId: propOrgId 
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label>Role</Label>
-              <Select value={newRole} onValueChange={setNewRole}>
+              <Select value={newRole} onValueChange={setNewRole} data-cy="edit-role-select">
                 <SelectTrigger>
                   <SelectValue placeholder="Select a role" />
                 </SelectTrigger>
@@ -337,7 +483,7 @@ const AIGovernanceUsers: React.FC<AIGovernanceUsersProps> = ({ orgId: propOrgId 
             <Button variant="outline" onClick={() => setEditRoleDialogOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={saveRoleChange} disabled={isUpdating}>
+            <Button data-cy="save-user-button" onClick={saveRoleChange} disabled={isUpdating}>
               {isUpdating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
               Save Changes
             </Button>
@@ -358,7 +504,7 @@ const AIGovernanceUsers: React.FC<AIGovernanceUsersProps> = ({ orgId: propOrgId 
             <Button variant="outline" onClick={() => setRevokeDialogOpen(false)}>
               Cancel
             </Button>
-            <Button variant="destructive" onClick={confirmRevokeAccess} disabled={isUpdating}>
+            <Button data-cy="confirm-delete-button" variant="destructive" onClick={confirmRevokeAccess} disabled={isUpdating}>
               {isUpdating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
               Remove User
             </Button>

@@ -527,6 +527,7 @@ export type Database = {
         Row: {
           allowed: boolean
           applicable_roles: string[]
+          capability: string | null
           category: string
           created_at: string
           created_by: string | null
@@ -539,6 +540,7 @@ export type Database = {
         Insert: {
           allowed?: boolean
           applicable_roles?: string[]
+          capability?: string | null
           category: string
           created_at?: string
           created_by?: string | null
@@ -551,6 +553,7 @@ export type Database = {
         Update: {
           allowed?: boolean
           applicable_roles?: string[]
+          capability?: string | null
           category?: string
           created_at?: string
           created_by?: string | null

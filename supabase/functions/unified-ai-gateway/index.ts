@@ -11,6 +11,7 @@ interface GatewayRequest {
   toolId: string;
   userId?: string;
   orgId?: string | null;
+  userRole?: string;
   message: string;
   systemPromptOverride?: string;
   messageHistory?: Array<{ role: 'user' | 'assistant'; content: string }>;
@@ -36,8 +37,58 @@ interface GovernanceRule {
   name: string;
   description: string;
   category: string;
+  capability: string;
   allowed: boolean;
+  applicable_roles: string[];
 }
+
+// Map tools to capabilities for governance enforcement
+const TOOL_CAPABILITY_MAP: Record<string, string> = {
+  // Image generation tools
+  'image-generator': 'image_generation',
+  'ai-image-creator': 'image_generation',
+  
+  // Code generation tools
+  'code-learning-companion': 'code_generation',
+  'code-tutor': 'code_generation',
+  'code-assistant': 'code_generation',
+  
+  // Document creation tools
+  'lesson-planner': 'document_creation',
+  'rubric-creator': 'document_creation',
+  'course-builder': 'document_creation',
+  'worksheet-generator': 'document_creation',
+  
+  // Research tools
+  'research-assistant': 'research_web_search',
+  'web-search': 'research_web_search',
+  
+  // Summarization tools
+  'summarizer': 'content_summarization',
+  'notes-summarizer': 'content_summarization',
+  
+  // Math tools
+  'math-problem-solver': 'math_calculations',
+  'calculator': 'math_calculations',
+  
+  // Creative writing tools
+  'essay-writing-helper': 'creative_writing',
+  'creative-writer': 'creative_writing',
+  'story-generator': 'creative_writing',
+  
+  // Data analysis tools
+  'data-analyzer': 'data_analysis',
+  'chart-generator': 'data_analysis',
+  'performance-analyzer': 'data_analysis',
+  
+  // General chat/tutoring tools
+  'ai-personal-tutor': 'general_chat',
+  'ai-study-coach': 'general_chat',
+  'language-practice': 'general_chat',
+  'quiz-generator': 'general_chat',
+  'grading-assistant': 'general_chat',
+  'ai-chat': 'general_chat',
+};
 
 // Tools that benefit from knowledge base context
 const KB_ENABLED_TOOLS = ['lesson-planner', 'quiz-generator', 'research-assistant', 'course-builder', 'ai-personal-tutor'];
@@ -93,7 +144,7 @@ serve(async (req) => {
 
     // Parse request
     const requestBody: GatewayRequest = await req.json();
-    const { toolId, userId, orgId, message, systemPromptOverride, messageHistory = [], additionalContext, temperature, temperatureOverride, maxTokens, tools, toolChoice } = requestBody;
+    const { toolId, userId, orgId, userRole, message, systemPromptOverride, messageHistory = [], additionalContext, temperature, temperatureOverride, maxTokens, tools, toolChoice } = requestBody;
 
     if (!toolId || !message) {
       return new Response(
@@ -102,7 +153,7 @@ serve(async (req) => {
       );
     }
 
-    console.log('[UNIFIED-GATEWAY] 📋 Tool:', toolId, '| Org:', orgId || 'platform', '| Message length:', message.length);
+    console.log('[UNIFIED-GATEWAY] 📋 Tool:', toolId, '| Org:', orgId || 'platform', '| Role:', userRole || 'unknown', '| Message length:', message.length);
 
     // STEP 1: Create or update session for monitoring
     try {
@@ -221,43 +272,49 @@ serve(async (req) => {
     const finalModel = modelConfig?.model_id || toolConfig.model || 'google/gemini-2.5-flash';
     console.log('[UNIFIED-GATEWAY] 🤖 Final model:', finalModel);
 
-    // STEP 4: Fetch governance rules for the org
+    // STEP 4: Fetch governance rules and check capability-based blocking
     let governanceRules: GovernanceRule[] = [];
-    let blockedRules: GovernanceRule[] = [];
+    let blockedByCapability = false;
+    let blockingRules: GovernanceRule[] = [];
     
     if (orgId) {
       const { data: rules } = await supabaseClient
         .from('ai_governance_rules')
-        .select('id, name, description, category, allowed')
+        .select('id, name, description, category, capability, allowed, applicable_roles')
         .or(`org_id.eq.${orgId},org_id.is.null`);
 
       if (rules && rules.length > 0) {
-        // Separate blocked rules (allowed = false)
-        blockedRules = rules.filter(r => !r.allowed);
-        governanceRules = blockedRules;
-        console.log('[UNIFIED-GATEWAY] ⚖️ Loaded', rules.length, 'governance rules,', blockedRules.length, 'blocked');
+        governanceRules = rules as GovernanceRule[];
+        console.log('[UNIFIED-GATEWAY] ⚖️ Loaded', rules.length, 'governance rules');
+        
+        // Get the capability for this tool
+        const toolCapability = TOOL_CAPABILITY_MAP[toolId] || 'general_chat';
+        console.log('[UNIFIED-GATEWAY] 🔍 Tool capability:', toolCapability);
+        
+        // Check if any rule blocks this capability for the user's role
+        const effectiveRole = userRole || 'student';
+        
+        for (const rule of governanceRules) {
+          // Rule must be blocking (allowed = false)
+          if (rule.allowed) continue;
+          
+          // Rule must match the tool's capability
+          if (rule.capability !== toolCapability) continue;
+          
+          // Rule must apply to the user's role
+          if (!rule.applicable_roles.includes(effectiveRole)) continue;
+          
+          // This rule blocks the user
+          blockedByCapability = true;
+          blockingRules.push(rule);
+          console.log('[UNIFIED-GATEWAY] 🚫 Blocked by rule:', rule.name, '| Capability:', rule.capability, '| Role:', effectiveRole);
+        }
       }
     }
 
-    // STEP 5: Check if message violates any blocked rules (simple keyword check)
-    const lowerMessage = message.toLowerCase();
-    const violatedRules: GovernanceRule[] = [];
-    
-    for (const rule of blockedRules) {
-      // Simple check: if rule name or description keywords appear in message
-      const ruleKeywords = (rule.name + ' ' + (rule.description || '')).toLowerCase().split(/\s+/);
-      const significantKeywords = ruleKeywords.filter(k => k.length > 4);
-      
-      // Check if multiple significant keywords match
-      const matchCount = significantKeywords.filter(k => lowerMessage.includes(k)).length;
-      if (matchCount >= 2 || (significantKeywords.length === 1 && lowerMessage.includes(significantKeywords[0]))) {
-        violatedRules.push(rule);
-      }
-    }
-
-    // If rules are violated, create approval request and return blocked response
-    if (violatedRules.length > 0 && orgId) {
-      console.log('[UNIFIED-GATEWAY] 🚫 Request blocked by', violatedRules.length, 'rules');
+    // If blocked by capability-based rule, create approval request and return blocked response
+    if (blockedByCapability && blockingRules.length > 0 && orgId) {
+      console.log('[UNIFIED-GATEWAY] 🚫 Request blocked by', blockingRules.length, 'capability rules');
       
       // Create approval request
       try {
@@ -267,21 +324,23 @@ serve(async (req) => {
             user_id: user.id,
             org_id: orgId,
             task: message.substring(0, 500),
-            category: violatedRules[0].category,
+            category: blockingRules[0].category,
             priority: 'medium',
             status: 'pending',
             details: JSON.stringify({
               tool_id: toolId,
-              violated_rules: violatedRules.map(r => ({ id: r.id, name: r.name })),
+              tool_capability: TOOL_CAPABILITY_MAP[toolId] || 'general_chat',
+              user_role: userRole || 'student',
+              blocking_rules: blockingRules.map(r => ({ id: r.id, name: r.name, capability: r.capability })),
               message_preview: message.substring(0, 200)
             })
           });
-        console.log('[UNIFIED-GATEWAY] 📝 Created approval request for blocked action');
+        console.log('[UNIFIED-GATEWAY] 📝 Created approval request for blocked capability');
       } catch (approvalError) {
         console.warn('[UNIFIED-GATEWAY] ⚠️ Failed to create approval request:', approvalError);
       }
 
-      // Log the blocked request (resource_id is UUID, so store tool_id in details)
+      // Log the blocked request
       await serviceClient.from('audit_logs').insert({
         user_id: user.id,
         organization_id: orgId,
@@ -290,7 +349,9 @@ serve(async (req) => {
         status: 'blocked',
         details: {
           tool_id: toolId,
-          violated_rules: violatedRules.map(r => r.name),
+          tool_capability: TOOL_CAPABILITY_MAP[toolId] || 'general_chat',
+          user_role: userRole || 'student',
+          blocking_rules: blockingRules.map(r => r.name),
           message_preview: message.substring(0, 100)
         }
       });
@@ -308,9 +369,10 @@ serve(async (req) => {
 
       return new Response(
         JSON.stringify({
-          response: `I'm sorry, but this request cannot be processed as it appears to violate organization policies:\n\n${violatedRules.map(r => `• **${r.name}**: ${r.description || 'Not permitted'}`).join('\n')}\n\nAn approval request has been submitted to your organization administrators. You will be notified when it's reviewed.`,
+          response: `This action is blocked by your organization's policy.\n\n${blockingRules.map(r => `• **${r.name}**: ${r.description || 'Not permitted for your role'}`).join('\n')}\n\nAn approval request has been submitted to your organization administrators. You will be notified when it's reviewed.`,
           blocked: true,
-          violatedRules: violatedRules.map(r => r.name),
+          blockedCapability: TOOL_CAPABILITY_MAP[toolId] || 'general_chat',
+          blockingRules: blockingRules.map(r => ({ id: r.id, name: r.name, capability: r.capability })),
           approvalRequested: true
         }),
         { 
@@ -320,7 +382,7 @@ serve(async (req) => {
       );
     }
 
-    // STEP 6: Fetch knowledge base context for relevant tools
+    // STEP 5: Fetch knowledge base context for relevant tools
     let knowledgeBaseContext = '';
     
     if (orgId && KB_ENABLED_TOOLS.includes(toolId)) {
@@ -356,7 +418,7 @@ ${contextChunks.join('\n\n---\n\n')}
       }
     }
 
-    // STEP 7: Build system prompt with governance + KB injection
+    // STEP 6: Build system prompt with governance + KB injection
     let systemPrompt = systemPromptOverride || toolConfig.system_prompt;
     
     // Prepend knowledge base context
@@ -364,17 +426,18 @@ ${contextChunks.join('\n\n---\n\n')}
       systemPrompt = knowledgeBaseContext + systemPrompt;
     }
     
-    // Prepend governance rules
-    if (governanceRules.length > 0) {
-      const rulesBlock = governanceRules
-        .map(r => `- ${r.name}: ${r.description || 'Not allowed'}`)
+    // Prepend blocked capability rules as policy guidance
+    const blockedRules = governanceRules.filter(r => !r.allowed);
+    if (blockedRules.length > 0) {
+      const rulesBlock = blockedRules
+        .map(r => `- ${r.name} (${r.capability}): ${r.description || 'Not allowed'}`)
         .join('\n');
       
       systemPrompt = `## ORGANIZATION POLICIES (MANDATORY)
-The following activities are NOT PERMITTED:
+The following AI capabilities are restricted for certain roles:
 ${rulesBlock}
 
-If a user request violates these policies, politely decline and explain that this is not allowed per organization guidelines.
+If a user request would violate these policies, politely decline and explain that this capability is not available per organization guidelines.
 
 ---
 
@@ -386,14 +449,14 @@ ${systemPrompt}`;
       systemPrompt += '\n\n' + additionalContext;
     }
 
-    // STEP 8: Build messages array
+    // STEP 7: Build messages array
     const llmMessages = [
       { role: 'system', content: systemPrompt },
       ...messageHistory.slice(-10),
       { role: 'user', content: message }
     ];
 
-    // STEP 9: Prepare AI request
+    // STEP 8: Prepare AI request
     const finalTemperature = temperatureOverride ?? temperature ?? modelConfig?.config?.temperature ?? toolConfig.temperature ?? 0.7;
     
     const aiRequestBody: any = {
@@ -408,7 +471,7 @@ ${systemPrompt}`;
       aiRequestBody.tool_choice = toolChoice || "auto";
     }
 
-    // STEP 10: Check for BYOK (Bring Your Own Key)
+    // STEP 9: Check for BYOK (Bring Your Own Key)
     let apiKey = LOVABLE_API_KEY;
     let apiEndpoint = 'https://ai.gateway.lovable.dev/v1/chat/completions';
     let usingBYOK = false;
@@ -453,7 +516,7 @@ ${systemPrompt}`;
       }
     }
 
-    // STEP 11: Call AI provider
+    // STEP 10: Call AI provider
     console.log('[UNIFIED-GATEWAY] 📤 Calling AI with model:', finalModel, '| BYOK:', usingBYOK, '| KB:', !!knowledgeBaseContext);
     
     const aiResponse = await fetch(apiEndpoint, {
@@ -494,7 +557,7 @@ ${systemPrompt}`;
     const latency = Date.now() - startTime;
     console.log('[UNIFIED-GATEWAY] ✅ Response received in', latency, 'ms | Length:', responseContent.length);
 
-    // STEP 12: Update session with completion info
+    // STEP 11: Update session with completion info
     if (sessionId) {
       try {
         await serviceClient
@@ -513,8 +576,7 @@ ${systemPrompt}`;
       }
     }
 
-    // STEP 13: Log to audit table (fire-and-forget with proper error logging)
-    // Note: resource_id is UUID type, so we store tool_id in details instead
+    // STEP 12: Log to audit table
     try {
       const { error: auditError } = await serviceClient.from('audit_logs').insert({
         user_id: user.id,
@@ -524,6 +586,7 @@ ${systemPrompt}`;
         status: 'success',
         details: {
           tool_id: toolId,
+          tool_capability: TOOL_CAPABILITY_MAP[toolId] || 'general_chat',
           session_id: sessionId,
           model_used: finalModel,
           message_length: message.length,
@@ -545,7 +608,7 @@ ${systemPrompt}`;
       console.error('[UNIFIED-GATEWAY] ❌ Audit log exception:', auditCatchError.message);
     }
 
-    // STEP 14: Return response
+    // STEP 13: Return response
     return new Response(
       JSON.stringify({
         response: responseContent,
