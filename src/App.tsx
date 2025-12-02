@@ -447,7 +447,7 @@ const App: React.FC = () => {
             {shouldShowLegacyAIAssistant() && (
               <Route path="learner/ai-coach" element={<LazyRoute><AIStudyCoach /></LazyRoute>} />
             )}
-            <Route path="learner/ai-command-center" element={<LazyRoute><AICoachPage /></LazyRoute>} />
+            <Route path="learner/ai-command-center" element={<LazyRoute>{shouldUseAILearningCoachV2() ? <AILearningCoachV2 /> : <AICoachPage />}</LazyRoute>} />
             <Route path="learner/study-materials" element={<LazyRoute><StudyMaterialsPage /></LazyRoute>} />
             <Route path="learner/flashcards" element={<LazyRoute><FlashcardManagerPage /></LazyRoute>} />
             <Route path="learner/live-hub" element={
