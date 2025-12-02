@@ -271,6 +271,45 @@ export function useOrgNotes(organizationId?: string, folderId?: string) {
     },
   });
 
+  const deleteNoteMutation = useMutation({
+    mutationFn: async (noteId: string) => {
+      if (!orgId) {
+        throw new Error('Organization ID is required to delete notes');
+      }
+
+      const { error } = await supabase
+        .from('org_notes')
+        .delete()
+        .eq('id', noteId)
+        .eq('organization_id', orgId);
+
+      if (error) throw error;
+      
+      // Track activity
+      const currentUser = (await supabase.auth.getUser()).data.user;
+      if (currentUser?.id && orgId) {
+        trackOrgActivity('note_deleted', currentUser.id, orgId, {
+          note_id: noteId
+        });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['org-notes'] });
+      toast({
+        title: "Success",
+        description: "Note deleted successfully.",
+      });
+    },
+    onError: (error) => {
+      console.error('Error deleting note:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete note.",
+        variant: "destructive",
+      });
+    },
+  });
+
   return {
     notes,
     isLoading,
@@ -278,7 +317,9 @@ export function useOrgNotes(organizationId?: string, folderId?: string) {
     refetch,
     createNote: createNoteMutation.mutate,
     updateNote: updateNoteMutation.mutate,
+    deleteNote: deleteNoteMutation.mutate,
     isCreating: createNoteMutation.isPending,
     isUpdating: updateNoteMutation.isPending,
+    isDeleting: deleteNoteMutation.isPending,
   };
 }

@@ -18,6 +18,16 @@ import {
   DialogHeader, 
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -82,10 +92,14 @@ export default function GoalsPage() {
     isLoading, 
     error, 
     createGoal, 
-    updateGoal, 
+    updateGoal,
+    deleteGoal,
     isCreating, 
-    isUpdating 
+    isUpdating,
+    isDeleting
   } = useOrgGoals(currentOrg?.organization_id);
+  
+  const [goalToDelete, setGoalToDelete] = useState<OrgGoal | null>(null);
 
   // Fetch actual students
   const { students } = useOrgStudents(currentOrg?.organization_id || '');
@@ -503,7 +517,13 @@ export default function GoalsPage() {
                             <Edit className="h-4 w-4 mr-2" />
                             Edit Goal
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="text-destructive">
+                          <DropdownMenuItem 
+                            className="text-destructive"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setGoalToDelete(goal);
+                            }}
+                          >
                             <Trash2 className="h-4 w-4 mr-2" />
                             Delete Goal
                           </DropdownMenuItem>
@@ -738,6 +758,33 @@ export default function GoalsPage() {
           }}
         />
       )}
+
+      {/* Delete Goal Confirmation Dialog */}
+      <AlertDialog open={!!goalToDelete} onOpenChange={(open) => !open && setGoalToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Goal</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{goalToDelete?.title}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (goalToDelete) {
+                  deleteGoal(goalToDelete.id);
+                  setGoalToDelete(null);
+                }
+              }}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? 'Deleting...' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
