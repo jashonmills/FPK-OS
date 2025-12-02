@@ -4,9 +4,14 @@ import { BookOpen, CheckCircle, Clock, TrendingUp, Loader2 } from 'lucide-react'
 import { useStudentAIAnalytics } from '@/hooks/useStudentAIAnalytics';
 import { useSearchParams } from 'react-router-dom';
 
-const StudentOverview: React.FC = () => {
+interface StudentOverviewProps {
+  orgId?: string;
+}
+
+const StudentOverview: React.FC<StudentOverviewProps> = ({ orgId: propOrgId }) => {
   const [searchParams] = useSearchParams();
-  const orgId = searchParams.get('org') || undefined;
+  // Use prop orgId if provided, otherwise fall back to search params
+  const orgId = propOrgId || searchParams.get('org') || undefined;
   const isOrgContext = !!orgId;
   const { stats, recentActivities, isLoading } = useStudentAIAnalytics(orgId);
 

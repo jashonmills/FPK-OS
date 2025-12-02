@@ -11,11 +11,13 @@ import type { TeacherTabId } from './TeacherPanel';
 
 interface TeacherOverviewProps {
   setActiveTab: (tab: TeacherTabId) => void;
+  orgId?: string;
 }
 
-const TeacherOverview: React.FC<TeacherOverviewProps> = ({ setActiveTab }) => {
+const TeacherOverview: React.FC<TeacherOverviewProps> = ({ setActiveTab, orgId: propOrgId }) => {
   const { organization, isLoading: orgLoading } = useUserPrimaryOrganization();
-  const orgId = organization?.organization_id || '';
+  // Use prop orgId if provided, otherwise fall back to primary organization
+  const orgId = propOrgId || organization?.organization_id || '';
   
   const { students, isLoading: studentsLoading } = useOrgStudents(orgId);
   
@@ -148,7 +150,8 @@ const TeacherOverview: React.FC<TeacherOverviewProps> = ({ setActiveTab }) => {
     staleTime: 1000 * 60 * 2,
   });
 
-  const isLoading = orgLoading || studentsLoading;
+  // Only show loading if we don't have a propOrgId and org is loading
+  const isLoading = !propOrgId && orgLoading || studentsLoading;
 
   const stats = [
     { label: 'My Students', value: students.length, icon: Users, color: 'from-blue-500 to-indigo-600' },
