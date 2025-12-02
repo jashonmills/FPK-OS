@@ -44,16 +44,27 @@ const AIGovernanceKnowledgeBase: React.FC = () => {
   }, []);
 
   const handleDownloadDocument = (doc: { title: string; content: string; file_name: string; file_type: string }) => {
-    const blob = new Blob([doc.content], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = doc.file_name || `${doc.title}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    toast.success('Document downloaded');
+    try {
+      const blob = new Blob([doc.content], { type: 'text/plain;charset=utf-8' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', doc.file_name || `${doc.title}.txt`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      
+      // Cleanup after a short delay
+      setTimeout(() => {
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      }, 100);
+      
+      toast.success('Document downloaded');
+    } catch (error) {
+      console.error('Download failed:', error);
+      toast.error('Failed to download document');
+    }
   };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
