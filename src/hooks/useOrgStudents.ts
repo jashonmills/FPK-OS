@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { OrgRole } from '@/lib/org/permissions';
 
 export interface OrgStudent {
   id: string;
@@ -37,15 +37,79 @@ export interface CreateOrgStudentData {
   notes?: string;
 }
 
-export function useOrgStudents(orgId: string, searchQuery?: string) {
+interface UseOrgStudentsOptions {
+  searchQuery?: string;
+  effectiveRole?: OrgRole;
+  currentUserId?: string;
+}
+
+export function useOrgStudents(orgId: string, searchQueryOrOptions?: string | UseOrgStudentsOptions) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  
+  // Handle both old API (searchQuery string) and new API (options object)
+  const options: UseOrgStudentsOptions = typeof searchQueryOrOptions === 'string' 
+    ? { searchQuery: searchQueryOrOptions }
+    : searchQueryOrOptions || {};
+  
+  const { searchQuery, effectiveRole, currentUserId } = options;
+  
+  // Determine if we should scope to assigned groups only (instructor/instructor_aide)
+  const shouldScopeToAssigned = effectiveRole && ['instructor', 'instructor_aide'].includes(effectiveRole);
 
   const { data: students = [], isLoading, error, refetch } = useQuery({
-    queryKey: ['org-students', orgId, searchQuery],
+    queryKey: ['org-students', orgId, searchQuery, effectiveRole, currentUserId],
     queryFn: async () => {
       try {
-        console.log('🔄 [useOrgStudents] Fetching students for org:', orgId);
+        console.log('🔄 [useOrgStudents] Fetching students for org:', orgId, 'role:', effectiveRole);
+        
+        // If instructor/aide, first get the groups they created and the students in those groups
+        let allowedStudentUserIds: Set<string> | null = null;
+        
+        if (shouldScopeToAssigned && currentUserId) {
+          console.log('🔒 [useOrgStudents] Scoping to assigned groups for user:', currentUserId);
+          
+          // Get groups created by this instructor
+          const { data: myGroups, error: groupsError } = await supabase
+            .from('org_groups')
+            .select('id')
+            .eq('org_id', orgId)
+            .eq('created_by', currentUserId);
+          
+          if (groupsError) {
+            console.error('❌ [useOrgStudents] Error fetching instructor groups:', groupsError);
+            throw groupsError;
+          }
+          
+          const groupIds = (myGroups || []).map(g => g.id);
+          console.log('📁 [useOrgStudents] Instructor groups:', groupIds.length);
+          
+          if (groupIds.length === 0) {
+            // Instructor has no groups, return empty list
+            console.log('⚠️ [useOrgStudents] No groups found for instructor, returning empty list');
+            return [];
+          }
+          
+          // Get students in those groups
+          const { data: groupMembers, error: membersError } = await supabase
+            .from('org_group_members')
+            .select('user_id')
+            .in('group_id', groupIds);
+          
+          if (membersError) {
+            console.error('❌ [useOrgStudents] Error fetching group members:', membersError);
+            throw membersError;
+          }
+          
+          allowedStudentUserIds = new Set((groupMembers || []).map(m => m.user_id).filter(Boolean));
+          console.log('👥 [useOrgStudents] Allowed student user IDs:', allowedStudentUserIds.size);
+          
+          if (allowedStudentUserIds.size === 0) {
+            // No students in instructor's groups
+            console.log('⚠️ [useOrgStudents] No students in instructor groups, returning empty list');
+            return [];
+          }
+        }
         
         // Fetch profile-only students from org_students table
         let orgStudentsQuery = supabase
@@ -186,13 +250,32 @@ export function useOrgStudents(orgId: string, searchQuery?: string) {
         console.log('✅ [useOrgStudents] Returning', remainingOrgStudents.length + filteredMemberStudents.length, 'total students');
 
         // Combine: remaining org_students first, then member students
-        return [...remainingOrgStudents, ...filteredMemberStudents];
+        let allStudents = [...remainingOrgStudents, ...filteredMemberStudents];
+        
+        // If scoped to assigned, filter to only allowed students
+        if (allowedStudentUserIds) {
+          allStudents = allStudents.filter(student => {
+            // Include if student's linked_user_id is in allowed set
+            if (student.linked_user_id && allowedStudentUserIds!.has(student.linked_user_id)) {
+              return true;
+            }
+            // For profile-only students (no linked_user_id), check if created_by matches current user
+            // This allows instructors to see students they created even if not in a group yet
+            if (!student.linked_user_id && student.created_by === currentUserId) {
+              return true;
+            }
+            return false;
+          });
+          console.log('🔒 [useOrgStudents] After scoping filter:', allStudents.length, 'students');
+        }
+        
+        return allStudents;
       } catch (error) {
         console.error('🔴 [useOrgStudents] Fatal error in queryFn:', error);
         throw error;
       }
     },
-    enabled: !!orgId,
+    enabled: !!orgId && (!shouldScopeToAssigned || !!currentUserId),
     staleTime: 1000 * 60 * 5, // 5 minutes
     retry: 2,
     retryDelay: 1000,
