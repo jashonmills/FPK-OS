@@ -40,10 +40,10 @@ const SUBSCRIPTION_PLANS = {
 };
 
 export default function OrgSubscriptionPage() {
-  const { currentOrg, getUserRole } = useOrgContext();
+  const { currentOrg, getEffectiveRole } = useOrgContext();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const userRole = getUserRole();
+  const userRole = getEffectiveRole();
 
   const changePlanMutation = useMutation({
     mutationFn: async (newPlan: string) => {
