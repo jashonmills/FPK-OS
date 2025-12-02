@@ -74,51 +74,42 @@ const ReadingProgressWidget = () => {
 
   return (
     <Card className="fpk-card border-0 shadow-md">
-      <CardHeader className="pb-2 p-4">
-        <CardTitle className="flex items-center gap-2 text-sm">
-          <BookOpen className="h-4 w-4 text-blue-600" />
-          Reading Progress
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="p-4 pt-0 space-y-3">
-        <div className="grid grid-cols-2 gap-3">
-          <div className="text-center">
-            <div className="flex items-center justify-center mb-1">
-              <Clock className="h-3 w-3 text-blue-600 mr-1" />
+      <CardContent className="p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <BookOpen className="h-4 w-4 text-blue-600 shrink-0" />
+          <span className="text-sm font-semibold">Reading Progress</span>
+        </div>
+        
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <Clock className="h-3 w-3 text-blue-600 shrink-0" />
+            <div>
+              <span className="text-lg font-bold text-blue-600">{formatTime(analytics.totalReadingTime)}</span>
+              <p className="text-xs text-muted-foreground whitespace-nowrap">Total Time</p>
             </div>
-            <div className="text-lg font-bold text-blue-600">
-              {formatTime(analytics.totalReadingTime)}
-            </div>
-            <p className="text-xs text-gray-500">Total Time</p>
           </div>
           
-          <div className="text-center">
-            <div className="flex items-center justify-center mb-1">
-              <TrendingUp className="h-3 w-3 text-green-600 mr-1" />
+          <div className="flex items-center gap-2">
+            <TrendingUp className="h-3 w-3 text-green-600 shrink-0" />
+            <div>
+              <span className="text-lg font-bold text-green-600">{analytics.sessionsThisWeek}</span>
+              <p className="text-xs text-muted-foreground whitespace-nowrap">This Week</p>
             </div>
-            <div className="text-lg font-bold text-green-600">
-              {analytics.sessionsThisWeek}
-            </div>
-            <p className="text-xs text-gray-500">This Week</p>
           </div>
-        </div>
 
-        <div className="pt-2 border-t">
-          {analytics.totalReadingTime > 0 ? (
-            <div className="text-xs text-gray-600 text-center">
-              <div className="mb-1">
-                Avg session: {formatTime(analytics.averageSessionLength)}
-              </div>
-              <div>
-                Longest: {formatTime(analytics.longestSession)}
-              </div>
+          {analytics.totalReadingTime > 0 && (
+            <div className="hidden sm:flex items-center gap-4 text-xs text-muted-foreground border-l pl-4">
+              <span className="whitespace-nowrap">Avg: {formatTime(analytics.averageSessionLength)}</span>
+              <span className="whitespace-nowrap">Best: {formatTime(analytics.longestSession)}</span>
             </div>
-          ) : (
-            <p className="text-xs text-gray-500 text-center">
-              Start reading to track your progress
-            </p>
           )}
         </div>
+        
+        {analytics.totalReadingTime === 0 && (
+          <p className="text-xs text-muted-foreground text-center mt-2">
+            Start reading to track your progress
+          </p>
+        )}
       </CardContent>
     </Card>
   );

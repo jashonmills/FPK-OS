@@ -97,79 +97,79 @@ export const GoalsDashboard = () => {
 
   return (
     <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
-      {/* Stats Overview and Reading Widget */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-2 sm:gap-4">
+      {/* Stats Overview */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <Card className="fpk-card border-0 shadow-md">
-          <CardContent className="p-2 sm:p-3 md:p-4">
-            <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-3">
-              <div className="p-1 sm:p-1.5 md:p-2 bg-blue-100 rounded-lg flex-shrink-0 w-fit">
-                <Target className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 text-blue-600" />
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-100 rounded-lg shrink-0">
+                <Target className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
               </div>
-              <div className="min-w-0 overflow-hidden">
-                <p className="text-xs sm:text-sm text-gray-500 truncate">
+              <div>
+                <p className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">
                   <DualLanguageText translationKey="goals.stats.totalGoals" fallback="Total Goals" />
                 </p>
-                <p className="text-base sm:text-lg md:text-xl font-bold">{totalGoals}</p>
+                <p className="text-lg sm:text-xl font-bold">{totalGoals}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card className="fpk-card border-0 shadow-md">
-          <CardContent className="p-2 sm:p-3 md:p-4">
-            <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-3">
-              <div className="p-1 sm:p-1.5 md:p-2 bg-green-100 rounded-lg flex-shrink-0 w-fit">
-                <Target className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 text-green-600" />
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-green-100 rounded-lg shrink-0">
+                <Target className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
               </div>
-              <div className="min-w-0 overflow-hidden">
-                <p className="text-xs sm:text-sm text-gray-500 truncate">
+              <div>
+                <p className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">
                   <DualLanguageText translationKey="goals.stats.activeGoals" fallback="Active" />
                 </p>
-                <p className="text-base sm:text-lg md:text-xl font-bold">{activeGoalsCount}</p>
+                <p className="text-lg sm:text-xl font-bold">{activeGoalsCount}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card className="fpk-card border-0 shadow-md">
-          <CardContent className="p-2 sm:p-3 md:p-4">
-            <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-3">
-              <div className="p-1 sm:p-1.5 md:p-2 bg-amber-100 rounded-lg flex-shrink-0 w-fit">
-                <Trophy className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 text-amber-600" />
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-amber-100 rounded-lg shrink-0">
+                <Trophy className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600" />
               </div>
-              <div className="min-w-0 overflow-hidden">
-                <p className="text-xs sm:text-sm text-gray-500 truncate">
+              <div>
+                <p className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">
                   <DualLanguageText translationKey="goals.stats.completedGoals" fallback="Complete" />
                 </p>
-                <p className="text-base sm:text-lg md:text-xl font-bold">{completedGoalsCount}</p>
+                <p className="text-lg sm:text-xl font-bold">{completedGoalsCount}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card className="fpk-card border-0 shadow-md">
-          <CardContent className="p-2 sm:p-3 md:p-4">
-            <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-3">
-              <div className="p-1 sm:p-1.5 md:p-2 bg-purple-100 rounded-lg flex-shrink-0 w-fit">
-                <Calendar className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 text-purple-600" />
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-purple-100 rounded-lg shrink-0">
+                <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600" />
               </div>
-              <div className="min-w-0 overflow-hidden">
-                <p className="text-xs sm:text-sm text-gray-500 truncate">
+              <div>
+                <p className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">
                   <DualLanguageText translationKey="goals.stats.completionRate" fallback="Rate" />
                 </p>
-                <p className="text-base sm:text-lg md:text-xl font-bold">
+                <p className="text-lg sm:text-xl font-bold">
                   {totalGoals > 0 ? Math.round((completedGoalsCount / totalGoals) * 100) : 0}%
                 </p>
               </div>
             </div>
           </CardContent>
         </Card>
-
-        {/* Reading Progress Widget with Error Boundary */}
-        <ReadingProgressWidgetErrorBoundary>
-          <ReadingProgressWidget />
-        </ReadingProgressWidgetErrorBoundary>
       </div>
+
+      {/* Reading Progress Widget - Separate Row */}
+      <ReadingProgressWidgetErrorBoundary>
+        <ReadingProgressWidget />
+      </ReadingProgressWidgetErrorBoundary>
 
       {/* Goals Management */}
       <Card className="fpk-card border-0 shadow-lg">
