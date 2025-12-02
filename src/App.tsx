@@ -537,13 +537,11 @@ const App: React.FC = () => {
                 <LazyRoute><TeacherDashboardV2 /></LazyRoute>
               </RequireAdmin>
             } />
-            {shouldUseAILearningCoachV2() && (
-              <Route path="admin/ai-learning-coach-v2" element={
-                <RequireAdmin>
-                  <LazyRoute><AILearningCoachV2 /></LazyRoute>
-                </RequireAdmin>
-              } />
-            )}
+            <Route path="admin/ai-learning-coach-v2" element={
+              <RequireAdmin>
+                <LazyRoute><AILearningCoachV2 /></LazyRoute>
+              </RequireAdmin>
+            } />
             <Route path="admin/phoenix-analytics" element={
               <RequireAdmin>
                 <LazyRoute><PhoenixAnalytics /></LazyRoute>
