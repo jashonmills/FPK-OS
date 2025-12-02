@@ -9,11 +9,14 @@ const corsHeaders = {
 
 interface GatewayRequest {
   toolId: string;
-  orgId?: string;
+  userId?: string;
+  orgId?: string | null;
   message: string;
   systemPromptOverride?: string;
   messageHistory?: Array<{ role: 'user' | 'assistant'; content: string }>;
+  additionalContext?: string; // Extra context to append to system prompt
   temperature?: number;
+  temperatureOverride?: number; // Takes precedence over all other temperature settings
   maxTokens?: number;
   tools?: any[];
   toolChoice?: string;
@@ -79,7 +82,7 @@ serve(async (req) => {
 
     // Parse request
     const requestBody: GatewayRequest = await req.json();
-    const { toolId, orgId, message, systemPromptOverride, messageHistory = [], temperature, maxTokens, tools, toolChoice } = requestBody;
+    const { toolId, userId, orgId, message, systemPromptOverride, messageHistory = [], additionalContext, temperature, temperatureOverride, maxTokens, tools, toolChoice } = requestBody;
 
     if (!toolId || !message) {
       return new Response(
@@ -196,6 +199,11 @@ If a user request violates these policies, politely decline and explain that thi
 ${systemPrompt}`;
     }
 
+    // Append additional context if provided (e.g., code context for code-companion)
+    if (additionalContext) {
+      systemPrompt += '\n\n' + additionalContext;
+    }
+
     // STEP 5: Build messages array
     const llmMessages = [
       { role: 'system', content: systemPrompt },
@@ -204,11 +212,14 @@ ${systemPrompt}`;
     ];
 
     // STEP 6: Prepare AI request
+    // Temperature precedence: temperatureOverride > temperature > modelConfig > toolConfig > default
+    const finalTemperature = temperatureOverride ?? temperature ?? modelConfig?.config?.temperature ?? toolConfig.temperature ?? 0.7;
+    
     const aiRequestBody: any = {
       model: finalModel,
       messages: llmMessages,
       max_tokens: maxTokens || modelConfig?.config?.maxTokens || toolConfig.max_tokens || 4000,
-      temperature: temperature ?? modelConfig?.config?.temperature ?? toolConfig.temperature ?? 0.7,
+      temperature: finalTemperature,
     };
 
     // Add tool calling if specified

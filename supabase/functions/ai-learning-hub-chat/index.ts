@@ -78,12 +78,6 @@ serve(async (req) => {
   try {
     console.log('[AI-LEARNING-HUB] 🚀 Request received');
 
-    // Get Lovable API key
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY not configured');
-    }
-
     // Authenticate user
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
@@ -122,34 +116,23 @@ serve(async (req) => {
 
     console.log('[AI-LEARNING-HUB] 📋 Tool:', toolId, '| Message length:', message.length, '| Has code context:', !!codeContext);
 
-    // Fetch tool configuration from database
-    const { data: toolConfig, error: toolError } = await supabaseClient
-      .from('ai_tools')
-      .select('*')
-      .eq('id', toolId)
-      .eq('is_active', true)
-      .single();
+    // Get user's org_id if any
+    const { data: orgMember } = await supabaseClient
+      .from('org_members')
+      .select('org_id')
+      .eq('user_id', user.id)
+      .maybeSingle();
 
-    if (toolError || !toolConfig) {
-      console.error('[AI-LEARNING-HUB] ❌ Tool not found:', toolId);
-      return new Response(
-        JSON.stringify({ error: `Tool "${toolId}" not found or inactive` }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    const orgId = orgMember?.org_id || null;
 
-    console.log('[AI-LEARNING-HUB] ✅ Tool config loaded:', toolConfig.display_name);
-
-    // Build system prompt - enhance for code-companion with context
-    let systemPrompt = toolConfig.system_prompt;
-    
+    // Build additional context for code-companion
+    let additionalContext = '';
     if (toolId === 'code-companion' && codeContext) {
       const lang = codeContext.language || 'JavaScript';
       const langLower = lang.toLowerCase();
       const isRunnable = ['javascript', 'typescript'].includes(langLower);
       
-      systemPrompt += `
-
+      additionalContext = `
 ## CURRENT CODE CONTEXT
 Language: ${lang}
 The user's current code in the editor:
@@ -176,67 +159,46 @@ ${codeContext.output || '(not run yet)'}
 ${!isRunnable ? `8. Since ${lang} cannot run in the browser, focus on explaining concepts and syntax` : ''}`;
     }
 
-    // Build messages array for LLM
-    const llmMessages = [
-      { role: 'system', content: systemPrompt },
-      ...messageHistory.slice(-10),
-      { role: 'user', content: message }
-    ];
+    // Prepare tools for code-companion
+    const tools = (toolId === 'code-companion' && codeContext) ? [codeEditorActionsTool] : undefined;
 
-    // Prepare request body
-    const requestBody: any = {
-      model: toolConfig.model || 'google/gemini-2.5-flash',
-      messages: llmMessages,
-      max_tokens: toolConfig.max_tokens || 4000,
-      temperature: Number(toolConfig.temperature) || 0.7,
-    };
-
-    // Add tool calling for code-companion
-    if (toolId === 'code-companion' && codeContext) {
-      requestBody.tools = [codeEditorActionsTool];
-      requestBody.tool_choice = "auto";
-    }
-
-    // Call Lovable AI Gateway
-    console.log('[AI-LEARNING-HUB] 🤖 Calling Lovable AI Gateway...');
-    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    // Call the unified AI gateway
+    console.log('[AI-LEARNING-HUB] 🔀 Routing through unified-ai-gateway...');
+    const gatewayResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/unified-ai-gateway`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Authorization': authHeader,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(requestBody)
+      body: JSON.stringify({
+        toolId,
+        userId: user.id,
+        orgId,
+        message,
+        messageHistory: messageHistory.slice(-10),
+        additionalContext,
+        tools,
+        toolChoice: tools ? "auto" : undefined,
+      })
     });
 
-    if (!aiResponse.ok) {
-      const errorText = await aiResponse.text();
-      console.error('[AI-LEARNING-HUB] ❌ AI Gateway error:', aiResponse.status, errorText);
-      
-      if (aiResponse.status === 429) {
-        return new Response(
-          JSON.stringify({ error: 'Rate limit exceeded. Please try again in a moment.' }),
-          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-      if (aiResponse.status === 402) {
-        return new Response(
-          JSON.stringify({ error: 'AI credits depleted. Please add credits to continue.' }),
-          { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-      
-      throw new Error(`AI Gateway error: ${aiResponse.status}`);
+    if (!gatewayResponse.ok) {
+      const errorData = await gatewayResponse.json().catch(() => ({ error: 'Gateway error' }));
+      console.error('[AI-LEARNING-HUB] ❌ Gateway error:', gatewayResponse.status, errorData);
+      return new Response(
+        JSON.stringify(errorData),
+        { status: gatewayResponse.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    const aiData = await aiResponse.json();
-    const choice = aiData.choices?.[0];
+    const gatewayData = await gatewayResponse.json();
     
-    let responseContent = choice?.message?.content || 'I apologize, but I could not generate a response. Please try again.';
+    let responseContent = gatewayData.response || 'I apologize, but I could not generate a response. Please try again.';
     let codeActions: CodeAction[] = [];
 
-    // Process tool calls if present
-    if (choice?.message?.tool_calls && choice.message.tool_calls.length > 0) {
-      for (const toolCall of choice.message.tool_calls) {
+    // Process tool calls if present (from gateway's raw response)
+    if (gatewayData.toolCalls && gatewayData.toolCalls.length > 0) {
+      for (const toolCall of gatewayData.toolCalls) {
         if (toolCall.function?.name === 'code_editor_actions') {
           try {
             const args = JSON.parse(toolCall.function.arguments);
@@ -251,42 +213,17 @@ ${!isRunnable ? `8. Since ${lang} cannot run in the browser, focus on explaining
       }
     }
 
-    console.log('[AI-LEARNING-HUB] ✅ AI response received, length:', responseContent.length, '| Code actions:', codeActions.length);
+    console.log('[AI-LEARNING-HUB] ✅ Response received, length:', responseContent.length, '| Code actions:', codeActions.length);
 
     // Generate or use existing session ID
     const currentSessionId = sessionId || `session_${Date.now()}_${user.id.substring(0, 8)}`;
-
-    // Log session to database
-    const { error: sessionError } = await supabaseClient
-      .from('ai_tool_sessions')
-      .upsert({
-        user_id: user.id,
-        tool_id: toolId,
-        session_id: currentSessionId,
-        message_count: messageHistory.length + 2,
-        credits_used: toolConfig.credit_cost || 1,
-        metadata: {
-          last_message_at: new Date().toISOString(),
-          model_used: toolConfig.model,
-          had_code_context: !!codeContext,
-          code_language: codeContext?.language,
-          code_actions_count: codeActions.length
-        }
-      }, {
-        onConflict: 'session_id',
-        ignoreDuplicates: false
-      });
-
-    if (sessionError) {
-      console.warn('[AI-LEARNING-HUB] ⚠️ Session logging failed:', sessionError.message);
-    }
 
     // Return response
     const responseBody: any = {
       response: responseContent,
       sessionId: currentSessionId,
       toolId: toolId,
-      creditsUsed: toolConfig.credit_cost || 1,
+      creditsUsed: gatewayData.creditsUsed || 1,
     };
 
     if (codeActions.length > 0) {
