@@ -73,7 +73,7 @@ function OrgWebsiteContent() {
 
 export default function OrgWebsitePage() {
   return (
-    <OrgRequireRole roles={['owner', 'admin', 'instructor']}>
+    <OrgRequireRole roles={['owner', 'admin', 'instructor', 'instructor_aide']}>
       <OrgWebsiteContent />
     </OrgRequireRole>
   );

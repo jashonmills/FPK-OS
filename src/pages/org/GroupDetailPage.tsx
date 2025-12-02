@@ -30,8 +30,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { OrgRequireRole } from '@/components/organizations/OrgRequireRole';
 
-const GroupDetailPage = () => {
+function GroupDetailPageContent() {
   const { groupId, orgId } = useParams<{ groupId: string; orgId: string }>();
   const navigate = useNavigate();
   const { groups, isLoading: loadingGroup } = useOrgGroups();
@@ -267,4 +268,10 @@ const GroupDetailPage = () => {
   );
 };
 
-export default GroupDetailPage;
+export default function GroupDetailPage() {
+  return (
+    <OrgRequireRole roles={['owner', 'admin', 'instructor', 'instructor_aide']}>
+      <GroupDetailPageContent />
+    </OrgRequireRole>
+  );
+}

@@ -15,8 +15,9 @@ import { StudentCommunicationTab } from '@/components/students/profile/StudentCo
 import { StudentDocumentsTab } from '@/components/students/profile/StudentDocumentsTab';
 import { StudentIEPTab } from '@/components/students/profile/StudentIEPTab';
 import { StudentGoalsTab } from '@/components/students/profile/StudentGoalsTab';
+import { OrgRequireRole } from '@/components/organizations/OrgRequireRole';
 
-export default function StudentProfilePage() {
+function StudentProfilePageContent() {
   const { orgId, studentId } = useParams<{ orgId: string; studentId: string }>();
   const navigate = useNavigate();
   const { currentOrg } = useOrgContext();
@@ -125,5 +126,13 @@ export default function StudentProfilePage() {
         />
       </TransparentTile>
     </MobilePageLayout>
+  );
+}
+
+export default function StudentProfilePage() {
+  return (
+    <OrgRequireRole roles={['owner', 'admin', 'instructor', 'instructor_aide']}>
+      <StudentProfilePageContent />
+    </OrgRequireRole>
   );
 }

@@ -291,7 +291,7 @@ function StudentsManagementContent() {
 
 export default function StudentsManagementNew() {
   return (
-    <OrgRequireRole roles={['owner', 'admin', 'instructor']}>
+    <OrgRequireRole roles={['owner', 'admin', 'instructor', 'instructor_aide']}>
       <StudentsManagementContent />
     </OrgRequireRole>
   );

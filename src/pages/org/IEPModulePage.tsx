@@ -230,7 +230,7 @@ function IEPModuleContent() {
 
 export default function IEPModulePage() {
   return (
-    <OrgRequireRole roles={['owner', 'admin', 'instructor']}>
+    <OrgRequireRole roles={['owner', 'admin', 'instructor', 'instructor_aide']}>
       <IEPModuleContent />
     </OrgRequireRole>
   );

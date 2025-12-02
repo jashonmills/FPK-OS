@@ -82,7 +82,7 @@ function GroupsPageContent() {
 
 export default function GroupsPage() {
   return (
-    <OrgRequireRole roles={['owner', 'admin', 'instructor']}>
+    <OrgRequireRole roles={['owner', 'admin', 'instructor', 'instructor_aide']}>
       <GroupsPageContent />
     </OrgRequireRole>
   );
