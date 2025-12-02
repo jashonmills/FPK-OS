@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useOrgContext } from '@/components/organizations/OrgContext';
 import { useConversations } from '@/hooks/useConversations';
 import { ConversationList } from '@/components/messaging/ConversationList';
@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils';
 export default function MessagingPage() {
   const { currentOrg } = useOrgContext();
   const { conversationId } = useParams();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [showNewDialog, setShowNewDialog] = useState(false);
   
@@ -29,20 +29,21 @@ export default function MessagingPage() {
 
   // Handle selecting a conversation
   const handleSelectConversation = (id: string) => {
-    window.history.pushState({}, '', `/org/${currentOrg?.organization_id}/messages/${id}`);
+    navigate(`/org/${currentOrg?.organization_id}/messages/${id}`);
     markAsRead(id);
   };
 
   // Handle back button on mobile
   const handleBack = () => {
-    window.history.pushState({}, '', `/org/${currentOrg?.organization_id}/messages`);
+    navigate(`/org/${currentOrg?.organization_id}/messages`);
   };
 
   // Handle new conversation created
   const handleConversationCreated = (conversation: any) => {
     setShowNewDialog(false);
     if (conversation?.id) {
-      handleSelectConversation(conversation.id);
+      navigate(`/org/${currentOrg?.organization_id}/messages/${conversation.id}`);
+      markAsRead(conversation.id);
     }
     refetch();
   };
