@@ -16,6 +16,7 @@ export const FeatureFlags = {
   ENABLE_TTS: import.meta.env.VITE_FEATURE_ENABLE_TTS !== 'false', // Default enabled (for future subscription gating)
   ENABLE_NEW_TEACHER_DASHBOARD: import.meta.env.VITE_FEATURE_ENABLE_NEW_TEACHER_DASHBOARD === 'true', // Default disabled
   ENABLE_AI_LEARNING_COACH_V2: import.meta.env.VITE_FEATURE_ENABLE_AI_LEARNING_COACH_V2 === 'true', // Default disabled
+  ENABLE_AI_GOVERNANCE: import.meta.env.VITE_FEATURE_ENABLE_AI_GOVERNANCE === 'true', // Default disabled
 } as const;
 
 export function isFeatureEnabled(flag: keyof typeof FeatureFlags): boolean {
@@ -94,4 +95,12 @@ export function shouldUseNewTeacherDashboard(): boolean {
  */
 export function shouldUseAILearningCoachV2(): boolean {
   return isFeatureEnabled('ENABLE_AI_LEARNING_COACH_V2');
+}
+
+/**
+ * Check if AI Governance system should be available
+ * (Default: false - for development before rollout)
+ */
+export function shouldShowAIGovernance(): boolean {
+  return isFeatureEnabled('ENABLE_AI_GOVERNANCE');
 }

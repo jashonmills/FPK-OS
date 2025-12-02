@@ -235,6 +235,11 @@ export function AppSidebar() {
       url: "/dashboard/admin/audit",
       icon: FileText,
     },
+    {
+      title: 'AI Governance',
+      url: "/dashboard/admin/ai-governance",
+      icon: Shield,
+    },
   ];
 
   const scormMenuItems = [

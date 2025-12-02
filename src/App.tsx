@@ -139,6 +139,7 @@ const SyncCourseManifests = lazy(() => import("./pages/admin/SyncCourseManifests
 const InstructorDashboard = lazy(() => import("./pages/dashboard/InstructorDashboard"));
 const TeacherDashboardV2 = lazy(() => import("./pages/dashboard/TeacherDashboardV2"));
 const AILearningCoachV2 = lazy(() => import("./pages/dashboard/AILearningCoachV2"));
+const AIGovernancePage = lazy(() => import("./pages/admin/AIGovernancePage"));
 const StudentProgress = lazy(() => import("./pages/instructor/StudentProgress"));
 const OrgBrandingSettings = lazy(() => import("./pages/instructor/OrgBrandingSettings"));
 const OrgWebsitePage = lazy(() => import("./pages/organizations/OrgWebsitePage"));
@@ -540,6 +541,11 @@ const App: React.FC = () => {
             <Route path="admin/ai-learning-coach-v2" element={
               <RequireAdmin>
                 <LazyRoute><AILearningCoachV2 /></LazyRoute>
+              </RequireAdmin>
+            } />
+            <Route path="admin/ai-governance" element={
+              <RequireAdmin>
+                <LazyRoute><AIGovernancePage /></LazyRoute>
               </RequireAdmin>
             } />
             <Route path="admin/phoenix-analytics" element={
