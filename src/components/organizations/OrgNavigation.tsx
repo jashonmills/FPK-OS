@@ -46,10 +46,13 @@ interface OrgNavigationProps {
 }
 
 export function OrgNavigation({ isMobileMenuOpen: externalMobileMenuOpen, onMobileMenuToggle }: OrgNavigationProps = {}) {
-  const { currentOrg } = useOrgContext();
+  const { currentOrg, getEffectiveRole } = useOrgContext();
   const isMobile = useIsMobile();
   const [internalMobileMenuOpen, setInternalMobileMenuOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useLocalStorage('orgNavCollapsed', false);
+  
+  // Use effective role for impersonation support
+  const effectiveRole = getEffectiveRole();
   
   // Use external state if provided, otherwise use internal state
   const isMobileMenuOpen = externalMobileMenuOpen !== undefined ? externalMobileMenuOpen : internalMobileMenuOpen;
@@ -99,14 +102,14 @@ export function OrgNavigation({ isMobileMenuOpen: externalMobileMenuOpen, onMobi
       icon: Target,
     },
     // AI Governance for owners/admins when feature flag is enabled, otherwise AI Coach
-    ...(shouldShowAIGovernance() && (currentOrg.role === 'owner' || currentOrg.role === 'admin') ? [{
+    ...(shouldShowAIGovernance() && (effectiveRole === 'owner' || effectiveRole === 'admin') ? [{
       href: `/org/${currentOrg.organization_id}/ai-governance`,
       label: 'AI Governance',
       icon: Shield,
       roles: ['owner', 'admin'] as string[],
     }] : [{
       href: `/org/${currentOrg.organization_id}/ai-coach`,
-      label: currentOrg.role === 'student' ? 'AI Learning Coach' : 'AI Org Assistant',
+      label: effectiveRole === 'student' ? 'AI Learning Coach' : 'AI Org Assistant',
       icon: Brain,
     }]),
     {
@@ -121,7 +124,7 @@ export function OrgNavigation({ isMobileMenuOpen: externalMobileMenuOpen, onMobi
       roles: ['owner', 'instructor'],
     },
     {
-      href: currentOrg.role === 'student' 
+      href: effectiveRole === 'student' 
         ? `/org/${currentOrg.organization_id}/student-settings`
         : `/org/${currentOrg.organization_id}/settings`,
       label: 'Settings',
@@ -139,12 +142,13 @@ export function OrgNavigation({ isMobileMenuOpen: externalMobileMenuOpen, onMobi
 
   const filteredNavItems = navItems.filter(item => {
     if (!item.roles) return true;
-    const hasPermission = item.roles.includes(currentOrg.role);
+    const hasPermission = effectiveRole ? item.roles.includes(effectiveRole) : false;
     
     // Debug logging for Settings button
     if (item.label === 'Settings') {
       console.log('Settings button debug:', {
-        userRole: currentOrg.role,
+        actualRole: currentOrg.role,
+        effectiveRole,
         requiredRoles: item.roles,
         hasPermission,
         orgData: currentOrg
