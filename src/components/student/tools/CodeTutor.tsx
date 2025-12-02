@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Code, Play, PanelLeftClose, PanelLeftOpen, ChevronDown } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Code, Play, PanelLeftClose, PanelLeftOpen, ChevronDown, Loader2, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -7,6 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { supabase } from '@/integrations/supabase/client';
 import AIChatInterface from './AIChatInterface';
 
 interface CodeTutorProps {
@@ -21,11 +22,12 @@ export interface CodeAction {
 }
 
 type Language = 'javascript' | 'python' | 'java' | 'css' | 'html' | 'typescript';
+type RuntimeType = 'browser' | 'pyodide' | 'api' | 'preview';
 
 interface LanguageConfig {
   name: string;
   extension: string;
-  runnable: boolean;
+  runtime: RuntimeType;
   starterCode: string;
 }
 
@@ -33,7 +35,7 @@ const LANGUAGES: Record<Language, LanguageConfig> = {
   javascript: {
     name: 'JavaScript',
     extension: 'js',
-    runnable: true,
+    runtime: 'browser',
     starterCode: `// 🎯 Welcome to Code Tutor!
 // This factorial function calculates n! using recursion.
 // Try changing the number 5 to something else and click "Run Code"!
@@ -50,10 +52,10 @@ console.log(calculateFactorial(5));`
   python: {
     name: 'Python',
     extension: 'py',
-    runnable: false,
+    runtime: 'pyodide',
     starterCode: `# 🎯 Welcome to Code Tutor!
 # This factorial function calculates n! using recursion.
-# Ask the AI to explain how it works!
+# Click "Run Code" to execute Python in your browser!
 
 def calculate_factorial(n):
     if n == 0 or n == 1:
@@ -65,10 +67,10 @@ print(calculate_factorial(5))`
   java: {
     name: 'Java',
     extension: 'java',
-    runnable: false,
+    runtime: 'api',
     starterCode: `// 🎯 Welcome to Code Tutor!
 // This factorial function calculates n! using recursion.
-// Ask the AI to explain how it works!
+// Click "Run Code" to compile and execute Java!
 
 public class Main {
     public static int calculateFactorial(int n) {
@@ -86,7 +88,7 @@ public class Main {
   typescript: {
     name: 'TypeScript',
     extension: 'ts',
-    runnable: true,
+    runtime: 'browser',
     starterCode: `// 🎯 Welcome to Code Tutor!
 // This factorial function calculates n! using recursion.
 // TypeScript adds type safety to JavaScript!
@@ -103,56 +105,163 @@ console.log(calculateFactorial(5));`
   html: {
     name: 'HTML',
     extension: 'html',
-    runnable: false,
+    runtime: 'preview',
     starterCode: `<!-- 🎯 Welcome to Code Tutor! -->
-<!-- Learn HTML structure and elements -->
-<!-- Ask the AI to explain any tag! -->
+<!-- Edit the HTML and see the live preview update! -->
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>My First Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+        }
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        h1 { color: #333; margin-bottom: 1rem; }
+        p { color: #666; }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 1rem;
+        }
+        button:hover { background: #5a67d8; }
+    </style>
 </head>
 <body>
-    <h1>Hello, World!</h1>
-    <p>This is my first HTML page.</p>
-    <button>Click me!</button>
+    <div class="card">
+        <h1>Hello, World! 👋</h1>
+        <p>This is my first HTML page.</p>
+        <button onclick="alert('You clicked me!')">Click me!</button>
+    </div>
 </body>
 </html>`
   },
   css: {
     name: 'CSS',
     extension: 'css',
-    runnable: false,
+    runtime: 'preview',
     starterCode: `/* 🎯 Welcome to Code Tutor! */
-/* Learn CSS styling and layouts */
-/* Ask the AI to explain any property! */
+/* Edit the CSS and see the live preview update! */
 
 body {
   font-family: 'Arial', sans-serif;
-  background-color: #f0f0f0;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   margin: 0;
-  padding: 20px;
+}
+
+.container {
+  background: white;
+  padding: 2rem 3rem;
+  border-radius: 1rem;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
 }
 
 h1 {
   color: #333;
   text-align: center;
+  margin-bottom: 1rem;
+}
+
+p {
+  color: #666;
+  text-align: center;
 }
 
 .button {
-  background-color: #4CAF50;
+  display: block;
+  width: 100%;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
   color: white;
-  padding: 10px 20px;
+  padding: 12px 24px;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
+  font-size: 1rem;
+  margin-top: 1rem;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .button:hover {
-  background-color: #45a049;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(245, 87, 108, 0.4);
 }`
+  }
+};
+
+// CSS Preview HTML Template
+const CSS_PREVIEW_TEMPLATE = (css: string) => `
+<!DOCTYPE html>
+<html>
+<head>
+  <style>${css}</style>
+</head>
+<body>
+  <div class="container">
+    <h1>CSS Preview</h1>
+    <p>Edit the CSS to see changes here!</p>
+    <button class="button">Styled Button</button>
+  </div>
+</body>
+</html>
+`;
+
+// Pyodide loader
+let pyodideInstance: any = null;
+let pyodideLoading = false;
+
+const loadPyodideRuntime = async (): Promise<any> => {
+  if (pyodideInstance) return pyodideInstance;
+  if (pyodideLoading) {
+    // Wait for existing load
+    while (pyodideLoading) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    return pyodideInstance;
+  }
+  
+  pyodideLoading = true;
+  try {
+    // Dynamically load Pyodide from CDN
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js';
+    document.head.appendChild(script);
+    
+    await new Promise<void>((resolve, reject) => {
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error('Failed to load Pyodide'));
+    });
+    
+    // @ts-ignore - Pyodide is loaded globally
+    pyodideInstance = await window.loadPyodide({
+      indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/',
+    });
+    
+    return pyodideInstance;
+  } finally {
+    pyodideLoading = false;
   }
 };
 
@@ -163,48 +272,164 @@ const CodeTutor: React.FC<CodeTutorProps> = ({ onBack }) => {
   const [showChat, setShowChat] = useState(true);
   const [hasAutoRun, setHasAutoRun] = useState(false);
   const [highlightedLines, setHighlightedLines] = useState<number[]>([]);
+  const [isRunning, setIsRunning] = useState(false);
+  const [pyodideStatus, setPyodideStatus] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const currentLang = LANGUAGES[language];
+  const isPreviewLanguage = currentLang.runtime === 'preview';
 
-  const runCode = useCallback((isAutoRun = false) => {
-    if (!currentLang.runnable) {
-      setOutput(`⚠️ ${currentLang.name} cannot run in the browser.\n\nAsk the AI to explain the code or help you understand it!`);
-      return `${currentLang.name} code (preview only)`;
+  // Run Python code using Pyodide
+  const runPython = async (pythonCode: string): Promise<string> => {
+    setPyodideStatus('loading');
+    try {
+      const pyodide = await loadPyodideRuntime();
+      setPyodideStatus('ready');
+      
+      // Capture stdout
+      pyodide.runPython(`
+import sys
+from io import StringIO
+sys.stdout = StringIO()
+sys.stderr = StringIO()
+      `);
+      
+      try {
+        pyodide.runPython(pythonCode);
+        const stdout = pyodide.runPython('sys.stdout.getvalue()');
+        const stderr = pyodide.runPython('sys.stderr.getvalue()');
+        
+        if (stderr) {
+          return `${stdout}\nError: ${stderr}`;
+        }
+        return stdout || 'Code executed successfully (no output)';
+      } catch (pyError: any) {
+        return `Error: ${pyError.message}`;
+      }
+    } catch (error: any) {
+      setPyodideStatus('error');
+      return `Failed to initialize Python runtime: ${error.message}`;
     }
+  };
 
+  // Run code via API (Java, etc.)
+  const runViaAPI = async (codeToRun: string, lang: string): Promise<string> => {
+    try {
+      const { data, error } = await supabase.functions.invoke('run-code', {
+        body: { code: codeToRun, language: lang }
+      });
+      
+      if (error) {
+        return `API Error: ${error.message}`;
+      }
+      
+      return data.output || 'Code executed successfully (no output)';
+    } catch (error: any) {
+      return `Error: ${error.message}`;
+    }
+  };
+
+  // Run JavaScript/TypeScript in browser
+  const runBrowserCode = (codeToRun: string): string => {
     try {
       const logs: string[] = [];
-      const originalLog = console.log;
-      const logFn = (...args: unknown[]) => logs.push(args.join(' '));
-      console.log = logFn;
+      const logFn = (...args: unknown[]) => logs.push(args.map(a => 
+        typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a)
+      ).join(' '));
       
-      // Create a safe execution context with print() alias for console.log
-      // eslint-disable-next-line no-new-func
-      const execFn = new Function('print', 'console', code);
-      execFn(logFn, { ...console, log: logFn });
+      // Strip TypeScript types for execution
+      let executableCode = codeToRun;
+      if (language === 'typescript') {
+        executableCode = codeToRun
+          .replace(/:\s*\w+(\[\])?/g, '') // Remove type annotations
+          .replace(/<\w+>/g, ''); // Remove generics
+      }
       
-      console.log = originalLog;
+      const execFn = new Function('print', 'console', executableCode);
+      execFn(logFn, { ...console, log: logFn, error: logFn, warn: logFn });
       
-      let result = logs.length > 0 ? logs.join('\n') : 'Code executed successfully (no output)';
+      return logs.length > 0 ? logs.join('\n') : 'Code executed successfully (no output)';
+    } catch (error: any) {
+      return `Error: ${error.message}`;
+    }
+  };
+
+  // Update iframe preview for HTML/CSS
+  const updatePreview = useCallback(() => {
+    if (!iframeRef.current) return;
+    
+    const iframe = iframeRef.current;
+    const doc = iframe.contentDocument || iframe.contentWindow?.document;
+    if (!doc) return;
+    
+    let htmlContent = '';
+    if (language === 'html') {
+      htmlContent = code;
+    } else if (language === 'css') {
+      htmlContent = CSS_PREVIEW_TEMPLATE(code);
+    }
+    
+    doc.open();
+    doc.write(htmlContent);
+    doc.close();
+  }, [code, language]);
+
+  // Update preview when code changes for preview languages
+  useEffect(() => {
+    if (isPreviewLanguage) {
+      const timeout = setTimeout(updatePreview, 300);
+      return () => clearTimeout(timeout);
+    }
+  }, [code, isPreviewLanguage, updatePreview]);
+
+  const runCode = useCallback(async (isAutoRun = false) => {
+    if (isPreviewLanguage) {
+      updatePreview();
+      return 'Preview updated';
+    }
+
+    setIsRunning(true);
+    let result = '';
+
+    try {
+      switch (currentLang.runtime) {
+        case 'browser':
+          result = runBrowserCode(code);
+          break;
+        case 'pyodide':
+          result = await runPython(code);
+          break;
+        case 'api':
+          result = await runViaAPI(code, language);
+          break;
+        default:
+          result = 'Unsupported runtime';
+      }
+
       if (isAutoRun) {
         result += '\n\n✨ Edit the code and click "Run Code" to experiment!';
       }
+    } catch (error: any) {
+      result = `Error: ${error.message}`;
+    } finally {
+      setIsRunning(false);
       setOutput(result);
-      return result;
-    } catch (error) {
-      const errorMsg = `Error: ${error instanceof Error ? error.message : 'Unknown error'}`;
-      setOutput(errorMsg);
-      return errorMsg;
     }
-  }, [code, currentLang]);
 
-  // Auto-run code on mount to show immediate output
+    return result;
+  }, [code, currentLang, language, isPreviewLanguage, updatePreview]);
+
+  // Auto-run code on mount
   useEffect(() => {
     if (!hasAutoRun) {
-      runCode(true);
+      if (isPreviewLanguage) {
+        updatePreview();
+      } else {
+        runCode(true);
+      }
       setHasAutoRun(true);
     }
-  }, [hasAutoRun, runCode]);
+  }, [hasAutoRun, runCode, isPreviewLanguage, updatePreview]);
 
   // Handle language change
   const handleLanguageChange = (newLang: Language) => {
@@ -213,22 +438,37 @@ const CodeTutor: React.FC<CodeTutorProps> = ({ onBack }) => {
     setHighlightedLines([]);
     setOutput('');
     
-    // Auto-run if the new language is runnable
-    if (LANGUAGES[newLang].runnable) {
-      setTimeout(() => {
-        const logs: string[] = [];
-        const logFn = (...args: unknown[]) => logs.push(args.join(' '));
-        try {
-          const execFn = new Function('print', 'console', LANGUAGES[newLang].starterCode);
-          execFn(logFn, { ...console, log: logFn });
-          setOutput(logs.join('\n') + '\n\n✨ Edit the code and click "Run Code" to experiment!');
-        } catch (error) {
-          setOutput(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    // Auto-run for new language
+    setTimeout(async () => {
+      const config = LANGUAGES[newLang];
+      if (config.runtime === 'preview') {
+        // Preview will auto-update via useEffect
+        return;
+      }
+      
+      setIsRunning(true);
+      let result = '';
+      
+      try {
+        switch (config.runtime) {
+          case 'browser':
+            result = runBrowserCode(config.starterCode);
+            break;
+          case 'pyodide':
+            result = await runPython(config.starterCode);
+            break;
+          case 'api':
+            result = await runViaAPI(config.starterCode, newLang);
+            break;
         }
-      }, 100);
-    } else {
-      setOutput(`⚠️ ${LANGUAGES[newLang].name} cannot run in the browser.\n\nAsk the AI to explain the code or help you understand it!`);
-    }
+        result += '\n\n✨ Edit the code and click "Run Code" to experiment!';
+      } catch (error: any) {
+        result = `Error: ${error.message}`;
+      }
+      
+      setIsRunning(false);
+      setOutput(result);
+    }, 100);
   };
 
   // Handle code actions from AI
@@ -277,6 +517,15 @@ const CodeTutor: React.FC<CodeTutorProps> = ({ onBack }) => {
     });
   };
 
+  const getRuntimeLabel = () => {
+    switch (currentLang.runtime) {
+      case 'browser': return '⚡ Browser';
+      case 'pyodide': return pyodideStatus === 'ready' ? '🐍 Python Ready' : '🐍 Python';
+      case 'api': return '☁️ Cloud';
+      case 'preview': return '👁️ Live Preview';
+    }
+  };
+
   return (
     <div className="flex h-full gap-4">
       {/* Editor Section */}
@@ -303,14 +552,18 @@ const CodeTutor: React.FC<CodeTutorProps> = ({ onBack }) => {
                     onClick={() => handleLanguageChange(lang)}
                     className={`text-slate-200 hover:bg-slate-700 cursor-pointer ${language === lang ? 'bg-slate-700' : ''}`}
                   >
-                    <span className="font-mono text-sm">
+                    <span className="font-mono text-sm flex items-center gap-2">
                       {LANGUAGES[lang].name}
-                      {!LANGUAGES[lang].runnable && <span className="text-xs text-slate-400 ml-2">(preview)</span>}
+                      <span className="text-xs text-slate-400">
+                        ({LANGUAGES[lang].runtime === 'preview' ? 'preview' : 'runnable'})
+                      </span>
                     </span>
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
+            
+            <span className="text-xs text-slate-500">{getRuntimeLabel()}</span>
           </div>
           <div className="flex items-center gap-2">
             <Button 
@@ -324,11 +577,17 @@ const CodeTutor: React.FC<CodeTutorProps> = ({ onBack }) => {
             <Button 
               size="sm" 
               onClick={() => runCode(false)} 
-              className={`text-white ${currentLang.runnable ? 'bg-green-600 hover:bg-green-700' : 'bg-slate-600 hover:bg-slate-500'}`}
-              disabled={!currentLang.runnable}
+              className="bg-green-600 hover:bg-green-700 text-white"
+              disabled={isRunning}
             >
-              <Play className="h-4 w-4 mr-2" />
-              {currentLang.runnable ? 'Run Code' : 'Preview Only'}
+              {isRunning ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : isPreviewLanguage ? (
+                <RefreshCw className="h-4 w-4 mr-2" />
+              ) : (
+                <Play className="h-4 w-4 mr-2" />
+              )}
+              {isRunning ? 'Running...' : isPreviewLanguage ? 'Refresh' : 'Run Code'}
             </Button>
           </div>
         </div>
@@ -350,16 +609,30 @@ const CodeTutor: React.FC<CodeTutorProps> = ({ onBack }) => {
           />
         </div>
 
+        {/* Output Section - Console or Preview */}
         <div className="h-1/3 bg-slate-950 border-t border-slate-800 flex flex-col">
           <div className="px-4 py-2 bg-slate-900 border-b border-slate-800 text-xs text-slate-400 font-mono uppercase tracking-wider flex justify-between">
-            <span>Console Output</span>
-            {!currentLang.runnable && (
-              <span className="text-yellow-500">⚠️ {currentLang.name} - AI assistance only</span>
+            <span>{isPreviewLanguage ? 'Live Preview' : 'Console Output'}</span>
+            {pyodideStatus === 'loading' && (
+              <span className="text-yellow-500 flex items-center gap-1">
+                <Loader2 className="h-3 w-3 animate-spin" />
+                Loading Python runtime...
+              </span>
             )}
           </div>
-          <pre className="flex-1 p-4 font-mono text-sm text-slate-300 overflow-auto">
-            {output || <span className="text-slate-600 italic">// Output will appear here...</span>}
-          </pre>
+          
+          {isPreviewLanguage ? (
+            <iframe
+              ref={iframeRef}
+              className="flex-1 bg-white"
+              title="Preview"
+              sandbox="allow-scripts allow-same-origin"
+            />
+          ) : (
+            <pre className="flex-1 p-4 font-mono text-sm text-slate-300 overflow-auto">
+              {output || <span className="text-slate-600 italic">// Output will appear here...</span>}
+            </pre>
+          )}
         </div>
       </div>
 
