@@ -4,12 +4,14 @@ export function useOrgPermissions() {
   const orgContext = useOptionalOrgContext();
   
   // Safe defaults when no org context available (e.g., Personal mode)
-  const currentOrg = orgContext?.currentOrg;
   const isPersonalMode = orgContext?.isPersonalMode ?? true;
+  
+  // USE EFFECTIVE ROLE (respects "View As" impersonation)
+  const effectiveRole = orgContext?.getEffectiveRole?.() ?? null;
 
   const canManageOrg = () => {
     if (isPersonalMode) return false;
-    return currentOrg?.role === 'owner' || currentOrg?.role === 'admin';
+    return effectiveRole === 'owner' || effectiveRole === 'admin';
   };
 
   const canManageBranding = () => {
@@ -19,7 +21,7 @@ export function useOrgPermissions() {
   const canManageStudents = () => {
     if (isPersonalMode) return false;
     const educatorRoles = ['owner', 'admin', 'instructor', 'instructor_aide'];
-    return educatorRoles.includes(currentOrg?.role || '');
+    return educatorRoles.includes(effectiveRole || '');
   };
 
   const canViewOrgAnalytics = () => {
@@ -28,17 +30,17 @@ export function useOrgPermissions() {
 
   const isOrgOwner = () => {
     if (isPersonalMode) return false;
-    return currentOrg?.role === 'owner';
+    return effectiveRole === 'owner';
   };
 
   const isOrgInstructor = () => {
     if (isPersonalMode) return false;
-    return currentOrg?.role === 'instructor';
+    return effectiveRole === 'instructor';
   };
 
   const isOrgStudent = () => {
     if (isPersonalMode) return false;
-    return currentOrg?.role === 'student';
+    return effectiveRole === 'student';
   };
 
   return {
