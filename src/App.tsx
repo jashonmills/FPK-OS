@@ -168,6 +168,7 @@ const NotesManagementNew = lazy(() => import("./pages/instructor/NotesManagement
 const GoalsAndNotes = lazy(() => import("./pages/org/GoalsAndNotes"));
 const OrgAIStudyCoach = lazy(() => import("./pages/org/AIStudyCoach"));
 const OrgAIGovernance = lazy(() => import("./pages/org/OrgAIGovernance"));
+const MessagingPage = lazy(() => import("./pages/org/MessagingPage"));
 const AnalyticsOverview = lazy(() => import("./pages/instructor/AnalyticsOverview"));
 const OrgSettingsTabs = lazy(() => import("./pages/instructor/OrganizationSettingsTabs"));
 const Subscription = lazy(() => import("./pages/dashboard/Subscription"));
@@ -876,6 +877,8 @@ const App: React.FC = () => {
             <Route path=":orgId/groups" element={<LazyRoute><GroupsPage /></LazyRoute>} />
             <Route path=":orgId/groups/:groupId" element={<LazyRoute><GroupDetailPage /></LazyRoute>} />
             <Route path=":orgId/games" element={<LazyRoute><OrganizationGamesPage /></LazyRoute>} />
+            <Route path=":orgId/messages" element={<LazyRoute><MessagingPage /></LazyRoute>} />
+            <Route path=":orgId/messages/:conversationId" element={<LazyRoute><MessagingPage /></LazyRoute>} />
             <Route path=":orgId/goals-notes" element={<LazyRoute><GoalsAndNotes /></LazyRoute>} />
             {shouldShowLegacyAIAssistant() && (
               <Route path=":orgId/ai-coach" element={<LazyRoute><OrgAIStudyCoach /></LazyRoute>} />
