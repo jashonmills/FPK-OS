@@ -55,8 +55,8 @@ const EssayHelper: React.FC<EssayHelperProps> = ({ onBack }) => {
 
           <TabsContent value="assistant" className="flex-1 mt-0 h-0">
             <AIChatInterface
+              toolId="essay-coach"
               toolName="Essay Coach"
-              systemPrompt="I am your essay writing coach. I can help you brainstorm ideas, structure your arguments, check for clarity, and improve your grammar. I will not write the essay for you, but I will help you make it better."
               onBack={() => {}}
               icon={BookOpen}
               accentColor="from-orange-500 to-red-600"

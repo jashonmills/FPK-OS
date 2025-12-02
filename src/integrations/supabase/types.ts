@@ -656,6 +656,111 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_tool_sessions: {
+        Row: {
+          credits_used: number | null
+          ended_at: string | null
+          id: string
+          message_count: number | null
+          metadata: Json | null
+          org_id: string | null
+          session_id: string | null
+          started_at: string | null
+          tool_id: string
+          user_id: string
+        }
+        Insert: {
+          credits_used?: number | null
+          ended_at?: string | null
+          id?: string
+          message_count?: number | null
+          metadata?: Json | null
+          org_id?: string | null
+          session_id?: string | null
+          started_at?: string | null
+          tool_id: string
+          user_id: string
+        }
+        Update: {
+          credits_used?: number | null
+          ended_at?: string | null
+          id?: string
+          message_count?: number | null
+          metadata?: Json | null
+          org_id?: string | null
+          session_id?: string | null
+          started_at?: string | null
+          tool_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_tool_sessions_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_tool_sessions_tool_id_fkey"
+            columns: ["tool_id"]
+            isOneToOne: false
+            referencedRelation: "ai_tools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_tools: {
+        Row: {
+          accent_color: string | null
+          created_at: string | null
+          credit_cost: number | null
+          description: string | null
+          display_name: string
+          icon_name: string | null
+          id: string
+          is_active: boolean | null
+          max_tokens: number | null
+          model: string | null
+          sort_order: number | null
+          system_prompt: string
+          temperature: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          accent_color?: string | null
+          created_at?: string | null
+          credit_cost?: number | null
+          description?: string | null
+          display_name: string
+          icon_name?: string | null
+          id: string
+          is_active?: boolean | null
+          max_tokens?: number | null
+          model?: string | null
+          sort_order?: number | null
+          system_prompt: string
+          temperature?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          accent_color?: string | null
+          created_at?: string | null
+          credit_cost?: number | null
+          description?: string | null
+          display_name?: string
+          icon_name?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_tokens?: number | null
+          model?: string | null
+          sort_order?: number | null
+          system_prompt?: string
+          temperature?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       analytics_metrics: {
         Row: {
           cohort_id: string | null

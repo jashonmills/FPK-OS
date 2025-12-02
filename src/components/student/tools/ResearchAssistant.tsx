@@ -88,8 +88,8 @@ const ResearchAssistant: React.FC<ResearchAssistantProps> = ({ onBack }) => {
 
       <div className="w-[400px]">
         <AIChatInterface
+          toolId="research-assistant"
           toolName="Research Summarizer"
-          systemPrompt="I am your research assistant. I can help you summarize complex papers, extract key arguments, and format citations. Paste text from your sources here."
           onBack={() => {}} 
           icon={Sparkles}
           accentColor="from-violet-500 to-purple-600"

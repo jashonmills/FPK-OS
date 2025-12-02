@@ -9,12 +9,12 @@ import type { LucideIcon } from 'lucide-react';
 
 interface Tool {
   id: string;
+  toolId: string; // Maps to ai_tools table
   name: string;
   icon: LucideIcon;
   description: string;
   color: string;
   type: 'chat' | 'custom';
-  systemPrompt?: string;
   component?: React.ComponentType<{ onBack: () => void }>;
 }
 
@@ -23,25 +23,26 @@ const StudentLearning: React.FC = () => {
 
   const tools: Tool[] = [
     { 
-      id: 'tutor', 
+      id: 'tutor',
+      toolId: 'ai-personal-tutor',
       name: 'AI Personal Tutor', 
       icon: MessageSquare, 
       description: 'Get help with any subject through natural conversation', 
       color: 'from-blue-500 to-indigo-600',
       type: 'chat',
-      systemPrompt: "I am your personal AI tutor. I can help you understand complex topics, prepare for exams, or answer general questions. What are we learning today?"
     },
     { 
-      id: 'math', 
+      id: 'math',
+      toolId: 'math-solver',
       name: 'Math Problem Solver', 
       icon: Calculator, 
       description: 'Step-by-step solutions for algebra, calculus, and more', 
       color: 'from-purple-500 to-pink-600',
       type: 'chat',
-      systemPrompt: "I am your Math Solver AI. Please share the math problem you're stuck on, and I'll help you solve it step-by-step. I won't just give the answer; I'll explain the method."
     },
     { 
-      id: 'essay', 
+      id: 'essay',
+      toolId: 'essay-coach',
       name: 'Essay Writing Helper', 
       icon: BookOpen, 
       description: 'Structure arguments, check grammar, and improve flow', 
@@ -50,7 +51,8 @@ const StudentLearning: React.FC = () => {
       component: EssayHelper
     },
     { 
-      id: 'code', 
+      id: 'code',
+      toolId: 'code-companion',
       name: 'Code Learning Companion', 
       icon: Code, 
       description: 'Interactive code reviews and programming concepts', 
@@ -59,16 +61,17 @@ const StudentLearning: React.FC = () => {
       component: CodeTutor
     },
     { 
-      id: 'language', 
+      id: 'language',
+      toolId: 'language-practice',
       name: 'Language Practice', 
       icon: Languages, 
       description: 'Conversation practice in Spanish, French, and more', 
       color: 'from-teal-500 to-cyan-600',
       type: 'chat',
-      systemPrompt: "I am your Language Learning Companion. We can practice conversation in Spanish, French, German, or Mandarin. Which language would you like to practice today?"
     },
     { 
-      id: 'research', 
+      id: 'research',
+      toolId: 'research-assistant',
       name: 'Research Assistant', 
       icon: Sparkles, 
       description: 'Find sources, summarize papers, and organize citations', 
@@ -95,8 +98,8 @@ const StudentLearning: React.FC = () => {
 
     return (
       <AIChatInterface 
+        toolId={tool.toolId}
         toolName={tool.name}
-        systemPrompt={tool.systemPrompt || ''}
         onBack={() => setActiveTool(null)}
         icon={tool.icon}
         accentColor={tool.color}

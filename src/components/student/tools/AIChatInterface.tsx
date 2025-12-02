@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, ArrowLeft, Trash2, Bot, User } from 'lucide-react';
+import { Send, ArrowLeft, Trash2, Bot, User, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
 import type { LucideIcon } from 'lucide-react';
 
 interface Message {
@@ -12,16 +15,18 @@ interface Message {
 }
 
 interface AIChatInterfaceProps {
+  toolId: string;
   toolName: string;
-  systemPrompt: string;
+  welcomeMessage?: string;
   onBack: () => void;
   icon?: LucideIcon;
   accentColor?: string;
 }
 
 const AIChatInterface: React.FC<AIChatInterfaceProps> = ({ 
+  toolId,
   toolName, 
-  systemPrompt, 
+  welcomeMessage,
   onBack, 
   icon: Icon, 
   accentColor = 'from-indigo-500 to-purple-600' 
@@ -29,58 +34,94 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { user } = useAuth();
+  const { toast } = useToast();
+
+  // Default welcome messages for each tool
+  const getWelcomeMessage = () => {
+    if (welcomeMessage) return welcomeMessage;
+    
+    const welcomeMessages: Record<string, string> = {
+      'ai-personal-tutor': "Hello! I'm Betty, your personal AI tutor. I use the Socratic method to help you discover answers and develop deep understanding. What would you like to explore today?",
+      'math-solver': "Hi there! I'm Al, your math problem solver. Share any math problem with me, and I'll guide you through it step-by-step. What would you like to work on?",
+      'essay-coach': "Welcome! I'm your essay writing coach. I'll help you develop your writing skills through constructive feedback. Share your writing or tell me what you're working on!",
+      'code-companion': "Hey! I'm your code learning companion. Whether you're debugging, learning new concepts, or building something cool, I'm here to help. What are you working on?",
+      'language-practice': "¡Hola! Bonjour! I'm your language practice partner. Let's have a conversation! Which language would you like to practice today?",
+      'research-assistant': "Hello! I'm your research assistant. I'll help you develop strong research and critical thinking skills. What topic are you exploring?"
+    };
+    
+    return welcomeMessages[toolId] || `Hello! I'm your ${toolName}. How can I help you today?`;
+  };
 
   useEffect(() => {
-    const savedHistory = localStorage.getItem(`chat_history_${toolName}`);
+    const savedHistory = localStorage.getItem(`chat_history_${toolId}`);
     if (savedHistory) {
-      setMessages(JSON.parse(savedHistory));
+      const parsed = JSON.parse(savedHistory);
+      setMessages(parsed.messages || []);
+      setSessionId(parsed.sessionId || null);
     } else {
       setMessages([{
         id: 'init',
         role: 'assistant',
-        content: systemPrompt || `Hello! I'm your ${toolName}. How can I help you today?`,
+        content: getWelcomeMessage(),
         timestamp: new Date().toISOString()
       }]);
     }
-  }, [toolName, systemPrompt]);
+  }, [toolId]);
 
   useEffect(() => {
     if (messages.length > 0) {
-      localStorage.setItem(`chat_history_${toolName}`, JSON.stringify(messages));
+      localStorage.setItem(`chat_history_${toolId}`, JSON.stringify({
+        messages,
+        sessionId
+      }));
     }
     scrollToBottom();
-  }, [messages, toolName]);
+  }, [messages, toolId, sessionId]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const simulateAIResponse = async (userQuery: string): Promise<string> => {
-    setIsTyping(true);
-    const delay = Math.floor(Math.random() * 1500) + 1500;
-    await new Promise(resolve => setTimeout(resolve, delay));
-
-    let response = "I understand what you're asking. Could you provide more specific details so I can help you better?";
-    
-    const q = userQuery.toLowerCase();
-    if (toolName.includes('Math')) {
-      if (q.includes('solve') || q.match(/\d+/)) response = "Let's break this down step-by-step.\n\n1. First, identify the variables.\n2. Apply the formula.\n3. Calculate the result.\n\nWould you like me to show the specific calculation for this problem?";
-    } else if (toolName.includes('Language')) {
-      if (q.includes('spanish')) response = "¡Hola! ¿Cómo estás hoy? Podemos practicar español. ¿De qué te gustaría hablar?";
-      else if (q.includes('french')) response = "Bonjour! Comment ça va? Parlons un peu en français.";
-    } else if (toolName.includes('Tutor')) {
-      if (q.includes('history')) response = "History is fascinating. Are we discussing a specific era, like the Renaissance or World War II?";
-      else if (q.includes('science')) response = "Science allows us to understand the universe. Is this about Biology, Chemistry, or Physics?";
+  const getAIResponse = async (userMessage: string): Promise<string> => {
+    if (!user) {
+      throw new Error('Please sign in to use the AI tools');
     }
 
-    setIsTyping(false);
-    return response;
+    // Prepare message history (exclude welcome message, last 10 messages)
+    const messageHistory = messages
+      .filter(m => m.id !== 'init')
+      .slice(-10)
+      .map(m => ({ role: m.role, content: m.content }));
+
+    const { data, error } = await supabase.functions.invoke('ai-learning-hub-chat', {
+      body: {
+        toolId,
+        message: userMessage,
+        sessionId,
+        messageHistory
+      }
+    });
+
+    if (error) {
+      console.error('AI API error:', error);
+      throw new Error(error.message || 'Failed to get AI response');
+    }
+
+    // Update session ID if returned
+    if (data.sessionId && !sessionId) {
+      setSessionId(data.sessionId);
+    }
+
+    return data.response;
   };
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim()) return;
+    if (!input.trim() || isTyping) return;
 
     const userMsg: Message = {
       id: Date.now(),
@@ -91,17 +132,31 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
 
     setMessages(prev => [...prev, userMsg]);
     setInput('');
+    setIsTyping(true);
+    setError(null);
 
-    const aiResponseContent = await simulateAIResponse(input);
-    
-    const aiMsg: Message = {
-      id: Date.now() + 1,
-      role: 'assistant',
-      content: aiResponseContent,
-      timestamp: new Date().toISOString()
-    };
+    try {
+      const aiResponseContent = await getAIResponse(input);
+      
+      const aiMsg: Message = {
+        id: Date.now() + 1,
+        role: 'assistant',
+        content: aiResponseContent,
+        timestamp: new Date().toISOString()
+      };
 
-    setMessages(prev => [...prev, aiMsg]);
+      setMessages(prev => [...prev, aiMsg]);
+    } catch (err: any) {
+      console.error('Error getting AI response:', err);
+      setError(err.message || 'Failed to get response');
+      toast({
+        title: 'Error',
+        description: err.message || 'Failed to get AI response. Please try again.',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsTyping(false);
+    }
   };
 
   const clearHistory = () => {
@@ -109,16 +164,18 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
       const initialMsg: Message = {
         id: Date.now(),
         role: 'assistant',
-        content: systemPrompt || `Hello! I'm your ${toolName}. How can I help you today?`,
+        content: getWelcomeMessage(),
         timestamp: new Date().toISOString()
       };
       setMessages([initialMsg]);
-      localStorage.removeItem(`chat_history_${toolName}`);
+      setSessionId(null);
+      setError(null);
+      localStorage.removeItem(`chat_history_${toolId}`);
     }
   };
 
   return (
-    <div className="flex flex-col h-full bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+    <div className="flex flex-col h-[calc(100vh-16rem)] bg-card rounded-xl border border-border shadow-sm overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-border bg-muted/50">
         <div className="flex items-center gap-3">
@@ -142,6 +199,22 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
           </Button>
         </div>
       </div>
+
+      {/* Error Banner */}
+      {error && (
+        <div className="px-4 py-2 bg-destructive/10 border-b border-destructive/20 flex items-center gap-2">
+          <AlertCircle className="h-4 w-4 text-destructive" />
+          <span className="text-sm text-destructive">{error}</span>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => setError(null)}
+            className="ml-auto text-xs"
+          >
+            Dismiss
+          </Button>
+        </div>
+      )}
 
       {/* Chat Area */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-muted/30">
@@ -193,7 +266,8 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Type your message here..."
-            className="flex-1 px-4 py-3 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:bg-background transition-all text-foreground placeholder:text-muted-foreground"
+            disabled={isTyping}
+            className="flex-1 px-4 py-3 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:bg-background transition-all text-foreground placeholder:text-muted-foreground disabled:opacity-50"
           />
           <Button type="submit" disabled={!input.trim() || isTyping} className="bg-primary hover:bg-primary/90 h-auto px-6 rounded-xl">
             <Send className="h-5 w-5" />
