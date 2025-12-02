@@ -1,7 +1,11 @@
-import { useOrgContext } from '@/components/organizations/OrgContext';
+import { useOptionalOrgContext } from '@/components/organizations/OrgContext';
 
 export function useOrgPermissions() {
-  const { currentOrg, isPersonalMode } = useOrgContext();
+  const orgContext = useOptionalOrgContext();
+  
+  // Safe defaults when no org context available (e.g., Personal mode)
+  const currentOrg = orgContext?.currentOrg;
+  const isPersonalMode = orgContext?.isPersonalMode ?? true;
 
   const canManageOrg = () => {
     if (isPersonalMode) return false;
