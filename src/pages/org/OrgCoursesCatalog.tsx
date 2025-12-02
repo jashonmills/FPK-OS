@@ -6,8 +6,10 @@ import { useOrgPermissions } from '@/hooks/useOrgPermissions';
 import { useStudentAssignments } from '@/hooks/useStudentAssignments';
 import { useContextAwareNavigation } from '@/hooks/useContextAwareNavigation';
 import { useStudentPortalContext } from '@/hooks/useStudentPortalContext';
+import { useOrgCourseStats } from '@/hooks/useOrgCourseStats';
 import { EnhancedCourseCard } from '@/components/courses/enhanced/EnhancedCourseCard';
 import { EmptyState } from '@/components/courses/enhanced/EmptyState';
+import { OrgCourseStatsPanel } from '@/components/org/OrgCourseStatsPanel';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
@@ -89,8 +91,19 @@ export default function OrgCoursesCatalog() {
     );
   };
 
-  const { isOrgStudent } = useOrgPermissions();
+  const { isOrgStudent, canViewOrgAnalytics } = useOrgPermissions();
   const { isStudentPortalUser, studentId, orgId: studentOrgId } = useStudentPortalContext();
+  const { data: courseStats, isLoading: statsLoading } = useOrgCourseStats(orgId);
+  
+  // Collapsible section state - collapsed by default for Owner/Admin
+  const [platformCoursesOpen, setPlatformCoursesOpen] = useState(() => {
+    const saved = localStorage.getItem(`courses-platform-open-${orgId}`);
+    return saved !== null ? saved === 'true' : true; // Default open for students
+  });
+  const [orgCoursesOpen, setOrgCoursesOpen] = useState(() => {
+    const saved = localStorage.getItem(`courses-org-open-${orgId}`);
+    return saved !== null ? saved === 'true' : true;
+  });
   const { 
     catalog, 
     isLoading, 
@@ -677,6 +690,11 @@ export default function OrgCoursesCatalog() {
             </div>
           </header>
 
+          {/* Course Stats Panel - Owner/Admin only */}
+          {canViewOrgAnalytics() && (
+            <OrgCourseStatsPanel stats={courseStats} isLoading={statsLoading} />
+          )}
+
           {/* Statistics Cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
             {isOrgStudent() ? (
@@ -878,8 +896,14 @@ export default function OrgCoursesCatalog() {
           ) : (
             <>
               {/* Platform Courses */}
-              <div>
-                <div className="flex items-center gap-2 mb-4">
+              <Collapsible 
+                open={platformCoursesOpen} 
+                onOpenChange={(open) => {
+                  setPlatformCoursesOpen(open);
+                  localStorage.setItem(`courses-platform-open-${orgId}`, String(open));
+                }}
+              >
+                <CollapsibleTrigger className="flex items-center gap-2 mb-4 w-full group">
                   <Star className="h-5 w-5 text-primary" />
                   <h2 className="text-xl font-semibold">Platform Courses</h2>
                   <Badge variant="secondary">{filteredPlatformCourses.length}</Badge>
@@ -889,37 +913,43 @@ export default function OrgCoursesCatalog() {
                     </Badge>
                   )}
                   {bulkMode && selectedCourseIds.length > 0 && (
-                    <Badge variant="default" className="ml-auto">
+                    <Badge variant="default" className="ml-auto mr-2">
                       {selectedCourseIds.length} selected
                     </Badge>
                   )}
-                </div>
+                  <ChevronDown className={cn(
+                    "h-4 w-4 text-muted-foreground transition-transform ml-auto",
+                    platformCoursesOpen && "rotate-180"
+                  )} />
+                </CollapsibleTrigger>
                 
-                {filteredPlatformCourses.length === 0 && platformCourses.length > 0 ? (
-                  <div className="text-center py-8">
-                    <p className="text-muted-foreground">No platform courses match your search.</p>
-                  </div>
-                ) : filteredPlatformCourses.length === 0 ? (
-                  <EmptyState type="platform" />
-                ) : (
-                  <div className={cn(
-                    getResponsiveGridClasses(viewType),
-                    "bg-orange-400/20 backdrop-blur-sm border border-orange-300/30 rounded-lg p-4"
-                  )}>
-                    {filteredPlatformCourses.map((course) => (
-                      <EnhancedCourseCard
-                        key={course.id}
-                        course={toCourseCardModel(course)}
-                        actions={createCourseActions(false)}
-                        viewType={viewType}
-                        selectionMode={bulkMode}
-                        isSelected={selectedCourseIds.includes(course.id)}
-                        onToggleSelection={() => toggleCourseSelection(course.id)}
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
+                <CollapsibleContent>
+                  {filteredPlatformCourses.length === 0 && platformCourses.length > 0 ? (
+                    <div className="text-center py-8">
+                      <p className="text-muted-foreground">No platform courses match your search.</p>
+                    </div>
+                  ) : filteredPlatformCourses.length === 0 ? (
+                    <EmptyState type="platform" />
+                  ) : (
+                    <div className={cn(
+                      getResponsiveGridClasses(viewType),
+                      "bg-orange-400/20 backdrop-blur-sm border border-orange-300/30 rounded-lg p-4"
+                    )}>
+                      {filteredPlatformCourses.map((course) => (
+                        <EnhancedCourseCard
+                          key={course.id}
+                          course={toCourseCardModel(course)}
+                          actions={createCourseActions(false)}
+                          viewType={viewType}
+                          selectionMode={bulkMode}
+                          isSelected={selectedCourseIds.includes(course.id)}
+                          onToggleSelection={() => toggleCourseSelection(course.id)}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </CollapsibleContent>
+              </Collapsible>
 
               {/* Coming Soon - Collapsible Section */}
               {filteredDraftCourses.length > 0 && (
@@ -964,42 +994,54 @@ export default function OrgCoursesCatalog() {
               <Separator />
 
               {/* Organization Courses */}
-              <div>
-                <div className="flex items-center gap-2 mb-4">
+              <Collapsible 
+                open={orgCoursesOpen} 
+                onOpenChange={(open) => {
+                  setOrgCoursesOpen(open);
+                  localStorage.setItem(`courses-org-open-${orgId}`, String(open));
+                }}
+              >
+                <CollapsibleTrigger className="flex items-center gap-2 mb-4 w-full group">
                   <Building2 className="h-5 w-5 text-primary" />
                   <h2 className="text-xl font-semibold">Organization Courses</h2>
                   <Badge variant="default">{filteredOrgCourses.length}</Badge>
-                </div>
+                  <ChevronDown className={cn(
+                    "h-4 w-4 text-muted-foreground transition-transform ml-auto",
+                    orgCoursesOpen && "rotate-180"
+                  )} />
+                </CollapsibleTrigger>
                 
-                {filteredOrgCourses.length === 0 && orgCourses.length > 0 ? (
-                  <div className="text-center py-8">
-                    <p className="text-muted-foreground">No organization courses match your search.</p>
-                  </div>
-                ) : filteredOrgCourses.length === 0 ? (
-                  <EmptyState 
-                    type="organization" 
-                    onCreateCourse={handleCreateCourse}
-                    onUploadScorm={handleUploadScorm}
-                  />
-                ) : (
-                  <div className={cn(
-                    getResponsiveGridClasses(viewType),
-                    "bg-orange-400/20 backdrop-blur-sm border border-orange-300/30 rounded-lg p-4"
-                  )}>
-                    {filteredOrgCourses.map((course) => (
-                      <EnhancedCourseCard
-                        key={course.id}
-                        course={toCourseCardModel(course)}
-                        actions={createCourseActions(true)}
-                        viewType={viewType}
-                        selectionMode={bulkMode}
-                        isSelected={selectedCourseIds.includes(course.id)}
-                        onToggleSelection={() => toggleCourseSelection(course.id)}
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
+                <CollapsibleContent>
+                  {filteredOrgCourses.length === 0 && orgCourses.length > 0 ? (
+                    <div className="text-center py-8">
+                      <p className="text-muted-foreground">No organization courses match your search.</p>
+                    </div>
+                  ) : filteredOrgCourses.length === 0 ? (
+                    <EmptyState 
+                      type="organization" 
+                      onCreateCourse={handleCreateCourse}
+                      onUploadScorm={handleUploadScorm}
+                    />
+                  ) : (
+                    <div className={cn(
+                      getResponsiveGridClasses(viewType),
+                      "bg-orange-400/20 backdrop-blur-sm border border-orange-300/30 rounded-lg p-4"
+                    )}>
+                      {filteredOrgCourses.map((course) => (
+                        <EnhancedCourseCard
+                          key={course.id}
+                          course={toCourseCardModel(course)}
+                          actions={createCourseActions(true)}
+                          viewType={viewType}
+                          selectionMode={bulkMode}
+                          isSelected={selectedCourseIds.includes(course.id)}
+                          onToggleSelection={() => toggleCourseSelection(course.id)}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </CollapsibleContent>
+              </Collapsible>
             </>
           )}
         </div>
