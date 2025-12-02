@@ -625,7 +625,7 @@ sys.stderr = StringIO()
         </div>
 
         {/* Output Section - Console or Preview */}
-        <div className="h-1/3 bg-slate-950 border-t border-slate-800 flex flex-col">
+        <div className="min-h-[200px] h-[40%] bg-slate-950 border-t border-slate-800 flex flex-col">
           <div className="px-4 py-2 bg-slate-900 border-b border-slate-800 text-xs text-slate-400 font-mono uppercase tracking-wider flex justify-between">
             <span>{isPreviewLanguage ? 'Live Preview' : 'Console Output'}</span>
             {pyodideStatus === 'loading' && (

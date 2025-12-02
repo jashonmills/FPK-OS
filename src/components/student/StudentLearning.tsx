@@ -180,7 +180,7 @@ const StudentLearning: React.FC = () => {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            className="h-full"
+            className="min-h-[700px] h-[calc(100vh-200px)]"
           >
             {renderTool()}
           </motion.div>
