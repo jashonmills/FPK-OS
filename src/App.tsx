@@ -14,7 +14,7 @@ import RequireAdmin from '@/components/guards/RequireAdmin';
 import { performanceMonitor } from '@/utils/performanceMonitor';
 import { logger } from '@/utils/logger';
 import { setupGlobalScrollRestoration } from '@/utils/globalScrollManager';
-import { shouldShowBetaFeatures, shouldShowLegacyAIAssistant, shouldUseNewTeacherDashboard } from '@/lib/featureFlags';
+import { shouldShowBetaFeatures, shouldShowLegacyAIAssistant, shouldUseNewTeacherDashboard, shouldUseAILearningCoachV2 } from '@/lib/featureFlags';
 import "@/styles/mobile-responsive.css";
 import "./App.css";
 
@@ -138,6 +138,7 @@ const SyncCourseManifests = lazy(() => import("./pages/admin/SyncCourseManifests
 // Instructor pages
 const InstructorDashboard = lazy(() => import("./pages/dashboard/InstructorDashboard"));
 const TeacherDashboardV2 = lazy(() => import("./pages/dashboard/TeacherDashboardV2"));
+const AILearningCoachV2 = lazy(() => import("./pages/dashboard/AILearningCoachV2"));
 const StudentProgress = lazy(() => import("./pages/instructor/StudentProgress"));
 const OrgBrandingSettings = lazy(() => import("./pages/instructor/OrgBrandingSettings"));
 const OrgWebsitePage = lazy(() => import("./pages/organizations/OrgWebsitePage"));
@@ -536,6 +537,13 @@ const App: React.FC = () => {
                 <LazyRoute><TeacherDashboardV2 /></LazyRoute>
               </RequireAdmin>
             } />
+            {shouldUseAILearningCoachV2() && (
+              <Route path="admin/ai-learning-coach-v2" element={
+                <RequireAdmin>
+                  <LazyRoute><AILearningCoachV2 /></LazyRoute>
+                </RequireAdmin>
+              } />
+            )}
             <Route path="admin/phoenix-analytics" element={
               <RequireAdmin>
                 <LazyRoute><PhoenixAnalytics /></LazyRoute>
