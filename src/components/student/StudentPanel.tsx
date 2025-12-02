@@ -15,7 +15,7 @@ const StudentPanel: React.FC<StudentPanelProps> = ({ activeTab, orgId }) => {
     case 'learning':
       return <StudentLearning orgId={orgId} />;
     case 'requests':
-      return <StudentRequests />;
+      return <StudentRequests orgId={orgId} />;
     default:
       return <StudentOverview orgId={orgId} />;
   }
