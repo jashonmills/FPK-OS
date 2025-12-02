@@ -27,8 +27,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus, Target } from 'lucide-react';
+import { Plus, Target, Loader2 } from 'lucide-react';
 import { useOrgGoals } from '@/hooks/useOrgGoals';
+import { useOrgStudents } from '@/hooks/useOrgStudents';
 import { useToast } from '@/hooks/use-toast';
 
 const goalSchema = z.object({
@@ -54,6 +55,7 @@ export default function OrgGoalCreationDialog({
 }: OrgGoalCreationDialogProps) {
   const [open, setOpen] = useState(false);
   const { createGoal, isCreating } = useOrgGoals(organizationId);
+  const { students, isLoading: studentsLoading } = useOrgStudents(organizationId || '');
   const { toast } = useToast();
 
   const form = useForm<GoalFormData>({
@@ -221,9 +223,28 @@ export default function OrgGoalCreationDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Student</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Student name or ID..." {...field} />
-                  </FormControl>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder={studentsLoading ? "Loading students..." : "Select student"} />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {studentsLoading ? (
+                        <div className="flex items-center justify-center p-2">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        </div>
+                      ) : students.length === 0 ? (
+                        <SelectItem value="" disabled>No students available</SelectItem>
+                      ) : (
+                        students.map((student) => (
+                          <SelectItem key={student.id} value={student.id}>
+                            {student.full_name}
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -238,7 +259,14 @@ export default function OrgGoalCreationDialog({
                 Cancel
               </Button>
               <Button type="submit" disabled={isCreating}>
-                {isCreating ? 'Creating...' : 'Create Goal'}
+                {isCreating ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  'Create Goal'
+                )}
               </Button>
             </div>
           </form>

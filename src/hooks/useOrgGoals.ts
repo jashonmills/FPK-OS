@@ -193,6 +193,45 @@ export function useOrgGoals(organizationId?: string) {
     },
   });
 
+  const deleteGoalMutation = useMutation({
+    mutationFn: async (goalId: string) => {
+      if (!orgId) {
+        throw new Error('Organization ID is required to delete goals');
+      }
+
+      const { error } = await supabase
+        .from('org_goals')
+        .delete()
+        .eq('id', goalId)
+        .eq('organization_id', orgId);
+
+      if (error) throw error;
+      
+      // Track activity
+      const currentUser = (await supabase.auth.getUser()).data.user;
+      if (currentUser?.id && orgId) {
+        trackOrgActivity('goal_deleted', currentUser.id, orgId, {
+          goal_id: goalId
+        });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['org-goals'] });
+      toast({
+        title: "Success",
+        description: "Goal deleted successfully.",
+      });
+    },
+    onError: (error) => {
+      console.error('Error deleting goal:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete goal.",
+        variant: "destructive",
+      });
+    },
+  });
+
   return {
     goals,
     isLoading,
@@ -200,8 +239,10 @@ export function useOrgGoals(organizationId?: string) {
     refetch,
     createGoal: createGoalMutation.mutate,
     updateGoal: updateGoalMutation.mutate,
+    deleteGoal: deleteGoalMutation.mutate,
     isCreating: createGoalMutation.isPending,
     isUpdating: updateGoalMutation.isPending,
+    isDeleting: deleteGoalMutation.isPending,
   };
 }
 
