@@ -320,32 +320,95 @@ Our organization follows evidence-based teaching practices with a focus on:
             Add sample data to test governance features. Select an organization first.
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-3">
-            <Button
-              variant="outline"
-              onClick={seedTestKnowledgeBase}
-              disabled={!selectedOrgId || seedingKB}
-            >
-              {seedingKB ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <BookOpen className="h-4 w-4 mr-2" />}
-              Add Test KB Document
-            </Button>
-            <Button
-              variant="outline"
-              onClick={seedTestGovernanceRule}
-              disabled={!selectedOrgId || seedingRule}
-            >
-              {seedingRule ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Shield className="h-4 w-4 mr-2" />}
-              Add Test Governance Rule
-            </Button>
-            <Button
-              variant="outline"
-              onClick={seedTestBYOK}
-              disabled={!selectedOrgId || seedingBYOK}
-            >
-              {seedingBYOK ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Key className="h-4 w-4 mr-2" />}
-              Add Test BYOK Entry
-            </Button>
+        <CardContent className="space-y-6">
+          {/* KB Document */}
+          <div className="border rounded-lg p-4 space-y-3">
+            <div className="flex items-start justify-between">
+              <div className="flex items-start gap-3">
+                <div className="p-2 bg-blue-500/10 rounded-lg">
+                  <BookOpen className="h-5 w-5 text-blue-500" />
+                </div>
+                <div>
+                  <h4 className="font-medium">Knowledge Base Document</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Adds a sample "Curriculum Guidelines" document with teaching standards, subject area guidelines, and assessment policies.
+                  </p>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={seedTestKnowledgeBase}
+                disabled={!selectedOrgId || seedingKB}
+              >
+                {seedingKB ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
+                Add
+              </Button>
+            </div>
+            <div className="text-xs text-muted-foreground bg-muted/50 p-2 rounded">
+              <strong>How it works:</strong> When you use KB-enabled tools (Lesson Planner, Quiz Generator, Research Assistant, Course Builder, Personal Tutor), 
+              the gateway automatically injects relevant KB content into the AI's context. Test by asking about "curriculum" or "teaching standards".
+            </div>
+          </div>
+
+          {/* Governance Rule */}
+          <div className="border rounded-lg p-4 space-y-3">
+            <div className="flex items-start justify-between">
+              <div className="flex items-start gap-3">
+                <div className="p-2 bg-purple-500/10 rounded-lg">
+                  <Shield className="h-5 w-5 text-purple-500" />
+                </div>
+                <div>
+                  <h4 className="font-medium">Governance Rule (Blocking)</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Adds a rule that blocks AI from generating creative fiction or fantasy stories for students/viewers.
+                  </p>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={seedTestGovernanceRule}
+                disabled={!selectedOrgId || seedingRule}
+              >
+                {seedingRule ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
+                Add
+              </Button>
+            </div>
+            <div className="text-xs text-muted-foreground bg-muted/50 p-2 rounded">
+              <strong>How it works:</strong> Blocked rules are injected into the AI's system prompt with instructions to decline requests that violate them. 
+              Test by asking the AI to "write a fantasy story" or "create a fictional tale" - it should politely decline.
+            </div>
+          </div>
+
+          {/* BYOK Entry */}
+          <div className="border rounded-lg p-4 space-y-3">
+            <div className="flex items-start justify-between">
+              <div className="flex items-start gap-3">
+                <div className="p-2 bg-amber-500/10 rounded-lg">
+                  <Key className="h-5 w-5 text-amber-500" />
+                </div>
+                <div>
+                  <h4 className="font-medium">BYOK Entry (Inactive)</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Adds a placeholder OpenAI API key entry (inactive by default so it won't affect actual requests).
+                  </p>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={seedTestBYOK}
+                disabled={!selectedOrgId || seedingBYOK}
+              >
+                {seedingBYOK ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
+                Add
+              </Button>
+            </div>
+            <div className="text-xs text-muted-foreground bg-muted/50 p-2 rounded">
+              <strong>How it works:</strong> When BYOK is active for a provider (OpenAI, Anthropic, Google), the gateway routes requests directly to that provider 
+              using the org's API key instead of the platform key. To test routing, activate the key in the BYOK tab and check edge function logs.
+            </div>
           </div>
         </CardContent>
       </Card>
