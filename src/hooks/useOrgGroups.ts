@@ -12,6 +12,7 @@ export interface OrgGroup {
   created_at: string;
   updated_at: string;
   member_count?: number;
+  messaging_enabled?: boolean;
 }
 
 export function useOrgGroups() {
@@ -77,13 +78,19 @@ export function useOrgGroups() {
   });
 
   const updateGroupMutation = useMutation({
-    mutationFn: async (groupData: { id: string; name: string; description?: string }) => {
+    mutationFn: async (groupData: { id: string; name: string; description?: string; messaging_enabled?: boolean }) => {
+      const updateData: Record<string, unknown> = {
+        name: groupData.name,
+        description: groupData.description,
+      };
+      
+      if (groupData.messaging_enabled !== undefined) {
+        updateData.messaging_enabled = groupData.messaging_enabled;
+      }
+
       const { data, error } = await supabase
         .from('org_groups')
-        .update({
-          name: groupData.name,
-          description: groupData.description,
-        })
+        .update(updateData)
         .eq('id', groupData.id)
         .eq('org_id', orgId)
         .select()
@@ -104,6 +111,38 @@ export function useOrgGroups() {
       toast({
         title: "Error",
         description: "Failed to update group.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const toggleMessagingMutation = useMutation({
+    mutationFn: async ({ groupId, enabled }: { groupId: string; enabled: boolean }) => {
+      const { data, error } = await supabase
+        .from('org_groups')
+        .update({ messaging_enabled: enabled })
+        .eq('id', groupId)
+        .eq('org_id', orgId)
+        .select()
+        .maybeSingle();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['org-groups'] });
+      toast({
+        title: "Success",
+        description: variables.enabled 
+          ? "Student messaging enabled for this group." 
+          : "Student messaging disabled for this group.",
+      });
+    },
+    onError: (error) => {
+      console.error('Error toggling messaging:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update messaging settings.",
         variant: "destructive",
       });
     },
@@ -143,8 +182,10 @@ export function useOrgGroups() {
     createGroup: createGroupMutation.mutate,
     updateGroup: updateGroupMutation.mutate,
     deleteGroup: deleteGroupMutation.mutate,
+    toggleMessaging: toggleMessagingMutation.mutate,
     isCreating: createGroupMutation.isPending,
     isUpdating: updateGroupMutation.isPending,
     isDeleting: deleteGroupMutation.isPending,
+    isTogglingMessaging: toggleMessagingMutation.isPending,
   };
 }
