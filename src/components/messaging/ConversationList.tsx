@@ -86,13 +86,13 @@ export function ConversationList({
     <div className="flex flex-col h-full">
       {/* Search */}
       <div className="p-3 border-b border-border/50">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <div className="relative group">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
           <Input
             placeholder="Search conversations..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9"
+            className="pl-9 transition-shadow focus:shadow-md"
           />
         </div>
       </div>
@@ -116,10 +116,10 @@ export function ConversationList({
                   key={conv.id}
                   onClick={() => onSelect(conv.id)}
                   className={cn(
-                    "w-full flex items-start gap-3 p-3 rounded-lg text-left transition-colors",
+                    "w-full flex items-start gap-3 p-3 rounded-xl text-left transition-all duration-200",
                     selectedId === conv.id
-                      ? "bg-primary/10 border border-primary/20"
-                      : "hover:bg-muted/50"
+                      ? "bg-background shadow-md border border-primary/20 scale-[1.02]"
+                      : "hover:bg-background hover:shadow-sm hover:scale-[1.01] active:scale-[0.99]"
                   )}
                 >
                   <div className="relative">
