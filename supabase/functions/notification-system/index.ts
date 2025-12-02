@@ -169,6 +169,39 @@ serve(async (req) => {
         };
         break;
 
+      case 'ai_request_submitted':
+        notification = {
+          ...notification,
+          type: 'ai_request_submitted',
+          title: '🤖 New AI Request',
+          message: `${data.studentName} submitted an AI request: "${data.task}" (${data.priority} priority).`,
+          action_url: `/org/${data.orgId}/ai-governance`,
+          metadata: data
+        };
+        break;
+
+      case 'ai_request_approved':
+        notification = {
+          ...notification,
+          type: 'ai_request_approved',
+          title: '✅ AI Request Approved',
+          message: `Your AI request "${data.task}" has been approved${data.approverName ? ` by ${data.approverName}` : ''}.`,
+          action_url: data.orgId ? `/org/${data.orgId}/ai-governance` : '/dashboard/learner/ai-command-center',
+          metadata: data
+        };
+        break;
+
+      case 'ai_request_rejected':
+        notification = {
+          ...notification,
+          type: 'ai_request_rejected',
+          title: '❌ AI Request Declined',
+          message: `Your AI request "${data.task}" was declined${data.approverName ? ` by ${data.approverName}` : ''}.`,
+          action_url: data.orgId ? `/org/${data.orgId}/ai-governance` : '/dashboard/learner/ai-command-center',
+          metadata: data
+        };
+        break;
+
       default:
         throw new Error('Unknown notification type');
     }
