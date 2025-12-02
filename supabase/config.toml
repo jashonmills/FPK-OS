@@ -207,4 +207,7 @@ verify_jwt = true
 [functions.bulk-invite]
 verify_jwt = true
 
+[functions.run-code]
+verify_jwt = false
+
 
