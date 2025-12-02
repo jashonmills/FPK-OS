@@ -82,8 +82,8 @@ export default function MessagingPage() {
         {/* Conversation List */}
         {showList && (
           <div className={cn(
-            "border-r border-border/50 overflow-hidden flex flex-col",
-            isMobile ? "w-full" : "w-80 flex-shrink-0"
+            "border-r border-border/50 overflow-hidden flex flex-col bg-muted/30",
+            isMobile ? "w-full" : "w-72 flex-shrink-0"
           )}>
             <ConversationList
               conversations={conversations}
