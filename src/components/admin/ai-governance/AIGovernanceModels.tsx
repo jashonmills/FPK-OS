@@ -1,90 +1,37 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Cpu, Save, Zap, Lock, Server, ToggleLeft, ToggleRight, Settings2 } from 'lucide-react';
+import { Cpu, Save, Zap, Lock, Server, ToggleLeft, ToggleRight, Settings2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
-import { toast } from '@/hooks/use-toast';
-
-interface ModelConfig {
-  temperature?: number;
-  maxTokens?: number;
-  topP?: number;
-  quality?: string;
-  size?: string;
-}
-
-interface AIModel {
-  id: string;
-  name: string;
-  provider: string;
-  type: 'text' | 'image';
-  active: boolean;
-  config: ModelConfig;
-}
+import { toast } from 'sonner';
+import { useAIGovernanceModels, AIGovernanceModelConfig } from '@/hooks/useAIGovernanceModels';
 
 const AIGovernanceModels: React.FC = () => {
-  const [models, setModels] = useState<AIModel[]>(() => {
-    const saved = localStorage.getItem('aiModels');
-    return saved ? JSON.parse(saved) : [
-      { 
-        id: 'gpt-4', 
-        name: 'GPT-4 Turbo', 
-        provider: 'OpenAI', 
-        type: 'text',
-        active: true,
-        config: { temperature: 0.7, maxTokens: 4096, topP: 1.0 }
-      },
-      { 
-        id: 'claude-3-opus', 
-        name: 'Claude 3 Opus', 
-        provider: 'Anthropic', 
-        type: 'text',
-        active: true,
-        config: { temperature: 0.5, maxTokens: 4096, topP: 0.9 }
-      },
-      { 
-        id: 'llama-3-70b', 
-        name: 'Llama 3 70B', 
-        provider: 'Meta', 
-        type: 'text',
-        active: false,
-        config: { temperature: 0.8, maxTokens: 2048, topP: 0.95 }
-      },
-      { 
-        id: 'dall-e-3', 
-        name: 'DALL-E 3', 
-        provider: 'OpenAI', 
-        type: 'image',
-        active: true,
-        config: { quality: 'standard', size: '1024x1024' }
-      }
-    ];
-  });
+  const { models, isLoading, updateModelConfig, toggleModelActive } = useAIGovernanceModels();
+  const [selectedModel, setSelectedModel] = useState<AIGovernanceModelConfig | null>(null);
+  const [localConfig, setLocalConfig] = useState<{ temperature?: number; maxTokens?: number }>({});
 
-  const [selectedModel, setSelectedModel] = useState<AIModel | null>(null);
-
-  useEffect(() => {
-    localStorage.setItem('aiModels', JSON.stringify(models));
-  }, [models]);
-
-  const toggleModel = (id: string) => {
-    setModels(models.map(model => 
-      model.id === id ? { ...model, active: !model.active } : model
-    ));
-    toast({
-      title: "Model Status Updated",
-      description: "The AI model availability has been changed.",
-    });
+  const handleToggleModel = (model: AIGovernanceModelConfig) => {
+    toggleModelActive.mutate({ id: model.id, isActive: !model.is_active });
   };
 
-  const handleConfigChange = (id: string, key: string, value: number) => {
-    setModels(models.map(model => 
-      model.id === id ? { ...model, config: { ...model.config, [key]: value } } : model
-    ));
-    if (selectedModel?.id === id) {
-      setSelectedModel(prev => prev ? { ...prev, config: { ...prev.config, [key]: value } } : null);
-    }
+  const handleConfigChange = (key: string, value: number) => {
+    setLocalConfig(prev => ({ ...prev, [key]: value }));
+  };
+
+  const handleSaveConfig = () => {
+    if (!selectedModel) return;
+    
+    updateModelConfig.mutate({
+      id: selectedModel.id,
+      updates: {
+        config: {
+          ...selectedModel.config,
+          ...localConfig,
+        },
+      },
+    });
   };
 
   const getProviderColor = (provider: string) => {
@@ -95,6 +42,14 @@ const AIGovernanceModels: React.FC = () => {
       default: return 'bg-muted text-muted-foreground';
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -124,12 +79,12 @@ const AIGovernanceModels: React.FC = () => {
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="text-lg font-bold text-foreground">{model.name}</h3>
+                      <h3 className="text-lg font-bold text-foreground">{model.model_name}</h3>
                       <span className={`px-2 py-0.5 rounded text-xs font-medium ${getProviderColor(model.provider)}`}>
                         {model.provider}
                       </span>
                     </div>
-                    <p className="text-sm text-muted-foreground mt-1">Type: {model.type}</p>
+                    <p className="text-sm text-muted-foreground mt-1">Type: {model.model_type}</p>
                   </div>
                 </div>
                 
@@ -137,10 +92,11 @@ const AIGovernanceModels: React.FC = () => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => toggleModel(model.id)}
+                    onClick={() => handleToggleModel(model)}
+                    disabled={toggleModelActive.isPending}
                     className="text-muted-foreground hover:text-foreground"
                   >
-                    {model.active ? (
+                    {model.is_active ? (
                       <div className="flex items-center text-green-600">
                         <span className="text-sm font-medium mr-2">Active</span>
                         <ToggleRight className="h-8 w-8" />
@@ -155,7 +111,18 @@ const AIGovernanceModels: React.FC = () => {
                   <Button
                     variant="outline"
                     size="icon"
-                    onClick={() => setSelectedModel(selectedModel?.id === model.id ? null : model)}
+                    onClick={() => {
+                      if (selectedModel?.id === model.id) {
+                        setSelectedModel(null);
+                        setLocalConfig({});
+                      } else {
+                        setSelectedModel(model);
+                        setLocalConfig({
+                          temperature: model.config.temperature,
+                          maxTokens: model.config.maxTokens,
+                        });
+                      }
+                    }}
                     className={selectedModel?.id === model.id ? 'bg-primary/10 border-primary text-primary' : ''}
                   >
                     <Settings2 className="h-4 w-4" />
@@ -163,7 +130,7 @@ const AIGovernanceModels: React.FC = () => {
                 </div>
               </div>
               
-              {model.active && (
+              {model.is_active && (
                 <div className="flex items-center gap-4 text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
                   <div className="flex items-center gap-2">
                     <Zap className="h-4 w-4" />
@@ -196,18 +163,20 @@ const AIGovernanceModels: React.FC = () => {
                   <h3 className="font-bold text-foreground">Model Parameters</h3>
                 </div>
 
-                {selectedModel.type === 'text' ? (
+                {selectedModel.model_type === 'text' ? (
                   <div className="space-y-6">
                     <div className="space-y-4">
                       <div className="flex justify-between">
                         <Label>Temperature</Label>
-                        <span className="text-sm text-muted-foreground">{selectedModel.config.temperature}</span>
+                        <span className="text-sm text-muted-foreground">
+                          {localConfig.temperature ?? selectedModel.config.temperature ?? 0.7}
+                        </span>
                       </div>
                       <Slider
-                        value={[selectedModel.config.temperature || 0.7]}
+                        value={[localConfig.temperature ?? selectedModel.config.temperature ?? 0.7]}
                         max={1}
                         step={0.1}
-                        onValueChange={([val]) => handleConfigChange(selectedModel.id, 'temperature', val)}
+                        onValueChange={([val]) => handleConfigChange('temperature', val)}
                       />
                       <p className="text-xs text-muted-foreground">Controls randomness: Lowering results in less random completions.</p>
                     </div>
@@ -215,14 +184,16 @@ const AIGovernanceModels: React.FC = () => {
                     <div className="space-y-4">
                       <div className="flex justify-between">
                         <Label>Max Tokens</Label>
-                        <span className="text-sm text-muted-foreground">{selectedModel.config.maxTokens}</span>
+                        <span className="text-sm text-muted-foreground">
+                          {localConfig.maxTokens ?? selectedModel.config.maxTokens ?? 4096}
+                        </span>
                       </div>
                       <Slider
-                        value={[selectedModel.config.maxTokens || 4096]}
+                        value={[localConfig.maxTokens ?? selectedModel.config.maxTokens ?? 4096]}
                         min={256}
                         max={8192}
                         step={256}
-                        onValueChange={([val]) => handleConfigChange(selectedModel.id, 'maxTokens', val)}
+                        onValueChange={([val]) => handleConfigChange('maxTokens', val)}
                       />
                       <p className="text-xs text-muted-foreground">The maximum number of tokens to generate.</p>
                     </div>
@@ -236,10 +207,11 @@ const AIGovernanceModels: React.FC = () => {
                 <div className="mt-8 pt-6 border-t border-border">
                   <Button 
                     className="w-full bg-gradient-to-r from-indigo-500 to-purple-600"
-                    onClick={() => toast({ title: "Configuration Saved", description: `Settings for ${selectedModel.name} have been saved.` })}
+                    onClick={handleSaveConfig}
+                    disabled={updateModelConfig.isPending}
                   >
                     <Save className="h-4 w-4 mr-2" />
-                    Save Changes
+                    {updateModelConfig.isPending ? 'Saving...' : 'Save Changes'}
                   </Button>
                 </div>
               </motion.div>

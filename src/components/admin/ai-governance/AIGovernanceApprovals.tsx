@@ -1,49 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle, XCircle, User } from 'lucide-react';
+import { CheckCircle, XCircle, User, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { toast } from '@/hooks/use-toast';
-
-interface ApprovalRequest {
-  id: number;
-  user: string;
-  role: string;
-  task: string;
-  category: string;
-  priority: 'high' | 'medium' | 'low';
-  timestamp: string;
-  details: string;
-}
+import { useAIGovernanceApprovals } from '@/hooks/useAIGovernanceApprovals';
+import { supabase } from '@/integrations/supabase/client';
 
 const AIGovernanceApprovals: React.FC = () => {
-  const [pendingRequests, setPendingRequests] = useState<ApprovalRequest[]>(() => {
-    const saved = localStorage.getItem('pendingApprovals');
-    return saved ? JSON.parse(saved) : [
-      { id: 1, user: 'Mike Davis', role: 'student', task: 'Advanced code generation for final project', category: 'Technical', priority: 'high', timestamp: new Date().toISOString(), details: 'Requesting AI assistance to generate boilerplate code for React application.' },
-      { id: 2, user: 'Jennifer Smith', role: 'teacher', task: 'Bulk quiz question generation', category: 'Academic', priority: 'medium', timestamp: new Date(Date.now() - 600000).toISOString(), details: 'Need AI to create 50 multiple choice questions for biology exam.' },
-      { id: 3, user: 'Tom Wilson', role: 'student', task: 'AI-powered presentation slides', category: 'Creative', priority: 'low', timestamp: new Date(Date.now() - 1200000).toISOString(), details: 'Using AI to design presentation slides for history project.' },
-    ];
-  });
+  const { pendingApprovals, isLoading, approveRequest, rejectRequest } = useAIGovernanceApprovals();
 
-  useEffect(() => {
-    localStorage.setItem('pendingApprovals', JSON.stringify(pendingRequests));
-  }, [pendingRequests]);
-
-  const handleApprove = (id: number) => {
-    setPendingRequests(pendingRequests.filter(req => req.id !== id));
-    toast({
-      title: "Request Approved",
-      description: "The AI usage request has been approved successfully.",
-    });
+  const handleApprove = async (id: string) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user?.id) return;
+    approveRequest.mutate({ id, approvedBy: user.id });
   };
 
-  const handleReject = (id: number) => {
-    setPendingRequests(pendingRequests.filter(req => req.id !== id));
-    toast({
-      title: "Request Rejected",
-      description: "The AI usage request has been rejected.",
-      variant: "destructive"
-    });
+  const handleReject = async (id: string) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user?.id) return;
+    rejectRequest.mutate({ id, approvedBy: user.id });
   };
 
   const getPriorityColor = (priority: string) => {
@@ -66,14 +40,22 @@ const AIGovernanceApprovals: React.FC = () => {
     return date.toLocaleDateString();
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-foreground">Pending Approvals</h2>
-        <p className="text-muted-foreground mt-1">Review and approve AI usage requests from teachers and students</p>
+        <p className="text-muted-foreground mt-1">Review and approve AI usage requests</p>
       </div>
 
-      {pendingRequests.length === 0 ? (
+      {pendingApprovals.length === 0 ? (
         <div className="bg-card rounded-xl shadow-sm border border-border p-12 text-center">
           <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-foreground mb-2">All Caught Up!</h3>
@@ -81,7 +63,7 @@ const AIGovernanceApprovals: React.FC = () => {
         </div>
       ) : (
         <div className="space-y-4">
-          {pendingRequests.map((request, index) => (
+          {pendingApprovals.map((request, index) => (
             <motion.div
               key={request.id}
               initial={{ opacity: 0, x: -20 }}
@@ -96,8 +78,10 @@ const AIGovernanceApprovals: React.FC = () => {
                       <User className="h-5 w-5 text-primary" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-foreground">{request.user}</h3>
-                      <p className="text-sm text-muted-foreground capitalize">{request.role}</p>
+                      <h3 className="font-semibold text-foreground">
+                        {request.user_name || request.user_email || 'Unknown User'}
+                      </h3>
+                      <p className="text-sm text-muted-foreground">{request.user_email}</p>
                     </div>
                   </div>
                 </div>
@@ -105,13 +89,15 @@ const AIGovernanceApprovals: React.FC = () => {
                   <span className={`px-3 py-1 rounded-full text-xs font-medium ${getPriorityColor(request.priority)} capitalize`}>
                     {request.priority} Priority
                   </span>
-                  <span className="text-xs text-muted-foreground">{formatTimestamp(request.timestamp)}</span>
+                  <span className="text-xs text-muted-foreground">{formatTimestamp(request.requested_at)}</span>
                 </div>
               </div>
 
               <div className="mb-4">
                 <h4 className="font-medium text-foreground mb-2">{request.task}</h4>
-                <p className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">{request.details}</p>
+                {request.details && (
+                  <p className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">{request.details}</p>
+                )}
               </div>
 
               <div className="flex items-center justify-between pt-4 border-t border-border">
@@ -122,6 +108,7 @@ const AIGovernanceApprovals: React.FC = () => {
                   <Button
                     onClick={() => handleReject(request.id)}
                     variant="outline"
+                    disabled={rejectRequest.isPending}
                     className="border-red-300 text-red-600 hover:bg-red-50 dark:border-red-800 dark:hover:bg-red-900/30"
                   >
                     <XCircle className="h-4 w-4 mr-2" />
@@ -129,6 +116,7 @@ const AIGovernanceApprovals: React.FC = () => {
                   </Button>
                   <Button
                     onClick={() => handleApprove(request.id)}
+                    disabled={approveRequest.isPending}
                     className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
                   >
                     <CheckCircle className="h-4 w-4 mr-2" />
