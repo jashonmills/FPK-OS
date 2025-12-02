@@ -1,16 +1,112 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Shield, BookOpen, GraduationCap, MoreVertical, Loader2, Crown, Eye, Users } from 'lucide-react';
+import { Search, Shield, BookOpen, GraduationCap, MoreVertical, Loader2, Crown, Eye, Users, Ban, History, UserCog, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { useAIGovernanceUsers } from '@/hooks/useAIGovernanceUsers';
+import { useAIGovernanceUsers, AIGovernanceUser } from '@/hooks/useAIGovernanceUsers';
 import PlatformAdminOrgSelector from './PlatformAdminOrgSelector';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import { supabase } from '@/integrations/supabase/client';
 
 const AIGovernanceUsers: React.FC = () => {
   const [selectedOrgId, setSelectedOrgId] = useState<string | null>(null);
-  const { users, isLoading } = useAIGovernanceUsers(selectedOrgId);
+  const { users, isLoading, refetch } = useAIGovernanceUsers(selectedOrgId);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState('all');
+  
+  // Dialog states
+  const [selectedUser, setSelectedUser] = useState<AIGovernanceUser | null>(null);
+  const [editRoleDialogOpen, setEditRoleDialogOpen] = useState(false);
+  const [revokeDialogOpen, setRevokeDialogOpen] = useState(false);
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  const [newRole, setNewRole] = useState<string>('');
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const handleEditRole = (user: AIGovernanceUser) => {
+    setSelectedUser(user);
+    setNewRole(user.role);
+    setEditRoleDialogOpen(true);
+  };
+
+  const handleRevokeAccess = (user: AIGovernanceUser) => {
+    setSelectedUser(user);
+    setRevokeDialogOpen(true);
+  };
+
+  const handleViewDetails = (user: AIGovernanceUser) => {
+    setSelectedUser(user);
+    setDetailsDialogOpen(true);
+  };
+
+  const saveRoleChange = async () => {
+    if (!selectedUser || !selectedOrgId || !newRole) return;
+    
+    setIsUpdating(true);
+    try {
+      const { error } = await supabase
+        .from('org_members')
+        .update({ role: newRole as 'owner' | 'admin' | 'instructor' | 'instructor_aide' | 'viewer' | 'student' })
+        .eq('org_id', selectedOrgId)
+        .eq('user_id', selectedUser.id);
+
+      if (error) throw error;
+      
+      toast.success(`Role updated to ${newRole.replace('_', ' ')}`);
+      setEditRoleDialogOpen(false);
+      refetch();
+    } catch (error) {
+      console.error('Error updating role:', error);
+      toast.error('Failed to update role');
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const confirmRevokeAccess = async () => {
+    if (!selectedUser || !selectedOrgId) return;
+    
+    setIsUpdating(true);
+    try {
+      const { error } = await supabase
+        .from('org_members')
+        .delete()
+        .eq('org_id', selectedOrgId)
+        .eq('user_id', selectedUser.id);
+
+      if (error) throw error;
+      
+      toast.success(`${selectedUser.full_name || 'User'} removed from organization`);
+      setRevokeDialogOpen(false);
+      refetch();
+    } catch (error) {
+      console.error('Error removing user:', error);
+      toast.error('Failed to remove user');
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   const filteredUsers = users.filter(user => {
     const matchesSearch = (user.full_name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
@@ -162,13 +258,31 @@ const AIGovernanceUsers: React.FC = () => {
                         </span>
                       </td>
                       <td className="py-4 px-4">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => toast.info('User actions coming soon')}
-                        >
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleViewDetails(user)}>
+                              <History className="h-4 w-4 mr-2" />
+                              View Details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleEditRole(user)}>
+                              <UserCog className="h-4 w-4 mr-2" />
+                              Edit Role
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem 
+                              onClick={() => handleRevokeAccess(user)}
+                              className="text-destructive focus:text-destructive"
+                            >
+                              <Ban className="h-4 w-4 mr-2" />
+                              Remove from Org
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </td>
                     </motion.tr>
                   );
@@ -184,6 +298,108 @@ const AIGovernanceUsers: React.FC = () => {
           )}
         </div>
       )}
+
+      {/* Edit Role Dialog */}
+      <Dialog open={editRoleDialogOpen} onOpenChange={setEditRoleDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit User Role</DialogTitle>
+            <DialogDescription>
+              Change the role for {selectedUser?.full_name || selectedUser?.email}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Role</Label>
+              <Select value={newRole} onValueChange={setNewRole}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="owner">Owner</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                  <SelectItem value="instructor">Instructor</SelectItem>
+                  <SelectItem value="instructor_aide">Instructor Aide</SelectItem>
+                  <SelectItem value="viewer">Viewer</SelectItem>
+                  <SelectItem value="student">Student</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditRoleDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={saveRoleChange} disabled={isUpdating}>
+              {isUpdating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Remove User Dialog */}
+      <Dialog open={revokeDialogOpen} onOpenChange={setRevokeDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Remove User from Organization</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to remove {selectedUser?.full_name || selectedUser?.email} from this organization? They will lose access to all organization resources.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRevokeDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={confirmRevokeAccess} disabled={isUpdating}>
+              {isUpdating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+              Remove User
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* User Details Dialog */}
+      <Dialog open={detailsDialogOpen} onOpenChange={setDetailsDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>User Details</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label className="text-muted-foreground text-xs">Name</Label>
+                <p className="font-medium">{selectedUser?.full_name || 'Unknown'}</p>
+              </div>
+              <div>
+                <Label className="text-muted-foreground text-xs">Email</Label>
+                <p className="font-medium">{selectedUser?.email || 'N/A'}</p>
+              </div>
+              <div>
+                <Label className="text-muted-foreground text-xs">Role</Label>
+                <p className="font-medium capitalize">{selectedUser?.role?.replace('_', ' ')}</p>
+              </div>
+              <div>
+                <Label className="text-muted-foreground text-xs">Status</Label>
+                <p className="font-medium capitalize">{selectedUser?.status}</p>
+              </div>
+              <div>
+                <Label className="text-muted-foreground text-xs">AI Sessions</Label>
+                <p className="font-medium">{selectedUser?.ai_usage_count || 0}</p>
+              </div>
+              <div>
+                <Label className="text-muted-foreground text-xs">Last AI Usage</Label>
+                <p className="font-medium">{formatLastUsage(selectedUser?.last_ai_usage ?? null)}</p>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDetailsDialogOpen(false)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

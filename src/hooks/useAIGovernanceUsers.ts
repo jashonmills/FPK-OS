@@ -71,5 +71,6 @@ export function useAIGovernanceUsers(orgId?: string | null) {
     users: usersQuery.data ?? [],
     isLoading: usersQuery.isLoading,
     error: usersQuery.error,
+    refetch: usersQuery.refetch,
   };
 }
