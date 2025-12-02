@@ -1,10 +1,12 @@
 import { useOrgContext } from '@/components/organizations/OrgContext';
+import { OrgRequireRole } from '@/components/organizations/OrgRequireRole';
 import { Card } from '@/components/ui/card';
 import { ExternalLink, AlertCircle } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ContextualHelpButton } from '@/components/common/ContextualHelpButton';
-export default function OrgWebsitePage() {
+
+function OrgWebsiteContent() {
   const {
     currentOrg
   } = useOrgContext();
@@ -66,5 +68,13 @@ export default function OrgWebsitePage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function OrgWebsitePage() {
+  return (
+    <OrgRequireRole roles={['owner', 'admin', 'instructor']}>
+      <OrgWebsiteContent />
+    </OrgRequireRole>
   );
 }
