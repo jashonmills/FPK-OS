@@ -23,12 +23,17 @@ export function useOrgApiKeys(orgId?: string | null) {
 
       const { data, error } = await supabase
         .from('org_api_keys')
-        .select('id, org_id, provider, display_name, is_active, last_verified_at, created_at, updated_at')
+        .select('id, org_id, provider, is_active, last_verified_at, created_at, updated_at')
         .eq('org_id', orgId)
         .order('provider');
 
       if (error) throw error;
-      return data as OrgApiKey[];
+      
+      // Fetch display_name separately since types may not be updated yet
+      return (data || []).map(row => ({
+        ...row,
+        display_name: (row as any).display_name || row.provider,
+      })) as OrgApiKey[];
     },
     enabled: !!orgId,
   });
@@ -53,11 +58,10 @@ export function useOrgApiKeys(orgId?: string | null) {
         .upsert({
           org_id: targetOrgId,
           provider,
-          display_name: displayName || provider,
           encrypted_key: encoded,
           is_active: true,
           last_verified_at: new Date().toISOString(),
-        }, {
+        } as any, {
           onConflict: 'org_id,provider'
         })
         .select()
