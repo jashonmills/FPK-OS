@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Shield, Users, ScrollText, Cpu, CheckSquare, Activity, FileText, Settings, Wrench, Key, BookOpen } from 'lucide-react';
+import { Shield, Users, ScrollText, Cpu, CheckSquare, Activity, FileText, Settings, Wrench, Key, BookOpen, FlaskConical } from 'lucide-react';
 import {
   AIGovernanceOverview,
   AIGovernanceUsers,
@@ -13,6 +13,7 @@ import {
   AIGovernanceMonitoring,
   AIGovernanceAuditLog,
   AIGovernanceSettings,
+  AIGovernanceTestPanel,
 } from '@/components/admin/ai-governance';
 
 const AIGovernancePage: React.FC = () => {
@@ -30,6 +31,7 @@ const AIGovernancePage: React.FC = () => {
     { id: 'monitoring', label: 'Monitoring', icon: Activity },
     { id: 'audit', label: 'Audit Log', icon: FileText },
     { id: 'settings', label: 'Settings', icon: Settings },
+    { id: 'testing', label: 'Testing', icon: FlaskConical },
   ];
 
   return (
@@ -106,6 +108,10 @@ const AIGovernancePage: React.FC = () => {
 
           <TabsContent value="settings" className="mt-6">
             <AIGovernanceSettings />
+          </TabsContent>
+
+          <TabsContent value="testing" className="mt-6">
+            <AIGovernanceTestPanel />
           </TabsContent>
         </Tabs>
       </div>
