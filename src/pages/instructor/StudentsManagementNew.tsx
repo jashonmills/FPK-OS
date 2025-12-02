@@ -25,6 +25,8 @@ import { cn } from "@/lib/utils";
 import { OrgStudent } from "@/hooks/useOrgStudents";
 import { supabase } from "@/integrations/supabase/client";
 import { ContextualHelpButton } from '@/components/common/ContextualHelpButton';
+import { useAuth } from "@/hooks/useAuth";
+import { OrgRole } from "@/lib/org/permissions";
 
 function StudentsManagementContent() {
   const {
@@ -42,9 +44,16 @@ function StudentsManagementContent() {
   const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
   const [newlyCreatedStudent, setNewlyCreatedStudent] = useState<OrgStudent | null>(null);
   const isMobile = useIsMobile();
+  const { user } = useAuth();
   const {
-    currentOrg
+    currentOrg,
+    getEffectiveRole
   } = useOrgContext();
+  
+  // Get effective role for scoped data access
+  const effectiveRole = getEffectiveRole() as OrgRole | undefined;
+  const isScopedRole = effectiveRole === 'instructor' || effectiveRole === 'instructor_aide';
+  
   const {
     students,
     isLoading: studentsLoading,
@@ -54,7 +63,11 @@ function StudentsManagementContent() {
     deleteStudent,
     isCreating,
     isUpdating
-  } = useOrgStudents(orgId || '', searchQuery);
+  } = useOrgStudents(orgId || '', {
+    searchQuery,
+    effectiveRole,
+    currentUserId: user?.id
+  });
   const {
     members
   } = useOrgMembers();
@@ -146,11 +159,15 @@ function StudentsManagementContent() {
         <header className={cn("flex justify-between gap-4", isMobile && "flex-col items-start space-y-3")}>
           <div className={isMobile ? "w-full" : ""}>
             <div className="flex items-center gap-3">
-              <h1 className="text-xl sm:text-2xl font-bold">Students</h1>
+              <h1 className="text-xl sm:text-2xl font-bold">
+                {isScopedRole ? "My Students" : "Students"}
+              </h1>
               <ContextualHelpButton section="students" size="icon" variant="ghost" />
             </div>
             <p className="text-sm text-muted-foreground">
-              Manage your organization's student roster and profiles
+              {isScopedRole 
+                ? "Students in your assigned groups" 
+                : "Manage your organization's student roster and profiles"}
             </p>
           </div>
           <div className={cn("flex gap-2", isMobile && "w-full mobile-button-group")}>
@@ -165,6 +182,13 @@ function StudentsManagementContent() {
             </Button>
           </div>
         </header>
+
+        {/* Scoped data indicator for instructors */}
+        {isScopedRole && (
+          <div className="bg-blue-500/20 border border-blue-400/50 rounded-lg px-4 py-3 text-sm text-blue-100">
+            <strong>Note:</strong> You are viewing students in groups you manage. To see all organization students, contact an administrator.
+          </div>
+        )}
 
         {/* Student Activity Heatmap */}
         <StudentActivityHeatmap orgId={orgId} className="mb-6" />
