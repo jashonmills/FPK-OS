@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useXPIntegration } from './useXPIntegration';
+import { trackDailyActivity } from '@/utils/analyticsTracking';
 import type { Goal, GoalInsert, GoalUpdate } from '@/types/goals';
 
 // Singleton class to manage goals data globally
@@ -13,6 +15,7 @@ class GoalsManager {
   private subscribers: Set<(goals: Goal[], loading: boolean, error: string | null) => void> = new Set();
   private userId: string | null = null;
   private hasLoadedOnce: boolean = false;
+  private xpIntegration: ReturnType<typeof useXPIntegration> | null = null;
 
   private constructor() {}
 
@@ -21,6 +24,10 @@ class GoalsManager {
       GoalsManager.instance = new GoalsManager();
     }
     return GoalsManager.instance;
+  }
+
+  setXPIntegration(integration: ReturnType<typeof useXPIntegration>) {
+    this.xpIntegration = integration;
   }
 
   subscribe(
@@ -212,6 +219,12 @@ class GoalsManager {
       const newGoal = data as Goal;
       this.goals = [newGoal, ...this.goals];
       this.notify();
+      
+      // Track daily activity for goal creation
+      trackDailyActivity('goals', 0, userId).catch(err => 
+        console.warn('Failed to track goal creation activity:', err)
+      );
+      
       return newGoal;
     } catch (err) {
       console.error('❌ GoalsManager: Error in createGoal:', err);
@@ -259,6 +272,33 @@ class GoalsManager {
       console.error('❌ GoalsManager: Error in deleteGoal:', err);
     }
   }
+
+  async completeGoalWithXP(id: string, userId: string): Promise<void> {
+    try {
+      const goal = this.goals.find(g => g.id === id);
+      
+      await this.updateGoal(id, { status: 'completed', completed_at: new Date().toISOString() });
+      
+      // Award XP for goal completion
+      if (this.xpIntegration) {
+        try {
+          const priority = goal?.priority || 'medium';
+          const category = goal?.category || 'general';
+          await this.xpIntegration.awardGoalCompletionXP(category, priority);
+          console.log('🎮 XP awarded for goal completion');
+        } catch (error) {
+          console.warn('Failed to award XP for goal completion:', error);
+        }
+      }
+      
+      // Track daily activity
+      trackDailyActivity('goals', 0, userId).catch(err => 
+        console.warn('Failed to track goal completion activity:', err)
+      );
+    } catch (err) {
+      console.error('❌ GoalsManager: Error in completeGoalWithXP:', err);
+    }
+  }
 }
 
 export const useGoals = () => {
@@ -268,6 +308,12 @@ export const useGoals = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const goalsManager = GoalsManager.getInstance();
+  const xpIntegration = useXPIntegration();
+
+  // Set XP integration in GoalsManager
+  useEffect(() => {
+    goalsManager.setXPIntegration(xpIntegration);
+  }, [xpIntegration]);
 
   useEffect(() => {
     // Subscribe to goals changes
@@ -314,7 +360,10 @@ export const useGoals = () => {
   };
 
   const completeGoal = async (id: string): Promise<void> => {
-    await updateGoal(id, { status: 'completed', completed_at: new Date().toISOString() });
+    if (!user?.id) return;
+    setSaving(true);
+    await goalsManager.completeGoalWithXP(id, user.id);
+    setSaving(false);
   };
 
   const refetchGoals = useCallback(() => {
