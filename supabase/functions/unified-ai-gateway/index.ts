@@ -32,6 +32,7 @@ interface ModelConfig {
 }
 
 interface GovernanceRule {
+  id: string;
   name: string;
   description: string;
   category: string;
@@ -47,6 +48,7 @@ serve(async (req) => {
   }
 
   const startTime = Date.now();
+  let sessionId: string | null = null;
   
   try {
     console.log('[UNIFIED-GATEWAY] 🚀 Request received');
@@ -102,7 +104,56 @@ serve(async (req) => {
 
     console.log('[UNIFIED-GATEWAY] 📋 Tool:', toolId, '| Org:', orgId || 'platform', '| Message length:', message.length);
 
-    // STEP 1: Fetch tool configuration
+    // STEP 1: Create or update session for monitoring
+    try {
+      // Check for existing active session (within last hour)
+      const { data: existingSession } = await serviceClient
+        .from('ai_tool_sessions')
+        .select('id, message_count')
+        .eq('user_id', user.id)
+        .eq('tool_id', toolId)
+        .eq('org_id', orgId || null)
+        .is('ended_at', null)
+        .gte('started_at', new Date(Date.now() - 60 * 60 * 1000).toISOString())
+        .single();
+
+      if (existingSession) {
+        // Update existing session
+        sessionId = existingSession.id;
+        await serviceClient
+          .from('ai_tool_sessions')
+          .update({ 
+            message_count: (existingSession.message_count || 0) + 1,
+            metadata: { last_message_at: new Date().toISOString() }
+          })
+          .eq('id', sessionId);
+        console.log('[UNIFIED-GATEWAY] 📊 Updated existing session:', sessionId);
+      } else {
+        // Create new session
+        const { data: newSession } = await serviceClient
+          .from('ai_tool_sessions')
+          .insert({
+            user_id: user.id,
+            tool_id: toolId,
+            org_id: orgId || null,
+            started_at: new Date().toISOString(),
+            message_count: 1,
+            metadata: { first_message_at: new Date().toISOString() }
+          })
+          .select('id')
+          .single();
+        
+        if (newSession) {
+          sessionId = newSession.id;
+          console.log('[UNIFIED-GATEWAY] 📊 Created new session:', sessionId);
+        }
+      }
+    } catch (sessionError) {
+      console.warn('[UNIFIED-GATEWAY] ⚠️ Session tracking failed:', sessionError);
+      // Continue without session tracking
+    }
+
+    // STEP 2: Fetch tool configuration
     const { data: toolConfig, error: toolError } = await supabaseClient
       .from('ai_tools')
       .select('*')
@@ -120,7 +171,7 @@ serve(async (req) => {
 
     console.log('[UNIFIED-GATEWAY] ✅ Tool config loaded:', toolConfig.display_name);
 
-    // STEP 2: Fetch model assignment (org-specific or global default)
+    // STEP 3: Fetch model assignment (org-specific or global default)
     let modelConfig: ModelConfig | null = null;
     
     if (orgId) {
@@ -170,23 +221,106 @@ serve(async (req) => {
     const finalModel = modelConfig?.model_id || toolConfig.model || 'google/gemini-2.5-flash';
     console.log('[UNIFIED-GATEWAY] 🤖 Final model:', finalModel);
 
-    // STEP 3: Fetch governance rules for the org
+    // STEP 4: Fetch governance rules for the org
     let governanceRules: GovernanceRule[] = [];
+    let blockedRules: GovernanceRule[] = [];
     
     if (orgId) {
       const { data: rules } = await supabaseClient
         .from('ai_governance_rules')
-        .select('name, description, category, allowed')
-        .or(`org_id.eq.${orgId},org_id.is.null`)
-        .eq('allowed', false);
+        .select('id, name, description, category, allowed')
+        .or(`org_id.eq.${orgId},org_id.is.null`);
 
       if (rules && rules.length > 0) {
-        governanceRules = rules;
-        console.log('[UNIFIED-GATEWAY] ⚖️ Loaded', rules.length, 'governance rules');
+        // Separate blocked rules (allowed = false)
+        blockedRules = rules.filter(r => !r.allowed);
+        governanceRules = blockedRules;
+        console.log('[UNIFIED-GATEWAY] ⚖️ Loaded', rules.length, 'governance rules,', blockedRules.length, 'blocked');
       }
     }
 
-    // STEP 4: Fetch knowledge base context for relevant tools
+    // STEP 5: Check if message violates any blocked rules (simple keyword check)
+    const lowerMessage = message.toLowerCase();
+    const violatedRules: GovernanceRule[] = [];
+    
+    for (const rule of blockedRules) {
+      // Simple check: if rule name or description keywords appear in message
+      const ruleKeywords = (rule.name + ' ' + (rule.description || '')).toLowerCase().split(/\s+/);
+      const significantKeywords = ruleKeywords.filter(k => k.length > 4);
+      
+      // Check if multiple significant keywords match
+      const matchCount = significantKeywords.filter(k => lowerMessage.includes(k)).length;
+      if (matchCount >= 2 || (significantKeywords.length === 1 && lowerMessage.includes(significantKeywords[0]))) {
+        violatedRules.push(rule);
+      }
+    }
+
+    // If rules are violated, create approval request and return blocked response
+    if (violatedRules.length > 0 && orgId) {
+      console.log('[UNIFIED-GATEWAY] 🚫 Request blocked by', violatedRules.length, 'rules');
+      
+      // Create approval request
+      try {
+        await serviceClient
+          .from('ai_governance_approvals')
+          .insert({
+            user_id: user.id,
+            org_id: orgId,
+            task: message.substring(0, 500),
+            category: violatedRules[0].category,
+            priority: 'medium',
+            status: 'pending',
+            details: JSON.stringify({
+              tool_id: toolId,
+              violated_rules: violatedRules.map(r => ({ id: r.id, name: r.name })),
+              message_preview: message.substring(0, 200)
+            })
+          });
+        console.log('[UNIFIED-GATEWAY] 📝 Created approval request for blocked action');
+      } catch (approvalError) {
+        console.warn('[UNIFIED-GATEWAY] ⚠️ Failed to create approval request:', approvalError);
+      }
+
+      // Log the blocked request
+      await serviceClient.from('audit_logs').insert({
+        user_id: user.id,
+        organization_id: orgId,
+        action_type: 'ai_request_blocked',
+        resource_type: 'ai_tool',
+        resource_id: toolId,
+        status: 'blocked',
+        details: {
+          violated_rules: violatedRules.map(r => r.name),
+          message_preview: message.substring(0, 100)
+        }
+      });
+
+      // Update session as ended due to blocked request
+      if (sessionId) {
+        await serviceClient
+          .from('ai_tool_sessions')
+          .update({ 
+            ended_at: new Date().toISOString(),
+            metadata: { ended_reason: 'blocked_by_governance' }
+          })
+          .eq('id', sessionId);
+      }
+
+      return new Response(
+        JSON.stringify({
+          response: `I'm sorry, but this request cannot be processed as it appears to violate organization policies:\n\n${violatedRules.map(r => `• **${r.name}**: ${r.description || 'Not permitted'}`).join('\n')}\n\nAn approval request has been submitted to your organization administrators. You will be notified when it's reviewed.`,
+          blocked: true,
+          violatedRules: violatedRules.map(r => r.name),
+          approvalRequested: true
+        }),
+        { 
+          status: 200, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
+    // STEP 6: Fetch knowledge base context for relevant tools
     let knowledgeBaseContext = '';
     
     if (orgId && KB_ENABLED_TOOLS.includes(toolId)) {
@@ -222,7 +356,7 @@ ${contextChunks.join('\n\n---\n\n')}
       }
     }
 
-    // STEP 5: Build system prompt with governance + KB injection
+    // STEP 7: Build system prompt with governance + KB injection
     let systemPrompt = systemPromptOverride || toolConfig.system_prompt;
     
     // Prepend knowledge base context
@@ -252,14 +386,14 @@ ${systemPrompt}`;
       systemPrompt += '\n\n' + additionalContext;
     }
 
-    // STEP 6: Build messages array
+    // STEP 8: Build messages array
     const llmMessages = [
       { role: 'system', content: systemPrompt },
       ...messageHistory.slice(-10),
       { role: 'user', content: message }
     ];
 
-    // STEP 7: Prepare AI request
+    // STEP 9: Prepare AI request
     const finalTemperature = temperatureOverride ?? temperature ?? modelConfig?.config?.temperature ?? toolConfig.temperature ?? 0.7;
     
     const aiRequestBody: any = {
@@ -274,7 +408,7 @@ ${systemPrompt}`;
       aiRequestBody.tool_choice = toolChoice || "auto";
     }
 
-    // STEP 8: Check for BYOK (Bring Your Own Key)
+    // STEP 10: Check for BYOK (Bring Your Own Key)
     let apiKey = LOVABLE_API_KEY;
     let apiEndpoint = 'https://ai.gateway.lovable.dev/v1/chat/completions';
     let usingBYOK = false;
@@ -319,7 +453,7 @@ ${systemPrompt}`;
       }
     }
 
-    // STEP 9: Call AI provider
+    // STEP 11: Call AI provider
     console.log('[UNIFIED-GATEWAY] 📤 Calling AI with model:', finalModel, '| BYOK:', usingBYOK, '| KB:', !!knowledgeBaseContext);
     
     const aiResponse = await fetch(apiEndpoint, {
@@ -360,14 +494,35 @@ ${systemPrompt}`;
     const latency = Date.now() - startTime;
     console.log('[UNIFIED-GATEWAY] ✅ Response received in', latency, 'ms | Length:', responseContent.length);
 
-    // STEP 10: Log to audit table
+    // STEP 12: Update session with completion info
+    if (sessionId) {
+      try {
+        await serviceClient
+          .from('ai_tool_sessions')
+          .update({ 
+            credits_used: toolConfig.credit_cost || 1,
+            metadata: { 
+              last_response_at: new Date().toISOString(),
+              last_latency_ms: latency,
+              model_used: finalModel
+            }
+          })
+          .eq('id', sessionId);
+      } catch (sessionUpdateError) {
+        console.warn('[UNIFIED-GATEWAY] ⚠️ Session update failed:', sessionUpdateError);
+      }
+    }
+
+    // STEP 13: Log to audit table
     await serviceClient.from('audit_logs').insert({
       user_id: user.id,
       organization_id: orgId || null,
       action_type: 'ai_request',
       resource_type: 'ai_tool',
       resource_id: toolId,
+      status: 'success',
       details: {
+        session_id: sessionId,
         model_used: finalModel,
         message_length: message.length,
         response_length: responseContent.length,
@@ -383,7 +538,7 @@ ${systemPrompt}`;
       console.warn('[UNIFIED-GATEWAY] ⚠️ Audit log failed:', err.message);
     });
 
-    // STEP 11: Return response
+    // STEP 14: Return response
     return new Response(
       JSON.stringify({
         response: responseContent,
@@ -391,7 +546,8 @@ ${systemPrompt}`;
         model: finalModel,
         latencyMs: latency,
         governanceRulesApplied: governanceRules.length,
-        knowledgeBaseUsed: !!knowledgeBaseContext
+        knowledgeBaseUsed: !!knowledgeBaseContext,
+        sessionId
       }),
       { 
         status: 200, 
