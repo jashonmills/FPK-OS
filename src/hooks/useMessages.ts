@@ -124,6 +124,23 @@ export function useMessages(conversationId: string | undefined) {
   ): Promise<Message | null> => {
     if (!conversationId || !user || !content.trim()) return null;
 
+    // Optimistic update - add message immediately
+    const optimisticMessage: Message = {
+      id: crypto.randomUUID(),
+      conversation_id: conversationId,
+      sender_id: user.id,
+      content: content.trim(),
+      replying_to_message_id: replyToId || null,
+      is_edited: false,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      sender: { id: user.id },
+      attachments: [],
+      mentions: mentionedUserIds || []
+    };
+
+    setMessages(prev => [...prev, optimisticMessage]);
+
     try {
       const { data: message, error } = await supabase
         .from('messages')
@@ -137,6 +154,11 @@ export function useMessages(conversationId: string | undefined) {
         .single();
 
       if (error) throw error;
+
+      // Replace optimistic message with real one
+      setMessages(prev => prev.map(m => 
+        m.id === optimisticMessage.id ? { ...m, id: message.id } : m
+      ));
 
       // Add mentions if any
       if (mentionedUserIds?.length) {
@@ -203,6 +225,8 @@ export function useMessages(conversationId: string | undefined) {
       return message;
     } catch (error) {
       console.error('Error sending message:', error);
+      // Remove optimistic message on error
+      setMessages(prev => prev.filter(m => m.id !== optimisticMessage.id));
       toast({
         title: 'Error',
         description: 'Failed to send message',
@@ -281,24 +305,39 @@ export function useMessages(conversationId: string | undefined) {
         },
         async (payload) => {
           if (payload.eventType === 'INSERT') {
-            // Fetch full message details
             const newMessage = payload.new as Message;
             
-            // Get sender profile
-            const { data: profile } = await supabase
-              .from('profiles')
-              .select('id, full_name, avatar_url')
-              .eq('id', newMessage.sender_id)
-              .single();
+            // Check if message already exists (prevent duplicates from optimistic update)
+            setMessages(prev => {
+              if (prev.some(m => m.id === newMessage.id)) {
+                return prev;
+              }
+              
+              // Get sender profile asynchronously and update
+              supabase
+                .from('profiles')
+                .select('id, full_name, avatar_url')
+                .eq('id', newMessage.sender_id)
+                .single()
+                .then(({ data: profile }) => {
+                  setMessages(current => 
+                    current.map(m => 
+                      m.id === newMessage.id 
+                        ? { ...m, sender: profile || undefined }
+                        : m
+                    )
+                  );
+                });
 
-            const fullMessage: Message = {
-              ...newMessage,
-              sender: profile || undefined,
-              attachments: [],
-              mentions: []
-            };
+              const fullMessage: Message = {
+                ...newMessage,
+                sender: undefined,
+                attachments: [],
+                mentions: []
+              };
 
-            setMessages(prev => [...prev, fullMessage]);
+              return [...prev, fullMessage];
+            });
           } else if (payload.eventType === 'UPDATE') {
             setMessages(prev => prev.map(m => 
               m.id === payload.new.id ? { ...m, ...payload.new } : m
