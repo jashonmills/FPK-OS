@@ -185,11 +185,11 @@ export function AppSidebar() {
       url: "/dashboard/admin/teacher-dashboard-v2",
       icon: Sparkles,
     },
-    ...(shouldUseAILearningCoachV2() ? [{
+    {
       title: 'AI Learning Coach V2',
       url: "/dashboard/admin/ai-learning-coach-v2",
       icon: BookUser,
-    }] : []),
+    },
     {
       title: 'Course Manager',
       url: "/dashboard/admin/courses",
