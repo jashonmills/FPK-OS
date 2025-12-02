@@ -2,11 +2,23 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
+export type AICapability = 
+  | 'image_generation'
+  | 'code_generation'
+  | 'document_creation'
+  | 'research_web_search'
+  | 'content_summarization'
+  | 'math_calculations'
+  | 'creative_writing'
+  | 'data_analysis'
+  | 'general_chat';
+
 export interface AIGovernanceRule {
   id: string;
   org_id: string | null;
   name: string;
   category: 'Academic' | 'Technical' | 'Creative' | 'Communication';
+  capability: AICapability;
   description: string | null;
   allowed: boolean;
   applicable_roles: string[];
@@ -17,6 +29,30 @@ export interface AIGovernanceRule {
 
 export type CreateRuleInput = Omit<AIGovernanceRule, 'id' | 'created_at' | 'updated_at'>;
 export type UpdateRuleInput = Partial<Omit<AIGovernanceRule, 'id' | 'created_at' | 'updated_at'>>;
+
+export const CAPABILITY_LABELS: Record<AICapability, string> = {
+  image_generation: 'Image Generation',
+  code_generation: 'Code Generation',
+  document_creation: 'Document Creation',
+  research_web_search: 'Research & Web Search',
+  content_summarization: 'Content Summarization',
+  math_calculations: 'Math & Calculations',
+  creative_writing: 'Creative Writing',
+  data_analysis: 'Data Analysis',
+  general_chat: 'General Chat',
+};
+
+export const CAPABILITY_DESCRIPTIONS: Record<AICapability, string> = {
+  image_generation: 'AI-generated images, graphics, and visual content',
+  code_generation: 'Code writing, debugging, and programming assistance',
+  document_creation: 'Lesson plans, worksheets, reports, and documents',
+  research_web_search: 'Web searches and research assistance',
+  content_summarization: 'Summarizing text, articles, and documents',
+  math_calculations: 'Math problem solving and calculations',
+  creative_writing: 'Essays, stories, poems, and creative content',
+  data_analysis: 'Analyzing data, charts, and statistics',
+  general_chat: 'General conversation and Q&A',
+};
 
 export function useAIGovernanceRules(orgId?: string | null) {
   const queryClient = useQueryClient();
