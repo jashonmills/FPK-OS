@@ -5,9 +5,9 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 
 export interface AIRule {
-  id?: number;
+  id?: string;
   name: string;
-  category: string;
+  category: 'Academic' | 'Technical' | 'Creative' | 'Communication';
   description: string;
   allowed: boolean;
   roles: string[];
@@ -86,12 +86,13 @@ const AIGovernanceRuleDialog: React.FC<AIGovernanceRuleDialogProps> = ({
             <select
               id="category"
               value={formData.category}
-              onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+              onChange={(e) => setFormData({ ...formData, category: e.target.value as AIRule['category'] })}
               className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary mt-1"
             >
               <option value="Academic">Academic</option>
               <option value="Technical">Technical</option>
               <option value="Creative">Creative</option>
+              <option value="Communication">Communication</option>
             </select>
           </div>
 
