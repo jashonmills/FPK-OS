@@ -50,7 +50,7 @@ const AILearningCoachV2: React.FC = () => {
       </div>
 
       {/* Content Area */}
-      <div className="p-6 min-h-[calc(100vh-12rem)]">
+      <div className="p-6 pb-12">
         <StudentPanel activeTab={activeTab} />
       </div>
     </div>
