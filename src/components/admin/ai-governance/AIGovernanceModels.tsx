@@ -7,8 +7,12 @@ import { Slider } from '@/components/ui/slider';
 import { toast } from 'sonner';
 import { useAIGovernanceModels, AIGovernanceModelConfig } from '@/hooks/useAIGovernanceModels';
 
-const AIGovernanceModels: React.FC = () => {
-  const { models, isLoading, updateModelConfig, toggleModelActive } = useAIGovernanceModels();
+interface AIGovernanceModelsProps {
+  orgId?: string;
+}
+
+const AIGovernanceModels: React.FC<AIGovernanceModelsProps> = ({ orgId }) => {
+  const { models, isLoading, updateModelConfig, toggleModelActive } = useAIGovernanceModels(orgId);
   const [selectedModel, setSelectedModel] = useState<AIGovernanceModelConfig | null>(null);
   const [localConfig, setLocalConfig] = useState<{ temperature?: number; maxTokens?: number }>({});
 

@@ -30,9 +30,14 @@ import {
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 
-const AIGovernanceUsers: React.FC = () => {
-  const [selectedOrgId, setSelectedOrgId] = useState<string | null>(null);
-  const { users, isLoading, refetch } = useAIGovernanceUsers(selectedOrgId);
+interface AIGovernanceUsersProps {
+  orgId?: string;
+}
+
+const AIGovernanceUsers: React.FC<AIGovernanceUsersProps> = ({ orgId: propOrgId }) => {
+  const [selectedOrgId, setSelectedOrgId] = useState<string | null>(propOrgId || null);
+  const effectiveOrgId = propOrgId || selectedOrgId;
+  const { users, isLoading, refetch } = useAIGovernanceUsers(effectiveOrgId);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState('all');
   
@@ -158,12 +163,14 @@ const AIGovernanceUsers: React.FC = () => {
         </div>
       </div>
 
-      <PlatformAdminOrgSelector
-        selectedOrgId={selectedOrgId}
-        onOrgChange={setSelectedOrgId}
-      />
+      {!propOrgId && (
+        <PlatformAdminOrgSelector
+          selectedOrgId={selectedOrgId}
+          onOrgChange={setSelectedOrgId}
+        />
+      )}
 
-      {!selectedOrgId ? (
+      {!effectiveOrgId ? (
         <div className="bg-card rounded-xl shadow-sm border border-border p-12 text-center">
           <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
           <h3 className="text-lg font-medium text-foreground mb-2">Select an Organization</h3>

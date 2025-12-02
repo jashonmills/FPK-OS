@@ -6,9 +6,14 @@ import { toast } from 'sonner';
 import { useAIGovernanceAuditLog } from '@/hooks/useAIGovernanceAuditLog';
 import { PlatformAdminOrgSelector } from './PlatformAdminOrgSelector';
 
-const AIGovernanceAuditLog: React.FC = () => {
-  const [selectedOrgId, setSelectedOrgId] = useState<string | null>(null);
-  const { auditLog, isLoading } = useAIGovernanceAuditLog(selectedOrgId);
+interface AIGovernanceAuditLogProps {
+  orgId?: string;
+}
+
+const AIGovernanceAuditLog: React.FC<AIGovernanceAuditLogProps> = ({ orgId: propOrgId }) => {
+  const [selectedOrgId, setSelectedOrgId] = useState<string | null>(propOrgId || null);
+  const effectiveOrgId = propOrgId || selectedOrgId;
+  const { auditLog, isLoading } = useAIGovernanceAuditLog(effectiveOrgId);
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredLogs = auditLog.filter(log => 
@@ -50,17 +55,19 @@ const AIGovernanceAuditLog: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <PlatformAdminOrgSelector
-        selectedOrgId={selectedOrgId}
-        onOrgChange={setSelectedOrgId}
-      />
+      {!propOrgId && (
+        <PlatformAdminOrgSelector
+          selectedOrgId={selectedOrgId}
+          onOrgChange={setSelectedOrgId}
+        />
+      )}
 
       <div>
         <h2 className="text-2xl font-bold text-foreground">System Audit Log</h2>
         <p className="text-muted-foreground mt-1">Comprehensive tracking of all administrative actions and system events</p>
       </div>
 
-      {!selectedOrgId ? (
+      {!effectiveOrgId ? (
         <div className="bg-card rounded-xl shadow-sm border border-border p-12 text-center">
           <Building2 className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
           <h3 className="text-lg font-medium text-foreground mb-2">Select an Organization</h3>

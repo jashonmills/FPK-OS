@@ -12,9 +12,13 @@ interface LocalSettings {
   dataRetention: DataRetentionSettings;
 }
 
-const AIGovernanceSettings: React.FC = () => {
-  // Note: In production, you'd get orgId from context
-  const { settings, isLoading, updateSettings } = useAIGovernanceSettings();
+interface AIGovernanceSettingsProps {
+  orgId?: string;
+}
+
+const AIGovernanceSettings: React.FC<AIGovernanceSettingsProps> = ({ orgId }) => {
+  // Note: In production, you'd get orgId from context or prop
+  const { settings, isLoading, updateSettings } = useAIGovernanceSettings(orgId);
   
   const [localSettings, setLocalSettings] = useState<LocalSettings>({
     notifications: settings.notifications,

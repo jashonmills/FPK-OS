@@ -24,14 +24,19 @@ interface KBDocument {
   content_chunks: string[];
 }
 
-const AIGovernanceKnowledgeBase: React.FC = () => {
-  const [selectedOrgId, setSelectedOrgId] = useState<string | null>(null);
+interface AIGovernanceKnowledgeBaseProps {
+  orgId?: string;
+}
+
+const AIGovernanceKnowledgeBase: React.FC<AIGovernanceKnowledgeBaseProps> = ({ orgId: propOrgId }) => {
+  const [selectedOrgId, setSelectedOrgId] = useState<string | null>(propOrgId || null);
+  const effectiveOrgId = propOrgId || selectedOrgId;
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [viewingDoc, setViewingDoc] = useState<KBDocument | null>(null);
   const [newDoc, setNewDoc] = useState({ title: '', content: '', fileName: '' });
 
-  const { documents, isLoading, addDocument, deleteDocument, toggleDocument } = useOrgKnowledgeBase(selectedOrgId);
+  const { documents, isLoading, addDocument, deleteDocument, toggleDocument } = useOrgKnowledgeBase(effectiveOrgId);
 
   const handleViewDocument = (doc: KBDocument) => {
     setViewingDoc(doc);
@@ -94,7 +99,7 @@ const AIGovernanceKnowledgeBase: React.FC = () => {
   });
 
   const handleAddDocument = async () => {
-    if (!selectedOrgId || !newDoc.title || !newDoc.content) return;
+    if (!effectiveOrgId || !newDoc.title || !newDoc.content) return;
 
     const fileType = newDoc.fileName.split('.').pop() || 'txt';
     
@@ -103,7 +108,7 @@ const AIGovernanceKnowledgeBase: React.FC = () => {
       fileName: newDoc.fileName || `${newDoc.title}.txt`,
       fileType,
       content: newDoc.content,
-      orgId: selectedOrgId,
+      orgId: effectiveOrgId,
     });
 
     setNewDoc({ title: '', content: '', fileName: '' });
@@ -121,12 +126,14 @@ const AIGovernanceKnowledgeBase: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <PlatformAdminOrgSelector
-        selectedOrgId={selectedOrgId}
-        onOrgChange={setSelectedOrgId}
-      />
+      {!propOrgId && (
+        <PlatformAdminOrgSelector
+          selectedOrgId={selectedOrgId}
+          onOrgChange={setSelectedOrgId}
+        />
+      )}
 
-      {!selectedOrgId ? (
+      {!effectiveOrgId ? (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">

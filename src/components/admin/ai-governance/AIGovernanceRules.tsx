@@ -6,8 +6,12 @@ import { useAIGovernanceRules, AIGovernanceRule } from '@/hooks/useAIGovernanceR
 import AIGovernanceRuleDialog from './AIGovernanceRuleDialog';
 import { supabase } from '@/integrations/supabase/client';
 
-const AIGovernanceRules: React.FC = () => {
-  const { rules, isLoading, createRule, updateRule, deleteRule, toggleRule } = useAIGovernanceRules();
+interface AIGovernanceRulesProps {
+  orgId?: string;
+}
+
+const AIGovernanceRules: React.FC<AIGovernanceRulesProps> = ({ orgId }) => {
+  const { rules, isLoading, createRule, updateRule, deleteRule, toggleRule } = useAIGovernanceRules(orgId);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingRule, setEditingRule] = useState<AIGovernanceRule | null>(null);
 

@@ -5,8 +5,12 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useAIGovernanceMonitoring } from '@/hooks/useAIGovernanceMonitoring';
 
-const AIGovernanceMonitoring: React.FC = () => {
-  const { sessions, isLoading, refetch } = useAIGovernanceMonitoring();
+interface AIGovernanceMonitoringProps {
+  orgId?: string;
+}
+
+const AIGovernanceMonitoring: React.FC<AIGovernanceMonitoringProps> = ({ orgId }) => {
+  const { sessions, isLoading, refetch } = useAIGovernanceMonitoring(orgId);
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredSessions = sessions.filter(session => {

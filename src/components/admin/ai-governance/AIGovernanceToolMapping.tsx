@@ -25,8 +25,12 @@ interface AITool {
 const STUDENT_TOOL_IDS = ['personal-tutor', 'math-solver', 'essay-helper', 'code-companion', 'language-practice', 'research-assistant'];
 const TEACHER_TOOL_IDS = ['lesson-plan', 'quiz', 'rubric', 'course-outline', 'grade-feedback', 'performance-insights'];
 
-const AIGovernanceToolMapping: React.FC = () => {
-  const { assignments, isLoading: assignmentsLoading, updateAssignment } = useToolModelAssignments();
+interface AIGovernanceToolMappingProps {
+  orgId?: string;
+}
+
+const AIGovernanceToolMapping: React.FC<AIGovernanceToolMappingProps> = ({ orgId }) => {
+  const { assignments, isLoading: assignmentsLoading, updateAssignment } = useToolModelAssignments(orgId);
   const { models, isLoading: modelsLoading } = useAIGovernanceModels();
   const [pendingUpdate, setPendingUpdate] = useState<string | null>(null);
 

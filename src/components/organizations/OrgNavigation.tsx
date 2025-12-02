@@ -19,12 +19,13 @@ import {
   ChevronLeft,
   ChevronRight,
   Gamepad2,
-  HelpCircle
+  HelpCircle,
+  Shield
 } from 'lucide-react';
 import { useOrgContext } from './OrgContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { shouldShowPlatformGuide } from '@/lib/featureFlags';
+import { shouldShowPlatformGuide, shouldShowAIGovernance } from '@/lib/featureFlags';
 import {
   Tooltip,
   TooltipContent,
@@ -97,11 +98,17 @@ export function OrgNavigation({ isMobileMenuOpen: externalMobileMenuOpen, onMobi
       label: 'Goals & Notes',
       icon: Target,
     },
-    {
+    // AI Governance for owners/admins when feature flag is enabled, otherwise AI Coach
+    ...(shouldShowAIGovernance() && (currentOrg.role === 'owner' || currentOrg.role === 'admin') ? [{
+      href: `/org/${currentOrg.organization_id}/ai-governance`,
+      label: 'AI Governance',
+      icon: Shield,
+      roles: ['owner', 'admin'] as string[],
+    }] : [{
       href: `/org/${currentOrg.organization_id}/ai-coach`,
       label: currentOrg.role === 'student' ? 'AI Learning Coach' : 'AI Org Assistant',
       icon: Brain,
-    },
+    }]),
     {
       href: `/org/${currentOrg.organization_id}/games`,
       label: 'Games',
