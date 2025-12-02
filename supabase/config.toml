@@ -213,3 +213,9 @@ verify_jwt = false
 [functions.teacher-ai-tools]
 verify_jwt = false
 
+[functions.unified-ai-gateway]
+verify_jwt = true
+
+[functions.ai-learning-hub-chat]
+verify_jwt = true
+

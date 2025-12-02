@@ -838,6 +838,61 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_tool_model_assignments: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          is_active: boolean
+          model_config_id: string
+          org_id: string | null
+          tool_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          model_config_id: string
+          org_id?: string | null
+          tool_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          model_config_id?: string
+          org_id?: string | null
+          tool_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_tool_model_assignments_model_config_id_fkey"
+            columns: ["model_config_id"]
+            isOneToOne: false
+            referencedRelation: "ai_governance_model_configs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_tool_model_assignments_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_tool_model_assignments_tool_id_fkey"
+            columns: ["tool_id"]
+            isOneToOne: false
+            referencedRelation: "ai_tools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_tool_sessions: {
         Row: {
           credits_used: number | null
