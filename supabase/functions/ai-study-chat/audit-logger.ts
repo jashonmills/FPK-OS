@@ -1,10 +1,23 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { createClient, SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
-const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+// Lazy-loaded service client for audit logging (bypasses RLS)
+let _serviceClient: SupabaseClient | null = null;
 
-// Create service client for audit logging (bypasses RLS)
-const serviceClient = createClient(supabaseUrl, supabaseServiceKey);
+function getServiceClient(): SupabaseClient {
+  if (!_serviceClient) {
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    
+    if (!supabaseUrl || !supabaseServiceKey) {
+      console.error('[AUDIT] ❌ Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY');
+      throw new Error('Supabase configuration missing');
+    }
+    
+    _serviceClient = createClient(supabaseUrl, supabaseServiceKey);
+    console.log('[AUDIT] ✅ Service client initialized');
+  }
+  return _serviceClient;
+}
 
 export interface AuditLogParams {
   userId: string;
@@ -29,20 +42,25 @@ export async function trackSession(params: SessionTrackingParams): Promise<strin
   const { userId, orgId, toolId } = params;
   
   try {
+    const serviceClient = getServiceClient();
+    
     // Check for existing active session (within last hour)
-    const { data: existingSession } = await serviceClient
+    const { data: existingSession, error: queryError } = await serviceClient
       .from('ai_tool_sessions')
       .select('id, message_count')
       .eq('user_id', userId)
       .eq('tool_id', toolId)
-      .eq('org_id', orgId || null)
       .is('ended_at', null)
       .gte('started_at', new Date(Date.now() - 60 * 60 * 1000).toISOString())
-      .single();
+      .maybeSingle();
+
+    if (queryError) {
+      console.warn('[AUDIT] ⚠️ Session query error:', queryError.message);
+    }
 
     if (existingSession) {
       // Update existing session
-      await serviceClient
+      const { error: updateError } = await serviceClient
         .from('ai_tool_sessions')
         .update({ 
           message_count: (existingSession.message_count || 0) + 1,
@@ -50,11 +68,15 @@ export async function trackSession(params: SessionTrackingParams): Promise<strin
         })
         .eq('id', existingSession.id);
       
-      console.log('[AUDIT] 📊 Updated existing session:', existingSession.id);
+      if (updateError) {
+        console.warn('[AUDIT] ⚠️ Session update error:', updateError.message);
+      } else {
+        console.log('[AUDIT] 📊 Updated existing session:', existingSession.id);
+      }
       return existingSession.id;
     } else {
       // Create new session
-      const { data: newSession } = await serviceClient
+      const { data: newSession, error: insertError } = await serviceClient
         .from('ai_tool_sessions')
         .insert({
           user_id: userId,
@@ -66,6 +88,11 @@ export async function trackSession(params: SessionTrackingParams): Promise<strin
         })
         .select('id')
         .single();
+      
+      if (insertError) {
+        console.warn('[AUDIT] ⚠️ Session insert error:', insertError.message);
+        return null;
+      }
       
       if (newSession) {
         console.log('[AUDIT] 📊 Created new session:', newSession.id);
@@ -89,7 +116,9 @@ export async function updateSessionCompletion(
   creditCost: number = 1
 ): Promise<void> {
   try {
-    await serviceClient
+    const serviceClient = getServiceClient();
+    
+    const { error } = await serviceClient
       .from('ai_tool_sessions')
       .update({ 
         credits_used: creditCost,
@@ -101,7 +130,11 @@ export async function updateSessionCompletion(
       })
       .eq('id', sessionId);
     
-    console.log('[AUDIT] ✅ Session completion updated:', sessionId);
+    if (error) {
+      console.warn('[AUDIT] ⚠️ Session completion update error:', error.message);
+    } else {
+      console.log('[AUDIT] ✅ Session completion updated:', sessionId);
+    }
   } catch (error) {
     console.warn('[AUDIT] ⚠️ Session update failed:', error);
   }
@@ -114,7 +147,9 @@ export async function logAuditEvent(params: AuditLogParams): Promise<void> {
   const { userId, orgId, toolId, actionType, status, details } = params;
   
   try {
-    await serviceClient.from('audit_logs').insert({
+    const serviceClient = getServiceClient();
+    
+    const { error } = await serviceClient.from('audit_logs').insert({
       user_id: userId,
       organization_id: orgId || null,
       action_type: actionType,
@@ -124,9 +159,13 @@ export async function logAuditEvent(params: AuditLogParams): Promise<void> {
       details: details
     });
     
-    console.log('[AUDIT] 📝 Audit log written:', actionType, toolId);
+    if (error) {
+      console.error('[AUDIT] ❌ Audit log insert error:', error.message, error.details);
+    } else {
+      console.log('[AUDIT] 📝 Audit log written:', actionType, toolId);
+    }
   } catch (error) {
-    console.warn('[AUDIT] ⚠️ Audit log failed:', error);
+    console.error('[AUDIT] ❌ Audit log failed:', error);
   }
 }
 
