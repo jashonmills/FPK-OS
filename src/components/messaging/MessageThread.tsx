@@ -44,7 +44,13 @@ export function MessageThread({ conversation, onMarkAsRead }: MessageThreadProps
   }, [conversation.id, onMarkAsRead]);
 
   const handleSendMessage = async (content: string, mentionedUserIds?: string[]) => {
-    await sendMessage(content, replyingTo?.id, mentionedUserIds);
+    await sendMessage(
+      content, 
+      replyingTo?.id, 
+      mentionedUserIds,
+      conversation.org_id,
+      conversation.name || undefined
+    );
     setReplyingTo(null);
   };
 

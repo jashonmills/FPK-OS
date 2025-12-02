@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { triggerNewMessageNotification, triggerMentionNotification } from '@/utils/notificationTriggers';
 
 export interface Message {
   id: string;
@@ -117,7 +118,9 @@ export function useMessages(conversationId: string | undefined) {
   const sendMessage = useCallback(async (
     content: string,
     replyToId?: string,
-    mentionedUserIds?: string[]
+    mentionedUserIds?: string[],
+    orgId?: string,
+    conversationName?: string
   ): Promise<Message | null> => {
     if (!conversationId || !user || !content.trim()) return null;
 
@@ -145,6 +148,56 @@ export function useMessages(conversationId: string | undefined) {
               mentioned_user_id: userId
             }))
           );
+      }
+
+      // Send notifications in the background
+      if (orgId) {
+        // Get sender name
+        const { data: senderProfile } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', user.id)
+          .single();
+        
+        const senderName = senderProfile?.full_name || 'Someone';
+
+        // Get other participants to notify
+        const { data: participants } = await supabase
+          .from('conversation_participants')
+          .select('user_id')
+          .eq('conversation_id', conversationId)
+          .neq('user_id', user.id);
+
+        const recipientIds = participants?.map(p => p.user_id) || [];
+
+        // Send new message notifications (exclude mentioned users - they get a mention notification)
+        const nonMentionedRecipients = recipientIds.filter(
+          id => !mentionedUserIds?.includes(id)
+        );
+        
+        if (nonMentionedRecipients.length > 0) {
+          triggerNewMessageNotification(
+            nonMentionedRecipients,
+            orgId,
+            conversationId,
+            senderName,
+            content.trim(),
+            conversationName
+          ).catch(err => console.error('Failed to send new message notifications:', err));
+        }
+
+        // Send mention notifications
+        if (mentionedUserIds?.length) {
+          mentionedUserIds.forEach(mentionedUserId => {
+            triggerMentionNotification(
+              mentionedUserId,
+              orgId,
+              conversationId,
+              senderName,
+              conversationName
+            ).catch(err => console.error('Failed to send mention notification:', err));
+          });
+        }
       }
 
       return message;
