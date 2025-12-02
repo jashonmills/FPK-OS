@@ -1,56 +1,50 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Save, Bell, Shield, Database } from 'lucide-react';
+import { Save, Bell, Shield, Database, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { toast } from '@/hooks/use-toast';
+import { useAIGovernanceSettings, NotificationSettings, SecuritySettings, DataRetentionSettings } from '@/hooks/useAIGovernanceSettings';
 
-interface SystemSettings {
-  notifications: {
-    emailAlerts: boolean;
-    dailyReports: boolean;
-    criticalOnly: boolean;
-  };
-  security: {
-    requireApproval: boolean;
-    autoBlockSuspicious: boolean;
-    sessionTimeout: number;
-  };
-  dataRetention: {
-    activityLogs: number;
-    approvalHistory: number;
-  };
+interface LocalSettings {
+  notifications: NotificationSettings;
+  security: SecuritySettings;
+  dataRetention: DataRetentionSettings;
 }
 
 const AIGovernanceSettings: React.FC = () => {
-  const [settings, setSettings] = useState<SystemSettings>(() => {
-    const saved = localStorage.getItem('systemSettings');
-    return saved ? JSON.parse(saved) : {
-      notifications: {
-        emailAlerts: true,
-        dailyReports: false,
-        criticalOnly: false,
-      },
-      security: {
-        requireApproval: true,
-        autoBlockSuspicious: true,
-        sessionTimeout: 30,
-      },
-      dataRetention: {
-        activityLogs: 90,
-        approvalHistory: 180,
-      }
-    };
+  // Note: In production, you'd get orgId from context
+  const { settings, isLoading, updateSettings } = useAIGovernanceSettings();
+  
+  const [localSettings, setLocalSettings] = useState<LocalSettings>({
+    notifications: settings.notifications,
+    security: settings.security,
+    dataRetention: settings.data_retention,
   });
 
+  useEffect(() => {
+    setLocalSettings({
+      notifications: settings.notifications,
+      security: settings.security,
+      dataRetention: settings.data_retention,
+    });
+  }, [settings]);
+
   const handleSave = () => {
-    localStorage.setItem('systemSettings', JSON.stringify(settings));
-    toast({
-      title: "Settings Saved",
-      description: "Your system settings have been updated successfully.",
+    updateSettings.mutate({
+      notifications: localSettings.notifications,
+      security: localSettings.security,
+      data_retention: localSettings.dataRetention,
     });
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -77,10 +71,10 @@ const AIGovernanceSettings: React.FC = () => {
               <Label htmlFor="emailAlerts" className="cursor-pointer">Email alerts for pending approvals</Label>
               <Checkbox
                 id="emailAlerts"
-                checked={settings.notifications.emailAlerts}
-                onCheckedChange={(checked) => setSettings({
-                  ...settings,
-                  notifications: { ...settings.notifications, emailAlerts: checked as boolean }
+                checked={localSettings.notifications.emailAlerts}
+                onCheckedChange={(checked) => setLocalSettings({
+                  ...localSettings,
+                  notifications: { ...localSettings.notifications, emailAlerts: checked as boolean }
                 })}
               />
             </div>
@@ -88,10 +82,10 @@ const AIGovernanceSettings: React.FC = () => {
               <Label htmlFor="dailyReports" className="cursor-pointer">Daily activity reports</Label>
               <Checkbox
                 id="dailyReports"
-                checked={settings.notifications.dailyReports}
-                onCheckedChange={(checked) => setSettings({
-                  ...settings,
-                  notifications: { ...settings.notifications, dailyReports: checked as boolean }
+                checked={localSettings.notifications.dailyReports}
+                onCheckedChange={(checked) => setLocalSettings({
+                  ...localSettings,
+                  notifications: { ...localSettings.notifications, dailyReports: checked as boolean }
                 })}
               />
             </div>
@@ -99,10 +93,10 @@ const AIGovernanceSettings: React.FC = () => {
               <Label htmlFor="criticalOnly" className="cursor-pointer">Critical alerts only</Label>
               <Checkbox
                 id="criticalOnly"
-                checked={settings.notifications.criticalOnly}
-                onCheckedChange={(checked) => setSettings({
-                  ...settings,
-                  notifications: { ...settings.notifications, criticalOnly: checked as boolean }
+                checked={localSettings.notifications.criticalOnly}
+                onCheckedChange={(checked) => setLocalSettings({
+                  ...localSettings,
+                  notifications: { ...localSettings.notifications, criticalOnly: checked as boolean }
                 })}
               />
             </div>
@@ -127,10 +121,10 @@ const AIGovernanceSettings: React.FC = () => {
               <Label htmlFor="requireApproval" className="cursor-pointer">Require admin approval for AI tasks</Label>
               <Checkbox
                 id="requireApproval"
-                checked={settings.security.requireApproval}
-                onCheckedChange={(checked) => setSettings({
-                  ...settings,
-                  security: { ...settings.security, requireApproval: checked as boolean }
+                checked={localSettings.security.requireApproval}
+                onCheckedChange={(checked) => setLocalSettings({
+                  ...localSettings,
+                  security: { ...localSettings.security, requireApproval: checked as boolean }
                 })}
               />
             </div>
@@ -138,10 +132,10 @@ const AIGovernanceSettings: React.FC = () => {
               <Label htmlFor="autoBlock" className="cursor-pointer">Auto-block suspicious activities</Label>
               <Checkbox
                 id="autoBlock"
-                checked={settings.security.autoBlockSuspicious}
-                onCheckedChange={(checked) => setSettings({
-                  ...settings,
-                  security: { ...settings.security, autoBlockSuspicious: checked as boolean }
+                checked={localSettings.security.autoBlockSuspicious}
+                onCheckedChange={(checked) => setLocalSettings({
+                  ...localSettings,
+                  security: { ...localSettings.security, autoBlockSuspicious: checked as boolean }
                 })}
               />
             </div>
@@ -150,10 +144,10 @@ const AIGovernanceSettings: React.FC = () => {
               <input
                 id="sessionTimeout"
                 type="number"
-                value={settings.security.sessionTimeout}
-                onChange={(e) => setSettings({
-                  ...settings,
-                  security: { ...settings.security, sessionTimeout: parseInt(e.target.value) || 30 }
+                value={localSettings.security.sessionTimeout}
+                onChange={(e) => setLocalSettings({
+                  ...localSettings,
+                  security: { ...localSettings.security, sessionTimeout: parseInt(e.target.value) || 30 }
                 })}
                 className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary mt-2"
               />
@@ -180,10 +174,10 @@ const AIGovernanceSettings: React.FC = () => {
               <input
                 id="activityLogs"
                 type="number"
-                value={settings.dataRetention.activityLogs}
-                onChange={(e) => setSettings({
-                  ...settings,
-                  dataRetention: { ...settings.dataRetention, activityLogs: parseInt(e.target.value) || 90 }
+                value={localSettings.dataRetention.activityLogs}
+                onChange={(e) => setLocalSettings({
+                  ...localSettings,
+                  dataRetention: { ...localSettings.dataRetention, activityLogs: parseInt(e.target.value) || 90 }
                 })}
                 className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary mt-2"
               />
@@ -193,10 +187,10 @@ const AIGovernanceSettings: React.FC = () => {
               <input
                 id="approvalHistory"
                 type="number"
-                value={settings.dataRetention.approvalHistory}
-                onChange={(e) => setSettings({
-                  ...settings,
-                  dataRetention: { ...settings.dataRetention, approvalHistory: parseInt(e.target.value) || 180 }
+                value={localSettings.dataRetention.approvalHistory}
+                onChange={(e) => setLocalSettings({
+                  ...localSettings,
+                  dataRetention: { ...localSettings.dataRetention, approvalHistory: parseInt(e.target.value) || 180 }
                 })}
                 className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary mt-2"
               />
@@ -208,10 +202,11 @@ const AIGovernanceSettings: React.FC = () => {
       <div className="flex justify-end">
         <Button
           onClick={handleSave}
+          disabled={updateSettings.isPending}
           className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700"
         >
           <Save className="h-4 w-4 mr-2" />
-          Save Settings
+          {updateSettings.isPending ? 'Saving...' : 'Save Settings'}
         </Button>
       </div>
     </div>

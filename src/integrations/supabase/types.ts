@@ -426,6 +426,188 @@ export type Database = {
           },
         ]
       }
+      ai_governance_approvals: {
+        Row: {
+          approved_by: string | null
+          category: string
+          details: string | null
+          id: string
+          org_id: string | null
+          priority: string
+          requested_at: string
+          resolved_at: string | null
+          status: string
+          task: string
+          user_id: string
+        }
+        Insert: {
+          approved_by?: string | null
+          category: string
+          details?: string | null
+          id?: string
+          org_id?: string | null
+          priority?: string
+          requested_at?: string
+          resolved_at?: string | null
+          status?: string
+          task: string
+          user_id: string
+        }
+        Update: {
+          approved_by?: string | null
+          category?: string
+          details?: string | null
+          id?: string
+          org_id?: string | null
+          priority?: string
+          requested_at?: string
+          resolved_at?: string | null
+          status?: string
+          task?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_governance_approvals_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_governance_model_configs: {
+        Row: {
+          config: Json
+          created_at: string
+          id: string
+          is_active: boolean
+          model_id: string
+          model_name: string
+          model_type: string
+          org_id: string | null
+          provider: string
+          updated_at: string
+        }
+        Insert: {
+          config?: Json
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          model_id: string
+          model_name: string
+          model_type: string
+          org_id?: string | null
+          provider: string
+          updated_at?: string
+        }
+        Update: {
+          config?: Json
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          model_id?: string
+          model_name?: string
+          model_type?: string
+          org_id?: string | null
+          provider?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_governance_model_configs_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_governance_rules: {
+        Row: {
+          allowed: boolean
+          applicable_roles: string[]
+          category: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          name: string
+          org_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          allowed?: boolean
+          applicable_roles?: string[]
+          category: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          org_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          allowed?: boolean
+          applicable_roles?: string[]
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          org_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_governance_rules_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_governance_settings: {
+        Row: {
+          created_at: string
+          data_retention: Json
+          id: string
+          notifications: Json
+          org_id: string | null
+          security: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          data_retention?: Json
+          id?: string
+          notifications?: Json
+          org_id?: string | null
+          security?: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          data_retention?: Json
+          id?: string
+          notifications?: Json
+          org_id?: string | null
+          security?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_governance_settings_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: true
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_inbox: {
         Row: {
           confidence: number
