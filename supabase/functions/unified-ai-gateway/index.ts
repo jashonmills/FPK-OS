@@ -228,14 +228,65 @@ ${systemPrompt}`;
       aiRequestBody.tool_choice = toolChoice || "auto";
     }
 
-    // STEP 7: Call AI provider (currently Lovable Gateway, extensible for BYOK/Bedrock)
-    console.log('[UNIFIED-GATEWAY] 📤 Calling AI Gateway with model:', finalModel);
+    // STEP 7: Check for BYOK (Bring Your Own Key)
+    let apiKey = LOVABLE_API_KEY;
+    let apiEndpoint = 'https://ai.gateway.lovable.dev/v1/chat/completions';
+    let usingBYOK = false;
     
-    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    if (orgId) {
+      // Determine provider from model
+      let provider: string | null = null;
+      if (finalModel.startsWith('openai/') || finalModel.startsWith('gpt-')) {
+        provider = 'openai';
+      } else if (finalModel.startsWith('anthropic/') || finalModel.startsWith('claude-')) {
+        provider = 'anthropic';
+      } else if (finalModel.startsWith('google/') || finalModel.startsWith('gemini-')) {
+        provider = 'google';
+      }
+
+      if (provider) {
+        const { data: byokKey } = await serviceClient
+          .from('org_api_keys')
+          .select('encrypted_key')
+          .eq('org_id', orgId)
+          .eq('provider', provider)
+          .eq('is_active', true)
+          .single();
+
+        if (byokKey?.encrypted_key) {
+          // Decode the key (simple base64 for now)
+          try {
+            apiKey = atob(byokKey.encrypted_key);
+            usingBYOK = true;
+            
+            // Set appropriate endpoint based on provider
+            if (provider === 'openai') {
+              apiEndpoint = 'https://api.openai.com/v1/chat/completions';
+              // Adjust model name for direct OpenAI API
+              aiRequestBody.model = finalModel.replace('openai/', '');
+            } else if (provider === 'anthropic') {
+              apiEndpoint = 'https://api.anthropic.com/v1/messages';
+              aiRequestBody.model = finalModel.replace('anthropic/', '');
+            }
+            // For Google, we still use Lovable gateway as it handles the translation
+            
+            console.log('[UNIFIED-GATEWAY] 🔑 Using BYOK for provider:', provider);
+          } catch (e) {
+            console.warn('[UNIFIED-GATEWAY] ⚠️ Failed to decode BYOK key, using platform key');
+          }
+        }
+      }
+    }
+
+    // STEP 8: Call AI provider
+    console.log('[UNIFIED-GATEWAY] 📤 Calling AI Gateway with model:', finalModel, '| BYOK:', usingBYOK);
+    
+    const aiResponse = await fetch(apiEndpoint, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
+        ...(usingBYOK && apiEndpoint.includes('anthropic') ? { 'anthropic-version': '2023-06-01' } : {}),
       },
       body: JSON.stringify(aiRequestBody)
     });

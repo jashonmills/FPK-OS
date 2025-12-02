@@ -4,6 +4,7 @@ export { default as AIGovernanceRules } from './AIGovernanceRules';
 export { default as AIGovernanceRuleDialog } from './AIGovernanceRuleDialog';
 export { default as AIGovernanceModels } from './AIGovernanceModels';
 export { default as AIGovernanceToolMapping } from './AIGovernanceToolMapping';
+export { default as AIGovernanceBYOK } from './AIGovernanceBYOK';
 export { default as AIGovernanceApprovals } from './AIGovernanceApprovals';
 export { default as AIGovernanceMonitoring } from './AIGovernanceMonitoring';
 export { default as AIGovernanceAuditLog } from './AIGovernanceAuditLog';
