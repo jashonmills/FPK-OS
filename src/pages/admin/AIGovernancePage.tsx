@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Shield, Users, ScrollText, Cpu, CheckSquare, Activity, FileText, Settings } from 'lucide-react';
+import { Shield, Users, ScrollText, Cpu, CheckSquare, Activity, FileText, Settings, Wrench } from 'lucide-react';
 import {
   AIGovernanceOverview,
   AIGovernanceUsers,
   AIGovernanceRules,
   AIGovernanceModels,
+  AIGovernanceToolMapping,
   AIGovernanceApprovals,
   AIGovernanceMonitoring,
   AIGovernanceAuditLog,
@@ -20,6 +21,7 @@ const AIGovernancePage: React.FC = () => {
     { id: 'users', label: 'Users', icon: Users },
     { id: 'rules', label: 'Rules', icon: ScrollText },
     { id: 'models', label: 'Models', icon: Cpu },
+    { id: 'tool-mapping', label: 'Tool Mapping', icon: Wrench },
     { id: 'approvals', label: 'Approvals', icon: CheckSquare },
     { id: 'monitoring', label: 'Monitoring', icon: Activity },
     { id: 'audit', label: 'Audit Log', icon: FileText },
@@ -72,6 +74,10 @@ const AIGovernancePage: React.FC = () => {
 
           <TabsContent value="models" className="mt-6">
             <AIGovernanceModels />
+          </TabsContent>
+
+          <TabsContent value="tool-mapping" className="mt-6">
+            <AIGovernanceToolMapping />
           </TabsContent>
 
           <TabsContent value="approvals" className="mt-6">
