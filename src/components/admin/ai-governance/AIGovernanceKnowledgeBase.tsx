@@ -6,10 +6,12 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { BookOpen, Upload, Trash2, FileText, File, Plus, AlertCircle } from 'lucide-react';
+import { BookOpen, Upload, Trash2, FileText, File, Plus, AlertCircle, Download } from 'lucide-react';
 import { useOrgKnowledgeBase } from '@/hooks/useOrgKnowledgeBase';
 import { useDropzone } from 'react-dropzone';
+import { toast } from 'sonner';
 import { PlatformAdminOrgSelector } from './PlatformAdminOrgSelector';
 
 const AIGovernanceKnowledgeBase: React.FC = () => {
@@ -26,14 +28,33 @@ const AIGovernanceKnowledgeBase: React.FC = () => {
     const reader = new FileReader();
     reader.onload = (e) => {
       const content = e.target?.result as string;
-      setNewDoc({
-        title: file.name.replace(/\.[^/.]+$/, ''),
-        content,
-        fileName: file.name,
-      });
+      if (content) {
+        setNewDoc({
+          title: file.name.replace(/\.[^/.]+$/, ''),
+          content,
+          fileName: file.name,
+        });
+        toast.success(`File "${file.name}" loaded successfully`);
+      }
     };
-    reader.readAsText(file);
+    reader.onerror = () => {
+      toast.error('Failed to read file. Please try pasting the content manually.');
+    };
+    reader.readAsText(file, 'UTF-8');
   }, []);
+
+  const handleDownloadDocument = (doc: { title: string; content: string; file_name: string; file_type: string }) => {
+    const blob = new Blob([doc.content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = doc.file_name || `${doc.title}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success('Document downloaded');
+  };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -109,61 +130,63 @@ const AIGovernanceKnowledgeBase: React.FC = () => {
                     Add Document
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-2xl">
+                <DialogContent className="max-w-lg max-h-[85vh] flex flex-col">
                   <DialogHeader>
                     <DialogTitle>Add Document to Knowledge Base</DialogTitle>
                     <DialogDescription>
-                      Upload a text file or paste content directly. The AI will use this to provide context-aware responses.
+                      Upload a text file or paste content directly.
                     </DialogDescription>
                   </DialogHeader>
                   
-                  <div className="space-y-4 py-4">
-                    <div
-                      {...getRootProps()}
-                      className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
-                        isDragActive ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
-                      }`}
-                    >
-                      <input {...getInputProps()} />
-                      <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                      {isDragActive ? (
-                        <p className="text-sm">Drop the file here...</p>
-                      ) : (
-                        <p className="text-sm text-muted-foreground">
-                          Drag & drop a .txt or .md file, or click to select
+                  <ScrollArea className="flex-1 pr-4">
+                    <div className="space-y-4 py-2">
+                      <div
+                        {...getRootProps()}
+                        className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
+                          isDragActive ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
+                        }`}
+                      >
+                        <input {...getInputProps()} />
+                        <Upload className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
+                        {isDragActive ? (
+                          <p className="text-sm">Drop the file here...</p>
+                        ) : (
+                          <p className="text-sm text-muted-foreground">
+                            Drag & drop a .txt or .md file, or click to select
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="text-center text-xs text-muted-foreground">— or paste content directly —</div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="title">Document Title</Label>
+                        <Input
+                          id="title"
+                          value={newDoc.title}
+                          onChange={(e) => setNewDoc(prev => ({ ...prev, title: e.target.value }))}
+                          placeholder="e.g., Student Handbook, AI Policy"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="content">Content</Label>
+                        <Textarea
+                          id="content"
+                          value={newDoc.content}
+                          onChange={(e) => setNewDoc(prev => ({ ...prev, content: e.target.value }))}
+                          placeholder="Paste document content here..."
+                          rows={6}
+                          className="font-mono text-sm"
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          {newDoc.content.length} characters • ~{Math.ceil(newDoc.content.length / 500)} chunks
                         </p>
-                      )}
+                      </div>
                     </div>
+                  </ScrollArea>
 
-                    <div className="text-center text-sm text-muted-foreground">— or paste content directly —</div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="title">Document Title</Label>
-                      <Input
-                        id="title"
-                        value={newDoc.title}
-                        onChange={(e) => setNewDoc(prev => ({ ...prev, title: e.target.value }))}
-                        placeholder="e.g., Student Handbook, AI Policy"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="content">Content</Label>
-                      <Textarea
-                        id="content"
-                        value={newDoc.content}
-                        onChange={(e) => setNewDoc(prev => ({ ...prev, content: e.target.value }))}
-                        placeholder="Paste document content here..."
-                        rows={10}
-                        className="font-mono text-sm"
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        {newDoc.content.length} characters • ~{Math.ceil(newDoc.content.length / 500)} chunks
-                      </p>
-                    </div>
-                  </div>
-
-                  <DialogFooter>
+                  <DialogFooter className="pt-4 border-t">
                     <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>Cancel</Button>
                     <Button 
                       onClick={handleAddDocument}
@@ -229,7 +252,16 @@ const AIGovernanceKnowledgeBase: React.FC = () => {
                       <Button
                         variant="ghost"
                         size="icon"
+                        onClick={() => handleDownloadDocument(doc)}
+                        title="Download document"
+                      >
+                        <Download className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         onClick={() => deleteDocument.mutate(doc.id)}
+                        title="Delete document"
                       >
                         <Trash2 className="h-4 w-4 text-destructive" />
                       </Button>
