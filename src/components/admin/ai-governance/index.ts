@@ -10,3 +10,4 @@ export { default as AIGovernanceApprovals } from './AIGovernanceApprovals';
 export { default as AIGovernanceMonitoring } from './AIGovernanceMonitoring';
 export { default as AIGovernanceAuditLog } from './AIGovernanceAuditLog';
 export { default as AIGovernanceSettings } from './AIGovernanceSettings';
+export { default as PlatformAdminOrgSelector } from './PlatformAdminOrgSelector';
