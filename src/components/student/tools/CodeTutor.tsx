@@ -275,8 +275,18 @@ const CodeTutor: React.FC<CodeTutorProps> = ({ onBack }) => {
   const [isRunning, setIsRunning] = useState(false);
   const [pyodideStatus, setPyodideStatus] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const codeDisplayRef = useRef<HTMLDivElement>(null);
 
   const currentLang = LANGUAGES[language];
+
+  // Sync scroll between textarea and code display
+  const handleScroll = useCallback(() => {
+    if (textareaRef.current && codeDisplayRef.current) {
+      codeDisplayRef.current.scrollTop = textareaRef.current.scrollTop;
+      codeDisplayRef.current.scrollLeft = textareaRef.current.scrollLeft;
+    }
+  }, []);
   const isPreviewLanguage = currentLang.runtime === 'preview';
 
   // Run Python code using Pyodide
@@ -592,19 +602,24 @@ sys.stderr = StringIO()
           </div>
         </div>
         
-        <div className="flex-1 relative flex">
+        <div className="flex-1 relative overflow-hidden">
           {/* Line numbers and code display (for highlighting) */}
-          <div className="absolute inset-0 pointer-events-none font-mono text-sm text-slate-300 p-4 overflow-auto">
+          <div 
+            ref={codeDisplayRef}
+            className="absolute inset-0 pointer-events-none font-mono text-sm text-slate-300 p-4 overflow-hidden"
+          >
             {renderCodeWithLineNumbers()}
           </div>
           {/* Actual textarea for editing */}
           <textarea
+            ref={textareaRef}
             value={code}
             onChange={(e) => {
               setCode(e.target.value);
               setHighlightedLines([]);
             }}
-            className="w-full h-full bg-transparent text-transparent caret-slate-300 p-4 pl-14 font-mono text-sm resize-none focus:outline-none z-10"
+            onScroll={handleScroll}
+            className="w-full h-full bg-transparent text-transparent caret-slate-300 p-4 pl-14 font-mono text-sm resize-none focus:outline-none z-10 overflow-auto"
             spellCheck="false"
           />
         </div>
