@@ -15,7 +15,10 @@ import {
   TrendingUp, 
   Calendar,
   Award,
-  ChevronDown
+  ChevronDown,
+  CreditCard,
+  Settings,
+  Shield
 } from 'lucide-react';
 import { useOrgContext } from '@/components/organizations/OrgContext';
 import { useStudentOrgStatistics } from '@/hooks/useStudentOrgStatistics';
@@ -41,7 +44,9 @@ export default function OrgPortalHome() {
   const effectiveRole = getEffectiveRole();
   const isStudent = effectiveRole === 'student';
   const isInstructor = effectiveRole === 'instructor' || effectiveRole === 'instructor_aide';
-  const isAdminOrOwner = effectiveRole === 'admin' || effectiveRole === 'owner';
+  const isAdmin = effectiveRole === 'admin';
+  const isOwner = effectiveRole === 'owner';
+  const isAdminOrOwner = isAdmin || isOwner;
   const { analytics, isLoading: analyticsLoading, error: analyticsError } = useComprehensiveOrgAnalytics(
     isStudent ? undefined : currentOrg?.organization_id
   );
@@ -451,10 +456,82 @@ export default function OrgPortalHome() {
     <div className="space-y-6">
       {/* Page Header with Help Button */}
       <PageHeaderWithHelp
-        title="Organization Dashboard"
-        description="Monitor student progress, course assignments, and organizational metrics"
+        title={isOwner ? "Owner Dashboard" : "Admin Dashboard"}
+        description={isOwner 
+          ? "Full organization control including billing, settings, and all management features" 
+          : "Manage students, courses, AI governance, and organizational operations"}
         section="dashboard"
       />
+
+      {/* Owner-Only: Billing & Subscription Card */}
+      {isOwner && (
+        <Card className="bg-gradient-to-r from-emerald-500/70 to-green-500/70 border-emerald-400/50">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center gap-2">
+              <CreditCard className="h-5 w-5" />
+              Billing & Subscription
+            </CardTitle>
+            <CardDescription className="text-white/80">
+              Manage your organization's subscription and payment settings
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="text-sm text-white/80">Current Plan</div>
+                <div className="text-xl font-bold text-white">
+                  {currentOrg?.organizations?.subscription_tier || 'Free'}
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline"
+                  className="border-white/30 text-white hover:bg-white/20"
+                  onClick={() => navigate(`/org/${currentOrg?.organization_id}/settings?tab=billing`)}
+                >
+                  <CreditCard className="h-4 w-4 mr-2" />
+                  Manage Billing
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Admin-Only: Quick Access to Governance */}
+      {isAdmin && (
+        <Card className="bg-gradient-to-r from-purple-500/70 to-indigo-500/70 border-purple-400/50">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center gap-2">
+              <Shield className="h-5 w-5" />
+              AI Governance & Operations
+            </CardTitle>
+            <CardDescription className="text-white/80">
+              Manage AI rules, models, and organizational operations
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-2">
+              <Button 
+                variant="outline"
+                className="border-white/30 text-white hover:bg-white/20"
+                onClick={() => navigate(`/org/${currentOrg?.organization_id}/ai-governance`)}
+              >
+                <Shield className="h-4 w-4 mr-2" />
+                AI Governance
+              </Button>
+              <Button 
+                variant="outline"
+                className="border-white/30 text-white hover:bg-white/20"
+                onClick={() => navigate(`/org/${currentOrg?.organization_id}/settings`)}
+              >
+                <Settings className="h-4 w-4 mr-2" />
+                Org Settings
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -752,6 +829,16 @@ export default function OrgPortalHome() {
               <Users className="h-4 w-4" />
               <span>Create a New Group</span>
             </Button>
+            {isOwner && (
+              <Button
+                variant="outline" 
+                className="flex items-center space-x-2 border-border text-foreground hover:bg-accent"
+                onClick={() => navigate(`/org/${currentOrg?.organization_id}/settings?tab=danger-zone`)}
+              >
+                <Settings className="h-4 w-4" />
+                <span>Organization Settings</span>
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>
