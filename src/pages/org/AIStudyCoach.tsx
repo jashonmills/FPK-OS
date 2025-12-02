@@ -117,6 +117,7 @@ export default function AIStudyCoach() {
   const studentTabs = [
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
     { id: 'learning', label: 'Learning Tools', icon: BookOpen },
+    { id: 'requests', label: 'My Requests', icon: MessageSquare },
   ];
 
   // Render Teacher Dashboard V2
