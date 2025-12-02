@@ -112,6 +112,36 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_copilot_knowledge: {
+        Row: {
+          category: string
+          content: string
+          created_at: string | null
+          id: string
+          keywords: string[] | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          content: string
+          created_at?: string | null
+          id?: string
+          keywords?: string[] | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          content?: string
+          created_at?: string | null
+          id?: string
+          keywords?: string[] | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       ai_coach_analytics: {
         Row: {
           comprehension_score: number | null
@@ -12205,6 +12235,22 @@ export type Database = {
         }[]
       }
       get_admin_analytics: { Args: never; Returns: Json }
+      get_admin_copilot_ai_usage: {
+        Args: { p_days?: number; p_org_id: string }
+        Returns: Json
+      }
+      get_admin_copilot_courses: { Args: { p_org_id: string }; Returns: Json }
+      get_admin_copilot_goals: { Args: { p_org_id: string }; Returns: Json }
+      get_admin_copilot_governance_stats: {
+        Args: { p_org_id: string }
+        Returns: Json
+      }
+      get_admin_copilot_groups: { Args: { p_org_id: string }; Returns: Json }
+      get_admin_copilot_staff: { Args: { p_org_id: string }; Returns: Json }
+      get_admin_copilot_students: {
+        Args: { p_filters?: Json; p_org_id: string }
+        Returns: Json
+      }
       get_ai_coach_learning_streak: {
         Args: { p_user_id: string }
         Returns: number
@@ -12745,6 +12791,10 @@ export type Database = {
           p_enrollment_id: string
           p_sco_id: string
         }
+        Returns: Json
+      }
+      search_admin_copilot_knowledge: {
+        Args: { p_query: string }
         Returns: Json
       }
       search_kb_embeddings: {

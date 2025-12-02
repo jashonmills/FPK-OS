@@ -219,3 +219,6 @@ verify_jwt = true
 [functions.ai-learning-hub-chat]
 verify_jwt = true
 
+[functions.admin-copilot-orchestrator]
+verify_jwt = true
+
