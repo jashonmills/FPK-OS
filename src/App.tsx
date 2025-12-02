@@ -14,7 +14,7 @@ import RequireAdmin from '@/components/guards/RequireAdmin';
 import { performanceMonitor } from '@/utils/performanceMonitor';
 import { logger } from '@/utils/logger';
 import { setupGlobalScrollRestoration } from '@/utils/globalScrollManager';
-import { shouldShowBetaFeatures, shouldShowLegacyAIAssistant } from '@/lib/featureFlags';
+import { shouldShowBetaFeatures, shouldShowLegacyAIAssistant, shouldUseNewTeacherDashboard } from '@/lib/featureFlags';
 import "@/styles/mobile-responsive.css";
 import "./App.css";
 
@@ -137,6 +137,7 @@ const SyncCourseManifests = lazy(() => import("./pages/admin/SyncCourseManifests
 
 // Instructor pages
 const InstructorDashboard = lazy(() => import("./pages/dashboard/InstructorDashboard"));
+const TeacherDashboardV2 = lazy(() => import("./pages/dashboard/TeacherDashboardV2"));
 const StudentProgress = lazy(() => import("./pages/instructor/StudentProgress"));
 const OrgBrandingSettings = lazy(() => import("./pages/instructor/OrgBrandingSettings"));
 const OrgWebsitePage = lazy(() => import("./pages/organizations/OrgWebsitePage"));
@@ -480,7 +481,7 @@ const App: React.FC = () => {
             } />
             
             {/* Instructor Routes */}
-            <Route path="instructor" element={<LazyRoute><InstructorDashboard /></LazyRoute>} />
+            <Route path="instructor" element={<LazyRoute>{shouldUseNewTeacherDashboard() ? <TeacherDashboardV2 /> : <InstructorDashboard />}</LazyRoute>} />
             <Route path="instructor/students/:studentId/progress" element={<LazyRoute><StudentProgress /></LazyRoute>} />
             <Route path="instructor/organization" element={<LazyRoute><OrgSettings /></LazyRoute>} />
             <Route path="instructor/students" element={<LazyRoute><StudentsManagement /></LazyRoute>} />

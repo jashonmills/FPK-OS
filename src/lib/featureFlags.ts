@@ -14,6 +14,7 @@ export const FeatureFlags = {
   ENABLE_LIVE_HUB: import.meta.env.VITE_FEATURE_ENABLE_LIVE_HUB !== 'false', // Default enabled
   LEGACY_AI_ASSISTANT_ENABLED: import.meta.env.VITE_FEATURE_LEGACY_AI_ASSISTANT_ENABLED !== 'false', // Default enabled
   ENABLE_TTS: import.meta.env.VITE_FEATURE_ENABLE_TTS !== 'false', // Default enabled (for future subscription gating)
+  ENABLE_NEW_TEACHER_DASHBOARD: import.meta.env.VITE_FEATURE_ENABLE_NEW_TEACHER_DASHBOARD === 'true', // Default disabled
 } as const;
 
 export function isFeatureEnabled(flag: keyof typeof FeatureFlags): boolean {
@@ -76,4 +77,12 @@ export function shouldShowLegacyAIAssistant(): boolean {
  */
 export function shouldEnableTTS(): boolean {
   return isFeatureEnabled('ENABLE_TTS');
+}
+
+/**
+ * Check if new Horizons-based Teacher Dashboard should be used
+ * (Default: false - for development before rollout)
+ */
+export function shouldUseNewTeacherDashboard(): boolean {
+  return isFeatureEnabled('ENABLE_NEW_TEACHER_DASHBOARD');
 }
