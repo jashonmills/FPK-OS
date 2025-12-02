@@ -51,6 +51,7 @@ const AuthCallback = lazy(() => import("./pages/AuthCallback"));
 // Student Portal Guard
 import { StudentPortalGuard } from './components/organizations/StudentPortalGuard';
 import { EducatorPortalGuard } from './components/guards/EducatorPortalGuard';
+import { OrgRequireRole } from './components/organizations/OrgRequireRole';
 
 // Organization authenticated pages
 const OrgHub = lazy(() => import("./pages/organizations/OrgHub"));
@@ -884,7 +885,11 @@ const App: React.FC = () => {
               <Route path=":orgId/ai-coach" element={<LazyRoute><OrgAIStudyCoach /></LazyRoute>} />
             )}
             {shouldShowAIGovernance() && (
-              <Route path=":orgId/ai-governance" element={<LazyRoute><OrgAIGovernance /></LazyRoute>} />
+              <Route path=":orgId/ai-governance" element={
+                <OrgRequireRole roles={['owner', 'admin']}>
+                  <LazyRoute><OrgAIGovernance /></LazyRoute>
+                </OrgRequireRole>
+              } />
             )}
             <Route path=":orgId/analytics/courses/:courseId" element={<LazyRoute><CourseAnalytics /></LazyRoute>} />
             <Route path=":orgId/website" element={<LazyRoute><OrgWebsitePage /></LazyRoute>} />

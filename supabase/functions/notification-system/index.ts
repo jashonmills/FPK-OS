@@ -186,7 +186,8 @@ serve(async (req) => {
           type: 'ai_request_approved',
           title: '✅ AI Request Approved',
           message: `Your AI request "${data.task}" has been approved${data.approverName ? ` by ${data.approverName}` : ''}.`,
-          action_url: data.orgId ? `/org/${data.orgId}/ai-governance` : '/dashboard/learner/ai-command-center',
+          // Send students to AI Coach with requests tab, not AI Governance
+          action_url: data.orgId ? `/org/${data.orgId}/ai-coach?tab=requests` : '/dashboard/learner/ai-command-center',
           metadata: data
         };
         break;
@@ -197,7 +198,8 @@ serve(async (req) => {
           type: 'ai_request_rejected',
           title: '❌ AI Request Declined',
           message: `Your AI request "${data.task}" was declined${data.approverName ? ` by ${data.approverName}` : ''}.`,
-          action_url: data.orgId ? `/org/${data.orgId}/ai-governance` : '/dashboard/learner/ai-command-center',
+          // Send students to AI Coach with requests tab, not AI Governance
+          action_url: data.orgId ? `/org/${data.orgId}/ai-coach?tab=requests` : '/dashboard/learner/ai-command-center',
           metadata: data
         };
         break;

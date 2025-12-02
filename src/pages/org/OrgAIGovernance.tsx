@@ -19,14 +19,14 @@ import {
 } from '@/components/admin/ai-governance';
 
 const OrgAIGovernance: React.FC = () => {
-  const { currentOrg } = useOrgContext();
+  const { currentOrg, getEffectiveRole } = useOrgContext();
   const [activeTab, setActiveTab] = useState('overview');
   
   const orgId = currentOrg?.organization_id;
-  const userRole = currentOrg?.role;
+  const effectiveRole = getEffectiveRole();
   
-  // Only allow owners and admins
-  if (userRole !== 'owner' && userRole !== 'admin') {
+  // Only allow owners and admins (respects "View As" impersonation)
+  if (effectiveRole !== 'owner' && effectiveRole !== 'admin') {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center p-8">
