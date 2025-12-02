@@ -514,7 +514,7 @@ export default function OrgPortalHome() {
             <div className="flex flex-wrap gap-2">
               <Button 
                 variant="outline"
-                className="border-white/30 text-white hover:bg-white/20"
+                className="border-white/30 text-white hover:bg-white/20 bg-transparent"
                 onClick={() => navigate(`/org/${currentOrg?.organization_id}/ai-governance`)}
               >
                 <Shield className="h-4 w-4 mr-2" />
@@ -522,7 +522,7 @@ export default function OrgPortalHome() {
               </Button>
               <Button 
                 variant="outline"
-                className="border-white/30 text-white hover:bg-white/20"
+                className="border-white/30 text-white hover:bg-white/20 bg-transparent"
                 onClick={() => navigate(`/org/${currentOrg?.organization_id}/settings`)}
               >
                 <Settings className="h-4 w-4 mr-2" />
