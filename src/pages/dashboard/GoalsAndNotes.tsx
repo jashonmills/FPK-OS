@@ -119,54 +119,56 @@ const GoalsAndNotes = () => {
         )}>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
             {/* Mobile-responsive tabs list */}
-            {isMobile ? (
-              <ScrollArea className="w-full">
-                <TabsList className="inline-flex h-10 items-center justify-start rounded-md bg-muted p-1 text-muted-foreground min-w-max">
-                  <TabsTrigger value="goals" className="flex items-center gap-2 whitespace-nowrap">
+            <div className="flex justify-center">
+              {isMobile ? (
+                <ScrollArea className="w-full">
+                  <TabsList className="inline-flex h-12 items-center justify-center rounded-full bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm p-1.5 shadow-lg border border-white/20 min-w-max">
+                    <TabsTrigger value="goals" className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-foreground data-[state=inactive]:text-muted-foreground hover:text-foreground whitespace-nowrap">
+                      <Target className="h-4 w-4" />
+                      Goals
+                    </TabsTrigger>
+                    <TabsTrigger value="notes" className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-foreground data-[state=inactive]:text-muted-foreground hover:text-foreground whitespace-nowrap">
+                      <FileText className="h-4 w-4" />
+                      Notes
+                    </TabsTrigger>
+                    <TabsTrigger value="upload" className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-foreground data-[state=inactive]:text-muted-foreground hover:text-foreground whitespace-nowrap">
+                      <Upload className="h-4 w-4" />
+                      Upload
+                    </TabsTrigger>
+                    <TabsTrigger value="flashcards" className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-foreground data-[state=inactive]:text-muted-foreground hover:text-foreground whitespace-nowrap">
+                      <Zap className="h-4 w-4" />
+                      Flashcards
+                    </TabsTrigger>
+                    <TabsTrigger value="progress" className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-foreground data-[state=inactive]:text-muted-foreground hover:text-foreground whitespace-nowrap">
+                      Progress
+                    </TabsTrigger>
+                  </TabsList>
+                  <ScrollBar orientation="horizontal" />
+                </ScrollArea>
+              ) : (
+                <TabsList className="inline-flex h-12 items-center justify-center rounded-full bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm p-1.5 shadow-lg border border-white/20">
+                  <TabsTrigger value="goals" className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-foreground data-[state=inactive]:text-muted-foreground hover:text-foreground">
                     <Target className="h-4 w-4" />
                     Goals
                   </TabsTrigger>
-                  <TabsTrigger value="notes" className="flex items-center gap-2 whitespace-nowrap">
+                  <TabsTrigger value="notes" className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-foreground data-[state=inactive]:text-muted-foreground hover:text-foreground">
                     <FileText className="h-4 w-4" />
                     Notes
                   </TabsTrigger>
-                  <TabsTrigger value="upload" className="flex items-center gap-2 whitespace-nowrap">
+                  <TabsTrigger value="upload" className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-foreground data-[state=inactive]:text-muted-foreground hover:text-foreground">
                     <Upload className="h-4 w-4" />
                     Upload
                   </TabsTrigger>
-                  <TabsTrigger value="flashcards" className="flex items-center gap-2 whitespace-nowrap">
+                  <TabsTrigger value="flashcards" className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-foreground data-[state=inactive]:text-muted-foreground hover:text-foreground">
                     <Zap className="h-4 w-4" />
                     Flashcards
                   </TabsTrigger>
-                  <TabsTrigger value="progress" className="flex items-center gap-2 whitespace-nowrap">
+                  <TabsTrigger value="progress" className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-foreground data-[state=inactive]:text-muted-foreground hover:text-foreground">
                     Progress
                   </TabsTrigger>
                 </TabsList>
-                <ScrollBar orientation="horizontal" />
-              </ScrollArea>
-            ) : (
-              <TabsList className="grid w-full grid-cols-5">
-                <TabsTrigger value="goals" className="flex items-center gap-2">
-                  <Target className="h-4 w-4" />
-                  Goals
-                </TabsTrigger>
-                <TabsTrigger value="notes" className="flex items-center gap-2">
-                  <FileText className="h-4 w-4" />
-                  Notes
-                </TabsTrigger>
-                <TabsTrigger value="upload" className="flex items-center gap-2">
-                  <Upload className="h-4 w-4" />
-                  Upload
-                </TabsTrigger>
-                <TabsTrigger value="flashcards" className="flex items-center gap-2">
-                  <Zap className="h-4 w-4" />
-                  Flashcards
-                </TabsTrigger>
-                <TabsTrigger value="progress" className="flex items-center gap-2">
-                  Progress
-                </TabsTrigger>
-              </TabsList>
-            )}
+              )}
+            </div>
 
             <div className="min-h-0 flex-1 mobile-content-width">
               <TabsContent value="goals" className="mt-4 mobile-safe-padding">
