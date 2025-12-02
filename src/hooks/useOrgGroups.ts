@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { assertOrg } from '@/lib/org/context';
+import { getActiveOrgId, assertOrg } from '@/lib/org/context';
 
 export interface OrgGroup {
   id: string;
@@ -15,10 +15,12 @@ export interface OrgGroup {
   messaging_enabled?: boolean;
 }
 
-export function useOrgGroups() {
+export function useOrgGroups(providedOrgId?: string) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const orgId = assertOrg();
+  // Use provided orgId or fall back to context
+  const contextOrgId = getActiveOrgId();
+  const orgId = providedOrgId || contextOrgId || assertOrg();
 
   const { data: groups = [], isLoading, error } = useQuery({
     queryKey: ['org-groups', orgId],

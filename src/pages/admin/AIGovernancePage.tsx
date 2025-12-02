@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Shield, Users, ScrollText, Cpu, CheckSquare, Activity, FileText, Settings, Wrench, Key, BookOpen, FlaskConical } from 'lucide-react';
+import { Shield, Users, ScrollText, Cpu, CheckSquare, Activity, FileText, Settings, Wrench, Key, BookOpen, FlaskConical, MessageSquare } from 'lucide-react';
 import {
   AIGovernanceOverview,
   AIGovernanceUsers,
@@ -14,6 +14,7 @@ import {
   AIGovernanceAuditLog,
   AIGovernanceSettings,
   AIGovernanceTestPanel,
+  AIGovernanceGroups,
 } from '@/components/admin/ai-governance';
 
 const AIGovernancePage: React.FC = () => {
@@ -22,6 +23,7 @@ const AIGovernancePage: React.FC = () => {
   const tabs = [
     { id: 'overview', label: 'Overview', icon: Shield },
     { id: 'users', label: 'Users', icon: Users },
+    { id: 'groups', label: 'Groups', icon: MessageSquare },
     { id: 'rules', label: 'Rules', icon: ScrollText },
     { id: 'models', label: 'Models', icon: Cpu },
     { id: 'tool-mapping', label: 'Tool Mapping', icon: Wrench },
@@ -72,6 +74,10 @@ const AIGovernancePage: React.FC = () => {
 
           <TabsContent value="users" className="mt-6">
             <AIGovernanceUsers />
+          </TabsContent>
+
+          <TabsContent value="groups" className="mt-6">
+            <AIGovernanceGroups />
           </TabsContent>
 
           <TabsContent value="rules" className="mt-6">

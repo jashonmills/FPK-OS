@@ -11,4 +11,5 @@ export { default as AIGovernanceMonitoring } from './AIGovernanceMonitoring';
 export { default as AIGovernanceAuditLog } from './AIGovernanceAuditLog';
 export { default as AIGovernanceSettings } from './AIGovernanceSettings';
 export { default as AIGovernanceTestPanel } from './AIGovernanceTestPanel';
+export { default as AIGovernanceGroups } from './AIGovernanceGroups';
 export { default as PlatformAdminOrgSelector } from './PlatformAdminOrgSelector';
