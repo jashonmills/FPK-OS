@@ -9,7 +9,7 @@ export function useOrgPermissions() {
 
   const canManageOrg = () => {
     if (isPersonalMode) return false;
-    return currentOrg?.role === 'owner' || currentOrg?.role === 'instructor';
+    return currentOrg?.role === 'owner' || currentOrg?.role === 'admin';
   };
 
   const canManageBranding = () => {

@@ -10,6 +10,7 @@ import { Plus, Users, UserPlus, Download } from "lucide-react";
 import { useOrgStudents } from "@/hooks/useOrgStudents";
 import { useOrgMembers } from "@/hooks/useOrgMembers";
 import { useOrgContext } from "@/components/organizations/OrgContext";
+import { OrgRequireRole } from "@/components/organizations/OrgRequireRole";
 import { AddStudentDialog } from "@/components/students/AddStudentDialog";
 import { EditStudentDialog } from "@/components/students/EditStudentDialog";
 import { StudentsTable } from "@/components/students/StudentsTable";
@@ -24,7 +25,8 @@ import { cn } from "@/lib/utils";
 import { OrgStudent } from "@/hooks/useOrgStudents";
 import { supabase } from "@/integrations/supabase/client";
 import { ContextualHelpButton } from '@/components/common/ContextualHelpButton';
-export default function StudentsManagementNew() {
+
+function StudentsManagementContent() {
   const {
     orgId
   } = useParams<{
@@ -261,4 +263,12 @@ export default function StudentsManagementNew() {
         />
       </div>
     </PageShell>;
+}
+
+export default function StudentsManagementNew() {
+  return (
+    <OrgRequireRole roles={['owner', 'admin', 'instructor']}>
+      <StudentsManagementContent />
+    </OrgRequireRole>
+  );
 }

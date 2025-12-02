@@ -5,7 +5,9 @@ import { Plus, Users } from 'lucide-react';
 import { useState } from 'react';
 import { useOrgGroups } from '@/hooks/useOrgGroups';
 import { ContextualHelpButton } from '@/components/common/ContextualHelpButton';
-export default function GroupsPage() {
+import { OrgRequireRole } from '@/components/organizations/OrgRequireRole';
+
+function GroupsPageContent() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const {
     groups
@@ -76,4 +78,12 @@ export default function GroupsPage() {
 
       <GroupsList />
     </div>;
+}
+
+export default function GroupsPage() {
+  return (
+    <OrgRequireRole roles={['owner', 'admin', 'instructor']}>
+      <GroupsPageContent />
+    </OrgRequireRole>
+  );
 }

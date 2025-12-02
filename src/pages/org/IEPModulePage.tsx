@@ -7,10 +7,12 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { Copy, Send, Clock, CheckCircle, XCircle, FileText, Plus } from 'lucide-react';
 import { useOrgContext } from '@/components/organizations/OrgContext';
+import { OrgRequireRole } from '@/components/organizations/OrgRequireRole';
 import { useIEPInvites } from '@/hooks/useIEPInvites';
 import { useIEPData } from '@/hooks/useIEPData';
 import { ContextualHelpButton } from '@/components/common/ContextualHelpButton';
-export default function IEPModulePage() {
+
+function IEPModuleContent() {
   const {
     orgId
   } = useParams<{
@@ -224,4 +226,12 @@ export default function IEPModulePage() {
         </Card>
       </div>
     </div>;
+}
+
+export default function IEPModulePage() {
+  return (
+    <OrgRequireRole roles={['owner', 'admin', 'instructor']}>
+      <IEPModuleContent />
+    </OrgRequireRole>
+  );
 }

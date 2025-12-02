@@ -77,13 +77,13 @@ export function OrgNavigation({ isMobileMenuOpen: externalMobileMenuOpen, onMobi
       href: `/org/${currentOrg.organization_id}/students`,
       label: 'Students',
       icon: Users,
-      roles: ['owner', 'instructor'],
+      roles: ['owner', 'admin', 'instructor'],
     },
     {
       href: `/org/${currentOrg.organization_id}/groups`,
       label: 'Groups',
       icon: Users,
-      roles: ['owner', 'instructor'],
+      roles: ['owner', 'admin', 'instructor'],
     },
     {
       href: `/org/${currentOrg.organization_id}/courses`,
@@ -94,7 +94,7 @@ export function OrgNavigation({ isMobileMenuOpen: externalMobileMenuOpen, onMobi
       href: `/org/${currentOrg.organization_id}/iep`,
       label: 'Interactive IEP',
       icon: Clipboard,
-      roles: ['owner', 'instructor'],
+      roles: ['owner', 'admin', 'instructor'],
     },
     {
       href: `/org/${currentOrg.organization_id}/goals-notes`,
@@ -121,7 +121,7 @@ export function OrgNavigation({ isMobileMenuOpen: externalMobileMenuOpen, onMobi
       href: `/org/${currentOrg.organization_id}/website`,
       label: 'Website',
       icon: ExternalLink,
-      roles: ['owner', 'instructor'],
+      roles: ['owner', 'admin', 'instructor'],
     },
     {
       href: effectiveRole === 'student' 
