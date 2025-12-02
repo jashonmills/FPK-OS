@@ -48,7 +48,7 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
       'ai-personal-tutor': "Hello! I'm Betty, your personal AI tutor. I use the Socratic method to help you discover answers and develop deep understanding. What would you like to explore today?",
       'math-solver': "Hi there! I'm Al, your math problem solver. Share any math problem with me, and I'll guide you through it step-by-step. What would you like to work on?",
       'essay-coach': "Welcome! I'm your essay writing coach. I'll help you develop your writing skills through constructive feedback. Share your writing or tell me what you're working on!",
-      'code-companion': "Hey! I'm your code learning companion. Whether you're debugging, learning new concepts, or building something cool, I'm here to help. What are you working on?",
+      'code-companion': "Hey! 👋 I see you have a factorial function loaded - I just ran it and got 120 (that's 5!). Try changing the number and running it again! Ask me anything about recursion, debugging, or any coding concept you want to explore.",
       'language-practice': "¡Hola! Bonjour! I'm your language practice partner. Let's have a conversation! Which language would you like to practice today?",
       'research-assistant': "Hello! I'm your research assistant. I'll help you develop strong research and critical thinking skills. What topic are you exploring?"
     };

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Code, Play, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import AIChatInterface from './AIChatInterface';
@@ -8,7 +8,10 @@ interface CodeTutorProps {
 }
 
 const CodeTutor: React.FC<CodeTutorProps> = ({ onBack }) => {
-  const [code, setCode] = useState(`// Write your JavaScript code here
+  const [code, setCode] = useState(`// 🎯 Welcome to Code Tutor!
+// This factorial function calculates n! using recursion.
+// Try changing the number 5 to something else and click "Run Code"!
+
 function calculateFactorial(n) {
   if (n === 0 || n === 1) {
     return 1;
@@ -20,8 +23,9 @@ console.log(calculateFactorial(5));`);
   
   const [output, setOutput] = useState('');
   const [showChat, setShowChat] = useState(true);
+  const [hasAutoRun, setHasAutoRun] = useState(false);
 
-  const runCode = () => {
+  const runCode = useCallback((isAutoRun = false) => {
     try {
       const logs: string[] = [];
       const originalLog = console.log;
@@ -31,11 +35,24 @@ console.log(calculateFactorial(5));`);
       new Function(code)();
       
       console.log = originalLog;
-      setOutput(logs.length > 0 ? logs.join('\n') : 'Code executed successfully (no output)');
+      
+      let result = logs.length > 0 ? logs.join('\n') : 'Code executed successfully (no output)';
+      if (isAutoRun) {
+        result += '\n\n✨ Edit the code and click "Run Code" to experiment!';
+      }
+      setOutput(result);
     } catch (error) {
       setOutput(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
-  };
+  }, [code]);
+
+  // Auto-run code on mount to show immediate output
+  useEffect(() => {
+    if (!hasAutoRun) {
+      runCode(true);
+      setHasAutoRun(true);
+    }
+  }, [hasAutoRun, runCode]);
 
   return (
     <div className="flex h-full gap-4">
@@ -60,7 +77,7 @@ console.log(calculateFactorial(5));`);
             >
               {showChat ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeftOpen className="h-4 w-4" />}
             </Button>
-            <Button size="sm" onClick={runCode} className="bg-green-600 hover:bg-green-700 text-white">
+            <Button size="sm" onClick={() => runCode(false)} className="bg-green-600 hover:bg-green-700 text-white">
               <Play className="h-4 w-4 mr-2" />
               Run Code
             </Button>
