@@ -21,6 +21,8 @@ const sanitizeOrgName = (name: string): string => {
   return firstLine || 'Organization';
 };
 
+export type MemberRole = 'owner' | 'admin' | 'instructor' | 'instructor_aide' | 'viewer' | 'student';
+
 interface OrgContextType {
   currentOrg: UserOrganizationMembership | null;
   organizations: UserOrganizationMembership[];
@@ -31,7 +33,13 @@ interface OrgContextType {
   switchToPersonal: () => void;
   // Navigation context helpers
   getNavigationContext: () => 'personal' | 'org-student' | 'org-instructor';
-  getUserRole: () => 'owner' | 'admin' | 'instructor' | 'instructor_aide' | 'viewer' | 'student' | null;
+  getUserRole: () => MemberRole | null;
+  // Role impersonation for development
+  viewAsRole: MemberRole | null;
+  setViewAsRole: (role: MemberRole | null) => void;
+  getEffectiveRole: () => MemberRole | null;
+  isImpersonating: boolean;
+  canImpersonate: boolean;
 }
 
 const OrgContext = createContext<OrgContextType | undefined>(undefined);
@@ -42,6 +50,7 @@ export function OrgProvider({ children, orgId }: { children: React.ReactNode; or
   const navigate = useNavigate();
   const [activeOrgId, setActiveOrgId] = useState<string | null>(null);
   const [currentOrg, setCurrentOrg] = useState<UserOrganizationMembership | null>(null);
+  const [viewAsRole, setViewAsRoleState] = useState<MemberRole | null>(null);
 
   // Log organization loading state for debugging
   useEffect(() => {
@@ -93,6 +102,19 @@ export function OrgProvider({ children, orgId }: { children: React.ReactNode; or
     }
   }, [orgId]);
 
+  // Initialize viewAsRole from localStorage for the active org
+  useEffect(() => {
+    if (activeOrgId) {
+      const storedRole = safeLocalStorage.getItem<MemberRole | null>(`fpk.viewAsRole.${activeOrgId}`, {
+        fallbackValue: null,
+        logErrors: false
+      });
+      setViewAsRoleState(storedRole);
+    } else {
+      setViewAsRoleState(null);
+    }
+  }, [activeOrgId]);
+
   // Update currentOrg when activeOrgId or organizations change
   useEffect(() => {
     if (activeOrgId && organizations.length > 0) {
@@ -105,9 +127,12 @@ export function OrgProvider({ children, orgId }: { children: React.ReactNode; or
 
   const switchOrganization = (orgId: string | null) => {
     setActiveOrgId(orgId);
+    // Clear impersonation when switching orgs
+    setViewAsRoleState(null);
     
     if (orgId) {
       safeLocalStorage.setItem('fpk.activeOrgId', orgId);
+      safeLocalStorage.removeItem(`fpk.viewAsRole.${orgId}`);
       // Navigate to organization portal homepage
       navigate(`/org/${orgId}`);
     } else {
@@ -123,21 +148,47 @@ export function OrgProvider({ children, orgId }: { children: React.ReactNode; or
 
   const isPersonalMode = activeOrgId === null;
 
+  // Role impersonation functions
+  const actualRole = currentOrg?.role || null;
+  const canImpersonate = actualRole === 'owner' || actualRole === 'admin';
+  const isImpersonating = viewAsRole !== null && canImpersonate;
+
+  const setViewAsRole = (role: MemberRole | null) => {
+    if (!canImpersonate) return;
+    
+    setViewAsRoleState(role);
+    if (activeOrgId) {
+      if (role) {
+        safeLocalStorage.setItem(`fpk.viewAsRole.${activeOrgId}`, role);
+      } else {
+        safeLocalStorage.removeItem(`fpk.viewAsRole.${activeOrgId}`);
+      }
+    }
+  };
+
+  const getEffectiveRole = (): MemberRole | null => {
+    if (isImpersonating && viewAsRole) {
+      return viewAsRole;
+    }
+    return actualRole;
+  };
+
   // Helper functions for navigation context
   const getNavigationContext = (): 'personal' | 'org-student' | 'org-instructor' => {
     if (isPersonalMode) {
       return 'personal';
     }
     
-    if (currentOrg?.role === 'owner' || currentOrg?.role === 'admin' || currentOrg?.role === 'instructor') {
+    const effectiveRole = getEffectiveRole();
+    if (effectiveRole === 'owner' || effectiveRole === 'admin' || effectiveRole === 'instructor') {
       return 'org-instructor';
     }
     
     return 'org-student';
   };
 
-  const getUserRole = (): 'owner' | 'admin' | 'instructor' | 'instructor_aide' | 'viewer' | 'student' | null => {
-    return currentOrg?.role || null;
+  const getUserRole = (): MemberRole | null => {
+    return actualRole;
   };
 
   return (
@@ -151,6 +202,11 @@ export function OrgProvider({ children, orgId }: { children: React.ReactNode; or
       switchToPersonal,
       getNavigationContext,
       getUserRole,
+      viewAsRole,
+      setViewAsRole,
+      getEffectiveRole,
+      isImpersonating,
+      canImpersonate,
     }}>
       {children}
     </OrgContext.Provider>
