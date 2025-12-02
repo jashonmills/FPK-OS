@@ -15,49 +15,56 @@ export function useAIGovernanceUsers(orgId?: string | null) {
   const usersQuery = useQuery({
     queryKey: ['ai-governance-users', orgId],
     queryFn: async () => {
-      // Get profiles with their AI tool session counts
-      const { data: profiles, error: profilesError } = await supabase
-        .from('profiles')
-        .select('id, full_name, email')
-        .limit(100);
+      if (!orgId) return [];
 
-      if (profilesError) throw profilesError;
+      // Get org members with their profiles
+      const { data: orgMembers, error: membersError } = await supabase
+        .from('org_members')
+        .select(`
+          user_id,
+          role,
+          profiles:user_id (
+            id,
+            full_name,
+            email
+          )
+        `)
+        .eq('org_id', orgId);
 
-      // Get AI usage per user
+      if (membersError) throw membersError;
+
+      // Get AI usage per user filtered by org
       const { data: sessions, error: sessionsError } = await supabase
         .from('ai_tool_sessions')
         .select('user_id, started_at')
+        .eq('org_id', orgId)
         .order('started_at', { ascending: false });
 
       if (sessionsError) throw sessionsError;
 
-      // Get user roles
-      const { data: userRoles, error: rolesError } = await supabase
-        .from('user_roles')
-        .select('user_id, role');
-
-      if (rolesError) throw rolesError;
-
       // Combine the data
-      const userMap = new Map<string, AIGovernanceUser>();
+      const users: AIGovernanceUser[] = [];
 
-      profiles?.forEach(profile => {
+      orgMembers?.forEach(member => {
+        const profile = member.profiles as unknown as { id: string; full_name: string | null; email: string | null } | null;
+        if (!profile) return;
+
         const userSessions = sessions?.filter(s => s.user_id === profile.id) ?? [];
-        const userRole = userRoles?.find(r => r.user_id === profile.id);
         
-        userMap.set(profile.id, {
+        users.push({
           id: profile.id,
           full_name: profile.full_name,
           email: profile.email,
-          role: userRole?.role ?? 'user',
+          role: member.role,
           ai_usage_count: userSessions.length,
           last_ai_usage: userSessions[0]?.started_at ?? null,
           status: userSessions.length > 0 ? 'active' : 'inactive',
         });
       });
 
-      return Array.from(userMap.values()).sort((a, b) => b.ai_usage_count - a.ai_usage_count);
+      return users.sort((a, b) => b.ai_usage_count - a.ai_usage_count);
     },
+    enabled: !!orgId,
   });
 
   return {
