@@ -90,8 +90,8 @@ console.log(calculateFactorial(5));`);
       {showChat && (
         <div className="w-[400px] flex-shrink-0">
           <AIChatInterface
+            toolId="code-companion"
             toolName="Code Tutor"
-            systemPrompt="I am your expert coding tutor. I can help debug your code, explain concepts, or suggest optimizations. Paste your code snippets if you need specific help."
             onBack={() => setShowChat(false)}
             icon={Code}
             accentColor="from-green-500 to-emerald-600"
