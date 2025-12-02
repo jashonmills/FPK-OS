@@ -20,11 +20,16 @@ interface Tool {
   component?: React.ComponentType<{ onBack: () => void }>;
 }
 
-const StudentLearning: React.FC = () => {
+interface StudentLearningProps {
+  orgId?: string;
+}
+
+const StudentLearning: React.FC<StudentLearningProps> = ({ orgId: propOrgId }) => {
   const [activeTool, setActiveTool] = useState<string | null>(null);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const orgId = searchParams.get('org') || undefined;
+  // Use prop orgId if provided, otherwise fall back to search params
+  const orgId = propOrgId || searchParams.get('org') || undefined;
   const { recommendations, isLoading } = useStudentAIAnalytics(orgId);
 
   const tools: Tool[] = [

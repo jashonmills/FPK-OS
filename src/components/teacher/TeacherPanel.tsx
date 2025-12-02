@@ -10,15 +10,16 @@ export type TeacherTabId = 'overview' | 'requests' | 'students' | 'activity' | '
 interface TeacherPanelProps {
   activeTab: TeacherTabId;
   setActiveTab: (tab: TeacherTabId) => void;
+  orgId?: string;
 }
 
-const TeacherPanel: React.FC<TeacherPanelProps> = ({ activeTab, setActiveTab }) => {
+const TeacherPanel: React.FC<TeacherPanelProps> = ({ activeTab, setActiveTab, orgId }) => {
   return (
     <div className="space-y-6">
-      {activeTab === 'overview' && <TeacherOverview setActiveTab={setActiveTab} />}
-      {activeTab === 'requests' && <TeacherRequests />}
-      {activeTab === 'students' && <TeacherStudents />}
-      {activeTab === 'activity' && <TeacherActivity />}
+      {activeTab === 'overview' && <TeacherOverview setActiveTab={setActiveTab} orgId={orgId} />}
+      {activeTab === 'requests' && <TeacherRequests orgId={orgId} />}
+      {activeTab === 'students' && <TeacherStudents orgId={orgId} />}
+      {activeTab === 'activity' && <TeacherActivity orgId={orgId} />}
       {activeTab === 'tools' && <TeacherTools />}
     </div>
   );

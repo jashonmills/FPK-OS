@@ -5,18 +5,19 @@ import StudentRequests from './StudentRequests';
 
 interface StudentPanelProps {
   activeTab: string;
+  orgId?: string;
 }
 
-const StudentPanel: React.FC<StudentPanelProps> = ({ activeTab }) => {
+const StudentPanel: React.FC<StudentPanelProps> = ({ activeTab, orgId }) => {
   switch (activeTab) {
     case 'overview':
-      return <StudentOverview />;
+      return <StudentOverview orgId={orgId} />;
     case 'learning':
-      return <StudentLearning />;
+      return <StudentLearning orgId={orgId} />;
     case 'requests':
       return <StudentRequests />;
     default:
-      return <StudentOverview />;
+      return <StudentOverview orgId={orgId} />;
   }
 };
 

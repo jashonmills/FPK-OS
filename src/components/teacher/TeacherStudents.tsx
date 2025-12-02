@@ -8,9 +8,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 
-const TeacherStudents: React.FC = () => {
+interface TeacherStudentsProps {
+  orgId?: string;
+}
+
+const TeacherStudents: React.FC<TeacherStudentsProps> = ({ orgId: propOrgId }) => {
   const { organization, isLoading: orgLoading } = useUserPrimaryOrganization();
-  const orgId = organization?.organization_id || '';
+  // Use prop orgId if provided, otherwise fall back to primary organization
+  const orgId = propOrgId || organization?.organization_id || '';
   
   const { students, isLoading: studentsLoading } = useOrgStudents(orgId);
 
@@ -74,7 +79,8 @@ const TeacherStudents: React.FC = () => {
     };
   };
 
-  const isLoading = orgLoading || studentsLoading;
+  // Only show loading if we don't have propOrgId and org is loading
+  const isLoading = !propOrgId && orgLoading || studentsLoading;
 
   if (isLoading) {
     return (
@@ -84,7 +90,7 @@ const TeacherStudents: React.FC = () => {
     );
   }
 
-  if (!organization) {
+  if (!propOrgId && !organization) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
         <AlertCircle className="h-8 w-8 mb-2" />
