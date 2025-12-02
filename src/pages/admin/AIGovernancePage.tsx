@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Shield, Users, ScrollText, Cpu, CheckSquare, Activity, FileText, Settings, Wrench, Key } from 'lucide-react';
+import { Shield, Users, ScrollText, Cpu, CheckSquare, Activity, FileText, Settings, Wrench, Key, BookOpen } from 'lucide-react';
 import {
   AIGovernanceOverview,
   AIGovernanceUsers,
@@ -8,6 +8,7 @@ import {
   AIGovernanceModels,
   AIGovernanceToolMapping,
   AIGovernanceBYOK,
+  AIGovernanceKnowledgeBase,
   AIGovernanceApprovals,
   AIGovernanceMonitoring,
   AIGovernanceAuditLog,
@@ -24,6 +25,7 @@ const AIGovernancePage: React.FC = () => {
     { id: 'models', label: 'Models', icon: Cpu },
     { id: 'tool-mapping', label: 'Tool Mapping', icon: Wrench },
     { id: 'byok', label: 'BYOK', icon: Key },
+    { id: 'knowledge-base', label: 'Knowledge Base', icon: BookOpen },
     { id: 'approvals', label: 'Approvals', icon: CheckSquare },
     { id: 'monitoring', label: 'Monitoring', icon: Activity },
     { id: 'audit', label: 'Audit Log', icon: FileText },
@@ -84,6 +86,10 @@ const AIGovernancePage: React.FC = () => {
 
           <TabsContent value="byok" className="mt-6">
             <AIGovernanceBYOK />
+          </TabsContent>
+
+          <TabsContent value="knowledge-base" className="mt-6">
+            <AIGovernanceKnowledgeBase />
           </TabsContent>
 
           <TabsContent value="approvals" className="mt-6">
