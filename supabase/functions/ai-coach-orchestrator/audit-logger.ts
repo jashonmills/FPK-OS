@@ -91,14 +91,15 @@ export async function logPhoenixAuditEvent(params: {
   const serviceClient = getServiceClient();
   
   try {
-    await serviceClient.from('audit_logs').insert({
+    // Note: resource_id is UUID type, so store tool_id in details instead
+    const { error } = await serviceClient.from('audit_logs').insert({
       user_id: params.userId,
       organization_id: params.orgId || null,
       action_type: 'ai_request',
       resource_type: 'ai_tool',
-      resource_id: 'phoenix-ai-coach',
       status: params.status,
       details: {
+        tool_id: 'phoenix-ai-coach',
         session_id: params.sessionId,
         conversation_id: params.conversationId,
         persona: params.persona,
@@ -110,7 +111,11 @@ export async function logPhoenixAuditEvent(params: {
       }
     });
     
-    console.log('[PHOENIX-AUDIT] 📝 Audit log written for persona:', params.persona);
+    if (error) {
+      console.error('[PHOENIX-AUDIT] ❌ Audit log insert error:', error.message);
+    } else {
+      console.log('[PHOENIX-AUDIT] 📝 Audit log written for persona:', params.persona);
+    }
   } catch (error) {
     console.warn('[PHOENIX-AUDIT] ⚠️ Audit log failed:', error);
   }

@@ -149,14 +149,14 @@ export async function logAuditEvent(params: AuditLogParams): Promise<void> {
   try {
     const serviceClient = getServiceClient();
     
+    // Note: resource_id is UUID type, so store tool_id in details instead
     const { error } = await serviceClient.from('audit_logs').insert({
       user_id: userId,
       organization_id: orgId || null,
       action_type: actionType,
       resource_type: 'ai_tool',
-      resource_id: toolId,
       status: status,
-      details: details
+      details: { tool_id: toolId, ...details }
     });
     
     if (error) {
