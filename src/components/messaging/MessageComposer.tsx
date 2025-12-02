@@ -180,8 +180,20 @@ export function MessageComposer({
               size="icon" 
               className="h-7 w-7"
               onClick={() => {
-                setContent(prev => prev + '@');
-                textareaRef.current?.focus();
+                const textarea = textareaRef.current;
+                if (textarea) {
+                  const pos = textarea.selectionStart;
+                  const newContent = content.substring(0, pos) + '@' + content.substring(pos);
+                  setContent(newContent);
+                  setCursorPosition(pos + 1);
+                  setShowMentions(true);
+                  setMentionQuery('');
+                  // Set cursor position after state update
+                  setTimeout(() => {
+                    textarea.focus();
+                    textarea.setSelectionRange(pos + 1, pos + 1);
+                  }, 0);
+                }
               }}
             >
               <AtSign className="h-4 w-4" />
