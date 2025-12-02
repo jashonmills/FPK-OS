@@ -277,3 +277,66 @@ export const triggerNoteSharedNotification = async (
     console.log('[Notifications] Note shared notification sent successfully');
   }
 };
+
+// ============= MESSAGING NOTIFICATIONS =============
+
+export const triggerNewMessageNotification = async (
+  recipientIds: string[],
+  orgId: string,
+  conversationId: string,
+  senderName: string,
+  preview: string,
+  conversationName?: string
+) => {
+  if (recipientIds.length === 0) return;
+  
+  console.log('[Notifications] Sending new message notifications to', recipientIds.length, 'recipients');
+  
+  const notifications = recipientIds.map(recipientId => ({
+    user_id: recipientId,
+    type: 'new_message',
+    title: '💬 New Message',
+    message: `${senderName}: "${preview.substring(0, 50)}${preview.length > 50 ? '...' : ''}"`,
+    action_url: `/org/${orgId}/messages/${conversationId}`,
+    read_status: false,
+    metadata: { orgId, conversationId, senderName, preview, conversationName }
+  }));
+
+  const { error } = await supabase
+    .from('notifications')
+    .insert(notifications);
+
+  if (error) {
+    console.error('[Notifications] Error sending new message notifications:', error);
+  } else {
+    console.log('[Notifications] New message notifications sent successfully');
+  }
+};
+
+export const triggerMentionNotification = async (
+  mentionedUserId: string,
+  orgId: string,
+  conversationId: string,
+  senderName: string,
+  conversationName?: string
+) => {
+  console.log('[Notifications] Sending mention notification to', mentionedUserId);
+  
+  const { error } = await supabase
+    .from('notifications')
+    .insert({
+      user_id: mentionedUserId,
+      type: 'message_mention',
+      title: '🔔 You were mentioned',
+      message: `${senderName} mentioned you${conversationName ? ` in ${conversationName}` : ''}`,
+      action_url: `/org/${orgId}/messages/${conversationId}`,
+      read_status: false,
+      metadata: { orgId, conversationId, senderName, conversationName }
+    });
+
+  if (error) {
+    console.error('[Notifications] Error sending mention notification:', error);
+  } else {
+    console.log('[Notifications] Mention notification sent successfully');
+  }
+};

@@ -202,6 +202,28 @@ serve(async (req) => {
         };
         break;
 
+      case 'new_message':
+        notification = {
+          ...notification,
+          type: 'new_message',
+          title: '💬 New Message',
+          message: `${data.senderName}: "${data.preview?.substring(0, 50)}${data.preview?.length > 50 ? '...' : ''}"`,
+          action_url: `/org/${data.orgId}/messages/${data.conversationId}`,
+          metadata: data
+        };
+        break;
+
+      case 'message_mention':
+        notification = {
+          ...notification,
+          type: 'message_mention',
+          title: '🔔 You were mentioned',
+          message: `${data.senderName} mentioned you${data.conversationName ? ` in ${data.conversationName}` : ''}`,
+          action_url: `/org/${data.orgId}/messages/${data.conversationId}`,
+          metadata: data
+        };
+        break;
+
       default:
         throw new Error('Unknown notification type');
     }
