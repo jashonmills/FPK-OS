@@ -6118,6 +6118,50 @@ export type Database = {
         }
         Relationships: []
       }
+      org_api_keys: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          encrypted_key: string
+          id: string
+          is_active: boolean
+          last_verified_at: string | null
+          org_id: string
+          provider: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          encrypted_key: string
+          id?: string
+          is_active?: boolean
+          last_verified_at?: string | null
+          org_id: string
+          provider: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          encrypted_key?: string
+          id?: string
+          is_active?: boolean
+          last_verified_at?: string | null
+          org_id?: string
+          provider?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_api_keys_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       org_assignment_targets: {
         Row: {
           assigned_at: string | null

@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Shield, Users, ScrollText, Cpu, CheckSquare, Activity, FileText, Settings, Wrench } from 'lucide-react';
+import { Shield, Users, ScrollText, Cpu, CheckSquare, Activity, FileText, Settings, Wrench, Key } from 'lucide-react';
 import {
   AIGovernanceOverview,
   AIGovernanceUsers,
   AIGovernanceRules,
   AIGovernanceModels,
   AIGovernanceToolMapping,
+  AIGovernanceBYOK,
   AIGovernanceApprovals,
   AIGovernanceMonitoring,
   AIGovernanceAuditLog,
@@ -22,6 +23,7 @@ const AIGovernancePage: React.FC = () => {
     { id: 'rules', label: 'Rules', icon: ScrollText },
     { id: 'models', label: 'Models', icon: Cpu },
     { id: 'tool-mapping', label: 'Tool Mapping', icon: Wrench },
+    { id: 'byok', label: 'BYOK', icon: Key },
     { id: 'approvals', label: 'Approvals', icon: CheckSquare },
     { id: 'monitoring', label: 'Monitoring', icon: Activity },
     { id: 'audit', label: 'Audit Log', icon: FileText },
@@ -78,6 +80,10 @@ const AIGovernancePage: React.FC = () => {
 
           <TabsContent value="tool-mapping" className="mt-6">
             <AIGovernanceToolMapping />
+          </TabsContent>
+
+          <TabsContent value="byok" className="mt-6">
+            <AIGovernanceBYOK />
           </TabsContent>
 
           <TabsContent value="approvals" className="mt-6">
