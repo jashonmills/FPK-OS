@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import PageShell from "@/components/dashboard/PageShell";
 import { KpiCard } from "@/components/dashboard/KpiCard";
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -18,7 +17,7 @@ import GoalsTab from '@/components/instructor/GoalsTab';
 import NotesTab from '@/components/instructor/NotesTab';
 import AnalyticsTab from '@/components/instructor/AnalyticsTab';
 import CreateOrganizationDialog from '@/components/instructor/CreateOrganizationDialog';
-import { OrgBanner } from '@/components/branding/OrgBanner';
+import { useOrgBranding } from '@/hooks/useOrgBranding';
 import { OrgLogo } from '@/components/branding/OrgLogo';
 
 export default function InstructorDashboard() {
@@ -36,6 +35,7 @@ export default function InstructorDashboard() {
   const { data: members } = useOrgMembers(orgId);
   const { data: statistics } = useOrgStatistics(orgId);
   const { analytics } = useRealtimeOrgAnalytics(orgId);
+  const { data: branding } = useOrgBranding(orgId);
 
   if (isLoading) {
     return (
@@ -75,46 +75,60 @@ export default function InstructorDashboard() {
 
   const tierInfo = SUBSCRIPTION_TIERS[organization.plan];
   const studentCount = members?.filter(m => m.role === 'student' && m.status === 'active').length || 0;
+  const bannerUrl = branding?.banner_url;
 
   return (
-    <PageShell>
-      <div className="p-6">
-        {/* Organization Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <OrgLogo size="lg" />
-            <div>
-              <h1 className="text-2xl font-semibold">{organization.name}</h1>
-              <p className="text-sm text-muted-foreground mt-1">{organization.description}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="text-right">
-              <Badge variant="secondary" className="mb-1">
-                {tierInfo.name} Plan
-              </Badge>
-              <div className="text-sm text-muted-foreground">
-                {studentCount} / {organization.seat_cap} seats used
+    <div className="pt-16 pb-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+        {/* Hero Banner with Org Info */}
+        <div 
+          className="relative rounded-xl overflow-hidden min-h-[180px] sm:min-h-[200px]"
+          style={{
+            backgroundImage: bannerUrl ? `url(${bannerUrl})` : 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary)/0.7) 100%)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        >
+          {/* Overlay for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-transparent" />
+          
+          {/* Content */}
+          <div className="relative z-10 p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between h-full min-h-[180px] sm:min-h-[200px]">
+            <div className="flex items-center gap-4">
+              <div className="bg-white/20 backdrop-blur-sm rounded-xl p-2">
+                <OrgLogo size="lg" />
+              </div>
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-bold text-white">{organization.name}</h1>
+                <p className="text-white/80 text-sm sm:text-base mt-1 max-w-md">{organization.description}</p>
               </div>
             </div>
-            <div className="w-2 h-12 bg-primary/20 rounded-full overflow-hidden">
-              <div 
-                className="w-full bg-primary transition-all duration-300"
-                style={{ 
-                  height: `${Math.min((studentCount / organization.seat_cap) * 100, 100)}%` 
-                }}
-              />
+            
+            <div className="flex items-center gap-4 mt-4 sm:mt-0">
+              <div className="text-right">
+                <Badge variant="secondary" className="mb-1 bg-white/20 text-white border-white/30">
+                  {tierInfo.name} Plan
+                </Badge>
+                <div className="text-sm text-white/80">
+                  {studentCount} / {organization.seat_cap} seats
+                </div>
+              </div>
+              <div className="w-2 h-12 bg-white/20 rounded-full overflow-hidden">
+                <div 
+                  className="w-full bg-white transition-all duration-300"
+                  style={{ 
+                    height: `${Math.min((studentCount / organization.seat_cap) * 100, 100)}%` 
+                  }}
+                />
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Branded Hero Section */}
-        <OrgBanner className="rounded-lg min-h-[160px] mb-6" overlay={false} />
-
-        {/* KPI Row */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+        {/* KPI Row - 2 cols on mobile, 4 on desktop */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <KpiCard 
-            title="Active Students (7d)" 
+            title="Active Students" 
             value={studentCount.toString()} 
             icon={<Users className="h-5 w-5 text-blue-600" />}
           />
@@ -129,42 +143,55 @@ export default function InstructorDashboard() {
             icon={<TrendingUp className="h-5 w-5 text-purple-600" />}
           />
           <KpiCard 
-            title="Learning Hours" 
-            value={`${analytics?.totalLearningHours || 0}h`}
-            icon={<Clock className="h-5 w-5 text-orange-600" />}
-          />
-          <KpiCard 
-            title="Goals Completed" 
+            title="Goals Done" 
             value={statistics?.completedGoals?.toString() || '0'}
             icon={<Target className="h-5 w-5 text-emerald-600" />}
           />
         </div>
 
-        {/* Tabs with translucent panel background */}
-        <div className="rounded-xl bg-white/40 dark:bg-slate-900/40 backdrop-blur-sm ring-1 ring-black/5 dark:ring-white/10 p-4">
+        {/* Tabs with pill style */}
+        <div className="rounded-xl bg-white/60 dark:bg-slate-900/60 backdrop-blur-sm ring-1 ring-black/5 dark:ring-white/10 p-4 sm:p-6">
           <Tabs defaultValue="students" className="w-full">
-            <TabsList className="grid w-full grid-cols-5 mb-6">
-              <TabsTrigger value="students" className="flex items-center gap-2">
-                <Users className="h-4 w-4" />
-                Students
-              </TabsTrigger>
-              <TabsTrigger value="courses" className="flex items-center gap-2">
-                <BookOpen className="h-4 w-4" />
-                Courses
-              </TabsTrigger>
-              <TabsTrigger value="goals" className="flex items-center gap-2">
-                <Target className="h-4 w-4" />
-                Goals
-              </TabsTrigger>
-              <TabsTrigger value="notes" className="flex items-center gap-2">
-                <FileText className="h-4 w-4" />
-                Notes
-              </TabsTrigger>
-              <TabsTrigger value="analytics" className="flex items-center gap-2">
-                <BarChart3 className="h-4 w-4" />
-                Analytics
-              </TabsTrigger>
-            </TabsList>
+            {/* Pill-style tabs with horizontal scroll on mobile */}
+            <div className="flex justify-center overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0">
+              <TabsList className="inline-flex h-12 items-center justify-center rounded-full bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm p-1.5 shadow-lg border border-white/20 gap-1 whitespace-nowrap">
+                <TabsTrigger 
+                  value="students" 
+                  className="rounded-full px-4 py-2 text-sm font-medium transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md flex items-center gap-2"
+                >
+                  <Users className="h-4 w-4" />
+                  <span className="hidden sm:inline">Students</span>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="courses" 
+                  className="rounded-full px-4 py-2 text-sm font-medium transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md flex items-center gap-2"
+                >
+                  <BookOpen className="h-4 w-4" />
+                  <span className="hidden sm:inline">Courses</span>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="goals" 
+                  className="rounded-full px-4 py-2 text-sm font-medium transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md flex items-center gap-2"
+                >
+                  <Target className="h-4 w-4" />
+                  <span className="hidden sm:inline">Goals</span>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="notes" 
+                  className="rounded-full px-4 py-2 text-sm font-medium transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md flex items-center gap-2"
+                >
+                  <FileText className="h-4 w-4" />
+                  <span className="hidden sm:inline">Notes</span>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="analytics" 
+                  className="rounded-full px-4 py-2 text-sm font-medium transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md flex items-center gap-2"
+                >
+                  <BarChart3 className="h-4 w-4" />
+                  <span className="hidden sm:inline">Analytics</span>
+                </TabsTrigger>
+              </TabsList>
+            </div>
 
             <TabsContent value="students">
               <StudentsTab organizationId={orgId} />
@@ -188,6 +215,6 @@ export default function InstructorDashboard() {
           </Tabs>
         </div>
       </div>
-    </PageShell>
+    </div>
   );
 }
