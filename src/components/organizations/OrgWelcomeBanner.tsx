@@ -4,10 +4,12 @@ import { Badge } from '@/components/ui/badge';
 import { OrgLogo } from '@/components/branding/OrgLogo';
 import { useOrgContext } from './OrgContext';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 
 export function OrgWelcomeBanner() {
-  const { currentOrg, isLoading } = useOrgContext();
+  const { currentOrg, isLoading, getEffectiveRole, isImpersonating } = useOrgContext();
   const isMobile = useIsMobile();
+  const effectiveRole = getEffectiveRole();
 
   // Don't show while loading
   if (isLoading) {
@@ -37,8 +39,15 @@ export function OrgWelcomeBanner() {
             {/* Logo and role badge at top */}
             <div className="flex items-center justify-between">
               <OrgLogo size="md" />
-              <Badge variant="secondary" className="text-xs bg-white/20 text-white border-white/30 px-2 py-1">
-                {currentOrg.role.charAt(0).toUpperCase() + currentOrg.role.slice(1)}
+              <Badge 
+                variant="secondary" 
+                className={cn(
+                  "text-xs text-white border-white/30 px-2 py-1",
+                  isImpersonating ? "bg-amber-500/50 border-amber-400/50" : "bg-white/20"
+                )}
+              >
+                {isImpersonating && "Viewing as: "}
+                {effectiveRole ? effectiveRole.charAt(0).toUpperCase() + effectiveRole.slice(1) : 'Unknown'}
               </Badge>
             </div>
             
@@ -66,8 +75,15 @@ export function OrgWelcomeBanner() {
                 </p>
               </div>
             </div>
-            <Badge variant="secondary" className="text-sm bg-white/20 text-white border-white/30">
-              {currentOrg.role.charAt(0).toUpperCase() + currentOrg.role.slice(1)}
+            <Badge 
+              variant="secondary" 
+              className={cn(
+                "text-sm text-white border-white/30",
+                isImpersonating ? "bg-amber-500/50 border-amber-400/50" : "bg-white/20"
+              )}
+            >
+              {isImpersonating && "Viewing as: "}
+              {effectiveRole ? effectiveRole.charAt(0).toUpperCase() + effectiveRole.slice(1) : 'Unknown'}
             </Badge>
           </div>
         )}

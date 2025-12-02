@@ -30,15 +30,16 @@ import { PageHeaderWithHelp } from '@/components/common/PageHeaderWithHelp';
 
 export default function OrgPortalHome() {
   const navigate = useNavigate();
-  const { currentOrg } = useOrgContext();
+  const { currentOrg, getEffectiveRole } = useOrgContext();
   const { data: branding } = useOrgBranding(currentOrg?.organization_id || null);
   const { data: enhancedBranding } = useEnhancedOrgBranding(currentOrg?.organization_id || null);
   const { userStats, isLoading: gamificationLoading } = useGamificationContext();
   const [showProgressModal, setShowProgressModal] = useState(false);
   const [showDetailedAnalytics, setShowDetailedAnalytics] = useState(false);
   
-  // Role-based statistics loading
-  const isStudent = currentOrg?.role === 'student';
+  // Role-based statistics loading - use effective role for impersonation support
+  const effectiveRole = getEffectiveRole();
+  const isStudent = effectiveRole === 'student';
   const { analytics, isLoading: analyticsLoading, error: analyticsError } = useComprehensiveOrgAnalytics(
     isStudent ? undefined : currentOrg?.organization_id
   );
