@@ -5,7 +5,8 @@ import { toast } from 'sonner';
 export interface OrgApiKey {
   id: string;
   org_id: string;
-  provider: 'openai' | 'anthropic' | 'google';
+  provider: string;
+  display_name?: string;
   is_active: boolean;
   last_verified_at: string | null;
   created_at: string;
@@ -22,7 +23,7 @@ export function useOrgApiKeys(orgId?: string | null) {
 
       const { data, error } = await supabase
         .from('org_api_keys')
-        .select('id, org_id, provider, is_active, last_verified_at, created_at, updated_at')
+        .select('id, org_id, provider, display_name, is_active, last_verified_at, created_at, updated_at')
         .eq('org_id', orgId)
         .order('provider');
 
@@ -36,11 +37,13 @@ export function useOrgApiKeys(orgId?: string | null) {
     mutationFn: async ({ 
       provider, 
       encryptedKey,
-      orgId: targetOrgId 
+      orgId: targetOrgId,
+      displayName,
     }: { 
-      provider: 'openai' | 'anthropic' | 'google';
+      provider: string;
       encryptedKey: string;
       orgId: string;
+      displayName?: string;
     }) => {
       // Simple base64 encoding for demo - in production use proper encryption
       const encoded = btoa(encryptedKey);
@@ -50,6 +53,7 @@ export function useOrgApiKeys(orgId?: string | null) {
         .upsert({
           org_id: targetOrgId,
           provider,
+          display_name: displayName || provider,
           encrypted_key: encoded,
           is_active: true,
           last_verified_at: new Date().toISOString(),
