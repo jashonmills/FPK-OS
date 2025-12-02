@@ -43,7 +43,7 @@ const AILearningCoachV2: React.FC = () => {
 
           <div className="flex justify-center">
             <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="inline-flex h-12 items-center justify-center rounded-full bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm p-1.5 shadow-lg border border-white/20">
+              <TabsList className="inline-flex h-12 items-center justify-center rounded-full bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm p-1.5 shadow-lg border border-white/20 gap-1">
                 {tabs.map((tab) => {
                   const Icon = tab.icon;
                   return (
