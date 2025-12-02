@@ -50,7 +50,7 @@ import { useUserRole } from "@/hooks/useUserRole";
 import { useGlobalTranslation } from "@/hooks/useGlobalTranslation";
 import DualLanguageText from "@/components/DualLanguageText";
 import { useOrgContext } from "@/components/organizations/OrgContext";
-import { shouldShowBetaFeatures, shouldShowLibrary, shouldShowLiveHub } from '@/lib/featureFlags';
+import { shouldShowBetaFeatures, shouldShowLibrary, shouldShowLiveHub, shouldUseAILearningCoachV2 } from '@/lib/featureFlags';
 
 // Safe hook that works with or without OrgProvider
 function useSafeOrgContext() {
@@ -185,6 +185,11 @@ export function AppSidebar() {
       url: "/dashboard/admin/teacher-dashboard-v2",
       icon: Sparkles,
     },
+    ...(shouldUseAILearningCoachV2() ? [{
+      title: 'AI Learning Coach V2',
+      url: "/dashboard/admin/ai-learning-coach-v2",
+      icon: BookUser,
+    }] : []),
     {
       title: 'Course Manager',
       url: "/dashboard/admin/courses",
