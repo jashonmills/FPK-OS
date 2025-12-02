@@ -281,15 +281,15 @@ serve(async (req) => {
         console.warn('[UNIFIED-GATEWAY] ⚠️ Failed to create approval request:', approvalError);
       }
 
-      // Log the blocked request
+      // Log the blocked request (resource_id is UUID, so store tool_id in details)
       await serviceClient.from('audit_logs').insert({
         user_id: user.id,
         organization_id: orgId,
         action_type: 'ai_request_blocked',
         resource_type: 'ai_tool',
-        resource_id: toolId,
         status: 'blocked',
         details: {
+          tool_id: toolId,
           violated_rules: violatedRules.map(r => r.name),
           message_preview: message.substring(0, 100)
         }
@@ -513,30 +513,37 @@ ${systemPrompt}`;
       }
     }
 
-    // STEP 13: Log to audit table
-    await serviceClient.from('audit_logs').insert({
-      user_id: user.id,
-      organization_id: orgId || null,
-      action_type: 'ai_request',
-      resource_type: 'ai_tool',
-      resource_id: toolId,
-      status: 'success',
-      details: {
-        session_id: sessionId,
-        model_used: finalModel,
-        message_length: message.length,
-        response_length: responseContent.length,
-        latency_ms: latency,
-        governance_rules_applied: governanceRules.length,
-        knowledge_base_used: !!knowledgeBaseContext,
-        using_byok: usingBYOK,
-        tool_calls_count: toolCalls.length
+    // STEP 13: Log to audit table (fire-and-forget with proper error logging)
+    // Note: resource_id is UUID type, so we store tool_id in details instead
+    try {
+      const { error: auditError } = await serviceClient.from('audit_logs').insert({
+        user_id: user.id,
+        organization_id: orgId || null,
+        action_type: 'ai_request',
+        resource_type: 'ai_tool',
+        status: 'success',
+        details: {
+          tool_id: toolId,
+          session_id: sessionId,
+          model_used: finalModel,
+          message_length: message.length,
+          response_length: responseContent.length,
+          latency_ms: latency,
+          governance_rules_applied: governanceRules.length,
+          knowledge_base_used: !!knowledgeBaseContext,
+          using_byok: usingBYOK,
+          tool_calls_count: toolCalls.length
+        }
+      });
+      
+      if (auditError) {
+        console.error('[UNIFIED-GATEWAY] ❌ Audit log insert error:', auditError.message, auditError.details, auditError.hint);
+      } else {
+        console.log('[UNIFIED-GATEWAY] 📝 Audit log written successfully');
       }
-    }).then(() => {
-      console.log('[UNIFIED-GATEWAY] 📝 Audit log written');
-    }).catch((err) => {
-      console.warn('[UNIFIED-GATEWAY] ⚠️ Audit log failed:', err.message);
-    });
+    } catch (auditCatchError: any) {
+      console.error('[UNIFIED-GATEWAY] ❌ Audit log exception:', auditCatchError.message);
+    }
 
     // STEP 14: Return response
     return new Response(
