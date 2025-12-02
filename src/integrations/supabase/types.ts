@@ -6966,6 +6966,7 @@ export type Database = {
           created_by: string | null
           description: string | null
           id: string
+          messaging_enabled: boolean
           name: string
           org_id: string
           updated_at: string | null
@@ -6975,6 +6976,7 @@ export type Database = {
           created_by?: string | null
           description?: string | null
           id?: string
+          messaging_enabled?: boolean
           name: string
           org_id: string
           updated_at?: string | null
@@ -6984,6 +6986,7 @@ export type Database = {
           created_by?: string | null
           description?: string | null
           id?: string
+          messaging_enabled?: boolean
           name?: string
           org_id?: string
           updated_at?: string | null
@@ -12089,6 +12092,10 @@ export type Database = {
           next_level_xp: number
         }[]
       }
+      can_students_message: {
+        Args: { p_org_id: string; p_student1_id: string; p_student2_id: string }
+        Returns: boolean
+      }
       check_rate_limit: {
         Args: {
           p_action_type: string
@@ -12358,6 +12365,10 @@ export type Database = {
           time_spent_today_minutes: number
         }[]
       }
+      get_org_user_role: {
+        Args: { p_org_id: string; p_user_id: string }
+        Returns: string
+      }
       get_organization_analytics: { Args: { p_org_id: string }; Returns: Json }
       get_organization_leaderboard: {
         Args: never
@@ -12625,6 +12636,10 @@ export type Database = {
       }
       is_conversation_participant: {
         Args: { _conversation_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_org_educator: {
+        Args: { p_org_id: string; p_user_id: string }
         Returns: boolean
       }
       is_org_member: {

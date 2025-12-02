@@ -1,9 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Switch } from '@/components/ui/switch';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useOrgGroups, type OrgGroup } from '@/hooks/useOrgGroups';
-import { Users, MoreHorizontal, Edit, Trash2, UserPlus, BookOpen } from 'lucide-react';
+import { Users, MoreHorizontal, Edit, Trash2, UserPlus, BookOpen, MessageSquare } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useOrgContext } from '@/components/organizations/OrgContext';
 import { GroupCourseAssignmentDialog } from '@/components/org/groups/GroupCourseAssignmentDialog';
@@ -15,7 +16,7 @@ interface GroupCardProps {
 }
 
 export function GroupCard({ group }: GroupCardProps) {
-  const { deleteGroup, updateGroup, isDeleting, isUpdating } = useOrgGroups();
+  const { deleteGroup, updateGroup, toggleMessaging, isDeleting, isUpdating, isTogglingMessaging } = useOrgGroups();
   const navigate = useNavigate();
   const { currentOrg } = useOrgContext();
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
@@ -29,6 +30,13 @@ export function GroupCard({ group }: GroupCardProps) {
 
   const handleManageMembers = () => {
     navigate(`/org/${currentOrg?.organization_id}/groups/${group.id}`);
+  };
+
+  const handleToggleMessaging = () => {
+    toggleMessaging({
+      groupId: group.id,
+      enabled: !group.messaging_enabled
+    });
   };
 
   return (
@@ -58,6 +66,15 @@ export function GroupCard({ group }: GroupCardProps) {
                 <Edit className="w-4 h-4 mr-2" />
                 Edit Group
               </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem 
+                onClick={handleToggleMessaging}
+                disabled={isTogglingMessaging}
+              >
+                <MessageSquare className="w-4 h-4 mr-2" />
+                {group.messaging_enabled ? 'Disable Student Messaging' : 'Enable Student Messaging'}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               <DropdownMenuItem 
                 onClick={handleDelete} 
                 disabled={isDeleting}
@@ -75,10 +92,22 @@ export function GroupCard({ group }: GroupCardProps) {
           <p className="text-sm text-orange-100/80">{group.description}</p>
         )}
         
-        <div className="flex items-center justify-between">
-          <Badge variant="outline" className="bg-orange-500/20 text-orange-200 border-orange-400/30">
-            {group.member_count || 0} members
-          </Badge>
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="bg-orange-500/20 text-orange-200 border-orange-400/30">
+              {group.member_count || 0} members
+            </Badge>
+            
+            {group.messaging_enabled && (
+              <Badge 
+                variant="outline" 
+                className="bg-green-500/20 text-green-200 border-green-400/30 flex items-center gap-1"
+              >
+                <MessageSquare className="w-3 h-3" />
+                Messaging On
+              </Badge>
+            )}
+          </div>
           
           <div className="text-xs text-orange-200/60">
             Created {new Date(group.created_at).toLocaleDateString()}
@@ -99,6 +128,7 @@ export function GroupCard({ group }: GroupCardProps) {
         groupId={group.id}
         groupName={group.name}
         groupDescription={group.description}
+        messagingEnabled={group.messaging_enabled}
         onUpdate={updateGroup}
         isUpdating={isUpdating}
       />
