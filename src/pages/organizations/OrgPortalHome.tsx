@@ -358,7 +358,7 @@ export default function OrgPortalHome() {
               </Button>
               <Button 
                 variant="outline" 
-                className="flex items-center space-x-2 border-white/30 text-white hover:bg-white/20"
+                className="flex items-center space-x-2 bg-transparent border-white/30 text-white hover:bg-white/20"
                 onClick={() => navigate(`/org/${currentOrg?.organization_id}/courses`)}
               >
                 <BookOpen className="h-4 w-4" />
@@ -366,7 +366,7 @@ export default function OrgPortalHome() {
               </Button>
               <Button 
                 variant="outline" 
-                className="flex items-center space-x-2 border-white/30 text-white hover:bg-white/20"
+                className="flex items-center space-x-2 bg-transparent border-white/30 text-white hover:bg-white/20"
                 onClick={() => navigate(`/org/${currentOrg?.organization_id}/goals-notes`)}
               >
                 <Target className="h-4 w-4" />
@@ -374,7 +374,7 @@ export default function OrgPortalHome() {
               </Button>
               <Button 
                 variant="outline" 
-                className="flex items-center space-x-2 border-white/30 text-white hover:bg-white/20"
+                className="flex items-center space-x-2 bg-transparent border-white/30 text-white hover:bg-white/20"
                 onClick={() => navigate(`/org/${currentOrg?.organization_id}/groups`)}
               >
                 <Users className="h-4 w-4" />
