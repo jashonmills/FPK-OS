@@ -5,8 +5,12 @@ import { Button } from '@/components/ui/button';
 import { useAIGovernanceApprovals } from '@/hooks/useAIGovernanceApprovals';
 import { supabase } from '@/integrations/supabase/client';
 
-const AIGovernanceApprovals: React.FC = () => {
-  const { pendingApprovals, isLoading, approveRequest, rejectRequest } = useAIGovernanceApprovals();
+interface AIGovernanceApprovalsProps {
+  orgId?: string;
+}
+
+const AIGovernanceApprovals: React.FC<AIGovernanceApprovalsProps> = ({ orgId }) => {
+  const { pendingApprovals, isLoading, approveRequest, rejectRequest } = useAIGovernanceApprovals(orgId);
 
   const handleApprove = async (id: string) => {
     const { data: { user } } = await supabase.auth.getUser();

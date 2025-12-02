@@ -3,8 +3,12 @@ import { motion } from 'framer-motion';
 import { Users, Shield, Activity, CheckCircle, XCircle, Clock, TrendingUp, Loader2 } from 'lucide-react';
 import { useAIGovernanceStats } from '@/hooks/useAIGovernanceStats';
 
-const AIGovernanceOverview: React.FC = () => {
-  const { stats, recentActivity, isLoading } = useAIGovernanceStats();
+interface AIGovernanceOverviewProps {
+  orgId?: string;
+}
+
+const AIGovernanceOverview: React.FC<AIGovernanceOverviewProps> = ({ orgId }) => {
+  const { stats, recentActivity, isLoading } = useAIGovernanceStats(orgId);
 
   const statCards = [
     { label: 'Total Users', value: stats.totalUsers, icon: Users, color: 'from-blue-500 to-indigo-600' },

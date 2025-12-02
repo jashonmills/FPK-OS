@@ -36,8 +36,13 @@ interface TestResponse {
   error?: string;
 }
 
-const AIGovernanceTestPanel: React.FC = () => {
-  const [selectedOrgId, setSelectedOrgId] = useState<string | null>(null);
+interface AIGovernanceTestPanelProps {
+  orgId?: string;
+}
+
+const AIGovernanceTestPanel: React.FC<AIGovernanceTestPanelProps> = ({ orgId: propOrgId }) => {
+  const [selectedOrgId, setSelectedOrgId] = useState<string | null>(propOrgId || null);
+  const effectiveOrgId = propOrgId || selectedOrgId;
   const [selectedToolId, setSelectedToolId] = useState<string>('');
   const [testMessage, setTestMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -62,23 +67,23 @@ const AIGovernanceTestPanel: React.FC = () => {
   });
 
   // Get KB and BYOK status for selected org
-  const { documents: kbDocs } = useOrgKnowledgeBase(selectedOrgId);
-  const { keys: apiKeys } = useOrgApiKeys(selectedOrgId);
+  const { documents: kbDocs } = useOrgKnowledgeBase(effectiveOrgId);
+  const { keys: apiKeys } = useOrgApiKeys(effectiveOrgId);
 
   // Fetch governance rules for selected org
   const { data: governanceRules = [] } = useQuery({
-    queryKey: ['governance-rules-for-testing', selectedOrgId],
+    queryKey: ['governance-rules-for-testing', effectiveOrgId],
     queryFn: async () => {
-      if (!selectedOrgId) return [];
+      if (!effectiveOrgId) return [];
       const { data, error } = await supabase
         .from('ai_governance_rules')
         .select('*')
-        .or(`org_id.eq.${selectedOrgId},org_id.is.null`);
+        .or(`org_id.eq.${effectiveOrgId},org_id.is.null`);
       
       if (error) throw error;
       return data || [];
     },
-    enabled: !!selectedOrgId
+    enabled: !!effectiveOrgId
   });
 
   const handleSendTest = async () => {
@@ -99,7 +104,7 @@ const AIGovernanceTestPanel: React.FC = () => {
       const response = await supabase.functions.invoke('unified-ai-gateway', {
         body: {
           toolId: selectedToolId,
-          orgId: selectedOrgId,
+          orgId: effectiveOrgId,
           message: testMessage,
           messageHistory: []
         }
@@ -128,7 +133,7 @@ const AIGovernanceTestPanel: React.FC = () => {
   };
 
   const seedTestKnowledgeBase = async () => {
-    if (!selectedOrgId) {
+    if (!effectiveOrgId) {
       toast.error('Please select an organization first');
       return;
     }
@@ -168,7 +173,7 @@ Our organization follows evidence-based teaching practices with a focus on:
       const { error } = await supabase
         .from('org_knowledge_base')
         .insert({
-          org_id: selectedOrgId,
+          org_id: effectiveOrgId,
           title: 'Test Curriculum Guidelines',
           file_name: 'test-curriculum-guidelines.md',
           file_type: 'text/markdown',
@@ -187,7 +192,7 @@ Our organization follows evidence-based teaching practices with a focus on:
   };
 
   const seedTestGovernanceRule = async () => {
-    if (!selectedOrgId) {
+    if (!effectiveOrgId) {
       toast.error('Please select an organization first');
       return;
     }
@@ -199,7 +204,7 @@ Our organization follows evidence-based teaching practices with a focus on:
       const { error } = await supabase
         .from('ai_governance_rules')
         .insert({
-          org_id: selectedOrgId,
+          org_id: effectiveOrgId,
           name: 'Test Block: Creative Fiction',
           description: 'AI should not generate creative fiction or fantasy stories for testing purposes',
           category: 'Content Generation',
@@ -218,7 +223,7 @@ Our organization follows evidence-based teaching practices with a focus on:
   };
 
   const seedTestBYOK = async () => {
-    if (!selectedOrgId) {
+    if (!effectiveOrgId) {
       toast.error('Please select an organization first');
       return;
     }
@@ -229,7 +234,7 @@ Our organization follows evidence-based teaching practices with a focus on:
       const { error } = await supabase
         .from('org_api_keys')
         .upsert({
-          org_id: selectedOrgId,
+          org_id: effectiveOrgId,
           provider: 'openai',
           encrypted_key: btoa('sk-test-placeholder-key-for-routing-validation'),
           is_active: false, // Inactive so it won't break actual requests
@@ -253,10 +258,12 @@ Our organization follows evidence-based teaching practices with a focus on:
 
   return (
     <div className="space-y-6">
-      <PlatformAdminOrgSelector
-        selectedOrgId={selectedOrgId}
-        onOrgChange={setSelectedOrgId}
-      />
+      {!propOrgId && (
+        <PlatformAdminOrgSelector
+          selectedOrgId={selectedOrgId}
+          onOrgChange={setSelectedOrgId}
+        />
+      )}
 
       {/* Status Overview */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -339,7 +346,7 @@ Our organization follows evidence-based teaching practices with a focus on:
                 variant="outline"
                 size="sm"
                 onClick={seedTestKnowledgeBase}
-                disabled={!selectedOrgId || seedingKB}
+                disabled={!effectiveOrgId || seedingKB}
               >
                 {seedingKB ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
                 Add
@@ -369,7 +376,7 @@ Our organization follows evidence-based teaching practices with a focus on:
                 variant="outline"
                 size="sm"
                 onClick={seedTestGovernanceRule}
-                disabled={!selectedOrgId || seedingRule}
+                disabled={!effectiveOrgId || seedingRule}
               >
                 {seedingRule ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
                 Add
@@ -399,7 +406,7 @@ Our organization follows evidence-based teaching practices with a focus on:
                 variant="outline"
                 size="sm"
                 onClick={seedTestBYOK}
-                disabled={!selectedOrgId || seedingBYOK}
+                disabled={!effectiveOrgId || seedingBYOK}
               >
                 {seedingBYOK ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
                 Add
@@ -444,7 +451,7 @@ Our organization follows evidence-based teaching practices with a focus on:
             <div className="space-y-2">
               <Label>Organization Context</Label>
               <div className="h-10 px-3 py-2 bg-muted rounded-md text-sm flex items-center">
-                {selectedOrgId ? 'Organization-scoped request' : 'Platform-level request (no org)'}
+                {effectiveOrgId ? 'Organization-scoped request' : 'Platform-level request (no org)'}
               </div>
             </div>
           </div>

@@ -16,14 +16,19 @@ const DEFAULT_PROVIDERS = [
   { id: 'google', name: 'Google AI', description: 'Gemini Pro, Gemini Flash' },
 ];
 
-const AIGovernanceBYOK: React.FC = () => {
-  const [selectedOrgId, setSelectedOrgId] = useState<string | null>(null);
+interface AIGovernanceBYOKProps {
+  orgId?: string;
+}
+
+const AIGovernanceBYOK: React.FC<AIGovernanceBYOKProps> = ({ orgId: propOrgId }) => {
+  const [selectedOrgId, setSelectedOrgId] = useState<string | null>(propOrgId || null);
+  const effectiveOrgId = propOrgId || selectedOrgId;
   const [newKeys, setNewKeys] = useState<Record<string, string>>({});
   const [showKeys, setShowKeys] = useState<Record<string, boolean>>({});
   const [isAddProviderOpen, setIsAddProviderOpen] = useState(false);
   const [newProvider, setNewProvider] = useState({ id: '', name: '', description: '', key: '' });
 
-  const { keys, isLoading, upsertKey, deleteKey, toggleKey, getKeyForProvider } = useOrgApiKeys(selectedOrgId);
+  const { keys, isLoading, upsertKey, deleteKey, toggleKey, getKeyForProvider } = useOrgApiKeys(effectiveOrgId);
 
   // Get custom providers (those not in DEFAULT_PROVIDERS)
   const customProviders = keys.filter(
@@ -38,32 +43,32 @@ const AIGovernanceBYOK: React.FC = () => {
 
   const handleSaveKey = async (provider: string) => {
     const key = newKeys[provider];
-    if (!key || !selectedOrgId) return;
+    if (!key || !effectiveOrgId) return;
 
     const providerInfo = allProviders.find(p => p.id === provider);
     await upsertKey.mutateAsync({ 
       provider, 
       encryptedKey: key, 
-      orgId: selectedOrgId,
+      orgId: effectiveOrgId,
       displayName: providerInfo?.name,
     });
     setNewKeys(prev => ({ ...prev, [provider]: '' }));
   };
 
   const handleDeleteKey = async (provider: string) => {
-    if (!selectedOrgId) return;
-    await deleteKey.mutateAsync({ provider, orgId: selectedOrgId });
+    if (!effectiveOrgId) return;
+    await deleteKey.mutateAsync({ provider, orgId: effectiveOrgId });
   };
 
   const handleAddCustomProvider = async () => {
-    if (!selectedOrgId || !newProvider.id || !newProvider.name || !newProvider.key) return;
+    if (!effectiveOrgId || !newProvider.id || !newProvider.name || !newProvider.key) return;
 
     const providerId = newProvider.id.toLowerCase().replace(/[^a-z0-9]/g, '_');
     
     await upsertKey.mutateAsync({
       provider: providerId,
       encryptedKey: newProvider.key,
-      orgId: selectedOrgId,
+      orgId: effectiveOrgId,
       displayName: newProvider.name,
     });
 
@@ -73,12 +78,14 @@ const AIGovernanceBYOK: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <PlatformAdminOrgSelector
-        selectedOrgId={selectedOrgId}
-        onOrgChange={setSelectedOrgId}
-      />
+      {!propOrgId && (
+        <PlatformAdminOrgSelector
+          selectedOrgId={selectedOrgId}
+          onOrgChange={setSelectedOrgId}
+        />
+      )}
 
-      {!selectedOrgId ? (
+      {!effectiveOrgId ? (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">

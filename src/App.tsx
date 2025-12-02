@@ -14,7 +14,7 @@ import RequireAdmin from '@/components/guards/RequireAdmin';
 import { performanceMonitor } from '@/utils/performanceMonitor';
 import { logger } from '@/utils/logger';
 import { setupGlobalScrollRestoration } from '@/utils/globalScrollManager';
-import { shouldShowBetaFeatures, shouldShowLegacyAIAssistant, shouldUseNewTeacherDashboard, shouldUseAILearningCoachV2 } from '@/lib/featureFlags';
+import { shouldShowBetaFeatures, shouldShowLegacyAIAssistant, shouldUseNewTeacherDashboard, shouldUseAILearningCoachV2, shouldShowAIGovernance } from '@/lib/featureFlags';
 import "@/styles/mobile-responsive.css";
 import "./App.css";
 
@@ -166,6 +166,7 @@ const GoalsManagement = lazy(() => import("./pages/org/goals"));
 const NotesManagementNew = lazy(() => import("./pages/instructor/NotesManagementNew"));
 const GoalsAndNotes = lazy(() => import("./pages/org/GoalsAndNotes"));
 const OrgAIStudyCoach = lazy(() => import("./pages/org/AIStudyCoach"));
+const OrgAIGovernance = lazy(() => import("./pages/org/OrgAIGovernance"));
 const AnalyticsOverview = lazy(() => import("./pages/instructor/AnalyticsOverview"));
 const OrgSettingsTabs = lazy(() => import("./pages/instructor/OrganizationSettingsTabs"));
 const Subscription = lazy(() => import("./pages/dashboard/Subscription"));
@@ -876,6 +877,9 @@ const App: React.FC = () => {
             <Route path=":orgId/goals-notes" element={<LazyRoute><GoalsAndNotes /></LazyRoute>} />
             {shouldShowLegacyAIAssistant() && (
               <Route path=":orgId/ai-coach" element={<LazyRoute><OrgAIStudyCoach /></LazyRoute>} />
+            )}
+            {shouldShowAIGovernance() && (
+              <Route path=":orgId/ai-governance" element={<LazyRoute><OrgAIGovernance /></LazyRoute>} />
             )}
             <Route path=":orgId/analytics/courses/:courseId" element={<LazyRoute><CourseAnalytics /></LazyRoute>} />
             <Route path=":orgId/website" element={<LazyRoute><OrgWebsitePage /></LazyRoute>} />
