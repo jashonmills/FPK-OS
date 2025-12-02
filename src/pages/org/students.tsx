@@ -44,10 +44,10 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 
 export default function StudentsPage() {
-  const { currentOrg, getUserRole } = useOrgContext();
+  const { currentOrg, getEffectiveRole } = useOrgContext();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const userRole = getUserRole();
+  const userRole = getEffectiveRole();
   const orgId = assertOrg();
   
   const [searchQuery, setSearchQuery] = useState('');

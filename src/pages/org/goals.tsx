@@ -76,9 +76,9 @@ const categories = [
 
 export default function GoalsPage() {
   const { user, loading: authLoading } = useAuth();
-  const { currentOrg, getUserRole } = useOrgContext();
+  const { currentOrg, getEffectiveRole } = useOrgContext();
   const { toast } = useToast();
-  const userRole = getUserRole();
+  const userRole = getEffectiveRole();
   const [searchQuery, setSearchQuery] = useState('');
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState<OrgGoal | null>(null);

@@ -19,7 +19,7 @@ import OrgNoteEditDialog from '@/components/organizations/OrgNoteEditDialog';
 import { ContextualHelpButton } from '@/components/common/ContextualHelpButton';
 
 export default function GoalsAndNotes() {
-  const { currentOrg } = useOrgContext();
+  const { currentOrg, getEffectiveRole } = useOrgContext();
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStudent, setFilterStudent] = useState('all');
@@ -32,8 +32,8 @@ export default function GoalsAndNotes() {
   const { notes, isLoading: notesLoading, updateNote, isUpdating } = useOrgNotes(currentOrg?.organization_id);
   const { students } = useOrgStudents(currentOrg?.organization_id || '');
   
-  // Determine user role
-  const userRole = currentOrg?.role || 'student';
+  // Determine user role (respects "View As" impersonation)
+  const userRole = getEffectiveRole() || 'student';
   const isStudent = userRole === 'student';
 
   // Filter notes based on search and filters

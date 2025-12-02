@@ -33,10 +33,10 @@ const orgSettingsSchema = z.object({
 type OrgSettingsFormData = z.infer<typeof orgSettingsSchema>;
 
 export default function OrgSettingsPage() {
-  const { currentOrg, getUserRole } = useOrgContext();
+  const { currentOrg, getEffectiveRole } = useOrgContext();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const userRole = getUserRole();
+  const userRole = getEffectiveRole();
 
   // Sanitize organization name for display
   const sanitizeOrgName = (name: string) => {
