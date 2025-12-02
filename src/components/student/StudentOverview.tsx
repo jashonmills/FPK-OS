@@ -1,14 +1,28 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { BookOpen, CheckCircle, Clock, TrendingUp } from 'lucide-react';
+import { BookOpen, CheckCircle, Clock, TrendingUp, Loader2 } from 'lucide-react';
+import { useStudentAIAnalytics } from '@/hooks/useStudentAIAnalytics';
+import { useSearchParams } from 'react-router-dom';
 
 const StudentOverview: React.FC = () => {
-  const stats = [
-    { label: 'AI Tasks Used', value: 24, icon: BookOpen, color: 'from-blue-500 to-indigo-600' },
-    { label: 'Approved', value: 18, icon: CheckCircle, color: 'from-green-500 to-emerald-600' },
-    { label: 'Pending', value: 3, icon: Clock, color: 'from-orange-500 to-red-600' },
-    { label: 'Learning Progress', value: '78%', icon: TrendingUp, color: 'from-purple-500 to-pink-600' },
+  const [searchParams] = useSearchParams();
+  const orgId = searchParams.get('org') || undefined;
+  const { stats, recentActivities, isLoading } = useStudentAIAnalytics(orgId);
+
+  const statCards = [
+    { label: 'AI Tasks Used', value: stats.totalAITasks, icon: BookOpen, color: 'from-blue-500 to-indigo-600' },
+    { label: 'Approved', value: stats.approvedCount, icon: CheckCircle, color: 'from-green-500 to-emerald-600' },
+    { label: 'Pending', value: stats.pendingCount, icon: Clock, color: 'from-orange-500 to-red-600' },
+    { label: 'Learning Progress', value: `${stats.learningProgress}%`, icon: TrendingUp, color: 'from-purple-500 to-pink-600' },
   ];
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -18,7 +32,7 @@ const StudentOverview: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => {
+        {statCards.map((stat, index) => {
           const Icon = stat.icon;
           return (
             <motion.div
@@ -40,28 +54,34 @@ const StudentOverview: React.FC = () => {
 
       <div className="bg-card rounded-xl shadow-sm border border-border p-6">
         <h3 className="text-lg font-semibold text-foreground mb-4">Recent AI Activities</h3>
-        <div className="space-y-3">
-          {[
-            { task: 'Essay writing assistance', subject: 'English', status: 'approved', time: '1 hour ago' },
-            { task: 'Math problem solving', subject: 'Mathematics', status: 'approved', time: '3 hours ago' },
-            { task: 'Research helper', subject: 'History', status: 'pending', time: '5 hours ago' },
-          ].map((item, idx) => (
-            <div key={idx} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-              <div>
-                <p className="font-medium text-foreground">{item.task}</p>
-                <p className="text-sm text-muted-foreground">{item.subject}</p>
+        {recentActivities.length === 0 ? (
+          <p className="text-muted-foreground text-center py-8">
+            No recent activities yet. Start using AI tools to see your activity here!
+          </p>
+        ) : (
+          <div className="space-y-3">
+            {recentActivities.map((item) => (
+              <div key={item.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                <div>
+                  <p className="font-medium text-foreground">{item.task}</p>
+                  <p className="text-sm text-muted-foreground">{item.subject}</p>
+                </div>
+                <div className="text-right">
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium capitalize ${
+                    item.status === 'completed' 
+                      ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
+                      : item.status === 'approved'
+                      ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                      : 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
+                  }`}>
+                    {item.status}
+                  </span>
+                  <p className="text-xs text-muted-foreground mt-1">{item.time}</p>
+                </div>
               </div>
-              <div className="text-right">
-                <span className={`px-2 py-1 rounded-full text-xs font-medium capitalize ${
-                  item.status === 'approved' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
-                }`}>
-                  {item.status}
-                </span>
-                <p className="text-xs text-muted-foreground mt-1">{item.time}</p>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
