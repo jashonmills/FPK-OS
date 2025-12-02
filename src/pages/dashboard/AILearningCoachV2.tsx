@@ -1,16 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Brain, LayoutDashboard, BookOpen, ClipboardList } from 'lucide-react';
 import StudentPanel from '@/components/student/StudentPanel';
 
 const AILearningCoachV2: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
+  const [searchParams] = useSearchParams();
+  const orgId = searchParams.get('org');
+  const isOrgContext = !!orgId;
 
-  const tabs = [
-    { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-    { id: 'learning', label: 'Learning Tools', icon: BookOpen },
-    { id: 'requests', label: 'My Requests', icon: ClipboardList },
-  ];
+  // Only show "My Requests" tab for organization users
+  const tabs = useMemo(() => {
+    const baseTabs = [
+      { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+      { id: 'learning', label: 'Learning Tools', icon: BookOpen },
+    ];
+
+    if (isOrgContext) {
+      baseTabs.push({ id: 'requests', label: 'My Requests', icon: ClipboardList });
+    }
+
+    return baseTabs;
+  }, [isOrgContext]);
 
   return (
     <div className="bg-background pt-16">

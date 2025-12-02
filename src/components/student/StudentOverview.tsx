@@ -7,14 +7,21 @@ import { useSearchParams } from 'react-router-dom';
 const StudentOverview: React.FC = () => {
   const [searchParams] = useSearchParams();
   const orgId = searchParams.get('org') || undefined;
+  const isOrgContext = !!orgId;
   const { stats, recentActivities, isLoading } = useStudentAIAnalytics(orgId);
 
-  const statCards = [
-    { label: 'AI Tasks Used', value: stats.totalAITasks, icon: BookOpen, color: 'from-blue-500 to-indigo-600' },
-    { label: 'Approved', value: stats.approvedCount, icon: CheckCircle, color: 'from-green-500 to-emerald-600' },
-    { label: 'Pending', value: stats.pendingCount, icon: Clock, color: 'from-orange-500 to-red-600' },
-    { label: 'Learning Progress', value: `${stats.learningProgress}%`, icon: TrendingUp, color: 'from-purple-500 to-pink-600' },
-  ];
+  // For personal users, show different stats (no governance/approval stats)
+  const statCards = isOrgContext
+    ? [
+        { label: 'AI Tasks Used', value: stats.totalAITasks, icon: BookOpen, color: 'from-blue-500 to-indigo-600' },
+        { label: 'Approved', value: stats.approvedCount, icon: CheckCircle, color: 'from-green-500 to-emerald-600' },
+        { label: 'Pending', value: stats.pendingCount, icon: Clock, color: 'from-orange-500 to-red-600' },
+        { label: 'Learning Progress', value: `${stats.learningProgress}%`, icon: TrendingUp, color: 'from-purple-500 to-pink-600' },
+      ]
+    : [
+        { label: 'AI Sessions', value: stats.totalAITasks, icon: BookOpen, color: 'from-blue-500 to-indigo-600' },
+        { label: 'Learning Progress', value: `${stats.learningProgress}%`, icon: TrendingUp, color: 'from-purple-500 to-pink-600' },
+      ];
 
   if (isLoading) {
     return (
@@ -31,7 +38,7 @@ const StudentOverview: React.FC = () => {
         <p className="text-muted-foreground mt-1">Track your AI-assisted learning journey</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className={`grid grid-cols-1 md:grid-cols-2 ${isOrgContext ? 'lg:grid-cols-4' : 'lg:grid-cols-2'} gap-6`}>
         {statCards.map((stat, index) => {
           const Icon = stat.icon;
           return (
