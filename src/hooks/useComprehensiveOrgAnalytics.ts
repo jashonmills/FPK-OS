@@ -53,13 +53,16 @@ export function useComprehensiveOrgAnalytics(organizationId?: string) {
 
         if (membersError) throw membersError;
 
-        // Get profile-only students from org_students
+        // Get profile-only students from org_students (only those WITHOUT linked accounts)
         const { data: orgStudents, error: studentsError } = await supabase
           .from('org_students')
-          .select('id', { count: 'exact' })
+          .select('id, linked_user_id')
           .eq('org_id', organizationId);
 
         if (studentsError) throw studentsError;
+        
+        // Only count students without linked accounts as "profile-only" to avoid double-counting
+        const profileOnlyStudentCount = orgStudents?.filter(s => !s.linked_user_id).length || 0;
 
         // Get course assignments
         const { count: courseAssignments } = await supabase
@@ -107,15 +110,19 @@ export function useComprehensiveOrgAnalytics(organizationId?: string) {
 
         // Calculate active students: users who have actually engaged with courses
         const memberUserIds = new Set(orgMembers?.map(m => m.user_id) || []);
-        const profileOnlyStudents = orgStudents?.length || 0;
         
-        // Count enrolled users who aren't already in org_members
+        // Get linked user IDs from org_students to avoid double counting
+        const linkedUserIds = new Set(
+          orgStudents?.filter(s => s.linked_user_id).map(s => s.linked_user_id) || []
+        );
+        
+        // Count enrolled users who aren't already in org_members or linked from org_students
         const additionalEnrolledUsers = Array.from(uniqueActiveUsers).filter(
-          userId => !memberUserIds.has(userId)
+          userId => !memberUserIds.has(userId) && !linkedUserIds.has(userId)
         ).length;
         
-        // Update totals to include all engaged users
-        const totalStudents = (orgMembers?.length || 0) + profileOnlyStudents + additionalEnrolledUsers;
+        // Update totals: org_members + profile-only students (no linked account) + additional enrolled users
+        const totalStudents = (orgMembers?.length || 0) + profileOnlyStudentCount + additionalEnrolledUsers;
         const activeStudents = uniqueActiveUsers.size; // Users who have actually engaged with courses
 
         // Get IEP count - iep_documents doesn't have org_id, skip for now
@@ -144,7 +151,7 @@ export function useComprehensiveOrgAnalytics(organizationId?: string) {
         return {
           totalStudents,
           activeStudents,
-          profileOnlyStudents,
+          profileOnlyStudents: profileOnlyStudentCount,
           courseAssignments: courseAssignments || 0,
           activeGoals,
           completedGoals,
