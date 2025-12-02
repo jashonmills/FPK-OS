@@ -24,9 +24,9 @@ const TeacherDashboardV2: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pt-16">
+    <div className="bg-background pt-16">
       {/* Header */}
-      <div className="border-b border-border bg-card">
+      <div className="border-b border-border bg-card sticky top-16 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div>
@@ -71,7 +71,7 @@ const TeacherDashboardV2: React.FC = () => {
       </div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 min-h-[calc(100vh-12rem)]">
         <TeacherPanel activeTab={activeTab} setActiveTab={setActiveTab} />
       </div>
     </div>

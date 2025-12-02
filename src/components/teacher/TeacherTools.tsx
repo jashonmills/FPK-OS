@@ -109,7 +109,7 @@ const TeacherTools: React.FC = () => {
   };
 
   return (
-    <div className="h-[calc(100vh-8rem)]">
+    <div className="pb-8">
       <AnimatePresence mode="wait">
         {!activeTool ? (
           <motion.div
