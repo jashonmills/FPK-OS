@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { trackDailyActivity } from '@/utils/analyticsTracking';
 import { getActiveOrgId } from '@/lib/org/context';
+import { useXPIntegration } from './useXPIntegration';
 import type { Json } from '@/integrations/supabase/types';
 
 interface InteractionData {
@@ -38,6 +39,12 @@ export const useInteractiveCourseAnalytics = (courseId: string, courseTitle: str
   
   // Get organization context
   const orgId = getActiveOrgId();
+  
+  // XP integration for awarding XP on lesson/course completion
+  const { awardModuleCompletionXP } = useXPIntegration();
+  
+  // Track if course completion XP was already awarded
+  const courseCompletionXPAwarded = useRef(false);
 
   // Start course session - with loading protection
   const startCourseSession = useCallback(async (sessionType: 'overview' | 'lesson' | 'completion', lessonId?: number) => {
@@ -242,12 +249,20 @@ export const useInteractiveCourseAnalytics = (courseId: string, courseTitle: str
 
       // Track daily activity
       await trackDailyActivity('study', timeSpentMinutes, user.id, orgId);
+      
+      // Award XP for lesson completion (50 XP per lesson)
+      try {
+        await awardModuleCompletionXP(`${courseId}-lesson-${currentLessonAnalytics.lessonId}`);
+        console.log('🎮 XP awarded for lesson completion:', currentLessonAnalytics.lessonTitle);
+      } catch (error) {
+        console.warn('Failed to award XP for lesson completion:', error);
+      }
     } catch (error) {
       console.error('Error completing lesson analytics:', error);
     }
 
     setCurrentLessonAnalytics(null);
-  }, [user, currentLessonAnalytics, courseId]);
+  }, [user, currentLessonAnalytics, courseId, orgId, awardModuleCompletionXP]);
 
   // Track interaction
   const trackInteraction = useCallback((interactionType: string, data: Record<string, unknown>) => {
@@ -360,11 +375,22 @@ export const useInteractiveCourseAnalytics = (courseId: string, courseTitle: str
           course_id: courseId,
           course_title: courseTitle
         }, user.id);
+        
+        // Award course completion XP (200 XP bonus) - only once
+        if (!courseCompletionXPAwarded.current) {
+          courseCompletionXPAwarded.current = true;
+          try {
+            await awardModuleCompletionXP(`${courseId}-course-complete`);
+            console.log('🎮 Bonus XP awarded for course completion:', courseTitle);
+          } catch (error) {
+            console.warn('Failed to award XP for course completion:', error);
+          }
+        }
       }
     } catch (error) {
       console.error('Error updating course progress:', error);
     }
-  }, [user, courseId, courseTitle]);
+  }, [user, courseId, courseTitle, awardModuleCompletionXP]);
 
   // Auto-end session on component unmount - fixed cleanup
   useEffect(() => {

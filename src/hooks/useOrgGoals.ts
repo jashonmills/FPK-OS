@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { assertOrg } from '@/lib/org/context';
 import { trackOrgActivity } from '@/utils/analyticsTracking';
+import { notifyInstructorsOfGoalCompletion } from '@/utils/notificationTriggers';
 
 export interface OrgGoal {
   id: string;
@@ -176,8 +177,30 @@ export function useOrgGoals(organizationId?: string) {
       
       return data;
     },
-    onSuccess: () => {
+    onSuccess: async (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['org-goals'] });
+      
+      // Check if this was a goal completion
+      if (variables.status === 'completed' && orgId) {
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('id', user.id)
+            .single();
+          
+          await notifyInstructorsOfGoalCompletion(
+            orgId,
+            user.id,
+            profile?.full_name || user.email || 'Student',
+            data.id,
+            data.title
+          );
+        }
+      }
+      
       toast({
         title: "Success",
         description: "Goal updated successfully.",
