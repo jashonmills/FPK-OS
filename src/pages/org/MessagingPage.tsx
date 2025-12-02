@@ -52,7 +52,7 @@ export default function MessagingPage() {
   const showList = !isMobile || !conversationId;
 
   return (
-    <div className="h-[calc(100vh-8rem)] flex flex-col">
+    <div className="h-[calc(100vh-8rem)] flex flex-col bg-background rounded-lg shadow-lg border border-border/50 overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-border/50 bg-background/80 backdrop-blur-sm">
         <div className="flex items-center gap-3">
