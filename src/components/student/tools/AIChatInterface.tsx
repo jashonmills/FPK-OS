@@ -1,17 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, ArrowLeft, Trash2, Bot, User, AlertCircle } from 'lucide-react';
+import { Send, ArrowLeft, Trash2, Bot, User, AlertCircle, Copy, Play, FileCode, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import type { LucideIcon } from 'lucide-react';
+import type { CodeAction } from './CodeTutor';
 
 interface Message {
   id: string | number;
   role: 'user' | 'assistant';
   content: string;
   timestamp: string;
+  codeActions?: CodeAction[];
+}
+
+interface CodeContext {
+  code: string;
+  output: string;
 }
 
 interface AIChatInterfaceProps {
@@ -21,7 +28,118 @@ interface AIChatInterfaceProps {
   onBack: () => void;
   icon?: LucideIcon;
   accentColor?: string;
+  codeContext?: CodeContext;
+  onCodeAction?: (action: CodeAction) => void;
 }
+
+// Component to render code blocks with action buttons
+const CodeBlock: React.FC<{
+  code: string;
+  language?: string;
+  onApply?: () => void;
+  onRun?: () => void;
+  showApply?: boolean;
+  showRun?: boolean;
+}> = ({ code, language = 'javascript', onApply, onRun, showApply, showRun }) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="my-2 rounded-lg overflow-hidden border border-border bg-slate-900">
+      <div className="flex items-center justify-between px-3 py-1.5 bg-slate-800 text-xs text-slate-400">
+        <span className="font-mono">{language}</span>
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleCopy}
+            className="h-6 px-2 text-xs text-slate-400 hover:text-white hover:bg-slate-700"
+          >
+            {copied ? <Check className="h-3 w-3 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
+            {copied ? 'Copied!' : 'Copy'}
+          </Button>
+          {showApply && onApply && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onApply}
+              className="h-6 px-2 text-xs text-green-400 hover:text-green-300 hover:bg-slate-700"
+            >
+              <FileCode className="h-3 w-3 mr-1" />
+              Apply
+            </Button>
+          )}
+          {showRun && onRun && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onRun}
+              className="h-6 px-2 text-xs text-blue-400 hover:text-blue-300 hover:bg-slate-700"
+            >
+              <Play className="h-3 w-3 mr-1" />
+              Run
+            </Button>
+          )}
+        </div>
+      </div>
+      <pre className="p-3 text-sm text-slate-300 overflow-x-auto font-mono">
+        <code>{code}</code>
+      </pre>
+    </div>
+  );
+};
+
+// Parse message content and extract code blocks
+const parseMessageContent = (
+  content: string,
+  onApply?: (code: string) => void,
+  onRun?: () => void,
+  isCodeCompanion?: boolean
+) => {
+  const parts: React.ReactNode[] = [];
+  const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
+  let lastIndex = 0;
+  let match;
+  let key = 0;
+
+  while ((match = codeBlockRegex.exec(content)) !== null) {
+    // Add text before code block
+    if (match.index > lastIndex) {
+      parts.push(
+        <span key={key++}>{content.slice(lastIndex, match.index)}</span>
+      );
+    }
+
+    const language = match[1] || 'javascript';
+    const code = match[2].trim();
+
+    parts.push(
+      <CodeBlock
+        key={key++}
+        code={code}
+        language={language}
+        onApply={onApply ? () => onApply(code) : undefined}
+        onRun={onRun}
+        showApply={isCodeCompanion && !!onApply}
+        showRun={isCodeCompanion && !!onRun}
+      />
+    );
+
+    lastIndex = match.index + match[0].length;
+  }
+
+  // Add remaining text
+  if (lastIndex < content.length) {
+    parts.push(<span key={key++}>{content.slice(lastIndex)}</span>);
+  }
+
+  return parts.length > 0 ? parts : content;
+};
 
 const AIChatInterface: React.FC<AIChatInterfaceProps> = ({ 
   toolId,
@@ -29,7 +147,9 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
   welcomeMessage,
   onBack, 
   icon: Icon, 
-  accentColor = 'from-indigo-500 to-purple-600' 
+  accentColor = 'from-indigo-500 to-purple-600',
+  codeContext,
+  onCodeAction
 }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -40,6 +160,8 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
   const { user } = useAuth();
   const { toast } = useToast();
 
+  const isCodeCompanion = toolId === 'code-companion';
+
   // Default welcome messages for each tool
   const getWelcomeMessage = () => {
     if (welcomeMessage) return welcomeMessage;
@@ -48,7 +170,7 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
       'ai-personal-tutor': "Hello! I'm Betty, your personal AI tutor. I use the Socratic method to help you discover answers and develop deep understanding. What would you like to explore today?",
       'math-solver': "Hi there! I'm Al, your math problem solver. Share any math problem with me, and I'll guide you through it step-by-step. What would you like to work on?",
       'essay-coach': "Welcome! I'm your essay writing coach. I'll help you develop your writing skills through constructive feedback. Share your writing or tell me what you're working on!",
-      'code-companion': "Hey! 👋 I see you have a factorial function loaded - I just ran it and got 120 (that's 5!). Try changing the number and running it again! Ask me anything about recursion, debugging, or any coding concept you want to explore.",
+      'code-companion': "Hey! 👋 I can see your code editor! I'll analyze your code and help you learn. Try running the factorial function, then ask me anything about it - I can explain concepts, fix bugs, or even update the code directly!",
       'language-practice': "¡Hola! Bonjour! I'm your language practice partner. Let's have a conversation! Which language would you like to practice today?",
       'research-assistant': "Hello! I'm your research assistant. I'll help you develop strong research and critical thinking skills. What topic are you exploring?"
     };
@@ -86,7 +208,7 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const getAIResponse = async (userMessage: string): Promise<string> => {
+  const getAIResponse = async (userMessage: string): Promise<{ response: string; codeActions?: CodeAction[] }> => {
     if (!user) {
       throw new Error('Please sign in to use the AI tools');
     }
@@ -97,13 +219,20 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
       .slice(-10)
       .map(m => ({ role: m.role, content: m.content }));
 
+    const requestBody: any = {
+      toolId,
+      message: userMessage,
+      sessionId,
+      messageHistory
+    };
+
+    // Include code context for code-companion
+    if (isCodeCompanion && codeContext) {
+      requestBody.codeContext = codeContext;
+    }
+
     const { data, error } = await supabase.functions.invoke('ai-learning-hub-chat', {
-      body: {
-        toolId,
-        message: userMessage,
-        sessionId,
-        messageHistory
-      }
+      body: requestBody
     });
 
     if (error) {
@@ -116,7 +245,10 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
       setSessionId(data.sessionId);
     }
 
-    return data.response;
+    return {
+      response: data.response,
+      codeActions: data.codeActions
+    };
   };
 
   const handleSend = async (e: React.FormEvent) => {
@@ -136,16 +268,26 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
     setError(null);
 
     try {
-      const aiResponseContent = await getAIResponse(input);
+      const { response: aiResponseContent, codeActions } = await getAIResponse(input);
       
       const aiMsg: Message = {
         id: Date.now() + 1,
         role: 'assistant',
         content: aiResponseContent,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        codeActions
       };
 
       setMessages(prev => [...prev, aiMsg]);
+
+      // Auto-execute code actions if present
+      if (codeActions && onCodeAction) {
+        codeActions.forEach(action => {
+          if (action.action === 'highlight_lines' || action.action === 'run_code') {
+            onCodeAction(action);
+          }
+        });
+      }
     } catch (err: any) {
       console.error('Error getting AI response:', err);
       setError(err.message || 'Failed to get response');
@@ -174,6 +316,22 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
     }
   };
 
+  const handleApplyCode = (code: string) => {
+    if (onCodeAction) {
+      onCodeAction({ action: 'replace_code', code });
+      toast({
+        title: 'Code Applied',
+        description: 'The code has been applied to the editor.',
+      });
+    }
+  };
+
+  const handleRunCode = () => {
+    if (onCodeAction) {
+      onCodeAction({ action: 'run_code' });
+    }
+  };
+
   return (
     <div className="flex flex-col h-[calc(100vh-16rem)] bg-card rounded-xl border border-border shadow-sm overflow-hidden">
       {/* Header */}
@@ -189,7 +347,7 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
             <h3 className="font-semibold text-foreground">{toolName}</h3>
             <p className="text-xs text-muted-foreground flex items-center gap-1">
               <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-              Online
+              {isCodeCompanion && codeContext ? 'Watching your code' : 'Online'}
             </p>
           </div>
         </div>
@@ -236,7 +394,46 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
                 ? 'bg-primary text-primary-foreground rounded-tr-none' 
                 : 'bg-card border border-border text-foreground rounded-tl-none'
             }`}>
-              <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+              <div className="text-sm whitespace-pre-wrap leading-relaxed">
+                {msg.role === 'assistant' 
+                  ? parseMessageContent(
+                      msg.content, 
+                      isCodeCompanion ? handleApplyCode : undefined,
+                      isCodeCompanion ? handleRunCode : undefined,
+                      isCodeCompanion
+                    )
+                  : msg.content
+                }
+              </div>
+              {/* Code action buttons for explicit actions */}
+              {msg.codeActions && msg.codeActions.length > 0 && onCodeAction && (
+                <div className="mt-3 pt-3 border-t border-border/50 flex flex-wrap gap-2">
+                  {msg.codeActions.map((action, idx) => (
+                    action.action === 'replace_code' && action.code ? (
+                      <Button
+                        key={idx}
+                        size="sm"
+                        variant="outline"
+                        onClick={() => onCodeAction(action)}
+                        className="h-7 text-xs bg-green-500/10 border-green-500/30 text-green-600 hover:bg-green-500/20"
+                      >
+                        <FileCode className="h-3 w-3 mr-1" />
+                        {action.explanation || 'Apply suggested code'}
+                      </Button>
+                    ) : action.action === 'highlight_lines' && action.lines ? (
+                      <Button
+                        key={idx}
+                        size="sm"
+                        variant="outline"
+                        onClick={() => onCodeAction(action)}
+                        className="h-7 text-xs bg-yellow-500/10 border-yellow-500/30 text-yellow-600 hover:bg-yellow-500/20"
+                      >
+                        Highlight lines {action.lines.join(', ')}
+                      </Button>
+                    ) : null
+                  ))}
+                </div>
+              )}
               <span className={`text-[10px] mt-2 block opacity-70 ${msg.role === 'user' ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
                 {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </span>
@@ -265,7 +462,7 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Type your message here..."
+            placeholder={isCodeCompanion ? "Ask about your code..." : "Type your message here..."}
             disabled={isTyping}
             className="flex-1 px-4 py-3 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:bg-background transition-all text-foreground placeholder:text-muted-foreground disabled:opacity-50"
           />

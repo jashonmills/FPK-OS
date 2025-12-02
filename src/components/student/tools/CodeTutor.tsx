@@ -7,6 +7,13 @@ interface CodeTutorProps {
   onBack: () => void;
 }
 
+export interface CodeAction {
+  action: 'replace_code' | 'insert_code' | 'highlight_lines' | 'run_code';
+  code?: string;
+  lines?: number[];
+  explanation?: string;
+}
+
 const CodeTutor: React.FC<CodeTutorProps> = ({ onBack }) => {
   const [code, setCode] = useState(`// 🎯 Welcome to Code Tutor!
 // This factorial function calculates n! using recursion.
@@ -24,6 +31,7 @@ console.log(calculateFactorial(5));`);
   const [output, setOutput] = useState('');
   const [showChat, setShowChat] = useState(true);
   const [hasAutoRun, setHasAutoRun] = useState(false);
+  const [highlightedLines, setHighlightedLines] = useState<number[]>([]);
 
   const runCode = useCallback((isAutoRun = false) => {
     try {
@@ -41,8 +49,11 @@ console.log(calculateFactorial(5));`);
         result += '\n\n✨ Edit the code and click "Run Code" to experiment!';
       }
       setOutput(result);
+      return result;
     } catch (error) {
-      setOutput(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      const errorMsg = `Error: ${error instanceof Error ? error.message : 'Unknown error'}`;
+      setOutput(errorMsg);
+      return errorMsg;
     }
   }, [code]);
 
@@ -53,6 +64,53 @@ console.log(calculateFactorial(5));`);
       setHasAutoRun(true);
     }
   }, [hasAutoRun, runCode]);
+
+  // Handle code actions from AI
+  const handleCodeAction = useCallback((action: CodeAction) => {
+    switch (action.action) {
+      case 'replace_code':
+        if (action.code) {
+          setCode(action.code);
+          setHighlightedLines([]);
+        }
+        break;
+      case 'insert_code':
+        if (action.code) {
+          setCode(prev => prev + '\n\n' + action.code);
+        }
+        break;
+      case 'highlight_lines':
+        if (action.lines) {
+          setHighlightedLines(action.lines);
+          // Auto-clear highlights after 10 seconds
+          setTimeout(() => setHighlightedLines([]), 10000);
+        }
+        break;
+      case 'run_code':
+        runCode(false);
+        break;
+    }
+  }, [runCode]);
+
+  // Render code with line numbers and highlighting
+  const renderCodeWithLineNumbers = () => {
+    const lines = code.split('\n');
+    return lines.map((line, index) => {
+      const lineNum = index + 1;
+      const isHighlighted = highlightedLines.includes(lineNum);
+      return (
+        <div 
+          key={lineNum} 
+          className={`flex ${isHighlighted ? 'bg-yellow-500/20 border-l-2 border-yellow-500' : ''}`}
+        >
+          <span className="w-10 text-right pr-3 text-slate-500 select-none text-xs leading-6">
+            {lineNum}
+          </span>
+          <span className="flex-1 leading-6">{line || ' '}</span>
+        </div>
+      );
+    });
+  };
 
   return (
     <div className="flex h-full gap-4">
@@ -84,11 +142,19 @@ console.log(calculateFactorial(5));`);
           </div>
         </div>
         
-        <div className="flex-1 relative">
+        <div className="flex-1 relative flex">
+          {/* Line numbers and code display (for highlighting) */}
+          <div className="absolute inset-0 pointer-events-none font-mono text-sm text-slate-300 p-4 overflow-auto">
+            {renderCodeWithLineNumbers()}
+          </div>
+          {/* Actual textarea for editing */}
           <textarea
             value={code}
-            onChange={(e) => setCode(e.target.value)}
-            className="w-full h-full bg-slate-900 text-slate-300 p-4 font-mono text-sm resize-none focus:outline-none"
+            onChange={(e) => {
+              setCode(e.target.value);
+              setHighlightedLines([]); // Clear highlights on edit
+            }}
+            className="w-full h-full bg-transparent text-transparent caret-slate-300 p-4 pl-14 font-mono text-sm resize-none focus:outline-none z-10"
             spellCheck="false"
           />
         </div>
@@ -112,6 +178,8 @@ console.log(calculateFactorial(5));`);
             onBack={() => setShowChat(false)}
             icon={Code}
             accentColor="from-green-500 to-emerald-600"
+            codeContext={{ code, output }}
+            onCodeAction={handleCodeAction}
           />
         </div>
       )}
