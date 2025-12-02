@@ -181,6 +181,11 @@ export function AppSidebar() {
       icon: GraduationCap,
     },
     {
+      title: 'Teacher Dashboard V2',
+      url: "/dashboard/admin/teacher-dashboard-v2",
+      icon: Sparkles,
+    },
+    {
       title: 'Course Manager',
       url: "/dashboard/admin/courses",
       icon: Book,

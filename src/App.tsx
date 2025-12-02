@@ -531,6 +531,11 @@ const App: React.FC = () => {
                 <LazyRoute><PhoenixLab /></LazyRoute>
               </RequireAdmin>
             } />
+            <Route path="admin/teacher-dashboard-v2" element={
+              <RequireAdmin>
+                <LazyRoute><TeacherDashboardV2 /></LazyRoute>
+              </RequireAdmin>
+            } />
             <Route path="admin/phoenix-analytics" element={
               <RequireAdmin>
                 <LazyRoute><PhoenixAnalytics /></LazyRoute>
