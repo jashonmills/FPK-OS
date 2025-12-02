@@ -23,7 +23,7 @@ import StudentPanel from '@/components/student/StudentPanel';
 import { motion } from 'framer-motion';
 
 export default function AIStudyCoach() {
-  const { currentOrg } = useOrgContext();
+  const { currentOrg, getEffectiveRole } = useOrgContext();
   const { user } = useAuth();
   const isMobile = useIsMobile();
   const { isOrgOwner, isOrgInstructor } = useOrgPermissions();
@@ -80,8 +80,9 @@ export default function AIStudyCoach() {
     }
   };
 
-  // Check if user is admin (owner or instructor)
-  const isAdmin = isOrgOwner() || isOrgInstructor();
+  // Check if user is admin using effective role (respects "View As" impersonation)
+  const effectiveRole = getEffectiveRole();
+  const isAdmin = effectiveRole === 'owner' || effectiveRole === 'admin' || effectiveRole === 'instructor';
   const orgId = currentOrg?.organization_id;
 
   // Fetch organization's Free Chat setting for students
