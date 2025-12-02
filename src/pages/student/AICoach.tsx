@@ -8,9 +8,13 @@ import type { StudentAssignment } from '@/hooks/useStudentAssignments';
 import { useAssignmentActions } from '@/hooks/useAssignmentActions';
 import { fetchAndExtractMaterialText, truncateToTokenLimit } from '@/utils/documentTextExtractor';
 
-const AICoach = () => {
+interface AICoachProps {
+  defaultTab?: string;
+}
+
+const AICoach = ({ defaultTab }: AICoachProps) => {
   const [searchParams] = useSearchParams();
-  const initialTab = searchParams.get('tab') || 'chat';
+  const initialTab = defaultTab || searchParams.get('tab') || 'chat';
   
   // State for standalone document reader (below chat module)
   const [activeDocument, setActiveDocument] = useState<any>(null);

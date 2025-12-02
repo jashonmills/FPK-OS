@@ -34,7 +34,7 @@ export const navPersonal: NavItem[] = [
   { label: 'Courses', icon: React.createElement(BookOpen), to: '/dashboard/learner/courses' },
   ...(shouldShowLibrary() ? [{ label: 'Library', icon: React.createElement(Library), to: '/dashboard/learner/library' }] : []),
   { label: 'Analytics', icon: React.createElement(BarChart3), to: '/dashboard/learner/analytics' },
-  { label: 'Study Materials', icon: React.createElement(FolderOpen), to: '/dashboard/learner/ai-command-center?tab=materials' },
+  { label: 'Study Materials', icon: React.createElement(FolderOpen), to: '/dashboard/learner/study-materials' },
   { label: 'AI Command Center', icon: React.createElement(Sparkles), to: '/dashboard/learner/ai-command-center' },
   { label: 'Goals & Notes', icon: React.createElement(Flag), to: '/dashboard/learner/goals-notes' },
 ];
@@ -44,7 +44,7 @@ export const navOrgStudent: NavItem[] = [
   { label: 'Courses', icon: React.createElement(BookOpen), to: '/dashboard/learner/courses?org=:orgId' },
   ...(shouldShowLibrary() ? [{ label: 'Library', icon: React.createElement(Library), to: '/dashboard/learner/library?org=:orgId' }] : []),
   { label: 'Analytics', icon: React.createElement(BarChart3), to: '/dashboard/learner/analytics?org=:orgId' },
-  { label: 'Study Materials', icon: React.createElement(FolderOpen), to: '/dashboard/learner/ai-command-center?org=:orgId&tab=materials' },
+  { label: 'Study Materials', icon: React.createElement(FolderOpen), to: '/dashboard/learner/study-materials?org=:orgId' },
   { label: 'AI Command Center', icon: React.createElement(Sparkles), to: '/dashboard/learner/ai-command-center?org=:orgId' },
   { label: 'Goals & Notes', icon: React.createElement(Flag), to: '/dashboard/learner/goals-notes?org=:orgId' },
   { label: 'Games', icon: React.createElement(Gamepad2), to: '/org/:orgId/games' },
