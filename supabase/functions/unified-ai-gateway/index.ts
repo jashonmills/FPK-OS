@@ -144,6 +144,26 @@ serve(async (req) => {
 
     // Parse request
     const requestBody: GatewayRequest = await req.json();
+
+    // COPPA COMPLIANCE: Check parental consent for minors before any AI processing
+    const { data: userProfile } = await serviceClient
+      .from('profiles')
+      .select('parental_consent_status, is_minor')
+      .eq('id', user.id)
+      .single();
+
+    if (userProfile?.is_minor && userProfile.parental_consent_status === 'pending') {
+      console.log('[UNIFIED-GATEWAY] 🚫 Blocked: Parental consent required for minor user');
+      
+      return new Response(
+        JSON.stringify({ 
+          error: 'Access denied: Parental consent required',
+          code: 'PARENTAL_CONSENT_REQUIRED',
+          message: 'Your parent or guardian needs to approve your account before you can use AI features.'
+        }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
     const { toolId, userId, orgId, userRole, message, systemPromptOverride, messageHistory = [], additionalContext, temperature, temperatureOverride, maxTokens, tools, toolChoice } = requestBody;
 
     if (!toolId || !message) {

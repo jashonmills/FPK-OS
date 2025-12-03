@@ -21,8 +21,10 @@ import {
   Gamepad2,
   HelpCircle,
   Shield,
-  MessageSquare
+  MessageSquare,
+  Lock
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { useOrgContext } from './OrgContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
@@ -39,6 +41,7 @@ interface NavItem {
   label: string;
   icon: React.ComponentType<{ className?: string }>;
   roles?: string[];
+  isLocked?: boolean;
 }
 
 interface OrgNavigationProps {
@@ -47,7 +50,7 @@ interface OrgNavigationProps {
 }
 
 export function OrgNavigation({ isMobileMenuOpen: externalMobileMenuOpen, onMobileMenuToggle }: OrgNavigationProps = {}) {
-  const { currentOrg, getEffectiveRole } = useOrgContext();
+  const { currentOrg, getEffectiveRole, isAILocked } = useOrgContext();
   const isMobile = useIsMobile();
   const [internalMobileMenuOpen, setInternalMobileMenuOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useLocalStorage('orgNavCollapsed', false);
@@ -112,6 +115,7 @@ export function OrgNavigation({ isMobileMenuOpen: externalMobileMenuOpen, onMobi
       href: `/org/${currentOrg.organization_id}/ai-coach`,
       label: effectiveRole === 'student' ? 'AI Learning Coach' : 'AI Org Assistant',
       icon: Brain,
+      isLocked: effectiveRole === 'student' && isAILocked,
     }]),
     {
       href: `/org/${currentOrg.organization_id}/messages`,
@@ -186,6 +190,7 @@ export function OrgNavigation({ isMobileMenuOpen: externalMobileMenuOpen, onMobi
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         )}>
           <div className="pt-16 p-4 overflow-y-auto h-full">
+            <TooltipProvider>
             <div className="space-y-2">
               {allNavItems.map((item, index) => (
                 <React.Fragment key={item.href}>
@@ -193,25 +198,47 @@ export function OrgNavigation({ isMobileMenuOpen: externalMobileMenuOpen, onMobi
                   {index === allNavItems.length - 1 && (
                     <div className="my-3 border-t border-white/20" />
                   )}
-                  <NavLink
-                    to={item.href}
-                    end={item.href === `/org/${currentOrg.organization_id}`}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={({ isActive }) =>
-                      cn(
-                        'flex items-center space-x-3 px-4 py-3 rounded-md text-base font-medium transition-colors',
-                        isActive
-                          ? 'bg-orange-500/70 text-white'
-                          : 'text-white/80 hover:text-white hover:bg-orange-500/40'
-                      )
-                    }
-                  >
-                    <item.icon className="h-5 w-5" />
-                    <span>{item.label}</span>
-                  </NavLink>
+                  {item.isLocked ? (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div
+                          onClick={() => {
+                            toast.info('This feature is locked pending parental consent.');
+                            setIsMobileMenuOpen(false);
+                          }}
+                          className="flex items-center space-x-3 px-4 py-3 rounded-md text-base font-medium cursor-not-allowed opacity-50 text-white/60"
+                        >
+                          <item.icon className="h-5 w-5" />
+                          <span>{item.label}</span>
+                          <Lock className="h-4 w-4 ml-auto" />
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent side="right" className="bg-purple-900 text-white border-purple-700">
+                        <p>Locked pending parental consent</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  ) : (
+                    <NavLink
+                      to={item.href}
+                      end={item.href === `/org/${currentOrg.organization_id}`}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={({ isActive }) =>
+                        cn(
+                          'flex items-center space-x-3 px-4 py-3 rounded-md text-base font-medium transition-colors',
+                          isActive
+                            ? 'bg-orange-500/70 text-white'
+                            : 'text-white/80 hover:text-white hover:bg-orange-500/40'
+                        )
+                      }
+                    >
+                      <item.icon className="h-5 w-5" />
+                      <span>{item.label}</span>
+                    </NavLink>
+                  )}
                 </React.Fragment>
               ))}
             </div>
+            </TooltipProvider>
           </div>
         </nav>
       </>
@@ -248,6 +275,44 @@ export function OrgNavigation({ isMobileMenuOpen: externalMobileMenuOpen, onMobi
             {allNavItems.map((item, index) => {
               // Add separator before Platform Guide
               const showSeparator = index === allNavItems.length - 1;
+              
+              // Handle locked items
+              if (item.isLocked) {
+                const lockedContent = (
+                  <>
+                    {showSeparator && !isCollapsed && (
+                      <div className="my-3 border-t border-white/20" />
+                    )}
+                    <div
+                      onClick={() => toast.info('This feature is locked pending parental consent.')}
+                      className={cn(
+                        'flex items-center rounded-md text-sm font-medium cursor-not-allowed opacity-50 text-white/60',
+                        isCollapsed ? 'justify-center px-3 py-2' : 'space-x-3 px-3 py-2'
+                      )}
+                    >
+                      <item.icon className="h-4 w-4 flex-shrink-0" />
+                      {!isCollapsed && (
+                        <>
+                          <span className="transition-opacity duration-300">{item.label}</span>
+                          <Lock className="h-3 w-3 ml-auto" />
+                        </>
+                      )}
+                    </div>
+                  </>
+                );
+
+                return (
+                  <Tooltip key={item.href} delayDuration={300}>
+                    <TooltipTrigger asChild>
+                      {lockedContent}
+                    </TooltipTrigger>
+                    <TooltipContent side="right" className="bg-purple-900 text-white border-purple-700">
+                      <p>{isCollapsed ? `${item.label} - ` : ''}Locked pending parental consent</p>
+                    </TooltipContent>
+                  </Tooltip>
+                );
+              }
+              
               const navContent = (
                 <>
                   {showSeparator && !isCollapsed && (
