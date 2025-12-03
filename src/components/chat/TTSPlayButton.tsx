@@ -14,6 +14,8 @@ interface TTSPlayButtonProps {
   showLabel?: boolean;
 }
 
+// Default to Betty's voice for all TTS
+
 /**
  * Universal Text-to-Speech play button for AI responses
  * Supports persona-specific voices and user voice settings
@@ -34,11 +36,8 @@ const TTSPlayButton: React.FC<TTSPlayButtonProps> = ({
     if (isSpeaking || isGenerating) {
       stop();
     } else {
-      if (persona) {
-        await speak(content, persona);
-      } else {
-        await speak(content, { interrupt: true });
-      }
+      // Always use Betty's voice as the default
+      await speak(content, persona || 'BETTY');
     }
   }, [content, persona, speak, stop, isSpeaking, isGenerating]);
 
