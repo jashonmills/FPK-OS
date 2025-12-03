@@ -96,6 +96,22 @@ const ADMIN_TOOLS = [
         required: ["query"]
       }
     }
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_activity",
+      description: "Get recent activity logs including logins, course starts, lesson completions, goal creation, note creation, and other events. Returns activity with student names, timestamps, and event types.",
+      parameters: {
+        type: "object",
+        properties: {
+          limit: {
+            type: "integer",
+            description: "Number of recent activities to return (default 50)"
+          }
+        }
+      }
+    }
   }
 ];
 
@@ -291,6 +307,15 @@ User role: ${membership.role}`;
             const { data: kbData } = await supabaseClient
               .rpc('search_admin_copilot_knowledge', { p_query: args.query });
             result = kbData;
+            break;
+            
+          case 'get_activity':
+            const { data: activityData } = await supabaseClient
+              .rpc('get_admin_copilot_activity', { 
+                p_org_id: orgId,
+                p_limit: args.limit || 50
+              });
+            result = activityData;
             break;
             
           default:
