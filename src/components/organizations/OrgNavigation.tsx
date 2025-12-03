@@ -29,6 +29,8 @@ import { useOrgContext } from './OrgContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { shouldShowPlatformGuide, shouldShowAIGovernance } from '@/lib/featureFlags';
+import { usePlatformGovernanceStatus } from '@/hooks/usePlatformGovernanceStatus';
+import { FPKGovernanceBadge } from './FPKGovernanceBadge';
 import {
   Tooltip,
   TooltipContent,
@@ -54,6 +56,7 @@ export function OrgNavigation({ isMobileMenuOpen: externalMobileMenuOpen, onMobi
   const isMobile = useIsMobile();
   const [internalMobileMenuOpen, setInternalMobileMenuOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useLocalStorage('orgNavCollapsed', false);
+  const { data: governanceStatus } = usePlatformGovernanceStatus();
   
   // Use effective role for impersonation support
   const effectiveRole = getEffectiveRole();
@@ -239,6 +242,13 @@ export function OrgNavigation({ isMobileMenuOpen: externalMobileMenuOpen, onMobi
               ))}
             </div>
             </TooltipProvider>
+            
+            {/* FPK Governance Badge - Mobile */}
+            {governanceStatus?.isProtected && (
+              <div className="mt-4 pt-4 border-t border-white/20">
+                <FPKGovernanceBadge isCollapsed={false} />
+              </div>
+            )}
           </div>
         </nav>
       </>
@@ -354,6 +364,16 @@ export function OrgNavigation({ isMobileMenuOpen: externalMobileMenuOpen, onMobi
             })}
           </div>
         </div>
+        
+        {/* FPK Governance Badge - Desktop */}
+        {governanceStatus?.isProtected && (
+          <div className={cn(
+            "p-3 border-t border-white/10 flex-shrink-0",
+            isCollapsed && "px-2"
+          )}>
+            <FPKGovernanceBadge isCollapsed={isCollapsed} />
+          </div>
+        )}
       </nav>
     </TooltipProvider>
   );
