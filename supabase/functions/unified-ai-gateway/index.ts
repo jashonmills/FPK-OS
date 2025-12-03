@@ -402,9 +402,40 @@ serve(async (req) => {
       );
     }
 
-    // STEP 5: Fetch knowledge base context for relevant tools
+    // STEP 5: Fetch knowledge base context (platform-wide + org-specific)
     let knowledgeBaseContext = '';
     
+    // First, always fetch platform-level knowledge base (applies to ALL requests)
+    const { data: platformKbDocs } = await serviceClient
+      .from('platform_knowledge_base')
+      .select('title, content_chunks')
+      .eq('is_active', true)
+      .eq('is_default', true)
+      .limit(3);
+
+    if (platformKbDocs && platformKbDocs.length > 0) {
+      const platformChunks: string[] = [];
+      for (const doc of platformKbDocs) {
+        const chunks = doc.content_chunks as string[];
+        if (chunks && chunks.length > 0) {
+          platformChunks.push(`### ${doc.title}\n${chunks.join('\n\n')}`);
+        }
+      }
+      
+      if (platformChunks.length > 0) {
+        knowledgeBaseContext = `## PLATFORM CORE GUIDELINES
+The following are the core educational philosophy and guidelines that must be followed in all interactions:
+
+${platformChunks.join('\n\n---\n\n')}
+
+---
+
+`;
+        console.log('[UNIFIED-GATEWAY] 📚 Loaded platform KB context from', platformKbDocs.length, 'documents');
+      }
+    }
+    
+    // Then fetch org-specific KB for relevant tools
     if (orgId && KB_ENABLED_TOOLS.includes(toolId)) {
       const { data: kbDocs } = await serviceClient
         .from('org_knowledge_base')
@@ -414,18 +445,16 @@ serve(async (req) => {
         .limit(5);
 
       if (kbDocs && kbDocs.length > 0) {
-        // Simple retrieval: take first few chunks from each doc (in production, use embeddings)
         const contextChunks: string[] = [];
         for (const doc of kbDocs) {
           const chunks = doc.content_chunks as string[];
           if (chunks && chunks.length > 0) {
-            // Take first 2 chunks from each doc
             contextChunks.push(`### ${doc.title}\n${chunks.slice(0, 2).join('\n\n')}`);
           }
         }
         
         if (contextChunks.length > 0) {
-          knowledgeBaseContext = `## ORGANIZATION KNOWLEDGE BASE
+          knowledgeBaseContext += `## ORGANIZATION KNOWLEDGE BASE
 The following documents are from this organization's knowledge base. Use this information to provide context-aware responses:
 
 ${contextChunks.join('\n\n---\n\n')}
@@ -433,7 +462,7 @@ ${contextChunks.join('\n\n---\n\n')}
 ---
 
 `;
-          console.log('[UNIFIED-GATEWAY] 📚 Loaded KB context from', kbDocs.length, 'documents');
+          console.log('[UNIFIED-GATEWAY] 📚 Loaded org KB context from', kbDocs.length, 'documents');
         }
       }
     }
