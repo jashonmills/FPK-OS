@@ -371,7 +371,7 @@ const AIGovernanceKnowledgeBase: React.FC<AIGovernanceKnowledgeBaseProps> = ({ o
               {viewingDoc?.file_name} • {viewingDoc?.content.length.toLocaleString()} characters
             </DialogDescription>
           </DialogHeader>
-          <ScrollArea className="flex-1 max-h-[60vh]">
+          <ScrollArea className="flex-1 h-[50vh] overflow-auto">
             <pre className="whitespace-pre-wrap text-sm font-mono bg-muted p-4 rounded-lg">
               {viewingDoc?.content}
             </pre>
