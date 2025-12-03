@@ -8820,6 +8820,51 @@ export type Database = {
           },
         ]
       }
+      platform_knowledge_base: {
+        Row: {
+          content: string
+          content_chunks: string[] | null
+          created_at: string
+          created_by: string | null
+          file_name: string
+          file_type: string
+          id: string
+          is_active: boolean | null
+          is_default: boolean | null
+          metadata: Json | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          content_chunks?: string[] | null
+          created_at?: string
+          created_by?: string | null
+          file_name: string
+          file_type?: string
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          metadata?: Json | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          content_chunks?: string[] | null
+          created_at?: string
+          created_by?: string | null
+          file_name?: string
+          file_type?: string
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          metadata?: Json | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       podcast_episodes: {
         Row: {
           audio_url: string | null
