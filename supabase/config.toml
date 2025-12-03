@@ -222,3 +222,6 @@ verify_jwt = true
 [functions.admin-copilot-orchestrator]
 verify_jwt = true
 
+[functions.generate-course-content]
+verify_jwt = true
+
