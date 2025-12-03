@@ -8,11 +8,12 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { BookOpen, Upload, Trash2, FileText, File, Plus, AlertCircle, Download, Eye } from 'lucide-react';
+import { BookOpen, Upload, Trash2, FileText, File, Plus, AlertCircle, Download, Eye, Loader2 } from 'lucide-react';
 import { useOrgKnowledgeBase } from '@/hooks/useOrgKnowledgeBase';
 import { useDropzone } from 'react-dropzone';
 import { toast } from 'sonner';
 import { PlatformAdminOrgSelector } from './PlatformAdminOrgSelector';
+import { extractDocumentText } from '@/utils/documentTextExtractor';
 
 interface KBDocument {
   id: string;
@@ -35,6 +36,7 @@ const AIGovernanceKnowledgeBase: React.FC<AIGovernanceKnowledgeBaseProps> = ({ o
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [viewingDoc, setViewingDoc] = useState<KBDocument | null>(null);
   const [newDoc, setNewDoc] = useState({ title: '', content: '', fileName: '' });
+  const [isProcessingFile, setIsProcessingFile] = useState(false);
 
   const { documents, isLoading, addDocument, deleteDocument, toggleDocument } = useOrgKnowledgeBase(effectiveOrgId);
 
@@ -43,10 +45,42 @@ const AIGovernanceKnowledgeBase: React.FC<AIGovernanceKnowledgeBaseProps> = ({ o
     setViewDialogOpen(true);
   };
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
     if (!file) return;
 
+    const fileExt = file.name.split('.').pop()?.toLowerCase();
+    
+    // For PDFs and DOCX, use document text extractor
+    if (fileExt === 'pdf' || fileExt === 'docx') {
+      setIsProcessingFile(true);
+      toast.info(`Processing ${file.name}...`);
+      
+      try {
+        const result = await extractDocumentText(file);
+        
+        if (result.error) {
+          toast.error(result.error);
+          setIsProcessingFile(false);
+          return;
+        }
+        
+        setNewDoc({
+          title: file.name.replace(/\.[^/.]+$/, ''),
+          content: result.text,
+          fileName: file.name,
+        });
+        toast.success(`File "${file.name}" processed successfully (${result.wordCount} words)`);
+      } catch (error) {
+        console.error('File processing error:', error);
+        toast.error('Failed to process file. Please try a different format.');
+      } finally {
+        setIsProcessingFile(false);
+      }
+      return;
+    }
+
+    // For text files, read directly
     const reader = new FileReader();
     reader.onload = (e) => {
       const content = e.target?.result as string;
@@ -94,8 +128,11 @@ const AIGovernanceKnowledgeBase: React.FC<AIGovernanceKnowledgeBaseProps> = ({ o
     accept: {
       'text/plain': ['.txt'],
       'text/markdown': ['.md'],
+      'application/pdf': ['.pdf'],
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
     },
     maxFiles: 1,
+    disabled: isProcessingFile,
   });
 
   const handleAddDocument = async () => {
@@ -183,11 +220,16 @@ const AIGovernanceKnowledgeBase: React.FC<AIGovernanceKnowledgeBaseProps> = ({ o
                       >
                         <input {...getInputProps()} />
                         <Upload className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
-                        {isDragActive ? (
+                        {isProcessingFile ? (
+                          <div className="flex items-center gap-2 justify-center">
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            <p className="text-sm">Processing file...</p>
+                          </div>
+                        ) : isDragActive ? (
                           <p className="text-sm">Drop the file here...</p>
                         ) : (
                           <p className="text-sm text-muted-foreground">
-                            Drag & drop a .txt or .md file, or click to select
+                            Drag & drop a .txt, .md, .pdf, or .docx file, or click to select
                           </p>
                         )}
                       </div>
