@@ -23,14 +23,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log('useAuth: Setting up authentication listeners');
-    console.log('useAuth: Current domain:', window.location.hostname);
+    logger.auth.debug('Setting up authentication listeners', { domain: window.location.hostname });
     
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        console.log('useAuth: Auth state changed', { event, hasSession: !!session, hasUser: !!session?.user });
-        logger.auth('Auth state changed', { event, hasSession: !!session, hasUser: !!session?.user });
+        logger.auth.debug('Auth state changed', { event, hasSession: !!session, hasUser: !!session?.user });
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
@@ -40,25 +38,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Quick initial session check with short timeout
     const initSession = async () => {
       const timeout = setTimeout(() => {
-        console.warn('useAuth: Initial session check timed out after 15s - continuing with graceful degradation');
+        logger.auth.warn('Initial session check timed out after 15s - continuing with graceful degradation');
         setLoading(false);
-      }, 15000); // 15 second timeout for resilience
+      }, 15000);
       
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
-          console.error('useAuth: Error getting session:', error);
+          logger.auth.error('Error getting session', { error });
           await supabase.auth.signOut({ scope: 'local' });
           setSession(null);
           setUser(null);
         } else {
-          console.log('useAuth: Initial session loaded', { hasSession: !!session });
+          logger.auth.debug('Initial session loaded', { hasSession: !!session });
           setSession(session);
           setUser(session?.user ?? null);
         }
       } catch (err) {
-        console.error('useAuth: Error loading initial session:', err);
+        logger.auth.error('Error loading initial session', { err });
         setSession(null);
         setUser(null);
       } finally {
@@ -70,14 +68,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     initSession();
 
     return () => {
-      console.log('useAuth: Cleaning up auth listeners');
+      logger.auth.debug('Cleaning up auth listeners');
       subscription.unsubscribe();
     };
   }, []);
 
   const signOut = async () => {
     try {
-      console.log('useAuth: Signing out...');
+      logger.auth.info('Signing out...');
       
       // Clear local state immediately
       setUser(null);
@@ -87,13 +85,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const { error } = await supabase.auth.signOut();
       
       if (error) {
-        console.error('useAuth: Error signing out:', error);
-        logger.auth('Sign out error', error);
+        logger.auth.error('Error signing out', { error });
         throw error;
       }
       
-      console.log('useAuth: Sign out successful');
-      logger.auth('User signed out successfully');
+      logger.auth.info('Sign out successful');
       
       // If on preview domain, redirect to production domain
       const isPreviewDomain = window.location.hostname.includes('lovableproject.com');
@@ -103,8 +99,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         window.location.href = '/login';
       }
     } catch (error) {
-      console.error('useAuth: Sign out failed:', error);
-      logger.auth('Sign out failed', error);
+      logger.auth.error('Sign out failed', { error });
       // Still redirect even on error to ensure user is logged out
       const isPreviewDomain = window.location.hostname.includes('lovableproject.com');
       if (isPreviewDomain) {

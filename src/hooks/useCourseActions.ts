@@ -4,6 +4,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useOrganizationCourseAssignments } from '@/hooks/useOrganizationCourseAssignments';
 import { useCourseDuplication } from '@/hooks/useCourseDuplication';
 import { useContextAwareNavigation } from '@/hooks/useContextAwareNavigation';
+import { supabase } from '@/integrations/supabase/client';
+import { logger } from '@/utils/logger';
 import type { AssignmentSummary } from '@/types/enhanced-course-card';
 
 export interface CourseActionsConfig {
@@ -23,8 +25,7 @@ export function useCourseActions(config: CourseActionsConfig = {}) {
   const [selectedCourse, setSelectedCourse] = useState<{ id: string; title: string } | null>(null);
 
   const preview = useCallback((courseId: string, route?: string) => {
-    console.log('Preview course:', courseId);
-    // Navigate to preview page with org context preserved
+    logger.courses.debug('Preview course', { courseId });
     goToCoursePreview(courseId);
   }, [goToCoursePreview]);
 
@@ -46,7 +47,7 @@ export function useCourseActions(config: CourseActionsConfig = {}) {
   }, [assignCourse, toast]);
 
   const edit = useCallback((courseId: string) => {
-    console.log('Edit course:', courseId);
+    logger.courses.debug('Edit course', { courseId });
     if (config.onCourseEdited) {
       config.onCourseEdited(courseId);
     } else {
@@ -69,56 +70,125 @@ export function useCourseActions(config: CourseActionsConfig = {}) {
         }
       });
     } catch (error) {
-      console.error('Duplication failed:', error);
+      logger.courses.error('Course duplication failed', { courseId, error });
     }
   }, [duplicateCourse]);
 
   const publish = useCallback(async (courseId: string): Promise<AssignmentSummary> => {
-    console.log('Publishing course:', courseId);
-    // TODO: Implement actual publish logic
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    logger.courses.info('Publishing course', { courseId });
     
-    const impact = { groupCount: 0, studentCount: 0 };
-    toast({
-      title: "Course Published",
-      description: `Published successfully. Impact: ${impact.groupCount} groups, ${impact.studentCount} students.`,
-    });
-    return impact;
+    try {
+      const { error } = await supabase
+        .from('courses')
+        .update({ status: 'published' })
+        .eq('id', courseId);
+      
+      if (error) throw error;
+      
+      // Count affected students
+      const { count: studentCount } = await supabase
+        .from('interactive_course_enrollments')
+        .select('*', { count: 'exact', head: true })
+        .eq('course_id', courseId);
+      
+      const impact = { groupCount: 0, studentCount: studentCount || 0 };
+      
+      toast({
+        title: "Course Published",
+        description: studentCount ? `Published successfully. ${studentCount} students enrolled.` : "Published successfully.",
+      });
+      
+      return impact;
+    } catch (error) {
+      logger.courses.error('Failed to publish course', { courseId, error });
+      toast({
+        title: "Publish Failed",
+        description: "Failed to publish course. Please try again.",
+        variant: "destructive",
+      });
+      return { groupCount: 0, studentCount: 0 };
+    }
   }, [toast]);
 
   const unpublish = useCallback(async (courseId: string): Promise<AssignmentSummary> => {
-    console.log('Unpublishing course:', courseId);
-    // TODO: Implement actual unpublish logic
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    logger.courses.info('Unpublishing course', { courseId });
     
-    const impact = { groupCount: 0, studentCount: 0 };
-    toast({
-      title: "Course Unpublished",
-      description: "Unpublished—students keep access until end of day.",
-    });
-    return impact;
+    try {
+      const { error } = await supabase
+        .from('courses')
+        .update({ status: 'draft' })
+        .eq('id', courseId);
+      
+      if (error) throw error;
+      
+      // Count affected students for impact summary
+      const { count: studentCount } = await supabase
+        .from('interactive_course_enrollments')
+        .select('*', { count: 'exact', head: true })
+        .eq('course_id', courseId);
+      
+      const impact = { groupCount: 0, studentCount: studentCount || 0 };
+      
+      toast({
+        title: "Course Unpublished",
+        description: "Unpublished—students keep access until end of day.",
+      });
+      
+      return impact;
+    } catch (error) {
+      logger.courses.error('Failed to unpublish course', { courseId, error });
+      toast({
+        title: "Unpublish Failed",
+        description: "Failed to unpublish course. Please try again.",
+        variant: "destructive",
+      });
+      return { groupCount: 0, studentCount: 0 };
+    }
   }, [toast]);
 
   const remove = useCallback(async (courseId: string): Promise<AssignmentSummary> => {
-    console.log('Deleting course:', courseId);
-    // TODO: Implement actual delete logic
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    logger.courses.info('Deleting course (soft delete)', { courseId });
     
-    const impact = { groupCount: 0, studentCount: 0 };
-    toast({
-      title: "Course Deleted",
-      description: "Course deleted. Analytics retained.",
-    });
-    
-    if (config.onCourseDeleted) {
-      config.onCourseDeleted(courseId);
+    try {
+      // Soft delete: set status to 'deleted' to preserve analytics
+      const { error } = await supabase
+        .from('courses')
+        .update({ status: 'deleted' })
+        .eq('id', courseId);
+      
+      if (error) throw error;
+      
+      // Count affected students for impact summary
+      const { count: studentCount } = await supabase
+        .from('interactive_course_enrollments')
+        .select('*', { count: 'exact', head: true })
+        .eq('course_id', courseId);
+      
+      const impact = { groupCount: 0, studentCount: studentCount || 0 };
+      
+      toast({
+        title: "Course Deleted",
+        description: "Course deleted. Analytics retained.",
+      });
+      
+      if (config.onCourseDeleted) {
+        config.onCourseDeleted(courseId);
+      }
+      
+      return impact;
+    } catch (error) {
+      logger.courses.error('Failed to delete course', { courseId, error });
+      toast({
+        title: "Delete Failed",
+        description: "Failed to delete course. Please try again.",
+        variant: "destructive",
+      });
+      return { groupCount: 0, studentCount: 0 };
     }
-    
-    return impact;
   }, [config, toast]);
 
   const viewAnalytics = useCallback((courseId: string) => {
-    console.log('View analytics:', courseId);
+    logger.courses.debug('View course analytics', { courseId, orgId });
     if (orgId) {
       navigate(`/org/${orgId}/analytics/courses/${courseId}`);
     } else {
@@ -130,9 +200,8 @@ export function useCourseActions(config: CourseActionsConfig = {}) {
   }, [navigate, orgId, toast]);
 
   const sharePreview = useCallback(async (courseId: string) => {
-    console.log('Share preview:', courseId);
-    // TODO: Generate actual preview link
-    const previewLink = `${window.location.origin}/preview/${courseId}`;
+    logger.courses.debug('Share course preview', { courseId });
+    const previewLink = `${window.location.origin}/courses/player/${courseId}`;
     
     try {
       await navigator.clipboard.writeText(previewLink);

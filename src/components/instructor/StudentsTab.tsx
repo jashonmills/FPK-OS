@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -44,6 +45,7 @@ interface StudentsTabProps {
 export default function StudentsTab({ organizationId }: StudentsTabProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
+  const navigate = useNavigate();
   const emailInviteMutation = useEmailInvitation();
   
   const { data: members, isLoading, refetch } = useOrgMembers(organizationId);
@@ -75,20 +77,14 @@ export default function StudentsTab({ organizationId }: StudentsTabProps) {
     }
   };
 
-  const handleViewProgress = (studentName: string) => {
-    // TODO: Navigate to student progress page
-    toast({
-      title: "View Progress",
-      description: `Coming soon: View progress for ${studentName}`,
-    });
+  const handleViewProgress = (studentId: string, studentName: string) => {
+    // Navigate to student analytics/progress page
+    navigate(`/org/${organizationId}/analytics/students/${studentId}`);
   };
 
-  const handleSendMessage = (studentName: string) => {
-    // TODO: Open message dialog
-    toast({
-      title: "Send Message",
-      description: `Coming soon: Send message to ${studentName}`,
-    });
+  const handleSendMessage = (studentId: string, studentName: string) => {
+    // Navigate to messaging with student pre-selected
+    navigate(`/org/${organizationId}/messages?newConversation=${studentId}`);
   };
 
   if (isLoading) {
@@ -188,11 +184,11 @@ export default function StudentsTab({ organizationId }: StudentsTabProps) {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleViewProgress(student.profiles?.display_name || student.profiles?.full_name || 'Unknown User')}>
+                          <DropdownMenuItem onClick={() => handleViewProgress(student.user_id, student.profiles?.display_name || student.profiles?.full_name || 'Unknown User')}>
                             <Eye className="h-4 w-4 mr-2" />
                             View Progress
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleSendMessage(student.profiles?.display_name || student.profiles?.full_name || 'Unknown User')}>
+                          <DropdownMenuItem onClick={() => handleSendMessage(student.user_id, student.profiles?.display_name || student.profiles?.full_name || 'Unknown User')}>
                             <MessageSquare className="h-4 w-4 mr-2" />
                             Send Message
                           </DropdownMenuItem>
