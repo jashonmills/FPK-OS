@@ -8,20 +8,13 @@ import {
   GraduationCap, 
   Target, 
   BarChart3,
-  Brain,
-  Library
+  Brain
 } from 'lucide-react';
 
 const QuickAccessBar = () => {
   const navigate = useNavigate();
 
   const navigationItems = [
-    {
-      title: 'Library',
-      icon: Library,
-      path: '/dashboard/learner/library',
-      color: 'bg-blue-500 hover:bg-blue-600'
-    },
     {
       title: 'Courses',
       icon: GraduationCap,
