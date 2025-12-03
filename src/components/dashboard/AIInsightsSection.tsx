@@ -41,7 +41,7 @@ const AIInsightsSection = () => {
             <Brain className="h-5 w-5 text-purple-600" />
             AI Learning Insights
           </div>
-          <Button variant="outline" size="sm" onClick={() => navigate('/dashboard/ai-study-coach')}>
+          <Button variant="outline" size="sm" onClick={() => navigate('/dashboard/learner/ai-command-center')}>
             View All
           </Button>
         </CardTitle>
@@ -62,7 +62,7 @@ const AIInsightsSection = () => {
               }
             </p>
             {!isLoading && !error && (
-              <Button onClick={() => navigate('/dashboard/ai-study-coach')}>
+              <Button onClick={() => navigate('/dashboard/learner/ai-command-center')}>
                 <Brain className="h-4 w-4 mr-2" />
                 Talk to AI Coach
               </Button>
