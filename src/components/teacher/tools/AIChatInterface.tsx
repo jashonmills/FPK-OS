@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import type { LucideIcon } from 'lucide-react';
+import UniversalVoiceInput from '@/components/chat/UniversalVoiceInput';
+import TTSPlayButton from '@/components/chat/TTSPlayButton';
 
 interface Message {
   id: string;
@@ -137,6 +139,12 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
               }`}
             >
               <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+              {/* TTS Play Button for AI messages */}
+              {message.role === 'assistant' && (
+                <div className="mt-2 flex justify-end">
+                  <TTSPlayButton content={message.content} size="sm" variant="ghost" />
+                </div>
+              )}
             </div>
             {message.role === 'user' && (
               <div className="p-2 bg-muted rounded-lg h-fit">
@@ -169,6 +177,15 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
             className="flex-1 p-3 border border-input rounded-lg resize-none bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             rows={1}
             disabled={isLoading}
+          />
+          <UniversalVoiceInput
+            onTranscription={(text) => {
+              setInput(text);
+              // Auto-submit after brief delay
+              setTimeout(() => handleSend(), 100);
+            }}
+            disabled={isLoading}
+            variant="minimal"
           />
           <Button
             onClick={handleSend}

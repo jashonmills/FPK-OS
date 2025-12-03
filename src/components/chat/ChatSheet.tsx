@@ -6,12 +6,11 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
-import { Send, MessageCircle, Plus, Brain, Mic, MicOff, X, Menu, ChevronLeft, Trash2 } from 'lucide-react';
+import { Send, MessageCircle, Plus, Brain, X, Menu, ChevronLeft, Trash2 } from 'lucide-react';
 import { useChatSessions } from '@/hooks/useChatSessions';
 import { useChatMessages } from '@/hooks/useChatMessages';
 import { useWidgetChatMessages } from '@/hooks/useWidgetChatMessages';
 import { usePageContext } from '@/hooks/usePageContext';
-import { useVoiceRecording } from '@/hooks/useVoiceRecording';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/hooks/useAuth';
@@ -21,6 +20,7 @@ import ChatSessionsList from './ChatSessionsList';
 import ChatMessagesPane from './ChatMessagesPane';
 import { usePIIDetection } from '@/hooks/usePIIDetection';
 import { PIIWarningBanner } from './PIIWarningBanner';
+import UniversalVoiceInput from './UniversalVoiceInput';
 
 interface ChatSheetProps {
   trigger?: React.ReactNode;
@@ -71,7 +71,6 @@ const ChatSheet = ({ trigger, isOpen, onOpenChange, isWidget = false }: ChatShee
   const isLoading = isWidget ? false : messagesLoading;
 
   const { getPageContext } = usePageContext();
-  const { isRecording, isProcessing, startRecording, stopRecording } = useVoiceRecording();
   const { toast } = useToast();
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -211,38 +210,15 @@ const ChatSheet = ({ trigger, isOpen, onOpenChange, isWidget = false }: ChatShee
     }
   };
 
-  const handleVoiceToggle = async () => {
-    if (isRecording) {
-      try {
-        const transcribedText = await stopRecording();
-        setMessage(transcribedText);
-        toast({
-          title: "Voice recorded",
-          description: "Your voice has been transcribed. You can edit it before sending.",
-        });
-      } catch (error) {
-        console.error('Error stopping recording:', error);
-        toast({
-          title: "Recording failed",
-          description: "There was an error processing your voice. Please try again.",
-          variant: "destructive"
-        });
-      }
-    } else {
-      try {
-        await startRecording();
-        toast({
-          title: "Recording started",
-          description: "Speak clearly into your microphone. Click the mic button again to stop.",
-        });
-      } catch (error) {
-        console.error('Error starting recording:', error);
-        toast({
-          title: "Microphone access denied",
-          description: "Please allow microphone access to use voice input.",
-          variant: "destructive"
-        });
-      }
+  const handleVoiceTranscription = (transcription: string) => {
+    if (transcription.trim()) {
+      setMessage(transcription);
+      // Auto-send after short delay
+      setTimeout(() => {
+        if (transcription.trim()) {
+          handleSendMessage();
+        }
+      }, 100);
     }
   };
 
@@ -379,26 +355,6 @@ const ChatSheet = ({ trigger, isOpen, onOpenChange, isWidget = false }: ChatShee
 
               {/* Input Area */}
               <div className="border-t p-2 sm:p-3 md:p-4 bg-background flex-shrink-0">
-                {/* Voice Recording Status */}
-                {(isRecording || isProcessing) && (
-                  <div className="mb-3 p-2 sm:p-3 bg-purple-50 rounded-lg border border-purple-200">
-                    <div className="flex items-center gap-2">
-                      {isRecording && (
-                        <>
-                          <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse flex-shrink-0"></div>
-                          <span className="text-sm text-purple-700 font-medium">Recording...</span>
-                        </>
-                      )}
-                      {isProcessing && (
-                        <>
-                          <div className="animate-spin w-3 h-3 border border-purple-600 border-t-transparent rounded-full flex-shrink-0"></div>
-                          <span className="text-sm text-purple-700 font-medium">Processing voice...</span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                )}
-
                 {/* PII Warning Banner */}
                 {showPIIWarning && lastResult && (
                   <PIIWarningBanner
@@ -418,27 +374,20 @@ const ChatSheet = ({ trigger, isOpen, onOpenChange, isWidget = false }: ChatShee
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    disabled={isSending || isRecording || isProcessing}
+                    disabled={isSending}
                     className="flex-1 text-sm min-w-0 safe-text"
                   />
                   
-                  {/* Voice Recording Button */}
-                  <Button
-                    onClick={handleVoiceToggle}
-                    disabled={isSending || isProcessing}
-                    size="icon"
-                    variant={isRecording ? "destructive" : "outline"}
-                    className={cn(
-                      "transition-all duration-200 flex-shrink-0 touch-target",
-                      isRecording && "animate-pulse bg-red-500 hover:bg-red-600"
-                    )}
-                  >
-                    {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-                  </Button>
+                  {/* Voice Input Button */}
+                  <UniversalVoiceInput
+                    onTranscription={handleVoiceTranscription}
+                    disabled={isSending}
+                    variant="minimal"
+                  />
 
                   <Button 
                     onClick={() => handleSendMessage()}
-                    disabled={isSending || !message.trim() || isRecording || isProcessing}
+                    disabled={isSending || !message.trim()}
                     size="icon"
                     className="bg-purple-600 hover:bg-purple-700 flex-shrink-0 touch-target"
                   >
