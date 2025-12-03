@@ -33,8 +33,7 @@ export const EmailConfirm = () => {
         const urlErrorDesc = searchParams.get('error_description') || searchParams.get('message');
         const urlErrorCode = searchParams.get('error_code');
         if (urlErrorDesc) {
-          logger.auth('Email confirmation error from URL', { urlErrorDesc, urlErrorCode });
-          console.error('❌ Email confirmation failed - URL error:', { urlErrorDesc, urlErrorCode });
+          logger.auth.error('Email confirmation error from URL', { urlErrorDesc, urlErrorCode });
           setError(`Email confirmation failed: ${urlErrorDesc}${urlErrorCode ? ` (${urlErrorCode})` : ''}`);
           setStatus('error');
           return;
@@ -45,14 +44,13 @@ export const EmailConfirm = () => {
         const typeParam = (searchParams.get('type') || 'signup') as any;
 
         if (tokenHash) {
-          console.log('🔑 Attempting token verification:', { type: typeParam, hasToken: true });
-          logger.auth('Email confirmation via token_hash', { type: typeParam });
+          logger.auth.info('Email confirmation via token_hash', { type: typeParam });
           const { error: verifyError } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: typeParam });
           if (verifyError) {
-            console.error('❌ Token verification failed:', verifyError);
+            logger.auth.error('Token verification failed', { verifyError });
             throw verifyError;
           }
-          console.log('✅ Token verification successful');
+          logger.auth.info('Token verification successful');
           setStatus('success');
           
           // Check for pending invite code and redirect appropriately
@@ -70,14 +68,13 @@ export const EmailConfirm = () => {
         // Fallback 1: OAuth/PKCE code param
         const codeParam = searchParams.get('code');
         if (codeParam) {
-          console.log('🔑 Attempting code exchange');
-          logger.auth('Email/OAuth confirmation via exchangeCodeForSession');
+          logger.auth.info('Email/OAuth confirmation via exchangeCodeForSession');
           const { error: codeError } = await supabase.auth.exchangeCodeForSession(codeParam);
           if (codeError) {
-            console.error('❌ Code exchange failed:', codeError);
+            logger.auth.error('Code exchange failed', { codeError });
             throw codeError;
           }
-          console.log('✅ Code exchange successful');
+          logger.auth.info('Code exchange successful');
           setStatus('success');
           
           // Check for pending invite code and redirect appropriately
@@ -96,17 +93,16 @@ export const EmailConfirm = () => {
         const accessTokenInHash = hashParams.get('access_token');
         const refreshTokenInHash = hashParams.get('refresh_token');
         if (accessTokenInHash && refreshTokenInHash) {
-          console.log('🔑 Attempting session restoration from hash');
-          logger.auth('Email confirmation via setSession (hash tokens)');
+          logger.auth.info('Email confirmation via setSession (hash tokens)');
           const { error: sessionError } = await supabase.auth.setSession({
             access_token: accessTokenInHash,
             refresh_token: refreshTokenInHash,
           });
           if (sessionError) {
-            console.error('❌ Session restoration failed:', sessionError);
+            logger.auth.error('Session restoration failed', { sessionError });
             throw sessionError;
           }
-          console.log('✅ Session restoration successful');
+          logger.auth.info('Session restoration successful');
           setStatus('success');
           
           // Check for pending invite code and redirect appropriately
@@ -121,11 +117,10 @@ export const EmailConfirm = () => {
           return;
         }
 
-        console.error('❌ No valid confirmation token found');
+        logger.auth.error('No valid confirmation token found');
         throw new Error('Missing confirmation token - this usually indicates the email was not delivered properly');
       } catch (err: any) {
-        logger.auth('Email confirmation failed', { error: err.message });
-        console.error('❌ Email confirmation process failed:', err);
+        logger.auth.error('Email confirmation failed', { error: err.message });
         setError(err.message || 'Failed to confirm email');
         setStatus('error');
       }
@@ -164,7 +159,7 @@ export const EmailConfirm = () => {
       setError('Verification email resent! Please check your inbox and spam folder.');
       setStatus('loading');
     } catch (err: any) {
-      logger.auth('Failed to resend verification email', { error: err.message });
+      logger.auth.error('Failed to resend verification email', { error: err.message });
       setError(`Failed to resend email: ${err.message}`);
     } finally {
       setIsResending(false);

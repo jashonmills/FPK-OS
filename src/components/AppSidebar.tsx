@@ -289,7 +289,7 @@ export function AppSidebar() {
       await signOut();
       navigate('/login');
     } catch (error) {
-      logger.auth('Error signing out', error);
+      logger.auth.error('Error signing out', { error });
     }
   };
 

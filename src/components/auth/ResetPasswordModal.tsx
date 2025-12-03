@@ -63,18 +63,18 @@ export const ResetPasswordModal: React.FC<ResetPasswordModalProps> = ({
     setError('');
 
     try {
-      logger.auth('Updating password');
+      logger.auth.info('Updating password');
       const { error } = await supabase.auth.updateUser({
         password: passwords.newPassword 
       });
 
       if (error) {
-        logger.error('Password update failed', 'AUTH', error);
+        logger.auth.error('Password update failed', { error });
         setError(error.message || 'Failed to update password. Please try again.');
         return;
       }
 
-      logger.auth('Password updated successfully');
+      logger.auth.info('Password updated successfully');
       setSuccess(true);
       
       toast({
