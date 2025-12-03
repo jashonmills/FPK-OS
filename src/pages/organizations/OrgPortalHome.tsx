@@ -533,40 +533,6 @@ export default function OrgPortalHome() {
         section="dashboard"
       />
 
-      {/* Owner-Only: Billing & Subscription Card */}
-      {isOwner && (
-        <Card className="bg-gradient-to-r from-emerald-500/70 to-green-500/70 border-emerald-400/50">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <CreditCard className="h-5 w-5" />
-              Billing & Subscription
-            </CardTitle>
-            <CardDescription className="text-white/80">
-              Manage your organization's subscription and payment settings
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div className="space-y-1">
-                <div className="text-sm text-white/80">Current Plan</div>
-                <div className="text-xl font-bold text-white">
-                  {currentOrg?.organizations?.subscription_tier || 'Free'}
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <Button 
-                  variant="outline"
-                  className="border-white/30 text-white hover:bg-white/20"
-                  onClick={() => navigate(`/org/${currentOrg?.organization_id}/settings?tab=billing`)}
-                >
-                  <CreditCard className="h-4 w-4 mr-2" />
-                  Manage Billing
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Admin-Only: Quick Access to Governance */}
       {isAdmin && (
@@ -912,6 +878,41 @@ export default function OrgPortalHome() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Owner-Only: Billing & Subscription Card - At Bottom */}
+      {isOwner && (
+        <Card className="bg-gradient-to-r from-emerald-500/70 to-green-500/70 border-emerald-400/50">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center gap-2">
+              <CreditCard className="h-5 w-5" />
+              Billing & Subscription
+            </CardTitle>
+            <CardDescription className="text-white/80">
+              Manage your organization's subscription and payment settings
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="text-sm text-white/80">Current Plan</div>
+                <div className="text-xl font-bold text-white">
+                  {currentOrg?.organizations?.subscription_tier || 'Free'}
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline"
+                  className="border-white/30 text-white bg-transparent hover:bg-white/20"
+                  onClick={() => navigate(`/org/${currentOrg?.organization_id}/settings?tab=billing`)}
+                >
+                  <CreditCard className="h-4 w-4 mr-2" />
+                  Manage Billing
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

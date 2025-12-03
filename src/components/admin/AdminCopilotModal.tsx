@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { X, Send, Bot, User, Sparkles, Trash2, Loader2 } from 'lucide-react';
+import { X, Send, Bot, User, Sparkles, Trash2, Loader2, Mic, Volume2, Square } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,6 +7,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import type { CopilotMessage } from '@/hooks/useAdminCopilot';
 import ReactMarkdown from 'react-markdown';
+import { useTextToSpeech } from '@/hooks/useTextToSpeech';
+import { useEnhancedVoiceInput } from '@/hooks/useEnhancedVoiceInput';
 
 interface AdminCopilotModalProps {
   isOpen: boolean;
@@ -39,6 +41,19 @@ export function AdminCopilotModal({
   const [input, setInput] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  
+  // TTS and STT hooks
+  const { speak, stop: stopSpeech, isSpeaking, isSupported: ttsSupported } = useTextToSpeech();
+  const { 
+    isRecording, 
+    isProcessing, 
+    startRecording, 
+    stopRecording, 
+    cancelRecording,
+    isNativeSupported 
+  } = useEnhancedVoiceInput();
+  
+  const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -54,6 +69,14 @@ export function AdminCopilotModal({
     }
   }, [isOpen]);
 
+  // Stop speech when modal closes
+  useEffect(() => {
+    if (!isOpen && isSpeaking) {
+      stopSpeech();
+      setSpeakingMessageId(null);
+    }
+  }, [isOpen, isSpeaking, stopSpeech]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
@@ -65,6 +88,39 @@ export function AdminCopilotModal({
     if (isLoading) return;
     onSend(question);
   };
+
+  const handleVoiceInput = async () => {
+    if (isRecording) {
+      const transcript = await stopRecording();
+      if (transcript && transcript.trim()) {
+        setInput(prev => prev + (prev ? ' ' : '') + transcript);
+      }
+    } else {
+      startRecording((text) => {
+        if (text && text.trim()) {
+          setInput(prev => prev + (prev ? ' ' : '') + text);
+        }
+      });
+    }
+  };
+
+  const handleSpeak = (messageId: string, content: string) => {
+    if (speakingMessageId === messageId && isSpeaking) {
+      stopSpeech();
+      setSpeakingMessageId(null);
+    } else {
+      stopSpeech();
+      setSpeakingMessageId(messageId);
+      speak(content, 'BETTY');
+    }
+  };
+
+  // Reset speaking state when speech ends
+  useEffect(() => {
+    if (!isSpeaking && speakingMessageId) {
+      setSpeakingMessageId(null);
+    }
+  }, [isSpeaking, speakingMessageId]);
 
   if (!isOpen) return null;
 
@@ -200,6 +256,23 @@ export function AdminCopilotModal({
                       <p className="text-sm">{msg.content}</p>
                     )}
                   </div>
+                  
+                  {/* TTS Button for assistant messages */}
+                  {msg.role === 'assistant' && msg.content && ttsSupported && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 flex-shrink-0 self-end text-muted-foreground hover:text-foreground"
+                      onClick={() => handleSpeak(msg.id, msg.content)}
+                      title={speakingMessageId === msg.id && isSpeaking ? "Stop speaking" : "Read aloud"}
+                    >
+                      {speakingMessageId === msg.id && isSpeaking ? (
+                        <Square className="h-3.5 w-3.5" />
+                      ) : (
+                        <Volume2 className="h-3.5 w-3.5" />
+                      )}
+                    </Button>
+                  )}
                 </div>
               ))}
               
@@ -221,12 +294,35 @@ export function AdminCopilotModal({
         {/* Input Area */}
         <form onSubmit={handleSubmit} className="p-4 border-t border-border">
           <div className="flex gap-2">
+            {/* Voice Input Button */}
+            {isNativeSupported && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={handleVoiceInput}
+                disabled={isLoading || isProcessing}
+                className={cn(
+                  "flex-shrink-0",
+                  isRecording && "text-red-500 animate-pulse"
+                )}
+                title={isRecording ? "Stop recording" : "Voice input"}
+              >
+                {isProcessing ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : isRecording ? (
+                  <Square className="h-4 w-4" />
+                ) : (
+                  <Mic className="h-4 w-4" />
+                )}
+              </Button>
+            )}
             <Input
               ref={inputRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask me anything..."
-              disabled={isLoading}
+              placeholder={isRecording ? "Listening..." : "Ask me anything..."}
+              disabled={isLoading || isRecording}
               className="flex-1 bg-secondary/50 border-0 focus-visible:ring-1 focus-visible:ring-primary"
             />
             <Button 
