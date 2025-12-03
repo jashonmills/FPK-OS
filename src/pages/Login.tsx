@@ -18,6 +18,12 @@ import { ResetPasswordModal } from '@/components/auth/ResetPasswordModal';
 import { FirstVisitVideoModal } from '@/components/common/FirstVisitVideoModal';
 import { useFirstVisitVideo } from '@/hooks/useFirstVisitVideo';
 import { PageHelpTrigger } from '@/components/common/PageHelpTrigger';
+import { AgeVerificationStep } from '@/components/auth/AgeVerificationStep';
+import { ParentalConsentForm } from '@/components/auth/ParentalConsentForm';
+import { ConsentPendingNotice } from '@/components/auth/ConsentPendingNotice';
+import { useParentalConsent } from '@/hooks/useParentalConsent';
+
+type SignupStep = 'credentials' | 'age-verification' | 'parental-consent' | 'consent-pending';
 
 const Login = () => {
   const { tString } = useGlobalTranslation('auth');
@@ -191,6 +197,14 @@ const Login = () => {
     confirmPassword: ''
   });
 
+  // COPPA compliance state
+  const [signupStep, setSignupStep] = useState<SignupStep>('credentials');
+  const [dateOfBirth, setDateOfBirth] = useState('');
+  const [isMinor, setIsMinor] = useState(false);
+  const [parentEmail, setParentEmail] = useState('');
+  const [createdUserId, setCreatedUserId] = useState<string | null>(null);
+  const { sendConsentRequest, resendConsentRequest, isSending } = useParentalConsent();
+
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -245,29 +259,65 @@ const Login = () => {
     }
   };
 
-  const handleSignUp = async (e: React.FormEvent) => {
+  // Handle initial credentials validation - moves to age verification
+  const handleCredentialsNext = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
     setError('');
+
+    if (!signUpData.displayName.trim()) {
+      setError('Please enter your name.');
+      return;
+    }
+
+    if (!signUpData.email.trim()) {
+      setError('Please enter your email.');
+      return;
+    }
 
     if (signUpData.password !== signUpData.confirmPassword) {
       setError('Passwords do not match.');
-      setIsLoading(false);
       return;
     }
 
     if (signUpData.password.length < 6) {
       setError('Password must be at least 6 characters long.');
-      setIsLoading(false);
       return;
     }
 
+    // Move to age verification step
+    setSignupStep('age-verification');
+  };
+
+  // Handle age verification result
+  const handleAgeVerified = (dob: string, minor: boolean) => {
+    setDateOfBirth(dob);
+    setIsMinor(minor);
+    
+    if (minor) {
+      // Under 13 - need parental consent
+      setSignupStep('parental-consent');
+    } else {
+      // 13+ - proceed with normal signup
+      handleFinalSignUp(dob, false);
+    }
+  };
+
+  // Handle parental consent form submission
+  const handleParentalConsentSubmit = async (email: string) => {
+    setParentEmail(email);
+    // Create the account first, then send consent request
+    await handleFinalSignUp(dateOfBirth, true, email);
+  };
+
+  // Final signup with all data
+  const handleFinalSignUp = async (dob: string, needsConsent: boolean, parentEmailAddr?: string) => {
+    setIsLoading(true);
+    setError('');
+
     try {
-      // Check if there's a pending invitation
       const pendingInvitation = localStorage.getItem('pendingInvitation');
       const returnUrl = location.state?.returnUrl;
       
-      // Set email redirect to handle confirmation with email for resend functionality
       let emailRedirectUrl = `${getSiteUrl()}/auth/confirm?email=${encodeURIComponent(signUpData.email)}`;
       if (pendingInvitation && returnUrl) {
         emailRedirectUrl = `${getSiteUrl()}/auth/confirm?email=${encodeURIComponent(signUpData.email)}&returnUrl=${encodeURIComponent(returnUrl)}`;
@@ -280,6 +330,8 @@ const Login = () => {
           data: {
             full_name: signUpData.displayName,
             display_name: signUpData.displayName,
+            date_of_birth: dob,
+            is_minor: needsConsent,
           },
           emailRedirectTo: emailRedirectUrl
         }
@@ -288,16 +340,41 @@ const Login = () => {
       if (error) {
         console.error('Signup error:', error);
         setError(error.message);
+        setIsLoading(false);
         return;
       }
 
-      // If email confirmation is disabled, user is immediately authenticated
-      if (data?.session && data?.user) {
-        console.log('✅ User signed up and auto-confirmed, checking for pending invitation');
+      // Update profile with COPPA fields
+      if (data?.user) {
+        setCreatedUserId(data.user.id);
         
-        // Check for pending invitation and redirect immediately
+        await supabase
+          .from('profiles')
+          .update({
+            date_of_birth: dob,
+            is_minor: needsConsent,
+            parental_consent_status: needsConsent ? 'pending' : 'not_required',
+          })
+          .eq('id', data.user.id);
+
+        // If minor, send parental consent request
+        if (needsConsent && parentEmailAddr) {
+          await sendConsentRequest({
+            userId: data.user.id,
+            parentEmail: parentEmailAddr,
+            childName: signUpData.displayName
+          });
+          setSignupStep('consent-pending');
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      // Normal flow for non-minors
+      if (data?.session && data?.user) {
+        console.log('✅ User signed up and auto-confirmed');
+        
         if (pendingInvitation) {
-          console.log('✅ Found pending invitation, redirecting to join flow');
           setTimeout(() => {
             navigate(`/org/join?code=${pendingInvitation}`, { replace: true });
           }, 500);
@@ -307,7 +384,6 @@ const Login = () => {
           navigate('/post-login', { replace: true });
         }
       } else {
-        // Email confirmation required
         toast({
           title: tString('accountCreated'),
           description: tString('checkEmail'),
@@ -486,66 +562,43 @@ const Login = () => {
               </TabsContent>
 
               <TabsContent value="signup">
-                <div className="flex flex-col items-center gap-2 mb-4">
-                  <PageHelpTrigger onOpen={handleShowVideoGuide} label="How this page works" />
-                </div>
-                <form onSubmit={handleSignUp} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-name">{tString('displayName')}</Label>
-                    <Input
-                      id="signup-name"
-                      type="text"
-                      placeholder={tString('fullNamePlaceholder')}
-                      value={signUpData.displayName}
-                      onChange={(e) => setSignUpData({...signUpData, displayName: e.target.value})}
-                      required
-                      className="bg-white border-gray-200"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-email">{tString('email')}</Label>
-                    <Input
-                      id="signup-email"
-                      type="email"
-                      placeholder={tString('emailPlaceholder')}
-                      value={signUpData.email}
-                      onChange={(e) => setSignUpData({...signUpData, email: e.target.value})}
-                      required
-                      className="bg-white border-gray-200"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-password">{tString('password')}</Label>
-                    <Input
-                      id="signup-password"
-                      type="password"
-                      placeholder={tString('createPassword')}
-                      value={signUpData.password}
-                      onChange={(e) => setSignUpData({...signUpData, password: e.target.value})}
-                      required
-                      className="bg-white border-gray-200"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-confirm">{tString('confirmPassword')}</Label>
-                    <Input
-                      id="signup-confirm"
-                      type="password"
-                      placeholder={tString('confirmPasswordPlaceholder')}
-                      value={signUpData.confirmPassword}
-                      onChange={(e) => setSignUpData({...signUpData, confirmPassword: e.target.value})}
-                      required
-                      className="bg-white border-gray-200"
-                    />
-                  </div>
-                  <Button 
-                    type="submit" 
-                    className="w-full fpk-gradient text-white font-semibold py-2 hover:opacity-90 transition-opacity"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? tString('creatingAccount') : tString('signUpButton')}
-                  </Button>
-                </form>
+                {signupStep === 'credentials' && (
+                  <>
+                    <div className="flex flex-col items-center gap-2 mb-4">
+                      <PageHelpTrigger onOpen={handleShowVideoGuide} label="How this page works" />
+                    </div>
+                    <form onSubmit={handleCredentialsNext} className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="signup-name">{tString('displayName')}</Label>
+                        <Input id="signup-name" type="text" placeholder={tString('fullNamePlaceholder')} value={signUpData.displayName} onChange={(e) => setSignUpData({...signUpData, displayName: e.target.value})} required className="bg-white border-gray-200" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="signup-email">{tString('email')}</Label>
+                        <Input id="signup-email" type="email" placeholder={tString('emailPlaceholder')} value={signUpData.email} onChange={(e) => setSignUpData({...signUpData, email: e.target.value})} required className="bg-white border-gray-200" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="signup-password">{tString('password')}</Label>
+                        <Input id="signup-password" type="password" placeholder={tString('createPassword')} value={signUpData.password} onChange={(e) => setSignUpData({...signUpData, password: e.target.value})} required className="bg-white border-gray-200" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="signup-confirm">{tString('confirmPassword')}</Label>
+                        <Input id="signup-confirm" type="password" placeholder={tString('confirmPasswordPlaceholder')} value={signUpData.confirmPassword} onChange={(e) => setSignUpData({...signUpData, confirmPassword: e.target.value})} required className="bg-white border-gray-200" />
+                      </div>
+                      <Button type="submit" className="w-full fpk-gradient text-white font-semibold py-2 hover:opacity-90 transition-opacity" disabled={isLoading}>
+                        Continue
+                      </Button>
+                    </form>
+                  </>
+                )}
+                {signupStep === 'age-verification' && (
+                  <AgeVerificationStep onVerified={handleAgeVerified} onBack={() => setSignupStep('credentials')} />
+                )}
+                {signupStep === 'parental-consent' && (
+                  <ParentalConsentForm childName={signUpData.displayName} onSubmit={handleParentalConsentSubmit} onBack={() => setSignupStep('age-verification')} isSubmitting={isLoading || isSending} />
+                )}
+                {signupStep === 'consent-pending' && (
+                  <ConsentPendingNotice parentEmail={parentEmail} onResend={async () => { if (createdUserId) await resendConsentRequest(createdUserId); }} isResending={isSending} />
+                )}
               </TabsContent>
             </Tabs>
           </CardContent>
