@@ -7,6 +7,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import type { LucideIcon } from 'lucide-react';
 import type { CodeAction } from './CodeTutor';
+import UniversalVoiceInput from '@/components/chat/UniversalVoiceInput';
+import TTSPlayButton from '@/components/chat/TTSPlayButton';
 
 interface Message {
   id: string | number;
@@ -438,6 +440,12 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
               <span className={`text-[10px] mt-2 block opacity-70 ${msg.role === 'user' ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
                 {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </span>
+              {/* TTS Play Button for AI messages */}
+              {msg.role === 'assistant' && (
+                <div className="mt-2 flex justify-end">
+                  <TTSPlayButton content={msg.content} size="sm" variant="ghost" />
+                </div>
+              )}
             </div>
           </motion.div>
         ))}
@@ -458,7 +466,7 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
 
       {/* Input Area */}
       <div className="p-4 bg-card border-t border-border">
-        <form onSubmit={handleSend} className="flex gap-4">
+        <form onSubmit={handleSend} className="flex gap-2">
           <input
             type="text"
             value={input}
@@ -466,6 +474,20 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
             placeholder={isCodeCompanion ? "Ask about your code..." : "Type your message here..."}
             disabled={isTyping}
             className="flex-1 px-4 py-3 bg-muted border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:bg-background transition-all text-foreground placeholder:text-muted-foreground disabled:opacity-50"
+          />
+          <UniversalVoiceInput
+            onTranscription={(text) => {
+              setInput(text);
+              // Auto-submit after brief delay
+              setTimeout(() => {
+                const form = document.querySelector('form');
+                if (form && text.trim()) {
+                  form.dispatchEvent(new Event('submit', { bubbles: true }));
+                }
+              }, 100);
+            }}
+            disabled={isTyping}
+            variant="minimal"
           />
           <Button type="submit" disabled={!input.trim() || isTyping} className="bg-primary hover:bg-primary/90 h-auto px-6 rounded-xl">
             <Send className="h-5 w-5" />
