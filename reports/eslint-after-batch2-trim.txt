@@ -1,0 +1,1 @@
+﻿[{"filePath":"C:\\Users\\Jashon\\OneDrive\\Documents\\GitHub\\fpk-learner-v1\\eslint.config.js","messages":[],"suppressedMessages":[],"errorCount":0,"fatalErrorCount":0,"warningCount":0,"fixableErrorC

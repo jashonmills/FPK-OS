@@ -1,0 +1,9 @@
+﻿{
+    "rule":  "@typescript-eslint/no-explicit-any",
+    "perFile":  {
+                    "src/utils/logger.ts":  0,
+                    "src/scorm/ingest/manifest-parser.ts":  0,
+                    "src/hooks/useLearningAnalytics.ts":  0
+                },
+    "total":  400
+}

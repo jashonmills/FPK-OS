@@ -1,0 +1,54 @@
+[
+  {
+    "rule": "@typescript-eslint/no-explicit-any",
+    "count": 412
+  },
+  {
+    "rule": "react-hooks/exhaustive-deps",
+    "count": 110
+  },
+  {
+    "rule": "react-refresh/only-export-components",
+    "count": 17
+  },
+  {
+    "rule": "no-useless-escape",
+    "count": 13
+  },
+  {
+    "rule": "no-case-declarations",
+    "count": 8
+  },
+  {
+    "rule": "react-hooks/rules-of-hooks",
+    "count": 6
+  },
+  {
+    "rule": "@typescript-eslint/no-empty-object-type",
+    "count": 2
+  },
+  {
+    "rule": "no-self-assign",
+    "count": 2
+  },
+  {
+    "rule": "no-irregular-whitespace",
+    "count": 1
+  },
+  {
+    "rule": "no-useless-catch",
+    "count": 1
+  },
+  {
+    "rule": "prefer-const",
+    "count": 1
+  },
+  {
+    "rule": "@typescript-eslint/no-non-null-asserted-optional-chain",
+    "count": 1
+  },
+  {
+    "rule": "prefer-rest-params",
+    "count": 1
+  }
+]

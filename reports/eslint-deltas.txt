@@ -1,0 +1,5 @@
+﻿Rule: @typescript-eslint/no-explicit-any
+Total: 400
+
+Per-file:
+
