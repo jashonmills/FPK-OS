@@ -12638,6 +12638,10 @@ export type Database = {
         }[]
       }
       get_admin_analytics: { Args: never; Returns: Json }
+      get_admin_copilot_activity: {
+        Args: { p_limit?: number; p_org_id: string }
+        Returns: Json
+      }
       get_admin_copilot_ai_usage: {
         Args: { p_days?: number; p_org_id: string }
         Returns: Json
