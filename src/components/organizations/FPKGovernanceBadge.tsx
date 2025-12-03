@@ -12,11 +12,13 @@ interface FPKGovernanceBadgeProps {
   className?: string;
 }
 
+const GOVERNANCE_DESCRIPTION = "All AI interactions in this organization are monitored, logged, and governed by FPK's educational AI safety policies to ensure appropriate, secure, and compliant usage.";
+
 export function FPKGovernanceBadge({ isCollapsed = false, className }: FPKGovernanceBadgeProps) {
   const badgeContent = (
     <div
       className={cn(
-        "flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 backdrop-blur-sm transition-all",
+        "flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 backdrop-blur-sm transition-all cursor-help",
         isCollapsed ? "p-2 justify-center" : "px-3 py-2",
         className
       )}
@@ -35,18 +37,18 @@ export function FPKGovernanceBadge({ isCollapsed = false, className }: FPKGovern
     </div>
   );
 
-  if (isCollapsed) {
-    return (
-      <Tooltip delayDuration={300}>
-        <TooltipTrigger asChild>
-          {badgeContent}
-        </TooltipTrigger>
-        <TooltipContent side="right" className="bg-emerald-900 text-emerald-100 border-emerald-700">
-          <p className="font-medium">Protected by FPK AI Governance</p>
-        </TooltipContent>
-      </Tooltip>
-    );
-  }
-
-  return badgeContent;
+  return (
+    <Tooltip delayDuration={300}>
+      <TooltipTrigger asChild>
+        {badgeContent}
+      </TooltipTrigger>
+      <TooltipContent 
+        side="right" 
+        className="max-w-[240px] bg-emerald-900 text-emerald-100 border-emerald-700"
+      >
+        {isCollapsed && <p className="font-medium mb-1">Protected by FPK AI Governance</p>}
+        <p className="text-xs text-emerald-200/90">{GOVERNANCE_DESCRIPTION}</p>
+      </TooltipContent>
+    </Tooltip>
+  );
 }
