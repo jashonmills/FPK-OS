@@ -21,6 +21,7 @@ import "./App.css";
 // Non-critical imports for better bundle splitting
 const Index = lazy(() => import("./pages/Index"));
 const Login = lazy(() => import("./pages/Login"));
+const ParentalConsent = lazy(() => import("./pages/ParentalConsent"));
 const PostLoginHandler = lazy(() => import("./components/auth/PostLoginHandler"));
 const ChooseOrganization = lazy(() => import("./pages/ChooseOrganization"));
 const NoOrganizationAccess = lazy(() => import("./pages/NoOrganizationAccess"));
@@ -314,6 +315,7 @@ const App: React.FC = () => {
           <Route path="/blog/contributors" element={<LazyRoute><ExpertContributors /></LazyRoute>} />
           <Route path="/blog/:slug" element={<LazyRoute><BlogPost /></LazyRoute>} />
           <Route path="/login" element={<LazyRoute><Login /></LazyRoute>} />
+          <Route path="/parental-consent" element={<LazyRoute><ParentalConsent /></LazyRoute>} />
           
           {/* Post-login routing handler */}
           <Route path="/post-login" element={

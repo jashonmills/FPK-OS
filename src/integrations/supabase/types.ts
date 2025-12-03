@@ -7779,6 +7779,48 @@ export type Database = {
           },
         ]
       }
+      parental_consent_requests: {
+        Row: {
+          consent_token: string
+          created_at: string
+          expires_at: string
+          id: string
+          ip_address: unknown
+          parent_email: string
+          requested_at: string
+          responded_at: string | null
+          status: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          consent_token?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          ip_address?: unknown
+          parent_email: string
+          requested_at?: string
+          responded_at?: string | null
+          status?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          consent_token?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          ip_address?: unknown
+          parent_email?: string
+          requested_at?: string
+          responded_at?: string | null
+          status?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       partner_resources: {
         Row: {
           category: string
@@ -8591,6 +8633,7 @@ export type Database = {
           created_at: string | null
           current_streak: number | null
           date_format: string | null
+          date_of_birth: string | null
           department: string | null
           display_font_size: string
           display_high_contrast: boolean
@@ -8606,11 +8649,15 @@ export type Database = {
           gamification_leaderboard_enabled: boolean
           gamification_xp_notify: boolean
           id: string
+          is_minor: boolean | null
           job_title: string | null
           last_activity_date: string | null
           learning_styles: string[] | null
           line_spacing: number | null
           onboarding_completed: boolean | null
+          parent_email: string | null
+          parental_consent_date: string | null
+          parental_consent_status: string | null
           pending_role: string | null
           phoenix_settings: Json | null
           phone_extension: string | null
@@ -8645,6 +8692,7 @@ export type Database = {
           created_at?: string | null
           current_streak?: number | null
           date_format?: string | null
+          date_of_birth?: string | null
           department?: string | null
           display_font_size?: string
           display_high_contrast?: boolean
@@ -8660,11 +8708,15 @@ export type Database = {
           gamification_leaderboard_enabled?: boolean
           gamification_xp_notify?: boolean
           id: string
+          is_minor?: boolean | null
           job_title?: string | null
           last_activity_date?: string | null
           learning_styles?: string[] | null
           line_spacing?: number | null
           onboarding_completed?: boolean | null
+          parent_email?: string | null
+          parental_consent_date?: string | null
+          parental_consent_status?: string | null
           pending_role?: string | null
           phoenix_settings?: Json | null
           phone_extension?: string | null
@@ -8699,6 +8751,7 @@ export type Database = {
           created_at?: string | null
           current_streak?: number | null
           date_format?: string | null
+          date_of_birth?: string | null
           department?: string | null
           display_font_size?: string
           display_high_contrast?: boolean
@@ -8714,11 +8767,15 @@ export type Database = {
           gamification_leaderboard_enabled?: boolean
           gamification_xp_notify?: boolean
           id?: string
+          is_minor?: boolean | null
           job_title?: string | null
           last_activity_date?: string | null
           learning_styles?: string[] | null
           line_spacing?: number | null
           onboarding_completed?: boolean | null
+          parent_email?: string | null
+          parental_consent_date?: string | null
+          parental_consent_status?: string | null
           pending_role?: string | null
           phoenix_settings?: Json | null
           phone_extension?: string | null
