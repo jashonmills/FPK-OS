@@ -7,7 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { DetailedAnalyticsModal } from '@/components/organizations/DetailedAnalyticsModal';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Clock, RefreshCw, Mail } from 'lucide-react';
 import { 
   Users, 
   BookOpen, 
@@ -20,6 +20,9 @@ import {
   Settings,
   Shield
 } from 'lucide-react';
+import { useParentalConsent } from '@/hooks/useParentalConsent';
+import { useAuth } from '@/hooks/useAuth';
+import { toast } from 'sonner';
 import { useOrgContext } from '@/components/organizations/OrgContext';
 import { useStudentOrgStatistics } from '@/hooks/useStudentOrgStatistics';
 import { useComprehensiveOrgAnalytics } from '@/hooks/useComprehensiveOrgAnalytics';
@@ -33,12 +36,14 @@ import { PageHeaderWithHelp } from '@/components/common/PageHeaderWithHelp';
 
 export default function OrgPortalHome() {
   const navigate = useNavigate();
-  const { currentOrg, getEffectiveRole } = useOrgContext();
+  const { currentOrg, getEffectiveRole, isAILocked } = useOrgContext();
   const { data: branding } = useOrgBranding(currentOrg?.organization_id || null);
   const { data: enhancedBranding } = useEnhancedOrgBranding(currentOrg?.organization_id || null);
   const { userStats, isLoading: gamificationLoading } = useGamificationContext();
   const [showProgressModal, setShowProgressModal] = useState(false);
   const [showDetailedAnalytics, setShowDetailedAnalytics] = useState(false);
+  const { user } = useAuth();
+  const { resendConsentRequest, checkConsentStatus, isSending } = useParentalConsent();
   
   // Role-based statistics loading - use effective role for impersonation support
   const effectiveRole = getEffectiveRole();
@@ -115,8 +120,73 @@ export default function OrgPortalHome() {
       );
     }
 
+    const handleCheckStatus = async () => {
+      if (!user?.id) return;
+      const status = await checkConsentStatus(user.id);
+      if (status?.parental_consent_status === 'approved') {
+        toast.success('Parental consent has been approved! Refreshing...');
+        window.location.reload();
+      } else {
+        toast.info('Still waiting for parental approval.');
+      }
+    };
+
+    const handleResendEmail = async () => {
+      if (!user?.id) return;
+      const result = await resendConsentRequest(user.id);
+      if (result.success) {
+        toast.success('Consent request email sent to your parent/guardian');
+      } else {
+        toast.error('Failed to resend email. Please try again later.');
+      }
+    };
+
     return (
       <div className="container mx-auto px-6 py-8 space-y-6">
+        {/* Parental Consent Pending Banner */}
+        {isAILocked && (
+          <Card className="bg-amber-500/20 border-amber-400/50">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-amber-500/30 rounded-full">
+                  <Clock className="h-5 w-5 text-amber-200" />
+                </div>
+                <div className="flex-1">
+                  <CardTitle className="text-white text-lg">Waiting for Parental Approval</CardTitle>
+                  <CardDescription className="text-white/80 mt-1">
+                    Welcome! Your account is waiting for parental approval. While you wait, you can get started on your courses. 
+                    The AI Learning Coach will be unlocked once your parent or guardian gives their consent.
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-3">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={handleCheckStatus}
+                  disabled={isSending}
+                  className="bg-white/20 hover:bg-white/30 text-white border-white/30"
+                >
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Check Status
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={handleResendEmail}
+                  disabled={isSending}
+                  className="bg-white/20 hover:bg-white/30 text-white border-white/30"
+                >
+                  <Mail className="h-4 w-4 mr-2" />
+                  {isSending ? 'Sending...' : 'Resend Request'}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Welcome Card */}
         <Card className="bg-orange-500/65 border-orange-400/50">
           <CardHeader>

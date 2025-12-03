@@ -21,9 +21,10 @@ import { shouldUseNewTeacherDashboard, shouldUseAILearningCoachV2 } from '@/lib/
 import TeacherPanel, { type TeacherTabId } from '@/components/teacher/TeacherPanel';
 import StudentPanel from '@/components/student/StudentPanel';
 import { motion } from 'framer-motion';
+import { AICoachLockedState } from '@/components/ai-coach/AICoachLockedState';
 
 export default function AIStudyCoach() {
-  const { currentOrg, getEffectiveRole } = useOrgContext();
+  const { currentOrg, getEffectiveRole, isAILocked } = useOrgContext();
   const { user } = useAuth();
   const isMobile = useIsMobile();
   const { isOrgOwner, isOrgInstructor } = useOrgPermissions();
@@ -84,6 +85,15 @@ export default function AIStudyCoach() {
   const effectiveRole = getEffectiveRole();
   const isAdmin = effectiveRole === 'owner' || effectiveRole === 'admin' || effectiveRole === 'instructor';
   const orgId = currentOrg?.organization_id;
+
+  // COPPA Lock: If student has pending parental consent, show locked state
+  if (!isAdmin && isAILocked) {
+    return (
+      <MobilePageLayout className="min-h-screen">
+        <AICoachLockedState />
+      </MobilePageLayout>
+    );
+  }
 
   // Fetch organization's Free Chat setting for students
   React.useEffect(() => {

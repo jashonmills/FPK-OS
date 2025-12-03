@@ -5,6 +5,7 @@ import type { UserOrganizationMembership } from '@/hooks/useUserOrganization';
 import { useNavigate } from 'react-router-dom';
 import { useOrgBranding } from '@/hooks/useOrgBranding';
 import { safeLocalStorage } from '@/utils/safeStorage';
+import { useParentalConsentStatus } from '@/hooks/useParentalConsentStatus';
 
 // Utility to sanitize organization names that may contain error text
 const sanitizeOrgName = (name: string): string => {
@@ -40,6 +41,9 @@ interface OrgContextType {
   getEffectiveRole: () => MemberRole | null;
   isImpersonating: boolean;
   canImpersonate: boolean;
+  // COPPA compliance
+  parentalConsentStatus: 'not_required' | 'pending' | 'approved' | 'denied' | null;
+  isAILocked: boolean;
 }
 
 const OrgContext = createContext<OrgContextType | undefined>(undefined);
@@ -47,6 +51,7 @@ const OrgContext = createContext<OrgContextType | undefined>(undefined);
 export function OrgProvider({ children, orgId }: { children: React.ReactNode; orgId?: string }) {
   const { user } = useAuth();
   const { data: rawOrganizations = [], isLoading, error } = useUserOrganizations();
+  const { data: consentData } = useParentalConsentStatus();
   const navigate = useNavigate();
   const [activeOrgId, setActiveOrgId] = useState<string | null>(null);
   const [currentOrg, setCurrentOrg] = useState<UserOrganizationMembership | null>(null);
@@ -191,6 +196,13 @@ export function OrgProvider({ children, orgId }: { children: React.ReactNode; or
     return actualRole;
   };
 
+  // COPPA compliance: AI is locked for students with pending parental consent
+  const parentalConsentStatus = consentData?.parentalConsentStatus ?? null;
+  const isAILocked = useMemo(() => {
+    const effectiveRole = getEffectiveRole();
+    return effectiveRole === 'student' && consentData?.needsParentalConsent === true;
+  }, [consentData?.needsParentalConsent, viewAsRole, actualRole]);
+
   return (
     <OrgContext.Provider value={{
       currentOrg,
@@ -207,6 +219,8 @@ export function OrgProvider({ children, orgId }: { children: React.ReactNode; or
       getEffectiveRole,
       isImpersonating,
       canImpersonate,
+      parentalConsentStatus,
+      isAILocked,
     }}>
       {children}
     </OrgContext.Provider>
