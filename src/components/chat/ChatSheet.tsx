@@ -19,6 +19,8 @@ import { cn } from '@/lib/utils';
 import { featureFlagService } from '@/services/FeatureFlagService';
 import ChatSessionsList from './ChatSessionsList';
 import ChatMessagesPane from './ChatMessagesPane';
+import { usePIIDetection } from '@/hooks/usePIIDetection';
+import { PIIWarningBanner } from './PIIWarningBanner';
 
 interface ChatSheetProps {
   trigger?: React.ReactNode;
@@ -31,8 +33,11 @@ const ChatSheet = ({ trigger, isOpen, onOpenChange, isWidget = false }: ChatShee
   const [message, setMessage] = useState('');
   const [internalOpen, setInternalOpen] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
+  const [showPIIWarning, setShowPIIWarning] = useState(false);
+  const [showMaskedPreview, setShowMaskedPreview] = useState(false);
   const isMobile = useIsMobile();
   const { user } = useAuth();
+  const { checkMessage, lastResult, clearResult, acknowledgeWarning, warningAcknowledged } = usePIIDetection();
   
   // Use different hooks based on widget mode
   const { 
@@ -97,14 +102,25 @@ const ChatSheet = ({ trigger, isOpen, onOpenChange, isWidget = false }: ChatShee
     }
   }, [currentSessionId, isMobile]);
 
-  const handleSendMessage = async () => {
+  const handleSendMessage = async (bypassPII = false) => {
     if (!message.trim() || isSending) return;
+    
+    // Check for PII unless bypassed
+    if (!bypassPII && !warningAcknowledged) {
+      const piiResult = checkMessage(message);
+      if (piiResult.hasPII && piiResult.severity !== 'low') {
+        setShowPIIWarning(true);
+        return;
+      }
+    }
     
     console.log('Handling send message...', { message, isWidget });
     
     const context = getPageContext();
     const messageToSend = message;
     setMessage(''); // Clear input immediately for better UX
+    setShowPIIWarning(false);
+    clearResult();
     
     if (isWidget) {
       await sendWidgetMessage(messageToSend, context);
@@ -126,6 +142,17 @@ const ChatSheet = ({ trigger, isOpen, onOpenChange, isWidget = false }: ChatShee
       console.log('Sending message with context:', { context, sessionId });
       await sendDbMessage(messageToSend, context);
     }
+  };
+
+  const handlePIIDismiss = () => {
+    setShowPIIWarning(false);
+    // Focus back on input for editing
+  };
+
+  const handlePIISendAnyway = () => {
+    acknowledgeWarning();
+    setShowPIIWarning(false);
+    handleSendMessage(true);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -372,6 +399,18 @@ const ChatSheet = ({ trigger, isOpen, onOpenChange, isWidget = false }: ChatShee
                   </div>
                 )}
 
+                {/* PII Warning Banner */}
+                {showPIIWarning && lastResult && (
+                  <PIIWarningBanner
+                    result={lastResult}
+                    originalText={message}
+                    onDismiss={handlePIIDismiss}
+                    onSendAnyway={handlePIISendAnyway}
+                    showMasked={showMaskedPreview}
+                    onToggleMask={() => setShowMaskedPreview(!showMaskedPreview)}
+                  />
+                )}
+
                 <div className="flex gap-1 sm:gap-2">
                   <Input
                     ref={inputRef}
@@ -398,7 +437,7 @@ const ChatSheet = ({ trigger, isOpen, onOpenChange, isWidget = false }: ChatShee
                   </Button>
 
                   <Button 
-                    onClick={handleSendMessage}
+                    onClick={() => handleSendMessage()}
                     disabled={isSending || !message.trim() || isRecording || isProcessing}
                     size="icon"
                     className="bg-purple-600 hover:bg-purple-700 flex-shrink-0 touch-target"
