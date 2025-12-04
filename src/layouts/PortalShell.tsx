@@ -18,6 +18,7 @@ import {
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
+import { ISOS_ENABLED } from '../config';
 
 interface BreadcrumbItem {
   label: string;
@@ -60,6 +61,15 @@ const navigationItems: (NavItem | { divider: true } | { heading: string })[] = [
   { icon: BookOpen, label: 'Courses', to: '/courses' },
   { icon: BarChart3, label: 'Analytics', to: '/analytics' },
 ];
+
+// ADD THE CONDITIONAL LOGIC FOR ISOS
+if (ISOS_ENABLED) {
+  navigationItems.unshift(
+    { divider: true },
+    { heading: 'ISOS Administration' },
+    { icon: Settings, label: 'ISOS Dashboard', to: '/isos-admin' }
+  );
+}
 
 function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle: () => void }) {
   const navigate = useNavigate();

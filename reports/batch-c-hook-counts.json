@@ -1,0 +1,2222 @@
+﻿[
+    {
+        "file":  "src\\components\\accessibility\\AccessibilityTester.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\admin\\AdminOrgCreationModal.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\admin\\ChangeSubscriptionDialog.tsx",
+        "any":  0,
+        "hooks":  1
+    },
+    {
+        "file":  "src\\components\\admin\\CommunityBooksApproval.tsx",
+        "any":  0,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\components\\admin\\DeleteOrganizationDialog.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\admin\\EditOrganizationDialog.tsx",
+        "any":  0,
+        "hooks":  1
+    },
+    {
+        "file":  "src\\components\\admin\\EnhancedUsersTable.tsx",
+        "any":  0,
+        "hooks":  1
+    },
+    {
+        "file":  "src\\components\\admin\\EPUBStorageManager.tsx",
+        "any":  0,
+        "hooks":  5
+    },
+    {
+        "file":  "src\\components\\admin\\ExportDataDialog.tsx",
+        "any":  0,
+        "hooks":  1
+    },
+    {
+        "file":  "src\\components\\admin\\FeedbackCard.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\admin\\LessonManager.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\admin\\ManageInstructorsDialog.tsx",
+        "any":  1,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\admin\\ManageMembersDialog.tsx",
+        "any":  0,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\components\\admin\\ModuleManager.tsx",
+        "any":  0,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\components\\admin\\OrganizationActionsDropdown.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\admin\\PopulateApprovedBooks.tsx",
+        "any":  0,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\components\\admin\\ScormUploader.tsx",
+        "any":  0,
+        "hooks":  13
+    },
+    {
+        "file":  "src\\components\\admin\\SendBetaUpdate.tsx",
+        "any":  0,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\components\\admin\\SystemHealthDashboard.tsx",
+        "any":  1,
+        "hooks":  8
+    },
+    {
+        "file":  "src\\components\\admin\\TestFeedbackSystem.tsx",
+        "any":  0,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\components\\admin\\ThresholdAuditLog.tsx",
+        "any":  2,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\components\\admin\\ThresholdConfigEditor.tsx",
+        "any":  0,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\components\\admin\\ThresholdManagement.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\admin\\UserSegmentManager.tsx",
+        "any":  0,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\components\\ai\\AIFeatureExample.tsx",
+        "any":  0,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\components\\ai-coach\\challenges\\AccuracyChallenge.tsx",
+        "any":  0,
+        "hooks":  14
+    },
+    {
+        "file":  "src\\components\\ai-coach\\challenges\\CustomPractice.tsx",
+        "any":  0,
+        "hooks":  9
+    },
+    {
+        "file":  "src\\components\\ai-coach\\challenges\\QuickReview.tsx",
+        "any":  0,
+        "hooks":  10
+    },
+    {
+        "file":  "src\\components\\ai-coach\\challenges\\SpeedTest.tsx",
+        "any":  1,
+        "hooks":  17
+    },
+    {
+        "file":  "src\\components\\ai-coach\\AICoachEngagementCard.tsx",
+        "any":  0,
+        "hooks":  1
+    },
+    {
+        "file":  "src\\components\\ai-coach\\AICoachPerformanceCard.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\ai-coach\\FileUploadCard.tsx",
+        "any":  0,
+        "hooks":  14
+    },
+    {
+        "file":  "src\\components\\ai-coach\\MinimalChatInterface.tsx",
+        "any":  0,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\components\\ai-coach\\QuickChallengesCard.tsx",
+        "any":  2,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\components\\ai-coach\\QuizSessionWidget.tsx",
+        "any":  0,
+        "hooks":  7
+    },
+    {
+        "file":  "src\\components\\ai-coach\\RecentSavesMenu.tsx",
+        "any":  0,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\components\\ai-coach\\SaveBeforeClearDialog.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\ai-coach\\SavedCoachChats.tsx",
+        "any":  0,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\components\\ai-coach\\SavePreviewFlashcardsButton.tsx",
+        "any":  0,
+        "hooks":  1
+    },
+    {
+        "file":  "src\\components\\ai-coach\\SaveToNotesButton.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\ai-coach\\SaveToNotesDialog.tsx",
+        "any":  0,
+        "hooks":  10
+    },
+    {
+        "file":  "src\\components\\ai-coach\\VoiceSettingsCard.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\algebra\\lessons\\AlgebraLesson1.tsx",
+        "any":  1,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\algebra\\lessons\\AlgebraLesson2.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\algebra\\lessons\\AlgebraLesson3.tsx",
+        "any":  0,
+        "hooks":  7
+    },
+    {
+        "file":  "src\\components\\algebra\\lessons\\AlgebraLesson4.tsx",
+        "any":  0,
+        "hooks":  7
+    },
+    {
+        "file":  "src\\components\\algebra\\lessons\\AlgebraLesson5.tsx",
+        "any":  0,
+        "hooks":  7
+    },
+    {
+        "file":  "src\\components\\algebra\\lessons\\AlgebraLesson6.tsx",
+        "any":  0,
+        "hooks":  7
+    },
+    {
+        "file":  "src\\components\\algebra\\lessons\\AlgebraLesson7.tsx",
+        "any":  0,
+        "hooks":  7
+    },
+    {
+        "file":  "src\\components\\analytics\\AICoachAnalytics.tsx",
+        "any":  0,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\components\\analytics\\AnalyticsCard.tsx",
+        "any":  0,
+        "hooks":  1
+    },
+    {
+        "file":  "src\\components\\analytics\\AnalyticsDashboard.tsx",
+        "any":  0,
+        "hooks":  5
+    },
+    {
+        "file":  "src\\components\\analytics\\ContentCreationAnalytics.tsx",
+        "any":  0,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\components\\analytics\\CoursePerformanceAnalytics.tsx",
+        "any":  2,
+        "hooks":  7
+    },
+    {
+        "file":  "src\\components\\analytics\\DeclarativeChart.tsx",
+        "any":  1,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\components\\analytics\\EnhancedAnalyticsDashboard.tsx",
+        "any":  0,
+        "hooks":  5
+    },
+    {
+        "file":  "src\\components\\analytics\\GoalsGamificationAnalytics.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\analytics\\InteractiveCourseAnalyticsDashboard.tsx",
+        "any":  3,
+        "hooks":  8
+    },
+    {
+        "file":  "src\\components\\analytics\\LibraryReadingAnalytics.tsx",
+        "any":  0,
+        "hooks":  1
+    },
+    {
+        "file":  "src\\components\\analytics\\NotificationsAnalytics.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\analytics\\ReadingAnalyticsCard.tsx",
+        "any":  0,
+        "hooks":  1
+    },
+    {
+        "file":  "src\\components\\analytics\\StudyPerformanceCard.tsx",
+        "any":  0,
+        "hooks":  1
+    },
+    {
+        "file":  "src\\components\\analytics\\UserLearningProgress.tsx",
+        "any":  1,
+        "hooks":  7
+    },
+    {
+        "file":  "src\\components\\analytics\\XPBreakdownCard.tsx",
+        "any":  0,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\components\\auth\\EmailVerificationGate.tsx",
+        "any":  0,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\components\\auth\\ForgotPasswordModal.tsx",
+        "any":  0,
+        "hooks":  5
+    },
+    {
+        "file":  "src\\components\\auth\\ResetPasswordModal.tsx",
+        "any":  0,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\components\\beta\\BetaAccessGate.tsx",
+        "any":  2,
+        "hooks":  7
+    },
+    {
+        "file":  "src\\components\\beta\\BetaOnboarding.tsx",
+        "any":  2,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\components\\beta\\FeedbackSystem.tsx",
+        "any":  0,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\components\\beta\\QATestRunner.tsx",
+        "any":  1,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\components\\chat\\AIStudyChatInterface.tsx",
+        "any":  2,
+        "hooks":  21
+    },
+    {
+        "file":  "src\\components\\chat\\ChatMessagesPane.tsx",
+        "any":  1,
+        "hooks":  8
+    },
+    {
+        "file":  "src\\components\\chat\\ChatSessionsList.tsx",
+        "any":  0,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\components\\chat\\ChatSheet.tsx",
+        "any":  0,
+        "hooks":  11
+    },
+    {
+        "file":  "src\\components\\common\\FirstVisitVideoModal.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\compliance\\AdminComplianceCenter.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\compliance\\ComplianceDashboard.tsx",
+        "any":  0,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\components\\compliance\\ComplianceTrainingCenter.tsx",
+        "any":  0,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\components\\compliance\\ConsentManagementCenter.tsx",
+        "any":  0,
+        "hooks":  5
+    },
+    {
+        "file":  "src\\components\\compliance\\ConsentManager.tsx",
+        "any":  1,
+        "hooks":  7
+    },
+    {
+        "file":  "src\\components\\compliance\\DataRetentionNotice.tsx",
+        "any":  0,
+        "hooks":  5
+    },
+    {
+        "file":  "src\\components\\compliance\\DataSubjectRequestForm.tsx",
+        "any":  1,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\components\\compliance\\HIPAAAccessControl.tsx",
+        "any":  0,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\components\\compliance\\SecurityIncidentManager.tsx",
+        "any":  0,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\components\\course\\numeracy-lessons\\NumeracyFinalTestLesson.tsx",
+        "any":  0,
+        "hooks":  5
+    },
+    {
+        "file":  "src\\components\\course\\numeracy-lessons\\NumeracyQuizLesson.tsx",
+        "any":  0,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\components\\course\\reading-lessons\\ReadingFinalTestLesson.tsx",
+        "any":  0,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\components\\course\\reading-lessons\\ReadingQuizLesson.tsx",
+        "any":  0,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\components\\course\\resources\\InstructorMaterialsAccordion.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\course\\spelling-lessons\\EmpoweringLearningNounsLesson.tsx",
+        "any":  0,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\components\\course\\spelling-lessons\\FinalTipsLesson.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\course\\spelling-lessons\\OptimalLearningStateLesson.tsx",
+        "any":  0,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\components\\course\\spelling-lessons\\SpellingTechniqueLesson.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\course\\CourseAIStudyCoach.tsx",
+        "any":  0,
+        "hooks":  10
+    },
+    {
+        "file":  "src\\components\\course\\CourseOverviewTTS.tsx",
+        "any":  1,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\components\\course\\CourseOverviewVideo.tsx",
+        "any":  0,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\components\\course\\CoursePlayer.tsx",
+        "any":  0,
+        "hooks":  9
+    },
+    {
+        "file":  "src\\components\\course\\InCourseChatBubble.tsx",
+        "any":  1,
+        "hooks":  14
+    },
+    {
+        "file":  "src\\components\\course\\InteractiveCourseWrapper.tsx",
+        "any":  0,
+        "hooks":  9
+    },
+    {
+        "file":  "src\\components\\course\\InteractiveLessonWrapper.tsx",
+        "any":  0,
+        "hooks":  8
+    },
+    {
+        "file":  "src\\components\\course\\LessonTTSControls.tsx",
+        "any":  0,
+        "hooks":  7
+    },
+    {
+        "file":  "src\\components\\course\\MediaPlayer.tsx",
+        "any":  0,
+        "hooks":  12
+    },
+    {
+        "file":  "src\\components\\course\\MediaUpload.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\course\\NumeracyCourseWrapper.tsx",
+        "any":  0,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\components\\course\\PDFThumbnailPreview.tsx",
+        "any":  0,
+        "hooks":  11
+    },
+    {
+        "file":  "src\\components\\course\\ReadingCourseWrapper.tsx",
+        "any":  0,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\components\\course\\SpellingCourseWrapper.tsx",
+        "any":  0,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\components\\course\\SpellingLessonWrapper.tsx",
+        "any":  0,
+        "hooks":  13
+    },
+    {
+        "file":  "src\\components\\course\\StudentGuideGallery.tsx",
+        "any":  0,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\components\\courses\\logic\\LogicCriticalThinkingCoursePage.tsx",
+        "any":  0,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\components\\courses\\logic\\LogicLesson1_1.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\courses\\logic\\LogicLesson1_2.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\courses\\logic\\LogicLesson2_1.tsx",
+        "any":  1,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\courses\\logic\\LogicLesson2_2.tsx",
+        "any":  2,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\courses\\logic\\LogicLesson3_1.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\courses\\logic\\LogicLesson3_2.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\courses\\logic\\LogicLesson4_1.tsx",
+        "any":  2,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\courses\\logic\\LogicLesson4_2.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\courses\\logic\\LogicLesson5_1.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\courses\\neurodiversity\\NeurodiversityLesson8.tsx",
+        "any":  1,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\components\\courses\\VisualAid.tsx",
+        "any":  0,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\components\\dashboard\\APODGalleryModal.tsx",
+        "any":  0,
+        "hooks":  5
+    },
+    {
+        "file":  "src\\components\\dashboard\\GoalsOverview.tsx",
+        "any":  0,
+        "hooks":  1
+    },
+    {
+        "file":  "src\\components\\dashboard\\ModelViewerModal.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\dashboard\\VisualOfTheWeekCarousel.tsx",
+        "any":  0,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\components\\dashboard\\WeatherMiniLesson.tsx",
+        "any":  0,
+        "hooks":  5
+    },
+    {
+        "file":  "src\\components\\flashcards\\FlashcardBatchActions.tsx",
+        "any":  0,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\components\\flashcards\\FlashcardManager.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\gamification\\GamificationDashboard.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\gamification\\LeaderboardCard.tsx",
+        "any":  0,
+        "hooks":  5
+    },
+    {
+        "file":  "src\\components\\gamification\\XPBackfillCard.tsx",
+        "any":  0,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\components\\goals\\GoalCard.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\goals\\GoalCreateForm.tsx",
+        "any":  0,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\components\\goals\\GoalCreationDialog.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\goals\\GoalEditForm.tsx",
+        "any":  0,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\components\\goals\\GoalReminders.tsx",
+        "any":  0,
+        "hooks":  1
+    },
+    {
+        "file":  "src\\components\\goals\\GoalsDashboard.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\goals\\GoalXPTracker.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\goals\\ReadingProgressWidget.tsx",
+        "any":  0,
+        "hooks":  1
+    },
+    {
+        "file":  "src\\components\\goals\\ReminderManagement.tsx",
+        "any":  0,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\components\\guards\\RequireRole.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\homepage\\HomepageNavigation.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\instructor\\CoursesTab.tsx",
+        "any":  0,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\components\\instructor\\CreateAssignmentDialog.tsx",
+        "any":  0,
+        "hooks":  1
+    },
+    {
+        "file":  "src\\components\\instructor\\CreateFolderDialog.tsx",
+        "any":  0,
+        "hooks":  1
+    },
+    {
+        "file":  "src\\components\\instructor\\CreateNoteDialog.tsx",
+        "any":  0,
+        "hooks":  1
+    },
+    {
+        "file":  "src\\components\\instructor\\CreateOrganizationDialog.tsx",
+        "any":  0,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\components\\instructor\\EnhancedStudentsTab.tsx",
+        "any":  0,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\components\\instructor\\GoalsTab.tsx",
+        "any":  0,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\components\\instructor\\InviteLinkManager.tsx",
+        "any":  1,
+        "hooks":  5
+    },
+    {
+        "file":  "src\\components\\instructor\\InviteStudentDialog.tsx",
+        "any":  0,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\components\\instructor\\NotesTab.tsx",
+        "any":  0,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\components\\instructor\\StudentsTab.tsx",
+        "any":  0,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\components\\library\\epub\\EPUBReaderContainer.tsx",
+        "any":  0,
+        "hooks":  10
+    },
+    {
+        "file":  "src\\components\\library\\epub\\EPUBReaderContent.tsx",
+        "any":  0,
+        "hooks":  1
+    },
+    {
+        "file":  "src\\components\\library\\epub\\EPUBReaderNavigation.tsx",
+        "any":  0,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\components\\library\\ApprovedStorageBooksSection.tsx",
+        "any":  1,
+        "hooks":  8
+    },
+    {
+        "file":  "src\\components\\library\\BookCarousel.tsx",
+        "any":  0,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\components\\library\\BookDetailModal.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\library\\BookQuizModal.tsx",
+        "any":  1,
+        "hooks":  5
+    },
+    {
+        "file":  "src\\components\\library\\CommunityLibraryContent.tsx",
+        "any":  0,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\components\\library\\EnhancedPDFViewer.tsx",
+        "any":  0,
+        "hooks":  12
+    },
+    {
+        "file":  "src\\components\\library\\EnhancedSearchBar.tsx",
+        "any":  0,
+        "hooks":  11
+    },
+    {
+        "file":  "src\\components\\library\\GutenbergIngestionTrigger.tsx",
+        "any":  0,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\components\\library\\LibrarySearchSection.tsx",
+        "any":  0,
+        "hooks":  7
+    },
+    {
+        "file":  "src\\components\\library\\LibraryWithMonitoring.tsx",
+        "any":  0,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\components\\library\\OpenLibrarySearchBar.tsx",
+        "any":  0,
+        "hooks":  13
+    },
+    {
+        "file":  "src\\components\\library\\OptimizedPDFViewer.tsx",
+        "any":  2,
+        "hooks":  40
+    },
+    {
+        "file":  "src\\components\\library\\OptimizedPublicDomainBooksList.tsx",
+        "any":  0,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\components\\library\\PDFUploadComponent.tsx",
+        "any":  0,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\components\\library\\PDFViewer.tsx",
+        "any":  0,
+        "hooks":  10
+    },
+    {
+        "file":  "src\\components\\library\\PublicDomainBooksList.tsx",
+        "any":  0,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\components\\library\\PublicDomainBooksSection.tsx",
+        "any":  0,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\components\\library\\QuizButton.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\library\\RecommendedBookListItem.tsx",
+        "any":  0,
+        "hooks":  10
+    },
+    {
+        "file":  "src\\components\\library\\SimplifiedPDFViewer.tsx",
+        "any":  1,
+        "hooks":  9
+    },
+    {
+        "file":  "src\\components\\library\\UserUploadsContent.tsx",
+        "any":  0,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\components\\library\\UserUploadsSection.tsx",
+        "any":  0,
+        "hooks":  8
+    },
+    {
+        "file":  "src\\components\\library\\VirtualizedBookList.tsx",
+        "any":  1,
+        "hooks":  12
+    },
+    {
+        "file":  "src\\components\\linear-equations\\lessons\\LinearEquationsLesson1.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\linear-equations\\lessons\\LinearEquationsLesson2.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\linear-equations\\lessons\\LinearEquationsLesson3.tsx",
+        "any":  1,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\linear-equations\\lessons\\LinearEquationsLesson4.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\linear-equations\\lessons\\LinearEquationsLesson5.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\linear-equations\\lessons\\LinearEquationsLesson6.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\linear-equations\\lessons\\LinearEquationsLesson7.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\live-hub\\LiveHubVideoModal.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\micro-lessons\\money-management\\MoneyManagementGameMicroLesson.tsx",
+        "any":  2,
+        "hooks":  9
+    },
+    {
+        "file":  "src\\components\\micro-lessons\\trigonometry\\TrigonometryApplicationsMicroLesson.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\micro-lessons\\trigonometry\\TrigonometryEquationsMicroLesson.tsx",
+        "any":  1,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\micro-lessons\\trigonometry\\TrigonometryIdentitiesMicroLesson.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\micro-lessons\\MicroLessonContainer.tsx",
+        "any":  0,
+        "hooks":  7
+    },
+    {
+        "file":  "src\\components\\micro-lessons\\PracticeScreen.tsx",
+        "any":  0,
+        "hooks":  8
+    },
+    {
+        "file":  "src\\components\\monitoring\\MonitoringDashboard.tsx",
+        "any":  1,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\components\\native-courses\\NativeCoursePlayer.tsx",
+        "any":  1,
+        "hooks":  5
+    },
+    {
+        "file":  "src\\components\\native-courses\\NativeCourseProgressSidebar.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\native-courses\\NativeLessonRenderer.tsx",
+        "any":  6,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\notes\\FileUploadSection.tsx",
+        "any":  0,
+        "hooks":  12
+    },
+    {
+        "file":  "src\\components\\notes\\FlashcardPreviewCard.tsx",
+        "any":  0,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\components\\notes\\FlashcardsSection.tsx",
+        "any":  0,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\components\\notes\\KBFileManager.tsx",
+        "any":  0,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\components\\notes\\KBUploader.tsx",
+        "any":  0,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\components\\notes\\NotesSection.tsx",
+        "any":  0,
+        "hooks":  8
+    },
+    {
+        "file":  "src\\components\\notes\\ProgressSection.tsx",
+        "any":  0,
+        "hooks":  1
+    },
+    {
+        "file":  "src\\components\\notifications\\BetaUpdateListener.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\org\\CreateInviteDialog.tsx",
+        "any":  0,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\components\\org\\OrgThemeProvider.tsx",
+        "any":  0,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\components\\organizations\\OrgContext.tsx",
+        "any":  0,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\components\\organizations\\OrgGoalCreationDialog.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\organizations\\OrgHeader.tsx",
+        "any":  0,
+        "hooks":  1
+    },
+    {
+        "file":  "src\\components\\scorm\\ScormAnalytics.tsx",
+        "any":  0,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\components\\scorm\\ScormCatalog.tsx",
+        "any":  0,
+        "hooks":  5
+    },
+    {
+        "file":  "src\\components\\scorm\\ScormIframe.tsx",
+        "any":  1,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\components\\scorm\\ScormPackageList.tsx",
+        "any":  0,
+        "hooks":  7
+    },
+    {
+        "file":  "src\\components\\scorm\\ScormUploader.tsx",
+        "any":  0,
+        "hooks":  5
+    },
+    {
+        "file":  "src\\components\\settings\\AvatarUpload.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\settings\\EnhancedAvatarUpload.tsx",
+        "any":  0,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\components\\settings\\IntegrationSection.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\settings\\LearningStyleTags.tsx",
+        "any":  0,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\components\\settings\\PasswordChangeForm.tsx",
+        "any":  0,
+        "hooks":  5
+    },
+    {
+        "file":  "src\\components\\study\\FlashcardReview.tsx",
+        "any":  0,
+        "hooks":  5
+    },
+    {
+        "file":  "src\\components\\study\\FlashcardSelectionModal.tsx",
+        "any":  0,
+        "hooks":  11
+    },
+    {
+        "file":  "src\\components\\study\\MemoryTestSession.tsx",
+        "any":  0,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\components\\study\\MultipleChoiceSession.tsx",
+        "any":  0,
+        "hooks":  10
+    },
+    {
+        "file":  "src\\components\\study\\QuizletSearchTab.tsx",
+        "any":  0,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\components\\study\\StudySessionRouter.tsx",
+        "any":  0,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\components\\study\\TimedChallengeSession.tsx",
+        "any":  0,
+        "hooks":  13
+    },
+    {
+        "file":  "src\\components\\subscription\\SubscriptionPlans.tsx",
+        "any":  1,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\components\\theme\\OrgThemeProvider.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\trigonometry\\lessons\\TrigonometryLesson1.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\trigonometry\\lessons\\TrigonometryLesson2.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\trigonometry\\lessons\\TrigonometryLesson3.tsx",
+        "any":  1,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\trigonometry\\lessons\\TrigonometryLesson4.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\trigonometry\\lessons\\TrigonometryLesson5.tsx",
+        "any":  1,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\trigonometry\\lessons\\TrigonometryLesson6.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\trigonometry\\lessons\\TrigonometryLesson7.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\components\\ui\\carousel.tsx",
+        "any":  0,
+        "hooks":  8
+    },
+    {
+        "file":  "src\\components\\ui\\chart.tsx",
+        "any":  0,
+        "hooks":  1
+    },
+    {
+        "file":  "src\\components\\ui\\color-picker.tsx",
+        "any":  0,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\components\\ui\\sidebar.tsx",
+        "any":  0,
+        "hooks":  7
+    },
+    {
+        "file":  "src\\components\\DashboardLayout.tsx",
+        "any":  0,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\components\\DataManagement.tsx",
+        "any":  1,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\components\\GlobalChatWidget.tsx",
+        "any":  0,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\components\\LanguageSwitcher.tsx",
+        "any":  0,
+        "hooks":  5
+    },
+    {
+        "file":  "src\\components\\OnboardingFlowManager.tsx",
+        "any":  1,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\components\\RouteProtector.tsx",
+        "any":  1,
+        "hooks":  5
+    },
+    {
+        "file":  "src\\components\\StandaloneAIStudyCoachChat.tsx",
+        "any":  2,
+        "hooks":  17
+    },
+    {
+        "file":  "src\\components\\SubscriptionGate.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\contexts\\GamificationContext.tsx",
+        "any":  3,
+        "hooks":  8
+    },
+    {
+        "file":  "src\\contexts\\VoiceSettingsContext.tsx",
+        "any":  0,
+        "hooks":  8
+    },
+    {
+        "file":  "src\\hooks\\use-mobile.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\hooks\\use-toast.ts",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\hooks\\useAccessibility.ts",
+        "any":  0,
+        "hooks":  9
+    },
+    {
+        "file":  "src\\hooks\\useActivityHeatmap.ts",
+        "any":  0,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\hooks\\useAdaptiveLearning.ts",
+        "any":  2,
+        "hooks":  13
+    },
+    {
+        "file":  "src\\hooks\\useAdvancedAnalytics.ts",
+        "any":  0,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\hooks\\useAICoachAnalytics.ts",
+        "any":  0,
+        "hooks":  7
+    },
+    {
+        "file":  "src\\hooks\\useAICoachPerformanceAnalytics.ts",
+        "any":  0,
+        "hooks":  13
+    },
+    {
+        "file":  "src\\hooks\\useAIFeatureGate.ts",
+        "any":  0,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\hooks\\useAIInsights.ts",
+        "any":  0,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\hooks\\useAnalytics.ts",
+        "any":  0,
+        "hooks":  12
+    },
+    {
+        "file":  "src\\hooks\\useAnalyticsCards.ts",
+        "any":  0,
+        "hooks":  5
+    },
+    {
+        "file":  "src\\hooks\\useAnalyticsEventBus.ts",
+        "any":  0,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\hooks\\useAppUser.ts",
+        "any":  0,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\hooks\\useAuth.tsx",
+        "any":  0,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\hooks\\useAutoEnrollPreloadedCourses.ts",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\hooks\\useBatchProcessing.ts",
+        "any":  0,
+        "hooks":  13
+    },
+    {
+        "file":  "src\\hooks\\useBehavioralAnalytics.ts",
+        "any":  0,
+        "hooks":  14
+    },
+    {
+        "file":  "src\\hooks\\useBookQuiz.ts",
+        "any":  0,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\hooks\\useChallengeAnalytics.ts",
+        "any":  0,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\hooks\\useChatMessages.ts",
+        "any":  0,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\hooks\\useChatMode.ts",
+        "any":  0,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\hooks\\useChatSessions.ts",
+        "any":  0,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\hooks\\useChatTopics.ts",
+        "any":  0,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\hooks\\useCleanupDebugUI.ts",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\hooks\\useConsent.tsx",
+        "any":  2,
+        "hooks":  5
+    },
+    {
+        "file":  "src\\hooks\\useConversationMemory.ts",
+        "any":  1,
+        "hooks":  5
+    },
+    {
+        "file":  "src\\hooks\\useConversationState.ts",
+        "any":  0,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\hooks\\useCourseMedia.ts",
+        "any":  0,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\hooks\\useCurrentReadingBooks.ts",
+        "any":  0,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\hooks\\useDebouncedSearch.ts",
+        "any":  0,
+        "hooks":  18
+    },
+    {
+        "file":  "src\\hooks\\useEnhancedAnalytics.ts",
+        "any":  0,
+        "hooks":  13
+    },
+    {
+        "file":  "src\\hooks\\useEnhancedEPUBLoader.ts",
+        "any":  0,
+        "hooks":  18
+    },
+    {
+        "file":  "src\\hooks\\useEnhancedVoiceInput.ts",
+        "any":  4,
+        "hooks":  12
+    },
+    {
+        "file":  "src\\hooks\\useEnrolledCourses.ts",
+        "any":  1,
+        "hooks":  7
+    },
+    {
+        "file":  "src\\hooks\\useEPUBUrlOptimizer.ts",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\hooks\\useFileUpload.ts",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\hooks\\useFileUploadSubscription.ts",
+        "any":  0,
+        "hooks":  17
+    },
+    {
+        "file":  "src\\hooks\\useFlashcardManager.ts",
+        "any":  0,
+        "hooks":  8
+    },
+    {
+        "file":  "src\\hooks\\useFlashcardPreview.ts",
+        "any":  0,
+        "hooks":  5
+    },
+    {
+        "file":  "src\\hooks\\useGamification.ts",
+        "any":  0,
+        "hooks":  10
+    },
+    {
+        "file":  "src\\hooks\\useGlobalChat.ts",
+        "any":  2,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\hooks\\useGlobalTranslation.ts",
+        "any":  0,
+        "hooks":  5
+    },
+    {
+        "file":  "src\\hooks\\useGoalProgressTracking.ts",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\hooks\\useGoalReminders.ts",
+        "any":  0,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\hooks\\useGoals.ts",
+        "any":  0,
+        "hooks":  9
+    },
+    {
+        "file":  "src\\hooks\\useGoogleCalendarSync.ts",
+        "any":  0,
+        "hooks":  9
+    },
+    {
+        "file":  "src\\hooks\\useInteractiveCourseAnalytics.ts",
+        "any":  0,
+        "hooks":  16
+    },
+    {
+        "file":  "src\\hooks\\useInteractiveCourseEnrollmentBridge.ts",
+        "any":  1,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\hooks\\useInteractiveCourseProgress.ts",
+        "any":  0,
+        "hooks":  18
+    },
+    {
+        "file":  "src\\hooks\\useKnowledgeBaseUsage.ts",
+        "any":  0,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\hooks\\useLanguageConsistency.ts",
+        "any":  0,
+        "hooks":  8
+    },
+    {
+        "file":  "src\\hooks\\useLearningAnalytics.ts",
+        "any":  8,
+        "hooks":  7
+    },
+    {
+        "file":  "src\\hooks\\useLessonChat.ts",
+        "any":  0,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\hooks\\useLessonPerformance.ts",
+        "any":  0,
+        "hooks":  9
+    },
+    {
+        "file":  "src\\hooks\\useLibrarySearch.ts",
+        "any":  0,
+        "hooks":  7
+    },
+    {
+        "file":  "src\\hooks\\useLocalStorage.ts",
+        "any":  0,
+        "hooks":  5
+    },
+    {
+        "file":  "src\\hooks\\useMediaAnalytics.ts",
+        "any":  4,
+        "hooks":  8
+    },
+    {
+        "file":  "src\\hooks\\useMediaProgress.ts",
+        "any":  0,
+        "hooks":  9
+    },
+    {
+        "file":  "src\\hooks\\useModuleProgressAnalytics.ts",
+        "any":  1,
+        "hooks":  14
+    },
+    {
+        "file":  "src\\hooks\\useMonitoring.ts",
+        "any":  1,
+        "hooks":  5
+    },
+    {
+        "file":  "src\\hooks\\useNotes.ts",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\hooks\\useNotifications.ts",
+        "any":  1,
+        "hooks":  7
+    },
+    {
+        "file":  "src\\hooks\\useNotificationTriggers.ts",
+        "any":  0,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\hooks\\useOnboardingFlow.tsx",
+        "any":  0,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\hooks\\useOpenLibrarySearch.ts",
+        "any":  0,
+        "hooks":  7
+    },
+    {
+        "file":  "src\\hooks\\useOptimizedAccessibility.ts",
+        "any":  2,
+        "hooks":  11
+    },
+    {
+        "file":  "src\\hooks\\useOptimizedEPUBLoader.ts",
+        "any":  4,
+        "hooks":  21
+    },
+    {
+        "file":  "src\\hooks\\useOptimizedEPUBRendition.ts",
+        "any":  1,
+        "hooks":  17
+    },
+    {
+        "file":  "src\\hooks\\useOrganizations.ts",
+        "any":  1,
+        "hooks":  1
+    },
+    {
+        "file":  "src\\hooks\\useOrgInvitations.ts",
+        "any":  4,
+        "hooks":  1
+    },
+    {
+        "file":  "src\\hooks\\usePDFPerformanceMonitoring.ts",
+        "any":  4,
+        "hooks":  9
+    },
+    {
+        "file":  "src\\hooks\\usePDFUrlProcessor.ts",
+        "any":  0,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\hooks\\useProactiveCoaching.ts",
+        "any":  0,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\hooks\\useProgressTracking.ts",
+        "any":  0,
+        "hooks":  5
+    },
+    {
+        "file":  "src\\hooks\\usePublicDomainBooks.ts",
+        "any":  0,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\hooks\\useQuizletSearch.ts",
+        "any":  0,
+        "hooks":  8
+    },
+    {
+        "file":  "src\\hooks\\useQuizSession.ts",
+        "any":  1,
+        "hooks":  8
+    },
+    {
+        "file":  "src\\hooks\\useReadingAnalytics.ts",
+        "any":  1,
+        "hooks":  8
+    },
+    {
+        "file":  "src\\hooks\\useReadingProgress.ts",
+        "any":  0,
+        "hooks":  20
+    },
+    {
+        "file":  "src\\hooks\\useRealtimeChannel.ts",
+        "any":  3,
+        "hooks":  5
+    },
+    {
+        "file":  "src\\hooks\\useRealtimeDeduplication.ts",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\hooks\\useRealTimeProcessing.ts",
+        "any":  0,
+        "hooks":  10
+    },
+    {
+        "file":  "src\\hooks\\useRealtimeRecommendations.ts",
+        "any":  3,
+        "hooks":  15
+    },
+    {
+        "file":  "src\\hooks\\useResilientEPUBLoader.ts",
+        "any":  5,
+        "hooks":  19
+    },
+    {
+        "file":  "src\\hooks\\useSavedCoachChats.ts",
+        "any":  0,
+        "hooks":  5
+    },
+    {
+        "file":  "src\\hooks\\useSaveToNotes.tsx",
+        "any":  1,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\hooks\\useScormAnalytics.ts",
+        "any":  5,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\hooks\\useScrollRestoration.ts",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\hooks\\useSearchAnalytics.ts",
+        "any":  0,
+        "hooks":  7
+    },
+    {
+        "file":  "src\\hooks\\useSlideAnalytics.ts",
+        "any":  3,
+        "hooks":  16
+    },
+    {
+        "file":  "src\\hooks\\useSpellingCoursePerformance.ts",
+        "any":  2,
+        "hooks":  10
+    },
+    {
+        "file":  "src\\hooks\\useStreamingEPUBCore.ts",
+        "any":  2,
+        "hooks":  17
+    },
+    {
+        "file":  "src\\hooks\\useStreamingProgressConverter.ts",
+        "any":  0,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\hooks\\useStreamingRetryLogic.ts",
+        "any":  0,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\hooks\\useStudentProfile.ts",
+        "any":  0,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\hooks\\useSubscription.ts",
+        "any":  0,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\hooks\\useSubscriptionGate.tsx",
+        "any":  1,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\hooks\\useSystemDiagnostics.ts",
+        "any":  1,
+        "hooks":  13
+    },
+    {
+        "file":  "src\\hooks\\useTextSelection.ts",
+        "any":  0,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\hooks\\useTextToSpeech.ts",
+        "any":  0,
+        "hooks":  9
+    },
+    {
+        "file":  "src\\hooks\\useThresholdManagement.ts",
+        "any":  4,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\hooks\\useUnifiedProgressTracking.ts",
+        "any":  2,
+        "hooks":  14
+    },
+    {
+        "file":  "src\\hooks\\useUsageTracking.ts",
+        "any":  2,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\hooks\\useUserLocation.ts",
+        "any":  0,
+        "hooks":  8
+    },
+    {
+        "file":  "src\\hooks\\useUserProfile.ts",
+        "any":  3,
+        "hooks":  8
+    },
+    {
+        "file":  "src\\hooks\\useUserProfileForAdmin.ts",
+        "any":  0,
+        "hooks":  5
+    },
+    {
+        "file":  "src\\hooks\\useViewportAnalytics.ts",
+        "any":  0,
+        "hooks":  5
+    },
+    {
+        "file":  "src\\hooks\\useVoiceRecording.ts",
+        "any":  1,
+        "hooks":  15
+    },
+    {
+        "file":  "src\\hooks\\useVoiceRecording.tsx",
+        "any":  0,
+        "hooks":  12
+    },
+    {
+        "file":  "src\\hooks\\useWidgetChatMessages.ts",
+        "any":  1,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\hooks\\useWidgetChatStorage.ts",
+        "any":  0,
+        "hooks":  5
+    },
+    {
+        "file":  "src\\hooks\\useXPBackfill.ts",
+        "any":  1,
+        "hooks":  9
+    },
+    {
+        "file":  "src\\hooks\\useXPIntegration.ts",
+        "any":  0,
+        "hooks":  9
+    },
+    {
+        "file":  "src\\hooks\\useXPProgression.ts",
+        "any":  0,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\hooks\\useXPSystem.ts",
+        "any":  0,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\layouts\\PortalShell.tsx",
+        "any":  0,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\lib\\scorm\\useScormLaunchUrl.ts",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\pages\\admin\\AdminUserAnalytics.tsx",
+        "any":  0,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\pages\\admin\\Analytics.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\pages\\admin\\BetaManagement.tsx",
+        "any":  2,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\pages\\admin\\CourseManager.tsx",
+        "any":  2,
+        "hooks":  7
+    },
+    {
+        "file":  "src\\pages\\admin\\InstructorConsole.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\pages\\admin\\OrganizationManagement.tsx",
+        "any":  2,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\pages\\admin\\UserManagement.tsx",
+        "any":  0,
+        "hooks":  5
+    },
+    {
+        "file":  "src\\pages\\auth\\EnhancedAuth.tsx",
+        "any":  0,
+        "hooks":  12
+    },
+    {
+        "file":  "src\\pages\\courses\\EmpoweringLearningHandwritingCoursePage.tsx",
+        "any":  0,
+        "hooks":  16
+    },
+    {
+        "file":  "src\\pages\\courses\\EmpoweringLearningNumeracyCoursePage.tsx",
+        "any":  0,
+        "hooks":  16
+    },
+    {
+        "file":  "src\\pages\\courses\\EmpoweringLearningReadingCoursePage.tsx",
+        "any":  0,
+        "hooks":  16
+    },
+    {
+        "file":  "src\\pages\\courses\\EmpoweringLearningSpellingCoursePage.tsx",
+        "any":  0,
+        "hooks":  22
+    },
+    {
+        "file":  "src\\pages\\courses\\EmpoweringLearningStatePage.tsx",
+        "any":  0,
+        "hooks":  15
+    },
+    {
+        "file":  "src\\pages\\courses\\GeometryCoursePage.tsx",
+        "any":  2,
+        "hooks":  14
+    },
+    {
+        "file":  "src\\pages\\courses\\InteractiveAlgebraCoursePage.tsx",
+        "any":  1,
+        "hooks":  13
+    },
+    {
+        "file":  "src\\pages\\courses\\InteractiveEconomicsCoursePage.tsx",
+        "any":  1,
+        "hooks":  15
+    },
+    {
+        "file":  "src\\pages\\courses\\InteractiveELTCoursePage.tsx",
+        "any":  4,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\pages\\courses\\InteractiveLinearEquationsCoursePage.tsx",
+        "any":  2,
+        "hooks":  16
+    },
+    {
+        "file":  "src\\pages\\courses\\InteractiveNeurodiversityCoursePage.tsx",
+        "any":  0,
+        "hooks":  7
+    },
+    {
+        "file":  "src\\pages\\courses\\InteractiveScienceCoursePage.tsx",
+        "any":  1,
+        "hooks":  13
+    },
+    {
+        "file":  "src\\pages\\courses\\InteractiveTrigonometryCoursePage.tsx",
+        "any":  1,
+        "hooks":  14
+    },
+    {
+        "file":  "src\\pages\\courses\\LogicCriticalThinkingCoursePage.tsx",
+        "any":  1,
+        "hooks":  14
+    },
+    {
+        "file":  "src\\pages\\courses\\MoneyManagementCoursePage.tsx",
+        "any":  1,
+        "hooks":  15
+    },
+    {
+        "file":  "src\\pages\\dashboard\\AIStudyCoach.tsx",
+        "any":  0,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\pages\\dashboard\\DynamicCourse.tsx",
+        "any":  1,
+        "hooks":  5
+    },
+    {
+        "file":  "src\\pages\\dashboard\\Gamification.tsx",
+        "any":  0,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\pages\\dashboard\\Goals.tsx",
+        "any":  0,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\pages\\dashboard\\InstructorDashboard.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\pages\\dashboard\\LearnerHome.tsx",
+        "any":  0,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\pages\\dashboard\\LearningAnalytics.tsx",
+        "any":  0,
+        "hooks":  5
+    },
+    {
+        "file":  "src\\pages\\dashboard\\LearningStateCourse.tsx",
+        "any":  0,
+        "hooks":  11
+    },
+    {
+        "file":  "src\\pages\\dashboard\\LearningStateEmbed.tsx",
+        "any":  0,
+        "hooks":  8
+    },
+    {
+        "file":  "src\\pages\\dashboard\\Library.tsx",
+        "any":  0,
+        "hooks":  8
+    },
+    {
+        "file":  "src\\pages\\dashboard\\LiveLearningHub.tsx",
+        "any":  0,
+        "hooks":  7
+    },
+    {
+        "file":  "src\\pages\\dashboard\\MyCourses.tsx",
+        "any":  2,
+        "hooks":  8
+    },
+    {
+        "file":  "src\\pages\\dashboard\\Notes.tsx",
+        "any":  0,
+        "hooks":  5
+    },
+    {
+        "file":  "src\\pages\\dashboard\\Settings.tsx",
+        "any":  9,
+        "hooks":  7
+    },
+    {
+        "file":  "src\\pages\\dashboard\\Subscription.tsx",
+        "any":  0,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\pages\\dashboard\\SubscriptionSuccess.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\pages\\dashboard\\UserSubscription.tsx",
+        "any":  0,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\pages\\instructor\\AssignmentsManagement.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\pages\\instructor\\CoursesManagement.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\pages\\instructor\\NotesManagement.tsx",
+        "any":  2,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\pages\\instructor\\OrgBrandingSettings.tsx",
+        "any":  0,
+        "hooks":  8
+    },
+    {
+        "file":  "src\\pages\\instructor\\StudentsManagement.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\pages\\org\\assignments.tsx",
+        "any":  0,
+        "hooks":  5
+    },
+    {
+        "file":  "src\\pages\\org\\courses.tsx",
+        "any":  1,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\pages\\org\\goals.tsx",
+        "any":  0,
+        "hooks":  6
+    },
+    {
+        "file":  "src\\pages\\org\\students.tsx",
+        "any":  0,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\pages\\organizations\\OrgCreatePage.tsx",
+        "any":  1,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\pages\\organizations\\OrgHub.tsx",
+        "any":  4,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\pages\\organizations\\OrgJoin.tsx",
+        "any":  14,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\pages\\organizations\\OrgJoinPage.tsx",
+        "any":  2,
+        "hooks":  5
+    },
+    {
+        "file":  "src\\pages\\scorm\\ScormAssignments.tsx",
+        "any":  0,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\pages\\scorm\\ScormPackages.tsx",
+        "any":  0,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\pages\\scorm\\ScormStudio.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\pages\\ChoosePlan.tsx",
+        "any":  0,
+        "hooks":  9
+    },
+    {
+        "file":  "src\\pages\\CoursesPage.tsx",
+        "any":  4,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\pages\\EmailConfirm.tsx",
+        "any":  2,
+        "hooks":  5
+    },
+    {
+        "file":  "src\\pages\\JoinOrganization.tsx",
+        "any":  1,
+        "hooks":  5
+    },
+    {
+        "file":  "src\\pages\\Login.tsx",
+        "any":  0,
+        "hooks":  16
+    },
+    {
+        "file":  "src\\pages\\NotFound.tsx",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\pages\\OrganizationSignup.tsx",
+        "any":  3,
+        "hooks":  10
+    },
+    {
+        "file":  "src\\pages\\OrgLanding.tsx",
+        "any":  1,
+        "hooks":  9
+    },
+    {
+        "file":  "src\\pages\\ResetPassword.tsx",
+        "any":  1,
+        "hooks":  9
+    },
+    {
+        "file":  "src\\pages\\UploadCourseImages.tsx",
+        "any":  1,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\scorm\\analytics\\ScormAnalytics.tsx",
+        "any":  1,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\scorm\\player\\AdvancedScormPlayer.tsx",
+        "any":  4,
+        "hooks":  22
+    },
+    {
+        "file":  "src\\scorm\\player\\ScormPlayerPro.tsx",
+        "any":  11,
+        "hooks":  32
+    },
+    {
+        "file":  "src\\scorm\\qa\\TestPackages.tsx",
+        "any":  1,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\scorm\\studio\\ScormStudio.tsx",
+        "any":  1,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\scorm\\upload\\ScormUpload.tsx",
+        "any":  1,
+        "hooks":  8
+    },
+    {
+        "file":  "src\\utils\\cleanupManager.ts",
+        "any":  0,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\utils\\performanceMonitor.ts",
+        "any":  2,
+        "hooks":  4
+    },
+    {
+        "file":  "src\\App.tsx",
+        "any":  0,
+        "hooks":  1
+    }
+]

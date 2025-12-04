@@ -1,0 +1,403 @@
+﻿{
+    "top30_any":  {
+                      "value":  [
+                                    {
+                                        "file":  "supabase\\functions\\xp-backfill\\index.ts",
+                                        "any":  25,
+                                        "hooks":  0
+                                    },
+                                    {
+                                        "file":  "src\\scorm\\ingest\\manifest-parser.ts",
+                                        "any":  24,
+                                        "hooks":  0
+                                    },
+                                    {
+                                        "file":  "src\\lib\\scorm\\ScormAPIAdapter.ts",
+                                        "any":  16,
+                                        "hooks":  0
+                                    },
+                                    {
+                                        "file":  "src\\utils\\logger.ts",
+                                        "any":  14,
+                                        "hooks":  0
+                                    },
+                                    {
+                                        "file":  "src\\pages\\organizations\\OrgJoin.tsx",
+                                        "any":  14,
+                                        "hooks":  3
+                                    },
+                                    {
+                                        "file":  "src\\services\\DocumentIngestionService.ts",
+                                        "any":  13,
+                                        "hooks":  0
+                                    },
+                                    {
+                                        "file":  "supabase\\functions\\xp-system\\index.ts",
+                                        "any":  12,
+                                        "hooks":  0
+                                    },
+                                    {
+                                        "file":  "src\\scorm\\player\\ScormPlayerPro.tsx",
+                                        "any":  11,
+                                        "hooks":  32
+                                    },
+                                    {
+                                        "file":  "src\\components\\course\\geometry-lessons\\CoordinateGeometryLesson.tsx",
+                                        "any":  11,
+                                        "hooks":  0
+                                    },
+                                    {
+                                        "file":  "src\\services\\performance\\PrefetchManager.ts",
+                                        "any":  10,
+                                        "hooks":  0
+                                    },
+                                    {
+                                        "file":  "src\\components\\micro-lessons\\money-management\\game-state.ts",
+                                        "any":  10,
+                                        "hooks":  0
+                                    },
+                                    {
+                                        "file":  "src\\utils\\validators\\cmi2004.ts",
+                                        "any":  10,
+                                        "hooks":  0
+                                    },
+                                    {
+                                        "file":  "src\\pages\\dashboard\\Settings.tsx",
+                                        "any":  9,
+                                        "hooks":  7
+                                    },
+                                    {
+                                        "file":  "src\\utils\\validators\\cmi12.ts",
+                                        "any":  9,
+                                        "hooks":  0
+                                    },
+                                    {
+                                        "file":  "supabase\\functions\\ai-study-chat\\claude-client.ts",
+                                        "any":  8,
+                                        "hooks":  0
+                                    },
+                                    {
+                                        "file":  "src\\hooks\\useLearningAnalytics.ts",
+                                        "any":  8,
+                                        "hooks":  7
+                                    },
+                                    {
+                                        "file":  "src\\hooks\\useOrganizationActions.ts",
+                                        "any":  8,
+                                        "hooks":  0
+                                    },
+                                    {
+                                        "file":  "src\\utils\\analytics.ts",
+                                        "any":  8,
+                                        "hooks":  0
+                                    },
+                                    {
+                                        "file":  "supabase\\functions\\google-calendar-sync\\index.ts",
+                                        "any":  8,
+                                        "hooks":  0
+                                    },
+                                    {
+                                        "file":  "src\\services\\StreamingPDFLoader.ts",
+                                        "any":  7,
+                                        "hooks":  0
+                                    },
+                                    {
+                                        "file":  "src\\components\\course\\geometry-lessons\\QuadrilateralsLesson.tsx",
+                                        "any":  7,
+                                        "hooks":  0
+                                    },
+                                    {
+                                        "file":  "src\\components\\micro-lessons\\trigonometry\\TrigonometryUnitCircleMicroLesson.tsx",
+                                        "any":  7,
+                                        "hooks":  0
+                                    },
+                                    {
+                                        "file":  "src\\scorm\\security\\sanitization.ts",
+                                        "any":  7,
+                                        "hooks":  0
+                                    },
+                                    {
+                                        "file":  "supabase\\functions\\scorm-analytics\\index.ts",
+                                        "any":  7,
+                                        "hooks":  0
+                                    },
+                                    {
+                                        "file":  "src\\services\\DocumentTelemetryService.ts",
+                                        "any":  6,
+                                        "hooks":  0
+                                    },
+                                    {
+                                        "file":  "supabase\\functions\\scorm-analytics-export\\index.ts",
+                                        "any":  6,
+                                        "hooks":  0
+                                    },
+                                    {
+                                        "file":  "src\\components\\native-courses\\NativeLessonRenderer.tsx",
+                                        "any":  6,
+                                        "hooks":  2
+                                    },
+                                    {
+                                        "file":  "src\\pages\\TermsOfService.tsx",
+                                        "any":  6,
+                                        "hooks":  0
+                                    },
+                                    {
+                                        "file":  "src\\components\\course\\geometry-lessons\\ThreeDShapesLesson.tsx",
+                                        "any":  6,
+                                        "hooks":  0
+                                    },
+                                    {
+                                        "file":  "src\\utils\\studyDataUtils.ts",
+                                        "any":  6,
+                                        "hooks":  0
+                                    }
+                                ],
+                      "Count":  30
+                  },
+    "hooks":  [
+                  {
+                      "file":  "src\\components\\native-courses\\NativeLessonRenderer.tsx",
+                      "any":  6,
+                      "hooks":  2
+                  },
+                  {
+                      "file":  "src\\hooks\\useLearningAnalytics.ts",
+                      "any":  8,
+                      "hooks":  7
+                  },
+                  {
+                      "file":  "src\\pages\\dashboard\\Settings.tsx",
+                      "any":  9,
+                      "hooks":  7
+                  },
+                  {
+                      "file":  "src\\pages\\organizations\\OrgJoin.tsx",
+                      "any":  14,
+                      "hooks":  3
+                  },
+                  {
+                      "file":  "src\\scorm\\player\\ScormPlayerPro.tsx",
+                      "any":  11,
+                      "hooks":  32
+                  }
+              ],
+    "import_fanout":  {
+                          "value":  [
+                                        {
+                                            "Key":  "src\\utils\\analytics.ts",
+                                            "Value":  69,
+                                            "Name":  "src\\utils\\analytics.ts"
+                                        },
+                                        {
+                                            "Key":  "src\\pages\\dashboard\\Settings.tsx",
+                                            "Value":  51,
+                                            "Name":  "src\\pages\\dashboard\\Settings.tsx"
+                                        },
+                                        {
+                                            "Key":  "src\\utils\\logger.ts",
+                                            "Value":  33,
+                                            "Name":  "src\\utils\\logger.ts"
+                                        },
+                                        {
+                                            "Key":  "supabase\\functions\\google-calendar-sync\\index.ts",
+                                            "Value":  19,
+                                            "Name":  "supabase\\functions\\google-calendar-sync\\index.ts"
+                                        },
+                                        {
+                                            "Key":  "supabase\\functions\\xp-backfill\\index.ts",
+                                            "Value":  19,
+                                            "Name":  "supabase\\functions\\xp-backfill\\index.ts"
+                                        },
+                                        {
+                                            "Key":  "supabase\\functions\\scorm-analytics-export\\index.ts",
+                                            "Value":  19,
+                                            "Name":  "supabase\\functions\\scorm-analytics-export\\index.ts"
+                                        },
+                                        {
+                                            "Key":  "supabase\\functions\\xp-system\\index.ts",
+                                            "Value":  19,
+                                            "Name":  "supabase\\functions\\xp-system\\index.ts"
+                                        },
+                                        {
+                                            "Key":  "supabase\\functions\\scorm-analytics\\index.ts",
+                                            "Value":  19,
+                                            "Name":  "supabase\\functions\\scorm-analytics\\index.ts"
+                                        },
+                                        {
+                                            "Key":  "src\\hooks\\useOrganizationActions.ts",
+                                            "Value":  6,
+                                            "Name":  "src\\hooks\\useOrganizationActions.ts"
+                                        },
+                                        {
+                                            "Key":  "src\\utils\\studyDataUtils.ts",
+                                            "Value":  1,
+                                            "Name":  "src\\utils\\studyDataUtils.ts"
+                                        },
+                                        {
+                                            "Key":  "src\\services\\DocumentTelemetryService.ts",
+                                            "Value":  1,
+                                            "Name":  "src\\services\\DocumentTelemetryService.ts"
+                                        },
+                                        {
+                                            "Key":  "src\\components\\micro-lessons\\trigonometry\\TrigonometryUnitCircleMicroLesson.tsx",
+                                            "Value":  1,
+                                            "Name":  "src\\components\\micro-lessons\\trigonometry\\TrigonometryUnitCircleMicroLesson.tsx"
+                                        },
+                                        {
+                                            "Key":  "src\\services\\performance\\PrefetchManager.ts",
+                                            "Value":  1,
+                                            "Name":  "src\\services\\performance\\PrefetchManager.ts"
+                                        },
+                                        {
+                                            "Key":  "src\\services\\DocumentIngestionService.ts",
+                                            "Value":  1,
+                                            "Name":  "src\\services\\DocumentIngestionService.ts"
+                                        },
+                                        {
+                                            "Key":  "src\\components\\micro-lessons\\money-management\\game-state.ts",
+                                            "Value":  1,
+                                            "Name":  "src\\components\\micro-lessons\\money-management\\game-state.ts"
+                                        },
+                                        {
+                                            "Key":  "src\\utils\\validators\\cmi12.ts",
+                                            "Value":  1,
+                                            "Name":  "src\\utils\\validators\\cmi12.ts"
+                                        },
+                                        {
+                                            "Key":  "src\\lib\\scorm\\ScormAPIAdapter.ts",
+                                            "Value":  1,
+                                            "Name":  "src\\lib\\scorm\\ScormAPIAdapter.ts"
+                                        },
+                                        {
+                                            "Key":  "src\\utils\\validators\\cmi2004.ts",
+                                            "Value":  1,
+                                            "Name":  "src\\utils\\validators\\cmi2004.ts"
+                                        },
+                                        {
+                                            "Key":  "src\\components\\native-courses\\NativeLessonRenderer.tsx",
+                                            "Value":  1,
+                                            "Name":  "src\\components\\native-courses\\NativeLessonRenderer.tsx"
+                                        },
+                                        {
+                                            "Key":  "supabase\\functions\\ai-study-chat\\claude-client.ts",
+                                            "Value":  0,
+                                            "Name":  "supabase\\functions\\ai-study-chat\\claude-client.ts"
+                                        },
+                                        {
+                                            "Key":  "src\\components\\course\\geometry-lessons\\QuadrilateralsLesson.tsx",
+                                            "Value":  0,
+                                            "Name":  "src\\components\\course\\geometry-lessons\\QuadrilateralsLesson.tsx"
+                                        },
+                                        {
+                                            "Key":  "src\\services\\StreamingPDFLoader.ts",
+                                            "Value":  0,
+                                            "Name":  "src\\services\\StreamingPDFLoader.ts"
+                                        },
+                                        {
+                                            "Key":  "src\\components\\course\\geometry-lessons\\CoordinateGeometryLesson.tsx",
+                                            "Value":  0,
+                                            "Name":  "src\\components\\course\\geometry-lessons\\CoordinateGeometryLesson.tsx"
+                                        },
+                                        {
+                                            "Key":  "src\\scorm\\player\\ScormPlayerPro.tsx",
+                                            "Value":  0,
+                                            "Name":  "src\\scorm\\player\\ScormPlayerPro.tsx"
+                                        },
+                                        {
+                                            "Key":  "src\\hooks\\useLearningAnalytics.ts",
+                                            "Value":  0,
+                                            "Name":  "src\\hooks\\useLearningAnalytics.ts"
+                                        },
+                                        {
+                                            "Key":  "src\\pages\\TermsOfService.tsx",
+                                            "Value":  0,
+                                            "Name":  "src\\pages\\TermsOfService.tsx"
+                                        },
+                                        {
+                                            "Key":  "src\\components\\course\\geometry-lessons\\ThreeDShapesLesson.tsx",
+                                            "Value":  0,
+                                            "Name":  "src\\components\\course\\geometry-lessons\\ThreeDShapesLesson.tsx"
+                                        },
+                                        {
+                                            "Key":  "src\\scorm\\ingest\\manifest-parser.ts",
+                                            "Value":  0,
+                                            "Name":  "src\\scorm\\ingest\\manifest-parser.ts"
+                                        },
+                                        {
+                                            "Key":  "src\\pages\\organizations\\OrgJoin.tsx",
+                                            "Value":  0,
+                                            "Name":  "src\\pages\\organizations\\OrgJoin.tsx"
+                                        },
+                                        {
+                                            "Key":  "src\\scorm\\security\\sanitization.ts",
+                                            "Value":  0,
+                                            "Name":  "src\\scorm\\security\\sanitization.ts"
+                                        }
+                                    ],
+                          "Count":  30
+                      },
+    "draft_type_contracts":  {
+                                 "coreServices":  {
+                                                      "StreamingPDFLoader":  {
+                                                                                 "types":  "type PDFChunk = { index: number; data: Uint8Array }\\ninterface StreamingPDFLoader { load(url: string): AsyncIterable\u003cPDFChunk\u003e }",
+                                                                                 "description":  "Streamed PDF loader result"
+                                                                             },
+                                                      "DocumentTelemetryService":  {
+                                                                                       "types":  "type TelemetryEvent = { event: string; payload: unknown; timestamp?: string }\\ninterface DocumentTelemetryClient { send(event: TelemetryEvent): Promise\u003cvoid\u003e }",
+                                                                                       "description":  "Telemetry events interface"
+                                                                                   },
+                                                      "ScormAPIAdapter":  {
+                                                                              "types":  "interface ScormAPI { initialize(): boolean; getValue(key: string): string | null; setValue(key: string, value: string): boolean }",
+                                                                              "description":  "SCORM adapter minimal shape"
+                                                                          },
+                                                      "DocumentIngestionService":  {
+                                                                                       "types":  "type IngestRequest = { source: string; bucket?: string; meta?: unknown }\\ntype IngestResult = { jobId: string; status: \u0027queued\u0027|\u0027processing\u0027|\u0027done\u0027|\u0027failed\u0027; error?: string }\\ninterface DocumentIngestionClient { ingest(req: IngestRequest): Promise\u003cIngestResult\u003e }",
+                                                                                       "description":  "Minimal interfaces for document ingestion service"
+                                                                                   }
+                                                  },
+                                 "sharedHooks":  {
+                                                     "useLearningAnalytics":  {
+                                                                                  "types":  "type AnalyticsEvent = { name: string; props?: Record\u003cstring, unknown\u003e }\\nfunction isAnalyticsEvent(x: unknown): x is AnalyticsEvent { return typeof x === \u0027object\u0027 \u0026\u0026 x !== null \u0026\u0026 \u0027name\u0027 in x }\\nfunction useLearningAnalytics(): { track: (e: AnalyticsEvent) =\u003e void }",
+                                                                                  "description":  "Hook to emit analytics events"
+                                                                              },
+                                                     "useOrganizationActions":  {
+                                                                                    "types":  "interface OrgAction { type: string; payload?: unknown }\\nfunction isOrgAction(x: unknown): x is OrgAction { return typeof x === \u0027object\u0027 \u0026\u0026 x !== null \u0026\u0026 \u0027type\u0027 in x }\\nfunction useOrganizationActions(): { dispatch: (a: OrgAction) =\u003e void }",
+                                                                                    "description":  "Actions for org-level effects"
+                                                                                },
+                                                     "useStreamingPDF":  {
+                                                                             "types":  "function useStreamingPDF(url: string): { loading: boolean; chunks: Array\u003c{index:number}\u003e }",
+                                                                             "description":  "Hook for streaming PDF loader"
+                                                                         }
+                                                 }
+                             },
+    "eslint_override_snippet":  "// flat config override - temporary\\nexport default [\\n  // ...existing config entries\\n  {\\n    files: [\u0027src/legacy/**\u0027, \u0027src/vendor/**\u0027],\\n    rules: { \u0027@typescript-eslint/no-explicit-any\u0027: \u0027warn\u0027 }\\n  }\\n];",
+    "execution_plan":  {
+                           "branch":  "batch-c/typing-core",
+                           "commitGranularity":  "Per-service or per-hook file (1-3 files per commit)",
+                           "filesToEdit":  [
+                                               "src/services/DocumentIngestionService.ts",
+                                               "src/services/DocumentTelemetryService.ts",
+                                               "src/services/StreamingPDFLoader.ts",
+                                               "src/services/performance/PrefetchManager.ts",
+                                               "src/lib/scorm/ScormAPIAdapter.ts",
+                                               "src/scorm/ingest/manifest-parser.ts",
+                                               "src/utils/logger.ts",
+                                               "src/utils/analytics.ts",
+                                               "src/hooks/useLearningAnalytics.ts",
+                                               "src/hooks/useOrganizationActions.ts",
+                                               "supabase/functions/ai-study-chat/claude-client.ts",
+                                               "src/services/DocumentIngestionService.ts",
+                                               "src/services/DocumentTelemetryService.ts"
+                                           ],
+                           "commands":  [
+                                            "npx tsc --noEmit",
+                                            "npx eslint . --max-warnings=0",
+                                            "npm run build"
+                                        ],
+                           "successCriteria":  {
+                                                   "build":  "exit 0",
+                                                   "eslint":  "no new errors except allowed hook rules; reduce no-explicit-any in scope by \u003e=60%",
+                                                   "tsc":  "exit 0"
+                                               }
+                       }
+}

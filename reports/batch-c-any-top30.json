@@ -1,0 +1,152 @@
+﻿[
+    {
+        "file":  "supabase\\functions\\xp-backfill\\index.ts",
+        "any":  25,
+        "hooks":  0
+    },
+    {
+        "file":  "src\\scorm\\ingest\\manifest-parser.ts",
+        "any":  24,
+        "hooks":  0
+    },
+    {
+        "file":  "src\\lib\\scorm\\ScormAPIAdapter.ts",
+        "any":  16,
+        "hooks":  0
+    },
+    {
+        "file":  "src\\utils\\logger.ts",
+        "any":  14,
+        "hooks":  0
+    },
+    {
+        "file":  "src\\pages\\organizations\\OrgJoin.tsx",
+        "any":  14,
+        "hooks":  3
+    },
+    {
+        "file":  "src\\services\\DocumentIngestionService.ts",
+        "any":  13,
+        "hooks":  0
+    },
+    {
+        "file":  "supabase\\functions\\xp-system\\index.ts",
+        "any":  12,
+        "hooks":  0
+    },
+    {
+        "file":  "src\\scorm\\player\\ScormPlayerPro.tsx",
+        "any":  11,
+        "hooks":  32
+    },
+    {
+        "file":  "src\\components\\course\\geometry-lessons\\CoordinateGeometryLesson.tsx",
+        "any":  11,
+        "hooks":  0
+    },
+    {
+        "file":  "src\\services\\performance\\PrefetchManager.ts",
+        "any":  10,
+        "hooks":  0
+    },
+    {
+        "file":  "src\\components\\micro-lessons\\money-management\\game-state.ts",
+        "any":  10,
+        "hooks":  0
+    },
+    {
+        "file":  "src\\utils\\validators\\cmi2004.ts",
+        "any":  10,
+        "hooks":  0
+    },
+    {
+        "file":  "src\\pages\\dashboard\\Settings.tsx",
+        "any":  9,
+        "hooks":  7
+    },
+    {
+        "file":  "src\\utils\\validators\\cmi12.ts",
+        "any":  9,
+        "hooks":  0
+    },
+    {
+        "file":  "supabase\\functions\\ai-study-chat\\claude-client.ts",
+        "any":  8,
+        "hooks":  0
+    },
+    {
+        "file":  "src\\hooks\\useLearningAnalytics.ts",
+        "any":  8,
+        "hooks":  7
+    },
+    {
+        "file":  "src\\hooks\\useOrganizationActions.ts",
+        "any":  8,
+        "hooks":  0
+    },
+    {
+        "file":  "src\\utils\\analytics.ts",
+        "any":  8,
+        "hooks":  0
+    },
+    {
+        "file":  "supabase\\functions\\google-calendar-sync\\index.ts",
+        "any":  8,
+        "hooks":  0
+    },
+    {
+        "file":  "src\\services\\StreamingPDFLoader.ts",
+        "any":  7,
+        "hooks":  0
+    },
+    {
+        "file":  "src\\components\\course\\geometry-lessons\\QuadrilateralsLesson.tsx",
+        "any":  7,
+        "hooks":  0
+    },
+    {
+        "file":  "src\\components\\micro-lessons\\trigonometry\\TrigonometryUnitCircleMicroLesson.tsx",
+        "any":  7,
+        "hooks":  0
+    },
+    {
+        "file":  "src\\scorm\\security\\sanitization.ts",
+        "any":  7,
+        "hooks":  0
+    },
+    {
+        "file":  "supabase\\functions\\scorm-analytics\\index.ts",
+        "any":  7,
+        "hooks":  0
+    },
+    {
+        "file":  "src\\services\\DocumentTelemetryService.ts",
+        "any":  6,
+        "hooks":  0
+    },
+    {
+        "file":  "supabase\\functions\\scorm-analytics-export\\index.ts",
+        "any":  6,
+        "hooks":  0
+    },
+    {
+        "file":  "src\\components\\native-courses\\NativeLessonRenderer.tsx",
+        "any":  6,
+        "hooks":  2
+    },
+    {
+        "file":  "src\\pages\\TermsOfService.tsx",
+        "any":  6,
+        "hooks":  0
+    },
+    {
+        "file":  "src\\components\\course\\geometry-lessons\\ThreeDShapesLesson.tsx",
+        "any":  6,
+        "hooks":  0
+    },
+    {
+        "file":  "src\\utils\\studyDataUtils.ts",
+        "any":  6,
+        "hooks":  0
+    }
+]
