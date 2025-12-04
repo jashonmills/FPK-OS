@@ -1,0 +1,285 @@
+import React, { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { PayrollPeriodSelector } from './PayrollPeriodSelector';
+import { PayrollDataTable } from './PayrollDataTable';
+import { PayrollKPICards } from './PayrollKPICards';
+import { PayrollEmptyState } from './PayrollEmptyState';
+import { CreateManualTimeEntryDialog } from './CreateManualTimeEntryDialog';
+import { PayrollSummaryPreview } from './PayrollSummaryPreview';
+import { CheckCircle2, Download, Plus } from 'lucide-react';
+import { format, startOfWeek, endOfWeek } from 'date-fns';
+
+interface EmployeePayrollData {
+  user_id: string;
+  user_name: string;
+  user_email: string;
+  total_hours: number;
+  hourly_rate: number;
+  total_pay: number;
+  project_breakdown: Array<{
+    project_id: string;
+    project_name: string;
+    hours: number;
+    daily_breakdown: Array<{
+      date: string;
+      hours: number;
+      task_title?: string;
+      description?: string;
+      time_entry_id?: string;
+      task_id?: string;
+    }>;
+  }>;
+}
+
+export const PayrollDashboard = () => {
+  const { toast } = useToast();
+  const [dateRange, setDateRange] = useState<{ from: Date; to: Date } | null>(() => {
+    // Auto-select "This Week" on mount
+    const now = new Date();
+    return {
+      from: startOfWeek(now, { weekStartsOn: 0 }),
+      to: endOfWeek(now, { weekStartsOn: 0 }),
+    };
+  });
+  const [payrollData, setPayrollData] = useState<EmployeePayrollData[]>([]);
+  const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [isApproving, setIsApproving] = useState(false);
+  const [showManualEntryDialog, setShowManualEntryDialog] = useState(false);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+
+  useEffect(() => {
+    if (dateRange) {
+      fetchPayrollData();
+    }
+  }, [dateRange]);
+
+  const fetchPayrollData = async () => {
+    if (!dateRange) return;
+
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('vw_payroll_report')
+        .select('*')
+        .gte('entry_date', format(dateRange.from, 'yyyy-MM-dd'))
+        .lte('entry_date', format(dateRange.to, 'yyyy-MM-dd'));
+
+      if (error) throw error;
+
+      const aggregated = aggregatePayrollData(data || []);
+      setPayrollData(aggregated);
+    } catch (error) {
+      console.error('Error fetching payroll data:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load payroll data',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const aggregatePayrollData = (rawData: any[]): EmployeePayrollData[] => {
+    const employeeMap = new Map<string, EmployeePayrollData>();
+
+    rawData.forEach(entry => {
+      if (!employeeMap.has(entry.user_id)) {
+        employeeMap.set(entry.user_id, {
+          user_id: entry.user_id,
+          user_name: entry.user_name,
+          user_email: entry.user_email,
+          total_hours: 0,
+          hourly_rate: entry.hourly_rate,
+          total_pay: 0,
+          project_breakdown: [],
+        });
+      }
+
+      const employee = employeeMap.get(entry.user_id)!;
+      employee.total_hours += parseFloat(entry.hours_logged);
+      employee.total_pay += parseFloat(entry.calculated_cost);
+
+      let project = employee.project_breakdown.find(p => p.project_id === entry.project_id);
+      if (!project) {
+        project = {
+          project_id: entry.project_id,
+          project_name: entry.project_name,
+          hours: 0,
+          daily_breakdown: [],
+        };
+        employee.project_breakdown.push(project);
+      }
+
+      project.hours += parseFloat(entry.hours_logged);
+      project.daily_breakdown.push({
+        date: entry.entry_date,
+        hours: parseFloat(entry.hours_logged),
+        task_title: entry.task_title,
+        description: entry.description,
+        time_entry_id: entry.time_entry_id,
+        task_id: entry.task_id,
+      });
+    });
+
+    return Array.from(employeeMap.values());
+  };
+
+  const handleOpenPreview = () => {
+    if (!dateRange || selectedEmployees.length === 0) {
+      toast({
+        title: 'Validation Error',
+        description: 'Please select employees to include in the payroll run',
+        variant: 'destructive',
+      });
+      return;
+    }
+    setShowPreviewModal(true);
+  };
+
+  const handleApprovePayroll = async () => {
+    if (!dateRange || selectedEmployees.length === 0) return;
+
+    setIsApproving(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-payroll-run', {
+        body: {
+          pay_period_start_date: format(dateRange.from, 'yyyy-MM-dd'),
+          pay_period_end_date: format(dateRange.to, 'yyyy-MM-dd'),
+          employee_ids: selectedEmployees,
+        },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: 'Success',
+        description: `Payroll approved! Notifications sent to ${selectedEmployees.length} employees`,
+      });
+
+      setShowPreviewModal(false);
+      fetchPayrollData();
+      setSelectedEmployees([]);
+    } catch (error) {
+      console.error('Error approving payroll:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to approve payroll run',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsApproving(false);
+    }
+  };
+
+  const handleExportCSV = () => {
+    const selectedData = payrollData.filter(emp => selectedEmployees.includes(emp.user_id));
+    
+    const csvContent = [
+      ['Employee Name', 'Email', 'Total Hours', 'Hourly Rate', 'Total Pay'],
+      ...selectedData.map(emp => [
+        emp.user_name,
+        emp.user_email,
+        emp.total_hours.toFixed(2),
+        emp.hourly_rate.toFixed(2),
+        emp.total_pay.toFixed(2),
+      ]),
+    ]
+      .map(row => row.join(','))
+      .join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `payroll_${format(dateRange?.from || new Date(), 'yyyy-MM-dd')}_to_${format(dateRange?.to || new Date(), 'yyyy-MM-dd')}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
+  const totalHours = payrollData.reduce((sum, emp) => sum + emp.total_hours, 0);
+  const totalCost = payrollData.reduce((sum, emp) => sum + emp.total_pay, 0);
+
+  return (
+    <div className="space-y-6">
+      <PayrollPeriodSelector dateRange={dateRange} onChange={setDateRange} />
+
+      {dateRange && (
+        <>
+          <PayrollKPICards
+            totalHours={totalHours}
+            totalCost={totalCost}
+            employeeCount={payrollData.length}
+          />
+
+          {!loading && payrollData.length === 0 ? (
+            <PayrollEmptyState />
+          ) : (
+            <Card>
+              <CardHeader>
+                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                  <CardTitle>Employee Payroll Data</CardTitle>
+                  <div className="flex flex-col md:flex-row gap-2 w-full md:w-auto">
+                    <Button
+                      onClick={() => setShowManualEntryDialog(true)}
+                      variant="outline"
+                      className="w-full md:w-auto justify-start"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Manual Time Entry
+                    </Button>
+                    <Button
+                      onClick={handleExportCSV}
+                      disabled={selectedEmployees.length === 0}
+                      variant="outline"
+                      className="w-full md:w-auto justify-start"
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Export CSV
+                    </Button>
+                    <Button
+                      onClick={handleOpenPreview}
+                      disabled={selectedEmployees.length === 0}
+                      className="w-full md:w-auto justify-start"
+                    >
+                      <CheckCircle2 className="h-4 w-4 mr-2" />
+                      Approve for Payroll
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <PayrollDataTable
+                  data={payrollData}
+                  selectedEmployees={selectedEmployees}
+                  onSelectionChange={setSelectedEmployees}
+                  loading={loading}
+                  onRefresh={fetchPayrollData}
+                />
+              </CardContent>
+            </Card>
+          )}
+        </>
+      )}
+
+      <CreateManualTimeEntryDialog
+        open={showManualEntryDialog}
+        onOpenChange={setShowManualEntryDialog}
+        onSuccess={fetchPayrollData}
+      />
+
+      <PayrollSummaryPreview
+        open={showPreviewModal}
+        onOpenChange={setShowPreviewModal}
+        onApprove={handleApprovePayroll}
+        employees={payrollData.filter(emp => selectedEmployees.includes(emp.user_id))}
+        dateRange={dateRange!}
+        isApproving={isApproving}
+      />
+    </div>
+  );
+};

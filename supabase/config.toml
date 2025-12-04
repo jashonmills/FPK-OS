@@ -1,0 +1,16 @@
+project_id = "blkcxbyloxzmgwjbbcqd"
+
+[functions.process-mentions]
+verify_jwt = true
+
+[functions.ai-task-assist]
+verify_jwt = true
+
+[functions.generate-calendar-feed]
+verify_jwt = false
+
+[functions.submit-timesheet]
+verify_jwt = true
+
+[functions.force-clock-out]
+verify_jwt = true
