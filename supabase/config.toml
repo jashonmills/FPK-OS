@@ -1,0 +1,7 @@
+project_id = "emohlfanlbiibrbdadtu"
+
+[functions.validate-invite-code]
+verify_jwt = false
+
+[functions.get-vapid-public-key]
+verify_jwt = false
