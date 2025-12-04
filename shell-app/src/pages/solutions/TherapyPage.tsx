@@ -1,9 +1,15 @@
 import {
+  AreaChart,
   BarChart,
   Bot,
   CheckCircle,
+  DatabaseZap,
+  FileCog,
   FileText,
   Shield,
+  ShieldCheck,
+  Share2,
+  Sparkles,
   Users,
 } from "lucide-react";
 
@@ -67,6 +73,67 @@ const solutionPillars = [
   },
 ];
 
+const painToGainSolutions = [
+  {
+    pain: "Subjective Data & Insurance Audits",
+    gain: "FPK-X's 27 specialized charts provide objective, quantifiable data on behavior, proving intervention efficacy and satisfying auditor requirements.",
+    icon: <AreaChart className="h-8 w-8 text-teal-500" />,
+  },
+  {
+    pain: "Crushing Administrative Overhead",
+    gain: "Our AI-powered wizards automate the creation of FBAs, BIPs, and progress reports, cutting non-billable administrative time by up to 40%.",
+    icon: <FileCog className="h-8 w-8 text-teal-500" />,
+  },
+  {
+    pain: "HIPAA & FERPA Compliance Risks",
+    gain: "Aegis ensures end-to-end encryption and strict access controls for all PHI, providing a HIPAA-compliant environment that eliminates the risk of using consumer-grade tools.",
+    icon: <ShieldCheck className="h-8 w-8 text-teal-500" />,
+  },
+  {
+    pain: "Inconsistent Care & Staff Turnover",
+    gain: "FPK-X serves as a central repository for client history and intervention data, ensuring seamless continuity of care even when staff changes occur.",
+    icon: <DatabaseZap className="h-8 w-8 text-teal-500" />,
+  },
+  {
+    pain: "Disconnected Parent Communication",
+    gain: "Securely share progress charts and reports with parents through a dedicated portal, enhancing collaboration and keeping them informed.",
+    icon: <Share2 className="h-8 w-8 text-teal-500" />,
+  },
+  {
+    pain: "Lack of Predictive Insights",
+    gain: "Analyze correlations between variables like sleep, medication, and behavior to anticipate trends and proactively adjust treatment plans for better outcomes.",
+    icon: <Sparkles className="h-8 w-8 text-teal-500" />,
+  },
+];
+
+const PainToGainSection = () => (
+  <div className="py-24">
+    <div className="mx-auto max-w-6xl px-6">
+      <div className="text-center">
+        <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+          From Problem to Precision
+        </h2>
+        <p className="mt-4 mx-auto max-w-2xl text-lg text-slate-600">
+          FPK-X is engineered to solve the specific operational and clinical challenges that modern therapy practices face.
+        </p>
+      </div>
+      <div className="mt-16 grid gap-10 md:grid-cols-2 lg:grid-cols-3">
+        {painToGainSolutions.map((solution) => (
+          <div key={solution.pain} className="flex flex-col">
+            <div className="flex items-center gap-4">
+              {solution.icon}
+              <h3 className="text-xl font-bold text-slate-500">PAIN: {solution.pain}</h3>
+            </div>
+            <div className="ml-4 mt-2 border-l-2 border-teal-500 pl-6">
+              <p className="text-lg font-semibold text-slate-800">{solution.gain}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
 const TherapyPage = () => {
   return (
     <div className="bg-white text-slate-900">
@@ -116,6 +183,8 @@ const TherapyPage = () => {
         </div>
       </div>
 
+      <PainToGainSection />
+
       <div className="py-24">
         <div className="mx-auto max-w-6xl px-6">
           <div className="text-center">
@@ -149,9 +218,11 @@ const TherapyPage = () => {
               <div>
                 <h3 className="text-xl font-semibold">The Foundation: FPK Aegis AI Governance</h3>
                 <p className="mt-2 text-teal-50">
-                  Operate with total confidence. Aegis ensures every piece of data is handled with HIPAA/FERPA-grade
-                  security. Our AI models are governed by strict clinical and privacy protocols, protecting your
-                  clients, your staff, and your practice.
+                  Aegis is your partner in clinical compliance. It provides a robust governance layer ensuring strict
+                  <strong> HIPAA compliance </strong>
+                  for all Protected Health Information (PHI). Our system enforces end-to-end encryption, granular access
+                  controls, and detailed audit logs for every data interaction. You can leverage our powerful AI tools
+                  with the absolute certainty that your client data and your practice are protected.
                 </p>
               </div>
             </div>
