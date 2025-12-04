@@ -5,7 +5,6 @@ import {
   Shield,
   Users,
 } from "lucide-react";
-import Header from "../../components/layout/Header";
 
 const painPoints = [
   {
@@ -64,8 +63,6 @@ const solutionPillars = [
 const ParentsPage = () => {
   return (
     <div className="bg-white text-slate-900">
-      <Header />
-
       <div className="bg-slate-900 text-white">
         <div className="mx-auto max-w-6xl px-6 py-24 text-center">
           <p className="text-sm font-semibold uppercase tracking-[0.14em] text-pink-400">
