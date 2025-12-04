@@ -1,4 +1,15 @@
-import { CheckCircle, Library, Shield, Sparkles, Target } from "lucide-react";
+import {
+  Brain,
+  CheckCircle,
+  FileText,
+  Library,
+  Lightbulb,
+  Shield,
+  ShieldCheck,
+  Sparkles,
+  Target,
+  Workflow,
+} from "lucide-react";
 
 const painPoints = [
   {
@@ -54,6 +65,67 @@ const solutionPillars = [
   },
 ];
 
+const painToGainSolutions = [
+  {
+    pain: "Information Overload",
+    gain: "FPK University's structured library turns a chaotic stream of information into an organized, interconnected personal knowledge base.",
+    icon: <Library className="h-8 w-8 text-purple-500" />,
+  },
+  {
+    pain: 'The "Forgetting Curve"',
+    gain: "Our adaptive learning engine uses principles of spaced repetition to resurface key concepts, ensuring long-term retention.",
+    icon: <Brain className="h-8 w-8 text-purple-500" />,
+  },
+  {
+    pain: "Scattered Notes & Ideas",
+    gain: "Centralize all your highlights, notes, and ideas in one place. Our AI helps you discover novel connections between them.",
+    icon: <FileText className="h-8 w-8 text-purple-500" />,
+  },
+  {
+    pain: "Passive Consumption vs. Active Creation",
+    gain: "Integrated project tools allow you to turn a piece of knowledge into a task or project with a single click, bridging the gap between learning and doing.",
+    icon: <Workflow className="h-8 w-8 text-purple-500" />,
+  },
+  {
+    pain: "Lack of a Personalized Path",
+    gain: "The Socratic AI Coach assesses your goals and existing knowledge to build a unique, adaptive curriculum just for you.",
+    icon: <Lightbulb className="h-8 w-8 text-purple-500" />,
+  },
+  {
+    pain: 'The "Someday/Maybe" Pile',
+    gain: "Organize your ambitions with clear goal-setting and project management features, turning 'someday' into a concrete plan.",
+    icon: <Target className="h-8 w-8 text-purple-500" />,
+  },
+];
+
+const PainToGainSection = () => (
+  <div className="py-24">
+    <div className="mx-auto max-w-6xl px-6">
+      <div className="text-center">
+        <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+          From Ambition to Achievement
+        </h2>
+        <p className="mt-4 mx-auto max-w-2xl text-lg text-slate-600">
+          A system designed to structure your knowledge and activate your potential.
+        </p>
+      </div>
+      <div className="mt-16 grid gap-10 md:grid-cols-2 lg:grid-cols-3">
+        {painToGainSolutions.map((solution) => (
+          <div key={solution.pain} className="flex flex-col">
+            <div className="flex items-center gap-4">
+              {solution.icon}
+              <h3 className="text-xl font-bold text-slate-500">PAIN: {solution.pain}</h3>
+            </div>
+            <div className="ml-4 mt-2 border-l-2 border-purple-500 pl-6">
+              <p className="text-lg font-semibold text-slate-800">{solution.gain}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
 const IndividualsPage = () => {
   return (
     <div className="bg-white text-slate-900">
@@ -103,6 +175,8 @@ const IndividualsPage = () => {
         </div>
       </div>
 
+      <PainToGainSection />
+
       <div className="py-24">
         <div className="mx-auto max-w-6xl px-6">
           <div className="text-center">
@@ -135,8 +209,11 @@ const IndividualsPage = () => {
               <div>
                 <h3 className="text-xl font-semibold">The Foundation: FPK Aegis AI Governance</h3>
                 <p className="mt-2 text-purple-50">
-                  Your knowledge is your own. FPK Aegis ensures your data is private, secure, and never used without
-                  your consent. Build your life&apos;s work with total peace of mind.
+                  Your knowledge is your own. Period. Aegis is our commitment to
+                  <strong> personal data ownership and intellectual privacy </strong>
+                  . Your data is never used to train our models without your explicit opt-in consent. You own your
+                  knowledge library, and you can export it at any time. This is your private intellectual space, and we
+                  are its sworn protector.
                 </p>
               </div>
             </div>

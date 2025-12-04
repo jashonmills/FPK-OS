@@ -1,4 +1,16 @@
-import { BookOpen, CheckCircle, Scaling, Shield, Zap } from "lucide-react";
+import {
+  BookOpen,
+  BrainCircuit,
+  CheckCircle,
+  Repeat,
+  Scaling,
+  Shield,
+  ShieldCheck,
+  Sparkles,
+  Spline,
+  UserPlus,
+  Zap,
+} from "lucide-react";
 
 const painPoints = [
   {
@@ -54,6 +66,67 @@ const solutionPillars = [
   },
 ];
 
+const painToGainSolutions = [
+  {
+    pain: "The 'Brain Drain' Problem",
+    gain: "FPK Pulse captures employee knowledge in a living, searchable database, turning individual expertise into a durable corporate asset.",
+    icon: <BrainCircuit className="h-8 w-8 text-blue-500" />,
+  },
+  {
+    pain: "Onboarding Inefficiency",
+    gain: "New hires can access a centralized knowledge base from day one, dramatically reducing ramp-up time and repetitive questions.",
+    icon: <UserPlus className="h-8 w-8 text-blue-500" />,
+  },
+  {
+    pain: "Information Silos & 'Slack-lash'",
+    gain: "Integrate scattered documents and conversations into a single source of truth, ending the frustrating search for key information.",
+    icon: <Spline className="h-8 w-8 text-blue-500" />,
+  },
+  {
+    pain: "Meeting Redundancy",
+    gain: "A central, trusted knowledge base reduces the need for status update meetings, freeing up your team for high-value, collaborative work.",
+    icon: <Repeat className="h-8 w-8 text-blue-500" />,
+  },
+  {
+    pain: "Untapped Collective Intelligence",
+    gain: "Our AI surfaces connections between different projects and ideas, revealing insights and opportunities that were previously hidden in silos.",
+    icon: <Sparkles className="h-8 w-8 text-blue-500" />,
+  },
+  {
+    pain: "Inconsistent Processes",
+    gain: "Standardize your SOPs and best practices in FPK Pulse, ensuring every team member is operating from the same playbook.",
+    icon: <ShieldCheck className="h-8 w-8 text-blue-500" />,
+  },
+];
+
+const PainToGainSection = () => (
+  <div className="py-24">
+    <div className="mx-auto max-w-6xl px-6">
+      <div className="text-center">
+        <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+          From Friction to Flow
+        </h2>
+        <p className="mt-4 mx-auto max-w-2xl text-lg text-slate-600">
+          FPK Pulse is built to solve the core operational drags on productivity and growth.
+        </p>
+      </div>
+      <div className="mt-16 grid gap-10 md:grid-cols-2 lg:grid-cols-3">
+        {painToGainSolutions.map((solution) => (
+          <div key={solution.pain} className="flex flex-col">
+            <div className="flex items-center gap-4">
+              {solution.icon}
+              <h3 className="text-xl font-bold text-slate-500">PAIN: {solution.pain}</h3>
+            </div>
+            <div className="ml-4 mt-2 border-l-2 border-blue-500 pl-6">
+              <p className="text-lg font-semibold text-slate-800">{solution.gain}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
 const BusinessPage = () => {
   return (
     <div className="bg-white text-slate-900">
@@ -103,6 +176,8 @@ const BusinessPage = () => {
         </div>
       </div>
 
+      <PainToGainSection />
+
       <div className="py-24">
         <div className="mx-auto max-w-6xl px-6">
           <div className="text-center">
@@ -135,8 +210,10 @@ const BusinessPage = () => {
               <div>
                 <h3 className="text-xl font-semibold">The Foundation: FPK Aegis AI Governance</h3>
                 <p className="mt-2 text-blue-50">
-                  Deploy with confidence. FPK Aegis provides a robust governance layer, ensuring your proprietary
-                  information is secure, your AI usage is compliant, and your data remains your own.
+                  Aegis is your guarantee of corporate data security. It provides a governance layer focused on
+                  protecting <strong>proprietary information and intellectual property</strong>. All data is encrypted
+                  in transit and at rest, with granular permissions ensuring that sensitive information is only
+                  accessible to authorized personnel. Your competitive advantage stays within your walls.
                 </p>
               </div>
             </div>

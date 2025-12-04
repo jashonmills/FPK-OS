@@ -1,4 +1,14 @@
-import { BookHeart, CheckCircle, Globe, Shield, Users } from "lucide-react";
+import {
+  AreaChart,
+  BookHeart,
+  CheckCircle,
+  Globe,
+  GraduationCap,
+  Shield,
+  ShieldCheck,
+  Users,
+  WifiOff,
+} from "lucide-react";
 
 const painPoints = [
   {
@@ -54,6 +64,67 @@ const solutionPillars = [
   },
 ];
 
+const painToGainSolutions = [
+  {
+    pain: "The Digital Divide",
+    gain: "Our institutional licensing provides cost-effective, equitable access to premium learning tools for every member of your community.",
+    icon: <Globe className="h-8 w-8 text-green-500" />,
+  },
+  {
+    pain: "Providing a Safe Online Space",
+    gain: "FPK Nexus, governed by Aegis, offers an AI-moderated, CIPA-compliant community platform, free from the risks of public social media.",
+    icon: <ShieldCheck className="h-8 w-8 text-green-500" />,
+  },
+  {
+    pain: "Outdated Program Offerings",
+    gain: "Use our turnkey curriculum to instantly offer workshops on vital modern skills like AI literacy and personal knowledge management.",
+    icon: <GraduationCap className="h-8 w-8 text-green-500" />,
+  },
+  {
+    pain: "Reaching Underserved Patrons",
+    gain: "The FPK ecosystem includes specialized tools and adaptive learning paths designed to support neurodiverse patrons and their families.",
+    icon: <BookHeart className="h-8 w-8 text-green-500" />,
+  },
+  {
+    pain: "Demonstrating Community Impact",
+    gain: "Our analytics dashboard provides anonymized, aggregated data on platform usage and learning outcomes to support your funding requests.",
+    icon: <AreaChart className="h-8 w-8 text-green-500" />,
+  },
+  {
+    pain: "Resource and Staffing Constraints",
+    gain: "As a fully-hosted, easy-to-manage platform, FPK requires minimal IT overhead, freeing your staff to focus on patron engagement.",
+    icon: <WifiOff className="h-8 w-8 text-green-500" />,
+  },
+];
+
+const PainToGainSection = () => (
+  <div className="py-24">
+    <div className="mx-auto max-w-6xl px-6">
+      <div className="text-center">
+        <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+          From Public Service to Public Powerhouse
+        </h2>
+        <p className="mt-4 mx-auto max-w-2xl text-lg text-slate-600">
+          Digital tools designed for the core mission of community and public institutions.
+        </p>
+      </div>
+      <div className="mt-16 grid gap-10 md:grid-cols-2 lg:grid-cols-3">
+        {painToGainSolutions.map((solution) => (
+          <div key={solution.pain} className="flex flex-col">
+            <div className="flex items-center gap-4">
+              {solution.icon}
+              <h3 className="text-xl font-bold text-slate-500">PAIN: {solution.pain}</h3>
+            </div>
+            <div className="ml-4 mt-2 border-l-2 border-green-500 pl-6">
+              <p className="text-lg font-semibold text-slate-800">{solution.gain}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
 const LibrariesPage = () => {
   return (
     <div className="bg-white text-slate-900">
@@ -103,6 +174,8 @@ const LibrariesPage = () => {
         </div>
       </div>
 
+      <PainToGainSection />
+
       <div className="py-24">
         <div className="mx-auto max-w-6xl px-6">
           <div className="text-center">
@@ -135,8 +208,10 @@ const LibrariesPage = () => {
               <div>
                 <h3 className="text-xl font-semibold">The Foundation: FPK Aegis AI Governance</h3>
                 <p className="mt-2 text-green-50">
-                  Serve patrons with confidence. FPK Aegis provides CIPA-aligned moderation and robust privacy, ensuring
-                  a safe and trustworthy digital environment for all ages.
+                  Aegis is your partner in public trust. Our governance layer is designed to help you meet key
+                  regulatory requirements like <strong>CIPA (Children&apos;s Internet Protection Act)</strong>. Our AI
+                  provides best-in-class content moderation to create a safe environment for all ages, and our privacy
+                  policy ensures patron data is handled with the confidentiality they expect from a public institution.
                 </p>
               </div>
             </div>

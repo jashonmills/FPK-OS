@@ -1,8 +1,13 @@
 import {
   Brain,
   CheckCircle,
+  FileText,
   Heart,
+  Lightbulb,
+  MessageSquareHeart,
   Shield,
+  ShieldCheck,
+  Smile,
   Users,
 } from "lucide-react";
 
@@ -60,6 +65,67 @@ const solutionPillars = [
   },
 ];
 
+const painToGainSolutions = [
+  {
+    pain: 'The "Why?" Crisis',
+    gain: "FPK-X transforms your observations into clear data, helping you identify triggers and understand the 'why' behind your child's behavior.",
+    icon: <Lightbulb className="h-8 w-8 text-pink-500" />,
+  },
+  {
+    pain: "A Mountain of Paperwork",
+    gain: "Our AI Document Intelligence helps you scan and digitize IEPs and evaluations, turning a binder of paper into an organized, searchable timeline.",
+    icon: <FileText className="h-8 w-8 text-pink-500" />,
+  },
+  {
+    pain: "Feeling Dismissed and Unheard",
+    gain: "Walk into meetings with clear, data-driven reports from FPK-X, empowering you to advocate for your child with confidence and clarity.",
+    icon: <MessageSquareHeart className="h-8 w-8 text-pink-500" />,
+  },
+  {
+    pain: "The Isolation Epidemic",
+    gain: "FPK Nexus provides a private, AI-moderated community, connecting you with other parents on a similar journey in a safe and supportive space.",
+    icon: <Users className="h-8 w-8 text-pink-500" />,
+  },
+  {
+    pain: "Doubt and Uncertainty",
+    gain: "Track progress against specific goals in FPK-X. See what's working, what's not, and make informed decisions about therapies and interventions.",
+    icon: <Smile className="h-8 w-8 text-pink-500" />,
+  },
+  {
+    pain: "Fear of the Digital World",
+    gain: "Aegis provides best-in-class content moderation and privacy controls in FPK Nexus, ensuring a safe harbor for your child and family online.",
+    icon: <ShieldCheck className="h-8 w-8 text-pink-500" />,
+  },
+];
+
+const PainToGainSection = () => (
+  <div className="py-24">
+    <div className="mx-auto max-w-6xl px-6">
+      <div className="text-center">
+        <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+          Your Partner in the Journey
+        </h2>
+        <p className="mt-4 mx-auto max-w-2xl text-lg text-slate-600">
+          A system designed to empower you with clarity, action, and community.
+        </p>
+      </div>
+      <div className="mt-16 grid gap-10 md:grid-cols-2 lg:grid-cols-3">
+        {painToGainSolutions.map((solution) => (
+          <div key={solution.pain} className="flex flex-col">
+            <div className="flex items-center gap-4">
+              {solution.icon}
+              <h3 className="text-xl font-bold text-slate-500">PAIN: {solution.pain}</h3>
+            </div>
+            <div className="ml-4 mt-2 border-l-2 border-pink-500 pl-6">
+              <p className="text-lg font-semibold text-slate-800">{solution.gain}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
 const ParentsPage = () => {
   return (
     <div className="bg-white text-slate-900">
@@ -108,6 +174,8 @@ const ParentsPage = () => {
         </div>
       </div>
 
+      <PainToGainSection />
+
       <div className="py-24">
         <div className="mx-auto max-w-6xl px-6">
           <div className="text-center">
@@ -141,8 +209,11 @@ const ParentsPage = () => {
               <div>
                 <h3 className="text-xl font-semibold">The Foundation: FPK Aegis AI Governance</h3>
                 <p className="mt-2 text-pink-50">
-                  Your family's privacy is our sacred trust. Every piece of data is protected by enterprise-grade
-                  security and governed by AI designed to be safe, private, and helpful—never intrusive.
+                  Your family's privacy is our sacred trust. Aegis provides a robust governance layer focused on
+                  <strong> emotional and digital safety </strong>
+                  . Our AI is trained to detect and prevent bullying, and our strict privacy protocols ensure your
+                  family's data is never shared or analyzed without your explicit consent. This is your private space to
+                  learn and connect, guaranteed.
                 </p>
               </div>
             </div>
