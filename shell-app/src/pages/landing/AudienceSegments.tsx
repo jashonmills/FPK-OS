@@ -14,7 +14,7 @@ type Segment = {
   description: string;
   icon: ReactNode;
   cta: string;
-  path?: string;
+  path: string;
 };
 
 const segments: Segment[] = [
@@ -32,6 +32,7 @@ const segments: Segment[] = [
       "A HIPAA-grade clinical intelligence platform. Transform observations into data, automate reporting, and deliver better outcomes with FPK-X.",
     icon: <HeartPulse className="h-6 w-6 text-slate-900" />,
     cta: "Learn More",
+    path: "/solutions/therapy",
   },
   {
     title: "For Parents & Families",
@@ -39,6 +40,7 @@ const segments: Segment[] = [
       "Empower your journey. Gain clarity on your child's needs with FPK-X, access personalized learning with FPK University, and find your community in FPK Nexus.",
     icon: <Users className="h-6 w-6 text-slate-900" />,
     cta: "Learn More",
+    path: "/solutions/parents",
   },
   {
     title: "For Businesses & Teams",
@@ -46,6 +48,7 @@ const segments: Segment[] = [
       "The all-in-one platform to run your operations. Manage projects, track finances, and collaborate effectively with FPK Pulse, our powerful business OS.",
     icon: <Briefcase className="h-6 w-6 text-slate-900" />,
     cta: "Learn More",
+    path: "/solutions/business",
   },
   {
     title: "For Individuals",
@@ -53,6 +56,7 @@ const segments: Segment[] = [
       "Achieve your personal and professional goals. Master new skills with our Socratic AI Coach or organize your work with a personal FPK Pulse workspace.",
     icon: <User className="h-6 w-6 text-slate-900" />,
     cta: "Learn More",
+    path: "/solutions/individuals",
   },
   {
     title: "For Libraries & Communities",
@@ -60,6 +64,7 @@ const segments: Segment[] = [
       "Our commitment to public good. Provide your community with free access to our course catalog and a safe, governed AI terminal for public use.",
     icon: <Library className="h-6 w-6 text-slate-900" />,
     cta: "Learn More",
+    path: "/solutions/libraries",
   },
 ];
 
@@ -81,8 +86,8 @@ const AudienceSegments = () => {
         </div>
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {segments.map((segment) => {
-            const card = (
+          {segments.map((segment) => (
+            <Link key={segment.title} to={segment.path} className="block no-underline">
               <div className="group relative flex h-full flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_10px_40px_-24px_rgba(15,23,42,0.35)] transition-transform duration-200 hover:-translate-y-1 hover:shadow-[0_20px_60px_-30px_rgba(15,23,42,0.4)]">
                 <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 text-slate-900">
                   {segment.icon}
@@ -102,16 +107,8 @@ const AudienceSegments = () => {
                   </span>
                 </span>
               </div>
-            );
-
-            return segment.path ? (
-              <Link key={segment.title} to={segment.path} className="block">
-                {card}
-              </Link>
-            ) : (
-              <div key={segment.title}>{card}</div>
-            );
-          })}
+            </Link>
+          ))}
         </div>
       </div>
     </section>
