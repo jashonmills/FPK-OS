@@ -1,10 +1,16 @@
 import {
+  AreaChart,
   BarChart,
   BrainCircuit,
   Briefcase,
   CheckCircle,
+  DatabaseZap,
+  FileCog,
   GraduationCap,
   Shield,
+  ShieldCheck,
+  Sparkles,
+  Workflow,
 } from "lucide-react";
 
 const painPoints = [
@@ -67,6 +73,67 @@ const solutionPillars = [
   },
 ];
 
+const painToGainSolutions = [
+  {
+    pain: "Fragmented Student Data",
+    gain: "FPK-X unifies academic records, behavioral notes, and clinical data into a single, holistic student profile, eliminating data silos.",
+    icon: <DatabaseZap className="h-8 w-8 text-indigo-500" />,
+  },
+  {
+    pain: "Manual, Time-Consuming Reporting",
+    gain: "Our AI Document Intelligence automates the extraction of goals and requirements from IEPs and 504s, drastically reducing administrative workload.",
+    icon: <FileCog className="h-8 w-8 text-indigo-500" />,
+  },
+  {
+    pain: "Reactive, One-Size-Fits-All Support",
+    gain: "FPK University's adaptive learning engine creates personalized educational paths for each student, turning reactive support into proactive development.",
+    icon: <Sparkles className="h-8 w-8 text-indigo-500" />,
+  },
+  {
+    pain: "Compliance and Security Risks",
+    gain: "Built on the FPK Aegis foundation, our platform provides FERPA-compliant security and AI governance, protecting student data and your institution.",
+    icon: <ShieldCheck className="h-8 w-8 text-indigo-500" />,
+  },
+  {
+    pain: "Inefficient Operational Workflows",
+    gain: "FPK Pulse streamlines admissions, resource allocation, and internal communication, connecting disparate departments on a single OS.",
+    icon: <Workflow className="h-8 w-8 text-indigo-500" />,
+  },
+  {
+    pain: "Difficulty Proving Efficacy",
+    gain: "With advanced visual analytics, you can track intervention effectiveness and student growth over time with quantifiable data, perfect for accreditation and funding.",
+    icon: <AreaChart className="h-8 w-8 text-indigo-500" />,
+  },
+];
+
+const PainToGainSection = () => (
+  <div className="py-24">
+    <div className="mx-auto max-w-6xl px-6">
+      <div className="text-center">
+        <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+          From Challenge to Capability
+        </h2>
+        <p className="mt-4 mx-auto max-w-2xl text-lg text-slate-600">
+          We built the FPK OS to solve the specific, real-world problems educational institutions face every day.
+        </p>
+      </div>
+      <div className="mt-16 grid gap-10 md:grid-cols-2 lg:grid-cols-3">
+        {painToGainSolutions.map((solution) => (
+          <div key={solution.pain} className="flex flex-col">
+            <div className="flex items-center gap-4">
+              {solution.icon}
+              <h3 className="text-xl font-bold text-slate-500">PAIN: {solution.pain}</h3>
+            </div>
+            <div className="ml-4 mt-2 border-l-2 border-indigo-500 pl-6">
+              <p className="text-lg font-semibold text-slate-800">{solution.gain}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
 const EducationPage = () => {
   return (
     <div className="bg-white text-slate-900">
@@ -114,6 +181,8 @@ const EducationPage = () => {
           </div>
         </div>
       </div>
+
+      <PainToGainSection />
 
       <div className="py-24">
         <div className="mx-auto max-w-6xl px-6">
