@@ -1,6 +1,5 @@
 import { Github, Linkedin, Twitter } from "lucide-react";
 import { Link } from "react-router-dom";
-import FpkLogo from "../FpkLogo";
 
 const solutions = [
   { name: "Schools & Universities", href: "/solutions/education" },
@@ -30,7 +29,9 @@ const Footer = () => {
         <div className="grid grid-cols-2 gap-8 md:grid-cols-4 lg:grid-cols-5">
           <div className="col-span-2 lg:col-span-1">
             <div className="mb-4 flex items-center">
-              <FpkLogo className="mr-2 h-8 w-8" />
+              <div className="mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white text-xs font-bold uppercase text-slate-900">
+                FPK
+              </div>
               <span className="text-xl font-bold">FPK OS</span>
             </div>
             <p className="text-sm text-slate-400">
