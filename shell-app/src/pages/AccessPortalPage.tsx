@@ -1,5 +1,4 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { FpkLogo } from "../../components/FpkLogo";
 import { Button } from "../../components/ui/button";
 import {
   Card,
@@ -65,7 +64,9 @@ const AccessPortalPage = () => {
     <div className="flex min-h-screen items-center justify-center bg-gray-100 px-4 text-gray-900">
       <div className="flex w-full max-w-4xl flex-col items-center gap-10 rounded-2xl bg-white/90 p-8 shadow-xl shadow-slate-900/10 backdrop-blur">
         <div className="flex flex-col items-center text-center">
-          <FpkLogo className="mb-3 h-12 w-12 text-gray-800" />
+          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-slate-900 text-base font-bold text-white">
+            FPK
+          </div>
           <h1 className="text-2xl font-bold tracking-tight">FPK OS Ecosystem</h1>
           <p className="mt-1 text-sm text-gray-600">
             The Future-Proof Knowledge Operating System
