@@ -1,5 +1,3 @@
-import Header from "../landing/Header";
-
 const features = [
   "Integrated Student Information System (SIS)",
   "Adaptive Learning with FPK University",
@@ -10,8 +8,6 @@ const features = [
 const EducationPage = () => {
   return (
     <div className="min-h-screen bg-white text-slate-900">
-      <Header />
-
       <main>
         <section className="relative overflow-hidden bg-gradient-to-b from-slate-900 via-slate-900 to-slate-800 px-6 py-20 sm:py-24">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.08),transparent_35%),radial-gradient(circle_at_80%_10%,rgba(255,255,255,0.06),transparent_32%),radial-gradient(circle_at_50%_60%,rgba(255,255,255,0.05),transparent_38%)]" />
