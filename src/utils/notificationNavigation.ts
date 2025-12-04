@@ -1,0 +1,30 @@
+export interface NotificationContext {
+  entity_type: string;
+  entity_id: string;
+  discussion_id: string;
+}
+
+export function getNotificationUrl(notification: NotificationContext): string {
+  const { entity_type, entity_id, discussion_id } = notification;
+  
+  switch (entity_type) {
+    case 'goal':
+      return `/goals/${entity_id}?highlight=${discussion_id}`;
+    case 'document':
+      return `/documents?view=${entity_id}&highlight=${discussion_id}`;
+    case 'incident_log':
+    case 'educator_log':
+    case 'parent_log':
+      return `/activity-log?highlight=${discussion_id}`;
+    case 'assessment':
+      return `/assessments?highlight=${discussion_id}`;
+    case 'chart':
+      return `/analytics?highlight=${discussion_id}`;
+    case 'student':
+      return `/overview?highlight=${discussion_id}`;
+    case 'dashboard':
+      return `/dashboard?tab=discussion&highlight=${discussion_id}`;
+    default:
+      return '/dashboard';
+  }
+}

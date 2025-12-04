@@ -1,0 +1,386 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@media print {
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  h1, h2 {
+    page-break-before: always;
+    break-before: always;
+  }
+
+  h1:first-of-type, h2:first-of-type {
+    page-break-before: avoid;
+    break-before: avoid;
+  }
+
+  table {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  tr {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  img {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    page-break-before: auto;
+    break-before: auto;
+    page-break-after: auto;
+    break-after: auto;
+  }
+
+  @page {
+    margin: 2cm;
+  }
+}
+
+:root {
+  /* Light Mode Colors */
+  --background: 0 0% 100%;
+  --foreground: 240 10% 3.9%;
+  
+  --card: 0 0% 100%;
+  --card-foreground: 240 10% 3.9%;
+  
+  --popover: 0 0% 100%;
+  --popover-foreground: 240 10% 3.9%;
+  
+  --primary: 195 100% 50%;
+  --primary-foreground: 0 0% 100%;
+  
+  --secondary: 240 4.8% 95.9%;
+  --secondary-foreground: 240 5.9% 10%;
+  
+  --muted: 240 4.8% 95.9%;
+  --muted-foreground: 240 3.8% 46.1%;
+  
+  --accent: 240 4.8% 95.9%;
+  --accent-foreground: 240 5.9% 10%;
+  
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 98%;
+  
+  --border: 240 5.9% 90%;
+  --input: 240 5.9% 90%;
+  --ring: 195 100% 50%;
+  
+  --radius: 0.5rem;
+
+  /* Sidebar Specific (Light Mode) */
+  --sidebar-background: 0 0% 100%;
+  --sidebar-foreground: 240 10% 3.9%;
+  --sidebar-primary: 195 100% 50%;
+  --sidebar-primary-foreground: 0 0% 98%;
+  --sidebar-accent: 240 4.8% 95.9%;
+  --sidebar-accent-foreground: 240 5.9% 10%;
+  --sidebar-border: 240 5.9% 90%;
+  --sidebar-ring: 195 100% 50%;
+
+  /* Light Mode Gradients */
+  --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+  --gradient-subtle: linear-gradient(180deg, hsl(var(--background)), hsl(var(--card)));
+  
+  /* Light Mode Shadows */
+  --shadow-glow: 0 0 30px hsl(var(--primary) / 0.15);
+  --shadow-elegant: 0 10px 30px -10px hsl(0 0% 0% / 0.1);
+  
+  /* Transitions */
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+  .dark {
+    /* Layer 0: Deepest Background */
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    
+    /* Layer 1: Panels / Sidebar / Popovers */
+    --popover: 240 5% 8%;
+    --popover-foreground: 0 0% 98%;
+    
+    /* Layer 2: Cards / Content Areas */
+    --card: 240 5% 14%;
+    --card-foreground: 0 0% 98%;
+    
+    /* Layer 3: Interactive Elements / Muted Backgrounds */
+    --primary: 195 100% 50%;
+    --primary-foreground: 240 6% 8%;
+    
+    --secondary: 240 4% 20%;
+    --secondary-foreground: 0 0% 98%;
+    
+    --muted: 240 4% 16%;
+    --muted-foreground: 240 4% 65%;
+    
+    --accent: 240 4% 16%;
+    --accent-foreground: 0 0% 98%;
+    
+    /* Destructive Actions */
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    
+    /* Borders / Dividers */
+    --border: 240 4% 18%;
+    --input: 240 4% 18%;
+    --ring: 195 100% 50%;
+    
+    --radius: 0.5rem;
+
+    /* Sidebar Specific (Dark Mode) */
+    --sidebar-background: 240 6% 8%;
+    --sidebar-foreground: 240 5% 90%;
+    --sidebar-primary: 195 100% 50%;
+    --sidebar-primary-foreground: 240 6% 8%;
+    --sidebar-accent: 240 4% 16%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 240 4% 18%;
+    --sidebar-ring: 195 100% 50%;
+
+    /* RGB equivalents for glassmorphism */
+    --background-rgb: 9, 10, 11;
+    --sidebar-background-rgb: 18, 19, 23;
+    --popover-rgb: 18, 19, 23;
+    --card-rgb: 33, 34, 39;
+
+    /* Enhanced text readability on glass surfaces */
+    --text-shadow-glass: 0 1px 2px rgba(0, 0, 0, 0.5);
+
+    /* Chart Colors */
+    --chart-1: 185 100% 50%;
+    --chart-2: 200 95% 55%;
+    --chart-3: 215 90% 60%;
+    --chart-4: 230 85% 65%;
+    --chart-5: 245 80% 70%;
+  }
+
+* {
+  border-color: hsl(var(--border));
+}
+
+body {
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .glass {
+    background: rgba(20, 30, 48, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .glass-card {
+    background: rgba(10, 25, 47, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(0, 180, 255, 0.2);
+    box-shadow: 0 0 20px rgba(0, 180, 255, 0.1);
+  }
+
+  .glass-subtle {
+    background: rgba(6, 25, 47, 0.4);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(0, 180, 255, 0.15);
+  }
+
+  /* Chart Animations */
+  .chart-live {
+    animation: pulseGlow 2s ease-in-out infinite;
+  }
+
+  .live-chart-glow {
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.4),
+                0 0 40px rgba(6, 182, 212, 0.2),
+                inset 0 0 30px rgba(56, 189, 248, 0.1);
+    border-color: rgba(56, 189, 248, 0.6);
+    animation: borderPulse 3s ease-in-out infinite;
+  }
+
+  @keyframes pulseGlow {
+    0%, 100% { 
+      filter: brightness(1) drop-shadow(0 0 8px rgba(56, 189, 248, 0.4)); 
+    }
+    50% { 
+      filter: brightness(1.2) drop-shadow(0 0 16px rgba(56, 189, 248, 0.7)); 
+    }
+  }
+
+  @keyframes borderPulse {
+    0%, 100% { 
+      border-color: rgba(56, 189, 248, 0.5);
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.4),
+                  0 0 40px rgba(6, 182, 212, 0.2);
+    }
+    50% { 
+      border-color: rgba(56, 189, 248, 0.8);
+      box-shadow: 0 0 30px rgba(56, 189, 248, 0.6),
+                  0 0 60px rgba(6, 182, 212, 0.4);
+    }
+  }
+
+  /* Premium Badge */
+  .badge-premium {
+    background: linear-gradient(135deg, 
+      rgba(251, 191, 36, 0.2) 0%,
+      rgba(245, 158, 11, 0.1) 100%);
+    border: 1px solid rgba(251, 191, 36, 0.4);
+    color: rgb(251, 191, 36);
+    box-shadow: 0 0 15px rgba(251, 191, 36, 0.3);
+    animation: premiumGlow 2s ease-in-out infinite;
+  }
+
+  @keyframes premiumGlow {
+    0%, 100% { 
+      box-shadow: 0 0 15px rgba(251, 191, 36, 0.3); 
+    }
+    50% { 
+      box-shadow: 0 0 25px rgba(251, 191, 36, 0.5); 
+    }
+  }
+
+  /* Glow Text */
+  .glow-text {
+    text-shadow: 0 0 10px rgba(6, 182, 212, 0.6),
+                 0 0 20px rgba(6, 182, 212, 0.3);
+  }
+
+  /* Mission Grid */
+  .mission-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+
+  /* Frosted Glass Chart Tiles */
+  .glass-chart-tile {
+    background-color: rgba(10, 25, 47, 0.40);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(6, 182, 212, 0.3);
+    box-shadow: 0 0 15px rgba(0, 180, 255, 0.1);
+  }
+  
+  .glass-chart-tile-live {
+    border-color: rgba(56, 189, 248, 0.6);
+    box-shadow: 0 0 25px rgba(56, 189, 248, 0.4);
+  }
+
+  /* React Grid Layout Customizations */
+  .react-grid-item {
+    transition: all 200ms ease;
+  }
+
+  .react-grid-item.react-draggable-dragging {
+    transition: none;
+    z-index: 100;
+    box-shadow: 0 0 30px rgba(6, 182, 212, 0.6);
+  }
+
+  .react-grid-item.resizing {
+    opacity: 0.9;
+    box-shadow: 0 0 30px rgba(6, 182, 212, 0.6);
+  }
+
+  .react-grid-item > .react-resizable-handle {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    bottom: 0;
+    right: 0;
+    cursor: se-resize;
+    background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2IDYiIHN0eWxlPSJiYWNrZ3JvdW5kLWNvbG9yOiNmZmZmZmYwMCIgeD0iMHB4IiB5PSIwcHgiIHdpZHRoPSI2cHgiIGhlaWdodD0iNnB4Ij48ZyBvcGFjaXR5PSIwLjMwMiI+PHBhdGggZD0iTSA2IDYgTCAwIDYgTCAwIDQuMiBMIDQgNC4yIEwgNC4yIDQuMiBMIDQuMiAwIEwgNiAwIEwgNiA2IEwgNiA2IFoiIGZpbGw9IiMwNmI2ZDQiLz48L2c+PC9zdmc+');
+    background-position: bottom right;
+    padding: 0 3px 3px 0;
+    background-repeat: no-repeat;
+    background-origin: content-box;
+    box-sizing: border-box;
+  }
+
+  .react-grid-item > .react-resizable-handle::after {
+    content: "";
+    position: absolute;
+    right: 3px;
+    bottom: 3px;
+    width: 5px;
+    height: 5px;
+    border-right: 2px solid rgba(6, 182, 212, 0.8);
+    border-bottom: 2px solid rgba(6, 182, 212, 0.8);
+  }
+
+  .react-grid-placeholder {
+    background: rgba(6, 182, 212, 0.2);
+    opacity: 0.6;
+    transition-duration: 100ms;
+    z-index: 2;
+    border-radius: 0.75rem;
+    border: 2px dashed rgba(6, 182, 212, 0.5);
+  }
+
+  /* Live Chart Badge Pulse */
+  .live-pulse {
+    animation: livePulse 2s ease-in-out infinite;
+  }
+
+  @keyframes livePulse {
+    0%, 100% { 
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.5),
+                  0 0 10px rgba(56, 189, 248, 0.3); 
+    }
+    50% { 
+      box-shadow: 0 0 35px rgba(56, 189, 248, 0.8),
+                  0 0 20px rgba(56, 189, 248, 0.5); 
+    }
+  }
+
+  /* Glassmorphism Effects */
+  .glass-sidebar {
+    background: rgba(var(--sidebar-background-rgb), 0.75);
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  
+  .glass-card {
+    background: rgba(var(--card-rgb), 0.65);
+    backdrop-filter: blur(10px) saturate(150%);
+    -webkit-backdrop-filter: blur(10px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .glass-popover {
+    background: rgba(var(--popover-rgb), 0.70);
+    backdrop-filter: blur(14px) saturate(180%);
+    -webkit-backdrop-filter: blur(14px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+  
+  .glass-header {
+    background: rgba(var(--sidebar-background-rgb), 0.60);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  /* Enhanced text readability on glass surfaces */
+  .glass-card .text-card-foreground,
+  .glass-sidebar .text-sidebar-foreground {
+    text-shadow: var(--text-shadow-glass);
+  }
+}

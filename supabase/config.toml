@@ -1,0 +1,241 @@
+project_id = "pnxwemmpxldriwaomiey"
+
+[functions.find-ghost-documents]
+verify_jwt = false
+
+[functions.check-pipeline-health]
+verify_jwt = false
+
+[functions.bedrock-upload]
+verify_jwt = true
+
+[functions.bedrock-upload-v2]
+verify_jwt = true
+
+[functions.bedrock-analyze]
+verify_jwt = true
+
+[functions.migrate-to-bedrock]
+verify_jwt = true
+
+[functions.bedrock-re-analyze-all]
+verify_jwt = true
+
+[functions.process-queue-job]
+verify_jwt = false
+
+[functions.generate-iep-content]
+verify_jwt = true
+
+[functions.iep-ai-assist]
+verify_jwt = true
+
+[functions.send-invitation]
+verify_jwt = true
+
+[functions.process-invite]
+verify_jwt = true
+
+[functions.clear-test-data]
+verify_jwt = true
+
+[functions.reset-analysis]
+verify_jwt = true
+
+[functions.sync-garmin-data]
+verify_jwt = true
+
+[functions.trigger-biometric-alert]
+verify_jwt = true
+
+[functions.admin-update-user-status]
+verify_jwt = true
+
+[functions.admin-manage-roles]
+verify_jwt = true
+
+[functions.admin-reset-password]
+verify_jwt = true
+
+[functions.ingest-academic-sources]
+verify_jwt = false
+
+[functions.scrape-kennedy-krieger]
+verify_jwt = false
+
+[functions.scrape-ucdavis-mind]
+verify_jwt = false
+
+[functions.scrape-vanderbilt-kennedy]
+verify_jwt = false
+
+[functions.scrape-autism-speaks]
+verify_jwt = false
+
+[functions.scrape-chadd]
+verify_jwt = false
+
+[functions.scrape-understood]
+verify_jwt = false
+
+[functions.scrape-aane]
+verify_jwt = false
+
+[functions.scrape-state-doe]
+verify_jwt = false
+
+[functions.scrape-autistic-blogs]
+verify_jwt = false
+
+[functions.scrape-prt-resources]
+verify_jwt = false
+
+[functions.scrape-esdm-resources]
+verify_jwt = false
+
+[functions.scrape-social-thinking]
+verify_jwt = false
+
+[functions.scrape-opencourseware]
+verify_jwt = false
+
+[functions.fetch-weather-data]
+verify_jwt = false
+
+[functions.generate-neurodiversity-background]
+verify_jwt = false
+
+[functions.manage-subscription]
+verify_jwt = true
+
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.transcribe-audio]
+verify_jwt = true
+
+[functions.text-to-speech]
+verify_jwt = true
+
+[functions.ingest-pubmed]
+verify_jwt = false
+
+[functions.first-look-analysis]
+verify_jwt = true
+
+[functions.analyze-incident-triggers]
+verify_jwt = true
+
+[functions.suggest-goal-activities]
+verify_jwt = true
+
+[functions.generate-daily-briefing]
+verify_jwt = true
+
+[functions.scrape-web-sources]
+verify_jwt = false
+
+[functions.scrape-idea-content]
+verify_jwt = false
+
+[functions.scrape-osep-content]
+verify_jwt = false
+
+[functions.scrape-bacb-content]
+verify_jwt = false
+
+[functions.scrape-nas-content]
+verify_jwt = false
+
+[functions.scrape-cec-content]
+verify_jwt = false
+
+[functions.scrape-cdc-content]
+verify_jwt = false
+
+[functions.scrape-aap-content]
+verify_jwt = false
+
+[functions.scrape-wwc-content]
+verify_jwt = false
+
+[functions.embed-family-data]
+verify_jwt = true
+
+[functions.chat-with-data]
+verify_jwt = true
+
+[functions.clear-knowledge-base]
+verify_jwt = true
+
+[functions.purchase-alacarte]
+verify_jwt = true
+
+[functions.generate-resource-pack]
+verify_jwt = true
+
+[functions.setup-stripe-products]
+verify_jwt = false
+
+[functions.test-embedding]
+verify_jwt = true
+
+[functions.generate-articles-from-kb]
+verify_jwt = true
+
+[functions.upload-document]
+verify_jwt = true
+
+[functions.generate-document-report]
+verify_jwt = true
+
+[functions.synthesize-progress-trends]
+verify_jwt = true
+
+[functions.sync-document-metrics-to-tracking]
+verify_jwt = true
+
+[functions.trigger-re-analysis]
+verify_jwt = true
+
+[functions.test-document-ai-credentials]
+verify_jwt = false
+
+[functions.extract-text-with-vision]
+verify_jwt = false
+
+[functions.cleanup-orphaned-documents]
+verify_jwt = true
+
+[functions.clear-family-data]
+verify_jwt = true
+
+[functions.connect-google-calendar]
+verify_jwt = true
+
+[functions.google-calendar-callback]
+verify_jwt = false
+
+[functions.sync-calendar-events]
+verify_jwt = true
+
+[functions.generate-sitemap]
+verify_jwt = false
+
+[functions.analyze-bfa-patterns]
+verify_jwt = true
+
+[functions.generate-bfa-hypothesis]
+verify_jwt = true
+
+[functions.generate-bfa-report]
+verify_jwt = true
+
+[functions.emergency-cleanup-stuck-analysis]
+verify_jwt = true
+
+[functions.process-analysis-queue]
+verify_jwt = false
+
+[functions.process-embedding-queue]
+verify_jwt = false

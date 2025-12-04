@@ -1,0 +1,386 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { getSpecializedPrompt } from "../_shared/prompts/index.ts";
+import { isFlagEnabled, getClientContext } from "../_shared/feature-flags.ts";
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
+// Helper function to categorize insights for dashboard
+function categorizeInsight(insight: any, documentCategory: string): string {
+  const typeMapping: Record<string, string> = {
+    'strength': 'Academic',
+    'challenge': 'Behavioral',
+    'recommendation': 'Other',
+    'observation': 'Social',
+    'concern': 'Behavioral'
+  };
+  
+  const categoryMapping: Record<string, string> = {
+    'bip': 'Behavioral',
+    'iep': 'Academic',
+    'behavior_log': 'Behavioral',
+    'progress_report': 'Academic',
+    'assessment': 'Academic',
+    'medical': 'Physical',
+    'communication': 'Communication'
+  };
+  
+  return categoryMapping[documentCategory.toLowerCase()] || 
+         typeMapping[insight.insight_type] || 
+         'Other';
+}
+
+// Save high-priority insights to student_insights table
+async function saveStudentInsights(
+  supabase: any,
+  documentId: string,
+  familyId: string,
+  studentId: string | null,
+  documentCategory: string,
+  analysisResult: any
+) {
+  if (!studentId) {
+    console.log('⚠️ No student_id - skipping insight save to dashboard');
+    return;
+  }
+
+  const insights = analysisResult.insights || [];
+  const highPriorityInsights = insights.filter((insight: any) => 
+    insight.priority === 'high' || 
+    (insight.confidence_score && insight.confidence_score >= 0.8)
+  );
+
+  console.log(`💡 Saving ${highPriorityInsights.length} high-priority insights to dashboard`);
+
+  for (const insight of highPriorityInsights) {
+    const insightType = insight.insight_type || 'observation';
+    const validTypes = ['strength', 'challenge', 'recommendation', 'observation', 'concern'];
+    const finalType = validTypes.includes(insightType) ? insightType : 'observation';
+
+    const { error } = await supabase.from('student_insights').insert({
+      student_id: studentId,
+      family_id: familyId,
+      source_document_id: documentId,
+      insight_text: insight.content || insight.title || '',
+      insight_type: finalType,
+      insight_level: insight.priority === 'high' ? 'HIGH' : 'MEDIUM',
+      insight_category: categorizeInsight(insight, documentCategory),
+      confidence_score: insight.confidence_score || null,
+      source_section: insight.title || null,
+      document_category: documentCategory
+    });
+
+    if (error) {
+      console.error('Failed to save insight:', error);
+    }
+  }
+}
+
+serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  let documentId: string | null = null;
+
+  try {
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    );
+
+    // 1. Authenticate
+    const authHeader = req.headers.get('Authorization')!;
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    if (authError || !user) throw new Error('Unauthorized');
+
+    // 2. Get document ID and processor info
+    const { document_id, category, processor_id } = await req.json();
+    documentId = document_id;
+    
+    if (!document_id) throw new Error('document_id is required');
+
+    // 3. Fetch document (simple query, no joins)
+    const { data: doc, error: fetchError } = await supabase
+      .from('bedrock_documents')
+      .select('*')
+      .eq('id', document_id)
+      .single();
+
+    if (fetchError || !doc) {
+      console.error('Document not found:', fetchError);
+      throw new Error('Document not found or access denied');
+    }
+
+    // PHASE 1D: Determine which data model to use
+    const useFlagEnabled = await isFlagEnabled(supabase, doc.family_id, 'use_new_client_model');
+    console.log(`🚩 use_new_client_model flag: ${useFlagEnabled ? 'ON' : 'OFF'} for family ${doc.family_id}`);
+    
+    let finalClientId: string | null = null;
+    let finalFamilyId: string | null = null;
+    let finalOrgId: string | null = null;
+    let finalStudentId: string | null = null;
+
+    if (useFlagEnabled && doc.client_id) {
+      // NEW WORLD: Use client_id and get context
+      finalClientId = doc.client_id;
+      const clientContext = await getClientContext(supabase, doc.client_id);
+      if (clientContext) {
+        finalFamilyId = clientContext.family_id;
+        finalOrgId = clientContext.organization_id;
+      }
+      console.log(`🌍 NEW WORLD: Using client_id=${finalClientId}, family_id=${finalFamilyId}, org_id=${finalOrgId}`);
+    } else {
+      // OLD WORLD: Use student_id
+      finalStudentId = doc.student_id;
+      finalFamilyId = doc.family_id;
+      finalOrgId = doc.organization_id;
+      console.log(`🌍 OLD WORLD: Using student_id=${finalStudentId}, family_id=${finalFamilyId}`);
+    }
+
+    // 4. Validate document is ready for analysis
+    if (!doc.category) {
+      throw new Error('Document must be classified before analysis');
+    }
+
+    if (!doc.extracted_content || doc.extracted_content.length < 50) {
+      throw new Error('Document content is missing or too short');
+    }
+
+    const analysisCategory = category || doc.category;
+    console.log(`📄 Analyzing: ${doc.file_name} (${analysisCategory})`);
+    if (processor_id) {
+      console.log(`🎯 Using processor: ${processor_id}`);
+    }
+
+    // Log processing history
+    const oldProcessorId = doc.processor_id || null;
+    await supabase.from('document_processing_history').insert({
+      document_id: document_id,
+      family_id: doc.family_id,
+      user_id: user.id,
+      action_type: category && category !== doc.category ? 're-classify' : 're-analyze',
+      old_category: doc.category,
+      new_category: category || doc.category,
+      old_processor_id: oldProcessorId,
+      new_processor_id: processor_id || oldProcessorId,
+      status: 'pending',
+    });
+
+    // 5. Update status to 'analyzing' and category if provided
+    const updateData: any = { status: 'analyzing' };
+    if (category && category !== doc.category) {
+      updateData.category = category;
+      console.log(`📝 Updating category: ${doc.category} → ${category}`);
+    }
+    if (processor_id) {
+      updateData.processor_id = processor_id;
+    }
+    
+    await supabase
+      .from('bedrock_documents')
+      .update(updateData)
+      .eq('id', document_id);
+
+    // 6. Get specialized prompt based on document type
+    const specializedPrompt = getSpecializedPrompt(analysisCategory);
+    const systemPrompt = specializedPrompt || `You are analyzing a ${analysisCategory} document for a student.
+
+Extract the following data and return ONLY valid JSON:
+
+{
+  "metrics": [
+    {
+      "metric_type": "string",
+      "metric_name": "string",
+      "metric_value": number,
+      "metric_unit": "string",
+      "measurement_date": "YYYY-MM-DD or null",
+      "context": "string"
+    }
+  ],
+  "insights": [
+    {
+      "insight_type": "string (strength/challenge/recommendation/observation)",
+      "title": "string",
+      "content": "string",
+      "priority": "string (high/medium/low)",
+      "confidence_score": number (0-1)
+    }
+  ],
+  "progress_tracking": [
+    {
+      "metric_type": "string",
+      "baseline_value": number,
+      "current_value": number,
+      "target_value": number,
+      "trend": "string (improving/stable/declining)",
+      "notes": "string"
+    }
+  ]
+}
+
+Return ONLY the JSON object, no markdown or explanation.`;
+
+    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${Deno.env.get('LOVABLE_API_KEY')}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-flash',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: doc.extracted_content.substring(0, 100000) }
+        ],
+        temperature: 0.3
+      })
+    });
+
+    if (!aiResponse.ok) {
+      const errorText = await aiResponse.text();
+      console.error('AI analysis failed:', aiResponse.status, errorText);
+      throw new Error(`AI analysis failed: ${aiResponse.statusText}`);
+    }
+
+    const aiData = await aiResponse.json();
+    let content = aiData.choices?.[0]?.message?.content || '{}';
+    
+    // Extract JSON from markdown code blocks (handles all variations)
+    const jsonMatch = content.match(/```(?:json)?\s*\n?([\s\S]*?)\n?```/);
+    content = jsonMatch ? jsonMatch[1].trim() : content.trim();
+    
+    // Parse AI response with enhanced error logging
+    let analysisResult;
+    try {
+      analysisResult = JSON.parse(content);
+    } catch (error) {
+      console.error('❌ JSON Parse Error:', error);
+      console.error('📄 Raw AI Response (first 500 chars):', aiData.choices?.[0]?.message?.content?.substring(0, 500));
+      console.error('🔍 Extracted JSON String:', content.substring(0, 500));
+      throw new Error(`Failed to parse AI response: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+
+    console.log(`✅ Analysis complete:`, {
+      metrics: analysisResult.metrics?.length || 0,
+      insights: analysisResult.insights?.length || 0,
+      progress: analysisResult.progress_tracking?.length || 0
+    });
+
+    // 6.5. Save high-priority insights to student_insights table for dashboard
+    await saveStudentInsights(
+      supabase,
+      document_id,
+      finalFamilyId!,
+      finalStudentId,
+      analysisCategory,
+      analysisResult
+    );
+
+    // 7. Store results and mark document and history as completed
+    await supabase
+      .from('bedrock_documents')
+      .update({
+        status: 'completed',
+        analyzed_at: new Date().toISOString(),
+        analysis_data: analysisResult,
+        error_message: null
+      })
+      .eq('id', document_id);
+
+    await supabase
+      .from('document_processing_history')
+      .update({ status: 'completed' })
+      .eq('document_id', document_id)
+      .eq('status', 'pending')
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    // 8. Queue document for embedding into AI memory
+    try {
+      const contextType = finalOrgId ? 'B2B Org' : 'B2C Family';
+      const contextId = finalOrgId || finalFamilyId;
+      
+      const { error: queueError } = await supabase
+        .from('embedding_queue')
+        .insert({
+          source_table: 'bedrock_documents',
+          source_id: document_id,
+          family_id: finalFamilyId || null,
+          organization_id: finalOrgId || null,
+          student_id: finalStudentId,
+          client_id: finalClientId,
+          status: 'pending',
+          metadata: {
+            source: 'bedrock-analyze-function',
+            document_name: doc.file_name,
+            category: doc.category,
+            context_type: finalOrgId ? 'organization' : 'family'
+          }
+        });
+
+      if (queueError) {
+        // Log but don't throw - analysis succeeded even if queuing failed
+        console.error(`⚠️ Failed to queue document ${document_id} for embedding:`, queueError.message);
+      } else {
+        console.log(`✅ Document ${document_id} queued for embedding (${contextType}: ${contextId})`);
+      }
+    } catch (queueError) {
+      console.error('⚠️ Embedding queue insertion error:', queueError);
+    }
+
+    return new Response(
+      JSON.stringify({ 
+        success: true,
+        analysis: analysisResult
+      }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+
+  } catch (error: any) {
+    console.error('❌ Analysis failed:', error);
+    
+    // Update document and history to failed status
+    if (documentId) {
+      const supabase = createClient(
+        Deno.env.get('SUPABASE_URL')!,
+        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+      );
+      
+      await supabase
+        .from('bedrock_documents')
+        .update({
+          status: 'failed',
+          error_message: error.message
+        })
+        .eq('id', documentId);
+
+      await supabase
+        .from('document_processing_history')
+        .update({ 
+          status: 'failed',
+          error_message: error.message
+        })
+        .eq('document_id', documentId)
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false })
+        .limit(1);
+    }
+
+    return new Response(
+      JSON.stringify({ 
+        success: false,
+        error: error.message || 'Analysis failed'
+      }),
+      { 
+        status: 500, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      }
+    );
+  }
+});
