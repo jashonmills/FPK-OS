@@ -152,9 +152,15 @@ const TherapyPage = () => {
             Transform scattered observations into structured, quantifiable data. FPK-X is the HIPAA-compliant platform
             that automates reporting, proves efficacy, and empowers your clinicians to do their best work.
           </p>
-          <div className="mt-8">
+          <div className="mt-8 flex flex-wrap justify-center gap-4">
             <button
               className="inline-flex items-center rounded-full bg-white px-6 py-3 text-base font-semibold text-slate-900 shadow-lg shadow-black/20 transition hover:-translate-y-0.5 hover:bg-slate-100"
+              onClick={() => navigate("/solutions/therapy/configure")}
+            >
+              Build Your Practice
+            </button>
+            <button
+              className="inline-flex items-center rounded-full border border-white/70 bg-transparent px-6 py-3 text-base font-semibold text-white transition hover:-translate-y-0.5 hover:bg-white/10"
               onClick={() => navigate("/access?plan=business_demo")}
             >
               Book a Consultation

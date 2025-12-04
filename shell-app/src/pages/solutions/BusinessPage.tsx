@@ -145,7 +145,13 @@ const BusinessPage = () => {
             Stop losing knowledge and start building intelligence. FPK Pulse centralizes information, automates
             workflows, and unlocks your team&apos;s full potential.
           </p>
-          <div className="mt-8">
+          <div className="mt-8 flex flex-wrap justify-center gap-4">
+            <button
+              className="inline-flex items-center rounded-full bg-white px-6 py-3 text-base font-semibold text-slate-900 shadow-lg shadow-black/20 transition hover:-translate-y-0.5 hover:bg-slate-100"
+              onClick={() => navigate("/solutions/business/configure")}
+            >
+              Build Your OS
+            </button>
             <button
               className="inline-flex items-center rounded-full bg-white px-6 py-3 text-base font-semibold text-slate-900 shadow-lg shadow-black/20 transition hover:-translate-y-0.5 hover:bg-slate-100"
               onClick={() => navigate("/access?plan=business_demo")}

@@ -147,7 +147,7 @@ const ParentsPage = () => {
           <div className="mt-8">
             <button
               className="inline-flex items-center rounded-full bg-white px-6 py-3 text-base font-semibold text-slate-900 shadow-lg shadow-black/20 transition hover:-translate-y-0.5 hover:bg-slate-100"
-              onClick={() => navigate("/access?plan=family_trial")}
+              onClick={() => navigate("/solutions/parents/pricing")}
             >
               Start Your Free Trial
             </button>

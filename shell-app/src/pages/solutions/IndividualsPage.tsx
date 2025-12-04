@@ -5,7 +5,6 @@ import {
   Library,
   Lightbulb,
   Shield,
-  ShieldCheck,
   Sparkles,
   Target,
   Workflow,
@@ -147,7 +146,7 @@ const IndividualsPage = () => {
           <div className="mt-8">
             <button
               className="inline-flex items-center rounded-full bg-white px-6 py-3 text-base font-semibold text-slate-900 shadow-lg shadow-black/20 transition hover:-translate-y-0.5 hover:bg-slate-100"
-              onClick={() => navigate("/access?plan=university_free")}
+              onClick={() => navigate("/solutions/individuals/pricing")}
             >
               Start Building for Free
             </button>

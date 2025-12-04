@@ -1,9 +1,12 @@
 import {
   AreaChart,
+  BarChart,
   BookHeart,
+  Briefcase,
   CheckCircle,
   Globe,
   GraduationCap,
+  Library as LibraryIcon,
   Shield,
   ShieldCheck,
   Users,
@@ -41,27 +44,6 @@ const painPoints = [
     title: "Resource and Staffing Constraints",
     description:
       "Your team is passionate but small. You need tools that are easy to deploy and maintain without heavy staffing.",
-  },
-];
-
-const solutionPillars = [
-  {
-    icon: <BookHeart className="h-8 w-8 text-green-500" />,
-    title: "Institutional Access to FPK University",
-    description:
-      "Offer patrons free, unlimited access to our adaptive learning platform. Provide world-class educational tools as a core library service.",
-  },
-  {
-    icon: <Users className="h-8 w-8 text-green-500" />,
-    title: "Host a Private, Safe FPK Nexus",
-    description:
-      "Create a branded, AI-moderated community space for patrons—ideal for book clubs, local groups, and support networks, free from public social media risks.",
-  },
-  {
-    icon: <Globe className="h-8 w-8 text-green-500" />,
-    title: "Turnkey Digital Literacy Programs",
-    description:
-      "Launch workshops with pre-built curriculum on AI literacy, personal knowledge management, and online safety—ready to run on day one.",
   },
 ];
 
@@ -141,14 +123,20 @@ const LibrariesPage = () => {
           </h1>
           <p className="mt-6 mx-auto max-w-3xl text-lg text-slate-200">
             Empower your community with safe, equitable access to world-class learning tools. The FPK ecosystem provides
-            the digital infrastructure for the library of the future.
+            the digital infrastructure for the library of the future, starting with a robust free plan.
           </p>
-          <div className="mt-8">
+          <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <button
               className="inline-flex items-center rounded-full bg-white px-6 py-3 text-base font-semibold text-slate-900 shadow-lg shadow-black/20 transition hover:-translate-y-0.5 hover:bg-slate-100"
-              onClick={() => navigate("/access?plan=business_demo")}
+              onClick={() => navigate("/solutions/libraries/configure?plan=free")}
             >
-              Learn About Institutional Licensing
+              Start with the Free Community Plan
+            </button>
+            <button
+              className="inline-flex items-center rounded-full border border-white/70 bg-transparent px-6 py-3 text-base font-semibold text-white transition hover:-translate-y-0.5 hover:bg-white/10"
+              onClick={() => navigate("/solutions/libraries/configure")}
+            >
+              Explore Premium Licensing
             </button>
           </div>
         </div>
@@ -182,43 +170,102 @@ const LibrariesPage = () => {
 
       <PainToGainSection />
 
-      <div className="py-24">
+      <div className="bg-white py-24">
         <div className="mx-auto max-w-6xl px-6">
-          <div className="text-center">
-            <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
-              A Platform for Public Good
+          <div className="mx-auto max-w-3xl text-center">
+            <h2 className="text-4xl font-extrabold tracking-tight text-slate-900">
+              Two Ways to Partner: Free & Premium
             </h2>
-            <p className="mt-4 mx-auto max-w-2xl text-lg text-slate-600">
-              A suite of powerful, easy-to-deploy tools designed for the unique needs of public institutions.
+            <p className="mt-4 text-lg text-slate-600">
+              We believe in the mission of public libraries. Start with a powerful free plan, then add premium options
+              to expand your digital branch.
             </p>
           </div>
-          <div className="mt-16 grid gap-8 md:grid-cols-1 lg:grid-cols-3">
-            {solutionPillars.map((pillar) => (
-              <div
-                key={pillar.title}
-                className="rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_10px_40px_-24px_rgba(15,23,42,0.25)]"
-              >
-                <div className="flex items-start gap-4">
-                  {pillar.icon}
+
+          <div className="mt-16 grid grid-cols-1 gap-8 md:grid-cols-2">
+            <div className="rounded-2xl border-2 border-green-500 bg-white shadow-lg">
+              <div className="border-b border-green-100 px-6 py-4">
+                <h3 className="text-2xl font-bold text-green-700">
+                  Community Access Plan (Free)
+                </h3>
+                <p className="text-slate-600">
+                  Core digital infrastructure for every library, at no cost.
+                </p>
+              </div>
+              <div className="space-y-4 px-6 py-6">
+                <div className="flex items-start">
+                  <Shield className="mr-4 mt-1 h-8 w-8 flex-shrink-0 text-green-600" />
                   <div>
-                    <h3 className="text-xl font-semibold text-slate-900">{pillar.title}</h3>
-                    <p className="mt-2 text-slate-600">{pillar.description}</p>
+                    <h4 className="font-semibold">FPK Aegis Governance</h4>
+                    <p className="text-sm text-slate-600">
+                      CIPA-compliant content filtering and patron data privacy to ensure a safe online environment.
+                    </p>
                   </div>
                 </div>
+                <div className="flex items-start">
+                  <LibraryIcon className="mr-4 mt-1 h-8 w-8 flex-shrink-0 text-green-600" />
+                  <div>
+                    <h4 className="font-semibold">Basic Digital Resource Hub</h4>
+                    <p className="text-sm text-slate-600">
+                      Provide access to public domain e-books, audiobooks, and our library of open courseware.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  className="mt-4 inline-flex w-full items-center justify-center rounded-full bg-green-600 px-4 py-3 text-sm font-semibold text-white shadow-md transition hover:-translate-y-0.5 hover:bg-green-700"
+                  onClick={() => navigate("/solutions/libraries/configure?plan=free")}
+                >
+                  Get Started for Free
+                </button>
               </div>
-            ))}
-          </div>
-          <div className="mt-8 rounded-2xl bg-green-600 p-6 text-white shadow-[0_12px_50px_-24px_rgba(22,163,74,0.6)]">
-            <div className="flex items-start gap-4">
-              <Shield className="h-8 w-8 text-white" />
-              <div>
-                <h3 className="text-xl font-semibold">The Foundation: FPK Aegis AI Governance</h3>
-                <p className="mt-2 text-green-50">
-                  Aegis is your partner in public trust. Our governance layer is designed to help you meet key
-                  regulatory requirements like <strong>CIPA (Children&apos;s Internet Protection Act)</strong>. Our AI
-                  provides best-in-class content moderation to create a safe environment for all ages, and our privacy
-                  policy ensures patron data is handled with the confidentiality they expect from a public institution.
+            </div>
+
+            <div className="rounded-2xl border-2 border-indigo-500 bg-white shadow-lg">
+              <div className="border-b border-indigo-100 px-6 py-4">
+                <h3 className="text-2xl font-bold text-indigo-700">
+                  Premium Institutional Licensing
+                </h3>
+                <p className="text-slate-600">
+                  Unlock the full ecosystem to become a true digital-first institution.
                 </p>
+              </div>
+              <div className="space-y-4 px-6 py-6">
+                <p className="font-semibold text-slate-800">
+                  Includes all Free features, plus:
+                </p>
+                <div className="flex items-start">
+                  <Users className="mr-4 mt-1 h-8 w-8 flex-shrink-0 text-indigo-600" />
+                  <div>
+                    <h4 className="font-semibold">FPK Nexus Community Platform</h4>
+                    <p className="text-sm text-slate-600">
+                      Host safe, AI-moderated community groups for book clubs, local events, and more.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start">
+                  <Briefcase className="mr-4 mt-1 h-8 w-8 flex-shrink-0 text-indigo-600" />
+                  <div>
+                    <h4 className="font-semibold">FPK Pulse for Operations</h4>
+                    <p className="text-sm text-slate-600">
+                      Streamline library operations, manage projects, and centralize internal knowledge.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start">
+                  <BarChart className="mr-4 mt-1 h-8 w-8 flex-shrink-0 text-indigo-600" />
+                  <div>
+                    <h4 className="font-semibold">Premium Content & Analytics</h4>
+                    <p className="text-sm text-slate-600">
+                      Access licensed courseware, premium media, and advanced patron analytics dashboards.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  className="mt-4 inline-flex w-full items-center justify-center rounded-full bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-md transition hover:-translate-y-0.5 hover:bg-indigo-700"
+                  onClick={() => navigate("/solutions/libraries/configure")}
+                >
+                  Explore Premium Options
+                </button>
               </div>
             </div>
           </div>

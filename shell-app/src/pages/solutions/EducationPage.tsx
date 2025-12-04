@@ -152,9 +152,15 @@ const EducationPage = () => {
             Unify admissions, learning, clinical data, and operations under a single, governed AI platform designed for
             student success and institutional efficiency.
           </p>
-          <div className="mt-8">
+          <div className="mt-8 flex flex-wrap justify-center gap-4">
             <button
               className="inline-flex items-center rounded-full bg-white px-6 py-3 text-base font-semibold text-slate-900 shadow-lg shadow-black/20 transition hover:-translate-y-0.5 hover:bg-slate-100"
+              onClick={() => navigate("/solutions/education/configure")}
+            >
+              Build Your Solution
+            </button>
+            <button
+              className="inline-flex items-center rounded-full border border-white/70 bg-transparent px-6 py-3 text-base font-semibold text-white transition hover:-translate-y-0.5 hover:bg-white/10"
               onClick={() => navigate("/access?plan=business_demo")}
             >
               Request a Demo
